@@ -40,12 +40,25 @@ Do **not** use `.ai/`, `.aegis/`, or `.infraOS/`.
 
 ## Branch & PR targets (CRITICAL — cr-branch-gov-001)
 
-1. Create a **feature / fix / chore branch** from `development`
-2. Open the PR with **base = `development`**
-3. Merge into **`development` only**
-4. Promote via `development → testing → staging → master` — do not skip stages
+1. **Issue first**: create a GitHub issue before any work branch. No issue → no branch.
+2. Branch from `development` only, using:
+   `feature|bugfix|enhancement|research|fix|chore/<issue-number>-short-slug`
+   Example: `chore/1-branch-protection-governance`
+3. Open the PR with **base = `development`** (feature work never targets testing/staging/master).
+4. **Owner approval required** before merge (`@somesayray` via CODEOWNERS + branch protection).
+5. Merge into **`development` only** for feature work.
+6. Promote via `development → testing → staging → master` — do not skip stages.
 
-Forbidden: feature PRs targeting `master`, `testing`, or `staging`.
+### Canonical branches (locked)
+
+`development` (default), `testing`, `staging`, `master`
+
+- Must not be deleted
+- Must not be used as feature/work branches
+- Must not be merged into each other except along the promotion path above
+- Branch protection: PR required, 1 approving review, code-owner review, no force-push, no deletions, `validate-promotion-path` required
+
+Forbidden: feature PRs targeting `master`, `testing`, or `staging`; PRs without an issue number in the branch name; merging canonical branches sideways.
 
 ## Config pointers in this repo
 
