@@ -1,0 +1,11 @@
+group_id: hath0r-opensource
+group_label: OpenSource HATHOR
+projects_location: /Users/raybayly/Development/OpenSource
+control_tower_path: /Users/raybayly/Development/OpenSource
+docker_network: hath0r-net
+cli_canonical_name: HATH0R CLI
+cli_binary: hath0r
+product_id: hath0r-cli
+product_name: HATH0R-CLI
+package: hath0r_cli
+updated_at: 2026-09-15T00:00:00Z

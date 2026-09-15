@@ -1,0 +1,167 @@
+# CR-BAI-001 — Environment Promotion Path (CRITICAL)
+# Canonical policy: /Users/raybayly/Development/BAI/WARP.md
+#
+# Enforces:
+#   local/feature → development → testing → staging → master (Production)
+#
+# This workflow is a required CI gate. Configure branch protection to require
+# the job name: "Enforce Promotion Path / validate-promotion-path"
+name: Enforce Promotion Path
+
+"on":
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches:
+      - development
+      - testing
+      - staging
+      - master
+  push:
+    branches:
+      - testing
+      - staging
+      - master
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: promotion-path-${{ github.repository }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-promotion-path:
+    name: validate-promotion-path
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce CR-BAI-001 source → target rules
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+          PUSH_REF: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          echo "════════════════════════════════════════════════════════"
+          echo " CR-BAI-001 Environment Promotion Path"
+          echo " local → development → testing → staging → master"
+          echo "════════════════════════════════════════════════════════"
+
+          is_env_branch() {
+            case "$1" in
+              development|testing|staging|master) return 0 ;;
+              *) return 1 ;;
+            esac
+          }
+
+          allowed_head_for_base() {
+            local base="$1" head="$2"
+            case "$base" in
+              development)
+                # Feature work lands on development. Disallow promoting env branches downward/sideways.
+                case "$head" in
+                  testing|staging|master)
+                    echo "❌ PRs into development cannot come from '$head'."
+                    echo "   Use feature/fix/chore branches → development."
+                    return 1
+                    ;;
+                  *)
+                    return 0
+                    ;;
+                esac
+                ;;
+              testing)
+                if [ "$head" = "development" ]; then
+                  return 0
+                fi
+                echo "❌ PRs into testing must come from development (got '$head')."
+                return 1
+                ;;
+              staging)
+                if [ "$head" = "testing" ]; then
+                  return 0
+                fi
+                echo "❌ PRs into staging must come from testing (got '$head')."
+                return 1
+                ;;
+              master)
+                if [ "$head" = "staging" ]; then
+                  return 0
+                fi
+                echo "❌ PRs into master (production) must come from staging (got '$head')."
+                return 1
+                ;;
+              *)
+                echo "❌ Unsupported base branch '$base' for promotion enforcement."
+                return 1
+                ;;
+            esac
+          }
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            BASE="$BASE_REF"
+            HEAD="$HEAD_REF"
+            echo "PR promotion check: '$HEAD' → '$BASE'"
+            if ! allowed_head_for_base "$BASE" "$HEAD"; then
+              echo ""
+              echo "Required path:"
+              echo "  feature/* → development → testing → staging → master"
+              echo "Policy: BAI WARP.md CR-BAI-001"
+              exit 1
+            fi
+            echo "✅ PR source/target allowed under CR-BAI-001."
+            exit 0
+          fi
+
+          # push event on testing|staging|master
+          TARGET="$PUSH_REF"
+          echo "Push promotion check on branch: $TARGET"
+
+          case "$TARGET" in
+            testing) REQUIRED_PREV="development" ;;
+            staging) REQUIRED_PREV="testing" ;;
+            master) REQUIRED_PREV="staging" ;;
+            *)
+              echo "No push gate for '$TARGET'"
+              exit 0
+              ;;
+          esac
+
+          git fetch origin "$REQUIRED_PREV" --depth=1 2>/dev/null || git fetch origin "$REQUIRED_PREV"
+          PREV_SHA=$(git rev-parse "origin/${REQUIRED_PREV}" 2>/dev/null || true)
+          if [ -z "$PREV_SHA" ]; then
+            echo "❌ Could not resolve origin/${REQUIRED_PREV}. Cannot verify promotion ancestry."
+            exit 1
+          fi
+
+          if git merge-base --is-ancestor "$PREV_SHA" HEAD; then
+            echo "✅ origin/${REQUIRED_PREV} ($PREV_SHA) is an ancestor of $TARGET HEAD."
+            echo "   Promotion path satisfied for push to $TARGET."
+            exit 0
+          fi
+
+          echo "❌ Push to '$TARGET' rejected: origin/${REQUIRED_PREV} is NOT an ancestor of HEAD."
+          echo "   Promote via: $REQUIRED_PREV → $TARGET (after deploy+validate on $REQUIRED_PREV)."
+          echo "   Policy: BAI WARP.md CR-BAI-001"
+          exit 1
+
+      - name: Emit stage mapping summary
+        if: always()
+        run: |
+          cat <<'EOF'
+          Stage map (example product domain):
+            development → dev.<domain>
+            testing     → test.<domain>
+            staging     → stage.<domain>
+            master      → <domain> + www.<domain>
+
+          Each stage requires: promote → deploy success → URL validation → next stage only.
+          EOF
