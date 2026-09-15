@@ -34,35 +34,123 @@ def main() -> None:
     """HATH0R CLI — control plane for the HATHOR OpenSource group."""
 
 
+def _file_contains(path: Path, needle: str) -> bool:
+    if not path.is_file():
+        return False
+    try:
+        return needle in path.read_text(encoding="utf-8")
+    except OSError:
+        return False
+
+
 @main.command()
 def doctor() -> None:
-    """Check group paths, member repos, and KB hub presence."""
+    """Check group paths, control tower, member repos, and KB hub presence."""
     root = _group_root()
     kb = _kb_path()
+    tower = root / "HATH0R-CLI"
+    tower_cfg = tower / "cfg"
     members = {
         "framework": root / "hath0r",
-        "cli": root / "HATH0R-CLI",
+        "cli": tower,
         "poc": root / "hath0r-poc",
     }
+    expected_tower = str(tower)
 
-    table = Table(title="HATH0R doctor")
+    table = Table(title="HATH0R doctor — OpenSource control tower")
     table.add_column("Check")
-    table.add_column("Path")
+    table.add_column("Path / detail")
     table.add_column("Status")
 
-    def status(path: Path, want_dir: bool = True) -> str:
-        ok = path.is_dir() if want_dir else path.is_file()
-        return "[green]ok[/green]" if ok else "[red]missing[/red]"
+    failures = 0
 
-    table.add_row("group root", str(root), status(root))
-    table.add_row("canonical KB", str(kb), status(kb))
-    table.add_row("suite catalog", str(kb / "catalogs" / "suite-products.yaml"), status(kb / "catalogs" / "suite-products.yaml", want_dir=False))
+    def row(check: str, detail: str, ok: bool, bad: str = "missing") -> None:
+        nonlocal failures
+        if not ok:
+            failures += 1
+        table.add_row(
+            check,
+            detail,
+            "[green]ok[/green]" if ok else f"[red]{bad}[/red]",
+        )
+
+    def status_path(path: Path, want_dir: bool = True) -> bool:
+        return path.is_dir() if want_dir else path.is_file()
+
+    row("group root", str(root), status_path(root))
+    row("group AGENTS.md", str(root / "AGENTS.md"), status_path(root / "AGENTS.md", want_dir=False))
+    row("group WARP.md", str(root / "WARP.md"), status_path(root / "WARP.md", want_dir=False))
+    row("canonical KB", str(kb), status_path(kb))
+    catalog = kb / "catalogs" / "suite-products.yaml"
+    row("suite catalog", str(catalog), status_path(catalog, want_dir=False))
+    row(
+        "catalog tower path",
+        expected_tower,
+        _file_contains(catalog, expected_tower),
+        bad="mismatch",
+    )
+
+    # Control tower identity (this CLI repo)
+    row("control tower root", str(tower), status_path(tower))
+    for name in ("control-tower.yaml", "suite.yaml", "knowledge-tower.yaml", "products.yaml"):
+        path = tower_cfg / name
+        row(f"tower cfg:{name}", str(path), status_path(path, want_dir=False))
+
+    kt = tower_cfg / "knowledge-tower.yaml"
+    row(
+        "tower is_control_tower",
+        "is_control_tower: true",
+        _file_contains(kt, "is_control_tower: true"),
+        bad="false/missing",
+    )
+    row(
+        "tower control_tower_path",
+        expected_tower,
+        _file_contains(kt, expected_tower) and _file_contains(tower_cfg / "suite.yaml", expected_tower),
+        bad="mismatch",
+    )
+    row(
+        "tower remote",
+        "Bayly-AI/HATH0R-CLI",
+        _file_contains(tower_cfg / "control-tower.yaml", "Bayly-AI/HATH0R-CLI"),
+        bad="mismatch",
+    )
+
     for name, path in members.items():
-        table.add_row(f"member:{name}", str(path), status(path))
-        table.add_row(f"agents:{name}", str(path / "AGENTS.md"), status(path / "AGENTS.md", want_dir=False))
+        row(f"member:{name}", str(path), status_path(path))
+        row(f"agents:{name}", str(path / "AGENTS.md"), status_path(path / "AGENTS.md", want_dir=False))
+        member_kt = path / "cfg" / "knowledge-tower.yaml"
+        member_suite = path / "cfg" / "suite.yaml"
+        if name == "cli":
+            continue
+        if member_kt.is_file() or member_suite.is_file():
+            ok_pointer = True
+            if member_kt.is_file():
+                ok_pointer = ok_pointer and _file_contains(member_kt, expected_tower)
+                ok_pointer = ok_pointer and _file_contains(member_kt, "is_control_tower: false")
+            if member_suite.is_file():
+                ok_pointer = ok_pointer and _file_contains(member_suite, expected_tower)
+            row(
+                f"member tower pointer:{name}",
+                expected_tower,
+                ok_pointer,
+                bad="mismatch",
+            )
+        else:
+            # Framework may only document tower in AGENTS.md
+            row(
+                f"member tower pointer:{name}",
+                str(path / "AGENTS.md"),
+                _file_contains(path / "AGENTS.md", "HATH0R-CLI"),
+                bad="mismatch",
+            )
 
     console.print(table)
     console.print(f"hath0r {__version__}")
+    if failures:
+        console.print(f"[red]doctor failed: {failures} check(s)[/red]")
+        raise SystemExit(1)
+    console.print("[green]doctor passed: OpenSource control tower configuration ok[/green]")
 
 
 @main.group()

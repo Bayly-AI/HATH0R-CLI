@@ -24,7 +24,7 @@ hath0r kb path
 
 | Command | Purpose |
 |---------|---------|
-| `hath0r doctor` | Verify group root, member repos, AGENTS, and KB hub |
+| `hath0r doctor` | Verify control tower, group root/AGENTS/WARP, member pointers, and KB hub |
 | `hath0r kb path` | Print canonical group knowledgebase path |
 | `hath0r kb products` | Show suite product catalog |
 | `hath0r --version` | Package version |
