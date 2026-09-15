@@ -1,11 +1,12 @@
 # CR-BAI-001 — Environment Promotion Path (CRITICAL)
-# Canonical policy: /Users/raybayly/Development/BAI/WARP.md
+# cr-branch-gov-001 — Issue-driven branching + canonical branch lock
+# Canonical policy: group WARP.md / BAI WARP.md
 #
 # Enforces:
-#   local/feature → development → testing → staging → master (Production)
+#   issue → feature|bugfix|enhancement|research|fix|chore/<n>-slug
+#        → development → testing → staging → master (Production)
 #
-# This workflow is a required CI gate. Configure branch protection to require
-# the job name: "Enforce Promotion Path / validate-promotion-path"
+# Required branch protection check context: validate-promotion-path
 name: Enforce Promotion Path
 
 "on":
@@ -25,6 +26,7 @@ name: Enforce Promotion Path
 permissions:
   contents: read
   pull-requests: read
+  issues: read
 
 concurrency:
   group: promotion-path-${{ github.repository }}-${{ github.event.pull_request.number || github.ref }}
@@ -41,42 +43,59 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Enforce CR-BAI-001 source → target rules
+      - name: Enforce CR-BAI-001 + cr-branch-gov-001
         env:
           EVENT_NAME: ${{ github.event_name }}
           BASE_REF: ${{ github.base_ref }}
           HEAD_REF: ${{ github.head_ref }}
           PUSH_REF: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
 
           echo "════════════════════════════════════════════════════════"
           echo " CR-BAI-001 Environment Promotion Path"
+          echo " cr-branch-gov-001 Issue-driven branching"
           echo " local → development → testing → staging → master"
           echo "════════════════════════════════════════════════════════"
 
-          is_env_branch() {
-            case "$1" in
-              development|testing|staging|master) return 0 ;;
-              *) return 1 ;;
-            esac
-          }
+          CANONICAL='^(development|testing|staging|master)$'
+          WORK_BRANCH='^(feature|bugfix|enhancement|research|fix|chore)/[0-9]+-[A-Za-z0-9][A-Za-z0-9._-]*$'
 
           allowed_head_for_base() {
             local base="$1" head="$2"
             case "$base" in
               development)
-                # Feature work lands on development. Disallow promoting env branches downward/sideways.
                 case "$head" in
                   testing|staging|master)
-                    echo "❌ PRs into development cannot come from '$head'."
-                    echo "   Use feature/fix/chore branches → development."
+                    echo "❌ PRs into development cannot come from canonical branch '$head'."
+                    echo "   Never merge canonical → canonical sideways/downward."
+                    echo "   Use feature|bugfix|enhancement|research|fix|chore/<issue>-slug → development."
                     return 1
                     ;;
-                  *)
-                    return 0
-                    ;;
                 esac
+                if echo "$head" | grep -Eq "$CANONICAL"; then
+                  echo "❌ Head '$head' is canonical. Work must use a non-canonical branch."
+                  return 1
+                fi
+                if ! echo "$head" | grep -Eq "$WORK_BRANCH"; then
+                  echo "❌ Invalid work branch name: '$head'"
+                  echo "   Required: <type>/<issue-number>-short-slug"
+                  echo "   Types: feature | bugfix | enhancement | research | fix | chore"
+                  echo "   Example: feature/42-add-kb-sync"
+                  echo "   Create a GitHub issue first if you do not have a number."
+                  return 1
+                fi
+                ISSUE_NUM=$(echo "$head" | sed -E 's#^(feature|bugfix|enhancement|research|fix|chore)/([0-9]+)-.*#\2#')
+                echo "Resolved issue number from branch: #$ISSUE_NUM"
+                if ! gh api "repos/${REPO}/issues/${ISSUE_NUM}" --jq '.number' >/dev/null 2>&1; then
+                  echo "❌ GitHub issue #${ISSUE_NUM} not found in ${REPO}."
+                  echo "   Create the issue first, then name the branch with that number."
+                  return 1
+                fi
+                echo "✅ Issue #${ISSUE_NUM} exists."
+                return 0
                 ;;
               testing)
                 if [ "$head" = "development" ]; then
@@ -113,15 +132,14 @@ jobs:
             if ! allowed_head_for_base "$BASE" "$HEAD"; then
               echo ""
               echo "Required path:"
-              echo "  feature/* → development → testing → staging → master"
-              echo "Policy: BAI WARP.md CR-BAI-001"
+              echo "  issue → type/<n>-slug → development → testing → staging → master"
+              echo "Policy: CR-BAI-001 + cr-branch-gov-001"
               exit 1
             fi
-            echo "✅ PR source/target allowed under CR-BAI-001."
+            echo "✅ PR source/target allowed under CR-BAI-001 / cr-branch-gov-001."
             exit 0
           fi
 
-          # push event on testing|staging|master
           TARGET="$PUSH_REF"
           echo "Push promotion check on branch: $TARGET"
 
@@ -153,15 +171,18 @@ jobs:
           echo "   Policy: BAI WARP.md CR-BAI-001"
           exit 1
 
-      - name: Emit stage mapping summary
+      - name: Emit governance summary
         if: always()
         run: |
           cat <<'EOF'
-          Stage map (example product domain):
-            development → dev.<domain>
-            testing     → test.<domain>
-            staging     → stage.<domain>
-            master      → <domain> + www.<domain>
+          Canonical branches (never delete; never merge into another canonical as feature work):
+            development | testing | staging | master
 
-          Each stage requires: promote → deploy success → URL validation → next stage only.
+          Work branches (require open GitHub issue number in name):
+            feature|bugfix|enhancement|research|fix|chore/<issue>-short-slug
+
+          PR approvals: required (CODEOWNERS @somesayray)
+          Default branch: development
+          Promotion: development → testing → staging → master only
           EOF
+
