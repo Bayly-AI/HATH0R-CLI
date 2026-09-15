@@ -1,6 +1,6 @@
-# AGENTS.md — HATH0R CLI
+# AGENTS.md — HATH0R CLI (OpenSource Control Tower)
 
-> Role: **Operator / developer CLI (hath0r)** · member of group `hath0r-opensource`  
+> Role: **OpenSource Project control tower + operator/developer CLI (`hath0r`)** · group `hath0r-opensource`  
 > Updated: 2026-09-15
 
 ## Group membership (CRITICAL)
@@ -8,22 +8,34 @@
 | Field | Value |
 |-------|-------|
 | Group | `hath0r-opensource` |
+| Project | **OpenSource Project** |
 | Group root | `/Users/raybayly/Development/OpenSource` |
+| **Control tower** | **this repo** (`HATH0R-CLI`) |
 | This product | `HATH0R-CLI` |
 | GitHub | `Bayly-AI/HATH0R-CLI` |
 | Local path | `/Users/raybayly/Development/OpenSource/HATH0R-CLI` |
 | Canonical KB | `/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase` |
 | Operator CLI | `hath0r` |
-| KB mode | stub |
+| KB mode | stub → group hub |
+| Tower flag | `is_control_tower: true` |
 
-### Canonical siblings
+### Canonical siblings (OpenSource Project members)
 
+Every git repo under the group root is part of the OpenSource Project. Current canonical set:
+
+- **Control tower / CLI**: `/Users/raybayly/Development/OpenSource/HATH0R-CLI` → `Bayly-AI/HATH0R-CLI`
 - Framework: `/Users/raybayly/Development/OpenSource/hath0r` → `Bayly-AI/HATH0R-Agentic-Framework`
-- CLI: `/Users/raybayly/Development/OpenSource/HATH0R-CLI` → `Bayly-AI/HATH0R-CLI`
 - POC: `/Users/raybayly/Development/OpenSource/hath0r-poc` → `Bayly-AI/HATH0R-Agentic-POC`
 
 Group rules: `/Users/raybayly/Development/OpenSource/AGENTS.md`  
 Group policy: `/Users/raybayly/Development/OpenSource/WARP.md`
+
+## Control tower duties (CRITICAL — cr-kb-tower-001)
+
+1. Own suite orientation: `cfg/control-tower.yaml`, `cfg/suite.yaml`, `cfg/products.yaml`, `cfg/knowledge-tower.yaml`.
+2. Mediate operator paths via `hath0r` (doctor, KB path resolution, product catalog).
+3. Keep member knowledgebases as **stubs**; durable group KB lives at the OpenSource hub.
+4. Do **not** treat private internal product trees (e.g. BAI/AEGIS) as OpenSource canonical sources.
 
 ## Framework hidden root (CRITICAL — cr-hath0r-root-001)
 
@@ -43,7 +55,7 @@ Do **not** use `.ai/`, `.aegis/`, or `.infraOS/`.
 1. **Issue first**: create a GitHub issue before any work branch. No issue → no branch.
 2. Branch from `development` only, using:
    `feature|bugfix|enhancement|research|fix|chore/<issue-number>-short-slug`
-   Example: `chore/1-branch-protection-governance`
+   Example: `chore/3-opensource-control-tower`
 3. Open the PR with **base = `development`** (feature work never targets testing/staging/master).
 4. **Owner approval required** before merge (`@somesayray` via CODEOWNERS + branch protection).
 5. Merge into **`development` only** for feature work.
@@ -62,13 +74,15 @@ Forbidden: feature PRs targeting `master`, `testing`, or `staging`; PRs without 
 
 ## Config pointers in this repo
 
-- `cfg/suite.yaml`
-- `cfg/knowledge-tower.yaml`
-- `.hath0r/knowledgebase/README.md`
+- `cfg/control-tower.yaml` — tower identity
+- `cfg/suite.yaml` — suite / group orientation
+- `cfg/products.yaml` — product catalog (tower copy)
+- `cfg/knowledge-tower.yaml` — KB + tower flags
+- `.hath0r/knowledgebase/README.md` — stub pointer
 
 ## CR-BAI-001: Environment Promotion Path (CRITICAL — org-wide)
 
-Canonical policy: `/Users/raybayly/Development/BAI/WARP.md`
+Canonical policy: `/Users/raybayly/Development/BAI/WARP.md` (org-wide). Group mirror: `/Users/raybayly/Development/OpenSource/WARP.md`.
 
 Required order (never skip):
 
