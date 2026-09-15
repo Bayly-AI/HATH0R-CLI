@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="lib/assets/images/hathor-logo-1.png" alt="HATHOR logo" width="280" />
+</p>
+
 # HATH0R CLI
 
 Operator and developer **control plane** for the HATHOR OpenSource agentic stack.
