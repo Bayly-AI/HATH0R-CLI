@@ -11,13 +11,13 @@ Operator and developer **control plane** for the HATHOR OpenSource agentic stack
 | Package | `hath0r-cli` |
 | Binary | `hath0r` |
 | Group | `hath0r-opensource` |
-| Canonical KB | `/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase` |
+| Canonical KB | `$HATH0R_GROUP_ROOT/.hath0r/knowledgebase` (discovered; see Environment) |
 | GitHub | [Bayly-AI/HATH0R-CLI](https://github.com/Bayly-AI/HATH0R-CLI) |
 
 ## Install
 
 ```sh
-cd /Users/raybayly/Development/OpenSource/HATH0R-CLI
+cd /path/to/OpenSource/HATH0R-CLI   # or set HATH0R_GROUP_ROOT
 python3 -m pip install -e .
 hath0r --version
 hath0r doctor
@@ -50,10 +50,19 @@ interface is a draft contract and must not be treated as shipped behavior.
 
 ## Environment
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `HATH0R_GROUP_ROOT` | `/Users/raybayly/Development/OpenSource` | OpenSource group root |
+| Variable | Default / discovery | Purpose |
+|----------|---------------------|---------|
+| `HATH0R_GROUP_ROOT` | See discovery order below | OpenSource group root override |
 | `HATH0R_KB_PATH` | `$HATH0R_GROUP_ROOT/.hath0r/knowledgebase` | Canonical KB override |
+
+### Group root discovery order
+
+1. **`HATH0R_GROUP_ROOT`** — if set, use it (expanded/resolved).
+2. **Walk-up from cwd** — find a directory with `AGENTS.md` containing `hath0r-opensource` and a `.hath0r/` directory.
+3. **Soft fallback** — `~/Development/OpenSource` only if it looks like a real group root (same markers).
+4. **Error** — clear message with remediation if nothing matches.
+
+`HATH0R_KB_PATH` always wins for the knowledgebase path when set; otherwise KB is `$group_root/.hath0r/knowledgebase`.
 
 ## Group membership
 
