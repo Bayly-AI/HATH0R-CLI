@@ -13,12 +13,68 @@ from hath0r_cli import __version__
 
 console = Console()
 
-DEFAULT_GROUP_ROOT = Path("/Users/raybayly/Development/OpenSource")
-DEFAULT_KB = DEFAULT_GROUP_ROOT / ".hath0r" / "knowledgebase"
+# Soft fallback only — used when it looks like a real group root.
+_SOFT_FALLBACK_GROUP_ROOT = Path.home() / "Development" / "OpenSource"
+
+_GROUP_MARKER = "hath0r-opensource"
+_GROUP_ROOT_ERROR = (
+    "Could not determine HATHOR OpenSource group root.\n"
+    "Remediation:\n"
+    "  1. Set HATH0R_GROUP_ROOT to the directory that contains AGENTS.md "
+    f"(with '{_GROUP_MARKER}') and a .hath0r/ directory, or\n"
+    "  2. Run the CLI from inside that group tree so walk-up discovery can find it, or\n"
+    "  3. Place the group at ~/Development/OpenSource with the same markers."
+)
+
+
+def _looks_like_group_root(path: Path) -> bool:
+    """Return True if path has AGENTS.md containing the group marker and a .hath0r/ dir."""
+    agents = path / "AGENTS.md"
+    hath0r_dir = path / ".hath0r"
+    if not agents.is_file() or not hath0r_dir.is_dir():
+        return False
+    try:
+        return _GROUP_MARKER in agents.read_text(encoding="utf-8")
+    except OSError:
+        return False
+
+
+def _discover_group_root(start: Path | None = None) -> Path | None:
+    """Walk up from start (default: cwd) looking for a group root.
+
+    When multiple ancestors match (member checkout nested under the group),
+    prefer the outermost match so the true group root wins.
+    """
+    current = (start or Path.cwd()).resolve()
+    found: Path | None = None
+    for candidate in (current, *current.parents):
+        if _looks_like_group_root(candidate):
+            found = candidate
+    return found
 
 
 def _group_root() -> Path:
-    return Path(os.environ.get("HATH0R_GROUP_ROOT", DEFAULT_GROUP_ROOT)).expanduser()
+    """Resolve the OpenSource group root.
+
+    Discovery order:
+    1. HATH0R_GROUP_ROOT environment variable (if set)
+    2. Walk up from cwd for AGENTS.md containing 'hath0r-opensource' plus .hath0r/
+    3. Soft fallback ~/Development/OpenSource if it looks like the group root
+    4. Clear error with remediation
+    """
+    env = os.environ.get("HATH0R_GROUP_ROOT")
+    if env:
+        return Path(env).expanduser().resolve()
+
+    found = _discover_group_root()
+    if found is not None:
+        return found
+
+    soft = _SOFT_FALLBACK_GROUP_ROOT.expanduser()
+    if _looks_like_group_root(soft):
+        return soft.resolve()
+
+    raise click.ClickException(_GROUP_ROOT_ERROR)
 
 
 def _kb_path() -> Path:
