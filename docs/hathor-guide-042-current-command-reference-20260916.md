@@ -66,11 +66,12 @@ script.
 | `hath0r --version` | Show installed CLI version | Text: version line; JSON: `hath0r.cli.response/1` with version data | Invocation/spawn error |
 | `hath0r doctor` | Check group, Tower, member, and KB orientation | Text: Rich table; JSON: checks/counts payload | Exit `6` when required dependency checks fail |
 | `hath0r kb path` | Print canonical group KB path | Text: absolute path; JSON: configured/available/path | Exit `3` + `KNOWLEDGEBASE_NOT_FOUND` when directory is absent |
-| `hath0r kb products` | Print canonical suite product catalog | YAML/text file contents | Exits nonzero if catalog is absent |
+| `hath0r kb products` | Print canonical suite product catalog | Text: YAML/text; JSON: normalized products | Exit `3` missing; exit `2` invalid |
 
 Click returns usage exit `2` for invalid command/argument input. Doctor
 uses exit `6` (dependency unhealthy) when required checks fail. KB path
-and products still use exit `3` when missing.
+uses exit `3` when missing. Products use exit `3` when missing and exit `2`
+when invalid.
 
 ## 4. `hath0r --version`
 
@@ -135,21 +136,23 @@ exit `3`. The POC should expose logical configured/available state and strip
 
 ```sh
 hath0r kb products
+hath0r --output json kb products
 ```
 
-The command reads:
+The command reads the **group KB hub** catalog:
 
 ```text
 <canonical-kb>/catalogs/suite-products.yaml
 ```
 
-and prints its contents without parsing. Therefore:
+Text mode prints the raw file contents.
 
-- media is YAML/text, not JSON;
-- field shape comes from the catalog file;
-- parsing belongs in an isolated, schema-validating compatibility adapter;
-- output must be byte-bounded by the caller; and
-- a parse error is not an empty catalog.
+JSON mode parses with `yaml.safe_load`, validates required fields, derives
+`control_tower_product_id` from the single `is_control_tower: true` product,
+and emits only documented product fields (`product_id`, `product_name`,
+`role`, `canonical`, `is_control_tower`). Missing catalog → exit `3`
+(`PRODUCT_CATALOG_NOT_FOUND`). Malformed/invalid catalog → exit `2`
+(`PRODUCT_CATALOG_INVALID`) — never an empty product list.
 
 ## 8. Environment
 
@@ -165,12 +168,11 @@ them.
 ## 9. Current output and compatibility limits
 
 HATH0R-CLI v0.2 provides `--output`/`-o` (`json|text|auto`) and the
-`hath0r.cli.response/1` envelope. Version, doctor, and kb.path JSON `data`
-are complete.
+`hath0r.cli.response/1` envelope. Structured `data` payloads are complete for
+version, doctor, kb.path, and kb.products.
 
 Still not provided (or only partial):
 
-- full structured `data` payload for `kb products`;
 - command schema discovery;
 - bounded collection flags;
 - complete stable diagnostic-code coverage on every failure path;
@@ -201,4 +203,4 @@ For v0.2:
 5. classify by spawn result and process exit first;
 6. validate `hath0r.cli.response/1` before using JSON `data`;
 7. treat text stdout/stderr as bounded diagnostics when not using JSON; and
-8. parse catalog YAML only behind validation until `kb.products` JSON ships.
+8. validate `kb.products` JSON against the Framework products schema (do not treat parse failure as an empty catalog).

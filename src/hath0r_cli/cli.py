@@ -12,6 +12,7 @@ from rich.console import Console
 from rich.table import Table
 
 from hath0r_cli import __version__
+from hath0r_cli.catalog import CatalogError, parse_catalog
 from hath0r_cli.doctor import diagnostics_for, run_checks
 from hath0r_cli.envelope import CliResponse, Diagnostic, ResponseMeta
 from hath0r_cli.output import OUTPUT_CHOICES, emit, progress_err, resolve_output_mode
@@ -311,12 +312,15 @@ def kb_path(ctx: click.Context) -> None:
 def kb_products(ctx: click.Context) -> None:
     """List canonical suite products from the group catalog."""
     catalog = _kb_path() / "catalogs" / "suite-products.yaml"
-    missing = not catalog.is_file()
     diagnostics: list[Diagnostic] = []
     state = "ok"
+    data = None
     catalog_text = ""
-    if missing:
+    exit_code: int | None = None
+
+    if not catalog.is_file():
         state = "unavailable"
+        exit_code = 3
         diagnostics.append(
             Diagnostic(
                 code="PRODUCT_CATALOG_NOT_FOUND",
@@ -328,24 +332,39 @@ def kb_products(ctx: click.Context) -> None:
         )
     else:
         catalog_text = catalog.read_text(encoding="utf-8")
+        try:
+            parsed = parse_catalog(catalog)
+            data = parsed.to_data()
+        except CatalogError as exc:
+            state = "unavailable" if exc.code == "PRODUCT_CATALOG_NOT_FOUND" else "error"
+            exit_code = 3 if exc.code == "PRODUCT_CATALOG_NOT_FOUND" else 2
+            diagnostics.append(
+                Diagnostic(
+                    code=exc.code,
+                    message=exc.message,
+                    severity="error",
+                    remediation=exc.remediation,
+                    provenance={"component": "hath0r-cli", "operation": "kb.products"},
+                )
+            )
 
     response = _build_response(
         ctx,
         command="kb.products",
         state=state,
-        data=None,  # full payload lands in a follow-up issue
+        data=data,
         diagnostics=diagnostics,
     )
 
     def _text() -> None:
-        if missing:
+        if not catalog.is_file():
             raise SystemExit(f"catalog missing: {catalog}")
         click.echo(catalog_text)
 
     if _output_mode(ctx) == "json":
         _emit_response(ctx, response)
-        if missing:
-            raise SystemExit(3)
+        if exit_code is not None:
+            raise SystemExit(exit_code)
     else:
         _emit_response(ctx, response, text_renderer=_text)
 
