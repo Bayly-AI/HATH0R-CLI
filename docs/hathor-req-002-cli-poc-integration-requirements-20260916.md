@@ -6,7 +6,7 @@ doc_type: REQ
 diataxis: reference
 audience: [developer, operator, architect, agent]
 tags: [cli, poc, framework, requirements, control-tower]
-version: 0.1.0
+version: 0.1.1
 status: draft
 created: 2026-09-16
 updated: 2026-09-16
@@ -65,10 +65,12 @@ today.
 | Capability | Current state | Evidence | POC treatment |
 |------------|---------------|----------|---------------|
 | Version | Implemented | `hath0r --version` | Read-only allowlisted probe |
+| Version structured JSON | Implemented | `hath0r --output json --version` → `hath0r.cli.response/1` | Prefer JSON probe when available |
 | Suite diagnostics | Implemented | `hath0r doctor` | Exit status is authoritative |
 | Canonical KB path | Implemented | `hath0r kb path` | Adapter returns logical availability by default |
 | Product catalog | Implemented | `hath0r kb products` | Bounded YAML/text until JSON ships |
-| JSON output | Not implemented | No output flag in CLI source | Planned |
+| JSON output flag | Implemented | `--output, -o json\|text\|auto` | Request JSON explicitly |
+| JSON payloads (doctor/kb) | Partial | Envelope ships; command `data` still landing | Keep text path until full payloads |
 | Schema discovery | Not implemented | No schema command in CLI source | Framework design |
 | Knowledge search/write | Not implemented | No command in CLI source | Unavailable to POC |
 | Validation/orchestration/gates | Not implemented | Framework design only | Unavailable to POC |

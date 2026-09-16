@@ -6,7 +6,7 @@ doc_type: CANON
 diataxis: reference
 audience: [developer, operator, architect, agent]
 tags: [cli, poc, framework, index, control-tower]
-version: 0.1.0
+version: 0.1.1
 status: draft
 created: 2026-09-16
 updated: 2026-09-16
@@ -78,7 +78,8 @@ Documentation examples do not make a proposed command executable.
 | `hath0r doctor` | Implemented |
 | `hath0r kb path` | Implemented |
 | `hath0r kb products` | Implemented |
-| Versioned JSON output | Proposed in HATHOR-TS-005 |
+| `hath0r --output json --version` | Implemented (`hath0r.cli.response/1` + version data) |
+| Versioned JSON output (all commands) | Partial — version done; doctor/kb payloads still landing |
 | Schema discovery | Framework design |
 | Knowledge search/write | Unavailable |
 | Validation/orchestration/gates | Unavailable |
