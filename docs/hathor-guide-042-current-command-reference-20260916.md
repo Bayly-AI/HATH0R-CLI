@@ -65,7 +65,7 @@ script.
 |---------|---------|----------------|--------------------------|
 | `hath0r --version` | Show installed CLI version | Text: version line; JSON: `hath0r.cli.response/1` with version data | Invocation/spawn error |
 | `hath0r doctor` | Check group, Tower, member, and KB orientation | Text: Rich table; JSON: checks/counts payload | Exit `6` when required dependency checks fail |
-| `hath0r kb path` | Print canonical group KB path | Absolute path text | Prints path, then exits nonzero if directory is absent |
+| `hath0r kb path` | Print canonical group KB path | Text: absolute path; JSON: configured/available/path | Exit `3` + `KNOWLEDGEBASE_NOT_FOUND` when directory is absent |
 | `hath0r kb products` | Print canonical suite product catalog | YAML/text file contents | Exits nonzero if catalog is absent |
 
 Click returns usage exit `2` for invalid command/argument input. Doctor
@@ -119,16 +119,17 @@ Rich formatting is not a stable machine schema.
 
 ```sh
 hath0r kb path
+hath0r --output json kb path
 ```
 
-The command prints the resolved canonical KB path. It then verifies that the
-directory exists.
+Text mode prints the resolved canonical KB path, then verifies the directory
+exists (path may appear before a nonzero exit).
 
-Important current behavior: the path is printed before the existence failure.
-A machine consumer must evaluate the process exit before using stdout.
-
-The POC should expose logical configured/available state instead of the raw
-home-directory path in normal browser responses.
+JSON mode emits `hath0r.cli.response/1` with `data`:
+`configured` (bool), `available` (bool), and `path` (string). Missing
+directory → `state: unavailable`, diagnostic `KNOWLEDGEBASE_NOT_FOUND`,
+exit `3`. The POC should expose logical configured/available state and strip
+`path` from normal browser responses.
 
 ## 7. `hath0r kb products`
 
@@ -164,11 +165,12 @@ them.
 ## 9. Current output and compatibility limits
 
 HATH0R-CLI v0.2 provides `--output`/`-o` (`json|text|auto`) and the
-`hath0r.cli.response/1` envelope. Version and doctor JSON `data` are complete.
+`hath0r.cli.response/1` envelope. Version, doctor, and kb.path JSON `data`
+are complete.
 
 Still not provided (or only partial):
 
-- full structured `data` payloads for `kb path` and `kb products`;
+- full structured `data` payload for `kb products`;
 - command schema discovery;
 - bounded collection flags;
 - complete stable diagnostic-code coverage on every failure path;

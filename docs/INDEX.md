@@ -80,7 +80,8 @@ Documentation examples do not make a proposed command executable.
 | `hath0r kb products` | Implemented |
 | `hath0r --output json --version` | Implemented (`hath0r.cli.response/1` + version data) |
 | `hath0r --output json doctor` | Implemented (checks + counts; exit 6 on dependency failure) |
-| Versioned JSON output (all commands) | Partial — version/doctor done; kb payloads still landing |
+| `hath0r --output json kb path` | Implemented (configured/available/path; exit 3 when missing) |
+| Versioned JSON output (all commands) | Partial — version/doctor/kb.path done; kb.products still landing |
 | Schema discovery | Framework design |
 | Knowledge search/write | Unavailable |
 | Validation/orchestration/gates | Unavailable |
