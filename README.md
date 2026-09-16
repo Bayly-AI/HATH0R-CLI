@@ -29,6 +29,21 @@ hath0r kb path
 | `hath0r kb products` | Show suite product catalog |
 | `hath0r --version` | Package version |
 
+These four invocations are the complete implemented v0.1 integration surface.
+Structured JSON, schema discovery, knowledge search/write, validation,
+orchestration, and mutating commands are not currently implemented.
+
+## Documentation
+
+- [Documentation index](docs/INDEX.md)
+- [Current v0.1 command reference](docs/hathor-guide-042-current-command-reference-20260916.md)
+- [CLI, control-tower, and POC architecture](docs/hathor-arch-004-cli-control-tower-integration-20260916.md)
+- [Proposed POC machine interface](docs/hathor-ts-005-poc-machine-interface-20260916.md)
+- [POC adapter integration guide](docs/hathor-guide-043-poc-adapter-integration-20260916.md)
+
+The current command reference reflects executable source. The machine
+interface is a draft contract and must not be treated as shipped behavior.
+
 ## Environment
 
 | Variable | Default | Purpose |
