@@ -261,11 +261,12 @@ def kb() -> None:
 def kb_path(ctx: click.Context) -> None:
     """Print the canonical OpenSource group knowledgebase path."""
     path = _kb_path()
-    missing = not path.is_dir()
+    available = path.is_dir()
+    # configured is true whenever a path was resolved (env override or group root).
+    configured = True
     diagnostics: list[Diagnostic] = []
-    state = "ok"
-    if missing:
-        state = "unavailable"
+    state = "ok" if available else "unavailable"
+    if not available:
         diagnostics.append(
             Diagnostic(
                 code="KNOWLEDGEBASE_NOT_FOUND",
@@ -276,24 +277,30 @@ def kb_path(ctx: click.Context) -> None:
             )
         )
 
+    data = {
+        "configured": configured,
+        "available": available,
+        "path": str(path),
+    }
+
     response = _build_response(
         ctx,
         command="kb.path",
         state=state,
-        data=None,  # full payload lands in a follow-up issue
+        data=data,
         diagnostics=diagnostics,
     )
 
     def _text() -> None:
         click.echo(str(path))
-        if missing:
+        if not available:
             raise SystemExit(f"knowledgebase missing: {path}")
 
     if _output_mode(ctx) == "json":
         # Progress/status belongs on stderr and is suppressed by --quiet.
         progress_err("resolving knowledgebase path", quiet=_quiet(ctx))
         _emit_response(ctx, response)
-        if missing:
+        if not available:
             raise SystemExit(3)
     else:
         _emit_response(ctx, response, text_renderer=_text)
