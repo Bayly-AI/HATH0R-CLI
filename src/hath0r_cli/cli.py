@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 import click
@@ -10,6 +12,8 @@ from rich.console import Console
 from rich.table import Table
 
 from hath0r_cli import __version__
+from hath0r_cli.envelope import CliResponse, Diagnostic, ResponseMeta
+from hath0r_cli.output import OUTPUT_CHOICES, emit, progress_err, resolve_output_mode
 
 console = Console()
 
@@ -84,10 +88,105 @@ def _kb_path() -> Path:
     return _group_root() / ".hath0r" / "knowledgebase"
 
 
-@click.group()
-@click.version_option(__version__, prog_name="hath0r")
-def main() -> None:
+def _utc_now() -> str:
+    """RFC 3339 UTC timestamp with second precision and Z suffix."""
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _duration_ms(ctx: click.Context) -> int:
+    started = ctx.obj.get("started_at", time.perf_counter())
+    return max(0, int((time.perf_counter() - started) * 1000))
+
+
+def _output_mode(ctx: click.Context) -> str:
+    return resolve_output_mode(ctx.obj.get("output", "auto"))
+
+
+def _quiet(ctx: click.Context) -> bool:
+    return bool(ctx.obj.get("quiet", False))
+
+
+def _build_response(
+    ctx: click.Context,
+    *,
+    command: str,
+    state: str = "ok",
+    data: dict | None = None,
+    diagnostics: list[Diagnostic] | None = None,
+) -> CliResponse:
+    return CliResponse(
+        command=command,
+        generated_at=_utc_now(),
+        state=state,
+        data=data,
+        diagnostics=list(diagnostics or []),
+        meta=ResponseMeta(cli_version=__version__, duration_ms=_duration_ms(ctx)),
+    )
+
+
+def _emit_response(
+    ctx: click.Context,
+    response: CliResponse,
+    *,
+    text_renderer=None,
+) -> None:
+    mode = ctx.obj.get("output", "auto")
+    emit(response, mode, console, text_renderer=text_renderer)
+
+
+@click.group(invoke_without_command=True)
+@click.option(
+    "--output",
+    "-o",
+    type=click.Choice(OUTPUT_CHOICES, case_sensitive=False),
+    default="auto",
+    show_default=True,
+    help="Output format: json, text, or auto (TTY→text, non-TTY→json).",
+)
+@click.option(
+    "--quiet",
+    is_flag=True,
+    default=False,
+    help="Suppress stderr progress/warnings (especially in json mode).",
+)
+@click.option(
+    "--version",
+    is_flag=True,
+    default=False,
+    help="Show the hath0r version and exit.",
+)
+@click.pass_context
+def main(ctx: click.Context, output: str, quiet: bool, version: bool) -> None:
     """HATH0R CLI — control plane for the HATHOR OpenSource group."""
+    ctx.ensure_object(dict)
+    ctx.obj["output"] = output.lower()
+    ctx.obj["quiet"] = quiet
+    ctx.obj["started_at"] = time.perf_counter()
+
+    if version:
+        _emit_version(ctx)
+        ctx.exit(0)
+
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
+
+
+def _emit_version(ctx: click.Context) -> None:
+    response = _build_response(
+        ctx,
+        command="version",
+        state="ok",
+        data={
+            "binary": "hath0r",
+            "package": "hath0r-cli",
+            "version": __version__,
+        },
+    )
+
+    def _text() -> None:
+        click.echo(f"hath0r, version {__version__}")
+
+    _emit_response(ctx, response, text_renderer=_text)
 
 
 def _file_contains(path: Path, needle: str) -> bool:
@@ -100,7 +199,8 @@ def _file_contains(path: Path, needle: str) -> bool:
 
 
 @main.command()
-def doctor() -> None:
+@click.pass_context
+def doctor(ctx: click.Context) -> None:
     """Check group paths, control tower, member repos, and KB hub presence."""
     root = _group_root()
     kb = _kb_path()
@@ -201,12 +301,26 @@ def doctor() -> None:
                 bad="mismatch",
             )
 
-    console.print(table)
-    console.print(f"hath0r {__version__}")
+    state = "ok" if failures == 0 else "degraded"
+    response = _build_response(
+        ctx,
+        command="doctor",
+        state=state,
+        data=None,  # full payload lands in a follow-up issue
+        diagnostics=[],
+    )
+
+    def _text() -> None:
+        console.print(table)
+        console.print(f"hath0r {__version__}")
+        if failures:
+            console.print(f"[red]doctor failed: {failures} check(s)[/red]")
+        else:
+            console.print("[green]doctor passed: OpenSource control tower configuration ok[/green]")
+
+    _emit_response(ctx, response, text_renderer=_text)
     if failures:
-        console.print(f"[red]doctor failed: {failures} check(s)[/red]")
         raise SystemExit(1)
-    console.print("[green]doctor passed: OpenSource control tower configuration ok[/green]")
 
 
 @main.group()
@@ -215,22 +329,90 @@ def kb() -> None:
 
 
 @kb.command("path")
-def kb_path() -> None:
+@click.pass_context
+def kb_path(ctx: click.Context) -> None:
     """Print the canonical OpenSource group knowledgebase path."""
     path = _kb_path()
-    click.echo(str(path))
-    if not path.is_dir():
-        raise SystemExit(f"knowledgebase missing: {path}")
+    missing = not path.is_dir()
+    diagnostics: list[Diagnostic] = []
+    state = "ok"
+    if missing:
+        state = "unavailable"
+        diagnostics.append(
+            Diagnostic(
+                code="KNOWLEDGEBASE_NOT_FOUND",
+                message="The canonical OpenSource knowledgebase is unavailable.",
+                severity="error",
+                remediation="Verify the group root and run hath0r doctor.",
+                provenance={"component": "hath0r-cli", "operation": "kb.path"},
+            )
+        )
+
+    response = _build_response(
+        ctx,
+        command="kb.path",
+        state=state,
+        data=None,  # full payload lands in a follow-up issue
+        diagnostics=diagnostics,
+    )
+
+    def _text() -> None:
+        click.echo(str(path))
+        if missing:
+            raise SystemExit(f"knowledgebase missing: {path}")
+
+    if _output_mode(ctx) == "json":
+        # Progress/status belongs on stderr and is suppressed by --quiet.
+        progress_err("resolving knowledgebase path", quiet=_quiet(ctx))
+        _emit_response(ctx, response)
+        if missing:
+            raise SystemExit(3)
+    else:
+        _emit_response(ctx, response, text_renderer=_text)
 
 
 @kb.command("products")
-def kb_products() -> None:
+@click.pass_context
+def kb_products(ctx: click.Context) -> None:
     """List canonical suite products from the group catalog."""
     catalog = _kb_path() / "catalogs" / "suite-products.yaml"
-    if not catalog.is_file():
-        raise SystemExit(f"catalog missing: {catalog}")
-    # Minimal YAML-free display: print file for operators; full parse comes later.
-    click.echo(catalog.read_text(encoding="utf-8"))
+    missing = not catalog.is_file()
+    diagnostics: list[Diagnostic] = []
+    state = "ok"
+    catalog_text = ""
+    if missing:
+        state = "unavailable"
+        diagnostics.append(
+            Diagnostic(
+                code="PRODUCT_CATALOG_NOT_FOUND",
+                message="The suite products catalog is unavailable.",
+                severity="error",
+                remediation="Verify the knowledgebase path and run hath0r doctor.",
+                provenance={"component": "hath0r-cli", "operation": "kb.products"},
+            )
+        )
+    else:
+        catalog_text = catalog.read_text(encoding="utf-8")
+
+    response = _build_response(
+        ctx,
+        command="kb.products",
+        state=state,
+        data=None,  # full payload lands in a follow-up issue
+        diagnostics=diagnostics,
+    )
+
+    def _text() -> None:
+        if missing:
+            raise SystemExit(f"catalog missing: {catalog}")
+        click.echo(catalog_text)
+
+    if _output_mode(ctx) == "json":
+        _emit_response(ctx, response)
+        if missing:
+            raise SystemExit(3)
+    else:
+        _emit_response(ctx, response, text_renderer=_text)
 
 
 if __name__ == "__main__":
