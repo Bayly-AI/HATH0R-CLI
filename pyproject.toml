@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.0"]
+dev = ["pytest>=7.0", "jsonschema>=4.0"]
 
 [project.scripts]
 hath0r = "hath0r_cli.cli:main"

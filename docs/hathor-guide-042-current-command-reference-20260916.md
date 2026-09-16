@@ -1,12 +1,12 @@
 ---
 id: HATHOR-GUIDE-042
-title: "HATH0R CLI v0.1 Command Reference"
+title: "HATH0R CLI v0.2 Command Reference"
 summary: "Source-verified installation, commands, outputs, exits, configuration, and limitations for the current HATH0R CLI."
 doc_type: GUIDE
 diataxis: reference
 audience: [developer, operator, agent]
 tags: [cli, commands, reference, current-state]
-version: 0.1.0
+version: 0.2.0
 status: draft
 created: 2026-09-16
 updated: 2026-09-16
@@ -28,16 +28,18 @@ sources:
   - "../src/hath0r_cli/__init__.py"
   - "../src/hath0r_cli/cli.py"
 ---
-# HATH0R CLI v0.1 Command Reference
+# HATH0R CLI v0.2 Command Reference
 
 ## 1. Authority and scope
 
 This page documents the current `hath0r` executable as implemented in
-`src/hath0r_cli/cli.py` and package version `0.1.0`.
+`src/hath0r_cli/cli.py` and package version `0.2.0`.
 
 Only the four invocations on this page are current integration commands.
 Larger command trees in Framework papers are design targets, not aliases
-available in this Python CLI.
+available in this Python CLI. Structured JSON is available via
+`--output json` (version payload is complete; doctor/kb command `data`
+payloads are still landing).
 
 ## 2. Install
 
@@ -61,7 +63,7 @@ script.
 
 | Command | Purpose | Success output | Current failure behavior |
 |---------|---------|----------------|--------------------------|
-| `hath0r --version` | Show installed CLI version | Click version text | Invocation/spawn error |
+| `hath0r --version` | Show installed CLI version | Text: version line; JSON: `hath0r.cli.response/1` with version data | Invocation/spawn error |
 | `hath0r doctor` | Check group, Tower, member, and KB orientation | Rich table, version, pass summary | Exit `1` after reporting failed checks |
 | `hath0r kb path` | Print canonical group KB path | Absolute path text | Prints path, then exits nonzero if directory is absent |
 | `hath0r kb products` | Print canonical suite product catalog | YAML/text file contents | Exits nonzero if catalog is absent |
@@ -73,10 +75,14 @@ application explicitly uses exit `1` for current doctor/KB failures.
 
 ```sh
 hath0r --version
+hath0r --output json --version
 ```
 
 Use this probe to detect whether the binary can be executed and to capture its
-version. Treat the output as human text in v0.1; no JSON version payload exists.
+version. With `--output json` (or `-o json`), the CLI emits a
+`hath0r.cli.response/1` envelope whose `data` matches the Framework
+`hath0r-cli-version-v1` schema (`binary`, `package`, `version`). Text mode
+prints `hath0r, version <semver>`.
 
 ## 5. `hath0r doctor`
 
@@ -139,7 +145,7 @@ and prints its contents without parsing. Therefore:
 
 | Variable | Default | Effect |
 |----------|---------|--------|
-| `HATH0R_GROUP_ROOT` | `/Users/raybayly/Development/OpenSource` | Changes the trusted local group root |
+| `HATH0R_GROUP_ROOT` | walk-up discovery, then `~/Development/OpenSource` soft fallback | Overrides the trusted local group root |
 | `HATH0R_KB_PATH` | `<group-root>/.hath0r/knowledgebase` | Overrides the canonical KB path |
 
 Values are read from the CLI process environment. The POC server may inherit
@@ -148,19 +154,21 @@ them.
 
 ## 9. Current output and compatibility limits
 
-HATH0R-CLI v0.1 does not provide:
+HATH0R-CLI v0.2 provides `--output`/`-o` (`json|text|auto`) and the
+`hath0r.cli.response/1` envelope. Version JSON `data` is complete.
 
-- `--output` or `-o`;
-- JSON response envelopes;
+Still not provided (or only partial):
+
+- full structured `data` payloads for `doctor`, `kb path`, and `kb products`;
 - command schema discovery;
 - bounded collection flags;
-- stable diagnostic codes;
+- complete stable diagnostic-code coverage on every failure path;
 - knowledge search/write;
 - validation or orchestration domains; or
 - mutating operator commands.
 
-Do not invoke those features until their implementation, tests, and release
-documentation exist.
+Do not invoke unavailable features until their implementation, tests, and
+release documentation exist.
 
 ## 10. Side effects
 
@@ -173,12 +181,13 @@ the POC at runtime.
 
 ## 11. Machine-consumer rule
 
-For v0.1:
+For v0.2:
 
 1. use only fixed argv from the four-operation allowlist;
 2. spawn without a shell;
 3. apply timeout and output caps;
-4. classify by spawn result and process exit first;
-5. treat stdout/stderr as bounded diagnostics;
-6. parse catalog YAML only behind validation; and
-7. migrate to HATHOR-TS-005 only after structured output ships.
+4. request `--output json` explicitly for machine consumers;
+5. classify by spawn result and process exit first;
+6. validate `hath0r.cli.response/1` before using JSON `data`;
+7. treat text stdout/stderr as bounded diagnostics when not using JSON; and
+8. parse catalog YAML only behind validation until `kb.products` JSON ships.
