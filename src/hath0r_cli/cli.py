@@ -12,6 +12,7 @@ from rich.console import Console
 from rich.table import Table
 
 from hath0r_cli import __version__
+from hath0r_cli.doctor import diagnostics_for, run_checks
 from hath0r_cli.envelope import CliResponse, Diagnostic, ResponseMeta
 from hath0r_cli.output import OUTPUT_CHOICES, emit, progress_err, resolve_output_mode
 
@@ -150,17 +151,24 @@ def _emit_response(
     help="Suppress stderr progress/warnings (especially in json mode).",
 )
 @click.option(
+    "--verbose",
+    is_flag=True,
+    default=False,
+    help="Include absolute local paths in structured doctor diagnostics.",
+)
+@click.option(
     "--version",
     is_flag=True,
     default=False,
     help="Show the hath0r version and exit.",
 )
 @click.pass_context
-def main(ctx: click.Context, output: str, quiet: bool, version: bool) -> None:
+def main(ctx: click.Context, output: str, quiet: bool, verbose: bool, version: bool) -> None:
     """HATH0R CLI — control plane for the HATHOR OpenSource group."""
     ctx.ensure_object(dict)
     ctx.obj["output"] = output.lower()
     ctx.obj["quiet"] = quiet
+    ctx.obj["verbose"] = verbose
     ctx.obj["started_at"] = time.perf_counter()
 
     if version:
@@ -189,138 +197,58 @@ def _emit_version(ctx: click.Context) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
-def _file_contains(path: Path, needle: str) -> bool:
-    if not path.is_file():
-        return False
-    try:
-        return needle in path.read_text(encoding="utf-8")
-    except OSError:
-        return False
-
-
 @main.command()
 @click.pass_context
 def doctor(ctx: click.Context) -> None:
     """Check group paths, control tower, member repos, and KB hub presence."""
     root = _group_root()
     kb = _kb_path()
-    tower = root / "HATH0R-CLI"
-    tower_cfg = tower / "cfg"
-    members = {
-        "framework": root / "hath0r",
-        "cli": tower,
-        "poc": root / "hath0r-poc",
-    }
-    expected_tower = str(tower)
+    verbose = bool(ctx.obj.get("verbose", False))
+    result = run_checks(root, kb)
 
-    table = Table(title="HATH0R doctor — OpenSource control tower")
-    table.add_column("Check")
-    table.add_column("Path / detail")
-    table.add_column("Status")
-
-    failures = 0
-
-    def row(check: str, detail: str, ok: bool, bad: str = "missing") -> None:
-        nonlocal failures
-        if not ok:
-            failures += 1
-        table.add_row(
-            check,
-            detail,
-            "[green]ok[/green]" if ok else f"[red]{bad}[/red]",
+    diagnostics = [
+        Diagnostic(
+            code=d["code"],
+            message=d["message"],
+            severity=d["severity"],
+            remediation=d.get("remediation"),
+            provenance=d.get("provenance"),
+            details=d.get("details"),
         )
-
-    def status_path(path: Path, want_dir: bool = True) -> bool:
-        return path.is_dir() if want_dir else path.is_file()
-
-    row("group root", str(root), status_path(root))
-    row("group AGENTS.md", str(root / "AGENTS.md"), status_path(root / "AGENTS.md", want_dir=False))
-    row("group WARP.md", str(root / "WARP.md"), status_path(root / "WARP.md", want_dir=False))
-    row("canonical KB", str(kb), status_path(kb))
-    catalog = kb / "catalogs" / "suite-products.yaml"
-    row("suite catalog", str(catalog), status_path(catalog, want_dir=False))
-    row(
-        "catalog tower path",
-        expected_tower,
-        _file_contains(catalog, expected_tower),
-        bad="mismatch",
-    )
-
-    # Control tower identity (this CLI repo)
-    row("control tower root", str(tower), status_path(tower))
-    for name in ("control-tower.yaml", "suite.yaml", "knowledge-tower.yaml", "products.yaml"):
-        path = tower_cfg / name
-        row(f"tower cfg:{name}", str(path), status_path(path, want_dir=False))
-
-    kt = tower_cfg / "knowledge-tower.yaml"
-    row(
-        "tower is_control_tower",
-        "is_control_tower: true",
-        _file_contains(kt, "is_control_tower: true"),
-        bad="false/missing",
-    )
-    row(
-        "tower control_tower_path",
-        expected_tower,
-        _file_contains(kt, expected_tower) and _file_contains(tower_cfg / "suite.yaml", expected_tower),
-        bad="mismatch",
-    )
-    row(
-        "tower remote",
-        "Bayly-AI/HATH0R-CLI",
-        _file_contains(tower_cfg / "control-tower.yaml", "Bayly-AI/HATH0R-CLI"),
-        bad="mismatch",
-    )
-
-    for name, path in members.items():
-        row(f"member:{name}", str(path), status_path(path))
-        row(f"agents:{name}", str(path / "AGENTS.md"), status_path(path / "AGENTS.md", want_dir=False))
-        member_kt = path / "cfg" / "knowledge-tower.yaml"
-        member_suite = path / "cfg" / "suite.yaml"
-        if name == "cli":
-            continue
-        if member_kt.is_file() or member_suite.is_file():
-            ok_pointer = True
-            if member_kt.is_file():
-                ok_pointer = ok_pointer and _file_contains(member_kt, expected_tower)
-                ok_pointer = ok_pointer and _file_contains(member_kt, "is_control_tower: false")
-            if member_suite.is_file():
-                ok_pointer = ok_pointer and _file_contains(member_suite, expected_tower)
-            row(
-                f"member tower pointer:{name}",
-                expected_tower,
-                ok_pointer,
-                bad="mismatch",
-            )
-        else:
-            # Framework may only document tower in AGENTS.md
-            row(
-                f"member tower pointer:{name}",
-                str(path / "AGENTS.md"),
-                _file_contains(path / "AGENTS.md", "HATH0R-CLI"),
-                bad="mismatch",
-            )
-
-    state = "ok" if failures == 0 else "degraded"
+        for d in diagnostics_for(result)
+    ]
     response = _build_response(
         ctx,
         command="doctor",
-        state=state,
-        data=None,  # full payload lands in a follow-up issue
-        diagnostics=[],
+        state=result.overall_state,
+        data=result.to_data(verbose=verbose),
+        diagnostics=diagnostics,
     )
 
     def _text() -> None:
+        table = Table(title="HATH0R doctor — OpenSource control tower")
+        table.add_column("Check")
+        table.add_column("Path / detail")
+        table.add_column("Status")
+        for c in result.checks:
+            detail = c.path if (verbose and c.path) else (c.detail or c.message)
+            status = (
+                "[green]ok[/green]"
+                if c.state == "ok"
+                else f"[red]{c.state}[/red]"
+            )
+            table.add_row(c.label, detail or "", status)
         console.print(table)
         console.print(f"hath0r {__version__}")
-        if failures:
-            console.print(f"[red]doctor failed: {failures} check(s)[/red]")
+        if result.failed_count:
+            console.print(f"[red]doctor failed: {result.failed_count} check(s)[/red]")
         else:
             console.print("[green]doctor passed: OpenSource control tower configuration ok[/green]")
 
     _emit_response(ctx, response, text_renderer=_text)
-    if failures:
-        raise SystemExit(1)
+    if result.failed_count:
+        # Exit 6 = dependency unhealthy (Framework exit-code contract).
+        raise SystemExit(6)
 
 
 @main.group()

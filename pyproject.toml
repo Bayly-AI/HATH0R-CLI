@@ -13,6 +13,7 @@ authors = [{ name = "Bayly AI" }]
 dependencies = [
   "click>=8.1",
   "rich>=13.0",
+  "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]

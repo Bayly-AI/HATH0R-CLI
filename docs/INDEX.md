@@ -79,7 +79,8 @@ Documentation examples do not make a proposed command executable.
 | `hath0r kb path` | Implemented |
 | `hath0r kb products` | Implemented |
 | `hath0r --output json --version` | Implemented (`hath0r.cli.response/1` + version data) |
-| Versioned JSON output (all commands) | Partial — version done; doctor/kb payloads still landing |
+| `hath0r --output json doctor` | Implemented (checks + counts; exit 6 on dependency failure) |
+| Versioned JSON output (all commands) | Partial — version/doctor done; kb payloads still landing |
 | Schema discovery | Framework design |
 | Knowledge search/write | Unavailable |
 | Validation/orchestration/gates | Unavailable |

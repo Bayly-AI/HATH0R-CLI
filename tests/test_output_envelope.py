@@ -171,7 +171,8 @@ def test_doctor_json_basic_envelope(runner: CliRunner, tmp_path: Path, monkeypat
     monkeypatch.setenv("HATH0R_GROUP_ROOT", str(tmp_path / "missing-group"))
     (tmp_path / "missing-group").mkdir()
     result = runner.invoke(cli.main, ["--output", "json", "doctor"])
-    # Doctor exits non-zero when checks fail; envelope still emitted.
+    # Doctor exits 6 when required dependency checks fail; envelope still emitted.
+    assert result.exit_code == 6
     assert result.output.strip()
     assert ANSI_RE.search(result.output) is None
     payload = _parse_envelope(result.output)
@@ -181,7 +182,8 @@ def test_doctor_json_basic_envelope(runner: CliRunner, tmp_path: Path, monkeypat
     assert payload["meta"]["cli_version"] == __version__
     assert isinstance(payload["meta"]["duration_ms"], int)
     assert payload["meta"]["duration_ms"] >= 0
-    assert "data" in payload
+    assert isinstance(payload.get("data"), dict)
+    assert "checks" in payload["data"]
     assert isinstance(payload["diagnostics"], list)
 
 

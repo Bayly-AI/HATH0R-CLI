@@ -67,10 +67,11 @@ today.
 | Version | Implemented | `hath0r --version` | Read-only allowlisted probe |
 | Version structured JSON | Implemented | `hath0r --output json --version` → `hath0r.cli.response/1` | Prefer JSON probe when available |
 | Suite diagnostics | Implemented | `hath0r doctor` | Exit status is authoritative |
+| Doctor structured JSON | Implemented | `hath0r --output json doctor` → checks/counts; exit `6` when degraded | Prefer JSON probe when available |
 | Canonical KB path | Implemented | `hath0r kb path` | Adapter returns logical availability by default |
 | Product catalog | Implemented | `hath0r kb products` | Bounded YAML/text until JSON ships |
 | JSON output flag | Implemented | `--output, -o json\|text\|auto` | Request JSON explicitly |
-| JSON payloads (doctor/kb) | Partial | Envelope ships; command `data` still landing | Keep text path until full payloads |
+| JSON payloads (kb path/products) | Partial | Envelope ships; command `data` still landing | Keep text path until full payloads |
 | Schema discovery | Not implemented | No schema command in CLI source | Framework design |
 | Knowledge search/write | Not implemented | No command in CLI source | Unavailable to POC |
 | Validation/orchestration/gates | Not implemented | Framework design only | Unavailable to POC |
