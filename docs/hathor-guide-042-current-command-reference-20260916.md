@@ -64,12 +64,13 @@ script.
 | Command | Purpose | Success output | Current failure behavior |
 |---------|---------|----------------|--------------------------|
 | `hath0r --version` | Show installed CLI version | Text: version line; JSON: `hath0r.cli.response/1` with version data | Invocation/spawn error |
-| `hath0r doctor` | Check group, Tower, member, and KB orientation | Rich table, version, pass summary | Exit `1` after reporting failed checks |
+| `hath0r doctor` | Check group, Tower, member, and KB orientation | Text: Rich table; JSON: checks/counts payload | Exit `6` when required dependency checks fail |
 | `hath0r kb path` | Print canonical group KB path | Absolute path text | Prints path, then exits nonzero if directory is absent |
 | `hath0r kb products` | Print canonical suite product catalog | YAML/text file contents | Exits nonzero if catalog is absent |
 
-Click returns usage exit `2` for invalid command/argument input. The
-application explicitly uses exit `1` for current doctor/KB failures.
+Click returns usage exit `2` for invalid command/argument input. Doctor
+uses exit `6` (dependency unhealthy) when required checks fail. KB path
+and products still use exit `3` when missing.
 
 ## 4. `hath0r --version`
 
@@ -88,7 +89,15 @@ prints `hath0r, version <semver>`.
 
 ```sh
 hath0r doctor
+hath0r --output json doctor
+hath0r --output json --verbose doctor
 ```
+
+JSON mode emits `hath0r.cli.response/1` with doctor `data` (`group_id`,
+`control_tower`, `checks`, `counts`). Normal JSON omits absolute paths;
+`--verbose` includes them. Failed required checks set `state: degraded`
+and process exit `6`. Doctor also compares tower `cfg/products.yaml` with
+the hub catalog for `product_id` / `is_control_tower` drift.
 
 Doctor checks:
 
@@ -155,11 +164,11 @@ them.
 ## 9. Current output and compatibility limits
 
 HATH0R-CLI v0.2 provides `--output`/`-o` (`json|text|auto`) and the
-`hath0r.cli.response/1` envelope. Version JSON `data` is complete.
+`hath0r.cli.response/1` envelope. Version and doctor JSON `data` are complete.
 
 Still not provided (or only partial):
 
-- full structured `data` payloads for `doctor`, `kb path`, and `kb products`;
+- full structured `data` payloads for `kb path` and `kb products`;
 - command schema discovery;
 - bounded collection flags;
 - complete stable diagnostic-code coverage on every failure path;
