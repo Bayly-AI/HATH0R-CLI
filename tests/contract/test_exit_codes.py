@@ -6,15 +6,14 @@ import json
 from pathlib import Path
 
 import pytest
-from click.testing import CliRunner
+from click.testing import CliRunner  # noqa: F401 — used via fixture type elsewhere
 
 from hath0r_cli import cli
-
-EXIT_CODES = Path("/Users/raybayly/Development/OpenSource/hath0r/lib/contracts/exit-codes.yaml")
+from tests.framework_paths import framework_exit_codes
 
 
 def test_exit_code_contract_file_exists() -> None:
-    assert EXIT_CODES.is_file()
+    assert framework_exit_codes().is_file()
 
 
 def test_success_exits_zero(runner: CliRunner) -> None:

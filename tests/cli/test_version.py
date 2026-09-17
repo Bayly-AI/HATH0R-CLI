@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import json
 import re
-from pathlib import Path
 
 import jsonschema
 import pytest
 from click.testing import CliRunner
 
 from hath0r_cli import __version__, cli
+from tests.framework_paths import framework_schemas as _fs
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 SEMVER_RE = re.compile(
@@ -20,9 +20,8 @@ SEMVER_RE = re.compile(
     r"(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
 )
 
-FRAMEWORK_SCHEMAS = (
-    Path("/Users/raybayly/Development/OpenSource/hath0r/lib/schemas")
-)
+
+FRAMEWORK_SCHEMAS = _fs()
 
 
 def _load_schema(name: str) -> dict:
