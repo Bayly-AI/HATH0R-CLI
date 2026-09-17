@@ -161,7 +161,7 @@ def test_auto_non_tty_uses_json(runner: CliRunner) -> None:
 
 def test_package_version_is_020() -> None:
     assert __version__ == "0.2.0"
-    pyproject = Path(__file__).resolve().parents[1] / "pyproject.toml"
+    pyproject = Path(__file__).resolve().parents[2] / "pyproject.toml"
     text = pyproject.read_text(encoding="utf-8")
     assert 'version = "0.2.0"' in text
 
