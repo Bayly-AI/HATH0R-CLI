@@ -7,7 +7,7 @@ doctor:
 	hath0r doctor
 
 test:
-	python3 -m pytest -q || true
+	python3 -m pytest -q
 
 pr: doctor
 	@echo "local gate ok"
