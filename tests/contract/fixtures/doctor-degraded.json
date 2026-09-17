@@ -1,0 +1,77 @@
+{
+  "schema": "hath0r.cli.response/1",
+  "command": "doctor",
+  "generated_at": "2026-09-16T00:00:00Z",
+  "state": "degraded",
+  "data": {
+    "group_id": "hath0r-opensource",
+    "control_tower": {
+      "product_id": "hath0r-cli",
+      "configured": true
+    },
+    "checks": [
+      {"id": "group-root", "state": "ok", "message": "Group root is present."},
+      {"id": "group-agents", "state": "ok", "message": "Group AGENTS.md is present."},
+      {"id": "group-warp", "state": "ok", "message": "Group WARP.md is present."},
+      {"id": "canonical-kb", "state": "unavailable", "message": "Canonical knowledgebase directory is missing."},
+      {"id": "suite-catalog", "state": "unavailable", "message": "Suite product catalog file is missing."},
+      {"id": "catalog-tower-path", "state": "error", "message": "Catalog control tower path is missing or mismatched."},
+      {"id": "control-tower-root", "state": "ok", "message": "Control tower repository root is present."},
+      {"id": "tower-cfg-control-tower", "state": "ok", "message": "Tower config control-tower.yaml is present."},
+      {"id": "tower-cfg-suite", "state": "ok", "message": "Tower config suite.yaml is present."},
+      {"id": "tower-cfg-knowledge-tower", "state": "ok", "message": "Tower config knowledge-tower.yaml is present."},
+      {"id": "tower-cfg-products", "state": "ok", "message": "Tower config products.yaml is present."},
+      {"id": "tower-is-control-tower", "state": "ok", "message": "Tower knowledge-tower.yaml declares is_control_tower: true."},
+      {"id": "tower-control-tower-path", "state": "ok", "message": "Tower configs reference the control tower path."},
+      {"id": "tower-remote", "state": "ok", "message": "Tower remote is Bayly-AI/HATH0R-CLI."},
+      {"id": "member-framework", "state": "ok", "message": "Member repository framework is present."},
+      {"id": "agents-framework", "state": "ok", "message": "Member framework AGENTS.md is present."},
+      {"id": "member-tower-pointer-framework", "state": "ok", "message": "Member framework points at the control tower."},
+      {"id": "member-cli", "state": "ok", "message": "Member repository cli is present."},
+      {"id": "agents-cli", "state": "ok", "message": "Member cli AGENTS.md is present."},
+      {"id": "member-poc", "state": "ok", "message": "Member repository poc is present."},
+      {"id": "agents-poc", "state": "ok", "message": "Member poc AGENTS.md is present."},
+      {"id": "member-tower-pointer-poc", "state": "ok", "message": "Member poc points at the control tower."},
+      {"id": "catalog-drift", "state": "error", "message": "Hub catalog missing; cannot verify catalog drift."}
+    ],
+    "counts": {"ok": 19, "failed": 4}
+  },
+  "diagnostics": [
+    {
+      "code": "KNOWLEDGEBASE_NOT_FOUND",
+      "message": "Canonical knowledgebase directory is missing.",
+      "severity": "error",
+      "remediation": "Verify the OpenSource group layout and run hath0r doctor --verbose.",
+      "provenance": {"component": "hath0r-cli", "operation": "doctor"},
+      "details": {"check_id": "canonical-kb"}
+    },
+    {
+      "code": "PRODUCT_CATALOG_NOT_FOUND",
+      "message": "Suite product catalog file is missing.",
+      "severity": "error",
+      "remediation": "Verify the OpenSource group layout and run hath0r doctor --verbose.",
+      "provenance": {"component": "hath0r-cli", "operation": "doctor"},
+      "details": {"check_id": "suite-catalog"}
+    },
+    {
+      "code": "PRODUCT_CATALOG_INVALID",
+      "message": "Catalog control tower path is missing or mismatched.",
+      "severity": "error",
+      "remediation": "Verify the OpenSource group layout and run hath0r doctor --verbose.",
+      "provenance": {"component": "hath0r-cli", "operation": "doctor"},
+      "details": {"check_id": "catalog-tower-path"}
+    },
+    {
+      "code": "PRODUCT_CATALOG_INVALID",
+      "message": "Hub catalog missing; cannot verify catalog drift.",
+      "severity": "error",
+      "remediation": "Verify the OpenSource group layout and run hath0r doctor --verbose.",
+      "provenance": {"component": "hath0r-cli", "operation": "doctor"},
+      "details": {"check_id": "catalog-drift"}
+    }
+  ],
+  "meta": {
+    "cli_version": "0.2.0",
+    "duration_ms": 15
+  }
+}
