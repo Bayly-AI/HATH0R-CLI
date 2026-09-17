@@ -11,9 +11,12 @@ import pytest
 from click.testing import CliRunner
 
 from hath0r_cli import __version__, cli
+from tests.framework_paths import framework_schemas as _fs
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
-FRAMEWORK_SCHEMAS = Path("/Users/raybayly/Development/OpenSource/hath0r/lib/schemas")
+
+
+FRAMEWORK_SCHEMAS = _fs()
 
 
 def _schema(name: str) -> dict:

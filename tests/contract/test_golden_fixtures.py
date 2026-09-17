@@ -9,8 +9,9 @@ from pathlib import Path
 import jsonschema
 import pytest
 
+from tests.framework_paths import framework_schemas
+
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
-FRAMEWORK_SCHEMAS = Path("/Users/raybayly/Development/OpenSource/hath0r/lib/schemas")
 REAL_PATH_RE = re.compile(r"/Users/|/home/|\\\\Users\\\\")
 
 COMMAND_DATA_SCHEMA = {
@@ -33,7 +34,7 @@ REQUIRED_FIXTURES = [
 
 
 def _load_schema(name: str) -> dict:
-    path = FRAMEWORK_SCHEMAS / name
+    path = framework_schemas() / name
     assert path.is_file(), f"missing schema {path}"
     return json.loads(path.read_text(encoding="utf-8"))
 

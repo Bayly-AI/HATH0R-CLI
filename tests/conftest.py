@@ -8,7 +8,7 @@ import pytest
 import yaml
 from click.testing import CliRunner
 
-FRAMEWORK_SCHEMAS = Path("/Users/raybayly/Development/OpenSource/hath0r/lib/schemas")
+from tests.framework_paths import framework_schemas as _framework_schemas
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def runner() -> CliRunner:
 
 @pytest.fixture
 def framework_schemas() -> Path:
-    return FRAMEWORK_SCHEMAS
+    return _framework_schemas()
 
 
 def _write(path: Path, text: str) -> None:

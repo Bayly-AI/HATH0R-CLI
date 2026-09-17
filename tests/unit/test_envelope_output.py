@@ -15,7 +15,6 @@ from hath0r_cli import __version__, cli
 from hath0r_cli.envelope import RESPONSE_SCHEMA, CliResponse, Diagnostic, ResponseMeta
 from hath0r_cli.output import emit, progress_err, resolve_output_mode
 
-
 RFC3339_Z = re.compile(
     r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
 )
