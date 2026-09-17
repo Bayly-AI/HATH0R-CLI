@@ -1,0 +1,38 @@
+{
+  "schema": "hath0r.cli.response/1",
+  "command": "kb.products",
+  "generated_at": "2026-09-16T00:00:00Z",
+  "state": "ok",
+  "data": {
+    "group_id": "hath0r-opensource",
+    "control_tower_product_id": "hath0r-cli",
+    "products": [
+      {
+        "product_id": "hath0r-cli",
+        "product_name": "HATH0R CLI",
+        "role": "control-tower",
+        "canonical": true,
+        "is_control_tower": true
+      },
+      {
+        "product_id": "hath0r-framework",
+        "product_name": "HATHOR Framework",
+        "role": "agentic-application-framework",
+        "canonical": true,
+        "is_control_tower": false
+      },
+      {
+        "product_id": "hath0r-poc",
+        "product_name": "HATHOR POC",
+        "role": "integration-test-bed",
+        "canonical": true,
+        "is_control_tower": false
+      }
+    ]
+  },
+  "diagnostics": [],
+  "meta": {
+    "cli_version": "0.2.0",
+    "duration_ms": 3
+  }
+}

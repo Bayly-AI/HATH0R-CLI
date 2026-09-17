@@ -1,0 +1,24 @@
+{
+  "schema": "hath0r.cli.response/1",
+  "command": "kb.path",
+  "generated_at": "2026-09-16T00:00:00Z",
+  "state": "unavailable",
+  "data": {
+    "configured": true,
+    "available": false,
+    "path": "/mock/group/root/.hath0r/knowledgebase"
+  },
+  "diagnostics": [
+    {
+      "code": "KNOWLEDGEBASE_NOT_FOUND",
+      "message": "The canonical OpenSource knowledgebase is unavailable.",
+      "severity": "error",
+      "remediation": "Verify the group root and run hath0r doctor.",
+      "provenance": {"component": "hath0r-cli", "operation": "kb.path"}
+    }
+  ],
+  "meta": {
+    "cli_version": "0.2.0",
+    "duration_ms": 2
+  }
+}

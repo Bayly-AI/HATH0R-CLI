@@ -1,0 +1,20 @@
+{
+  "schema": "hath0r.cli.response/1",
+  "command": "kb.products",
+  "generated_at": "2026-09-16T00:00:00Z",
+  "state": "unavailable",
+  "data": null,
+  "diagnostics": [
+    {
+      "code": "PRODUCT_CATALOG_NOT_FOUND",
+      "message": "The suite products catalog is unavailable.",
+      "severity": "error",
+      "remediation": "Verify the knowledgebase path and run hath0r doctor.",
+      "provenance": {"component": "hath0r-cli", "operation": "kb.products"}
+    }
+  ],
+  "meta": {
+    "cli_version": "0.2.0",
+    "duration_ms": 2
+  }
+}
