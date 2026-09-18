@@ -11,11 +11,11 @@ on:
   workflow_dispatch:
     inputs:
       publish_pypi:
-        description: "Publish to PyPI (requires PYPI_API_TOKEN)"
+        description: "Publish to PyPI (Trusted Publisher env pypi, or PYPI_API_TOKEN)"
         type: boolean
         default: false
       publish_test_pypi:
-        description: "Publish to TestPyPI (requires TEST_PYPI_API_TOKEN)"
+        description: "Publish to TestPyPI (Trusted Publisher env test-pypi, or TEST_PYPI_API_TOKEN)"
         type: boolean
         default: true
 
