@@ -91,6 +91,58 @@ Secrets (optional):
 - `TEST_PYPI_API_TOKEN` — TestPyPI
 - `PYPI_API_TOKEN` — production PyPI
 
+
+
+## PyPI Trusted Publisher (required for OIDC publish)
+
+GitHub Actions publishes with **OIDC trusted publishing** (no long-lived token in the default path).
+
+### GitHub (already configured)
+
+| Setting | Value |
+|---------|-------|
+| Repository | `Bayly-AI/HATH0R-CLI` |
+| Workflow file | `release.yml` |
+| Job | `publish-pypi` |
+| Environment | `pypi` |
+| Permissions | `id-token: write` |
+| Environment URL | https://github.com/Bayly-AI/HATH0R-CLI/settings/environments |
+
+Also: environment `test-pypi` for TestPyPI publishes.
+
+### PyPI.org (configure once in the browser)
+
+1. Sign in as a maintainer of project **`hath0r-cli`** (create the project on first pending publisher if needed).
+2. Open **Publishing** (pending publisher or project publishing settings):
+   - https://pypi.org/manage/account/publishing/
+   - or https://pypi.org/manage/project/hath0r-cli/settings/publishing/
+3. Add a **GitHub** trusted publisher with **exactly**:
+
+| Field | Value |
+|-------|-------|
+| Owner | `Bayly-AI` |
+| Repository | `HATH0R-CLI` |
+| Workflow name | `release.yml` |
+| Environment name | `pypi` |
+
+4. Save. For a not-yet-uploaded project, use a **pending publisher**; the first successful publish claims the name.
+
+### TestPyPI (optional)
+
+Same form on https://test.pypi.org/manage/account/publishing/ with environment name **`test-pypi`**.
+
+### Alternate: API token
+
+If not using trusted publishing, set Actions secret **`PYPI_API_TOKEN`** on the `pypi` environment (and `TEST_PYPI_API_TOKEN` for TestPyPI). The workflow still accepts `password: ${{ secrets.PYPI_API_TOKEN }}` when present.
+
+### Publish command
+
+```sh
+gh workflow run release.yml --ref development \
+  -f publish_pypi=true \
+  -f publish_test_pypi=false
+```
+
 ## Trust rules
 
 - Prefer checksummed Release assets over unsigned scripts.
