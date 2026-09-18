@@ -18,6 +18,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0", "jsonschema>=4.0", "mypy>=1.0", "ruff>=0.6"]
+release = ["build>=1.2", "twine>=5.0", "pyinstaller>=6.0"]
 
 [tool.ruff]
 target-version = "py310"
@@ -31,6 +32,13 @@ python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
+
+[project.urls]
+Homepage = "https://github.com/Bayly-AI/HATH0R-CLI"
+Documentation = "https://github.com/Bayly-AI/HATH0R-CLI/tree/development/docs"
+Repository = "https://github.com/Bayly-AI/HATH0R-CLI"
+Issues = "https://github.com/Bayly-AI/HATH0R-CLI/issues"
+"Release packaging" = "https://github.com/Bayly-AI/HATH0R-CLI/issues/30"
 
 [project.scripts]
 hath0r = "hath0r_cli.cli:main"

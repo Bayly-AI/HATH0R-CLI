@@ -1,0 +1,185 @@
+# Build release artifacts for hath0r-cli (issue #30).
+# Triggers: version tags (v*) or manual workflow_dispatch.
+# Publishes GitHub Release assets; PyPI/TestPyPI only when secrets are configured.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      publish_pypi:
+        description: "Publish to PyPI (requires PYPI_API_TOKEN)"
+        type: boolean
+        default: false
+      publish_test_pypi:
+        description: "Publish to TestPyPI (requires TEST_PYPI_API_TOKEN)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  python-artifacts:
+    name: python-sdist-wheel-fileset
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout CLI
+        uses: actions/checkout@v4
+
+      - name: Checkout Framework contracts
+        uses: actions/checkout@v4
+        with:
+          repository: Bayly-AI/HATH0R-Agentic-Framework
+          path: hath0r-framework
+          sparse-checkout: |
+            lib/schemas
+            lib/contracts
+          sparse-checkout-cone-mode: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,release]"
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Build fileset
+        env:
+          HATH0R_FRAMEWORK_ROOT: ${{ github.workspace }}/hath0r-framework
+        run: python scripts/build_fileset.py --out dist/fileset
+
+      - name: Upload python + fileset artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-and-fileset
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+            dist/fileset/*
+
+  binary:
+    name: binary (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            tag: linux
+          - os: macos-latest
+            tag: darwin
+    steps:
+      - name: Checkout CLI
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package + PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[release]"
+
+      - name: Build binary
+        run: python scripts/build_binary.py --out dist/binary
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.tag }}
+          path: dist/binary/hath0r-*
+
+  publish-github-release:
+    name: github-release
+    needs: [python-artifacts, binary]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: Flatten assets
+        run: |
+          mkdir -p upload
+          find release-assets -type f \( -name '*.whl' -o -name '*.tar.gz' -o -name 'hath0r-*' -o -name '*.sha256' \) -exec cp {} upload/ \;
+          ls -la upload
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: upload/*
+          generate_release_notes: true
+          body: |
+            ## HATH0R CLI release
+
+            Install options:
+            - **PyPI / pipx**: `pipx install hath0r-cli` (when published)
+            - **Wheel/sdist**: attached assets
+            - **Standalone binary**: `hath0r-<ver>-<platform>` (+ `.sha256`)
+            - **Fileset**: `hath0r-fileset-<ver>.tar.gz` (+ `.sha256`)
+
+            Verify checksums before use. Do not install via unverified `curl | sh`.
+
+            See `docs/hathor-guide-047-install-and-release-20260918.md`.
+
+  publish-test-pypi:
+    name: publish-test-pypi
+    needs: [python-artifacts]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_test_pypi == true
+    environment: test-pypi
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-and-fileset
+          path: dist
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist/
+          skip-existing: true
+
+  publish-pypi:
+    name: publish-pypi
+    needs: [python-artifacts]
+    runs-on: ubuntu-latest
+    # Opt-in only — avoids failed tag builds when PYPI_API_TOKEN is unset.
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_pypi == true
+    environment: pypi
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-and-fileset
+          path: dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages-dir: dist/
+          skip-existing: true

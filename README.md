@@ -16,13 +16,36 @@ Operator and developer **control plane** for the HATHOR OpenSource agentic stack
 
 ## Install
 
+Preferred (operators):
+
+```sh
+pipx install hath0r-cli
+# or: python3 -m pip install hath0r-cli
+hath0r --version
+hath0r doctor
+```
+
+Developer (editable monorepo):
+
 ```sh
 cd /path/to/OpenSource/HATH0R-CLI   # or set HATH0R_GROUP_ROOT
-python3 -m pip install -e .
+python3 -m pip install -e ".[dev]"
 hath0r --version
 hath0r doctor
 hath0r kb path
 ```
+
+Release packaging (fileset, binary, npm client, CI): see
+[Install and release matrix](docs/hathor-guide-047-install-and-release-20260918.md)
+and issue [#30](https://github.com/Bayly-AI/HATH0R-CLI/issues/30).
+
+```sh
+make fileset
+make wheel
+# optional engine binary:
+# pip install -e ".[release]" && make binary
+```
+
 
 ## Commands (v0.1)
 

@@ -1,0 +1,48 @@
+{
+  "name": "@bayly-ai/hath0r",
+  "version": "0.2.0",
+  "description": "Thin Node/TypeScript client for the hath0r CLI (fixed operations, secure spawn defaults).",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run test:run",
+    "test:run": "node --import tsx --test src/index.test.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bayly-AI/HATH0R-CLI.git",
+    "directory": "packaging/npm/hath0r-client"
+  },
+  "keywords": [
+    "hath0r",
+    "hathor",
+    "cli",
+    "agentic"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
