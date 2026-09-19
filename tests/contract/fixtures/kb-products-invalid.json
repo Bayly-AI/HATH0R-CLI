@@ -1,0 +1,20 @@
+{
+  "schema": "hath0r.cli.response/1",
+  "command": "kb.products",
+  "generated_at": "2026-09-16T00:00:00Z",
+  "state": "error",
+  "data": null,
+  "diagnostics": [
+    {
+      "code": "PRODUCT_CATALOG_INVALID",
+      "message": "The suite products catalog could not be parsed: invalid YAML.",
+      "severity": "error",
+      "remediation": "Fix YAML syntax in the hub suite-products.yaml catalog.",
+      "provenance": {"component": "hath0r-cli", "operation": "kb.products"}
+    }
+  ],
+  "meta": {
+    "cli_version": "0.2.0",
+    "duration_ms": 2
+  }
+}

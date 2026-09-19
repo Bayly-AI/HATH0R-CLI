@@ -1,0 +1,22 @@
+group_id: hath0r-opensource
+group_label: OpenSource Project
+projects_location: /Users/raybayly/Development/OpenSource
+control_tower_path: /Users/raybayly/Development/OpenSource/HATH0R-CLI
+control_tower_github: Bayly-AI/HATH0R-CLI
+docker_network: hath0r-net
+cli_canonical_name: HATH0R CLI
+cli_binary: hath0r
+product_id: hath0r-cli
+product_name: HATH0R-CLI
+package: hath0r_cli
+products_catalog: cfg/products.yaml
+rule_branch: cr-branch-gov-001
+rule_tower: cr-kb-tower-001
+rule_root: cr-hath0r-root-001
+group_of_apps_description: >
+  OpenSource Project (group hath0r-opensource). HATH0R-CLI is the control tower
+  for suite governance, operator CLI, and group orientation. All sibling repos
+  under the OpenSource folder are canonical members of this project.
+brand_description: >
+  OpenSource HATHOR — public/open agentic framework, operator CLI, and POC test bed.
+updated_at: 2026-09-15T18:35:00Z
