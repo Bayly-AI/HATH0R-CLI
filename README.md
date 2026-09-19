@@ -60,6 +60,10 @@ These four invocations are the complete implemented v0.1 integration surface.
 Structured JSON, schema discovery, knowledge search/write, validation,
 orchestration, and mutating commands are not currently implemented.
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for release history (current: **v0.2.0**).
+
 ## Documentation
 
 - [Documentation index](docs/INDEX.md)
