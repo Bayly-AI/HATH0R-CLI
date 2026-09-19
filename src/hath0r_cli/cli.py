@@ -369,5 +369,229 @@ def kb_products(ctx: click.Context) -> None:
         _emit_response(ctx, response, text_renderer=_text)
 
 
+
+# --- ADR-003 surface discovery (F5) -----------------------------------------
+# Full domain implementations land behind contracts over time. These commands
+# expose the canonical surface with honest shipped|planned status so agents
+# never invent verbs and never call legacy `aegis`.
+
+_ADR003_PLANES = [
+    {
+        "id": "meta",
+        "commands": ["help", "version", "schema", "doctor", "planes"],
+        "status": "partial",
+        "notes": "version/doctor/schema/planes shipped; help via click",
+    },
+    {
+        "id": "kb",
+        "commands": ["kb path", "kb products"],
+        "status": "shipped",
+        "notes": "read discovery only; search/write planned",
+    },
+    {
+        "id": "process",
+        "commands": ["process …"],
+        "status": "planned",
+        "notes": "HATHOR-ADR-003 hierarchy/orchestration runs",
+    },
+    {
+        "id": "proctor",
+        "commands": ["proctor …"],
+        "status": "planned",
+        "notes": "gates / policy / gateway admission",
+    },
+    {
+        "id": "operator",
+        "commands": ["operator …"],
+        "status": "planned",
+        "notes": "brokered external systems",
+    },
+    {
+        "id": "tower",
+        "commands": ["tower …"],
+        "status": "planned",
+        "notes": "control tower authority surface",
+    },
+    {
+        "id": "knowledge",
+        "commands": ["knowledge …"],
+        "status": "planned",
+        "notes": "write/search/promote; kb path/products cover hub discovery today",
+    },
+    {
+        "id": "work",
+        "commands": ["work …"],
+        "status": "planned",
+        "notes": "ticketing plane",
+    },
+    {
+        "id": "repo",
+        "commands": ["repo …"],
+        "status": "planned",
+        "notes": "UPL validate/init beyond bootstrap scripts",
+    },
+    {
+        "id": "delivery",
+        "commands": ["delivery …"],
+        "status": "planned",
+        "notes": "PR / quality / release façade",
+    },
+    {
+        "id": "validate",
+        "commands": ["validate …"],
+        "status": "planned",
+        "notes": "continuous validation system",
+    },
+]
+
+_SHIPPED_COMMANDS = [
+    {
+        "name": "version",
+        "invocation": ["hath0r --version"],
+        "status": "shipped",
+        "effects": "read_only",
+        "output_kind": "data",
+    },
+    {
+        "name": "doctor",
+        "invocation": ["hath0r doctor"],
+        "status": "shipped",
+        "effects": "read_only",
+        "output_kind": "data",
+    },
+    {
+        "name": "kb.path",
+        "invocation": ["hath0r kb path"],
+        "status": "shipped",
+        "effects": "read_only",
+        "output_kind": "data",
+    },
+    {
+        "name": "kb.products",
+        "invocation": ["hath0r kb products"],
+        "status": "shipped",
+        "effects": "read_only",
+        "output_kind": "data",
+    },
+    {
+        "name": "schema",
+        "invocation": ["hath0r schema"],
+        "status": "shipped",
+        "effects": "read_only",
+        "output_kind": "data",
+    },
+    {
+        "name": "planes",
+        "invocation": ["hath0r planes"],
+        "status": "shipped",
+        "effects": "read_only",
+        "output_kind": "data",
+    },
+]
+
+
+@main.command("planes")
+@click.pass_context
+def planes(ctx: click.Context) -> None:
+    """List ADR-003 control-plane domains and implementation status."""
+    data = {
+        "binary": "hath0r",
+        "cli_version": __version__,
+        "authority": "HATHOR-ADR-003",
+        "hidden_root": ".hath0r/",
+        "legacy_forbidden": [".aegis/", ".ai/", ".infraOS/", "aegis binary"],
+        "planes": list(_ADR003_PLANES),
+        "counts": {
+            "total": len(_ADR003_PLANES),
+            "shipped": sum(1 for p in _ADR003_PLANES if p["status"] == "shipped"),
+            "partial": sum(1 for p in _ADR003_PLANES if p["status"] == "partial"),
+            "planned": sum(1 for p in _ADR003_PLANES if p["status"] == "planned"),
+        },
+    }
+    response = _build_response(ctx, command="planes", state="ok", data=data)
+
+    def _text() -> None:
+        table = Table(title="HATH0R planes (ADR-003)")
+        table.add_column("Plane")
+        table.add_column("Status")
+        table.add_column("Notes")
+        for p in _ADR003_PLANES:
+            status = p["status"]
+            color = {"shipped": "green", "partial": "yellow", "planned": "cyan"}.get(status, "white")
+            table.add_row(p["id"], f"[{color}]{status}[/{color}]", p.get("notes") or "")
+        console.print(table)
+        console.print("Operator binary: hath0r — never aegis. Hidden root: .hath0r/ only.")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@main.command("schema")
+@click.option(
+    "--status",
+    "status_filter",
+    type=click.Choice(["all", "shipped", "partial", "planned"], case_sensitive=False),
+    default="all",
+    show_default=True,
+    help="Filter commands/planes by implementation status.",
+)
+@click.pass_context
+def schema(ctx: click.Context, status_filter: str) -> None:
+    """Dump bounded CLI surface schema (shipped + planned ADR-003 domains)."""
+    status_filter = status_filter.lower()
+    commands = [
+        c
+        for c in _SHIPPED_COMMANDS
+        if status_filter == "all" or c["status"] == status_filter
+    ]
+    planes = [
+        p
+        for p in _ADR003_PLANES
+        if status_filter == "all" or p["status"] == status_filter
+    ]
+    data = {
+        "clispec": "hath0r-surface/0.2",
+        "binary": "hath0r",
+        "package": "hath0r-cli",
+        "version": __version__,
+        "output": {"tty": "text", "piped": "json", "flag": "--output"},
+        "global_args": [
+            {
+                "name": "--output",
+                "short": "-o",
+                "type": "string",
+                "enum": ["auto", "text", "json"],
+                "default": "auto",
+            },
+            {"name": "--quiet", "type": "boolean", "default": False},
+            {"name": "--verbose", "type": "boolean", "default": False},
+            {"name": "--version", "type": "boolean", "default": False},
+        ],
+        "commands": commands,
+        "planes": planes,
+        "forbidden_legacy": {
+            "binaries": ["aegis"],
+            "hidden_roots": [".aegis/", ".ai/", ".infraOS/"],
+            "canonical_hidden_root": ".hath0r/",
+        },
+        "notes": [
+            "Planned domains are discoverable here but not executable until implemented behind contracts.",
+            "Do not invent hath0r process/work/validate verbs until status becomes shipped.",
+        ],
+    }
+    response = _build_response(ctx, command="schema", state="ok", data=data)
+
+    def _text() -> None:
+        click.echo(f"hath0r schema {__version__} (filter={status_filter})")
+        click.echo("commands:")
+        for c in commands:
+            click.echo(f"  - {c['name']}: {c['status']} :: {' '.join(c['invocation'])}")
+        click.echo("planes:")
+        for p in planes:
+            click.echo(f"  - {p['id']}: {p['status']}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+
 if __name__ == "__main__":
     main()
