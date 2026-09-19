@@ -1,0 +1,27 @@
+# HATH0R CLI Integration Documentation
+
+> Product-local map for using HATH0R-CLI with the React/TypeScript POC and canonical HATHOR Framework.
+
+## Start Here
+
+- [HATHOR-CANON-014 — HATH0R CLI Integration Documentation Index](INDEX.md): Reading order and source-of-truth map for using HATH0R-CLI with the HATHOR POC and Framework.
+
+## Requirements and Architecture
+
+- [HATHOR-REQ-002 — HATH0R CLI and POC Integration Requirements](hathor-req-002-cli-poc-integration-requirements-20260916.md): Requirements for the OpenSource HATH0R CLI to serve the React/TypeScript POC without bypassing Framework control boundaries.
+- [HATHOR-ARCH-004 — HATH0R CLI Control-Tower and POC Integration Architecture](hathor-arch-004-cli-control-tower-integration-20260916.md): Responsibility, data-flow, and trust-boundary architecture connecting HATH0R-CLI, the React/TypeScript POC, and the HATHOR Framework.
+
+## Current CLI Reference
+
+- [HATHOR-GUIDE-042 — HATH0R CLI v0.1 Command Reference](hathor-guide-042-current-command-reference-20260916.md): Source-verified installation, commands, outputs, exits, configuration, and limitations for the current HATH0R CLI.
+
+## Proposed Machine Contract
+
+- [HATHOR-TS-005 — HATH0R CLI Machine Interface for the POC](hathor-ts-005-poc-machine-interface-20260916.md): Proposed versioned JSON, error, exit, stream, and compatibility contract for machine consumption of HATH0R-CLI.
+
+## Integration and Operations
+
+- [HATHOR-GUIDE-043 — Integrating the HATHOR POC with HATH0R CLI](hathor-guide-043-poc-adapter-integration-20260916.md): Task-oriented guidance for safely connecting the React/TypeScript POC adapter to current and future HATH0R CLI contracts.
+- [HATHOR-GUIDE-044 — HATH0R CLI Development and POC Contract Testing](hathor-guide-044-development-testing-20260916.md): Development workflow and target test strategy for keeping CLI behavior, machine schemas, POC fixtures, and documentation synchronized.
+- [HATHOR-GUIDE-045 — HATH0R CLI Integration Security, Governance, and Delivery](hathor-guide-045-security-governance-delivery-20260916.md): Security boundaries, issue-backed change control, and environment promotion rules for CLI and POC integration.
+- [HATHOR-GUIDE-046 — HATH0R CLI and POC Integration Troubleshooting](hathor-guide-046-troubleshooting-20260916.md): Diagnostic steps for CLI installation, Tower orientation, KB/catalog access, POC mediation, and planned machine-output failures.

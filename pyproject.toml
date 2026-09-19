@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hath0r-cli"
+version = "0.2.0"
+description = "HATH0R CLI — operator and developer control plane for the HATHOR agentic framework."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Bayly AI" }]
+dependencies = [
+  "click>=8.1",
+  "rich>=13.0",
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "jsonschema>=4.0", "mypy>=1.0", "ruff>=0.6"]
+release = ["build>=1.2", "twine>=5.0", "pyinstaller>=6.0"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[project.urls]
+Homepage = "https://github.com/Bayly-AI/HATH0R-CLI"
+Documentation = "https://github.com/Bayly-AI/HATH0R-CLI/tree/development/docs"
+Repository = "https://github.com/Bayly-AI/HATH0R-CLI"
+Issues = "https://github.com/Bayly-AI/HATH0R-CLI/issues"
+"Release packaging" = "https://github.com/Bayly-AI/HATH0R-CLI/issues/30"
+
+[project.scripts]
+hath0r = "hath0r_cli.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+hath0r_cli = ["py.typed"]

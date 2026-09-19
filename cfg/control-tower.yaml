@@ -1,0 +1,25 @@
+group_id: hath0r-opensource
+group_label: OpenSource Project
+title: OpenSource Control Tower (HATH0R-CLI)
+remote: Bayly-AI/HATH0R-CLI
+local_path: /Users/raybayly/Development/OpenSource/HATH0R-CLI
+is_control_tower: true
+knowledge_mode: group_hub
+canonical_knowledgebase: /Users/raybayly/Development/OpenSource/.hath0r/knowledgebase
+framework_hidden_root: .hath0r
+members_root: /Users/raybayly/Development/OpenSource
+projects_location: /Users/raybayly/Development/OpenSource
+operator_cli: hath0r
+cli_canonical_name: HATH0R CLI
+cli_binary: hath0r
+suite_config: cfg/suite.yaml
+products_catalog: cfg/products.yaml
+docker_network: hath0r-net
+brand: HATHOR
+brand_parent: Bayly AI
+group_rules: /Users/raybayly/Development/OpenSource/AGENTS.md
+group_policy: /Users/raybayly/Development/OpenSource/WARP.md
+membership_rule: >
+  Every git repository directly under projects_location (sibling of this control
+  tower) is canonically part of the OpenSource Project unless explicitly excluded.
+updated_at: 2026-09-15T18:35:00Z

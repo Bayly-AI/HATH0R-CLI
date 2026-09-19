@@ -1,0 +1,5 @@
+# Suite orientation (fileset template) — non-secret
+product_id: "{{PRODUCT_ID}}"
+group_id: hath0r-opensource
+is_control_tower: false
+control_tower_product_id: hath0r-cli
