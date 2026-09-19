@@ -515,10 +515,13 @@ def planes(ctx: click.Context) -> None:
         table.add_column("Plane")
         table.add_column("Status")
         table.add_column("Notes")
-        for p in _ADR003_PLANES:
-            status = p["status"]
-            color = {"shipped": "green", "partial": "yellow", "planned": "cyan"}.get(status, "white")
-            table.add_row(p["id"], f"[{color}]{status}[/{color}]", p.get("notes") or "")
+        color_map = {"shipped": "green", "partial": "yellow", "planned": "cyan"}
+        for plane in _ADR003_PLANES:
+            status = str(plane["status"])
+            color = color_map.get(status, "white")
+            plane_id = str(plane["id"])
+            notes = str(plane.get("notes") or "")
+            table.add_row(plane_id, f"[{color}]{status}[/{color}]", notes)
         console.print(table)
         console.print("Operator binary: hath0r — never aegis. Hidden root: .hath0r/ only.")
 
@@ -543,10 +546,10 @@ def schema(ctx: click.Context, status_filter: str) -> None:
         for c in _SHIPPED_COMMANDS
         if status_filter == "all" or c["status"] == status_filter
     ]
-    planes = [
-        p
-        for p in _ADR003_PLANES
-        if status_filter == "all" or p["status"] == status_filter
+    plane_rows = [
+        plane
+        for plane in _ADR003_PLANES
+        if status_filter == "all" or plane["status"] == status_filter
     ]
     data = {
         "clispec": "hath0r-surface/0.2",
@@ -567,7 +570,7 @@ def schema(ctx: click.Context, status_filter: str) -> None:
             {"name": "--version", "type": "boolean", "default": False},
         ],
         "commands": commands,
-        "planes": planes,
+        "planes": plane_rows,
         "forbidden_legacy": {
             "binaries": ["aegis"],
             "hidden_roots": [".aegis/", ".ai/", ".infraOS/"],
@@ -586,8 +589,8 @@ def schema(ctx: click.Context, status_filter: str) -> None:
         for c in commands:
             click.echo(f"  - {c['name']}: {c['status']} :: {' '.join(c['invocation'])}")
         click.echo("planes:")
-        for p in planes:
-            click.echo(f"  - {p['id']}: {p['status']}")
+        for plane in plane_rows:
+            click.echo(f"  - {plane['id']}: {plane['status']}")
 
     _emit_response(ctx, response, text_renderer=_text)
 
