@@ -22,3 +22,17 @@
 
 - **Member mode**: place this project beside other OpenSource members under a group root that contains `AGENTS.md` with `hath0r-opensource` and `.hath0r/knowledgebase`.
 - **Standalone mode**: keep the local `.hath0r/knowledgebase` stub; point `HATH0R_KB_PATH` when a hub exists.
+
+## CR-HATH0R-INIT-001: Hath0r repo initialization entry gate (CRITICAL — org-wide)
+
+**Main entry statement:** Before initializing (or re-initializing) any repository with Hath0r, agents MUST:
+
+1. **Setup playbook** — Locate and follow the canonical Hath0r setup playbook:
+   - `/Users/raybayly/Development/OpenSource/hath0r/docs/developers/hathor-playbook-001-repo-init-setup-20260919.md`
+   - If the playbook is missing or incomplete, **create or update it first**, then proceed.
+2. **Same-technology runbook** — Locate a runbook for an **individual repo with the same technology stack** (e.g. React+Vite UXP, Python CLI):
+   - Prefer a sibling/product `docs/runbook.md` (or `docs/*runbook*`) in that tech family.
+   - If none exists, **create a tech-appropriate runbook in the target repo** before finishing init.
+3. Only after (1) and (2) are satisfied: apply fileset/layout, `.hath0r/`, `cfg/`, contracts pin, `AGENTS.md` identity, and `./bin/hath0r-bootstrap.sh`.
+
+Do not skip the playbook/runbook gate. Layout scaffolding without a documented ops path is incomplete initialization.
