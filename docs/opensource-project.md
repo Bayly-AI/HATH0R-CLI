@@ -168,12 +168,23 @@ gh search issues --state open \
 
 ```text
 OpenSource/
-├── AGENTS.md
-├── WARP.md
+├── AGENTS.md                       # materialized hub copy (not git)
+├── WARP.md                         # materialized hub copy (not git)
 ├── .hath0r/knowledgebase/          # group KB hub
 ├── HATH0R-CLI/                     # control tower + hath0r
+│   └── cfg/group/                  # CANONICAL group AGENTS.md + WARP.md (git)
 └── hath0r/                         # Framework contracts + docs
 ```
+
+### Group hub versioning (P1)
+
+| Layer | Path | Git? |
+|-------|------|------|
+| **Canonical** | `HATH0R-CLI/cfg/group/{AGENTS,WARP}.md` | **Yes** (this repo) |
+| Materialized | `OpenSource/{AGENTS,WARP}.md` | No — workspace container |
+| Sync | `./scripts/sync-group-hub.sh` | — |
+
+Edit policy only under `cfg/group/`, PR to `development`, then run the sync script on each machine. `CR-HATH0R-INIT-001` and other group rules are recoverable from GitHub via the control tower.
 
 POC is not required under the group root for day-to-day operator use.
 

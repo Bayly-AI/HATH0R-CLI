@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-
 RESPONSE_SCHEMA = "hath0r.cli.response/1"
 VALID_STATES = frozenset({"ok", "degraded", "unavailable", "error"})
 VALID_SEVERITIES = frozenset({"error", "warning", "info"})
