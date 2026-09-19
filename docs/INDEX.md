@@ -142,3 +142,5 @@ deployment controls.
 ## Project changelog
 
 - Repository root [CHANGELOG.md](../CHANGELOG.md) — Keep a Changelog for `hath0r-cli` releases.
+
+- [Group policy pack](../cfg/group/README.md) — versioned OpenSource AGENTS/WARP (hub P1)

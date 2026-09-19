@@ -103,3 +103,7 @@ See `AGENTS.md`, `cfg/suite.yaml`, and the group hub `../AGENTS.md`.
 ## License
 
 Apache License 2.0 — see `LICENSE`.
+
+## Group hub policy sync
+
+Canonical OpenSource group `AGENTS.md` / `WARP.md` live in `cfg/group/`. Materialize to the group root with `./scripts/sync-group-hub.sh` (see `cfg/group/README.md`).
