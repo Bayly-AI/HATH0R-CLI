@@ -1,0 +1,228 @@
+{
+  "schema": "hathor-doc-index@1",
+  "generated_at": "2026-09-16",
+  "canon": "HATHOR-CANON-001",
+  "namespace": "HATHOR-*",
+  "count": 9,
+  "documents": [
+    {
+      "path": "docs/INDEX.md",
+      "id": "HATHOR-CANON-014",
+      "title": "HATH0R CLI Integration Documentation Index",
+      "summary": "Reading order and source-of-truth map for using HATH0R-CLI with the HATHOR POC and Framework.",
+      "doc_type": "CANON",
+      "diataxis": "reference",
+      "audience": [
+        "developer",
+        "operator",
+        "architect",
+        "agent"
+      ],
+      "version": "0.1.0",
+      "status": "draft",
+      "updated": "2026-09-16",
+      "review": {
+        "trust": "unverified",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "interval": "365d",
+        "next_review": null
+      },
+      "stale": false
+    },
+    {
+      "path": "docs/hathor-req-002-cli-poc-integration-requirements-20260916.md",
+      "id": "HATHOR-REQ-002",
+      "title": "HATH0R CLI and POC Integration Requirements",
+      "summary": "Requirements for the OpenSource HATH0R CLI to serve the React/TypeScript POC without bypassing Framework control boundaries.",
+      "doc_type": "REQ",
+      "diataxis": "reference",
+      "audience": [
+        "developer",
+        "operator",
+        "architect",
+        "agent"
+      ],
+      "version": "0.1.0",
+      "status": "draft",
+      "updated": "2026-09-16",
+      "review": {
+        "trust": "unverified",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "interval": "180d",
+        "next_review": null
+      },
+      "stale": false
+    },
+    {
+      "path": "docs/hathor-arch-004-cli-control-tower-integration-20260916.md",
+      "id": "HATHOR-ARCH-004",
+      "title": "HATH0R CLI Control-Tower and POC Integration Architecture",
+      "summary": "Responsibility, data-flow, and trust-boundary architecture connecting HATH0R-CLI, the React/TypeScript POC, and the HATHOR Framework.",
+      "doc_type": "ARCH",
+      "diataxis": "explanation",
+      "audience": [
+        "developer",
+        "operator",
+        "architect",
+        "agent"
+      ],
+      "version": "0.1.0",
+      "status": "draft",
+      "updated": "2026-09-16",
+      "review": {
+        "trust": "unverified",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "interval": "180d",
+        "next_review": null
+      },
+      "stale": false
+    },
+    {
+      "path": "docs/hathor-guide-042-current-command-reference-20260916.md",
+      "id": "HATHOR-GUIDE-042",
+      "title": "HATH0R CLI v0.1 Command Reference",
+      "summary": "Source-verified installation, commands, outputs, exits, configuration, and limitations for the current HATH0R CLI.",
+      "doc_type": "GUIDE",
+      "diataxis": "reference",
+      "audience": [
+        "developer",
+        "operator",
+        "agent"
+      ],
+      "version": "0.1.0",
+      "status": "draft",
+      "updated": "2026-09-16",
+      "review": {
+        "trust": "unverified",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "interval": "180d",
+        "next_review": null
+      },
+      "stale": false
+    },
+    {
+      "path": "docs/hathor-ts-005-poc-machine-interface-20260916.md",
+      "id": "HATHOR-TS-005",
+      "title": "HATH0R CLI Machine Interface for the POC",
+      "summary": "Proposed versioned JSON, error, exit, stream, and compatibility contract for machine consumption of HATH0R-CLI.",
+      "doc_type": "TS",
+      "diataxis": "reference",
+      "audience": [
+        "developer",
+        "architect",
+        "agent"
+      ],
+      "version": "0.1.0",
+      "status": "draft",
+      "updated": "2026-09-16",
+      "review": {
+        "trust": "unverified",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "interval": "90d",
+        "next_review": null
+      },
+      "stale": false
+    },
+    {
+      "path": "docs/hathor-guide-043-poc-adapter-integration-20260916.md",
+      "id": "HATHOR-GUIDE-043",
+      "title": "Integrating the HATHOR POC with HATH0R CLI",
+      "summary": "Task-oriented guidance for safely connecting the React/TypeScript POC adapter to current and future HATH0R CLI contracts.",
+      "doc_type": "GUIDE",
+      "diataxis": "how-to",
+      "audience": [
+        "developer",
+        "operator",
+        "agent"
+      ],
+      "version": "0.1.0",
+      "status": "draft",
+      "updated": "2026-09-16",
+      "review": {
+        "trust": "unverified",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "interval": "180d",
+        "next_review": null
+      },
+      "stale": false
+    },
+    {
+      "path": "docs/hathor-guide-044-development-testing-20260916.md",
+      "id": "HATHOR-GUIDE-044",
+      "title": "HATH0R CLI Development and POC Contract Testing",
+      "summary": "Development workflow and target test strategy for keeping CLI behavior, machine schemas, POC fixtures, and documentation synchronized.",
+      "doc_type": "GUIDE",
+      "diataxis": "how-to",
+      "audience": [
+        "developer",
+        "agent"
+      ],
+      "version": "0.1.0",
+      "status": "draft",
+      "updated": "2026-09-16",
+      "review": {
+        "trust": "unverified",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "interval": "180d",
+        "next_review": null
+      },
+      "stale": false
+    },
+    {
+      "path": "docs/hathor-guide-045-security-governance-delivery-20260916.md",
+      "id": "HATHOR-GUIDE-045",
+      "title": "HATH0R CLI Integration Security, Governance, and Delivery",
+      "summary": "Security boundaries, issue-backed change control, and environment promotion rules for CLI and POC integration.",
+      "doc_type": "GUIDE",
+      "diataxis": "how-to",
+      "audience": [
+        "developer",
+        "operator",
+        "architect",
+        "agent"
+      ],
+      "version": "0.1.0",
+      "status": "draft",
+      "updated": "2026-09-16",
+      "review": {
+        "trust": "unverified",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "interval": "180d",
+        "next_review": null
+      },
+      "stale": false
+    },
+    {
+      "path": "docs/hathor-guide-046-troubleshooting-20260916.md",
+      "id": "HATHOR-GUIDE-046",
+      "title": "HATH0R CLI and POC Integration Troubleshooting",
+      "summary": "Diagnostic steps for CLI installation, Tower orientation, KB/catalog access, POC mediation, and planned machine-output failures.",
+      "doc_type": "GUIDE",
+      "diataxis": "how-to",
+      "audience": [
+        "developer",
+        "operator",
+        "agent"
+      ],
+      "version": "0.1.0",
+      "status": "draft",
+      "updated": "2026-09-16",
+      "review": {
+        "trust": "unverified",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "interval": "180d",
+        "next_review": null
+      },
+      "stale": false
+    }
+  ]
+}

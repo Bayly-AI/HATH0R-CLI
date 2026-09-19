@@ -1,0 +1,60 @@
+# Canonical OpenSource Project product catalog (control tower copy)
+# group: hath0r-opensource
+# status: canonical
+# updated: 2026-09-15
+
+group_id: hath0r-opensource
+group_label: OpenSource Project
+group_root: /Users/raybayly/Development/OpenSource
+control_tower:
+  product_id: hath0r-cli
+  local_path: /Users/raybayly/Development/OpenSource/HATH0R-CLI
+  github: Bayly-AI/HATH0R-CLI
+canonical_knowledgebase: /Users/raybayly/Development/OpenSource/.hath0r/knowledgebase
+framework_hidden_root: .hath0r
+operator_cli: hath0r
+
+products:
+  - product_id: hath0r-cli
+    product_name: HATH0R CLI
+    role: control-tower
+    canonical: true
+    is_control_tower: true
+    local_path: /Users/raybayly/Development/OpenSource/HATH0R-CLI
+    github: Bayly-AI/HATH0R-CLI
+    remote: https://github.com/Bayly-AI/HATH0R-CLI.git
+    binary: hath0r
+    package: hath0r-cli
+    kb_mode: stub
+    notes: OpenSource Project control tower and operator/developer CLI.
+
+  - product_id: hath0r-framework
+    product_name: HATHOR Framework
+    role: agentic-application-framework
+    canonical: true
+    is_control_tower: false
+    local_path: /Users/raybayly/Development/OpenSource/hath0r
+    github: Bayly-AI/HATH0R-Agentic-Framework
+    remote: https://github.com/Bayly-AI/HATH0R-Agentic-Framework.git
+    docs_canonical_path: /Users/raybayly/Development/OpenSource/hath0r/docs
+    framework_root: /Users/raybayly/Development/OpenSource/hath0r/.hath0r
+    kb_mode: stub
+    notes: Owns OpenSource documentation corpus. Framework inner workings under .hath0r/.
+
+  - product_id: hath0r-poc
+    product_name: HATHOR POC
+    role: integration-test-bed
+    canonical: true
+    is_control_tower: false
+    local_path: /Users/raybayly/Development/OpenSource/hath0r-poc
+    github: Bayly-AI/HATH0R-Agentic-POC
+    remote: https://github.com/Bayly-AI/HATH0R-Agentic-POC.git
+    kb_mode: stub
+    notes: Test bed application for exercising the HATHOR system end-to-end.
+
+membership:
+  rule: all-siblings-under-group-root
+  group_root: /Users/raybayly/Development/OpenSource
+  description: >
+    All repositories under the OpenSource folder (siblings of the control tower)
+    are canonically part of the OpenSource Project.

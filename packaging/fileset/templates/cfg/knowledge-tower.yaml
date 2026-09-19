@@ -1,0 +1,4 @@
+# Knowledge tower pointer (fileset template) — non-secret
+is_control_tower: false
+project_knowledgebase_mode: stub
+control_tower_path: HATH0R-CLI
