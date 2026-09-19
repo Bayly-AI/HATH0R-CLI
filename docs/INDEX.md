@@ -137,3 +137,8 @@ group governance, governance wins.
 These documents define product requirements and usage. They do not implement
 the TypeScript POC, structured output, Framework bots, Tower REST services, or
 deployment controls.
+
+
+## Project changelog
+
+- Repository root [CHANGELOG.md](../CHANGELOG.md) — Keep a Changelog for `hath0r-cli` releases.
