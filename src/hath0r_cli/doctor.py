@@ -135,6 +135,24 @@ def _catalog_product_map(data: Any) -> dict[str, bool] | None:
     return out if out else None
 
 
+def _product_canonical_flags(data: Any) -> dict[str, bool]:
+    """Return product_id -> canonical flag (default True if omitted)."""
+    out: dict[str, bool] = {}
+    if not isinstance(data, dict):
+        return out
+    products = data.get("products")
+    if not isinstance(products, list):
+        return out
+    for item in products:
+        if not isinstance(item, dict):
+            continue
+        pid = item.get("product_id")
+        if not isinstance(pid, str) or not pid:
+            continue
+        out[pid] = bool(item.get("canonical", True))
+    return out
+
+
 def run_checks(root: Path, kb: Path) -> DoctorResult:
     """Evaluate all doctor checks against root and kb paths."""
     tower = root / "HATH0R-CLI"
@@ -145,6 +163,14 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
         "cli": tower,
         "poc": root / "hath0r-poc",
     }
+    # Map short member names → catalog product_id for optional/required policy.
+    member_product_ids = {
+        "framework": "hath0r-framework",
+        "cli": "hath0r-cli",
+        "poc": "hath0r-poc",
+    }
+    tower_products_data = _load_yaml(tower_cfg / "products.yaml")
+    canonical_flags = _product_canonical_flags(tower_products_data)
     checks: list[DoctorCheck] = []
 
     _add(
@@ -259,12 +285,61 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
     )
 
     for name, path in members.items():
+        product_id = member_product_ids[name]
+        # Control tower + framework stay required. Non-canonical catalog rows
+        # (e.g. archived POC) are optional local fixtures — missing is ok.
+        required = True if name in {"cli", "framework"} else canonical_flags.get(
+            product_id, True
+        )
+        present = _path_ok(path)
+
+        if not required and not present:
+            _add(
+                checks,
+                check_id=f"member-{name}",
+                label=f"member:{name}",
+                ok=True,
+                ok_message=(
+                    f"Optional member {name} is not checked out "
+                    f"(archived/non-canonical fixture; ok)."
+                ),
+                fail_message=f"Member repository {name} is missing.",
+                path=path,
+            )
+            _add(
+                checks,
+                check_id=f"agents-{name}",
+                label=f"agents:{name}",
+                ok=True,
+                ok_message=f"Optional member {name} AGENTS.md skipped (not checked out).",
+                fail_message=f"Member {name} AGENTS.md is missing.",
+                path=path / "AGENTS.md",
+            )
+            if name != "cli":
+                _add(
+                    checks,
+                    check_id=f"member-tower-pointer-{name}",
+                    label=f"member tower pointer:{name}",
+                    ok=True,
+                    ok_message=(
+                        f"Optional member {name} tower pointer skipped "
+                        f"(not checked out)."
+                    ),
+                    fail_message=f"Member {name} has no control tower pointer.",
+                    path=path,
+                )
+            continue
+
         _add(
             checks,
             check_id=f"member-{name}",
             label=f"member:{name}",
-            ok=_path_ok(path),
-            ok_message=f"Member repository {name} is present.",
+            ok=present,
+            ok_message=(
+                f"Member repository {name} is present."
+                if required
+                else f"Optional member {name} is present (archived fixture)."
+            ),
             fail_message=f"Member repository {name} is missing.",
             path=path,
         )

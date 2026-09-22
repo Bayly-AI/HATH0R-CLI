@@ -92,7 +92,7 @@ hath0r kb path
 hath0r kb products
 ```
 
-`doctor` may report the archived POC member missing — expected when POC is not checked out.
+`doctor` treats the archived POC as an **optional** fixture: missing `hath0r-poc` does **not** fail the suite. Framework + CLI remain required.
 
 ---
 
