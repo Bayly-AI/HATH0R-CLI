@@ -14,6 +14,9 @@
 ## Current CLI Reference
 
 - [HATHOR-GUIDE-042 — HATH0R CLI v0.1 Command Reference](hathor-guide-042-current-command-reference-20260916.md): Source-verified installation, commands, outputs, exits, configuration, and limitations for the current HATH0R CLI.
+## Articles
+
+- [HATHOR-ARTICLE-001 — The Hath0r Framework: Rethinking Development from the Ground Up](articles/the-hath0r-framework-rethinking-development-from-the-ground-up.md): An explanation of the Hath0r operating model: governed capability, explicit authority, evidence-backed delivery, and human-held promotion.
 
 ## Proposed Machine Contract
 
