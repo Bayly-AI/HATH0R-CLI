@@ -1,8 +1,9 @@
 # Note: hath0r-poc GitHub archived 2026-09-18; CLI production 0.2.0.
 # Canonical OpenSource Project product catalog (control tower copy)
 # group: hath0r-opensource
-# status: canonical
-# updated: 2026-09-15
+# status: canonical (active members); hath0r-poc is archived optional fixture
+# doctor: non-canonical products are optional local checkouts (R1)
+# updated: 2026-09-22
 
 group_id: hath0r-opensource
 group_label: OpenSource Project
@@ -45,13 +46,17 @@ products:
   - product_id: hath0r-poc
     product_name: HATHOR POC
     role: integration-test-bed
-    canonical: true
+    lifecycle: archived
+    canonical: false
     is_control_tower: false
     local_path: /Users/raybayly/Development/OpenSource/hath0r-poc
     github: Bayly-AI/HATH0R-Agentic-POC
     remote: https://github.com/Bayly-AI/HATH0R-Agentic-POC.git
     kb_mode: stub
-    notes: Test bed application for exercising the HATHOR system end-to-end.
+    notes: >
+      Archived optional fixture (GitHub read-only 2026-09-18). Historical consumer
+      evidence only — not a live control-plane dependency. Local checkout optional;
+      doctor does not fail when hath0r-poc is absent.
 
 membership:
   rule: all-siblings-under-group-root

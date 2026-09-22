@@ -1,9 +1,9 @@
 {
   "schema": "hathor-doc-index@1",
-  "generated_at": "2026-09-16",
+  "generated_at": "2026-09-22",
   "canon": "HATHOR-CANON-001",
   "namespace": "HATHOR-*",
-  "count": 9,
+  "count": 10,
   "documents": [
     {
       "path": "docs/INDEX.md",
@@ -215,6 +215,31 @@
       "version": "0.1.0",
       "status": "draft",
       "updated": "2026-09-16",
+      "review": {
+        "trust": "unverified",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "interval": "180d",
+        "next_review": null
+      },
+      "stale": false
+    },
+    {
+      "path": "docs/articles/the-hath0r-framework-rethinking-development-from-the-ground-up.md",
+      "id": "HATHOR-ARTICLE-001",
+      "title": "The Hath0r Framework: Rethinking Development from the Ground Up",
+      "summary": "An explanation of the Hath0r operating model: governed capability, explicit authority, evidence-backed delivery, and human-held promotion.",
+      "doc_type": "ARTICLE",
+      "diataxis": "explanation",
+      "audience": [
+        "developer",
+        "operator",
+        "architect",
+        "agent"
+      ],
+      "version": "0.1.0",
+      "status": "draft",
+      "updated": "2026-09-22",
       "review": {
         "trust": "unverified",
         "reviewed_by": null,

@@ -62,7 +62,7 @@ def _build_minimal_group(root: Path) -> Path:
                 "product_id": "hath0r-poc",
                 "product_name": "HATHOR POC",
                 "role": "poc",
-                "canonical": True,
+                "canonical": False,
                 "is_control_tower": False,
             },
         ],
@@ -129,6 +129,18 @@ def test_run_checks_all_pass(tmp_path: Path) -> None:
     ids = [c["id"] for c in data["checks"]]
     assert "catalog-drift" in ids
     assert all(re.match(r"^[a-z][a-z0-9]*(-[a-z0-9]+)*$", i) for i in ids)
+
+
+def test_run_checks_optional_poc_absent(tmp_path: Path) -> None:
+    """Archived non-canonical POC may be omitted without failing doctor."""
+    group = _build_minimal_group(tmp_path)
+    shutil.rmtree(group / "hath0r-poc")
+    result = run_checks(group, group / ".hath0r" / "knowledgebase")
+    assert result.failed_count == 0
+    assert result.overall_state == "ok"
+    member = next(c for c in result.checks if c.id == "member-poc")
+    assert member.state == "ok"
+    assert "not checked out" in member.message
 
 
 def test_run_checks_missing_kb(tmp_path: Path) -> None:
