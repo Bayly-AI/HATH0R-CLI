@@ -1,0 +1,15 @@
+# Product identity — non-secret
+product_id: hath0r-cli
+product_name: HATH0R-CLI
+description: >
+  Operator and developer control plane CLI for the HATHOR agentic framework.
+  OpenSource Project control tower.
+role: control-tower-cli
+canonical: true
+is_control_tower: true
+github: Bayly-AI/HATH0R-CLI
+local_path_hint: OpenSource/hathor-cli
+layout: hathor-upl
+fileset_version: "0.2.0"
+cli_version: "0.2.0"
+updated_at: "2026-09-23T20:00:17Z"
