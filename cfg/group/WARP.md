@@ -9,7 +9,7 @@
 
 > Group: `hath0r-opensource`  
 > Control tower: `HATH0R-CLI` (`Bayly-AI/HATH0R-CLI`)  
-> Updated: 2026-09-19
+> Updated: 2026-09-23
 
 ## Purpose
 
@@ -50,13 +50,16 @@ Only `.hath0r/`. Forbidden: `.ai/`, `.aegis/`, `.infraOS/`.
 ## Branch protection & promotion (CR-BAI-001 / cr-branch-gov-001)
 
 ```text
-local → development → testing → staging → master (Production)
+local → work branch → development → (release/x.x.x) → testing → staging → master (Production)
 ```
 
 - Issue before branch
-- Feature work merges to `development` only
-- Stage PRs: `development→testing`, `testing→staging`, `staging→master`
-- No force-push/deletes on canonical branches; code owner review required
+- Work prefixes: `feature|bugfix|hotfix|enhancement|research|fix|chore/<issue>-slug`
+- Work PRs merge to **`development` only**
+- Release branches: `release/x.x.x` for promotion only
+- Stage heads: `development`/`release/*` → testing; then staging → master (human review on staging/master)
+- Protected canonical branches: PR + 1 review + CODEOWNERS + `validate-promotion-path`; no force-push/delete
+- Detail: `docs/governance/branch-rules.md` in HATH0R-CLI
 
 ## Secrets
 

@@ -1,7 +1,7 @@
 # AGENTS.md — HATH0R CLI (OpenSource Control Tower)
 
 > Role: **OpenSource Project control tower + operator/developer CLI (`hath0r`)** · group `hath0r-opensource`  
-> Updated: 2026-09-15
+> Updated: 2026-09-23
 
 ## Group membership (CRITICAL)
 
@@ -54,12 +54,13 @@ Do **not** use `.ai/`, `.aegis/`, or `.infraOS/`.
 
 1. **Issue first**: create a GitHub issue before any work branch. No issue → no branch.
 2. Branch from `development` only, using:
-   `feature|bugfix|enhancement|research|fix|chore/<issue-number>-short-slug`
-   Example: `chore/3-opensource-control-tower`
-3. Open the PR with **base = `development`** (feature work never targets testing/staging/master).
+   `feature|bugfix|hotfix|enhancement|research|fix|chore/<issue-number>-short-slug`
+   Example: `chore/51-define-branch-rules`
+3. Open the PR with **base = `development`** (work never targets testing/staging/master).
 4. **Owner approval required** before merge (`@somesayray` via CODEOWNERS + branch protection).
-5. Merge into **`development` only** for feature work.
-6. Promote via `development → testing → staging → master` — do not skip stages.
+5. Merge into **`development` only** for feature/bugfix/hotfix work.
+6. Cut **`release/x.x.x`** from `development` when promoting a release train.
+7. Promote via `development`/`release/x.x.x` → `testing` → `staging` → `master` — do not skip stages.
 
 ### Canonical branches (locked)
 
@@ -68,9 +69,15 @@ Do **not** use `.ai/`, `.aegis/`, or `.infraOS/`.
 - Must not be deleted
 - Must not be used as feature/work branches
 - Must not be merged into each other except along the promotion path above
-- Branch protection: PR required, 1 approving review, code-owner review, no force-push, no deletions, `validate-promotion-path` required
+- Branch protection: PR required, 1 approving review, code-owner review, no force-push, no deletions, `validate-promotion-path` required, conversation resolution required
 
-Forbidden: feature PRs targeting `master`, `testing`, or `staging`; PRs without an issue number in the branch name; merging canonical branches sideways.
+### Release branches
+
+`release/x.x.x` — SemVer release trains only (not feature work).
+
+Forbidden: work PRs targeting `master`, `testing`, or `staging`; PRs without an issue number in the work branch name; merging canonical branches sideways.
+
+See `docs/governance/branch-rules.md`.
 
 ## Config pointers in this repo
 
@@ -92,9 +99,9 @@ local → development → testing → staging → master (Production)
 
 CI enforcement: `.github/workflows/enforce-promotion-path.yml`
 
-- PRs into `testing` must come from `development`
-- PRs into `staging` must come from `testing`
-- PRs into `master` must come from `staging`
+- PRs into `testing` must come from `development` or `release/x.x.x`
+- PRs into `staging` must come from `testing` or `release/x.x.x` (human review)
+- PRs into `master` must come from `staging` or `release/x.x.x` (human review)
 - Each stage needs deploy + URL validation before the next promote
 
 ## Credentials
