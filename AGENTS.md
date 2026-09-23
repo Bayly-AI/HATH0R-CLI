@@ -114,3 +114,11 @@ CI enforcement: `.github/workflows/enforce-promotion-path.yml`
 3. Only after (1) and (2) are satisfied: apply fileset/layout, `.hath0r/`, `cfg/`, contracts pin, `AGENTS.md` identity, and `./bin/hath0r-bootstrap.sh`.
 
 Do not skip the playbook/runbook gate. Layout scaffolding without a documented ops path is incomplete initialization.
+
+## SonarCloud Quality Gate (CRITICAL)
+
+- Canonical thresholds: **SonarCloud Quality Gate only** (do not modify gate thresholds ad hoc).
+- PR check **SonarCloud Quality Gate** is a **hard stop** on failure.
+- Docs: `docs/governance/sonarcloud-quality-gates.md`
+- Workflow: `.github/workflows/sonarcloud-quality-gate.yml`
+- Secret: `SONAR_TOKEN` (required)

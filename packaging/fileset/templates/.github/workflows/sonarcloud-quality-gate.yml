@@ -1,0 +1,93 @@
+# PR Quality Gates — SonarCloud hard stop (canonical thresholds only)
+# Ticket: PR quality gates — SonarCloud hard stop
+# Policy: SonarCloud Quality Gate is the ONLY threshold source. Do NOT add
+# local coverage/rating minimums in sonar-project.properties that diverge
+# from the org SonarCloud Quality Gate. Failed gate = hard stop (merge blocked).
+name: SonarCloud Quality Gate
+
+"on":
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [development, testing, staging, master]
+  push:
+    branches: [development]
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: write
+
+concurrency:
+  group: sonar-${{ github.repository }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sonarcloud-quality-gate:
+    name: SonarCloud Quality Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Fail closed when token missing on PRs so gate is never silently skipped
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require SONAR_TOKEN
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SONAR_TOKEN:-}" ]; then
+            echo "::error::SONAR_TOKEN secret is not configured on this repository."
+            echo "Add a SonarCloud token (secret SONAR_TOKEN) and optional vars.SONAR_ORGANIZATION."
+            echo "See docs/governance/playbooks/sonarcloud-quality-gate-playbook.md"
+            exit 1
+          fi
+          echo "SONAR_TOKEN present (value not logged)."
+
+      - name: Resolve Sonar organization and project key
+        id: meta
+        env:
+          ORG_VAR: ${{ vars.SONAR_ORGANIZATION }}
+        run: |
+          set -euo pipefail
+          ORG="${ORG_VAR:-}"
+          if [ -z "$ORG" ]; then
+            ORG="bayly-ai"
+            echo "::warning::vars.SONAR_ORGANIZATION unset; defaulting to '$ORG'. Override via repo/org Actions variable."
+          fi
+          # Default projectKey matches common SonarCloud GitHub binding: <org>_<repo>
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          KEY="${ORG}_${REPO_NAME}"
+          if [ -f sonar-project.properties ]; then
+            FILE_KEY=$(grep -E '^sonar.projectKey=' sonar-project.properties | head -1 | cut -d= -f2- || true)
+            FILE_ORG=$(grep -E '^sonar.organization=' sonar-project.properties | head -1 | cut -d= -f2- || true)
+            if [ -n "$FILE_KEY" ]; then KEY="$FILE_KEY"; fi
+            if [ -n "$FILE_ORG" ]; then ORG="$FILE_ORG"; fi
+          fi
+          echo "organization=$ORG" >> "$GITHUB_OUTPUT"
+          echo "project_key=$KEY" >> "$GITHUB_OUTPUT"
+          echo "Using organization=$ORG projectKey=$KEY"
+
+      - name: SonarCloud scan
+        uses: SonarSource/sonarqube-scan-action@v4.2.1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+        with:
+          args: >
+            -Dsonar.organization=${{ steps.meta.outputs.organization }}
+            -Dsonar.projectKey=${{ steps.meta.outputs.project_key }}
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
+
+      - name: Quality Gate hard-stop summary
+        if: always()
+        run: |
+          cat <<'EOF'
+          SonarCloud Quality Gate is canonical.
+          - Do NOT weaken or duplicate gate thresholds in-repo.
+          - Failed Quality Gate = hard stop until findings are fixed.
+          - Docs: docs/governance/sonarcloud-quality-gates.md
+          EOF
