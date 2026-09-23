@@ -114,3 +114,15 @@ CI enforcement: `.github/workflows/enforce-promotion-path.yml`
 3. Only after (1) and (2) are satisfied: apply fileset/layout, `.hath0r/`, `cfg/`, contracts pin, `AGENTS.md` identity, and `./bin/hath0r-bootstrap.sh`.
 
 Do not skip the playbook/runbook gate. Layout scaffolding without a documented ops path is incomplete initialization.
+
+## Documentation → MCP publish (CRITICAL)
+
+| Group | MCP |
+|-------|-----|
+| Hath0r/OpenSource | Hath0r MCP / OpenSource hub |
+| BAI | BAI-MCP |
+| 1-Nation | 1-Nation-MCP |
+
+- `cfg/mcp-doc-publish.json`
+- `python3 scripts/publish-docs-to-mcp.py`
+- `docs/governance/mcp-doc-publish.md`
