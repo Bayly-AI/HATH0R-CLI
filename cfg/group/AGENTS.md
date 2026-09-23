@@ -8,7 +8,7 @@
 # AGENTS.md — OpenSource Project (group `hath0r-opensource`)
 
 > Group control rules for every product under `/Users/raybayly/Development/OpenSource`  
-> Updated: 2026-09-19
+> Updated: 2026-09-23
 
 ## Identity (CRITICAL)
 
@@ -115,3 +115,12 @@ Do **not** treat private internal trees (e.g. `/Users/raybayly/Development/BAI/.
 3. Only after (1) and (2) are satisfied: apply fileset/layout, `.hath0r/`, `cfg/`, contracts pin, `AGENTS.md` identity, and `./bin/hath0r-bootstrap.sh`.
 
 Do not skip the playbook/runbook gate. Layout scaffolding without a documented ops path is incomplete initialization.
+
+## PR workflow hardening (CRITICAL)
+
+Documented in control tower `docs/governance/pr-workflow.md` (materialize via member checkout / fileset).
+
+1. Work PR → `development` (agent/bot review + CODEOWNERS).
+2. Release train via `release/x.x.x` → `testing`.
+3. **Human initiates** staging and production promotions.
+4. Use feature vs release PR templates under `.github/PULL_REQUEST_TEMPLATE/`.
