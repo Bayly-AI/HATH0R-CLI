@@ -121,3 +121,14 @@ CI enforcement: `.github/workflows/enforce-promotion-path.yml`
 3. Only after (1) and (2) are satisfied: apply fileset/layout, `.hath0r/`, `cfg/`, contracts pin, `AGENTS.md` identity, and `./bin/hath0r-bootstrap.sh`.
 
 Do not skip the playbook/runbook gate. Layout scaffolding without a documented ops path is incomplete initialization.
+
+## PR workflow hardening (CRITICAL)
+
+Canonical flow, human gates, and PR templates:
+
+- `docs/governance/pr-workflow.md`
+- Playbook: `docs/governance/playbooks/pr-workflow-playbook.md`
+- Templates: `.github/PULL_REQUEST_TEMPLATE/feature.md`, `release.md`
+- CI: `.github/workflows/pr-workflow-guard.yml` + `enforce-promotion-path.yml`
+
+**Human review is mandatory** for merges into `staging` and `master`. Agents/bots are primary on work PRs into `development`. Testing is the last automated/agent-heavy gate before a human initiates staging.
