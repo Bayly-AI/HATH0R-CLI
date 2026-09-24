@@ -606,6 +606,165 @@ class TaskAnnouncerBot:
 
 
 @dataclass
+class IssueGuardBot:
+    """Enforces issue-first governance (cr-branch-gov-001) and manages GitHub issue attachments."""
+
+    cwd: Path = field(default_factory=Path.cwd)
+
+    def view_issue(self, issue_number: int, repo: Optional[str] = None) -> Dict[str, Any]:
+        """Fetch issue details and state from GitHub."""
+        cmd = ["gh", "issue", "view", str(issue_number), "--json", "number,title,state,body,url,labels"]
+        if repo:
+            cmd.extend(["--repo", repo])
+        code, out, err = run_cmd(cmd, cwd=self.cwd)
+        if code != 0:
+            return {"success": False, "error": err or f"Issue #{issue_number} not found."}
+        try:
+            data = json.loads(out)
+            return {"success": True, "issue": data}
+        except Exception as exc:
+            return {"success": False, "error": str(exc)}
+
+    def create_issue(
+        self,
+        title: str,
+        body: Optional[str] = None,
+        labels: Optional[List[str]] = None,
+        repo: Optional[str] = None,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Create a new GitHub issue with appropriate governance metadata."""
+        clean_title = title.strip()
+        issue_body = body or f"Autonomous task ticket for: {clean_title}\n\nGovernance: cr-branch-gov-001"
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "title": clean_title,
+                "action": f"[DRY-RUN] gh issue create --title '{clean_title}'",
+            }
+
+        cmd = ["gh", "issue", "create", "--title", clean_title, "--body", issue_body]
+        if labels:
+            cmd.extend(["--label", ",".join(labels)])
+        if repo:
+            cmd.extend(["--repo", repo])
+
+        code, out, err = run_cmd(cmd, cwd=self.cwd)
+        issue_url = out.strip()
+        issue_num = None
+        m = re.search(r"/issues/(\d+)", issue_url)
+        if m:
+            issue_num = int(m.group(1))
+
+        return {
+            "success": code == 0,
+            "issue_number": issue_num,
+            "url": issue_url if code == 0 else None,
+            "title": clean_title,
+            "output": out or err,
+        }
+
+    def verify_issue(
+        self,
+        issue_number: Optional[int] = None,
+        repo: Optional[str] = None,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Verify an issue exists and is open for work."""
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "issue_number": issue_number,
+                "open": True,
+                "action": f"[DRY-RUN] Verify issue #{issue_number} is open",
+            }
+
+        if not issue_number or issue_number <= 0:
+            return {"success": False, "error": "No valid issue number specified."}
+
+        res = self.view_issue(issue_number, repo=repo)
+        if not res.get("success"):
+            return res
+
+        issue_data = res.get("issue", {})
+        is_open = issue_data.get("state") == "OPEN"
+        return {
+            "success": is_open,
+            "issue_number": issue_number,
+            "title": issue_data.get("title"),
+            "state": issue_data.get("state"),
+            "open": is_open,
+            "error": None if is_open else f"Issue #{issue_number} is {issue_data.get('state')}, expected OPEN.",
+        }
+
+
+@dataclass
+class BranchGuardBot:
+    """Enforces branch governance (cr-branch-gov-001) preventing work on protected canonical branches."""
+
+    cwd: Path = field(default_factory=Path.cwd)
+
+    def check_active_branch(self) -> Dict[str, Any]:
+        """Inspect current git branch and determine validity as a work branch."""
+        rc, out, err = run_cmd(["git", "branch", "--show-current"], cwd=self.cwd)
+        if rc != 0 or not out.strip():
+            return {
+                "success": False,
+                "error": f"Unable to determine current branch: {err or 'detached HEAD'}",
+            }
+        current = out.strip()
+        branch_bot = BranchBot(cwd=self.cwd)
+        val = branch_bot.validate_name(current)
+
+        is_canonical = current in CANONICAL_BRANCHES
+        can_work = val.get("valid", False) and val.get("is_work_branch", False)
+
+        return {
+            "success": True,
+            "current_branch": current,
+            "is_canonical": is_canonical,
+            "is_work_branch": can_work,
+            "validation": val,
+            "blocked": is_canonical,
+            "message": (
+                f"Active branch '{current}' is a protected canonical branch. Editing forbidden."
+                if is_canonical
+                else f"Active branch '{current}' is ready for task execution."
+            ),
+        }
+
+    def ensure_work_branch(
+        self,
+        issue_number: int,
+        slug: str,
+        prefix: str = "feature",
+        base: str = "development",
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Ensure current checkout is on a valid work branch; auto-create from base if needed."""
+        active = self.check_active_branch()
+        if active.get("success") and active.get("is_work_branch"):
+            # Already on a work branch
+            val = active.get("validation", {})
+            if val.get("issue_number") == issue_number:
+                return {
+                    "success": True,
+                    "branch": active.get("current_branch"),
+                    "action": "already_on_branch",
+                    "created": False,
+                }
+
+        # Need to create/checkout proper branch
+        branch_bot = BranchBot(cwd=self.cwd)
+        create_res = branch_bot.create_branch(prefix, issue_number, slug, base=base, dry_run=dry_run)
+        create_res["action"] = "created_and_checked_out"
+        create_res["created"] = True
+        return create_res
+
+
+@dataclass
 class DockerBot:
     """Manages Docker workflows, container lifecycle operations, and diagnostic inspections."""
 

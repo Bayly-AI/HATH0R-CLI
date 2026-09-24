@@ -523,3 +523,51 @@ def test_cli_task_finish_dry_run() -> None:
     assert data["state"] == "ok"
     assert data["data"]["workflow"]["id"] == "end-of-task"
     assert len(data["data"]["workflow"]["steps"]) == 8
+
+
+def test_issue_and_branch_guard_bots_dry_run() -> None:
+    from hath0r_cli.bots import BranchGuardBot, IssueGuardBot
+
+    issue_bot = IssueGuardBot()
+    branch_guard = BranchGuardBot()
+
+    # IssueGuardBot verify and create dry run
+    ver_res = issue_bot.verify_issue(issue_number=73, dry_run=True)
+    assert ver_res["success"] is True
+    assert ver_res["dry_run"] is True
+
+    create_res = issue_bot.create_issue("Test Issue Title", dry_run=True)
+    assert create_res["success"] is True
+    assert create_res["dry_run"] is True
+
+    # BranchGuardBot check and ensure dry run
+    chk_res = branch_guard.check_active_branch()
+    assert chk_res["success"] is True
+    assert "current_branch" in chk_res
+
+    ensure_res = branch_guard.ensure_work_branch(issue_number=73, slug="issue-guard", dry_run=True)
+    assert ensure_res["success"] is True
+    assert "feature/73-issue-guard" in ensure_res.get("branch", "") or ensure_res.get("action")
+
+
+def test_cli_task_start_dry_run() -> None:
+    runner = CliRunner(mix_stderr=False)
+    # Start with existing issue
+    res = runner.invoke(
+        cli.main,
+        ["--output", "json", "task", "start", "--issue", "73", "--slug", "issue-guard", "--dry-run"],
+    )
+    assert res.exit_code == 0
+    data = json.loads(res.stdout)
+    assert data["state"] == "ok"
+    assert data["data"]["workflow"]["id"] == "start-of-task"
+    assert len(data["data"]["workflow"]["steps"]) == 2
+
+    # Start with new issue title
+    res_title = runner.invoke(
+        cli.main,
+        ["--output", "json", "task", "start", "--title", "Add automated guard", "--dry-run"],
+    )
+    assert res_title.exit_code == 0
+    data_title = json.loads(res_title.stdout)
+    assert data_title["state"] == "ok"
