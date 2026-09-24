@@ -66,6 +66,22 @@ def test_documentation_bot_summary() -> None:
     assert "@somesayray" in summary
 
 
+def test_documentation_bot_wiki_dual_enablement() -> None:
+    bot = DocumentationBot()
+    # 1. Disabled in cfg: should skip gracefully
+    res_disabled = bot.sync_to_wiki("Bayly-AI/HATH0R-CLI", "Test PR 54", "# PR 54")
+    assert res_disabled["success"] is True
+    assert res_disabled.get("skipped") is True
+    assert "wiki.enabled is false" in res_disabled.get("reason", "")
+
+    # 2. Force or enabled with dry_run: returns dry_run push action
+    res_dry = bot.sync_to_wiki("Bayly-AI/HATH0R-CLI", "Test PR 54", "# PR 54", force=True, dry_run=True, pr_number=54)
+    assert res_dry["success"] is True
+    assert res_dry.get("dry_run") is True
+    assert "PR-54-" in res_dry.get("page_title", "")
+    assert "[DRY-RUN]" in res_dry.get("action", "")
+
+
 def test_cli_factory_validate_all() -> None:
     runner = CliRunner(mix_stderr=False)
     res = runner.invoke(cli.main, ["--output", "json", "factory", "validate"])
@@ -223,7 +239,8 @@ def test_execute_workflow_declarative() -> None:
     assert res.success is True
     assert len(res.steps) == 2
     assert "PR #80" in res.steps[0].data["summary"]
-    assert res.steps[1].data["status"] == "ready"
+    # When wiki is disabled by default in quality-gates.json, it skips cleanly with skipped=True
+    assert res.steps[1].data.get("status") == "ready" or res.steps[1].data.get("skipped") is True
 
 
 def test_cli_factory_info() -> None:

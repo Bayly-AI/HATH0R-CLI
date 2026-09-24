@@ -1,0 +1,40 @@
+{
+  "apiVersion": "hath0r.quality-gates/v1",
+  "kind": "QualityGatesConfig",
+  "metadata": {
+    "name": "hath0r-cli-quality-gates",
+    "control_tower": "Bayly-AI/HATH0R-CLI",
+    "updated": "2026-09-24"
+  },
+  "hard_gates": [
+    "SonarCloud Quality Gate",
+    "validate-promotion-path",
+    "pr-workflow-guard"
+  ],
+  "preflight": {
+    "enabled": true,
+    "commands": [
+      ["python", "-m", "pytest", "-q"],
+      ["python", "-m", "ruff", "check", "src"]
+    ]
+  },
+  "pre_deploy": {
+    "counts_toward_coverage": true,
+    "commands": [
+      ["python", "-m", "pytest", "-q"]
+    ]
+  },
+  "post_deploy": {
+    "counts_toward_coverage": false,
+    "commands": []
+  },
+  "wiki": {
+    "enabled": false,
+    "require_github_wiki": true
+  },
+  "knowledge_share": {
+    "enabled": true,
+    "prefer_project_mcp": true,
+    "cfg": "cfg/mcp-doc-publish.json"
+  }
+}

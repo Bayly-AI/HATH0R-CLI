@@ -536,15 +536,94 @@ class DocumentationBot:
         ]
         return "\n".join(doc)
 
-    def sync_to_wiki(self, repo: str, title: str, content: str) -> Dict[str, Any]:
-        """Update or create wiki entry for the repo using git wiki clone/push."""
-        # Check if wiki is accessible
+    def _quality_cfg(self) -> Dict[str, Any]:
+        path = self.cwd / "cfg" / "quality-gates.json"
+        if not path.is_file():
+            return {}
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            return data if isinstance(data, dict) else {}
+        except Exception:
+            return {}
+
+    def _wiki_enabled(self) -> Tuple[bool, str]:
+        cfg = self._quality_cfg().get("wiki") or {}
+        if not bool(cfg.get("enabled", False)):
+            return False, "wiki.enabled is false in cfg/quality-gates.json"
+        return True, "enabled"
+
+    def sync_to_wiki(
+        self,
+        repo: str,
+        title: str,
+        content: str,
+        *,
+        pr_number: Optional[int] = None,
+        dry_run: bool = False,
+        force: bool = False,
+    ) -> Dict[str, Any]:
+        """Update or create wiki entry when cfg + GitHub wiki dual-enablement allows it.
+
+        Idempotent by PR number: page title defaults to ``PR-<n>-<slug>``.
+        """
+        enabled, reason = self._wiki_enabled()
+        if not enabled and not force:
+            return {
+                "success": True,
+                "skipped": True,
+                "reason": reason,
+                "repo": repo,
+                "page_title": title,
+            }
+
+        safe_title = re.sub(r"[^A-Za-z0-9._-]+", "-", title).strip("-") or "PR-notes"
+        if pr_number is not None:
+            safe_title = f"PR-{pr_number}-{safe_title}"[:80]
+
         wiki_url = f"https://github.com/{repo}.wiki.git"
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "wiki_url": wiki_url,
+                "page_title": safe_title,
+                "action": f"[DRY-RUN] Would push wiki page '{safe_title}' to {wiki_url}",
+            }
+
+        # Best-effort clone into temp under .hath0r (never .ai/)
+        import tempfile
+
+        work = Path(tempfile.mkdtemp(prefix="hath0r-wiki-"))
+        code, out, err = run_cmd(["git", "clone", "--depth", "1", wiki_url, str(work)], cwd=self.cwd)
+        if code != 0:
+            return {
+                "success": False,
+                "wiki_url": wiki_url,
+                "page_title": safe_title,
+                "error": err or out or "Wiki clone failed (is GitHub wiki enabled on the repo?)",
+                "status": "wiki_unavailable",
+            }
+
+        page_path = work / f"{safe_title}.md"
+        page_path.write_text(content if content.endswith("\n") else content + "\n", encoding="utf-8")
+        run_cmd(["git", "add", page_path.name], cwd=work)
+        rc_c, _, err_c = run_cmd(
+            ["git", "-c", "user.email=bot@hath0r.local", "-c", "user.name=Hath0r DocumentationBot",
+             "commit", "-m", f"docs: sync wiki page {safe_title}"],
+            cwd=work,
+        )
+        if rc_c != 0 and "nothing to commit" not in (err_c or "").lower():
+            # nothing new is ok
+            pass
+        rc_p, out_p, err_p = run_cmd(["git", "push", "origin", "HEAD"], cwd=work)
         return {
+            "success": rc_p == 0 or "everything up-to-date" in (out_p or err_p or "").lower(),
             "wiki_url": wiki_url,
-            "page_title": title,
-            "status": "ready",
-            "message": "Wiki content formatted and ready for push when wiki enabled.",
+            "page_title": safe_title,
+            "page_path": str(page_path),
+            "status": "pushed" if rc_p == 0 else "error",
+            "output": out_p or err_p,
+            "pr_number": pr_number,
         }
 
     def share_knowledge(
@@ -552,22 +631,94 @@ class DocumentationBot:
         summary: Optional[str] = None,
         notes: Optional[str] = None,
         target_kb: Optional[str] = None,
+        *,
+        pr_number: Optional[int] = None,
+        repo: Optional[str] = None,
         dry_run: bool = False,
     ) -> Dict[str, Any]:
-        """Distribute completed task knowledge and summaries to group documentation/knowledgebase."""
+        """Share PR/task knowledge into project MCP / group KB (project MCP first).
+
+        Writes an idempotent markdown artifact under the configured local MCP path
+        (see cfg/mcp-doc-publish.json). Does not call remote MCP over the network
+        unless operators extend hooks later — local durable handoff is the default.
+        """
+        cfg_root = self._quality_cfg().get("knowledge_share") or {}
+        if cfg_root.get("enabled") is False:
+            return {"success": True, "skipped": True, "reason": "knowledge_share.enabled is false"}
+
+        publish_cfg_path = self.cwd / str(cfg_root.get("cfg") or "cfg/mcp-doc-publish.json")
+        publish: Dict[str, Any] = {}
+        if publish_cfg_path.is_file():
+            try:
+                loaded = json.loads(publish_cfg_path.read_text(encoding="utf-8"))
+                if isinstance(loaded, dict):
+                    publish = loaded
+            except Exception:
+                publish = {}
+
+        # Prefer hath0r / opensource group MCP local path
+        groups = publish.get("groups") if isinstance(publish.get("groups"), dict) else {}
+        preferred = groups.get("hath0r") or next(iter(groups.values()), {}) if groups else {}
+        mcp = preferred.get("mcp") if isinstance(preferred, dict) else {}
+        local_path = target_kb or (mcp.get("local_path") if isinstance(mcp, dict) else None)
+        if not local_path:
+            local_path = str(self.cwd / ".hath0r" / "knowledgebase" / "lessons-learned")
+
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        key = f"pr-{pr_number}" if pr_number is not None else f"share-{stamp}"
+        dest_dir = Path(local_path).expanduser()
+        # lessons-learned bucket under canonical when present
+        if (dest_dir / "canonical").is_dir():
+            dest_dir = dest_dir / "canonical" / "lessons-learned"
+        elif dest_dir.name != "lessons-learned":
+            dest_dir = dest_dir / "lessons-learned"
+
+        body_lines = [
+            f"# Knowledge share {key}",
+            "",
+            f"- **Generated:** {datetime.now(timezone.utc).isoformat()}",
+            f"- **Repo:** {repo or 'local'}",
+            f"- **PR:** {pr_number if pr_number is not None else 'n/a'}",
+            "",
+            "## Summary",
+            summary or notes or "No summary provided.",
+            "",
+        ]
+        if notes and notes != summary:
+            body_lines.extend(["## Notes", notes, ""])
+        content = "\n".join(body_lines)
+        dest_file = dest_dir / f"{key}.md"
+
         if dry_run:
             return {
                 "success": True,
                 "dry_run": True,
-                "action": "[DRY-RUN] Share knowledge and sync documentation to canonical KB",
-                "target_kb": target_kb or "canonical-kb",
+                "action": f"[DRY-RUN] Would write knowledge share to {dest_file}",
+                "target_kb": str(dest_dir),
+                "key": key,
+                "pr_number": pr_number,
+            }
+
+        try:
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            dest_file.write_text(content, encoding="utf-8")
+        except OSError as exc:
+            return {
+                "success": False,
+                "error": str(exc),
+                "target_kb": str(dest_dir),
+                "key": key,
             }
 
         return {
             "success": True,
-            "target_kb": target_kb or "canonical-kb",
+            "target_kb": str(dest_dir),
+            "path": str(dest_file),
+            "key": key,
+            "pr_number": pr_number,
             "synced_at": datetime.now(timezone.utc).isoformat(),
             "status": "synchronized",
+            "idempotent": True,
         }
 
 
