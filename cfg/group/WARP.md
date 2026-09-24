@@ -78,3 +78,7 @@ Never commit secrets. Use `/Users/raybayly/Development/.credentials/<service>/.e
 3. Only after (1) and (2) are satisfied: apply fileset/layout, `.hath0r/`, `cfg/`, contracts pin, `AGENTS.md` identity, and `./bin/hath0r-bootstrap.sh`.
 
 Do not skip the playbook/runbook gate. Layout scaffolding without a documented ops path is incomplete initialization.
+
+## PR workflow hardening
+
+See HATH0R-CLI `docs/governance/pr-workflow.md`. Feature PRs → development (agents + CODEOWNERS). Human gate before staging/master. Environments: `testing`, `staging`, `production`.

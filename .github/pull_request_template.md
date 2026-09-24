@@ -1,0 +1,19 @@
+<!-- Choose the correct template path if your client supports it:
+  Feature/work → .github/PULL_REQUEST_TEMPLATE/feature.md
+  Release/promote → .github/PULL_REQUEST_TEMPLATE/release.md
+  Default below assumes work → development.
+-->
+## Summary
+
+## Issue
+Fixes #
+
+## PR class
+- [ ] **Feature/work** → base `development`
+- [ ] **Release/promotion** → base `testing`|`staging`|`master` (use release template)
+
+## Checks
+- [ ] `validate-promotion-path`
+- [ ] CI
+- [ ] CODEOWNERS when required
+- [ ] Human gate if staging/master
