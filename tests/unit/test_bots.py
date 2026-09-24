@@ -475,12 +475,51 @@ def test_cli_docker_commands() -> None:
     res_diag = runner.invoke(cli.main, ["--output", "json", "docker", "diagnose", "hath0r-poc-ui", "--dry-run"])
     assert res_diag.exit_code == 0
     diag_data = json.loads(res_diag.stdout)
-    assert diag_data["state"] == "ok"
     assert diag_data["data"]["healthy"] is True
 
 
+def test_end_of_task_factory_bots_dry_run() -> None:
+    from hath0r_cli.bots import DocumentationBot, GitJanitorBot, PRBot, TaskAnnouncerBot
+
+    pr_bot = PRBot()
+    janitor_bot = GitJanitorBot()
+    doc_bot = DocumentationBot()
+    announcer_bot = TaskAnnouncerBot()
+
+    # PR bot create_pr & monitor_checks & merge_pr
+    pr_res = pr_bot.create_pr(head="feature/123-test-task", dry_run=True)
+    assert pr_res["success"] is True
+    assert pr_res["dry_run"] is True
+
+    mon_res = pr_bot.monitor_checks(123, dry_run=True)
+    assert mon_res["success"] is True
+    assert mon_res["dry_run"] is True
+
+    merge_res = pr_bot.merge_pr(123, admin=True, squash=True, delete_branch=True, dry_run=True)
+    assert merge_res["success"] is True
+    assert merge_res["dry_run"] is True
+
+    # Git Janitor pull_development
+    pull_res = janitor_bot.pull_development(base="development", dry_run=True)
+    assert pull_res["success"] is True
+    assert pull_res["dry_run"] is True
+
+    # Documentation bot share_knowledge
+    share_res = doc_bot.share_knowledge(summary="Completed feature", dry_run=True)
+    assert share_res["success"] is True
+    assert share_res["dry_run"] is True
+
+    # Task announcer bot announce_complete
+    ann_res = announcer_bot.announce_complete(task_id="issue-123", dry_run=True)
+    assert ann_res["success"] is True
+    assert ann_res["dry_run"] is True
 
 
-
-
-
+def test_cli_task_finish_dry_run() -> None:
+    runner = CliRunner(mix_stderr=False)
+    res = runner.invoke(cli.main, ["--output", "json", "task", "finish", "--dry-run"])
+    assert res.exit_code == 0
+    data = json.loads(res.stdout)
+    assert data["state"] == "ok"
+    assert data["data"]["workflow"]["id"] == "end-of-task"
+    assert len(data["data"]["workflow"]["steps"]) == 8

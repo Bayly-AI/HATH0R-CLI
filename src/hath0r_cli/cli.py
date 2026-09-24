@@ -1355,6 +1355,106 @@ def janitor_prune(ctx: click.Context, repo: str | None, dry_run: bool) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@main.group()
+def task() -> None:
+    """Task Lifecycle: run canonical end-of-task automation and transitions."""
+
+
+@task.command("finish")
+@click.option("--repo", default=None, help="Target GitHub repository (owner/repo).")
+@click.option("--dry-run", is_flag=True, default=False, help="Simulate PR creation, checks, merge, and branch pruning.")
+@click.option(
+    "--semver",
+    default="patch",
+    type=click.Choice(["major", "minor", "patch", "none"]),
+    help="SemVer impact.",
+)
+@click.pass_context
+def task_finish(ctx: click.Context, repo: str | None, dry_run: bool, semver: str) -> None:
+    """Execute canonical end-of-task factory before completing an assignment."""
+    import uuid
+    from pathlib import Path
+
+    import yaml
+
+    from hath0r_cli.step_runner import BotRegistry, execute_workflow, spool_telemetry_event
+
+    cli_repo_root = Path(__file__).resolve().parents[2]
+    factory_file = cli_repo_root / "cfg" / "factories" / "end-of-task-factory.yaml"
+    if not factory_file.is_file():
+        response = _build_response(
+            ctx,
+            command="task.finish",
+            state="error",
+            dry_run=dry_run,
+            diagnostics=[
+                Diagnostic(
+                    severity="error",
+                    code="FACTORY_NOT_FOUND",
+                    message="Canonical end-of-task-factory.yaml manifest not found.",
+                )
+            ],
+        )
+        _emit_response(ctx, response)
+        ctx.exit(1)
+
+    factory_data = yaml.safe_load(factory_file.read_text(encoding="utf-8"))
+    workflow_def = factory_data.get("workflows", [{}])[0]
+
+    registry = BotRegistry(cwd=Path.cwd())
+    run_id = f"run_{uuid.uuid4().hex[:12]}"
+
+    exec_res = execute_workflow(workflow_def, registry, repo=repo, dry_run=dry_run, run_id=run_id)
+    all_success = exec_res.success
+    state = "ok" if all_success else "error"
+
+    diagnostics = []
+    for st in exec_res.steps:
+        if not st.success:
+            diagnostics.append(
+                Diagnostic(
+                    code="STEP_EXECUTION_FAILED",
+                    message=f"[end-of-task::{st.bot_id}] {st.error or 'Step execution failed'}",
+                    severity="error",
+                    provenance={"component": "hath0r-cli", "operation": "task.finish"},
+                )
+            )
+
+    spool_telemetry_event(
+        event_type="task.finish",
+        payload={
+            "run_id": run_id,
+            "state": state,
+            "dry_run": dry_run,
+            "steps": [s.to_dict() for s in exec_res.steps],
+        },
+        base_dir=_discover_group_root(),
+    )
+
+    response = _build_response(
+        ctx,
+        command="task.finish",
+        state=state,
+        dry_run=dry_run,
+        data={
+            "run_id": run_id,
+            "workflow": exec_res.to_dict(),
+        },
+        diagnostics=diagnostics,
+    )
+
+    def _text() -> None:
+        prefix = "[DRY-RUN] " if dry_run else ""
+        click.echo(f"{prefix}Completed End of Task workflow ({'SUCCESS' if all_success else 'FAILED'}):")
+        for st in exec_res.steps:
+            icon = "✓" if st.success else "✗"
+            detail = st.data if st.success else st.error
+            click.echo(f"  {icon} [{st.bot_id}] {st.action}: {detail}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not all_success:
+        ctx.exit(1)
+
 
 @main.group()
 def jev() -> None:

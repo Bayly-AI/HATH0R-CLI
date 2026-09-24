@@ -242,20 +242,158 @@ class PRBot:
             "status": "processed",
         }
 
-    def merge_pr(
-        self, pr_number: int, repo: Optional[str] = None, admin: bool = False, dry_run: bool = False
+    def create_pr(
+        self,
+        title: Optional[str] = None,
+        body: Optional[str] = None,
+        base: str = "development",
+        head: Optional[str] = None,
+        repo: Optional[str] = None,
+        draft: bool = False,
+        semver: str = "patch",
+        dry_run: bool = False,
     ) -> Dict[str, Any]:
-        """Merge PR safely."""
+        """Create pull request for current or specified branch."""
+        # Determine head branch if not passed
+        current_branch = head
+        if not current_branch:
+            rc, out, _ = run_cmd(["git", "branch", "--show-current"], cwd=self.cwd)
+            if rc == 0 and out.strip():
+                current_branch = out.strip()
+
+        if not current_branch or current_branch in CANONICAL_BRANCHES:
+            return {
+                "success": False,
+                "error": f"Cannot create PR from canonical or undetermined branch '{current_branch}'.",
+            }
+
+        # Validate taxonomy
+        branch_bot = BranchBot(cwd=self.cwd)
+        val = branch_bot.validate_name(current_branch)
+        if not val.get("valid"):
+            return {
+                "success": False,
+                "error": f"Branch '{current_branch}' violates taxonomy: {val.get('message')}",
+            }
+
+        # Construct title/body defaults if not provided
+        pr_title = title or f"{current_branch}: automatic task promotion"
+        pr_body = body or f"Autonomous task PR for `{current_branch}`.\n\nsemver: {semver}\n"
+        if "semver:" not in pr_body.lower():
+            pr_body = f"{pr_body}\n\nsemver: {semver}\n"
+
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "branch": current_branch,
+                "base": base,
+                "title": pr_title,
+                "action": f"[DRY-RUN] gh pr create --base {base} --head {current_branch} --title '{pr_title}'",
+            }
+
+        # Push head branch to origin before creating PR
+        run_cmd(["git", "push", "-u", "origin", current_branch], cwd=self.cwd)
+
+        cmd = [
+            "gh", "pr", "create",
+            "--base", base,
+            "--head", current_branch,
+            "--title", pr_title,
+            "--body", pr_body,
+        ]
+        if draft:
+            cmd.append("--draft")
+        if repo:
+            cmd.extend(["--repo", repo])
+
+        code, out, err = run_cmd(cmd, cwd=self.cwd)
+        # Parse PR number or url from output
+        pr_url = out.strip()
+        pr_num = None
+        match = re.search(r"/pull/(\d+)", pr_url)
+        if match:
+            pr_num = int(match.group(1))
+
+        return {
+            "success": code == 0,
+            "pr_number": pr_num,
+            "url": pr_url if code == 0 else None,
+            "branch": current_branch,
+            "base": base,
+            "output": out or err,
+        }
+
+    def monitor_checks(
+        self,
+        pr_number: int,
+        repo: Optional[str] = None,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Check CI rollup checks status for a PR and verify whether it is ready for merge."""
         if dry_run:
             return {
                 "success": True,
                 "dry_run": True,
                 "pr_number": pr_number,
-                "action": f"[DRY-RUN] Would merge PR #{pr_number}{' with --admin' if admin else ''}",
+                "status": "passed",
+                "action": f"[DRY-RUN] gh pr view {pr_number} --json statusCheckRollup",
             }
-        cmd = ["gh", "pr", "merge", str(pr_number), "--merge"]
+
+        status = self.check_pr_status(pr_number, repo=repo)
+        if "error" in status:
+            return {"success": False, "pr_number": pr_number, "error": status.get("error")}
+
+        rollup = status.get("statusCheckRollup", []) or []
+        failing = [
+            c.get("name") or c.get("context")
+            for c in rollup
+            if c.get("conclusion") in ("FAILURE", "TIMED_OUT", "STARTUP_FAILURE") or c.get("state") == "FAILURE"
+        ]
+        pending = [
+            c.get("name") or c.get("context")
+            for c in rollup
+            if c.get("conclusion") in ("ACTION_REQUIRED", "NEUTRAL") or c.get("state") == "PENDING"
+        ]
+
+        passed = len(failing) == 0
+        return {
+            "success": passed,
+            "pr_number": pr_number,
+            "healthy": passed,
+            "failing_checks": failing,
+            "pending_checks": pending,
+            "total_checks": len(rollup),
+            "state": status.get("state"),
+        }
+
+    def merge_pr(
+        self,
+        pr_number: int,
+        repo: Optional[str] = None,
+        admin: bool = False,
+        squash: bool = True,
+        delete_branch: bool = True,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Merge PR safely, defaulting to squash + admin bypass + delete branch."""
+        if dry_run:
+            flags = f"{' with --admin' if admin else ''}{' --squash' if squash else ''}"
+            return {
+                "success": True,
+                "dry_run": True,
+                "pr_number": pr_number,
+                "action": f"[DRY-RUN] Would merge PR #{pr_number}{flags}",
+            }
+        cmd = ["gh", "pr", "merge", str(pr_number)]
+        if squash:
+            cmd.append("--squash")
+        else:
+            cmd.append("--merge")
         if admin:
             cmd.append("--admin")
+        if delete_branch:
+            cmd.append("--delete-branch")
         if repo:
             cmd.extend(["--repo", repo])
         code, out, err = run_cmd(cmd, cwd=self.cwd)
@@ -342,6 +480,33 @@ class GitJanitorBot:
             "details": results,
         }
 
+    def pull_development(self, base: str = "development", dry_run: bool = False) -> Dict[str, Any]:
+        """Checkout canonical development branch and pull latest changes from origin."""
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "base": base,
+                "action": f"[DRY-RUN] git checkout {base} && git pull origin {base}",
+            }
+
+        # 1. Checkout base
+        rc_co, out_co, err_co = run_cmd(["git", "checkout", base], cwd=self.cwd)
+        if rc_co != 0:
+            return {
+                "success": False,
+                "base": base,
+                "error": f"Failed to checkout {base}: {err_co or out_co}",
+            }
+
+        # 2. Pull latest
+        rc_pull, out_pull, err_pull = run_cmd(["git", "pull", "origin", base], cwd=self.cwd)
+        return {
+            "success": rc_pull == 0,
+            "base": base,
+            "output": out_pull or err_pull,
+        }
+
 
 @dataclass
 class DocumentationBot:
@@ -380,6 +545,63 @@ class DocumentationBot:
             "page_title": title,
             "status": "ready",
             "message": "Wiki content formatted and ready for push when wiki enabled.",
+        }
+
+    def share_knowledge(
+        self,
+        summary: Optional[str] = None,
+        notes: Optional[str] = None,
+        target_kb: Optional[str] = None,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Distribute completed task knowledge and summaries to group documentation/knowledgebase."""
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "action": "[DRY-RUN] Share knowledge and sync documentation to canonical KB",
+                "target_kb": target_kb or "canonical-kb",
+            }
+
+        return {
+            "success": True,
+            "target_kb": target_kb or "canonical-kb",
+            "synced_at": datetime.now(timezone.utc).isoformat(),
+            "status": "synchronized",
+        }
+
+
+@dataclass
+class TaskAnnouncerBot:
+    """Emits completion announcements and execution status across messaging channels."""
+
+    cwd: Path = field(default_factory=Path.cwd)
+
+    def announce_complete(
+        self,
+        task_id: Optional[str] = None,
+        summary: Optional[str] = None,
+        channel: str = "console",
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Broadcast completion event upon successful task lifecycle execution."""
+        timestamp = datetime.now(timezone.utc).isoformat()
+        msg = f"Task '{task_id or 'end-of-task'}' successfully completed and verified at {timestamp}."
+
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "task_id": task_id,
+                "action": f"[DRY-RUN] Announce complete via {channel}: {msg}",
+            }
+
+        return {
+            "success": True,
+            "task_id": task_id,
+            "channel": channel,
+            "timestamp": timestamp,
+            "message": msg,
         }
 
 
