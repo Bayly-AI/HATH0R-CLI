@@ -47,7 +47,7 @@ make wheel
 ```
 
 
-## Commands (v0.1)
+## Commands (v0.2)
 
 | Command | Purpose |
 |---------|---------|
@@ -55,10 +55,12 @@ make wheel
 | `hath0r kb path` | Print canonical group knowledgebase path |
 | `hath0r kb products` | Show suite product catalog |
 | `hath0r --version` | Package version |
+| `hath0r planes` | ADR-003 domain status map (shipped/partial/planned) |
+| `hath0r schema` | Bounded surface schema + forbidden legacy roots |
 
-These four invocations are the complete implemented v0.1 integration surface.
-Structured JSON, schema discovery, knowledge search/write, validation,
-orchestration, and mutating commands are not currently implemented.
+Shipped surface is discoverable via `planes`/`schema`. Full process/work/validate/
+knowledge-write domains remain **planned** until implemented behind contracts.
+Never call `aegis` or create `.aegis/`.
 
 ## Changelog
 
@@ -67,7 +69,7 @@ See [CHANGELOG.md](CHANGELOG.md) for release history (current: **v0.2.0**).
 ## Documentation
 
 - [Documentation index](docs/INDEX.md)
-- [Current v0.1 command reference](docs/hathor-guide-042-current-command-reference-20260916.md)
+- [Current v0.2 command reference](docs/hathor-guide-042-current-command-reference-20260916.md)
 - [CLI, control-tower, and POC architecture](docs/hathor-arch-004-cli-control-tower-integration-20260916.md)
 - [Proposed POC machine interface](docs/hathor-ts-005-poc-machine-interface-20260916.md)
 - [POC adapter integration guide](docs/hathor-guide-043-poc-adapter-integration-20260916.md)
@@ -103,3 +105,7 @@ See `AGENTS.md`, `cfg/suite.yaml`, and the group hub `../AGENTS.md`.
 ## License
 
 Apache License 2.0 — see `LICENSE`.
+
+## Group hub policy sync
+
+Canonical OpenSource group `AGENTS.md` / `WARP.md` live in `cfg/group/`. Materialize to the group root with `./scripts/sync-group-hub.sh` (see `cfg/group/README.md`).

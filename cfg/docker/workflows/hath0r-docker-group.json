@@ -1,0 +1,56 @@
+{
+  "apiVersion": "hath0r.docker.workflow/v1",
+  "kind": "DockerWorkflow",
+  "metadata": {
+    "id": "hath0r-docker-group",
+    "name": "Hath0r ATC+MCP+UXP+Redis+NGINX group",
+    "group": "hath0r-opensource",
+    "product": "HATH0R-CLI",
+    "description": "Validate and bring up the Hath0r docker group template (issue #63)."
+  },
+  "spec": {
+    "factory": "docker-factory",
+    "compose": {
+      "file": "cfg/docker/groups/hath0r/docker-compose.yml",
+      "project": "hath0r-opensource"
+    },
+    "services": [
+      "redis",
+      "nginx",
+      "atc",
+      "mcp",
+      "uxp"
+    ],
+    "env_refs": [
+      "Development/.credentials/hath0r/.env"
+    ],
+    "steps": [
+      {
+        "op": "validate",
+        "on_failure": "abort"
+      },
+      {
+        "op": "up",
+        "params": {
+          "detach": true
+        },
+        "on_failure": "abort"
+      },
+      {
+        "op": "healthcheck",
+        "params": {
+          "services": [
+            "redis",
+            "nginx"
+          ],
+          "timeout": 15
+        },
+        "on_failure": "abort"
+      }
+    ],
+    "progress": {
+      "report_to": "hath0r",
+      "checkpoints": true
+    }
+  }
+}

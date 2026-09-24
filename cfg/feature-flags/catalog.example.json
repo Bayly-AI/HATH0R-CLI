@@ -1,0 +1,26 @@
+{
+  "apiVersion": "hath0r.feature-flags.catalog/v1",
+  "flags": [
+    {
+      "key": "jev.tool_guard.enabled",
+      "type": "boolean",
+      "default": false,
+      "owner": "platform",
+      "description": "Enable JEV tool-guard on MCP mutating tools"
+    },
+    {
+      "key": "quality.preflight.required",
+      "type": "boolean",
+      "default": true,
+      "owner": "platform",
+      "description": "Require hath0r preflight before opening work PRs"
+    },
+    {
+      "key": "docs.wiki.sync",
+      "type": "boolean",
+      "default": false,
+      "owner": "platform",
+      "description": "Enable GitHub wiki sync when dual-enablement allows"
+    }
+  ]
+}

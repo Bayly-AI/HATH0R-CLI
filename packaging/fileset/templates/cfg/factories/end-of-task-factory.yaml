@@ -1,0 +1,104 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: end-of-task-factory
+
+factory_id: end-of-task-factory
+name: End of Task Automation Factory
+version: 1.0.0
+description: >
+  Canonical automation factory executed upon completion of work in any Hath0r repository.
+  Validates the feature branch, opens the pull request, generates release notes/summaries,
+  monitors quality gates, merges the PR via squash + admin bypass, prunes local and remote
+  feature branches, synchronizes development baseline, shares knowledge, and announces completion.
+
+author: Bayly-AI
+category: governance-and-automation
+
+# Participating bots
+bots:
+  - id: pr-bot
+    name: PR Bot
+    role: pull-request-lifecycle
+    description: Handles PR creation, CI check monitoring, and squash merge promotions.
+    capabilities:
+      - list-prs
+      - check-status
+      - process-dependabot
+      - create-pr
+      - monitor-checks
+      - merge-pr
+
+  - id: documentation-bot
+    name: Documentation Bot
+    role: knowledge-and-wiki-sync
+    description: Generates PR summaries, wiki synchronization, and knowledgebase sharing.
+    capabilities:
+      - generate-summary
+      - sync-wiki
+      - share-knowledge
+
+  - id: git-janitor-bot
+    name: Git Janitor Bot
+    role: hygiene-and-cleanup
+    description: Audits non-canonical branches, prunes local/remote feature branches, and syncs development.
+    capabilities:
+      - scan-stale
+      - prune-branches
+      - prune-branch
+      - pull-development
+
+  - id: task-announcer-bot
+    name: Task Announcer Bot
+    role: notification-and-announcements
+    description: Broadcasts task completion and verification status across channels.
+    capabilities:
+      - announce-complete
+
+# Declarative workflows
+workflows:
+  - id: end-of-task
+    name: Canonical End of Task Lifecycle
+    description: Complete PR promotion, branch pruning, knowledge sync, and task completion announcement.
+    steps:
+      - bot: pr-bot
+        action: create-pr
+        on_failure: abort
+        args:
+          base: development
+
+      - bot: documentation-bot
+        action: generate-summary
+        on_failure: continue
+
+      - bot: pr-bot
+        action: monitor-checks
+        on_failure: retry
+        retry_count: 2
+
+      - bot: pr-bot
+        action: merge-pr
+        on_failure: abort
+        args:
+          admin: true
+          squash: true
+          delete_branch: true
+
+      - bot: git-janitor-bot
+        action: prune-branch
+        on_failure: continue
+        args:
+          remote: true
+
+      - bot: git-janitor-bot
+        action: pull-development
+        on_failure: abort
+        args:
+          base: development
+
+      - bot: documentation-bot
+        action: share-knowledge
+        on_failure: continue
+
+      - bot: task-announcer-bot
+        action: announce-complete
+        on_failure: continue

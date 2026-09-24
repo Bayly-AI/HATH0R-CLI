@@ -13,7 +13,7 @@ from tests.framework_paths import framework_schemas as _framework_schemas
 
 @pytest.fixture
 def runner() -> CliRunner:
-    return CliRunner()
+    return CliRunner(mix_stderr=False)
 
 
 @pytest.fixture

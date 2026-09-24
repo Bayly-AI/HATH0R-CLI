@@ -20,9 +20,7 @@ def test_version_contract(runner: CliRunner, framework_schemas: Path) -> None:
     result = runner.invoke(cli.main, ["--output", "json", "--version"])
     assert result.exit_code == 0
     payload = json.loads(result.output)
-    jsonschema.Draft7Validator(_schema(framework_schemas, "hath0r-cli-response-v1.schema.json")).validate(
-        payload
-    )
+    jsonschema.Draft7Validator(_schema(framework_schemas, "hath0r-cli-response-v1.schema.json")).validate(payload)
     jsonschema.Draft7Validator(_schema(framework_schemas, "hath0r-cli-version-v1.schema.json")).validate(
         payload["data"]
     )
@@ -35,12 +33,8 @@ def test_doctor_contract_ok(
     result = runner.invoke(cli.main, ["--output", "json", "doctor"])
     assert result.exit_code == 0
     payload = json.loads(result.output)
-    jsonschema.Draft7Validator(_schema(framework_schemas, "hath0r-cli-response-v1.schema.json")).validate(
-        payload
-    )
-    jsonschema.Draft7Validator(_schema(framework_schemas, "hath0r-cli-doctor-v1.schema.json")).validate(
-        payload["data"]
-    )
+    jsonschema.Draft7Validator(_schema(framework_schemas, "hath0r-cli-response-v1.schema.json")).validate(payload)
+    jsonschema.Draft7Validator(_schema(framework_schemas, "hath0r-cli-doctor-v1.schema.json")).validate(payload["data"])
     assert payload["state"] == "ok"
 
 
@@ -67,9 +61,7 @@ def test_kb_path_contract(
     )
 
 
-def test_kb_path_exit_3_missing(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_path_exit_3_missing(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("HATH0R_KB_PATH", str(tmp_path / "nope"))
     result = runner.invoke(cli.main, ["--output", "json", "--quiet", "kb", "path"])
     assert result.exit_code == 3
@@ -85,14 +77,12 @@ def test_kb_products_contract(
     result = runner.invoke(cli.main, ["--output", "json", "kb", "products"])
     assert result.exit_code == 0
     payload = json.loads(result.output)
-    jsonschema.Draft7Validator(
-        _schema(framework_schemas, "hath0r-cli-kb-products-v1.schema.json")
-    ).validate(payload["data"])
+    jsonschema.Draft7Validator(_schema(framework_schemas, "hath0r-cli-kb-products-v1.schema.json")).validate(
+        payload["data"]
+    )
 
 
-def test_kb_products_exit_2_invalid(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_products_exit_2_invalid(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     kb = tmp_path / "kb"
     (kb / "catalogs").mkdir(parents=True)
     (kb / "catalogs" / "suite-products.yaml").write_text(":\n bad", encoding="utf-8")
@@ -103,9 +93,7 @@ def test_kb_products_exit_2_invalid(
     assert payload["diagnostics"][0]["code"] == "PRODUCT_CATALOG_INVALID"
 
 
-def test_kb_products_exit_3_missing(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_products_exit_3_missing(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("HATH0R_KB_PATH", str(tmp_path / "empty"))
     (tmp_path / "empty").mkdir()
     result = runner.invoke(cli.main, ["--output", "json", "kb", "products"])

@@ -24,6 +24,10 @@ def framework_root() -> Path:
     if (sibling / "lib" / "schemas").is_dir():
         return sibling
 
+    sibling_fw = (_REPO_ROOT.parent / "hath0r-framework").resolve()
+    if (sibling_fw / "lib" / "schemas").is_dir():
+        return sibling_fw
+
     ci = (_REPO_ROOT / "hath0r-framework").resolve()
     if (ci / "lib" / "schemas").is_dir():
         return ci

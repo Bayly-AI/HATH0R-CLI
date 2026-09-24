@@ -28,9 +28,7 @@ def runner() -> CliRunner:
     return CliRunner()
 
 
-def test_kb_path_json_present(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_path_json_present(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     kb = tmp_path / "knowledgebase"
     kb.mkdir()
     monkeypatch.setenv("HATH0R_KB_PATH", str(kb))
@@ -50,9 +48,7 @@ def test_kb_path_json_present(
     assert payload["diagnostics"] == []
 
 
-def test_kb_path_json_missing(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_path_json_missing(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     missing = tmp_path / "no-such-kb"
     monkeypatch.setenv("HATH0R_KB_PATH", str(missing))
     result = runner.invoke(cli.main, ["--output", "json", "--quiet", "kb", "path"])
@@ -68,9 +64,7 @@ def test_kb_path_json_missing(
     assert "KNOWLEDGEBASE_NOT_FOUND" in codes
 
 
-def test_kb_path_json_override(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_path_json_override(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     kb = tmp_path / "custom-kb"
     kb.mkdir()
     monkeypatch.setenv("HATH0R_KB_PATH", str(kb))
@@ -83,9 +77,7 @@ def test_kb_path_json_override(
     assert payload["data"]["available"] is True
 
 
-def test_kb_path_text_unchanged(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_path_text_unchanged(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     kb = tmp_path / "kb"
     kb.mkdir()
     monkeypatch.setenv("HATH0R_KB_PATH", str(kb))
@@ -94,9 +86,7 @@ def test_kb_path_text_unchanged(
     assert result.output.strip() == str(kb)
 
 
-def test_kb_path_text_missing(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_path_text_missing(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     missing = tmp_path / "gone"
     monkeypatch.setenv("HATH0R_KB_PATH", str(missing))
     result = runner.invoke(cli.main, ["--output", "text", "kb", "path"])

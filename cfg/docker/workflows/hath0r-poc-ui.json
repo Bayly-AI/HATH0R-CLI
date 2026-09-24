@@ -1,0 +1,69 @@
+{
+  "apiVersion": "hath0r.docker.workflow/v1",
+  "kind": "DockerWorkflow",
+  "metadata": {
+    "id": "hath0r-poc-ui-stack",
+    "name": "HATH0R POC UI Testbed Stack",
+    "group": "hath0r-opensource",
+    "product": "HATH0R-Agentic-POC",
+    "description": "Validation, launch, and healthcheck for HATH0R Integration Console POC UI container."
+  },
+  "spec": {
+    "factory": "docker-factory",
+    "container": {
+      "name": "hath0r-poc-ui",
+      "image": "hath0r-poc-ui",
+      "tag": "latest"
+    },
+    "compose": {
+      "file": "hath0r-poc/docker-compose.yml",
+      "project": "hath0r-opensource-poc"
+    },
+    "services": [
+      "poc-ui"
+    ],
+    "env_refs": [
+      "Development/.credentials/hath0r/.env"
+    ],
+    "steps": [
+      {
+        "op": "validate",
+        "on_failure": "abort"
+      },
+      {
+        "op": "build",
+        "params": {
+          "service": "hath0r-poc-ui"
+        },
+        "on_failure": "abort"
+      },
+      {
+        "op": "up",
+        "params": {
+          "detach": true
+        },
+        "on_failure": "abort"
+      },
+      {
+        "op": "healthcheck",
+        "params": {
+          "endpoint": "http://127.0.0.1:8080/healthz",
+          "retries": 3,
+          "timeout": 5
+        },
+        "on_failure": "abort"
+      },
+      {
+        "op": "diagnose",
+        "params": {
+          "on_unhealthy": true
+        },
+        "on_failure": "continue"
+      }
+    ],
+    "progress": {
+      "report_to": "hath0r",
+      "checkpoints": true
+    }
+  }
+}
