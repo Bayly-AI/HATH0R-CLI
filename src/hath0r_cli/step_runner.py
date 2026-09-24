@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from hath0r_cli.bots import BranchBot, DocumentationBot, GitJanitorBot, PRBot
+from hath0r_cli.bots import BranchBot, DockerBot, DocumentationBot, GitJanitorBot, PRBot
 
 
 @dataclass
@@ -81,6 +81,8 @@ class BotRegistry:
             "pr-bot": PRBot(cwd=self.cwd),
             "git-janitor-bot": GitJanitorBot(cwd=self.cwd),
             "documentation-bot": DocumentationBot(cwd=self.cwd),
+            "docker-bot": DockerBot(cwd=self.cwd),
+            "docker-monitor-bot": DockerBot(cwd=self.cwd),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -123,6 +125,8 @@ class BotRegistry:
                 return self._dispatch_branch_bot(bot, action, args, dry_run=dry_run)
             elif bot_id == "documentation-bot":
                 return self._dispatch_doc_bot(bot, action, args, repo=repo, context=ctx)
+            elif bot_id in ("docker-bot", "docker-monitor-bot"):
+                return self._dispatch_docker_bot(bot, bot_id, action, args, dry_run=dry_run, context=ctx)
             else:
                 return StepExecutionResult(
                     bot_id=bot_id,
@@ -320,6 +324,101 @@ class BotRegistry:
             action=action,
             success=False,
             error=f"Unknown action '{action}' for documentation-bot.",
+        )
+
+    def _dispatch_docker_bot(
+        self,
+        bot: Any,
+        bot_id: str,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("validate-workflow", "validate"):
+            wf_data = args.get("workflow") or context.get("docker_workflow") or {}
+            res = bot.validate_workflow(wf_data)
+            return StepExecutionResult(
+                bot_id=bot_id,
+                action=action,
+                success=res.get("valid", False),
+                data=res,
+                error=None if res.get("valid") else "; ".join(res.get("errors", [])),
+                dry_run=dry_run,
+            )
+
+        elif action in ("build-container", "build"):
+            compose_file = args.get("compose_file") or args.get("file")
+            service = args.get("service")
+            res = bot.build_container(compose_file=compose_file, service=service, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id=bot_id,
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+
+        elif action in ("up", "start"):
+            compose_file = args.get("compose_file") or args.get("file")
+            services = args.get("services")
+            detach = args.get("detach", True)
+            res = bot.up(compose_file=compose_file, services=services, detach=detach, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id=bot_id,
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+
+        elif action in ("healthcheck", "probe"):
+            endpoint = args.get("endpoint")
+            container_name = args.get("container") or args.get("container_name")
+            res = bot.healthcheck(endpoint=endpoint, container_name=container_name, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id=bot_id,
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+
+        elif action in ("diagnose", "diagnose-container"):
+            container_name = args.get("container") or args.get("container_name")
+            compose_file = args.get("compose_file")
+            res = bot.diagnose(container_name=container_name, compose_file=compose_file, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id=bot_id,
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+
+        elif action in ("down", "stop"):
+            compose_file = args.get("compose_file") or args.get("file")
+            res = bot.down(compose_file=compose_file, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id=bot_id,
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+
+        return StepExecutionResult(
+            bot_id=bot_id,
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for {bot_id}.",
+            dry_run=dry_run,
         )
 
 

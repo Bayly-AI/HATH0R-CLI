@@ -1,0 +1,52 @@
+{
+  "apiVersion": "hath0r.docker.workflow/v1",
+  "kind": "DockerWorkflow",
+  "metadata": {
+    "id": "hath0r-opensource-stack",
+    "name": "Hath0r OpenSource Core Stack",
+    "group": "hath0r-opensource",
+    "product": "HATH0R-CLI",
+    "description": "Validation and health monitoring of OpenSource ATC, MCP, Redis, and Nginx containers."
+  },
+  "spec": {
+    "factory": "docker-factory",
+    "compose": {
+      "file": "cfg/docker/docker-compose.yml",
+      "project": "hath0r-opensource-core"
+    },
+    "services": [
+      "atc",
+      "mcp",
+      "redis",
+      "nginx"
+    ],
+    "env_refs": [
+      "Development/.credentials/hath0r/.env"
+    ],
+    "steps": [
+      {
+        "op": "validate",
+        "on_failure": "abort"
+      },
+      {
+        "op": "up",
+        "params": {
+          "detach": true
+        },
+        "on_failure": "abort"
+      },
+      {
+        "op": "healthcheck",
+        "params": {
+          "services": ["atc", "mcp", "redis", "nginx"],
+          "timeout": 10
+        },
+        "on_failure": "abort"
+      }
+    ],
+    "progress": {
+      "report_to": "hath0r",
+      "checkpoints": true
+    }
+  }
+}

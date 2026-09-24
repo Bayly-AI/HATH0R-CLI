@@ -424,6 +424,62 @@ def test_cli_factory_schedule_commands(tmp_path: Path) -> None:
     assert data_sync["data"]["synced_count"] >= 2
 
 
+def test_docker_bot_and_workflow_validation() -> None:
+    from hath0r_cli.bots import DockerBot
+
+    bot = DockerBot()
+    # Validate canonical hath0r-poc-ui.json
+    wf_file = Path(__file__).resolve().parents[2] / "cfg" / "docker" / "workflows" / "hath0r-poc-ui.json"
+    assert wf_file.is_file()
+    wf_data = json.loads(wf_file.read_text(encoding="utf-8"))
+
+    res = bot.validate_workflow(wf_data)
+    assert res["valid"] is True
+    assert res["workflow_id"] == "hath0r-poc-ui-stack"
+
+    # Validate bad document
+    bad_res = bot.validate_workflow({"apiVersion": "wrong/v1"})
+    assert bad_res["valid"] is False
+    assert len(bad_res["errors"]) > 0
+
+
+def test_docker_bot_lifecycle_dry_run() -> None:
+    from hath0r_cli.bots import DockerBot
+
+    bot = DockerBot()
+    assert bot.build_container(dry_run=True)["success"] is True
+    assert bot.up(dry_run=True)["success"] is True
+    assert bot.healthcheck(dry_run=True)["success"] is True
+    assert bot.diagnose(dry_run=True)["success"] is True
+    assert bot.down(dry_run=True)["success"] is True
+
+
+def test_cli_docker_commands() -> None:
+    runner = CliRunner(mix_stderr=False)
+    wf_file = str(Path(__file__).resolve().parents[2] / "cfg" / "docker" / "workflows" / "hath0r-poc-ui.json")
+
+    # validate
+    res_val = runner.invoke(cli.main, ["--output", "json", "docker", "workflow", "validate", wf_file])
+    assert res_val.exit_code == 0
+    assert json.loads(res_val.stdout)["state"] == "ok"
+
+    # run --dry-run
+    res_run = runner.invoke(cli.main, ["--output", "json", "docker", "workflow", "run", wf_file, "--dry-run"])
+    assert res_run.exit_code == 0
+    data = json.loads(res_run.stdout)
+    assert data["state"] == "ok"
+    assert data["data"]["dry_run"] is True
+    assert len(data["data"]["steps"]) == 5
+
+    # diagnose --dry-run
+    res_diag = runner.invoke(cli.main, ["--output", "json", "docker", "diagnose", "hath0r-poc-ui", "--dry-run"])
+    assert res_diag.exit_code == 0
+    diag_data = json.loads(res_diag.stdout)
+    assert diag_data["state"] == "ok"
+    assert diag_data["data"]["healthy"] is True
+
+
+
 
 
 
