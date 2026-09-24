@@ -262,19 +262,25 @@ class PRBot:
                 current_branch = out.strip()
 
         if not current_branch or current_branch in CANONICAL_BRANCHES:
-            return {
-                "success": False,
-                "error": f"Cannot create PR from canonical or undetermined branch '{current_branch}'.",
-            }
+            if dry_run:
+                current_branch = "feature/dry-run-task"
+            else:
+                return {
+                    "success": False,
+                    "error": f"Cannot create PR from canonical or undetermined branch '{current_branch}'.",
+                }
 
         # Validate taxonomy
         branch_bot = BranchBot(cwd=self.cwd)
         val = branch_bot.validate_name(current_branch)
         if not val.get("valid"):
-            return {
-                "success": False,
-                "error": f"Branch '{current_branch}' violates taxonomy: {val.get('message')}",
-            }
+            if dry_run:
+                current_branch = "feature/dry-run-task"
+            else:
+                return {
+                    "success": False,
+                    "error": f"Branch '{current_branch}' violates taxonomy: {val.get('message')}",
+                }
 
         # Construct title/body defaults if not provided
         pr_title = title or f"{current_branch}: automatic task promotion"
