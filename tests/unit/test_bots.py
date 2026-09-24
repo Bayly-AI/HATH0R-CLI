@@ -362,6 +362,69 @@ def test_telemetry_spooling(tmp_path: Path) -> None:
     assert event_data["payload"]["run_id"] == "run_123"
 
 
+def test_factory_scheduler_discovery_and_generation(tmp_path: Path) -> None:
+    from hath0r_cli.scheduler import (
+        discover_scheduled_workflows,
+        generate_github_workflow_content,
+        sync_factory_schedules_to_github,
+    )
+
+    scheduled = discover_scheduled_workflows()
+    assert len(scheduled) >= 2
+    # Ensure pr-and-branch-lifecycle-factory scheduled workflows are discovered
+    triage_wf = next((s for s in scheduled if s.workflow_id == "triage-dependabot"), None)
+    assert triage_wf is not None
+    assert triage_wf.schedule == "0 */2 * * *"
+    assert triage_wf.next_run is not None
+
+    # Test workflow YAML generation
+    gh_yaml = generate_github_workflow_content(triage_wf, repo="Bayly-AI/HATH0R-CLI")
+    assert "cron: \"0 */2 * * *\"" in gh_yaml
+    assert "hath0r factory run pr-and-branch-lifecycle-factory --workflow triage-dependabot" in gh_yaml
+
+    # Test sync with dry-run
+    dry_results = sync_factory_schedules_to_github(tmp_path, dry_run=True)
+    assert len(dry_results) >= 2
+    assert all("[DRY-RUN]" in r["action"] for r in dry_results)
+    assert not (tmp_path / ".github" / "workflows").exists()
+
+    # Test actual sync
+    sync_results = sync_factory_schedules_to_github(tmp_path, dry_run=False)
+    assert len(sync_results) >= 2
+    expected_wf = (
+        tmp_path / ".github" / "workflows" / "factory-schedule-pr-and-branch-lifecycle-factory-triage-dependabot.yml"
+    )
+    assert expected_wf.exists()
+
+
+def test_cli_factory_schedule_commands(tmp_path: Path) -> None:
+    runner = CliRunner(mix_stderr=False)
+
+    # factory schedule list (JSON)
+    res_list_json = runner.invoke(cli.main, ["--output", "json", "factory", "schedule", "list"])
+    assert res_list_json.exit_code == 0
+    data = json.loads(res_list_json.stdout)
+    assert data["state"] == "ok"
+    assert len(data["data"]["schedules"]) >= 2
+
+    # factory schedule list (Text)
+    res_list_text = runner.invoke(cli.main, ["--output", "text", "factory", "schedule", "list"])
+    assert res_list_text.exit_code == 0
+    assert "Factory Automation Schedules" in res_list_text.stdout
+
+    # factory schedule sync --dry-run
+    res_sync_dry = runner.invoke(
+        cli.main,
+        ["--output", "json", "factory", "schedule", "sync", "--target-dir", str(tmp_path), "--dry-run"],
+    )
+    assert res_sync_dry.exit_code == 0
+    data_sync = json.loads(res_sync_dry.stdout)
+    assert data_sync["state"] == "ok"
+    assert data_sync["data"]["dry_run"] is True
+    assert data_sync["data"]["synced_count"] >= 2
+
+
+
 
 
 
