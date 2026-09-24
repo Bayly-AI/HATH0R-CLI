@@ -595,6 +595,133 @@ def schema(ctx: click.Context, status_filter: str) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
+# ============================================================================
+# Factory & Bot Suite Commands
+# ============================================================================
+
+@main.group()
+def factory() -> None:
+    """Manage and execute Hath0r automation factories."""
+
+
+@factory.command("list")
+@click.pass_context
+def factory_list(ctx: click.Context) -> None:
+    """List available automation factories."""
+    from pathlib import Path
+    import yaml
+
+    cli_repo_root = Path(__file__).resolve().parents[2]
+    group_root = _discover_group_root() or cli_repo_root
+    factories_dir = group_root / "cfg" / "factories"
+    if not factories_dir.is_dir():
+        factories_dir = cli_repo_root / "cfg" / "factories"
+
+    items = []
+    if factories_dir.is_dir():
+        for f in factories_dir.glob("*.yaml"):
+            try:
+                data = yaml.safe_load(f.read_text(encoding="utf-8"))
+                if isinstance(data, dict) and "factory_id" in data:
+                    items.append({
+                        "id": data.get("factory_id"),
+                        "name": data.get("name"),
+                        "version": data.get("version"),
+                        "description": data.get("description", "").strip(),
+                        "bots_count": len(data.get("bots", [])),
+                        "file": str(f),
+                    })
+            except Exception:
+                pass
+
+    response = _build_response(ctx, command="factory.list", state="ok", data={"factories": items})
+
+    def _text() -> None:
+        if not items:
+            click.echo("No factories found.")
+            return
+        table = Table(title="Hath0r Automation Factories")
+        table.add_column("Factory ID", style="bold cyan")
+        table.add_column("Name", style="green")
+        table.add_column("Version", style="magenta")
+        table.add_column("Bots", style="yellow")
+        for it in items:
+            table.add_row(it["id"], it["name"], str(it["version"]), str(it["bots_count"]))
+        console.print(table)
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@main.group()
+def branch() -> None:
+    """Branch Bot: create, validate, and manage git branches."""
+
+
+@branch.command("validate")
+@click.argument("name")
+@click.pass_context
+def branch_validate(ctx: click.Context, name: str) -> None:
+    """Validate branch name against governance taxonomy."""
+    from hath0r_cli.bots import BranchBot
+    bot = BranchBot()
+    res = bot.validate_name(name)
+    state = "ok" if res.get("valid") else "degraded"
+    response = _build_response(ctx, command="branch.validate", state=state, data=res)
+
+    def _text() -> None:
+        color = "green" if res.get("valid") else "red"
+        click.echo(click.style(res.get("message", ""), fg=color))
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@main.group()
+def pr() -> None:
+    """PR Bot: inspect, process Dependabot, and manage pull requests."""
+
+
+@pr.command("dependabot")
+@click.argument("pr_number", type=int)
+@click.option("--repo", default=None, help="Target GitHub repository (owner/repo).")
+@click.option("--auto-merge/--no-auto-merge", default=True, help="Enable auto-merge if checks pass.")
+@click.pass_context
+def pr_dependabot(ctx: click.Context, pr_number: int, repo: str | None, auto_merge: bool) -> None:
+    """Triage and automatically process Dependabot PRs."""
+    from hath0r_cli.bots import PRBot
+    bot = PRBot()
+    res = bot.process_dependabot(pr_number, repo=repo, auto_merge=auto_merge)
+    state = "ok" if res.get("status") == "processed" else "degraded"
+    response = _build_response(ctx, command="pr.dependabot", state=state, data=res)
+
+    def _text() -> None:
+        click.echo(f"PR #{pr_number} Dependabot triage: {res.get('action') or res.get('status')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@main.group()
+def janitor() -> None:
+    """Git Janitor Bot: audit and prune stale or merged branches."""
+
+
+@janitor.command("scan")
+@click.option("--repo", default=None, help="Target GitHub repository (owner/repo).")
+@click.pass_context
+def janitor_scan(ctx: click.Context, repo: str | None) -> None:
+    """Scan for merged, closed, or stale branches."""
+    from hath0r_cli.bots import GitJanitorBot
+    bot = GitJanitorBot()
+    res = bot.scan_stale_branches(repo=repo)
+    response = _build_response(ctx, command="janitor.scan", state="ok", data=res)
+
+    def _text() -> None:
+        click.echo(f"Scanned {res.get('scanned_count', 0)} candidate branches. Found {res.get('stale_count', 0)} stale.")
+        for b in res.get("stale_branches", []):
+            click.echo(f"  - {b['branch']}: {b['reason']}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
 
 if __name__ == "__main__":
     main()
+
