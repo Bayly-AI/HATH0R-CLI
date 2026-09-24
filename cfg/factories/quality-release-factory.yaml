@@ -1,0 +1,116 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: quality-release-factory
+# Issues: #64, #66, #67, #68, #69, #70, #71
+
+factory_id: quality-release-factory
+name: Quality Gates and Release Factory
+version: 1.0.0
+description: >
+  Preflight thresholds, pre/post-deploy tests, aggregate PR quality gates (Sonar hard stop),
+  SemVer release notes/tag, wiki sync, and post-PR knowledge share.
+
+author: Bayly-AI
+category: governance-and-quality
+
+bots:
+  - id: preflight-bot
+    name: Preflight Bot
+    role: pre-pr-thresholds
+    capabilities:
+      - run
+      - preflight
+      - check
+
+  - id: deploy-test-bot
+    name: Deploy Test Bot
+    role: pre-post-deploy-tests
+    capabilities:
+      - pre-deploy
+      - post-deploy
+
+  - id: quality-gate-bot
+    name: Quality Gate Bot
+    role: aggregate-pr-gates
+    capabilities:
+      - check-pr
+      - evaluate
+      - evaluate-rollup
+
+  - id: release-bot
+    name: Release Bot
+    role: semver-release
+    capabilities:
+      - validate
+      - notes
+      - tag-release
+
+  - id: documentation-bot
+    name: Documentation Bot
+    role: wiki-and-knowledge
+    capabilities:
+      - generate-summary
+      - sync-wiki
+      - share-knowledge
+
+  - id: factory-manager-bot
+    name: Factory Manager Bot
+    role: factory-lifecycle
+    capabilities:
+      - list
+      - create
+      - update
+      - delete
+      - validate
+      - execute
+
+workflows:
+  - id: pre-pr
+    name: Pre-PR Threshold Gate
+    description: Run before opening a pull request.
+    steps:
+      - bot: preflight-bot
+        action: run
+        on_failure: abort
+        args:
+          skip_tests: false
+
+      - bot: deploy-test-bot
+        action: pre-deploy
+        on_failure: abort
+
+  - id: pr-quality
+    name: PR Aggregate Quality Gates
+    description: Evaluate hard gates including SonarCloud after CI.
+    steps:
+      - bot: quality-gate-bot
+        action: check-pr
+        on_failure: abort
+
+  - id: post-merge-docs
+    name: Post-merge wiki and knowledge share
+    steps:
+      - bot: documentation-bot
+        action: share-knowledge
+        on_failure: continue
+
+      - bot: documentation-bot
+        action: sync-wiki
+        on_failure: continue
+
+  - id: release-cut
+    name: Validate and publish release
+    steps:
+      - bot: release-bot
+        action: validate
+        on_failure: abort
+
+      - bot: release-bot
+        action: notes
+        on_failure: continue
+
+      - bot: release-bot
+        action: tag-release
+        on_failure: abort
+        args:
+          skip_github_release: false
