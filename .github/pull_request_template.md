@@ -12,6 +12,12 @@ Fixes #
 - [ ] **Feature/work** → base `development`
 - [ ] **Release/promotion** → base `testing`|`staging`|`master` (use release template)
 
+## Version Impact (SemVer)
+- [ ] `major` — Breaking change
+- [ ] `minor` — New feature / capability
+- [ ] `patch` — Bug fix / minor update
+- [ ] `none` — Maintenance / doc chore
+
 ## Checks
 - [ ] `validate-promotion-path`
 - [ ] CI

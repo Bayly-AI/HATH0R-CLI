@@ -140,3 +140,9 @@ Canonical flow, human gates, and PR templates:
 - Docs: `docs/governance/sonarcloud-quality-gates.md`
 - Workflow: `.github/workflows/sonarcloud-quality-gate.yml`
 - Secret: `SONAR_TOKEN` (required)
+
+## Semantic Versioning (SemVer)
+
+- Canonical source of truth: `VERSION` in repo root.
+- PRs must declare version impact (`major`, `minor`, `patch`, or `none`).
+- See `docs/governance/semantic-versioning.md` and `docs/governance/playbooks/release-runbook.md`.
