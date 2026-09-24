@@ -46,6 +46,16 @@ Member repos keep their own `AGENTS.md` but **defer** to this file and to the co
 3. Use operator CLI **`hath0r`** for path/doctor/KB orientation when installed.
 4. Framework `hath0r/docs/` remains the **canonical documentation corpus** (content), while HATH0R-CLI remains the **governance/control** tower.
 
+## CLI-First & Missing Capability Offer (CRITICAL — cr-cli-first-001)
+
+1. **CLI-First**: For any request involving a connection, MCP, workflow, factory, Docker workflow, KB path, or suite orientation, invoke **`hath0r`** (or the documented operator CLI entrypoint) rather than inventing ad-hoc scripts.
+2. **Missing Capability Offer**: If the required connection, MCP, workflow, or factory does not exist, do not silently improvise or hack workarounds. Offer to switch the task to:
+   - Creating the missing connection / MCP / workflow / factory, and
+   - Using the user's original request as the automated acceptance test of that new capability.
+   *Example*: "MCP connection missing → create MCP registration in config + re-run original request."
+3. **Session Start Checklist**: Review and follow `docs/governance/checklists/agent-session-start.md` before executing work.
+4. **Procedure & Runbook Requirement**: Require procedure/strategy/playbook/runbook before scaffolding or writing implementation code.
+
 ## Hidden root (CRITICAL — cr-hath0r-root-001)
 
 - **Use only** `.hath0r/` for framework-created / modified / saved project metadata.
