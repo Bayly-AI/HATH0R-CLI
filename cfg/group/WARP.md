@@ -47,6 +47,13 @@ Members point `control_tower_path` at the tower repo, not at the bare group fold
 
 Only `.hath0r/`. Forbidden: `.ai/`, `.aegis/`, `.infraOS/`.
 
+## CLI-first & missing capability offer (cr-cli-first-001)
+
+- **CLI-First**: Operators and agents MUST invoke `hath0r` CLI commands for connections, MCP tools, workflows, factories, Docker stacks, and KB queries rather than ad-hoc scripts.
+- **Offer Missing Capability**: When a requested capability/workflow/factory is missing, do not improvise ad-hoc solutions. Offer to switch the task to create the capability/factory first and use the user request as the acceptance test.
+- **Checklist**: Follow `docs/governance/checklists/agent-session-start.md` at session start.
+- **Procedure Gate**: Validate or author a runbook/playbook before writing code.
+
 ## Branch protection & promotion (CR-BAI-001 / cr-branch-gov-001)
 
 ```text

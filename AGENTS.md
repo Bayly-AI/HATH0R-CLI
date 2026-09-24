@@ -37,6 +37,16 @@ Group policy: `/Users/raybayly/Development/OpenSource/WARP.md`
 3. Keep member knowledgebases as **stubs**; durable group KB lives at the OpenSource hub.
 4. Do **not** treat private internal product trees (e.g. BAI/AEGIS) as OpenSource canonical sources.
 
+## CLI-First & Missing Capability Offer (CRITICAL — cr-cli-first-001)
+
+1. **CLI-First**: For any request involving a connection, MCP, workflow, factory, Docker workflow, KB path, or suite orientation, invoke **`hath0r`** (or the documented operator CLI entrypoint) rather than inventing ad-hoc scripts.
+2. **Missing Capability Offer**: If the required connection, MCP, workflow, or factory does not exist, do not silently improvise or hack workarounds. Offer to switch the task to:
+   - Creating the missing connection / MCP / workflow / factory, and
+   - Using the user's original request as the automated acceptance test of that new capability.
+   *Example*: "MCP connection missing → create MCP registration in config + re-run original request."
+3. **Session Start Checklist**: Review and follow `docs/governance/checklists/agent-session-start.md` before executing work.
+4. **Procedure & Runbook Requirement**: Require procedure/strategy/playbook/runbook before scaffolding or writing implementation code.
+
 ## Framework hidden root (CRITICAL — cr-hath0r-root-001)
 
 Use **only** `.hath0r/` for framework-created / modified / saved project metadata (including this repo’s KB stub).
