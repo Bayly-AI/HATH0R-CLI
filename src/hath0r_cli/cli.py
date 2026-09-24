@@ -722,6 +722,112 @@ def janitor_scan(ctx: click.Context, repo: str | None) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@factory.command("run")
+@click.argument("factory_id")
+@click.option("--repo", default=None, help="Target GitHub repository (owner/repo).")
+@click.pass_context
+def factory_run(ctx: click.Context, factory_id: str, repo: str | None) -> None:
+    """Execute all workflows defined in a factory."""
+    from pathlib import Path
+    import yaml
+    from hath0r_cli.bots import BranchBot, PRBot, GitJanitorBot, DocumentationBot
+
+    cli_repo_root = Path(__file__).resolve().parents[2]
+    group_root = _discover_group_root() or cli_repo_root
+    factories_dir = group_root / "cfg" / "factories"
+    if not factories_dir.is_dir():
+        factories_dir = cli_repo_root / "cfg" / "factories"
+
+    factory_file = None
+    for f in factories_dir.glob("*.yaml"):
+        try:
+            data = yaml.safe_load(f.read_text(encoding="utf-8"))
+            if isinstance(data, dict) and data.get("factory_id") == factory_id:
+                factory_file = f
+                break
+        except Exception:
+            pass
+
+    if not factory_file:
+        response = _build_response(ctx, command="factory.run", state="error", diagnostics=[
+            Diagnostic(severity="error", code="FACTORY_NOT_FOUND", message=f"Factory '{factory_id}' not found.")
+        ])
+        _emit_response(ctx, response)
+        ctx.exit(1)
+
+    factory_def = yaml.safe_load(factory_file.read_text(encoding="utf-8"))
+    workflows = factory_def.get("workflows", [])
+    results = []
+
+    pr_bot = PRBot()
+    janitor_bot = GitJanitorBot()
+
+    for wf in workflows:
+        w_id = wf.get("id")
+        w_name = wf.get("name")
+        wf_res = {"id": w_id, "name": w_name, "steps": []}
+
+        if w_id == "triage-dependabot":
+            prs = pr_bot.list_prs(repo=repo, state="open")
+            dep_prs = [p for p in prs if "dependabot" in p.get("author", {}).get("login", "").lower()]
+            triage_results = []
+            for dp in dep_prs:
+                t_res = pr_bot.process_dependabot(dp["number"], repo=repo, auto_merge=True)
+                triage_results.append(t_res)
+            wf_res["steps"].append({"action": "process-dependabot", "processed": triage_results})
+
+        elif w_id == "cleanup-stale-branches":
+            scan_res = janitor_bot.scan_stale_branches(repo=repo)
+            pruned = []
+            for b in scan_res.get("stale_branches", []):
+                p_res = janitor_bot.prune_branch(b["branch"], remote=True)
+                pruned.append({"branch": b["branch"], "result": p_res})
+            wf_res["steps"].append({"action": "prune-branches", "pruned": pruned})
+
+        results.append(wf_res)
+
+    response = _build_response(ctx, command="factory.run", state="ok", data={
+        "factory_id": factory_id,
+        "workflows": results
+    })
+
+    def _text() -> None:
+        click.echo(f"Executed factory '{factory_id}':")
+        for w in results:
+            click.echo(f"  • Workflow [{w['id']}]: {w['name']}")
+            for st in w["steps"]:
+                click.echo(f"    - Action {st['action']}: {st}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@janitor.command("prune")
+@click.option("--repo", default=None, help="Target GitHub repository (owner/repo).")
+@click.pass_context
+def janitor_prune(ctx: click.Context, repo: str | None) -> None:
+    """Scan and prune all merged or closed branches."""
+    from hath0r_cli.bots import GitJanitorBot
+    bot = GitJanitorBot()
+    scan = bot.scan_stale_branches(repo=repo)
+    pruned = []
+    for b in scan.get("stale_branches", []):
+        res = bot.prune_branch(b["branch"], remote=True)
+        pruned.append({"branch": b["branch"], "success": res.get("success")})
+
+    response = _build_response(ctx, command="janitor.prune", state="ok", data={
+        "scanned": scan.get("scanned_count"),
+        "pruned": pruned,
+    })
+
+    def _text() -> None:
+        click.echo(f"Pruned {len(pruned)} stale branches.")
+        for p in pruned:
+            status = "✓" if p["success"] else "✗"
+            click.echo(f"  {status} {p['branch']}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
 if __name__ == "__main__":
     main()
 
