@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "description": "Configured MCP servers for Hath0r Framework and ecosystem",
+  "servers": [
+    {
+      "id": "hath0r-mcp",
+      "name": "Hath0rMCP",
+      "scope": "project",
+      "group": "hath0r-opensource",
+      "priority": 1,
+      "enabled": true,
+      "transport": "streamable-http",
+      "base_url": "http://127.0.0.1:38083",
+      "mcp_endpoint": "/mcp",
+      "health_endpoint": "/health",
+      "ready_endpoint": "/ready",
+      "description": "Project MCP server (Primary priority) - Hath0r knowledge & tools",
+      "local_path": "/Users/raybayly/Development/OpenSource/hath0r-mcp",
+      "github": "Bayly-AI/HATH0R-MCP"
+    },
+    {
+      "id": "bai-mcp",
+      "name": "BaylyAIMCP",
+      "scope": "org",
+      "group": "bai",
+      "priority": 2,
+      "enabled": true,
+      "transport": "http-jsonrpc",
+      "base_url": "http://127.0.0.1:48080",
+      "mcp_endpoint": "/mcp",
+      "health_endpoint": "/health",
+      "ready_endpoint": "/health",
+      "description": "Org MCP server - Bayly AI Enterprise runbook engine",
+      "local_path": "/Users/raybayly/Development/BAI/MCP",
+      "github": "Bayly-AI/BAI-MCP"
+    },
+    {
+      "id": "1-nation-mcp",
+      "name": "1-NationMCP",
+      "scope": "group",
+      "group": "1-nation",
+      "priority": 3,
+      "enabled": true,
+      "transport": "streamable-http",
+      "base_url": "http://127.0.0.1:58083",
+      "mcp_endpoint": "/mcp",
+      "health_endpoint": "/health",
+      "ready_endpoint": "/ready",
+      "description": "Group MCP server - 1-Nation Suite reference tools",
+      "local_path": "/Users/raybayly/Development/1-Nation/MCP",
+      "github": "Bayly-AI/1-Nation-MCP"
+    }
+  ]
+}

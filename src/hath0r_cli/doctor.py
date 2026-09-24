@@ -135,16 +135,47 @@ def _catalog_product_map(data: Any) -> dict[str, bool] | None:
     return out if out else None
 
 
-def run_checks(root: Path, kb: Path) -> DoctorResult:
+def _product_canonical_flags(data: Any) -> dict[str, bool]:
+    """Return product_id -> canonical flag (default True if omitted)."""
+    out: dict[str, bool] = {}
+    if not isinstance(data, dict):
+        return out
+    products = data.get("products")
+    if not isinstance(products, list):
+        return out
+    for item in products:
+        if not isinstance(item, dict):
+            continue
+        pid = item.get("product_id")
+        if not isinstance(pid, str) or not pid:
+            continue
+        out[pid] = bool(item.get("canonical", True))
+    return out
+
+
+def run_checks(root: Path, kb: Path, check_mcp: bool = False, check_factories: bool = False) -> DoctorResult:
     """Evaluate all doctor checks against root and kb paths."""
     tower = root / "HATH0R-CLI"
     tower_cfg = tower / "cfg"
     expected_tower = str(tower)
+
+    framework_path = root / "hath0r"
+    if not framework_path.is_dir() and (root / "hath0r-framework").is_dir():
+        framework_path = root / "hath0r-framework"
+
     members = {
-        "framework": root / "hath0r",
+        "framework": framework_path,
         "cli": tower,
         "poc": root / "hath0r-poc",
     }
+    # Map short member names → catalog product_id for optional/required policy.
+    member_product_ids = {
+        "framework": "hath0r-framework",
+        "cli": "hath0r-cli",
+        "poc": "hath0r-poc",
+    }
+    tower_products_data = _load_yaml(tower_cfg / "products.yaml")
+    canonical_flags = _product_canonical_flags(tower_products_data)
     checks: list[DoctorCheck] = []
 
     _add(
@@ -240,8 +271,7 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
         checks,
         check_id="tower-control-tower-path",
         label="tower control_tower_path",
-        ok=_file_contains(kt, expected_tower)
-        and _file_contains(tower_cfg / "suite.yaml", expected_tower),
+        ok=_file_contains(kt, expected_tower) and _file_contains(tower_cfg / "suite.yaml", expected_tower),
         ok_message="Tower configs reference the control tower path.",
         fail_message="Tower control_tower_path is mismatched.",
         path=kt,
@@ -259,12 +289,53 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
     )
 
     for name, path in members.items():
+        product_id = member_product_ids[name]
+        # Control tower + framework stay required. Non-canonical catalog rows
+        # (e.g. archived POC) are optional local fixtures — missing is ok.
+        required = True if name in {"cli", "framework"} else canonical_flags.get(product_id, True)
+        present = _path_ok(path)
+
+        if not required and not present:
+            _add(
+                checks,
+                check_id=f"member-{name}",
+                label=f"member:{name}",
+                ok=True,
+                ok_message=(f"Optional member {name} is not checked out (archived/non-canonical fixture; ok)."),
+                fail_message=f"Member repository {name} is missing.",
+                path=path,
+            )
+            _add(
+                checks,
+                check_id=f"agents-{name}",
+                label=f"agents:{name}",
+                ok=True,
+                ok_message=f"Optional member {name} AGENTS.md skipped (not checked out).",
+                fail_message=f"Member {name} AGENTS.md is missing.",
+                path=path / "AGENTS.md",
+            )
+            if name != "cli":
+                _add(
+                    checks,
+                    check_id=f"member-tower-pointer-{name}",
+                    label=f"member tower pointer:{name}",
+                    ok=True,
+                    ok_message=(f"Optional member {name} tower pointer skipped (not checked out)."),
+                    fail_message=f"Member {name} has no control tower pointer.",
+                    path=path,
+                )
+            continue
+
         _add(
             checks,
             check_id=f"member-{name}",
             label=f"member:{name}",
-            ok=_path_ok(path),
-            ok_message=f"Member repository {name} is present.",
+            ok=present,
+            ok_message=(
+                f"Member repository {name} is present."
+                if required
+                else f"Optional member {name} is present (archived fixture)."
+            ),
             fail_message=f"Member repository {name} is missing.",
             path=path,
         )
@@ -342,6 +413,38 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
         path=catalog,
         fail_state="error",
     )
+
+    if check_mcp:
+        from hath0r_cli.mcp import check_all_mcp_connections
+        for mcp_status in check_all_mcp_connections(group_root=root):
+            _add(
+                checks,
+                check_id=f"mcp-{mcp_status.server_id}",
+                label=f"mcp:{mcp_status.name}",
+                ok=mcp_status.state == "ok",
+                ok_message=f"{mcp_status.name} healthy ({mcp_status.tools_count} tools, {mcp_status.latency_ms}ms).",
+                fail_message=f"{mcp_status.name} {mcp_status.state}: {mcp_status.message}",
+                detail=f"{mcp_status.base_url} ({mcp_status.latency_ms}ms)",
+                fail_state="unavailable" if mcp_status.state == "unreachable" else "degraded",
+            )
+
+    if check_factories:
+        from hath0r_cli.factory_validation import validate_all_factories
+        factory_results = validate_all_factories(group_root=root)
+        for fr in factory_results:
+            _add(
+                checks,
+                check_id=f"factory-{fr.factory_id}",
+                label=f"factory:{fr.name}",
+                ok=fr.valid,
+                ok_message=(
+                    f"Factory '{fr.name}' specification is valid "
+                    f"({fr.bots_count} bots, {fr.workflows_count} workflows)."
+                ),
+                fail_message=f"Factory '{fr.name}' specification is invalid: {'; '.join(fr.errors)}",
+                detail=str(fr.file_path),
+                fail_state="error",
+            )
 
     tower_configured = any(c.id == "control-tower-root" and c.state == "ok" for c in checks)
     return DoctorResult(

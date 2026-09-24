@@ -62,7 +62,7 @@ def _build_minimal_group(root: Path) -> Path:
                 "product_id": "hath0r-poc",
                 "product_name": "HATHOR POC",
                 "role": "poc",
-                "canonical": True,
+                "canonical": False,
                 "is_control_tower": False,
             },
         ],
@@ -131,6 +131,18 @@ def test_run_checks_all_pass(tmp_path: Path) -> None:
     assert all(re.match(r"^[a-z][a-z0-9]*(-[a-z0-9]+)*$", i) for i in ids)
 
 
+def test_run_checks_optional_poc_absent(tmp_path: Path) -> None:
+    """Archived non-canonical POC may be omitted without failing doctor."""
+    group = _build_minimal_group(tmp_path)
+    shutil.rmtree(group / "hath0r-poc")
+    result = run_checks(group, group / ".hath0r" / "knowledgebase")
+    assert result.failed_count == 0
+    assert result.overall_state == "ok"
+    member = next(c for c in result.checks if c.id == "member-poc")
+    assert member.state == "ok"
+    assert "not checked out" in member.message
+
+
 def test_run_checks_missing_kb(tmp_path: Path) -> None:
     group = _build_minimal_group(tmp_path)
     shutil.rmtree(group / ".hath0r" / "knowledgebase")
@@ -160,9 +172,7 @@ def test_doctor_json_success(runner: CliRunner, tmp_path: Path, monkeypatch: pyt
     assert payload["diagnostics"] == []
 
 
-def test_doctor_json_degraded_exit_6(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_doctor_json_degraded_exit_6(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     group = _build_minimal_group(tmp_path)
     (group / "WARP.md").unlink()
     monkeypatch.setenv("HATH0R_GROUP_ROOT", str(group))
@@ -174,9 +184,7 @@ def test_doctor_json_degraded_exit_6(
     assert any(d.get("details", {}).get("check_id") for d in payload["diagnostics"])
 
 
-def test_doctor_json_verbose_includes_paths(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_doctor_json_verbose_includes_paths(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     group = _build_minimal_group(tmp_path)
     monkeypatch.setenv("HATH0R_GROUP_ROOT", str(group))
     result = runner.invoke(cli.main, ["--output", "json", "--verbose", "doctor"])
@@ -185,9 +193,7 @@ def test_doctor_json_verbose_includes_paths(
     assert any("path" in c for c in payload["data"]["checks"])
 
 
-def test_doctor_text_still_renders(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_doctor_text_still_renders(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     group = _build_minimal_group(tmp_path)
     monkeypatch.setenv("HATH0R_GROUP_ROOT", str(group))
     result = runner.invoke(cli.main, ["--output", "text", "doctor"])
@@ -197,9 +203,7 @@ def test_doctor_text_still_renders(
     assert "doctor passed" in result.output
 
 
-def test_doctor_catalog_drift_detected(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_doctor_catalog_drift_detected(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     group = _build_minimal_group(tmp_path)
     # Break tower products catalog
     bad = {
@@ -214,9 +218,7 @@ def test_doctor_catalog_drift_detected(
             }
         ],
     }
-    (group / "HATH0R-CLI" / "cfg" / "products.yaml").write_text(
-        yaml.safe_dump(bad), encoding="utf-8"
-    )
+    (group / "HATH0R-CLI" / "cfg" / "products.yaml").write_text(yaml.safe_dump(bad), encoding="utf-8")
     monkeypatch.setenv("HATH0R_GROUP_ROOT", str(group))
     result = runner.invoke(cli.main, ["--output", "json", "doctor"])
     assert result.exit_code == 6

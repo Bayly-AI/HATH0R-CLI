@@ -41,9 +41,7 @@ def test_group_root_env_expands_user(tmp_path: Path, monkeypatch: pytest.MonkeyP
     assert cli._group_root() == group.resolve()
 
 
-def test_discover_walk_up_from_nested_cwd(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, clean_env: None
-) -> None:
+def test_discover_walk_up_from_nested_cwd(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, clean_env: None) -> None:
     root = _make_group_root(tmp_path / "OpenSource")
     nested = root / "HATH0R-CLI" / "src"
     nested.mkdir(parents=True)
@@ -81,9 +79,7 @@ def test_discover_ignores_agents_without_marker(
     assert "hath0r-opensource" in str(excinfo.value)
 
 
-def test_discover_requires_hath0r_dir(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, clean_env: None
-) -> None:
+def test_discover_requires_hath0r_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, clean_env: None) -> None:
     root = tmp_path / "almost"
     root.mkdir()
     (root / "AGENTS.md").write_text("hath0r-opensource\n", encoding="utf-8")
@@ -94,9 +90,7 @@ def test_discover_requires_hath0r_dir(
         cli._group_root()
 
 
-def test_soft_fallback_when_valid(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, clean_env: None
-) -> None:
+def test_soft_fallback_when_valid(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, clean_env: None) -> None:
     soft = _make_group_root(tmp_path / "Development" / "OpenSource")
     elsewhere = tmp_path / "elsewhere"
     elsewhere.mkdir()
@@ -105,9 +99,7 @@ def test_soft_fallback_when_valid(
     assert cli._group_root() == soft.resolve()
 
 
-def test_soft_fallback_skipped_when_invalid(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, clean_env: None
-) -> None:
+def test_soft_fallback_skipped_when_invalid(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, clean_env: None) -> None:
     soft = tmp_path / "Development" / "OpenSource"
     soft.mkdir(parents=True)
     # empty dir — not a group root
@@ -122,9 +114,7 @@ def test_soft_fallback_skipped_when_invalid(
     assert "Remediation" in msg
 
 
-def test_env_takes_priority_over_walk_up(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, clean_env: None
-) -> None:
+def test_env_takes_priority_over_walk_up(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, clean_env: None) -> None:
     walked = _make_group_root(tmp_path / "walked")
     nested = walked / "sub"
     nested.mkdir()
@@ -143,9 +133,7 @@ def test_kb_path_override(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, clean
     assert cli._kb_path() == kb
 
 
-def test_kb_path_default_under_group_root(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, clean_env: None
-) -> None:
+def test_kb_path_default_under_group_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, clean_env: None) -> None:
     root = _make_group_root(tmp_path / "OpenSource")
     monkeypatch.chdir(root)
     assert cli._kb_path() == root.resolve() / ".hath0r" / "knowledgebase"

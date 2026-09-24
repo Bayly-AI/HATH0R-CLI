@@ -6,10 +6,10 @@ doc_type: CANON
 diataxis: reference
 audience: [developer, operator, architect, agent]
 tags: [cli, poc, framework, index, control-tower]
-version: 0.1.1
+version: 0.1.2
 status: draft
 created: 2026-09-16
-updated: 2026-09-16
+updated: 2026-09-22
 owner: "Raymond Bayly (BaylyAI)"
 review:
   trust: unverified
@@ -69,6 +69,9 @@ Documentation examples do not make a proposed command executable.
 | HATHOR-GUIDE-044 | how-to | draft | [Development and testing](hathor-guide-044-development-testing-20260916.md) |
 | HATHOR-GUIDE-045 | how-to | draft | [Security, governance, and delivery](hathor-guide-045-security-governance-delivery-20260916.md) |
 | HATHOR-GUIDE-046 | how-to | draft | [Troubleshooting](hathor-guide-046-troubleshooting-20260916.md) |
+## Articles
+
+- HATHOR-ARTICLE-001 — [The Hath0r Framework: Rethinking Development from the Ground Up](articles/the-hath0r-framework-rethinking-development-from-the-ground-up.md)
 
 ## Current capability boundary
 
@@ -142,3 +145,5 @@ deployment controls.
 ## Project changelog
 
 - Repository root [CHANGELOG.md](../CHANGELOG.md) — Keep a Changelog for `hath0r-cli` releases.
+
+- [Group policy pack](../cfg/group/README.md) — versioned OpenSource AGENTS/WARP (hub P1)

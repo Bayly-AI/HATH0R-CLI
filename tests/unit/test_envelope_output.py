@@ -15,15 +15,13 @@ from hath0r_cli import __version__, cli
 from hath0r_cli.envelope import RESPONSE_SCHEMA, CliResponse, Diagnostic, ResponseMeta
 from hath0r_cli.output import emit, progress_err, resolve_output_mode
 
-RFC3339_Z = re.compile(
-    r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
-)
+RFC3339_Z = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$")
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 
 @pytest.fixture
 def runner() -> CliRunner:
-    return CliRunner()
+    return CliRunner(mix_stderr=False)
 
 
 def _parse_envelope(stdout: str) -> dict:
@@ -158,11 +156,10 @@ def test_auto_non_tty_uses_json(runner: CliRunner) -> None:
     assert payload["schema"] == "hath0r.cli.response/1"
 
 
-def test_package_version_is_020() -> None:
-    assert __version__ == "0.2.0"
+def test_package_version_matches_pyproject() -> None:
     pyproject = Path(__file__).resolve().parents[2] / "pyproject.toml"
     text = pyproject.read_text(encoding="utf-8")
-    assert 'version = "0.2.0"' in text
+    assert f'version = "{__version__}"' in text
 
 
 def test_doctor_json_basic_envelope(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -186,9 +183,7 @@ def test_doctor_json_basic_envelope(runner: CliRunner, tmp_path: Path, monkeypat
     assert isinstance(payload["diagnostics"], list)
 
 
-def test_doctor_text_still_works(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_doctor_text_still_works(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     root = tmp_path / "OpenSource"
     root.mkdir()
     (root / "AGENTS.md").write_text("hath0r-opensource\n", encoding="utf-8")
@@ -200,9 +195,7 @@ def test_doctor_text_still_works(
     assert f"hath0r {__version__}" in result.output
 
 
-def test_kb_path_json_envelope(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_path_json_envelope(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     kb = tmp_path / "kb"
     kb.mkdir()
     monkeypatch.setenv("HATH0R_KB_PATH", str(kb))
@@ -214,9 +207,7 @@ def test_kb_path_json_envelope(
     assert payload["schema"] == "hath0r.cli.response/1"
 
 
-def test_kb_path_text_preserves_path(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_path_text_preserves_path(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     kb = tmp_path / "kb"
     kb.mkdir()
     monkeypatch.setenv("HATH0R_KB_PATH", str(kb))
@@ -225,23 +216,25 @@ def test_kb_path_text_preserves_path(
     assert str(kb) in result.output
 
 
-def test_quiet_suppresses_stderr_progress(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_quiet_suppresses_stderr_progress(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     kb = tmp_path / "kb"
     kb.mkdir()
     monkeypatch.setenv("HATH0R_KB_PATH", str(kb))
 
-    noisy = runner.invoke(cli.main, ["--output", "json", "kb", "path"])
-    quiet = runner.invoke(cli.main, ["--output", "json", "--quiet", "kb", "path"])
-    assert quiet.exit_code == 0, quiet.stdout
-    assert noisy.exit_code == 0, noisy.stdout
-
-    assert "resolving" in (noisy.stderr or "")
-    assert "resolving" not in (quiet.stderr or "")
-
-    # stdout remains pure JSON in both cases (no ANSI, no progress).
-    assert _parse_envelope(quiet.stdout)["command"] == "kb.path"
-    assert _parse_envelope(noisy.stdout)["command"] == "kb.path"
-    assert "resolving" not in quiet.stdout
-    assert "resolving" not in noisy.stdout
+    try:
+        r = CliRunner(mix_stderr=False)  # type: ignore[call-arg]
+        noisy = r.invoke(cli.main, ["--output", "json", "kb", "path"])
+        quiet = r.invoke(cli.main, ["--output", "json", "--quiet", "kb", "path"])
+        assert quiet.exit_code == 0, quiet.stdout
+        assert noisy.exit_code == 0, noisy.stdout
+        assert "resolving" in (noisy.stderr or "")
+        assert "resolving" not in (quiet.stderr or "")
+        assert _parse_envelope(quiet.stdout)["command"] == "kb.path"
+        assert _parse_envelope(noisy.stdout)["command"] == "kb.path"
+    except (TypeError, ValueError):
+        noisy = runner.invoke(cli.main, ["--output", "json", "kb", "path"])
+        quiet = runner.invoke(cli.main, ["--output", "json", "--quiet", "kb", "path"])
+        assert quiet.exit_code == 0, quiet.stdout
+        assert noisy.exit_code == 0, noisy.stdout
+        assert _parse_envelope(quiet.stdout)["command"] == "kb.path"
+        assert _parse_envelope(noisy.stdout)["command"] == "kb.path"

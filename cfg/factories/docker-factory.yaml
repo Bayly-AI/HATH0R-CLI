@@ -1,0 +1,64 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: docker-factory
+
+factory_id: docker-factory
+name: Docker Automation and Lifecycle Factory
+version: 1.0.0
+description: >
+  Autonomous factory managing Docker workflow document validation,
+  container image builds, container lifecycle orchestration (up/down),
+  runtime healthchecks, and non-sensitive diagnostics across group services.
+
+author: Bayly-AI
+category: infrastructure-and-containers
+
+# Participating bots
+bots:
+  - id: docker-bot
+    name: Docker Bot
+    role: container-lifecycle
+    description: Executes docker compose commands, image builds, and service health checks.
+    capabilities:
+      - validate-workflow
+      - build-container
+      - up
+      - healthcheck
+      - diagnose
+      - down
+
+  - id: docker-monitor-bot
+    name: Docker Monitor Bot
+    role: container-observability
+    description: Inspects container health, restarts, and diagnostic findings.
+    capabilities:
+      - healthcheck
+      - diagnose
+
+# Default sequential workflows
+workflows:
+  - id: deploy-and-verify-stack
+    name: Deploy and Verify Container Stack
+    steps:
+      - bot: docker-bot
+        action: validate-workflow
+        on_failure: abort
+      - bot: docker-bot
+        action: build-container
+        on_failure: abort
+      - bot: docker-bot
+        action: up
+        on_failure: abort
+      - bot: docker-bot
+        action: healthcheck
+        on_failure: abort
+      - bot: docker-monitor-bot
+        action: diagnose
+        on_failure: continue
+
+  - id: teardown-stack
+    name: Teardown Container Stack
+    steps:
+      - bot: docker-bot
+        action: down
+        on_failure: continue
