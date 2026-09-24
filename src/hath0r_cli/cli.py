@@ -1166,6 +1166,88 @@ def factory_run(
         ctx.exit(1)
 
 
+@factory.group("schedule")
+def factory_schedule() -> None:
+    """Manage and synchronize automation factory schedules."""
+
+
+@factory_schedule.command("list")
+@click.pass_context
+def factory_schedule_list(ctx: click.Context) -> None:
+    """List all declared cron schedules across automation factories."""
+    from hath0r_cli.scheduler import discover_scheduled_workflows
+
+    group_root = _discover_group_root()
+    scheduled = discover_scheduled_workflows(group_root=group_root)
+
+    items = [s.to_dict() for s in scheduled]
+    response = _build_response(ctx, command="factory.schedule.list", state="ok", data={"schedules": items})
+
+    def _text() -> None:
+        if not items:
+            console.print("[dim]No factory workflows with declared cron schedules found.[/dim]")
+            return
+        table = Table(title="Factory Automation Schedules")
+        table.add_column("Factory ID", style="cyan")
+        table.add_column("Workflow", style="bold green")
+        table.add_column("Cron Expression", style="yellow")
+        table.add_column("Next Estimated Run (UTC)", style="magenta")
+        for s in items:
+            table.add_row(
+                s["factory_id"],
+                f"{s['workflow_id']} ({s['workflow_name']})",
+                s["schedule"],
+                s.get("next_run") or "N/A",
+            )
+        console.print(table)
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@factory_schedule.command("sync")
+@click.option("--target-dir", default=None, help="Target repository root where .github/workflows/ lives.")
+@click.option("--dry-run", is_flag=True, default=False, help="Simulate sync without creating or modifying files.")
+@click.pass_context
+def factory_schedule_sync(ctx: click.Context, target_dir: str | None, dry_run: bool) -> None:
+    """Synchronize factory cron schedules into GitHub Actions workflows."""
+    from pathlib import Path
+
+    from hath0r_cli.scheduler import sync_factory_schedules_to_github
+
+    cli_repo_root = Path(__file__).resolve().parents[2]
+    group_root = _discover_group_root() or cli_repo_root
+    dest_dir = Path(target_dir).resolve() if target_dir else group_root
+
+    sync_results = sync_factory_schedules_to_github(dest_dir, group_root=group_root, dry_run=dry_run)
+
+    response = _build_response(
+        ctx,
+        command="factory.schedule.sync",
+        state="ok",
+        dry_run=dry_run,
+        data={
+            "target_dir": str(dest_dir),
+            "dry_run": dry_run,
+            "synced_count": len(sync_results),
+            "workflows": sync_results,
+        },
+    )
+
+    def _text() -> None:
+        prefix = "[DRY-RUN] " if dry_run else ""
+        if not sync_results:
+            console.print(f"{prefix}[dim]No scheduled factory workflows found to synchronize.[/dim]")
+            return
+        console.print(
+            f"{prefix}[bold green]Synchronized {len(sync_results)} schedule(s) to GitHub Actions:[/bold green]"
+        )
+        for item in sync_results:
+            console.print(f"  • {item['action']} [cyan]{item['filename']}[/cyan] ({item['schedule']})")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+
 @main.group()
 def branch() -> None:
     """Branch Bot: create, validate, and manage git branches."""
