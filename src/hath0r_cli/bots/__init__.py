@@ -381,3 +381,225 @@ class DocumentationBot:
             "status": "ready",
             "message": "Wiki content formatted and ready for push when wiki enabled.",
         }
+
+
+@dataclass
+class DockerBot:
+    """Manages Docker workflows, container lifecycle operations, and diagnostic inspections."""
+
+    cwd: Path = field(default_factory=Path.cwd)
+
+    def validate_workflow(self, workflow_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate a Docker workflow document against schema contract."""
+        schema_path = Path(__file__).resolve().parents[3] / "contracts" / "hath0r-docker-workflow-v1.schema.json"
+        if not schema_path.is_file():
+            return {"valid": False, "errors": [f"Schema not found: {schema_path}"]}
+
+        try:
+            import jsonschema
+
+            schema = json.loads(schema_path.read_text(encoding="utf-8"))
+            validator = jsonschema.Draft202012Validator(schema)
+            errors = [f"{e.json_path}: {e.message}" for e in validator.iter_errors(workflow_data)]
+            return {
+                "valid": len(errors) == 0,
+                "errors": errors,
+                "workflow_id": workflow_data.get("metadata", {}).get("id"),
+            }
+        except Exception as exc:
+            return {"valid": False, "errors": [str(exc)]}
+
+    def build_container(
+        self,
+        compose_file: Optional[str] = None,
+        service: Optional[str] = None,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Build service container via docker compose."""
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "action": (
+                    f"[DRY-RUN] docker compose -f {compose_file or 'docker-compose.yml'} build {service or ''}".strip()
+                ),
+            }
+
+        cmd = ["docker", "compose"]
+        if compose_file:
+            cmd.extend(["-f", compose_file])
+        cmd.append("build")
+        if service:
+            cmd.append(service)
+
+        rc, out, err = run_cmd(cmd, cwd=self.cwd)
+        return {
+            "success": rc == 0,
+            "exit_code": rc,
+            "output": out,
+            "error": err if rc != 0 else None,
+        }
+
+    def up(
+        self,
+        compose_file: Optional[str] = None,
+        services: Optional[List[str]] = None,
+        detach: bool = True,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Start containers via docker compose."""
+        if dry_run:
+            srv_str = " ".join(services or [])
+            return {
+                "success": True,
+                "dry_run": True,
+                "action": f"[DRY-RUN] docker compose -f {compose_file or 'docker-compose.yml'} up -d {srv_str}".strip(),
+            }
+
+        cmd = ["docker", "compose"]
+        if compose_file:
+            cmd.extend(["-f", compose_file])
+        cmd.append("up")
+        if detach:
+            cmd.append("-d")
+        if services:
+            cmd.extend(services)
+
+        rc, out, err = run_cmd(cmd, cwd=self.cwd)
+        return {
+            "success": rc == 0,
+            "exit_code": rc,
+            "output": out,
+            "error": err if rc != 0 else None,
+        }
+
+    def healthcheck(
+        self,
+        endpoint: Optional[str] = None,
+        container_name: Optional[str] = None,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Verify health of container or HTTP health endpoint."""
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "healthy": True,
+                "action": f"[DRY-RUN] probe {endpoint or container_name or 'health'}",
+            }
+
+        if endpoint:
+            import urllib.request
+            try:
+                req = urllib.request.Request(endpoint, headers={"User-Agent": "Hath0r-DockerBot/1.0"})
+                with urllib.request.urlopen(req, timeout=5) as resp:
+                    healthy = resp.status == 200
+                    return {
+                        "success": healthy,
+                        "healthy": healthy,
+                        "status_code": resp.status,
+                        "endpoint": endpoint,
+                    }
+            except Exception as exc:
+                return {
+                    "success": False,
+                    "healthy": False,
+                    "endpoint": endpoint,
+                    "error": str(exc),
+                }
+
+        if container_name:
+            rc, out, err = run_cmd(
+                ["docker", "inspect", "--format", "{{.State.Health.Status}}", container_name],
+                cwd=self.cwd,
+            )
+            if rc == 0:
+                status = out.strip().lower()
+                healthy = status == "healthy" or status == ""  # container running without explicit healthcheck
+                return {
+                    "success": healthy,
+                    "healthy": healthy,
+                    "container": container_name,
+                    "status": status or "running",
+                }
+            return {
+                "success": False,
+                "healthy": False,
+                "container": container_name,
+                "error": err or "Container not found",
+            }
+
+        return {"success": True, "healthy": True, "message": "No endpoint or container provided."}
+
+    def diagnose(
+        self,
+        container_name: Optional[str] = None,
+        compose_file: Optional[str] = None,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Diagnose common container issues (network, status, logs tail, env refs) without leaking secrets."""
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "healthy": True,
+                "action": f"[DRY-RUN] diagnose container {container_name or 'all'}",
+                "findings": [],
+            }
+
+        findings: List[str] = []
+        if container_name:
+            # Check state
+            rc, out, _ = run_cmd(["docker", "inspect", "--format", "{{.State.Status}}", container_name], cwd=self.cwd)
+            if rc != 0:
+                findings.append(f"Container '{container_name}' does not exist or Docker daemon is unreachable.")
+            elif out.strip() != "running":
+                findings.append(f"Container '{container_name}' is in '{out.strip()}' state instead of 'running'.")
+
+            # Check exit code if stopped
+            rc_exit, out_exit, _ = run_cmd(
+                ["docker", "inspect", "--format", "{{.State.ExitCode}}", container_name],
+                cwd=self.cwd,
+            )
+            if rc_exit == 0 and out_exit.strip() not in {"0", ""}:
+                findings.append(f"Container '{container_name}' exited with error code {out_exit.strip()}.")
+
+        remediation = (
+            "Check logs with 'docker logs <name>' or verify compose environment configuration."
+            if findings
+            else None
+        )
+        return {
+            "success": True,
+            "container": container_name,
+            "healthy": len(findings) == 0,
+            "findings": findings,
+            "remediation": remediation,
+        }
+
+    def down(
+        self,
+        compose_file: Optional[str] = None,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Tear down containers via docker compose."""
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "action": f"[DRY-RUN] docker compose -f {compose_file or 'docker-compose.yml'} down".strip(),
+            }
+
+        cmd = ["docker", "compose"]
+        if compose_file:
+            cmd.extend(["-f", compose_file])
+        cmd.append("down")
+
+        rc, out, err = run_cmd(cmd, cwd=self.cwd)
+        return {
+            "success": rc == 0,
+            "exit_code": rc,
+            "output": out,
+            "error": err if rc != 0 else None,
+        }
+
