@@ -225,4 +225,69 @@ def test_execute_workflow_declarative() -> None:
     assert res.steps[1].data["status"] == "ready"
 
 
+def test_cli_factory_info() -> None:
+    runner = CliRunner(mix_stderr=False)
+    res = runner.invoke(
+        cli.main,
+        ["--output", "json", "factory", "info", "pr-and-branch-lifecycle-factory"],
+    )
+    assert res.exit_code == 0
+    data = json.loads(res.stdout)
+    assert data["state"] == "ok"
+    assert data["data"]["factory_id"] == "pr-and-branch-lifecycle-factory"
+    assert len(data["data"]["workflows"]) >= 1
+
+    # Text output test
+    text_res = runner.invoke(
+        cli.main,
+        ["--output", "text", "factory", "info", "pr-and-branch-lifecycle-factory"],
+    )
+    assert text_res.exit_code == 0
+    assert "Factory:" in text_res.stdout
+    assert "Declared Workflows:" in text_res.stdout
+
+
+def test_cli_factory_run_workflow_targeting() -> None:
+    runner = CliRunner(mix_stderr=False)
+    # Valid workflow target
+    res = runner.invoke(
+        cli.main,
+        [
+            "--output",
+            "json",
+            "factory",
+            "run",
+            "pr-and-branch-lifecycle-factory",
+            "--workflow",
+            "triage-dependabot",
+            "--dry-run",
+        ],
+    )
+    assert res.exit_code == 0
+    data = json.loads(res.stdout)
+    assert data["state"] == "ok"
+    assert len(data["data"]["workflows"]) == 1
+    assert data["data"]["workflows"][0]["id"] == "triage-dependabot"
+
+    # Invalid workflow target
+    err_res = runner.invoke(
+        cli.main,
+        [
+            "--output",
+            "json",
+            "factory",
+            "run",
+            "pr-and-branch-lifecycle-factory",
+            "--workflow",
+            "nonexistent-workflow",
+            "--dry-run",
+        ],
+    )
+    assert err_res.exit_code == 1
+    err_data = json.loads(err_res.stdout)
+    assert err_data["state"] == "error"
+    assert any(d["code"] == "WORKFLOW_NOT_FOUND" for d in err_data.get("diagnostics", []))
+
+
+
 

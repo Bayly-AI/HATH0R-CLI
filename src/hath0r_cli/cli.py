@@ -814,6 +814,7 @@ def factory_list(ctx: click.Context) -> None:
                         "version": data.get("version"),
                         "description": data.get("description", "").strip(),
                         "bots_count": len(data.get("bots", [])),
+                        "workflows_count": len(data.get("workflows", [])),
                         "file": str(f),
                     })
             except Exception:
@@ -830,9 +831,77 @@ def factory_list(ctx: click.Context) -> None:
         table.add_column("Name", style="green")
         table.add_column("Version", style="magenta")
         table.add_column("Bots", style="yellow")
+        table.add_column("Workflows", style="blue")
         for it in items:
-            table.add_row(it["id"], it["name"], str(it["version"]), str(it["bots_count"]))
+            table.add_row(
+                it["id"], it["name"], str(it["version"]), str(it["bots_count"]), str(it["workflows_count"])
+            )
         console.print(table)
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@factory.command("info")
+@click.argument("factory_id")
+@click.pass_context
+def factory_info(ctx: click.Context, factory_id: str) -> None:
+    """Show detailed metadata and available workflows for a specific factory."""
+    from pathlib import Path
+
+    import yaml
+
+    cli_repo_root = Path(__file__).resolve().parents[2]
+    group_root = _discover_group_root() or cli_repo_root
+    factories_dir = group_root / "cfg" / "factories"
+    if not factories_dir.is_dir():
+        factories_dir = cli_repo_root / "cfg" / "factories"
+
+    factory_file = None
+    for f in factories_dir.glob("*.yaml"):
+        try:
+            data = yaml.safe_load(f.read_text(encoding="utf-8"))
+            if isinstance(data, dict) and data.get("factory_id") == factory_id:
+                factory_file = f
+                break
+        except Exception:
+            pass
+
+    if not factory_file:
+        response = _build_response(
+            ctx,
+            command="factory.info",
+            state="error",
+            diagnostics=[
+                Diagnostic(
+                    severity="error",
+                    code="FACTORY_NOT_FOUND",
+                    message=f"Factory '{factory_id}' not found.",
+                )
+            ],
+        )
+        _emit_response(ctx, response)
+        ctx.exit(1)
+
+    factory_data = yaml.safe_load(factory_file.read_text(encoding="utf-8"))
+    response = _build_response(ctx, command="factory.info", state="ok", data=factory_data)
+
+    def _text() -> None:
+        console.print(f"[bold cyan]Factory:[/bold cyan] {factory_data.get('name')} ([dim]{factory_id}[/dim])")
+        console.print(f"[bold]Version:[/bold] {factory_data.get('version')}")
+        if factory_data.get("description"):
+            console.print(f"[bold]Description:[/bold] {factory_data.get('description').strip()}")
+
+        console.print("\n[bold yellow]Participating Bots:[/bold yellow]")
+        for b in factory_data.get("bots", []):
+            caps = ", ".join(b.get("capabilities", []))
+            console.print(f"  • [cyan]{b.get('id')}[/cyan] ({b.get('name')}): {caps}")
+
+        console.print("\n[bold green]Declared Workflows:[/bold green]")
+        for wf in factory_data.get("workflows", []):
+            sched = f" [dim](cron: {wf.get('schedule')})[/dim]" if wf.get("schedule") else ""
+            console.print(f"  • [bold]{wf.get('id')}[/bold]: {wf.get('name')}{sched}")
+            for st in wf.get("steps", []):
+                console.print(f"      - {st.get('bot')} → {st.get('action')}")
 
     _emit_response(ctx, response, text_renderer=_text)
 
@@ -958,11 +1027,14 @@ def factory_validate(ctx: click.Context, factory_id: str | None) -> None:
 
 @factory.command("run")
 @click.argument("factory_id")
+@click.option("--workflow", "-w", "workflow_id", default=None, help="Target specific workflow ID within the factory.")
 @click.option("--repo", default=None, help="Target GitHub repository (owner/repo).")
 @click.option("--dry-run", is_flag=True, default=False, help="Simulate execution without modifying git or GitHub.")
 @click.pass_context
-def factory_run(ctx: click.Context, factory_id: str, repo: str | None, dry_run: bool) -> None:
-    """Execute all workflows defined in a factory."""
+def factory_run(
+    ctx: click.Context, factory_id: str, workflow_id: str | None, repo: str | None, dry_run: bool
+) -> None:
+    """Execute workflows defined in a factory."""
     from pathlib import Path
 
     import yaml
@@ -994,6 +1066,32 @@ def factory_run(ctx: click.Context, factory_id: str, repo: str | None, dry_run: 
 
     factory_def = yaml.safe_load(factory_file.read_text(encoding="utf-8"))
     workflows = factory_def.get("workflows", [])
+
+    if workflow_id:
+        target_wfs = [w for w in workflows if w.get("id") == workflow_id]
+        if not target_wfs:
+            available = ", ".join(w.get("id", "") for w in workflows if w.get("id"))
+            response = _build_response(
+                ctx,
+                command="factory.run",
+                state="error",
+                dry_run=dry_run,
+                diagnostics=[
+                    Diagnostic(
+                        severity="error",
+                        code="WORKFLOW_NOT_FOUND",
+                        message=(
+                            f"Workflow '{workflow_id}' not found in factory '{factory_id}'. "
+                            f"Available workflows: {available or 'none'}"
+                        ),
+                        details={"factory_id": factory_id, "workflow": workflow_id},
+                    )
+                ],
+            )
+            _emit_response(ctx, response)
+            ctx.exit(1)
+        workflows = target_wfs
+
     registry = BotRegistry(cwd=cli_repo_root)
 
     wf_results = []
