@@ -18,6 +18,8 @@ from hath0r_cli.bots import (
     PRBot,
     TaskAnnouncerBot,
 )
+from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
+from hath0r_cli.factory_manager import FactoryManagerBot
 
 
 @dataclass
@@ -95,6 +97,11 @@ class BotRegistry:
             "task-announcer-bot": TaskAnnouncerBot(cwd=self.cwd),
             "docker-bot": DockerBot(cwd=self.cwd),
             "docker-monitor-bot": DockerBot(cwd=self.cwd),
+            "factory-manager-bot": FactoryManagerBot(cwd=self.cwd),
+            "quality-gate-bot": QualityGateBot(cwd=self.cwd),
+            "preflight-bot": PreflightBot(cwd=self.cwd),
+            "deploy-test-bot": DeployTestBot(cwd=self.cwd),
+            "release-bot": ReleaseBot(cwd=self.cwd),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -145,6 +152,16 @@ class BotRegistry:
                 return self._dispatch_announcer_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id in ("docker-bot", "docker-monitor-bot"):
                 return self._dispatch_docker_bot(bot, bot_id, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "factory-manager-bot":
+                return self._dispatch_factory_manager(bot, action, args, dry_run=dry_run)
+            elif bot_id == "quality-gate-bot":
+                return self._dispatch_quality_gate(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
+            elif bot_id == "preflight-bot":
+                return self._dispatch_preflight(bot, action, args, dry_run=dry_run)
+            elif bot_id == "deploy-test-bot":
+                return self._dispatch_deploy_test(bot, action, args, dry_run=dry_run)
+            elif bot_id == "release-bot":
+                return self._dispatch_release(bot, action, args, repo=repo, dry_run=dry_run)
             else:
                 return StepExecutionResult(
                     bot_id=bot_id,
@@ -300,10 +317,11 @@ class BotRegistry:
                 )
             else:
                 # Process candidate dependabot PRs from prior list-prs or fetch fresh
-                prs = context.get("prs")
-                if prs is None:
-                    prs = bot.list_prs(repo=target_repo, state="open")
-                dep_prs = [p for p in prs if "dependabot" in p.get("author", {}).get("login", "").lower()]
+                raw_prs = context.get("prs")
+                pr_list: list[dict[str, Any]] = (
+                    raw_prs if isinstance(raw_prs, list) else bot.list_prs(repo=target_repo, state="open")
+                )
+                dep_prs = [p for p in pr_list if "dependabot" in p.get("author", {}).get("login", "").lower()]
                 triage_results = [
                     bot.process_dependabot(dp["number"], repo=target_repo, auto_merge=auto_merge, dry_run=dry_run)
                     for dp in dep_prs
@@ -484,7 +502,8 @@ class BotRegistry:
         context: dict[str, Any],
     ) -> StepExecutionResult:
         if action in ("generate-summary", "summary"):
-            pr_data = args.get("pr_data") or (context.get("prs")[0] if context.get("prs") else {})
+            ctx_prs = context.get("prs")
+            pr_data = args.get("pr_data") or (ctx_prs[0] if isinstance(ctx_prs, list) and ctx_prs else {})
             summary = bot.generate_pr_summary(pr_data)
             context["latest_summary"] = summary
             return StepExecutionResult(
@@ -495,14 +514,38 @@ class BotRegistry:
             target_repo = args.get("repo") or repo or "Bayly-AI/HATH0R-CLI"
             title = args.get("title", "PR Documentation")
             content = args.get("content") or context.get("latest_summary", "")
-            res = bot.sync_to_wiki(target_repo, title, content)
-            return StepExecutionResult(bot_id="documentation-bot", action=action, success=True, data=res)
+            pr_number = args.get("pr_number") or context.get("pr_number")
+            force = bool(args.get("force", False))
+            res = bot.sync_to_wiki(
+                target_repo,
+                title,
+                content,
+                pr_number=int(pr_number) if pr_number else None,
+                dry_run=dry_run,
+                force=force,
+            )
+            return StepExecutionResult(
+                bot_id="documentation-bot",
+                action=action,
+                success=bool(res.get("success", True)),
+                data=res,
+                dry_run=dry_run,
+            )
 
         elif action in ("share-knowledge", "share"):
-            summary = args.get("summary") or context.get("latest_summary")
+            summary_val = args.get("summary") or context.get("latest_summary")
+            share_summary: str | None = str(summary_val) if summary_val else None
             notes = args.get("notes")
             target_kb = args.get("target_kb")
-            res = bot.share_knowledge(summary=summary, notes=notes, target_kb=target_kb, dry_run=dry_run)
+            pr_number = args.get("pr_number") or context.get("pr_number")
+            res = bot.share_knowledge(
+                summary=share_summary,
+                notes=notes,
+                target_kb=target_kb,
+                pr_number=int(pr_number) if pr_number else None,
+                repo=args.get("repo") or repo,
+                dry_run=dry_run,
+            )
             return StepExecutionResult(
                 bot_id="documentation-bot",
                 action=action,
@@ -639,6 +682,210 @@ class BotRegistry:
             action=action,
             success=False,
             error=f"Unknown action '{action}' for {bot_id}.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_factory_manager(
+        self,
+        bot: FactoryManagerBot,
+        action: str,
+        args: dict[str, Any],
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("validate", "validate-factory"):
+            factory_id = args.get("factory_id")
+            res = bot.validate(factory_id)
+            return StepExecutionResult(
+                bot_id="factory-manager-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        if action == "list":
+            items = bot.list_factories()
+            return StepExecutionResult(
+                bot_id="factory-manager-bot",
+                action=action,
+                success=True,
+                data={"factories": items, "count": len(items)},
+            )
+        if action == "create":
+            res = bot.create(
+                str(args.get("factory_id") or ""),
+                name=args.get("name"),
+                description=args.get("description") or "",
+                dry_run=dry_run,
+                force=bool(args.get("force", False)),
+            )
+            return StepExecutionResult(
+                bot_id="factory-manager-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        if action in ("update", "edit"):
+            res = bot.update(
+                str(args.get("factory_id") or ""),
+                name=args.get("name"),
+                description=args.get("description"),
+                version=args.get("version"),
+                dry_run=dry_run,
+            )
+            return StepExecutionResult(
+                bot_id="factory-manager-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        if action == "delete":
+            res = bot.delete(str(args.get("factory_id") or ""), dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="factory-manager-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="factory-manager-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for factory-manager-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_quality_gate(
+        self,
+        bot: QualityGateBot,
+        action: str,
+        args: dict[str, Any],
+        repo: str | None,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("check-pr", "evaluate", "aggregate"):
+            pr_num = int(args.get("pr_number") or context.get("pr_number") or 0)
+            res = bot.check_pr(pr_num, repo=args.get("repo") or repo, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="quality-gate-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error") or (None if res.get("success") else res.get("message")),
+                dry_run=dry_run,
+            )
+        if action == "evaluate-rollup":
+            res = bot.evaluate_rollup(args.get("status_checks") or [])
+            return StepExecutionResult(
+                bot_id="quality-gate-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="quality-gate-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for quality-gate-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_preflight(
+        self,
+        bot: PreflightBot,
+        action: str,
+        args: dict[str, Any],
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("run", "preflight", "check"):
+            res = bot.run(
+                skip_tests=bool(args.get("skip_tests", False)),
+                dry_run=dry_run,
+            )
+            return StepExecutionResult(
+                bot_id="preflight-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=None if res.get("success") else res.get("message"),
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="preflight-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for preflight-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_deploy_test(
+        self,
+        bot: DeployTestBot,
+        action: str,
+        args: dict[str, Any],
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("pre-deploy", "run-pre-deploy"):
+            res = bot.run_pre_deploy(dry_run=dry_run)
+        elif action in ("post-deploy", "run-post-deploy"):
+            res = bot.run_post_deploy(base_url=args.get("base_url"), dry_run=dry_run)
+        else:
+            return StepExecutionResult(
+                bot_id="deploy-test-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action '{action}' for deploy-test-bot.",
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="deploy-test-bot",
+            action=action,
+            success=bool(res.get("success")),
+            data=res,
+            error=None if res.get("success") else res.get("message"),
+            dry_run=dry_run,
+        )
+
+    def _dispatch_release(
+        self,
+        bot: ReleaseBot,
+        action: str,
+        args: dict[str, Any],
+        repo: str | None,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("validate", "validate-version"):
+            res = bot.validate()
+        elif action in ("notes", "generate-notes"):
+            res = bot.generate_notes(version=args.get("version"))
+        elif action in ("tag-release", "release", "publish"):
+            res = bot.tag_and_release(
+                repo=args.get("repo") or repo,
+                dry_run=dry_run,
+                skip_github_release=bool(args.get("skip_github_release", False)),
+            )
+        else:
+            return StepExecutionResult(
+                bot_id="release-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action '{action}' for release-bot.",
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="release-bot",
+            action=action,
+            success=bool(res.get("success")),
+            data=res,
+            error=res.get("error") or (None if res.get("success") else res.get("message")),
             dry_run=dry_run,
         )
 

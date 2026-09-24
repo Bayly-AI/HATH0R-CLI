@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Factory Manager bot CRUD: `hath0r factory create|update|delete` (#64)
+- Preflight bot: `hath0r preflight run` (#67)
+- Deploy test bot: `hath0r deploy pre|post` (#66)
+- Quality gates bot: `hath0r quality check <pr>` with Sonar hard-stop aggregate (#68)
+- Release bot: `hath0r release validate|notes|publish` (#69)
+- Docs bots: `hath0r docs wiki` and `hath0r docs share` (#70, #71)
+- `cfg/quality-gates.json`, `cfg/factories/quality-release-factory.yaml`, governance docs
+
 ## [0.2.0] — 2026-09-18
 
 First public **OpenSource release train** for the operator CLI: structured machine JSON, packaging surfaces, GitHub Release assets, and PyPI publication.

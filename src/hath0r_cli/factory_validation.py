@@ -42,7 +42,8 @@ def get_factory_schema() -> dict[str, Any]:
     schema_path = Path(__file__).resolve().parents[2] / "contracts" / "hath0r-factory-v1.schema.json"
     if not schema_path.is_file():
         raise FileNotFoundError(f"Canonical factory schema not found at {schema_path}")
-    return json.loads(schema_path.read_text(encoding="utf-8"))
+    loaded: Any = json.loads(schema_path.read_text(encoding="utf-8"))
+    return loaded if isinstance(loaded, dict) else {}
 
 
 def validate_factory_file(file_path: Path, schema: dict[str, Any] | None = None) -> FactoryValidationResult:

@@ -149,7 +149,8 @@ class PRBot:
         if code != 0:
             return []
         try:
-            return json.loads(out)
+            data = json.loads(out)
+            return data if isinstance(data, list) else []
         except Exception:
             return []
 
@@ -165,7 +166,8 @@ class PRBot:
         if code != 0:
             return {"error": err, "pr_number": pr_number}
         try:
-            return json.loads(out)
+            data = json.loads(out)
+            return data if isinstance(data, dict) else {"error": "Invalid JSON response", "pr_number": pr_number}
         except Exception as exc:
             return {"error": str(exc), "pr_number": pr_number}
 
@@ -262,19 +264,25 @@ class PRBot:
                 current_branch = out.strip()
 
         if not current_branch or current_branch in CANONICAL_BRANCHES:
-            return {
-                "success": False,
-                "error": f"Cannot create PR from canonical or undetermined branch '{current_branch}'.",
-            }
+            if dry_run:
+                current_branch = "feature/dry-run-task"
+            else:
+                return {
+                    "success": False,
+                    "error": f"Cannot create PR from canonical or undetermined branch '{current_branch}'.",
+                }
 
         # Validate taxonomy
         branch_bot = BranchBot(cwd=self.cwd)
         val = branch_bot.validate_name(current_branch)
         if not val.get("valid"):
-            return {
-                "success": False,
-                "error": f"Branch '{current_branch}' violates taxonomy: {val.get('message')}",
-            }
+            if dry_run:
+                current_branch = "feature/dry-run-task"
+            else:
+                return {
+                    "success": False,
+                    "error": f"Branch '{current_branch}' violates taxonomy: {val.get('message')}",
+                }
 
         # Construct title/body defaults if not provided
         pr_title = title or f"{current_branch}: automatic task promotion"
@@ -536,15 +544,94 @@ class DocumentationBot:
         ]
         return "\n".join(doc)
 
-    def sync_to_wiki(self, repo: str, title: str, content: str) -> Dict[str, Any]:
-        """Update or create wiki entry for the repo using git wiki clone/push."""
-        # Check if wiki is accessible
+    def _quality_cfg(self) -> Dict[str, Any]:
+        path = self.cwd / "cfg" / "quality-gates.json"
+        if not path.is_file():
+            return {}
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            return data if isinstance(data, dict) else {}
+        except Exception:
+            return {}
+
+    def _wiki_enabled(self) -> Tuple[bool, str]:
+        cfg = self._quality_cfg().get("wiki") or {}
+        if not bool(cfg.get("enabled", False)):
+            return False, "wiki.enabled is false in cfg/quality-gates.json"
+        return True, "enabled"
+
+    def sync_to_wiki(
+        self,
+        repo: str,
+        title: str,
+        content: str,
+        *,
+        pr_number: Optional[int] = None,
+        dry_run: bool = False,
+        force: bool = False,
+    ) -> Dict[str, Any]:
+        """Update or create wiki entry when cfg + GitHub wiki dual-enablement allows it.
+
+        Idempotent by PR number: page title defaults to ``PR-<n>-<slug>``.
+        """
+        enabled, reason = self._wiki_enabled()
+        if not enabled and not force:
+            return {
+                "success": True,
+                "skipped": True,
+                "reason": reason,
+                "repo": repo,
+                "page_title": title,
+            }
+
+        safe_title = re.sub(r"[^A-Za-z0-9._-]+", "-", title).strip("-") or "PR-notes"
+        if pr_number is not None:
+            safe_title = f"PR-{pr_number}-{safe_title}"[:80]
+
         wiki_url = f"https://github.com/{repo}.wiki.git"
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "wiki_url": wiki_url,
+                "page_title": safe_title,
+                "action": f"[DRY-RUN] Would push wiki page '{safe_title}' to {wiki_url}",
+            }
+
+        # Best-effort clone into temp under .hath0r (never .ai/)
+        import tempfile
+
+        work = Path(tempfile.mkdtemp(prefix="hath0r-wiki-"))
+        code, out, err = run_cmd(["git", "clone", "--depth", "1", wiki_url, str(work)], cwd=self.cwd)
+        if code != 0:
+            return {
+                "success": False,
+                "wiki_url": wiki_url,
+                "page_title": safe_title,
+                "error": err or out or "Wiki clone failed (is GitHub wiki enabled on the repo?)",
+                "status": "wiki_unavailable",
+            }
+
+        page_path = work / f"{safe_title}.md"
+        page_path.write_text(content if content.endswith("\n") else content + "\n", encoding="utf-8")
+        run_cmd(["git", "add", page_path.name], cwd=work)
+        rc_c, _, err_c = run_cmd(
+            ["git", "-c", "user.email=bot@hath0r.local", "-c", "user.name=Hath0r DocumentationBot",
+             "commit", "-m", f"docs: sync wiki page {safe_title}"],
+            cwd=work,
+        )
+        if rc_c != 0 and "nothing to commit" not in (err_c or "").lower():
+            # nothing new is ok
+            pass
+        rc_p, out_p, err_p = run_cmd(["git", "push", "origin", "HEAD"], cwd=work)
         return {
+            "success": rc_p == 0 or "everything up-to-date" in (out_p or err_p or "").lower(),
             "wiki_url": wiki_url,
-            "page_title": title,
-            "status": "ready",
-            "message": "Wiki content formatted and ready for push when wiki enabled.",
+            "page_title": safe_title,
+            "page_path": str(page_path),
+            "status": "pushed" if rc_p == 0 else "error",
+            "output": out_p or err_p,
+            "pr_number": pr_number,
         }
 
     def share_knowledge(
@@ -552,22 +639,98 @@ class DocumentationBot:
         summary: Optional[str] = None,
         notes: Optional[str] = None,
         target_kb: Optional[str] = None,
+        *,
+        pr_number: Optional[int] = None,
+        repo: Optional[str] = None,
         dry_run: bool = False,
     ) -> Dict[str, Any]:
-        """Distribute completed task knowledge and summaries to group documentation/knowledgebase."""
+        """Share PR/task knowledge into project MCP / group KB (project MCP first).
+
+        Writes an idempotent markdown artifact under the configured local MCP path
+        (see cfg/mcp-doc-publish.json). Does not call remote MCP over the network
+        unless operators extend hooks later — local durable handoff is the default.
+        """
+        cfg_root = self._quality_cfg().get("knowledge_share") or {}
+        if cfg_root.get("enabled") is False:
+            return {"success": True, "skipped": True, "reason": "knowledge_share.enabled is false"}
+
+        publish_cfg_path = self.cwd / str(cfg_root.get("cfg") or "cfg/mcp-doc-publish.json")
+        publish: Dict[str, Any] = {}
+        if publish_cfg_path.is_file():
+            try:
+                loaded = json.loads(publish_cfg_path.read_text(encoding="utf-8"))
+                if isinstance(loaded, dict):
+                    publish = loaded
+            except Exception:
+                publish = {}
+
+        # Prefer hath0r / opensource group MCP local path
+        groups = publish.get("groups") if isinstance(publish.get("groups"), dict) else {}
+        pref_val = groups.get("hath0r") if isinstance(groups, dict) else None
+        if not isinstance(pref_val, dict) and isinstance(groups, dict) and groups:
+            first_val: Any = next(iter(groups.values()), {})
+            pref_val = first_val if isinstance(first_val, dict) else {}
+        preferred: dict[str, Any] = pref_val if isinstance(pref_val, dict) else {}
+        mcp = preferred.get("mcp") if isinstance(preferred, dict) else {}
+        local_path = target_kb or (mcp.get("local_path") if isinstance(mcp, dict) else None)
+        if not local_path:
+            local_path = str(self.cwd / ".hath0r" / "knowledgebase" / "lessons-learned")
+
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        key = f"pr-{pr_number}" if pr_number is not None else f"share-{stamp}"
+        dest_dir = Path(local_path).expanduser()
+        # lessons-learned bucket under canonical when present
+        if (dest_dir / "canonical").is_dir():
+            dest_dir = dest_dir / "canonical" / "lessons-learned"
+        elif dest_dir.name != "lessons-learned":
+            dest_dir = dest_dir / "lessons-learned"
+
+        body_lines = [
+            f"# Knowledge share {key}",
+            "",
+            f"- **Generated:** {datetime.now(timezone.utc).isoformat()}",
+            f"- **Repo:** {repo or 'local'}",
+            f"- **PR:** {pr_number if pr_number is not None else 'n/a'}",
+            "",
+            "## Summary",
+            summary or notes or "No summary provided.",
+            "",
+        ]
+        if notes and notes != summary:
+            body_lines.extend(["## Notes", notes, ""])
+        content = "\n".join(body_lines)
+        dest_file = dest_dir / f"{key}.md"
+
         if dry_run:
             return {
                 "success": True,
                 "dry_run": True,
-                "action": "[DRY-RUN] Share knowledge and sync documentation to canonical KB",
-                "target_kb": target_kb or "canonical-kb",
+                "action": f"[DRY-RUN] Would write knowledge share to {dest_file}",
+                "target_kb": str(dest_dir),
+                "key": key,
+                "pr_number": pr_number,
+            }
+
+        try:
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            dest_file.write_text(content, encoding="utf-8")
+        except OSError as exc:
+            return {
+                "success": False,
+                "error": str(exc),
+                "target_kb": str(dest_dir),
+                "key": key,
             }
 
         return {
             "success": True,
-            "target_kb": target_kb or "canonical-kb",
+            "target_kb": str(dest_dir),
+            "path": str(dest_file),
+            "key": key,
+            "pr_number": pr_number,
             "synced_at": datetime.now(timezone.utc).isoformat(),
             "status": "synchronized",
+            "idempotent": True,
         }
 
 
@@ -709,14 +872,9 @@ class BranchGuardBot:
     def check_active_branch(self) -> Dict[str, Any]:
         """Inspect current git branch and determine validity as a work branch."""
         rc, out, err = run_cmd(["git", "branch", "--show-current"], cwd=self.cwd)
-        if rc != 0 or not out.strip():
-            return {
-                "success": False,
-                "error": f"Unable to determine current branch: {err or 'detached HEAD'}",
-            }
-        current = out.strip()
+        current = out.strip() if rc == 0 else ""
         branch_bot = BranchBot(cwd=self.cwd)
-        val = branch_bot.validate_name(current)
+        val = branch_bot.validate_name(current) if current else {"valid": False, "is_work_branch": False}
 
         is_canonical = current in CANONICAL_BRANCHES
         can_work = val.get("valid", False) and val.get("is_work_branch", False)

@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import json
 import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import click
 from rich.console import Console
@@ -1166,6 +1168,92 @@ def factory_run(
         ctx.exit(1)
 
 
+@factory.command("create")
+@click.argument("factory_id")
+@click.option("--name", default=None, help="Human-readable factory name.")
+@click.option("--description", default="", help="Factory description.")
+@click.option("--force", is_flag=True, default=False, help="Overwrite existing factory file.")
+@click.option("--dry-run", is_flag=True, default=False, help="Preview without writing.")
+@click.pass_context
+def factory_create(
+    ctx: click.Context,
+    factory_id: str,
+    name: str | None,
+    description: str,
+    force: bool,
+    dry_run: bool,
+) -> None:
+    """Create a new factory YAML under cfg/factories (Factory Manager bot)."""
+    from hath0r_cli.factory_manager import FactoryManagerBot
+
+    bot = FactoryManagerBot(cwd=Path.cwd(), group_root=_discover_group_root())
+    res = bot.create(factory_id, name=name, description=description, force=force, dry_run=dry_run)
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="factory.create", state=state, dry_run=dry_run, data=res)
+
+    def _text() -> None:
+        if res.get("success"):
+            click.echo(f"Created factory '{factory_id}' → {res.get('path')}")
+        else:
+            click.echo(f"Failed: {res.get('error')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
+@factory.command("update")
+@click.argument("factory_id")
+@click.option("--name", default=None)
+@click.option("--description", default=None)
+@click.option("--version", default=None)
+@click.option("--dry-run", is_flag=True, default=False)
+@click.pass_context
+def factory_update(
+    ctx: click.Context,
+    factory_id: str,
+    name: str | None,
+    description: str | None,
+    version: str | None,
+    dry_run: bool,
+) -> None:
+    """Update factory metadata (name/description/version)."""
+    from hath0r_cli.factory_manager import FactoryManagerBot
+
+    bot = FactoryManagerBot(cwd=Path.cwd(), group_root=_discover_group_root())
+    res = bot.update(factory_id, name=name, description=description, version=version, dry_run=dry_run)
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="factory.update", state=state, dry_run=dry_run, data=res)
+
+    def _text() -> None:
+        click.echo(res.get("action") or res.get("path") or res.get("error"))
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
+@factory.command("delete")
+@click.argument("factory_id")
+@click.option("--dry-run", is_flag=True, default=False)
+@click.pass_context
+def factory_delete(ctx: click.Context, factory_id: str, dry_run: bool) -> None:
+    """Delete a factory YAML manifest."""
+    from hath0r_cli.factory_manager import FactoryManagerBot
+
+    bot = FactoryManagerBot(cwd=Path.cwd(), group_root=_discover_group_root())
+    res = bot.delete(factory_id, dry_run=dry_run)
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="factory.delete", state=state, dry_run=dry_run, data=res)
+
+    def _text() -> None:
+        click.echo(res.get("action") or (f"Deleted {res.get('path')}" if res.get("success") else res.get("error")))
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
 @factory.group("schedule")
 def factory_schedule() -> None:
     """Manage and synchronize automation factory schedules."""
@@ -1657,7 +1745,7 @@ def jev_status(ctx: click.Context) -> None:
             or ""
         ).strip()
     )
-    integrations = [
+    integrations: list[dict[str, Any]] = [
         {
             "repo": "BAI/MCP",
             "path": str(P.home() / "Development/BAI/MCP"),
@@ -1693,10 +1781,12 @@ def jev_status(ctx: click.Context) -> None:
         },
     ]
     for item in integrations:
-        root = P(item["path"])
-        item["present"] = (root / item["modules"][0].split("/")[0]).exists() if root.exists() else False
-        # better present check
-        item["present"] = all((root / m).is_file() for m in item["modules"]) if root.is_dir() else False
+        root = P(str(item["path"]))
+        modules_list = item.get("modules")
+        if isinstance(modules_list, list) and root.is_dir():
+            item["present"] = all((root / str(m)).is_file() for m in modules_list)
+        else:
+            item["present"] = False
 
     data = {
         "local_env": {
@@ -1996,6 +2086,279 @@ def docker_diagnose(ctx: click.Context, container_name: str | None, dry_run: boo
                 console.print(f"\n[cyan]Remediation:[/cyan] {res['remediation']}")
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
+# ============================================================================
+# Quality / preflight / deploy / release / docs bots (#66–#71)
+# ============================================================================
+
+
+@main.group()
+def quality() -> None:
+    """PR Quality Gates bot — aggregate hard gates including SonarCloud."""
+
+
+@quality.command("check")
+@click.argument("pr_number", type=int)
+@click.option("--repo", default=None, help="owner/repo")
+@click.option("--dry-run", is_flag=True, default=False)
+@click.pass_context
+def quality_check(ctx: click.Context, pr_number: int, repo: str | None, dry_run: bool) -> None:
+    """Evaluate PR status checks against configured hard gates."""
+    from hath0r_cli.bots.quality import QualityGateBot
+
+    bot = QualityGateBot(cwd=Path.cwd())
+    res = bot.check_pr(pr_number, repo=repo, dry_run=dry_run)
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="quality.check", state=state, dry_run=dry_run, data=res)
+
+    def _text() -> None:
+        click.echo(res.get("message") or json.dumps(res, indent=2))
+        if res.get("hard_failures"):
+            click.echo(f"Hard failures: {', '.join(res['hard_failures'])}")
+        if res.get("hard_missing"):
+            click.echo(f"Missing gates: {', '.join(res['hard_missing'])}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
+@main.group()
+def preflight() -> None:
+    """Pre-PR thresholds bot — run before opening a pull request."""
+
+
+@preflight.command("run")
+@click.option("--skip-tests", is_flag=True, default=False, help="Only check branch + VERSION.")
+@click.option("--dry-run", is_flag=True, default=False)
+@click.pass_context
+def preflight_run(ctx: click.Context, skip_tests: bool, dry_run: bool) -> None:
+    """Block PR open until branch taxonomy, VERSION, and local gates pass."""
+    from hath0r_cli.bots.quality import PreflightBot
+
+    bot = PreflightBot(cwd=Path.cwd())
+    res = bot.run(skip_tests=skip_tests, dry_run=dry_run)
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="preflight.run", state=state, dry_run=dry_run, data=res)
+
+    def _text() -> None:
+        click.echo(res.get("message") or "preflight complete")
+        for c in res.get("checks", []):
+            icon = "✓" if c.get("ok") else "✗"
+            detail = (
+                c.get("error")
+                or c.get("message")
+                or c.get("version")
+                or c.get("branch")
+                or ""
+            )
+            click.echo(f"  {icon} {c.get('check')}: {detail}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
+@main.group()
+def deploy() -> None:
+    """Pre/post-deploy test bot (counts toward coverage narrative)."""
+
+
+@deploy.command("pre")
+@click.option("--dry-run", is_flag=True, default=False)
+@click.pass_context
+def deploy_pre(ctx: click.Context, dry_run: bool) -> None:
+    """Run pre-deploy test suite from cfg/quality-gates.json."""
+    from hath0r_cli.bots.quality import DeployTestBot
+
+    bot = DeployTestBot(cwd=Path.cwd())
+    res = bot.run_pre_deploy(dry_run=dry_run)
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="deploy.pre", state=state, dry_run=dry_run, data=res)
+
+    def _text() -> None:
+        click.echo(res.get("message") or res.get("action"))
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
+@deploy.command("post")
+@click.option("--base-url", default=None, help="Optional smoke URL when no cfg commands set.")
+@click.option("--dry-run", is_flag=True, default=False)
+@click.pass_context
+def deploy_post(ctx: click.Context, base_url: str | None, dry_run: bool) -> None:
+    """Run post-deploy smoke checks."""
+    from hath0r_cli.bots.quality import DeployTestBot
+
+    bot = DeployTestBot(cwd=Path.cwd())
+    res = bot.run_post_deploy(base_url=base_url, dry_run=dry_run)
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="deploy.post", state=state, dry_run=dry_run, data=res)
+
+    def _text() -> None:
+        click.echo(res.get("message") or res.get("action") or "post-deploy complete")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
+@main.group()
+def release() -> None:
+    """Version + release notes + GitHub tag/release bot."""
+
+
+@release.command("validate")
+@click.pass_context
+def release_validate(ctx: click.Context) -> None:
+    """Validate VERSION SemVer and CHANGELOG alignment."""
+    from hath0r_cli.bots.quality import ReleaseBot
+
+    bot = ReleaseBot(cwd=Path.cwd())
+    res = bot.validate()
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="release.validate", state=state, data=res)
+
+    def _text() -> None:
+        click.echo(res.get("message") or res.get("error"))
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
+@release.command("notes")
+@click.option("--version", default=None, help="Override VERSION file.")
+@click.pass_context
+def release_notes(ctx: click.Context, version: str | None) -> None:
+    """Generate release notes from CHANGELOG section."""
+    from hath0r_cli.bots.quality import ReleaseBot
+
+    bot = ReleaseBot(cwd=Path.cwd())
+    res = bot.generate_notes(version=version)
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="release.notes", state=state, data=res)
+
+    def _text() -> None:
+        if res.get("success"):
+            click.echo(res.get("notes"))
+        else:
+            click.echo(res.get("error"))
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
+@release.command("publish")
+@click.option("--repo", default=None)
+@click.option("--skip-github-release", is_flag=True, default=False)
+@click.option("--dry-run", is_flag=True, default=False)
+@click.pass_context
+def release_publish(
+    ctx: click.Context, repo: str | None, skip_github_release: bool, dry_run: bool
+) -> None:
+    """Create annotated tag and optional GitHub Release."""
+    from hath0r_cli.bots.quality import ReleaseBot
+
+    bot = ReleaseBot(cwd=Path.cwd())
+    res = bot.tag_and_release(repo=repo, dry_run=dry_run, skip_github_release=skip_github_release)
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="release.publish", state=state, dry_run=dry_run, data=res)
+
+    def _text() -> None:
+        click.echo(res.get("action") or res.get("tag") or res.get("error"))
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
+@main.group()
+def docs() -> None:
+    """Documentation / wiki / knowledge-share bots."""
+
+
+@docs.command("wiki")
+@click.option("--repo", required=True, help="owner/repo with GitHub wiki enabled")
+@click.option("--title", required=True, help="Wiki page title")
+@click.option("--body", default=None, help="Markdown body (or stdin)")
+@click.option("--pr", "pr_number", type=int, default=None)
+@click.option("--force", is_flag=True, default=False, help="Ignore wiki.enabled=false")
+@click.option("--dry-run", is_flag=True, default=False)
+@click.pass_context
+def docs_wiki(
+    ctx: click.Context,
+    repo: str,
+    title: str,
+    body: str | None,
+    pr_number: int | None,
+    force: bool,
+    dry_run: bool,
+) -> None:
+    """Sync a PR page to the GitHub wiki when cfg enables it."""
+    from hath0r_cli.bots import DocumentationBot
+
+    content = body
+    if content is None and not click.get_text_stream("stdin").isatty():
+        content = click.get_text_stream("stdin").read()
+    content = content or f"# {title}\n\n(empty body)\n"
+
+    bot = DocumentationBot(cwd=Path.cwd())
+    res = bot.sync_to_wiki(repo, title, content, pr_number=pr_number, dry_run=dry_run, force=force)
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="docs.wiki", state=state, dry_run=dry_run, data=res)
+
+    def _text() -> None:
+        if res.get("skipped"):
+            click.echo(f"Skipped: {res.get('reason')}")
+        else:
+            click.echo(res.get("action") or res.get("status") or res.get("error"))
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
+@docs.command("share")
+@click.option("--summary", default=None, help="Knowledge summary text")
+@click.option("--pr", "pr_number", type=int, default=None)
+@click.option("--repo", default=None)
+@click.option("--target-kb", default=None, help="Override local KB path")
+@click.option("--dry-run", is_flag=True, default=False)
+@click.pass_context
+def docs_share(
+    ctx: click.Context,
+    summary: str | None,
+    pr_number: int | None,
+    repo: str | None,
+    target_kb: str | None,
+    dry_run: bool,
+) -> None:
+    """Post-PR knowledge share → project MCP / group KB (idempotent by PR)."""
+    from hath0r_cli.bots import DocumentationBot
+
+    bot = DocumentationBot(cwd=Path.cwd())
+    res = bot.share_knowledge(
+        summary=summary
+        or (f"Knowledge share for PR #{pr_number}" if pr_number else "Knowledge share"),
+        pr_number=pr_number,
+        repo=repo,
+        target_kb=target_kb,
+        dry_run=dry_run,
+    )
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="docs.share", state=state, dry_run=dry_run, data=res)
+
+    def _text() -> None:
+        click.echo(res.get("action") or res.get("path") or res.get("reason") or res.get("error"))
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
 
 
 if __name__ == "__main__":
