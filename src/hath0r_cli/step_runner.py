@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from hath0r_cli.bots import BranchBot, DockerBot, DocumentationBot, GitJanitorBot, PRBot
+from hath0r_cli.bots import BranchBot, DockerBot, DocumentationBot, GitJanitorBot, PRBot, TaskAnnouncerBot
 
 
 @dataclass
@@ -81,6 +81,7 @@ class BotRegistry:
             "pr-bot": PRBot(cwd=self.cwd),
             "git-janitor-bot": GitJanitorBot(cwd=self.cwd),
             "documentation-bot": DocumentationBot(cwd=self.cwd),
+            "task-announcer-bot": TaskAnnouncerBot(cwd=self.cwd),
             "docker-bot": DockerBot(cwd=self.cwd),
             "docker-monitor-bot": DockerBot(cwd=self.cwd),
         }
@@ -124,7 +125,9 @@ class BotRegistry:
             elif bot_id == "branch-bot":
                 return self._dispatch_branch_bot(bot, action, args, dry_run=dry_run)
             elif bot_id == "documentation-bot":
-                return self._dispatch_doc_bot(bot, action, args, repo=repo, context=ctx)
+                return self._dispatch_doc_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
+            elif bot_id == "task-announcer-bot":
+                return self._dispatch_announcer_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id in ("docker-bot", "docker-monitor-bot"):
                 return self._dispatch_docker_bot(bot, bot_id, action, args, dry_run=dry_run, context=ctx)
             else:
@@ -191,14 +194,55 @@ class BotRegistry:
                 )
 
         elif action == "check-status":
-            pr_num = int(args["pr_number"])
+            pr_num = int(args.get("pr_number") or context.get("pr_number") or 0)
             res = bot.check_pr_status(pr_num, repo=target_repo)
             return StepExecutionResult(bot_id="pr-bot", action=action, success="error" not in res, data=res)
 
+        elif action in ("create-pr", "create"):
+            title = args.get("title")
+            body = args.get("body")
+            base = args.get("base", "development")
+            head = args.get("head") or context.get("branch")
+            draft = bool(args.get("draft", False))
+            semver = args.get("semver", "patch")
+            res = bot.create_pr(
+                title=title,
+                body=body,
+                base=base,
+                head=head,
+                repo=target_repo,
+                draft=draft,
+                semver=semver,
+                dry_run=dry_run,
+            )
+            if res.get("pr_number"):
+                context["pr_number"] = res["pr_number"]
+            if res.get("branch"):
+                context["branch"] = res["branch"]
+            return StepExecutionResult(
+                bot_id="pr-bot", action=action, success=bool(res.get("success")), data=res, dry_run=dry_run
+            )
+
+        elif action in ("monitor-checks", "monitor", "verify-checks"):
+            pr_num = int(args.get("pr_number") or context.get("pr_number") or 0)
+            res = bot.monitor_checks(pr_num, repo=target_repo, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="pr-bot", action=action, success=bool(res.get("success")), data=res, dry_run=dry_run
+            )
+
         elif action == "merge-pr":
-            pr_num = int(args["pr_number"])
-            admin = bool(args.get("admin", False))
-            res = bot.merge_pr(pr_num, repo=target_repo, admin=admin, dry_run=dry_run)
+            pr_num = int(args.get("pr_number") or context.get("pr_number") or 0)
+            admin = bool(args.get("admin", True))
+            squash = bool(args.get("squash", True))
+            delete_branch = bool(args.get("delete_branch", True))
+            res = bot.merge_pr(
+                pr_num,
+                repo=target_repo,
+                admin=admin,
+                squash=squash,
+                delete_branch=delete_branch,
+                dry_run=dry_run,
+            )
             return StepExecutionResult(
                 bot_id="pr-bot", action=action, success=bool(res.get("success")), data=res, dry_run=dry_run
             )
@@ -226,8 +270,8 @@ class BotRegistry:
             context["stale_branches"] = scan_res.get("stale_branches", [])
             return StepExecutionResult(bot_id="git-janitor-bot", action=action, success=True, data=scan_res)
 
-        elif action in ("prune-branches", "prune"):
-            target_branch = args.get("branch")
+        elif action in ("prune-branches", "prune", "prune-branch"):
+            target_branch = args.get("branch") or context.get("branch")
             remote = args.get("remote", True)
             if target_branch:
                 p_res = bot.prune_branch(target_branch, remote=remote, dry_run=dry_run)
@@ -254,6 +298,17 @@ class BotRegistry:
                     data={"pruned": pruned, "count": len(pruned)},
                     dry_run=dry_run,
                 )
+
+        elif action in ("pull-development", "pull-origin", "sync-development"):
+            base = args.get("base", "development")
+            res = bot.pull_development(base=base, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="git-janitor-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
 
         return StepExecutionResult(
             bot_id="git-janitor-bot",
@@ -302,6 +357,7 @@ class BotRegistry:
         action: str,
         args: dict[str, Any],
         repo: str | None,
+        dry_run: bool,
         context: dict[str, Any],
     ) -> StepExecutionResult:
         if action in ("generate-summary", "summary"):
@@ -319,11 +375,53 @@ class BotRegistry:
             res = bot.sync_to_wiki(target_repo, title, content)
             return StepExecutionResult(bot_id="documentation-bot", action=action, success=True, data=res)
 
+        elif action in ("share-knowledge", "share"):
+            summary = args.get("summary") or context.get("latest_summary")
+            notes = args.get("notes")
+            target_kb = args.get("target_kb")
+            res = bot.share_knowledge(summary=summary, notes=notes, target_kb=target_kb, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="documentation-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+
         return StepExecutionResult(
             bot_id="documentation-bot",
             action=action,
             success=False,
             error=f"Unknown action '{action}' for documentation-bot.",
+        )
+
+    def _dispatch_announcer_bot(
+        self,
+        bot: TaskAnnouncerBot,
+        action: str,
+        args: dict[str, Any],
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("announce-complete", "announce"):
+            task_id = args.get("task_id") or context.get("task_id") or "end-of-task"
+            summary = args.get("summary") or context.get("latest_summary")
+            channel = args.get("channel", "console")
+            res = bot.announce_complete(task_id=task_id, summary=summary, channel=channel, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="task-announcer-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+
+        return StepExecutionResult(
+            bot_id="task-announcer-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for task-announcer-bot.",
+            dry_run=dry_run,
         )
 
     def _dispatch_docker_bot(
