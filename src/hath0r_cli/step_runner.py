@@ -317,10 +317,11 @@ class BotRegistry:
                 )
             else:
                 # Process candidate dependabot PRs from prior list-prs or fetch fresh
-                prs = context.get("prs")
-                if prs is None:
-                    prs = bot.list_prs(repo=target_repo, state="open")
-                dep_prs = [p for p in prs if "dependabot" in p.get("author", {}).get("login", "").lower()]
+                raw_prs = context.get("prs")
+                pr_list: list[dict[str, Any]] = (
+                    raw_prs if isinstance(raw_prs, list) else bot.list_prs(repo=target_repo, state="open")
+                )
+                dep_prs = [p for p in pr_list if "dependabot" in p.get("author", {}).get("login", "").lower()]
                 triage_results = [
                     bot.process_dependabot(dp["number"], repo=target_repo, auto_merge=auto_merge, dry_run=dry_run)
                     for dp in dep_prs
@@ -501,7 +502,8 @@ class BotRegistry:
         context: dict[str, Any],
     ) -> StepExecutionResult:
         if action in ("generate-summary", "summary"):
-            pr_data = args.get("pr_data") or (context.get("prs")[0] if context.get("prs") else {})
+            ctx_prs = context.get("prs")
+            pr_data = args.get("pr_data") or (ctx_prs[0] if isinstance(ctx_prs, list) and ctx_prs else {})
             summary = bot.generate_pr_summary(pr_data)
             context["latest_summary"] = summary
             return StepExecutionResult(
@@ -531,12 +533,13 @@ class BotRegistry:
             )
 
         elif action in ("share-knowledge", "share"):
-            summary = args.get("summary") or context.get("latest_summary")
+            summary_val = args.get("summary") or context.get("latest_summary")
+            share_summary: str | None = str(summary_val) if summary_val else None
             notes = args.get("notes")
             target_kb = args.get("target_kb")
             pr_number = args.get("pr_number") or context.get("pr_number")
             res = bot.share_knowledge(
-                summary=summary,
+                summary=share_summary,
                 notes=notes,
                 target_kb=target_kb,
                 pr_number=int(pr_number) if pr_number else None,

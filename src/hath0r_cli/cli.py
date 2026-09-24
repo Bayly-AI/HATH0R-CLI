@@ -7,6 +7,7 @@ import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import click
 from rich.console import Console
@@ -1744,7 +1745,7 @@ def jev_status(ctx: click.Context) -> None:
             or ""
         ).strip()
     )
-    integrations = [
+    integrations: list[dict[str, Any]] = [
         {
             "repo": "BAI/MCP",
             "path": str(P.home() / "Development/BAI/MCP"),
@@ -1780,10 +1781,12 @@ def jev_status(ctx: click.Context) -> None:
         },
     ]
     for item in integrations:
-        root = P(item["path"])
-        item["present"] = (root / item["modules"][0].split("/")[0]).exists() if root.exists() else False
-        # better present check
-        item["present"] = all((root / m).is_file() for m in item["modules"]) if root.is_dir() else False
+        root = P(str(item["path"]))
+        modules_list = item.get("modules")
+        if isinstance(modules_list, list) and root.is_dir():
+            item["present"] = all((root / str(m)).is_file() for m in modules_list)
+        else:
+            item["present"] = False
 
     data = {
         "local_env": {

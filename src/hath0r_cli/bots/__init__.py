@@ -149,7 +149,8 @@ class PRBot:
         if code != 0:
             return []
         try:
-            return json.loads(out)
+            data = json.loads(out)
+            return data if isinstance(data, list) else []
         except Exception:
             return []
 
@@ -165,7 +166,8 @@ class PRBot:
         if code != 0:
             return {"error": err, "pr_number": pr_number}
         try:
-            return json.loads(out)
+            data = json.loads(out)
+            return data if isinstance(data, dict) else {"error": "Invalid JSON response", "pr_number": pr_number}
         except Exception as exc:
             return {"error": str(exc), "pr_number": pr_number}
 
@@ -664,7 +666,11 @@ class DocumentationBot:
 
         # Prefer hath0r / opensource group MCP local path
         groups = publish.get("groups") if isinstance(publish.get("groups"), dict) else {}
-        preferred = groups.get("hath0r") or next(iter(groups.values()), {}) if groups else {}
+        pref_val = groups.get("hath0r") if isinstance(groups, dict) else None
+        if not isinstance(pref_val, dict) and isinstance(groups, dict) and groups:
+            first_val: Any = next(iter(groups.values()), {})
+            pref_val = first_val if isinstance(first_val, dict) else {}
+        preferred: dict[str, Any] = pref_val if isinstance(pref_val, dict) else {}
         mcp = preferred.get("mcp") if isinstance(preferred, dict) else {}
         local_path = target_kb or (mcp.get("local_path") if isinstance(mcp, dict) else None)
         if not local_path:

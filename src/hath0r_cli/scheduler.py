@@ -41,7 +41,7 @@ def compute_next_run(cron_expr: str, base_time: datetime | None = None) -> str |
     """Compute the next ISO UTC execution timestamp for a 5-field cron expression."""
     now = base_time or datetime.now(timezone.utc)
     try:
-        from croniter import croniter
+        from croniter import croniter  # type: ignore[import-untyped]
 
         itr = croniter(cron_expr, now)
         next_dt: datetime = itr.get_next(datetime)
