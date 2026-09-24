@@ -233,11 +233,7 @@ def doctor(ctx: click.Context) -> None:
         table.add_column("Status")
         for c in result.checks:
             detail = c.path if (verbose and c.path) else (c.detail or c.message)
-            status = (
-                "[green]ok[/green]"
-                if c.state == "ok"
-                else f"[red]{c.state}[/red]"
-            )
+            status = "[green]ok[/green]" if c.state == "ok" else f"[red]{c.state}[/red]"
             table.add_row(c.label, detail or "", status)
         console.print(table)
         console.print(f"hath0r {__version__}")
@@ -367,7 +363,6 @@ def kb_products(ctx: click.Context) -> None:
             raise SystemExit(exit_code)
     else:
         _emit_response(ctx, response, text_renderer=_text)
-
 
 
 # --- ADR-003 surface discovery (F5) -----------------------------------------
@@ -541,16 +536,8 @@ def planes(ctx: click.Context) -> None:
 def schema(ctx: click.Context, status_filter: str) -> None:
     """Dump bounded CLI surface schema (shipped + planned ADR-003 domains)."""
     status_filter = status_filter.lower()
-    commands = [
-        c
-        for c in _SHIPPED_COMMANDS
-        if status_filter == "all" or c["status"] == status_filter
-    ]
-    plane_rows = [
-        plane
-        for plane in _ADR003_PLANES
-        if status_filter == "all" or plane["status"] == status_filter
-    ]
+    commands = [c for c in _SHIPPED_COMMANDS if status_filter == "all" or c["status"] == status_filter]
+    plane_rows = [plane for plane in _ADR003_PLANES if status_filter == "all" or plane["status"] == status_filter]
     data = {
         "clispec": "hath0r-surface/0.2",
         "binary": "hath0r",
@@ -593,7 +580,6 @@ def schema(ctx: click.Context, status_filter: str) -> None:
             click.echo(f"  - {plane['id']}: {plane['status']}")
 
     _emit_response(ctx, response, text_renderer=_text)
-
 
 
 if __name__ == "__main__":

@@ -172,9 +172,7 @@ def test_doctor_json_success(runner: CliRunner, tmp_path: Path, monkeypatch: pyt
     assert payload["diagnostics"] == []
 
 
-def test_doctor_json_degraded_exit_6(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_doctor_json_degraded_exit_6(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     group = _build_minimal_group(tmp_path)
     (group / "WARP.md").unlink()
     monkeypatch.setenv("HATH0R_GROUP_ROOT", str(group))
@@ -186,9 +184,7 @@ def test_doctor_json_degraded_exit_6(
     assert any(d.get("details", {}).get("check_id") for d in payload["diagnostics"])
 
 
-def test_doctor_json_verbose_includes_paths(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_doctor_json_verbose_includes_paths(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     group = _build_minimal_group(tmp_path)
     monkeypatch.setenv("HATH0R_GROUP_ROOT", str(group))
     result = runner.invoke(cli.main, ["--output", "json", "--verbose", "doctor"])
@@ -197,9 +193,7 @@ def test_doctor_json_verbose_includes_paths(
     assert any("path" in c for c in payload["data"]["checks"])
 
 
-def test_doctor_text_still_renders(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_doctor_text_still_renders(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     group = _build_minimal_group(tmp_path)
     monkeypatch.setenv("HATH0R_GROUP_ROOT", str(group))
     result = runner.invoke(cli.main, ["--output", "text", "doctor"])
@@ -209,9 +203,7 @@ def test_doctor_text_still_renders(
     assert "doctor passed" in result.output
 
 
-def test_doctor_catalog_drift_detected(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_doctor_catalog_drift_detected(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     group = _build_minimal_group(tmp_path)
     # Break tower products catalog
     bad = {
@@ -226,9 +218,7 @@ def test_doctor_catalog_drift_detected(
             }
         ],
     }
-    (group / "HATH0R-CLI" / "cfg" / "products.yaml").write_text(
-        yaml.safe_dump(bad), encoding="utf-8"
-    )
+    (group / "HATH0R-CLI" / "cfg" / "products.yaml").write_text(yaml.safe_dump(bad), encoding="utf-8")
     monkeypatch.setenv("HATH0R_GROUP_ROOT", str(group))
     result = runner.invoke(cli.main, ["--output", "json", "doctor"])
     assert result.exit_code == 6
