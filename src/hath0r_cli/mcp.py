@@ -18,18 +18,21 @@ except ImportError:  # pragma: no cover
 
 
 # Default connection specifications for BaylyAI, 1-Nation, and Hath0r MCP servers.
+# Project MCP (hath0r-mcp) is always priority 1.
 DEFAULT_MCP_SERVERS = [
     {
         "id": "hath0r-mcp",
         "name": "Hath0rMCP",
+        "scope": "project",
         "group": "hath0r-opensource",
+        "priority": 1,
         "product_id": "hath0r-mcp",
         "transport": "streamable-http",
         "base_url": "http://127.0.0.1:38083",
         "mcp_endpoint": "/mcp",
         "health_endpoint": "/health",
         "ready_endpoint": "/ready",
-        "description": "Hath0r OpenSource Suite MCP knowledge server and tools",
+        "description": "Hath0r OpenSource Suite MCP knowledge server and tools (Project MCP)",
         "enabled": True,
         "local_path": "/Users/raybayly/Development/OpenSource/hath0r-mcp",
         "github": "Bayly-AI/HATH0R-MCP",
@@ -37,7 +40,9 @@ DEFAULT_MCP_SERVERS = [
     {
         "id": "bai-mcp",
         "name": "BaylyAIMCP",
+        "scope": "org",
         "group": "bai",
+        "priority": 2,
         "product_id": "bai-mcp",
         "transport": "http-jsonrpc",
         "base_url": "http://127.0.0.1:48080",
@@ -52,7 +57,9 @@ DEFAULT_MCP_SERVERS = [
     {
         "id": "1-nation-mcp",
         "name": "1-NationMCP",
+        "scope": "group",
         "group": "1-nation",
+        "priority": 3,
         "product_id": "1-nation-mcp",
         "transport": "streamable-http",
         "base_url": "http://127.0.0.1:58083",
@@ -89,22 +96,64 @@ class McpConnectionStatus:
         return asdict(self)
 
 
+SCOPE_ORDER = {
+    "project": 0,
+    "group": 1,
+    "org": 2,
+    "user": 3,
+}
+
+
+def sort_mcp_servers_by_priority(servers: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Sort MCP servers ensuring project MCP is always priority 1, followed by group and org.
+
+    Ordering rule (CRITICAL — cr-mcp-priority-001):
+    1. Scope: project (rank 0), group (rank 1), org (rank 2), user (rank 3), other (rank 4).
+    2. Numerical priority: integer ascending (lower number = higher priority).
+    3. Server ID: alphabetical tie-breaker.
+    """
+
+    def _sort_key(s: dict[str, Any]) -> tuple[int, int, str]:
+        scope = str(s.get("scope", "group")).lower()
+        scope_rank = SCOPE_ORDER.get(scope, 4)
+        try:
+            priority = int(s.get("priority", 100))
+        except (ValueError, TypeError):
+            priority = 100
+        server_id = str(s.get("id", ""))
+        return (scope_rank, priority, server_id)
+
+    return sorted(servers, key=_sort_key)
+
+
 def resolve_mcp_config_path(group_root: Path | None = None) -> Path | None:
-    """Locate the MCP connections configuration YAML file."""
+    """Locate the MCP connections configuration JSON or YAML file."""
     env_override = os.environ.get("HATH0R_MCP_CONFIG")
     if env_override:
         p = Path(env_override).expanduser()
         if p.is_file():
             return p
 
-    candidates: list[Path] = []
-    if group_root:
-        candidates.append(group_root / "HATH0R-CLI" / "cfg" / "mcp-connections.yaml")
-        candidates.append(group_root / "hathor-cli" / "cfg" / "mcp-connections.yaml")
-        candidates.append(group_root / "cfg" / "mcp-connections.yaml")
+    repo_root = Path(__file__).resolve().parents[2]
 
-    repo_cfg = Path(__file__).resolve().parents[2] / "cfg" / "mcp-connections.yaml"
-    candidates.append(repo_cfg)
+    # JSON configs take precedence (canonical per cr-mcp-priority-001)
+    candidates: list[Path] = [
+        repo_root / "cfg" / "mcp.servers.json",
+        repo_root / ".hath0r" / "mcp.servers.json",
+    ]
+    if group_root:
+        candidates.extend(
+            [
+                group_root / "HATH0R-CLI" / "cfg" / "mcp.servers.json",
+                group_root / "hathor-cli" / "cfg" / "mcp.servers.json",
+                group_root / "cfg" / "mcp.servers.json",
+                group_root / "HATH0R-CLI" / "cfg" / "mcp-connections.yaml",
+                group_root / "hathor-cli" / "cfg" / "mcp-connections.yaml",
+                group_root / "cfg" / "mcp-connections.yaml",
+            ]
+        )
+
+    candidates.append(repo_root / "cfg" / "mcp-connections.yaml")
 
     for c in candidates:
         if c.is_file():
@@ -112,17 +161,57 @@ def resolve_mcp_config_path(group_root: Path | None = None) -> Path | None:
     return None
 
 
-def load_mcp_connections(group_root: Path | None = None) -> list[dict[str, Any]]:
-    """Load configured MCP servers from YAML or fallback to default suite servers."""
-    cfg_path = resolve_mcp_config_path(group_root)
-    if cfg_path and yaml:
+def validate_mcp_config(config_path: Path) -> tuple[bool, str | None, list[dict[str, Any]]]:
+    """Validate MCP configuration file syntax and semantics.
+
+    Returns (is_valid, warning_or_error, sorted_servers).
+    """
+    if not config_path.is_file():
+        return False, f"Config file not found: {config_path}", []
+
+    raw = config_path.read_text(encoding="utf-8")
+    data: Any = None
+    if config_path.suffix == ".json":
         try:
-            data = yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
-            if isinstance(data, dict) and "servers" in data and isinstance(data["servers"], list):
-                return data["servers"]
-        except Exception:
-            pass
-    return list(DEFAULT_MCP_SERVERS)
+            data = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            return False, f"Invalid JSON syntax in {config_path.name}: {exc}", []
+    elif yaml:
+        try:
+            data = yaml.safe_load(raw)
+        except Exception as exc:
+            return False, f"Invalid YAML syntax in {config_path.name}: {exc}", []
+    else:
+        return False, f"Unsupported config format for {config_path.name}", []
+
+    if not isinstance(data, dict) or "servers" not in data or not isinstance(data["servers"], list):
+        return False, f"Missing or invalid 'servers' list in {config_path.name}", []
+
+    servers: list[dict[str, Any]] = []
+    for s in data["servers"]:
+        if not isinstance(s, dict):
+            return False, f"Non-object entry in {config_path.name} 'servers' list", []
+        if "id" not in s or "name" not in s:
+            return False, f"Server entry missing required 'id' or 'name' in {config_path.name}", []
+        servers.append(s)
+
+    sorted_servers = sort_mcp_servers_by_priority(servers)
+    has_project = any(str(s.get("scope", "")).lower() == "project" and s.get("enabled", True) for s in sorted_servers)
+    warning = None
+    if not has_project:
+        warning = f"Warning: No enabled 'project' scope MCP server defined in {config_path.name}."
+
+    return True, warning, sorted_servers
+
+
+def load_mcp_connections(group_root: Path | None = None) -> list[dict[str, Any]]:
+    """Load configured MCP servers from JSON or YAML, sorted with project MCP first."""
+    cfg_path = resolve_mcp_config_path(group_root)
+    if cfg_path:
+        is_valid, _msg, servers = validate_mcp_config(cfg_path)
+        if is_valid and servers:
+            return servers
+    return sort_mcp_servers_by_priority(list(DEFAULT_MCP_SERVERS))
 
 
 def _http_get(url: str, timeout: float = 2.0) -> tuple[int, dict[str, Any] | None, str | None]:
