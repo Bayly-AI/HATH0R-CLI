@@ -1,0 +1,45 @@
+# Hath0r CLI MCP Connections Configuration
+# Defines canonical Model Context Protocol (MCP) server connections for Hath0r, BAI, and 1-Nation suites.
+version: "1.0"
+servers:
+  - id: hath0r-mcp
+    name: Hath0rMCP
+    group: hath0r-opensource
+    product_id: hath0r-mcp
+    transport: streamable-http
+    base_url: "http://127.0.0.1:38083"
+    mcp_endpoint: "/mcp"
+    health_endpoint: "/health"
+    ready_endpoint: "/ready"
+    description: "Hath0r OpenSource Suite MCP knowledge server and tools"
+    enabled: true
+    local_path: "/Users/raybayly/Development/OpenSource/hath0r-mcp"
+    github: "Bayly-AI/HATH0R-MCP"
+
+  - id: bai-mcp
+    name: BaylyAIMCP
+    group: bai
+    product_id: bai-mcp
+    transport: http-jsonrpc
+    base_url: "http://127.0.0.1:48080"
+    mcp_endpoint: "/mcp"
+    health_endpoint: "/health"
+    ready_endpoint: "/health"
+    description: "Bayly AI Enterprise MCP knowledgebase and runbook engine"
+    enabled: true
+    local_path: "/Users/raybayly/Development/BAI/MCP"
+    github: "Bayly-AI/BAI-MCP"
+
+  - id: 1-nation-mcp
+    name: 1-NationMCP
+    group: 1-nation
+    product_id: 1-nation-mcp
+    transport: streamable-http
+    base_url: "http://127.0.0.1:58083"
+    mcp_endpoint: "/mcp"
+    health_endpoint: "/health"
+    ready_endpoint: "/ready"
+    description: "1-Nation Suite MCP service and reference tools"
+    enabled: true
+    local_path: "/Users/raybayly/Development/1-Nation/MCP"
+    github: "Bayly-AI/1-Nation-MCP"

@@ -153,13 +153,18 @@ def _product_canonical_flags(data: Any) -> dict[str, bool]:
     return out
 
 
-def run_checks(root: Path, kb: Path) -> DoctorResult:
+def run_checks(root: Path, kb: Path, check_mcp: bool = False) -> DoctorResult:
     """Evaluate all doctor checks against root and kb paths."""
     tower = root / "HATH0R-CLI"
     tower_cfg = tower / "cfg"
     expected_tower = str(tower)
+
+    framework_path = root / "hath0r"
+    if not framework_path.is_dir() and (root / "hath0r-framework").is_dir():
+        framework_path = root / "hath0r-framework"
+
     members = {
-        "framework": root / "hath0r",
+        "framework": framework_path,
         "cli": tower,
         "poc": root / "hath0r-poc",
     }
@@ -408,6 +413,20 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
         path=catalog,
         fail_state="error",
     )
+
+    if check_mcp:
+        from hath0r_cli.mcp import check_all_mcp_connections
+        for mcp_status in check_all_mcp_connections(group_root=root):
+            _add(
+                checks,
+                check_id=f"mcp-{mcp_status.server_id}",
+                label=f"mcp:{mcp_status.name}",
+                ok=mcp_status.state == "ok",
+                ok_message=f"{mcp_status.name} healthy ({mcp_status.tools_count} tools, {mcp_status.latency_ms}ms).",
+                fail_message=f"{mcp_status.name} {mcp_status.state}: {mcp_status.message}",
+                detail=f"{mcp_status.base_url} ({mcp_status.latency_ms}ms)",
+                fail_state="unavailable" if mcp_status.state == "unreachable" else "degraded",
+            )
 
     tower_configured = any(c.id == "control-tower-root" and c.state == "ok" for c in checks)
     return DoctorResult(
