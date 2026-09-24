@@ -163,3 +163,66 @@ def test_cli_janitor_prune_dry_run() -> None:
     assert data["meta"]["dry_run"] is True
 
 
+def test_bot_registry_dynamic_dispatch() -> None:
+    from hath0r_cli.step_runner import BotRegistry
+
+    reg = BotRegistry()
+    assert "branch-bot" in reg.registered_bot_ids()
+    assert "pr-bot" in reg.registered_bot_ids()
+    assert "git-janitor-bot" in reg.registered_bot_ids()
+    assert "documentation-bot" in reg.registered_bot_ids()
+
+    # Valid dispatch
+    branch_res = reg.invoke("branch-bot", "validate-name", {"name": "feature/80-test"})
+    assert branch_res.success is True
+    assert branch_res.data["valid"] is True
+
+    # Missing bot
+    missing_bot_res = reg.invoke("nonexistent-bot", "any-action")
+    assert missing_bot_res.success is False
+    assert "not registered" in missing_bot_res.error
+
+    # Unknown action on registered bot
+    unknown_action_res = reg.invoke("branch-bot", "fly-to-moon")
+    assert unknown_action_res.success is False
+    assert "Unknown action" in unknown_action_res.error
+
+
+def test_execute_workflow_declarative() -> None:
+    from hath0r_cli.step_runner import BotRegistry, execute_workflow
+
+    reg = BotRegistry()
+    wf_def = {
+        "id": "test-doc-wf",
+        "name": "Test Documentation Workflow",
+        "steps": [
+            {
+                "bot": "documentation-bot",
+                "action": "generate-summary",
+                "args": {
+                    "pr_data": {
+                        "number": 80,
+                        "title": "feat: dynamic step runner",
+                        "headRefName": "feature/80-dynamic-step-runner",
+                        "baseRefName": "development",
+                        "author": {"login": "somesayray"},
+                        "body": "Implements dynamic dispatch",
+                    }
+                },
+            },
+            {
+                "bot": "documentation-bot",
+                "action": "sync-wiki",
+                "args": {"title": "Release Note 80"},
+            },
+        ],
+    }
+
+    res = execute_workflow(wf_def, reg)
+    assert res.success is True
+    assert len(res.steps) == 2
+    assert "PR #80" in res.steps[0].data["summary"]
+    assert res.steps[1].data["status"] == "ready"
+
+
+
