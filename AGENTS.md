@@ -132,3 +132,11 @@ Canonical flow, human gates, and PR templates:
 - CI: `.github/workflows/pr-workflow-guard.yml` + `enforce-promotion-path.yml`
 
 **Human review is mandatory** for merges into `staging` and `master`. Agents/bots are primary on work PRs into `development`. Testing is the last automated/agent-heavy gate before a human initiates staging.
+
+## SonarCloud Quality Gate (CRITICAL)
+
+- Canonical thresholds: **SonarCloud Quality Gate only** (do not modify gate thresholds ad hoc).
+- PR check **SonarCloud Quality Gate** is a **hard stop** on failure.
+- Docs: `docs/governance/sonarcloud-quality-gates.md`
+- Workflow: `.github/workflows/sonarcloud-quality-gate.yml`
+- Secret: `SONAR_TOKEN` (required)
