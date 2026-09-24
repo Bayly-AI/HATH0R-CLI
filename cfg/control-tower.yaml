@@ -17,9 +17,12 @@ products_catalog: cfg/products.yaml
 docker_network: hath0r-net
 brand: HATHOR
 brand_parent: Bayly AI
-group_rules: /Users/raybayly/Development/OpenSource/AGENTS.md
-group_policy: /Users/raybayly/Development/OpenSource/WARP.md
+group_rules_canonical: cfg/group/AGENTS.md
+group_policy_canonical: cfg/group/WARP.md
+group_rules: /Users/raybayly/Development/OpenSource/AGENTS.md  # materialized hub copy
+group_policy: /Users/raybayly/Development/OpenSource/WARP.md  # materialized hub copy
+group_hub_sync: scripts/sync-group-hub.sh
 membership_rule: >
   Every git repository directly under projects_location (sibling of this control
   tower) is canonically part of the OpenSource Project unless explicitly excluded.
-updated_at: 2026-09-15T18:35:00Z
+updated_at: 2026-09-19T04:50:00Z

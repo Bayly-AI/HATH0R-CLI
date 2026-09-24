@@ -1,0 +1,224 @@
+{
+  "apiVersion": "hath0r.mcp.doc-publish/v1",
+  "kind": "McpDocPublishConfig",
+  "metadata": {
+    "name": "org-mcp-doc-publish",
+    "updated": "2026-09-23",
+    "control_tower": "Bayly-AI/HATH0R-CLI"
+  },
+  "policy": {
+    "never_publish_secrets": true,
+    "credentials_root": "/Users/raybayly/Development/.credentials",
+    "private_bai_not_opensource_canonical": true,
+    "project_mcp_first": true,
+    "buckets": [
+      "knowledge",
+      "runbooks",
+      "playbooks",
+      "procedures",
+      "checklists",
+      "strategies",
+      "workflows",
+      "rules",
+      "plans",
+      "lessons-learned"
+    ]
+  },
+  "groups": {
+    "hath0r": {
+      "label": "Hath0r / OpenSource",
+      "mcp": {
+        "product_id": "hath0r-mcp",
+        "github": "Bayly-AI/HATH0R-MCP",
+        "local_path": "/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase",
+        "fallback_local_paths": [],
+        "canonical_root": "canonical",
+        "notes": "Until a dedicated HATH0R-MCP repo exists, OpenSource group hub KB is the Hath0r MCP doc surface. Do not publish OpenSource docs into 1-Nation-MCP checkouts."
+      },
+      "doc_sources": [
+        {
+          "path": "/Users/raybayly/Development/OpenSource/hath0r/docs",
+          "glob": "**/*.md",
+          "sensitivity": "opensource"
+        },
+        {
+          "path": "/Users/raybayly/Development/OpenSource/HATH0R-CLI/docs",
+          "glob": "**/*.md",
+          "sensitivity": "opensource"
+        },
+        {
+          "path": "/Users/raybayly/Development/OpenSource/HATH0R-CLI/AGENTS.md",
+          "glob": null,
+          "sensitivity": "opensource",
+          "bucket_force": "rules"
+        },
+        {
+          "path": "/Users/raybayly/Development/OpenSource/HATH0R-CLI/cfg/group",
+          "glob": "**/*.md",
+          "sensitivity": "opensource",
+          "bucket_force": "rules"
+        },
+        {
+          "path": "/Users/raybayly/Development/OpenSource/hath0r-atc/docs",
+          "glob": "**/*.md",
+          "sensitivity": "opensource"
+        },
+        {
+          "path": "/Users/raybayly/Development/OpenSource/hath0r-poc/docs",
+          "glob": "**/*.md",
+          "sensitivity": "opensource"
+        }
+      ]
+    },
+    "bai": {
+      "label": "BAI",
+      "mcp": {
+        "product_id": "bai-mcp",
+        "github": "Bayly-AI/BAI-MCP",
+        "local_path": "/Users/raybayly/Development/BAI/MCP",
+        "canonical_root": "knowledgebase/canonical"
+      },
+      "doc_sources": [
+        {
+          "path": "/Users/raybayly/Development/BAI/MCP/docs",
+          "glob": "**/*.md",
+          "sensitivity": "private"
+        },
+        {
+          "path": "/Users/raybayly/Development/BAI/UXP/docs",
+          "glob": "**/*.md",
+          "sensitivity": "private"
+        },
+        {
+          "path": "/Users/raybayly/Development/BAI/UXP/AGENTS.md",
+          "glob": null,
+          "sensitivity": "private",
+          "bucket_force": "rules"
+        },
+        {
+          "path": "/Users/raybayly/Development/BAI/MCP/AGENTS.md",
+          "glob": null,
+          "sensitivity": "private",
+          "bucket_force": "rules"
+        }
+      ]
+    },
+    "1-nation": {
+      "label": "1-Nation",
+      "mcp": {
+        "product_id": "1-nation-mcp",
+        "github": "Bayly-AI/1-Nation-MCP",
+        "local_path": "/Users/raybayly/Development/1-Nation/MCP",
+        "canonical_root": "knowledgebase/canonical"
+      },
+      "doc_sources": [
+        {
+          "path": "/Users/raybayly/Development/1-Nation/MCP/docs",
+          "glob": "**/*.md",
+          "sensitivity": "private"
+        },
+        {
+          "path": "/Users/raybayly/Development/1-Nation/UXP/docs",
+          "glob": "**/*.md",
+          "sensitivity": "private"
+        },
+        {
+          "path": "/Users/raybayly/Development/1-Nation/ATC/docs",
+          "glob": "**/*.md",
+          "sensitivity": "private"
+        },
+        {
+          "path": "/Users/raybayly/Development/1-Nation/MCP/AGENTS.md",
+          "glob": null,
+          "sensitivity": "private",
+          "bucket_force": "rules"
+        },
+        {
+          "path": "/Users/raybayly/Development/1-Nation/UXP/AGENTS.md",
+          "glob": null,
+          "sensitivity": "private",
+          "bucket_force": "rules"
+        },
+        {
+          "path": "/Users/raybayly/Development/1-Nation/ATC/AGENTS.md",
+          "glob": null,
+          "sensitivity": "private",
+          "bucket_force": "rules"
+        }
+      ]
+    }
+  },
+  "classification": {
+    "rules": [
+      {
+        "match": [
+          "playbook"
+        ],
+        "bucket": "playbooks"
+      },
+      {
+        "match": [
+          "runbook"
+        ],
+        "bucket": "runbooks"
+      },
+      {
+        "match": [
+          "checklist"
+        ],
+        "bucket": "checklists"
+      },
+      {
+        "match": [
+          "procedure"
+        ],
+        "bucket": "procedures"
+      },
+      {
+        "match": [
+          "strategy"
+        ],
+        "bucket": "strategies"
+      },
+      {
+        "match": [
+          "workflow"
+        ],
+        "bucket": "workflows"
+      },
+      {
+        "match": [
+          "lesson"
+        ],
+        "bucket": "lessons-learned"
+      },
+      {
+        "match": [
+          "plan",
+          "adr"
+        ],
+        "bucket": "plans"
+      },
+      {
+        "match": [
+          "agents.md",
+          "warp.md",
+          "rules",
+          "codeowners"
+        ],
+        "bucket": "rules"
+      }
+    ],
+    "default_bucket": "knowledge"
+  },
+  "excludes": [
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/.credentials/**",
+    "**/*.env",
+    "**/*secret*",
+    "**/*credential*"
+  ]
+}

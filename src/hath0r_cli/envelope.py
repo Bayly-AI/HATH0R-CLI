@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-
 RESPONSE_SCHEMA = "hath0r.cli.response/1"
 VALID_STATES = frozenset({"ok", "degraded", "unavailable", "error"})
 VALID_SEVERITIES = frozenset({"error", "warning", "info"})
@@ -17,6 +16,7 @@ class ResponseMeta:
 
     cli_version: str
     duration_ms: int
+    dry_run: bool | None = None
 
 
 @dataclass
@@ -63,6 +63,9 @@ class CliResponse:
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dict suitable for JSON encoding."""
+        meta_dict = None
+        if self.meta is not None:
+            meta_dict = {k: v for k, v in asdict(self.meta).items() if v is not None}
         return {
             "schema": self.schema,
             "command": self.command,
@@ -70,5 +73,5 @@ class CliResponse:
             "state": self.state,
             "data": self.data,
             "diagnostics": [d.to_dict() for d in self.diagnostics],
-            "meta": asdict(self.meta) if self.meta is not None else None,
+            "meta": meta_dict,
         }

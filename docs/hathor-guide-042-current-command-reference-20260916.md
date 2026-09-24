@@ -6,10 +6,10 @@ doc_type: GUIDE
 diataxis: reference
 audience: [developer, operator, agent]
 tags: [cli, commands, reference, current-state]
-version: 0.2.0
+version: 0.2.1
 status: draft
 created: 2026-09-16
-updated: 2026-09-16
+updated: 2026-09-19
 owner: "Raymond Bayly (BaylyAI)"
 review:
   trust: unverified
@@ -35,7 +35,7 @@ sources:
 This page documents the current `hath0r` executable as implemented in
 `src/hath0r_cli/cli.py` and package version `0.2.0`.
 
-Only the four invocations on this page are current integration commands.
+The shipped integration commands on this page are current. Larger ADR-003 domain trees remain design targets until status flips to shipped in `hath0r planes`.
 Larger command trees in Framework papers are design targets, not aliases
 available in this Python CLI. Structured JSON is available via
 `--output json` (version payload is complete; doctor/kb command `data`
@@ -67,6 +67,8 @@ script.
 | `hath0r doctor` | Check group, Tower, member, and KB orientation | Text: Rich table; JSON: checks/counts payload | Exit `6` when required dependency checks fail |
 | `hath0r kb path` | Print canonical group KB path | Text: absolute path; JSON: configured/available/path | Exit `3` + `KNOWLEDGEBASE_NOT_FOUND` when directory is absent |
 | `hath0r kb products` | Print canonical suite product catalog | Text: YAML/text; JSON: normalized products | Exit `3` missing; exit `2` invalid |
+| `hath0r planes` | List ADR-003 domains with shipped/partial/planned status | Text table; JSON planes payload | — |
+| `hath0r schema` | Bounded surface schema (commands + planes + forbidden legacy) | Text list; JSON schema payload | — |
 
 Click returns usage exit `2` for invalid command/argument input. Doctor
 uses exit `6` (dependency unhealthy) when required checks fail. KB path
@@ -154,6 +156,21 @@ and emits only documented product fields (`product_id`, `product_name`,
 (`PRODUCT_CATALOG_NOT_FOUND`). Malformed/invalid catalog → exit `2`
 (`PRODUCT_CATALOG_INVALID`) — never an empty product list.
 
+
+## 7b. `hath0r planes` / `hath0r schema` (ADR-003 discovery)
+
+```sh
+hath0r planes
+hath0r --output json planes
+hath0r schema
+hath0r --output json schema --status shipped
+```
+
+These commands close the discoverability gap for the HATHOR-ADR-003 target
+tree without claiming full domain execution. Planned domains appear with
+`status: planned` and must not be invented as live verbs. Forbidden legacy
+roots/binaries (`.aegis/`, `aegis`) are listed in the JSON payload.
+
 ## 8. Environment
 
 | Variable | Default | Effect |
@@ -173,7 +190,7 @@ version, doctor, kb.path, and kb.products.
 
 Still not provided (or only partial):
 
-- command schema discovery;
+- full domain execution for planned planes (process/work/validate/…);
 - bounded collection flags;
 - complete stable diagnostic-code coverage on every failure path;
 - knowledge search/write;

@@ -118,9 +118,7 @@ def test_parse_catalog_multiple_towers(tmp_path: Path) -> None:
     assert "exactly one" in exc.value.message
 
 
-def test_kb_products_json_ok(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_products_json_ok(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     kb = tmp_path / "kb"
     _write_catalog(kb, _valid_catalog())
     monkeypatch.setenv("HATH0R_KB_PATH", str(kb))
@@ -140,9 +138,7 @@ def test_kb_products_json_ok(
     assert payload["diagnostics"] == []
 
 
-def test_kb_products_json_missing(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_products_json_missing(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("HATH0R_KB_PATH", str(tmp_path / "empty-kb"))
     (tmp_path / "empty-kb").mkdir()
     result = runner.invoke(cli.main, ["--output", "json", "kb", "products"])
@@ -153,9 +149,7 @@ def test_kb_products_json_missing(
     assert payload["diagnostics"][0]["code"] == "PRODUCT_CATALOG_NOT_FOUND"
 
 
-def test_kb_products_json_invalid(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_products_json_invalid(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     kb = tmp_path / "kb"
     _write_catalog(kb, "not: a: valid: [")
     monkeypatch.setenv("HATH0R_KB_PATH", str(kb))
@@ -166,9 +160,7 @@ def test_kb_products_json_invalid(
     assert payload["diagnostics"][0]["code"] == "PRODUCT_CATALOG_INVALID"
 
 
-def test_kb_products_text_prints_raw(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_products_text_prints_raw(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     kb = tmp_path / "kb"
     _write_catalog(kb, _valid_catalog())
     monkeypatch.setenv("HATH0R_KB_PATH", str(kb))

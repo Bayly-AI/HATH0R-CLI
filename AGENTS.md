@@ -1,7 +1,7 @@
 # AGENTS.md — HATH0R CLI (OpenSource Control Tower)
 
 > Role: **OpenSource Project control tower + operator/developer CLI (`hath0r`)** · group `hath0r-opensource`  
-> Updated: 2026-09-15
+> Updated: 2026-09-23
 
 ## Group membership (CRITICAL)
 
@@ -37,6 +37,16 @@ Group policy: `/Users/raybayly/Development/OpenSource/WARP.md`
 3. Keep member knowledgebases as **stubs**; durable group KB lives at the OpenSource hub.
 4. Do **not** treat private internal product trees (e.g. BAI/AEGIS) as OpenSource canonical sources.
 
+## CLI-First & Missing Capability Offer (CRITICAL — cr-cli-first-001)
+
+1. **CLI-First**: For any request involving a connection, MCP, workflow, factory, Docker workflow, KB path, or suite orientation, invoke **`hath0r`** (or the documented operator CLI entrypoint) rather than inventing ad-hoc scripts.
+2. **Missing Capability Offer**: If the required connection, MCP, workflow, or factory does not exist, do not silently improvise or hack workarounds. Offer to switch the task to:
+   - Creating the missing connection / MCP / workflow / factory, and
+   - Using the user's original request as the automated acceptance test of that new capability.
+   *Example*: "MCP connection missing → create MCP registration in config + re-run original request."
+3. **Session Start Checklist**: Review and follow `docs/governance/checklists/agent-session-start.md` before executing work.
+4. **Procedure & Runbook Requirement**: Require procedure/strategy/playbook/runbook before scaffolding or writing implementation code.
+
 ## Framework hidden root (CRITICAL — cr-hath0r-root-001)
 
 Use **only** `.hath0r/` for framework-created / modified / saved project metadata (including this repo’s KB stub).
@@ -54,12 +64,13 @@ Do **not** use `.ai/`, `.aegis/`, or `.infraOS/`.
 
 1. **Issue first**: create a GitHub issue before any work branch. No issue → no branch.
 2. Branch from `development` only, using:
-   `feature|bugfix|enhancement|research|fix|chore/<issue-number>-short-slug`
-   Example: `chore/3-opensource-control-tower`
-3. Open the PR with **base = `development`** (feature work never targets testing/staging/master).
+   `feature|bugfix|hotfix|enhancement|research|fix|chore/<issue-number>-short-slug`
+   Example: `chore/51-define-branch-rules`
+3. Open the PR with **base = `development`** (work never targets testing/staging/master).
 4. **Owner approval required** before merge (`@somesayray` via CODEOWNERS + branch protection).
-5. Merge into **`development` only** for feature work.
-6. Promote via `development → testing → staging → master` — do not skip stages.
+5. Merge into **`development` only** for feature/bugfix/hotfix work.
+6. Cut **`release/x.x.x`** from `development` when promoting a release train.
+7. Promote via `development`/`release/x.x.x` → `testing` → `staging` → `master` — do not skip stages.
 
 ### Canonical branches (locked)
 
@@ -68,9 +79,15 @@ Do **not** use `.ai/`, `.aegis/`, or `.infraOS/`.
 - Must not be deleted
 - Must not be used as feature/work branches
 - Must not be merged into each other except along the promotion path above
-- Branch protection: PR required, 1 approving review, code-owner review, no force-push, no deletions, `validate-promotion-path` required
+- Branch protection: PR required, 1 approving review, code-owner review, no force-push, no deletions, `validate-promotion-path` required, conversation resolution required
 
-Forbidden: feature PRs targeting `master`, `testing`, or `staging`; PRs without an issue number in the branch name; merging canonical branches sideways.
+### Release branches
+
+`release/x.x.x` — SemVer release trains only (not feature work).
+
+Forbidden: work PRs targeting `master`, `testing`, or `staging`; PRs without an issue number in the work branch name; merging canonical branches sideways.
+
+See `docs/governance/branch-rules.md`.
 
 ## Config pointers in this repo
 
@@ -92,11 +109,50 @@ local → development → testing → staging → master (Production)
 
 CI enforcement: `.github/workflows/enforce-promotion-path.yml`
 
-- PRs into `testing` must come from `development`
-- PRs into `staging` must come from `testing`
-- PRs into `master` must come from `staging`
+- PRs into `testing` must come from `development` or `release/x.x.x`
+- PRs into `staging` must come from `testing` or `release/x.x.x` (human review)
+- PRs into `master` must come from `staging` or `release/x.x.x` (human review)
 - Each stage needs deploy + URL validation before the next promote
 
 ## Credentials
 
 `/Users/raybayly/Development/.credentials/<service>/.env` — never hardcode or print secrets.
+
+## CR-HATH0R-INIT-001: Hath0r repo initialization entry gate (CRITICAL — org-wide)
+
+**Main entry statement:** Before initializing (or re-initializing) any repository with Hath0r, agents MUST:
+
+1. **Setup playbook** — Locate and follow the canonical Hath0r setup playbook:
+   - `/Users/raybayly/Development/OpenSource/hath0r/docs/developers/hathor-playbook-001-repo-init-setup-20260919.md`
+   - If the playbook is missing or incomplete, **create or update it first**, then proceed.
+2. **Same-technology runbook** — Locate a runbook for an **individual repo with the same technology stack** (e.g. React+Vite UXP, Python CLI):
+   - Prefer a sibling/product `docs/runbook.md` (or `docs/*runbook*`) in that tech family.
+   - If none exists, **create a tech-appropriate runbook in the target repo** before finishing init.
+3. Only after (1) and (2) are satisfied: apply fileset/layout, `.hath0r/`, `cfg/`, contracts pin, `AGENTS.md` identity, and `./bin/hath0r-bootstrap.sh`.
+
+Do not skip the playbook/runbook gate. Layout scaffolding without a documented ops path is incomplete initialization.
+
+## PR workflow hardening (CRITICAL)
+
+Canonical flow, human gates, and PR templates:
+
+- `docs/governance/pr-workflow.md`
+- Playbook: `docs/governance/playbooks/pr-workflow-playbook.md`
+- Templates: `.github/PULL_REQUEST_TEMPLATE/feature.md`, `release.md`
+- CI: `.github/workflows/pr-workflow-guard.yml` + `enforce-promotion-path.yml`
+
+**Human review is mandatory** for merges into `staging` and `master`. Agents/bots are primary on work PRs into `development`. Testing is the last automated/agent-heavy gate before a human initiates staging.
+
+## SonarCloud Quality Gate (CRITICAL)
+
+- Canonical thresholds: **SonarCloud Quality Gate only** (do not modify gate thresholds ad hoc).
+- PR check **SonarCloud Quality Gate** is a **hard stop** on failure.
+- Docs: `docs/governance/sonarcloud-quality-gates.md`
+- Workflow: `.github/workflows/sonarcloud-quality-gate.yml`
+- Secret: `SONAR_TOKEN` (required)
+
+## Semantic Versioning (SemVer)
+
+- Canonical source of truth: `VERSION` in repo root.
+- PRs must declare version impact (`major`, `minor`, `patch`, or `none`).
+- See `docs/governance/semantic-versioning.md` and `docs/governance/playbooks/release-runbook.md`.

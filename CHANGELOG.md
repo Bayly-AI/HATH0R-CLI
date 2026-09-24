@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Project closure report: suite multi-repo epics verification (`docs/governance/project-closure-suite-epics-2026-09-24.md`) (#112)
+- Control-tower `docs/governance/SUITE_STANDARDS.md` index for member inheritance
+- Suite standards: OpenTelemetry, OpenFeature, OpenObservation (#58–#60)
+- CLI-first governance doc (#61); workflow documentation standard + inventory (#62)
+- Docker group templates (hath0r/1-nation/bai) + workflow JSON (#63)
+- Observability/feature-flag cfg stubs under `cfg/observability` and `cfg/feature-flags`
+- Factory Manager bot CRUD: `hath0r factory create|update|delete` (#64)
+- Preflight bot: `hath0r preflight run` (#67)
+- Deploy test bot: `hath0r deploy pre|post` (#66)
+- Quality gates bot: `hath0r quality check <pr>` with Sonar hard-stop aggregate (#68)
+- Release bot: `hath0r release validate|notes|publish` (#69)
+- Docs bots: `hath0r docs wiki` and `hath0r docs share` (#70, #71)
+- `cfg/quality-gates.json`, `cfg/factories/quality-release-factory.yaml`, governance docs
+
 ## [0.2.0] — 2026-09-18
 
 First public **OpenSource release train** for the operator CLI: structured machine JSON, packaging surfaces, GitHub Release assets, and PyPI publication.
