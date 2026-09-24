@@ -206,13 +206,20 @@ def _emit_version(ctx: click.Context) -> None:
     default=False,
     help="Include live MCP server connection checks (BaylyAI, 1-Nation, Hath0r).",
 )
+@click.option(
+    "--factories",
+    "check_factories",
+    is_flag=True,
+    default=False,
+    help="Include declarative factory specification schema and bot reference checks.",
+)
 @click.pass_context
-def doctor(ctx: click.Context, check_mcp: bool) -> None:
+def doctor(ctx: click.Context, check_mcp: bool, check_factories: bool) -> None:
     """Check group paths, control tower, member repos, and KB hub presence."""
     root = _group_root()
     kb = _kb_path()
     verbose = bool(ctx.obj.get("verbose", False))
-    result = run_checks(root, kb, check_mcp=check_mcp)
+    result = run_checks(root, kb, check_mcp=check_mcp, check_factories=check_factories)
 
     diagnostics = [
         Diagnostic(
@@ -827,6 +834,125 @@ def factory_list(ctx: click.Context) -> None:
         console.print(table)
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
+@factory.command("validate")
+@click.argument("factory_id", required=False, default=None)
+@click.pass_context
+def factory_validate(ctx: click.Context, factory_id: str | None) -> None:
+    """Validate factory configurations against schema contracts and bot integrity."""
+    from hath0r_cli.factory_validation import validate_all_factories, validate_factory_file
+
+    group_root = _discover_group_root()
+    all_results = validate_all_factories(group_root)
+
+    if factory_id:
+        selected = [r for r in all_results if r.factory_id == factory_id]
+        if not selected:
+            # Check if factory_id is a file path
+            candidate_path = Path(factory_id)
+            if candidate_path.is_file():
+                selected = [validate_factory_file(candidate_path)]
+            else:
+                response = _build_response(
+                    ctx,
+                    command="factory.validate",
+                    state="error",
+                    diagnostics=[
+                        Diagnostic(
+                            severity="error",
+                            code="FACTORY_NOT_FOUND",
+                            message=f"Factory '{factory_id}' not found.",
+                        )
+                    ],
+                )
+                _emit_response(ctx, response)
+                ctx.exit(1)
+        results = selected
+    else:
+        results = all_results
+
+    all_valid = all(r.valid for r in results)
+    state = "ok" if all_valid else "error"
+
+    data = {
+        "factories": [r.to_dict() for r in results],
+        "total": len(results),
+        "valid_count": sum(1 for r in results if r.valid),
+        "invalid_count": sum(1 for r in results if not r.valid),
+    }
+
+    diagnostics: list[Diagnostic] = []
+    for r in results:
+        for err in r.errors:
+            diagnostics.append(
+                Diagnostic(
+                    code="FACTORY_VALIDATION_ERROR",
+                    message=f"[{r.factory_id}] {err}",
+                    severity="error",
+                    provenance={"component": "hath0r-cli", "operation": "factory.validate"},
+                    details={"factory_id": r.factory_id, "file": str(r.file_path)},
+                )
+            )
+        for warn in r.warnings:
+            diagnostics.append(
+                Diagnostic(
+                    code="FACTORY_VALIDATION_WARNING",
+                    message=f"[{r.factory_id}] {warn}",
+                    severity="warning",
+                    provenance={"component": "hath0r-cli", "operation": "factory.validate"},
+                    details={"factory_id": r.factory_id, "file": str(r.file_path)},
+                )
+            )
+
+    response = _build_response(ctx, command="factory.validate", state=state, data=data, diagnostics=diagnostics)
+
+    def _text() -> None:
+        table = Table(title="Factory Specification Validation")
+        table.add_column("Factory ID", style="bold cyan")
+        table.add_column("Status")
+        table.add_column("Bots", justify="right")
+        table.add_column("Workflows", justify="right")
+        table.add_column("Issues / Path")
+
+        for r in results:
+            status = "[green]VALID[/green]" if r.valid else "[red]INVALID[/red]"
+            issues = []
+            if r.errors:
+                issues.append(f"[red]{len(r.errors)} error(s)[/red]")
+            if r.warnings:
+                issues.append(f"[yellow]{len(r.warnings)} warning(s)[/yellow]")
+            issue_str = ", ".join(issues) if issues else "[dim]OK[/dim]"
+
+            table.add_row(
+                r.factory_id,
+                status,
+                str(r.bots_count),
+                str(r.workflows_count),
+                issue_str,
+            )
+        console.print(table)
+
+        for r in results:
+            if not r.valid:
+                console.print(f"[bold red]Errors for {r.factory_id} ({r.file_path.name}):[/bold red]")
+                for err in r.errors:
+                    console.print(f"  [red]✗[/red] {err}")
+            if r.warnings:
+                console.print(f"[bold yellow]Warnings for {r.factory_id}:[/bold yellow]")
+                for warn in r.warnings:
+                    console.print(f"  [yellow]![/yellow] {warn}")
+
+        if all_valid:
+            console.print(f"[green]All {len(results)} factory specification(s) validated successfully.[/green]")
+        else:
+            console.print(
+                f"[red]{data['invalid_count']} of {data['total']} factory specification(s) failed validation.[/red]"
+            )
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not all_valid:
+        ctx.exit(1)
 
 
 @factory.command("run")

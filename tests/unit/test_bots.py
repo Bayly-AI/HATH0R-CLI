@@ -63,3 +63,56 @@ def test_documentation_bot_summary() -> None:
     })
     assert "# PR #54: chore: sync" in summary
     assert "@somesayray" in summary
+
+
+def test_cli_factory_validate_all() -> None:
+    runner = CliRunner(mix_stderr=False)
+    res = runner.invoke(cli.main, ["--output", "json", "factory", "validate"])
+    assert res.exit_code == 0
+    data = json.loads(res.stdout)
+    assert data["state"] == "ok"
+    assert data["data"]["total"] >= 1
+    assert data["data"]["valid_count"] >= 1
+    assert data["data"]["invalid_count"] == 0
+
+
+def test_cli_factory_validate_specific() -> None:
+    runner = CliRunner(mix_stderr=False)
+    res = runner.invoke(cli.main, ["--output", "text", "factory", "validate", "pr-and-branch-lifecycle-factory"])
+    assert res.exit_code == 0
+    assert "VALID" in res.stdout
+
+
+def test_cli_factory_validate_invalid(tmp_path) -> None:
+    import yaml
+
+    bad_factory = tmp_path / "bad-factory.yaml"
+    bad_factory.write_text(
+        yaml.dump({
+            "factory_id": "bad-factory",
+            "name": "Bad Factory",
+            "version": "1.0.0",
+            "bots": [
+                {"id": "bot-a", "name": "Bot A", "capabilities": ["do-a"]}
+            ],
+            "workflows": [
+                {
+                    "id": "wf-1",
+                    "name": "WF 1",
+                    "steps": [
+                        {"bot": "nonexistent-bot", "action": "do-unknown"}
+                    ]
+                }
+            ]
+        }),
+        encoding="utf-8"
+    )
+
+    runner = CliRunner(mix_stderr=False)
+    res = runner.invoke(cli.main, ["--output", "json", "factory", "validate", str(bad_factory)])
+    assert res.exit_code == 1
+    data = json.loads(res.stdout)
+    assert data["state"] == "error"
+    assert data["data"]["invalid_count"] == 1
+    assert any("references undeclared bot 'nonexistent-bot'" in d["message"] for d in data["diagnostics"])
+
