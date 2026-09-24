@@ -1035,11 +1035,12 @@ def factory_run(
     ctx: click.Context, factory_id: str, workflow_id: str | None, repo: str | None, dry_run: bool
 ) -> None:
     """Execute workflows defined in a factory."""
+    import uuid
     from pathlib import Path
 
     import yaml
 
-    from hath0r_cli.step_runner import BotRegistry, execute_workflow
+    from hath0r_cli.step_runner import BotRegistry, execute_workflow, spool_telemetry_event
 
     cli_repo_root = Path(__file__).resolve().parents[2]
     group_root = _discover_group_root() or cli_repo_root
@@ -1092,13 +1093,14 @@ def factory_run(
             ctx.exit(1)
         workflows = target_wfs
 
+    run_id = f"run_{uuid.uuid4().hex[:12]}"
     registry = BotRegistry(cwd=cli_repo_root)
 
     wf_results = []
     diagnostics = []
 
     for wf in workflows:
-        wf_res = execute_workflow(wf, registry, repo=repo, dry_run=dry_run)
+        wf_res = execute_workflow(wf, registry, repo=repo, dry_run=dry_run, run_id=run_id)
         wf_results.append(wf_res.to_dict())
         for st in wf_res.steps:
             if not st.success:
@@ -1108,12 +1110,31 @@ def factory_run(
                         message=f"[{wf_res.workflow_id}::{st.bot_id}] {st.error or 'Step execution failed'}",
                         severity="error",
                         provenance={"component": "hath0r-cli", "operation": "factory.run"},
-                        details={"factory_id": factory_id, "workflow": wf_res.workflow_id, "bot": st.bot_id},
+                        details={
+                            "factory_id": factory_id,
+                            "workflow": wf_res.workflow_id,
+                            "bot": st.bot_id,
+                            "policy": st.policy,
+                            "aborted": st.aborted,
+                        },
                     )
                 )
 
     all_success = len(diagnostics) == 0
     state = "ok" if all_success else "error"
+
+    # Spool execution telemetry event (never blocks or errors CLI)
+    spool_telemetry_event(
+        event_type="factory.execution",
+        payload={
+            "run_id": run_id,
+            "factory_id": factory_id,
+            "state": state,
+            "dry_run": dry_run,
+            "workflows": wf_results,
+        },
+        base_dir=group_root,
+    )
 
     response = _build_response(
         ctx,
@@ -1121,6 +1142,7 @@ def factory_run(
         state=state,
         dry_run=dry_run,
         data={
+            "run_id": run_id,
             "factory_id": factory_id,
             "dry_run": dry_run,
             "workflows": wf_results,

@@ -129,6 +129,19 @@
                 "args": {
                   "type": "object",
                   "description": "Optional key-value arguments for the action."
+                },
+                "on_failure": {
+                  "type": "string",
+                  "enum": ["continue", "abort", "retry"],
+                  "default": "abort",
+                  "description": "Failure policy when the step errors: continue, abort (default), or retry."
+                },
+                "retry_count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 5,
+                  "default": 2,
+                  "description": "Maximum number of retry attempts when on_failure is set to retry."
                 }
               }
             }

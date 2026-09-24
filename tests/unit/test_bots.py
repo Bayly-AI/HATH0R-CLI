@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from click.testing import CliRunner
 
@@ -287,6 +288,79 @@ def test_cli_factory_run_workflow_targeting() -> None:
     err_data = json.loads(err_res.stdout)
     assert err_data["state"] == "error"
     assert any(d["code"] == "WORKFLOW_NOT_FOUND" for d in err_data.get("diagnostics", []))
+
+
+def test_execute_workflow_failure_policies(tmp_path: Path) -> None:
+    from hath0r_cli.step_runner import BotRegistry, execute_workflow
+
+    reg = BotRegistry()
+
+    # 1. Policy: abort (default)
+    wf_abort = {
+        "id": "wf-abort",
+        "name": "WF Abort",
+        "steps": [
+            {"bot": "branch-bot", "action": "fly-to-mars", "on_failure": "abort"},
+            {"bot": "branch-bot", "action": "validate-name", "args": {"name": "feature/1-ok"}},
+        ],
+    }
+    res_abort = execute_workflow(wf_abort, reg)
+    assert res_abort.success is False
+    assert res_abort.aborted is True
+    # Second step should NOT have run
+    assert len(res_abort.steps) == 1
+    assert res_abort.steps[0].aborted is True
+
+    # 2. Policy: continue
+    wf_continue = {
+        "id": "wf-continue",
+        "name": "WF Continue",
+        "steps": [
+            {"bot": "branch-bot", "action": "fly-to-mars", "on_failure": "continue"},
+            {"bot": "branch-bot", "action": "validate-name", "args": {"name": "feature/1-ok"}},
+        ],
+    }
+    res_continue = execute_workflow(wf_continue, reg)
+    assert res_continue.success is False
+    assert res_continue.aborted is False
+    # Second step SHOULD have run
+    assert len(res_continue.steps) == 2
+    assert res_continue.steps[0].success is False
+    assert res_continue.steps[1].success is True
+
+    # 3. Policy: retry
+    wf_retry = {
+        "id": "wf-retry",
+        "name": "WF Retry",
+        "steps": [
+            {"bot": "branch-bot", "action": "fly-to-mars", "on_failure": "retry", "retry_count": 2},
+        ],
+    }
+    res_retry = execute_workflow(wf_retry, reg)
+    assert res_retry.success is False
+    assert res_retry.aborted is True
+    assert res_retry.steps[0].retries == 2
+
+
+def test_telemetry_spooling(tmp_path: Path) -> None:
+    from hath0r_cli.step_runner import spool_telemetry_event
+
+    spool_file = spool_telemetry_event(
+        event_type="test.event",
+        payload={"foo": "bar", "run_id": "run_123"},
+        base_dir=tmp_path,
+    )
+    assert spool_file is not None
+    assert spool_file.exists()
+    assert ".hath0r/spool" in str(spool_file)
+
+    lines = spool_file.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines) == 1
+    event_data = json.loads(lines[0])
+    assert event_data["schema"] == "hath0r.telemetry.event/1"
+    assert event_data["event_type"] == "test.event"
+    assert event_data["payload"]["run_id"] == "run_123"
+
 
 
 
