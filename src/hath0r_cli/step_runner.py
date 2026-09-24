@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import time
+import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -19,13 +21,22 @@ class StepExecutionResult:
     data: Any = None
     error: str | None = None
     dry_run: bool = False
+    policy: str = "abort"
+    retries: int = 0
+    duration_ms: int = 0
+    aborted: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         res: dict[str, Any] = {
             "bot": self.bot_id,
             "action": self.action,
             "success": self.success,
+            "policy": self.policy,
+            "retries": self.retries,
+            "duration_ms": self.duration_ms,
         }
+        if self.aborted:
+            res["aborted"] = True
         if self.dry_run:
             res["dry_run"] = True
         if self.error is not None:
@@ -43,14 +54,21 @@ class WorkflowExecutionResult:
     name: str
     success: bool
     steps: list[StepExecutionResult] = field(default_factory=list)
+    run_id: str = ""
+    aborted: bool = False
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        res: dict[str, Any] = {
             "id": self.workflow_id,
             "name": self.name,
             "success": self.success,
             "steps": [s.to_dict() for s in self.steps],
         }
+        if self.run_id:
+            res["run_id"] = self.run_id
+        if self.aborted:
+            res["aborted"] = True
+        return res
 
 
 class BotRegistry:
@@ -311,15 +329,18 @@ def execute_workflow(
     *,
     repo: str | None = None,
     dry_run: bool = False,
+    run_id: str | None = None,
 ) -> WorkflowExecutionResult:
-    """Execute all declarative steps inside a workflow."""
+    """Execute all declarative steps inside a workflow, honoring on_failure policies."""
     wf_id = workflow_def.get("id", "unnamed-workflow")
     name = workflow_def.get("name", wf_id)
     steps = workflow_def.get("steps", [])
+    active_run_id = run_id or f"run_{uuid.uuid4().hex[:12]}"
 
     results: list[StepExecutionResult] = []
     context: dict[str, Any] = {}
     all_success = True
+    aborted = False
 
     for step in steps:
         if not isinstance(step, dict):
@@ -327,22 +348,102 @@ def execute_workflow(
         bot_id = str(step.get("bot", ""))
         action = str(step.get("action", ""))
         args = step.get("args") if isinstance(step.get("args"), dict) else {}
+        on_failure = str(step.get("on_failure", "abort")).lower()
+        if on_failure not in {"continue", "abort", "retry"}:
+            on_failure = "abort"
+        max_retries = int(step.get("retry_count", 2)) if on_failure == "retry" else 0
 
-        step_res = registry.invoke(
-            bot_id=bot_id,
-            action=action,
-            args=args,
-            repo=repo,
-            dry_run=dry_run,
-            context=context,
-        )
+        t0 = time.perf_counter()
+        attempt = 0
+        step_res: StepExecutionResult | None = None
+
+        while True:
+            attempt += 1
+            step_res = registry.invoke(
+                bot_id=bot_id,
+                action=action,
+                args=args,
+                repo=repo,
+                dry_run=dry_run,
+                context=context,
+            )
+            if step_res.success or attempt > max_retries:
+                break
+
+        duration_ms = max(0, int((time.perf_counter() - t0) * 1000))
+        step_res.duration_ms = duration_ms
+        step_res.policy = on_failure
+        step_res.retries = attempt - 1
+
         results.append(step_res)
+
         if not step_res.success:
-            all_success = False
+            if on_failure == "abort":
+                all_success = False
+                aborted = True
+                step_res.aborted = True
+                break
+            elif on_failure == "continue":
+                # continue logs finding/error but workflow continues
+                all_success = False
+            else:  # retry exhausted
+                all_success = False
+                aborted = True
+                step_res.aborted = True
+                break
 
     return WorkflowExecutionResult(
         workflow_id=wf_id,
         name=name,
         success=all_success,
         steps=results,
+        run_id=active_run_id,
+        aborted=aborted,
     )
+
+
+def spool_telemetry_event(
+    event_type: str,
+    payload: dict[str, Any],
+    *,
+    base_dir: Path | None = None,
+) -> Path | None:
+    """Spool a telemetry event in append-only JSONL format to .hath0r/spool/.
+
+    Per ADR-004 and HATH0R telemetry guidelines, telemetry never blocks or fails primary execution.
+    """
+    import json
+    import os
+    from datetime import datetime, timezone
+
+    try:
+        # Determine spool dir
+        spool_dir: Path
+        if base_dir:
+            spool_dir = base_dir / ".hath0r" / "spool"
+        else:
+            group_root_env = os.environ.get("HATH0R_GROUP_ROOT")
+            if group_root_env and Path(group_root_env).is_dir():
+                spool_dir = Path(group_root_env) / ".hath0r" / "spool"
+            else:
+                spool_dir = Path.cwd() / ".hath0r" / "spool"
+
+        spool_dir.mkdir(parents=True, exist_ok=True)
+        today = datetime.now(timezone.utc).strftime("%Y%m%d")
+        spool_file = spool_dir / f"telemetry-{today}.jsonl"
+
+        event = {
+            "schema": "hath0r.telemetry.event/1",
+            "event_id": f"evt_{uuid.uuid4().hex[:12]}",
+            "event_type": event_type,
+            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "payload": payload,
+        }
+
+        with spool_file.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(event, separators=(",", ":")) + "\n")
+
+        return spool_file
+    except Exception:
+        # Telemetry is strictly never-fatal per AEG-REQ-TEL-002
+        return None
