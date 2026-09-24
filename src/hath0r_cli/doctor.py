@@ -153,13 +153,18 @@ def _product_canonical_flags(data: Any) -> dict[str, bool]:
     return out
 
 
-def run_checks(root: Path, kb: Path) -> DoctorResult:
+def run_checks(root: Path, kb: Path, check_mcp: bool = False) -> DoctorResult:
     """Evaluate all doctor checks against root and kb paths."""
     tower = root / "HATH0R-CLI"
     tower_cfg = tower / "cfg"
     expected_tower = str(tower)
+
+    framework_path = root / "hath0r"
+    if not framework_path.is_dir() and (root / "hath0r-framework").is_dir():
+        framework_path = root / "hath0r-framework"
+
     members = {
-        "framework": root / "hath0r",
+        "framework": framework_path,
         "cli": tower,
         "poc": root / "hath0r-poc",
     }
@@ -266,8 +271,7 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
         checks,
         check_id="tower-control-tower-path",
         label="tower control_tower_path",
-        ok=_file_contains(kt, expected_tower)
-        and _file_contains(tower_cfg / "suite.yaml", expected_tower),
+        ok=_file_contains(kt, expected_tower) and _file_contains(tower_cfg / "suite.yaml", expected_tower),
         ok_message="Tower configs reference the control tower path.",
         fail_message="Tower control_tower_path is mismatched.",
         path=kt,
@@ -288,9 +292,7 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
         product_id = member_product_ids[name]
         # Control tower + framework stay required. Non-canonical catalog rows
         # (e.g. archived POC) are optional local fixtures — missing is ok.
-        required = True if name in {"cli", "framework"} else canonical_flags.get(
-            product_id, True
-        )
+        required = True if name in {"cli", "framework"} else canonical_flags.get(product_id, True)
         present = _path_ok(path)
 
         if not required and not present:
@@ -299,10 +301,7 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
                 check_id=f"member-{name}",
                 label=f"member:{name}",
                 ok=True,
-                ok_message=(
-                    f"Optional member {name} is not checked out "
-                    f"(archived/non-canonical fixture; ok)."
-                ),
+                ok_message=(f"Optional member {name} is not checked out (archived/non-canonical fixture; ok)."),
                 fail_message=f"Member repository {name} is missing.",
                 path=path,
             )
@@ -321,10 +320,7 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
                     check_id=f"member-tower-pointer-{name}",
                     label=f"member tower pointer:{name}",
                     ok=True,
-                    ok_message=(
-                        f"Optional member {name} tower pointer skipped "
-                        f"(not checked out)."
-                    ),
+                    ok_message=(f"Optional member {name} tower pointer skipped (not checked out)."),
                     fail_message=f"Member {name} has no control tower pointer.",
                     path=path,
                 )
@@ -417,6 +413,20 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
         path=catalog,
         fail_state="error",
     )
+
+    if check_mcp:
+        from hath0r_cli.mcp import check_all_mcp_connections
+        for mcp_status in check_all_mcp_connections(group_root=root):
+            _add(
+                checks,
+                check_id=f"mcp-{mcp_status.server_id}",
+                label=f"mcp:{mcp_status.name}",
+                ok=mcp_status.state == "ok",
+                ok_message=f"{mcp_status.name} healthy ({mcp_status.tools_count} tools, {mcp_status.latency_ms}ms).",
+                fail_message=f"{mcp_status.name} {mcp_status.state}: {mcp_status.message}",
+                detail=f"{mcp_status.base_url} ({mcp_status.latency_ms}ms)",
+                fail_state="unavailable" if mcp_status.state == "unreachable" else "degraded",
+            )
 
     tower_configured = any(c.id == "control-tower-root" and c.state == "ok" for c in checks)
     return DoctorResult(

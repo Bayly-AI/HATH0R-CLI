@@ -12,12 +12,17 @@ Fixes #
 - [ ] **Feature/work** → base `development`
 - [ ] **Release/promotion** → base `testing`|`staging`|`master` (use release template)
 
+## Version Impact (SemVer)
+- [ ] `major` — Breaking change
+- [ ] `minor` — New feature / capability
+- [ ] `patch` — Bug fix / minor update
+- [ ] `none` — Maintenance / doc chore
+
 ## Checks
 - [ ] `validate-promotion-path`
 - [ ] CI
 - [ ] CODEOWNERS when required
 - [ ] Human gate if staging/master
 ## Quality gates
-- [ ] `validate-promotion-path` (if present)
 - [ ] CI / tests
 - [ ] **SonarCloud Quality Gate** green (hard stop if failed; do not weaken thresholds)

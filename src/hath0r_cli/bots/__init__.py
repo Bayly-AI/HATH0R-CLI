@@ -10,7 +10,6 @@ Includes:
 from __future__ import annotations
 
 import json
-import os
 import re
 import subprocess
 from dataclasses import dataclass, field
@@ -114,7 +113,7 @@ class BranchBot:
         if code != 0:
             # Try from local base if remote failed
             code, out, err = run_cmd(["git", "checkout", "-b", branch_name, base], cwd=self.cwd)
-        
+
         return {
             "success": code == 0,
             "branch": branch_name,
@@ -131,7 +130,11 @@ class PRBot:
 
     def list_prs(self, repo: Optional[str] = None, state: str = "open") -> List[Dict[str, Any]]:
         """List pull requests for repository."""
-        cmd = ["gh", "pr", "list", "--state", state, "--json", "number,title,headRefName,baseRefName,author,labels,isDraft,url"]
+        cmd = [
+            "gh", "pr", "list",
+            "--state", state,
+            "--json", "number,title,headRefName,baseRefName,author,labels,isDraft,url",
+        ]
         if repo:
             cmd.extend(["--repo", repo])
         code, out, err = run_cmd(cmd, cwd=self.cwd)
@@ -144,7 +147,10 @@ class PRBot:
 
     def check_pr_status(self, pr_number: int, repo: Optional[str] = None) -> Dict[str, Any]:
         """Check CI status, reviews, and mergeability for a PR."""
-        cmd = ["gh", "pr", "view", str(pr_number), "--json", "number,title,state,mergeable,statusCheckRollup,author,baseRefName,headRefName"]
+        cmd = [
+            "gh", "pr", "view", str(pr_number),
+            "--json", "number,title,state,mergeable,statusCheckRollup,author,baseRefName,headRefName",
+        ]
         if repo:
             cmd.extend(["--repo", repo])
         code, out, err = run_cmd(cmd, cwd=self.cwd)
@@ -189,7 +195,10 @@ class PRBot:
 
         actions_taken = []
         # Approve
-        review_cmd = ["gh", "pr", "review", str(pr_number), "--approve", "-b", "Approved by Hath0r PR Bot (automated Dependabot triage)"]
+        review_cmd = [
+            "gh", "pr", "review", str(pr_number),
+            "--approve", "-b", "Approved by Hath0r PR Bot (automated Dependabot triage)",
+        ]
         if repo:
             review_cmd.extend(["--repo", repo])
         code_rev, _, _ = run_cmd(review_cmd, cwd=self.cwd)
@@ -283,7 +292,7 @@ class GitJanitorBot:
         if remote:
             code_rem, out_rem, err_rem = run_cmd(["git", "push", "origin", "--delete", branch], cwd=self.cwd)
             results["remote"] = code_rem == 0
-        
+
         # Delete local if exists
         code_loc, _, _ = run_cmd(["git", "branch", "-D", branch], cwd=self.cwd)
         results["local"] = code_loc == 0

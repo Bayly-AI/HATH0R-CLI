@@ -138,3 +138,9 @@ Documented in control tower `docs/governance/pr-workflow.md` (materialize via me
 2. Release train via `release/x.x.x` → `testing`.
 3. **Human initiates** staging and production promotions.
 4. Use feature vs release PR templates under `.github/PULL_REQUEST_TEMPLATE/`.
+
+## Semantic Versioning (SemVer)
+
+- Canonical source of truth: `VERSION` in repo root.
+- PRs must declare version impact (`major`, `minor`, `patch`, or `none`).
+- See `docs/governance/semantic-versioning.md` and `docs/governance/playbooks/release-runbook.md`.

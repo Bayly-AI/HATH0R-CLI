@@ -33,18 +33,14 @@ def test_doctor_degraded_maps_to_exit_6(
     assert payload["state"] == "degraded"
 
 
-def test_not_found_maps_to_exit_3(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_not_found_maps_to_exit_3(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("HATH0R_KB_PATH", str(tmp_path / "missing"))
     result = runner.invoke(cli.main, ["--output", "json", "--quiet", "kb", "path"])
     assert result.exit_code == 3
     assert json.loads(result.output)["state"] == "unavailable"
 
 
-def test_validation_maps_to_exit_2(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_validation_maps_to_exit_2(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     kb = tmp_path / "kb"
     (kb / "catalogs").mkdir(parents=True)
     (kb / "catalogs" / "suite-products.yaml").write_text("{]", encoding="utf-8")

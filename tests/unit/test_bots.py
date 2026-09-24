@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import json
+
 from click.testing import CliRunner
 
 from hath0r_cli import cli
-from hath0r_cli.bots import BranchBot, DocumentationBot, GitJanitorBot, PRBot
+from hath0r_cli.bots import BranchBot, DocumentationBot
 
 
 def test_branch_bot_validate_name() -> None:
