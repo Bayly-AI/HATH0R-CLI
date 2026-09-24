@@ -8,7 +8,16 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from hath0r_cli.bots import BranchBot, DockerBot, DocumentationBot, GitJanitorBot, PRBot, TaskAnnouncerBot
+from hath0r_cli.bots import (
+    BranchBot,
+    BranchGuardBot,
+    DockerBot,
+    DocumentationBot,
+    GitJanitorBot,
+    IssueGuardBot,
+    PRBot,
+    TaskAnnouncerBot,
+)
 
 
 @dataclass
@@ -78,6 +87,8 @@ class BotRegistry:
         self.cwd = cwd or Path.cwd()
         self._bots: dict[str, Any] = {
             "branch-bot": BranchBot(cwd=self.cwd),
+            "branch-guard-bot": BranchGuardBot(cwd=self.cwd),
+            "issue-guard-bot": IssueGuardBot(cwd=self.cwd),
             "pr-bot": PRBot(cwd=self.cwd),
             "git-janitor-bot": GitJanitorBot(cwd=self.cwd),
             "documentation-bot": DocumentationBot(cwd=self.cwd),
@@ -118,7 +129,11 @@ class BotRegistry:
 
         try:
             # Dispatch based on bot type and action name
-            if bot_id == "pr-bot":
+            if bot_id == "issue-guard-bot":
+                return self._dispatch_issue_guard_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
+            elif bot_id == "branch-guard-bot":
+                return self._dispatch_branch_guard_bot(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "pr-bot":
                 return self._dispatch_pr_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
             elif bot_id == "git-janitor-bot":
                 return self._dispatch_janitor_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
@@ -146,6 +161,114 @@ class BotRegistry:
                 error=f"Exception during step execution: {exc}",
                 dry_run=dry_run,
             )
+
+    def _dispatch_issue_guard_bot(
+        self,
+        bot: IssueGuardBot,
+        action: str,
+        args: dict[str, Any],
+        repo: str | None,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        target_repo = args.get("repo") or repo
+        if action in ("verify-issue", "verify"):
+            issue_num = int(args.get("issue_number") or context.get("issue_number") or 0)
+            res = bot.verify_issue(issue_num, repo=target_repo, dry_run=dry_run)
+            if res.get("success") and res.get("issue_number"):
+                context["issue_number"] = res["issue_number"]
+            return StepExecutionResult(
+                bot_id="issue-guard-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+
+        elif action in ("create-issue", "create"):
+            title = args.get("title", "")
+            body = args.get("body")
+            labels = args.get("labels")
+            res = bot.create_issue(title, body=body, labels=labels, repo=target_repo, dry_run=dry_run)
+            if res.get("issue_number"):
+                context["issue_number"] = res["issue_number"]
+            return StepExecutionResult(
+                bot_id="issue-guard-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+
+        elif action in ("view-issue", "view"):
+            issue_num = int(args.get("issue_number") or context.get("issue_number") or 0)
+            res = bot.view_issue(issue_num, repo=target_repo)
+            return StepExecutionResult(
+                bot_id="issue-guard-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+
+        return StepExecutionResult(
+            bot_id="issue-guard-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for issue-guard-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_branch_guard_bot(
+        self,
+        bot: BranchGuardBot,
+        action: str,
+        args: dict[str, Any],
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("check-active-branch", "check-branch", "check"):
+            res = bot.check_active_branch()
+            if res.get("current_branch"):
+                context["branch"] = res["current_branch"]
+            # Fails if blocked on protected canonical branch
+            success = bool(res.get("success")) and not bool(res.get("blocked", False))
+            return StepExecutionResult(
+                bot_id="branch-guard-bot",
+                action=action,
+                success=success,
+                data=res,
+                error=res.get("message") if not success else None,
+                dry_run=dry_run,
+            )
+
+        elif action in ("ensure-work-branch", "ensure-branch", "ensure"):
+            issue_num = int(args.get("issue_number") or context.get("issue_number") or 0)
+            slug = args.get("slug") or context.get("slug") or "work"
+            prefix = args.get("prefix", "feature")
+            base = args.get("base", "development")
+            res = bot.ensure_work_branch(issue_num, slug, prefix=prefix, base=base, dry_run=dry_run)
+            if res.get("branch"):
+                context["branch"] = res["branch"]
+            return StepExecutionResult(
+                bot_id="branch-guard-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+
+        return StepExecutionResult(
+            bot_id="branch-guard-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for branch-guard-bot.",
+            dry_run=dry_run,
+        )
 
     def _dispatch_pr_bot(
         self,
