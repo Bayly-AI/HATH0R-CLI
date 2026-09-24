@@ -1,0 +1,83 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: pr-and-branch-lifecycle-factory
+
+factory_id: pr-and-branch-lifecycle-factory
+name: PR and Branch Lifecycle Factory
+version: 1.0.0
+description: >
+  Autonomous factory managing branch creation and validation, PR lifecycles,
+  Dependabot automated triage, stale branch janitorial pruning, and PR documentation
+  across all organization repositories.
+
+author: Bayly-AI
+category: governance-and-automation
+
+# Orchestrated micro-bots participating in this factory
+bots:
+  - id: branch-bot
+    name: Branch Bot
+    role: branch-governance
+    description: Validates taxonomy, enforces issue-first creation, checks base branches.
+    capabilities:
+      - validate-name
+      - create-work-branch
+      - sync-base
+
+  - id: pr-bot
+    name: PR Bot
+    role: pull-request-lifecycle
+    description: Handles PR creation, checks validation, Dependabot auto-merge, and promotions.
+    capabilities:
+      - list-prs
+      - check-status
+      - process-dependabot
+      - merge-green
+
+  - id: git-janitor-bot
+    name: Git Janitor Bot
+    role: hygiene-and-cleanup
+    description: Audits non-canonical branches, flags merged/closed ones, and prunes stale refs.
+    capabilities:
+      - scan-stale
+      - prune-branches
+
+  - id: documentation-bot
+    name: Documentation Bot
+    role: knowledge-and-wiki-sync
+    description: Generates PR summaries, changelog notes, and syncs documentation to wiki.
+    capabilities:
+      - generate-summary
+      - sync-wiki
+
+# Sequential and scheduled workflows executed by this factory
+workflows:
+  - id: triage-dependabot
+    name: Triage and Process Dependabot PRs
+    schedule: "0 */2 * * *"  # Every 2 hours
+    steps:
+      - bot: pr-bot
+        action: list-prs
+        args:
+          state: open
+      - bot: pr-bot
+        action: process-dependabot
+        args:
+          auto_merge: true
+
+  - id: cleanup-stale-branches
+    name: Prune Stale & Merged Branches
+    schedule: "0 0 * * 0"  # Weekly on Sunday
+    steps:
+      - bot: git-janitor-bot
+        action: scan-stale
+      - bot: git-janitor-bot
+        action: prune-branches
+
+  - id: document-merged-prs
+    name: Document Merged PRs
+    steps:
+      - bot: documentation-bot
+        action: generate-summary
+      - bot: documentation-bot
+        action: sync-wiki
