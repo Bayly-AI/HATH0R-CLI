@@ -139,3 +139,14 @@ Canonical flow, human gates, and PR templates:
 - Docs: `docs/governance/sonarcloud-quality-gates.md`
 - Workflow: `.github/workflows/sonarcloud-quality-gate.yml`
 - Secret: `SONAR_TOKEN` (required)
+## Documentation → MCP publish (CRITICAL)
+
+| Group | MCP |
+|-------|-----|
+| Hath0r/OpenSource | Hath0r MCP / OpenSource hub |
+| BAI | BAI-MCP |
+| 1-Nation | 1-Nation-MCP |
+
+- `cfg/mcp-doc-publish.json`
+- `python3 scripts/publish-docs-to-mcp.py`
+- `docs/governance/mcp-doc-publish.md`

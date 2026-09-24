@@ -1,0 +1,17 @@
+name: Publish Docs to MCP
+"on":
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        type: boolean
+        default: true
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 -m py_compile scripts/publish-docs-to-mcp.py
+          python3 scripts/publish-docs-to-mcp.py --help
