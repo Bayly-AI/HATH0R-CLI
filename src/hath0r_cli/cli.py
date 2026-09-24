@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import time
 from datetime import datetime, timezone
@@ -2142,7 +2143,14 @@ def preflight_run(ctx: click.Context, skip_tests: bool, dry_run: bool) -> None:
         click.echo(res.get("message") or "preflight complete")
         for c in res.get("checks", []):
             icon = "✓" if c.get("ok") else "✗"
-            click.echo(f"  {icon} {c.get('check')}: {c.get('error') or c.get('message') or c.get('version') or c.get('branch') or ''}")
+            detail = (
+                c.get("error")
+                or c.get("message")
+                or c.get("version")
+                or c.get("branch")
+                or ""
+            )
+            click.echo(f"  {icon} {c.get('check')}: {detail}")
 
     _emit_response(ctx, response, text_renderer=_text)
     if not res.get("success"):
@@ -2332,7 +2340,8 @@ def docs_share(
 
     bot = DocumentationBot(cwd=Path.cwd())
     res = bot.share_knowledge(
-        summary=summary or f"Knowledge share for PR #{pr_number}" if pr_number else "Knowledge share",
+        summary=summary
+        or (f"Knowledge share for PR #{pr_number}" if pr_number else "Knowledge share"),
         pr_number=pr_number,
         repo=repo,
         target_kb=target_kb,

@@ -860,14 +860,9 @@ class BranchGuardBot:
     def check_active_branch(self) -> Dict[str, Any]:
         """Inspect current git branch and determine validity as a work branch."""
         rc, out, err = run_cmd(["git", "branch", "--show-current"], cwd=self.cwd)
-        if rc != 0 or not out.strip():
-            return {
-                "success": False,
-                "error": f"Unable to determine current branch: {err or 'detached HEAD'}",
-            }
-        current = out.strip()
+        current = out.strip() if rc == 0 else ""
         branch_bot = BranchBot(cwd=self.cwd)
-        val = branch_bot.validate_name(current)
+        val = branch_bot.validate_name(current) if current else {"valid": False, "is_work_branch": False}
 
         is_canonical = current in CANONICAL_BRANCHES
         can_work = val.get("valid", False) and val.get("is_work_branch", False)

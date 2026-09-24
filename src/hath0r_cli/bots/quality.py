@@ -462,7 +462,7 @@ class ReleaseBot:
             text = changelog.read_text(encoding="utf-8")
             # Extract section under ## [version] or ## version
             pattern = re.compile(
-                rf"^##\s*\[?{re.escape(version)}\]?.*$(.*?)(?=^##\s|\Z)",
+                rf"^##\s*\[?{re.escape(version)}\]?[^\n]*\n(.*?)(?=^##\s|\Z)",
                 re.MULTILINE | re.DOTALL,
             )
             m = pattern.search(text)
