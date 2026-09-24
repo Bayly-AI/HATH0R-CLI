@@ -1,0 +1,156 @@
+# Hath0r OpenSource Docker group (ATC-oriented template)
+# Issue: HATH0R-CLI #63 · Patterned after 1-Nation ATC deploy/docker group
+#
+# Shared edge: HATH0R-NGINX | Shared state: HATH0R-Redis
+# Apps profile: atc, mcp, uxp (images must exist locally)
+#
+#   docker compose -f cfg/docker/groups/hath0r/docker-compose.yml up -d redis nginx
+#   docker compose -f cfg/docker/groups/hath0r/docker-compose.yml --profile apps up -d
+#
+# Secrets: only via env / Development/.credentials/hath0r/.env — never commit.
+
+name: hath0r-opensource
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: HATH0R-Redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - hath0r_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      hath0r-net:
+        aliases: [HATH0R-Redis, redis, hath0r-redis]
+    labels:
+      com.hath0r.group: hath0r-opensource
+      com.hath0r.component: redis
+      com.hath0r.role: shared-state
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: HATH0R-NGINX
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "${HATH0R_NGINX_HOST_PORT:-38000}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      hath0r-net:
+        aliases: [HATH0R-NGINX, nginx, hath0r-nginx]
+    labels:
+      com.hath0r.group: hath0r-opensource
+      com.hath0r.component: nginx
+      com.hath0r.role: shared-edge
+
+  atc:
+    profiles: ["apps"]
+    image: ${HATH0R_ATC_IMAGE:-hath0r/atc:local}
+    container_name: HATH0R-ATC
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      SERVICE_NAME: hath0r-atc
+      REDIS_URL: ${REDIS_URL:-redis://HATH0R-Redis:6379/0}
+      # ATC is config manager for the group
+      HATH0R_GROUP_ROOT: ${HATH0R_GROUP_ROOT:-/workspace/OpenSource}
+    ports:
+      - "${HATH0R_ATC_HOST_PORT:-38081}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      hath0r-net:
+        aliases: [HATH0R-ATC, atc, hath0r-atc]
+    labels:
+      com.hath0r.group: hath0r-opensource
+      com.hath0r.component: atc
+      com.hath0r.role: config-manager
+
+  mcp:
+    profiles: ["apps"]
+    image: ${HATH0R_MCP_IMAGE:-hath0r/mcp:local}
+    container_name: HATH0R-MCP
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      SERVICE_NAME: hath0r-mcp
+      REDIS_URL: ${REDIS_URL:-redis://HATH0R-Redis:6379/1}
+      JEV_MODE: ${JEV_MODE:-off}
+    ports:
+      - "${HATH0R_MCP_HOST_PORT:-38083}:8083"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8083/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+    networks:
+      hath0r-net:
+        aliases: [HATH0R-MCP, mcp, hath0r-mcp]
+    labels:
+      com.hath0r.group: hath0r-opensource
+      com.hath0r.component: mcp
+      com.hath0r.role: knowledge-mcp
+
+  uxp:
+    profiles: ["apps"]
+    image: ${HATH0R_UXP_IMAGE:-hath0r/uxp:local}
+    container_name: HATH0R-UXP
+    restart: unless-stopped
+    depends_on:
+      nginx:
+        condition: service_started
+      mcp:
+        condition: service_started
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      SERVICE_NAME: hath0r-uxp
+      MCP_BASE_URL: ${MCP_BASE_URL:-http://HATH0R-MCP:8083}
+      REDIS_URL: ${REDIS_URL:-redis://HATH0R-Redis:6379/2}
+    ports:
+      - "${HATH0R_UXP_HOST_PORT:-38080}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      hath0r-net:
+        aliases: [HATH0R-UXP, uxp, hath0r-uxp]
+    labels:
+      com.hath0r.group: hath0r-opensource
+      com.hath0r.component: uxp
+      com.hath0r.role: experience
+
+volumes:
+  hath0r_redis_data:
+    name: hath0r_redis_data
+
+networks:
+  hath0r-net:
+    name: hath0r-net
