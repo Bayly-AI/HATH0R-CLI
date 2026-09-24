@@ -153,7 +153,7 @@ def _product_canonical_flags(data: Any) -> dict[str, bool]:
     return out
 
 
-def run_checks(root: Path, kb: Path, check_mcp: bool = False) -> DoctorResult:
+def run_checks(root: Path, kb: Path, check_mcp: bool = False, check_factories: bool = False) -> DoctorResult:
     """Evaluate all doctor checks against root and kb paths."""
     tower = root / "HATH0R-CLI"
     tower_cfg = tower / "cfg"
@@ -426,6 +426,24 @@ def run_checks(root: Path, kb: Path, check_mcp: bool = False) -> DoctorResult:
                 fail_message=f"{mcp_status.name} {mcp_status.state}: {mcp_status.message}",
                 detail=f"{mcp_status.base_url} ({mcp_status.latency_ms}ms)",
                 fail_state="unavailable" if mcp_status.state == "unreachable" else "degraded",
+            )
+
+    if check_factories:
+        from hath0r_cli.factory_validation import validate_all_factories
+        factory_results = validate_all_factories(group_root=root)
+        for fr in factory_results:
+            _add(
+                checks,
+                check_id=f"factory-{fr.factory_id}",
+                label=f"factory:{fr.name}",
+                ok=fr.valid,
+                ok_message=(
+                    f"Factory '{fr.name}' specification is valid "
+                    f"({fr.bots_count} bots, {fr.workflows_count} workflows)."
+                ),
+                fail_message=f"Factory '{fr.name}' specification is invalid: {'; '.join(fr.errors)}",
+                detail=str(fr.file_path),
+                fail_state="error",
             )
 
     tower_configured = any(c.id == "control-tower-root" and c.state == "ok" for c in checks)
