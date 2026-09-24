@@ -41,3 +41,8 @@ cd BAI/MCP && PYTHONPATH=src pytest tests/unit/test_jev_tool_guard.py -q --no-co
 cd OpenSource/hath0r-mcp && PYTHONPATH=src pytest tests/unit/test_jev_tool_guard.py -q --no-cov
 cd 1-Nation/MCP && PYTHONPATH=src pytest tests/unit/test_jev_tool_guard.py -q --no-cov
 ```
+
+## Wiki & next steps
+
+- [JEV Integration Wiki](governance/jev-integration.md)
+- [Team next steps](governance/jev-next-steps.md)
