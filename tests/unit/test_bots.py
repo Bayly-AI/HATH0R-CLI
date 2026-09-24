@@ -7,7 +7,7 @@ import json
 from click.testing import CliRunner
 
 from hath0r_cli import cli
-from hath0r_cli.bots import BranchBot, DocumentationBot
+from hath0r_cli.bots import BranchBot, DocumentationBot, GitJanitorBot, PRBot
 
 
 def test_branch_bot_validate_name() -> None:
@@ -115,4 +115,51 @@ def test_cli_factory_validate_invalid(tmp_path) -> None:
     assert data["state"] == "error"
     assert data["data"]["invalid_count"] == 1
     assert any("references undeclared bot 'nonexistent-bot'" in d["message"] for d in data["diagnostics"])
+
+
+def test_dry_run_bots_safety() -> None:
+    # BranchBot
+    b_bot = BranchBot()
+    b_res = b_bot.create_branch("feature", 81, "dry-run-test", dry_run=True)
+    assert b_res["success"] is True
+    assert b_res["dry_run"] is True
+    assert "[DRY-RUN]" in b_res["action"]
+
+    # GitJanitorBot
+    j_bot = GitJanitorBot()
+    j_res = j_bot.prune_branch("feature/99-old", remote=True, dry_run=True)
+    assert j_res["success"] is True
+    assert j_res["dry_run"] is True
+    assert "[DRY-RUN]" in j_res["action"]
+
+    # PRBot merge
+    p_bot = PRBot()
+    m_res = p_bot.merge_pr(99, dry_run=True)
+    assert m_res["success"] is True
+    assert m_res["dry_run"] is True
+    assert "[DRY-RUN]" in m_res["action"]
+
+
+def test_cli_factory_run_dry_run() -> None:
+    runner = CliRunner(mix_stderr=False)
+    res = runner.invoke(
+        cli.main,
+        ["--output", "json", "factory", "run", "pr-and-branch-lifecycle-factory", "--dry-run"],
+    )
+    assert res.exit_code == 0
+    data = json.loads(res.stdout)
+    assert data["state"] == "ok"
+    assert data["data"]["dry_run"] is True
+    assert data["meta"]["dry_run"] is True
+
+
+def test_cli_janitor_prune_dry_run() -> None:
+    runner = CliRunner(mix_stderr=False)
+    res = runner.invoke(cli.main, ["--output", "json", "janitor", "prune", "--dry-run"])
+    assert res.exit_code == 0
+    data = json.loads(res.stdout)
+    assert data["state"] == "ok"
+    assert data["data"]["dry_run"] is True
+    assert data["meta"]["dry_run"] is True
+
 
