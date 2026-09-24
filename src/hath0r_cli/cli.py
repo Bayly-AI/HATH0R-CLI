@@ -115,6 +115,7 @@ def _build_response(
     state: str = "ok",
     data: dict | None = None,
     diagnostics: list[Diagnostic] | None = None,
+    dry_run: bool | None = None,
 ) -> CliResponse:
     return CliResponse(
         command=command,
@@ -122,7 +123,7 @@ def _build_response(
         state=state,
         data=data,
         diagnostics=list(diagnostics or []),
-        meta=ResponseMeta(cli_version=__version__, duration_ms=_duration_ms(ctx)),
+        meta=ResponseMeta(cli_version=__version__, duration_ms=_duration_ms(ctx), dry_run=dry_run),
     )
 
 
@@ -958,8 +959,9 @@ def factory_validate(ctx: click.Context, factory_id: str | None) -> None:
 @factory.command("run")
 @click.argument("factory_id")
 @click.option("--repo", default=None, help="Target GitHub repository (owner/repo).")
+@click.option("--dry-run", is_flag=True, default=False, help="Simulate execution without modifying git or GitHub.")
 @click.pass_context
-def factory_run(ctx: click.Context, factory_id: str, repo: str | None) -> None:
+def factory_run(ctx: click.Context, factory_id: str, repo: str | None, dry_run: bool) -> None:
     """Execute all workflows defined in a factory."""
     from pathlib import Path
 
@@ -984,7 +986,7 @@ def factory_run(ctx: click.Context, factory_id: str, repo: str | None) -> None:
             pass
 
     if not factory_file:
-        response = _build_response(ctx, command="factory.run", state="error", diagnostics=[
+        response = _build_response(ctx, command="factory.run", state="error", dry_run=dry_run, diagnostics=[
             Diagnostic(severity="error", code="FACTORY_NOT_FOUND", message=f"Factory '{factory_id}' not found.")
         ])
         _emit_response(ctx, response)
@@ -1007,7 +1009,7 @@ def factory_run(ctx: click.Context, factory_id: str, repo: str | None) -> None:
             dep_prs = [p for p in prs if "dependabot" in p.get("author", {}).get("login", "").lower()]
             triage_results = []
             for dp in dep_prs:
-                t_res = pr_bot.process_dependabot(dp["number"], repo=repo, auto_merge=True)
+                t_res = pr_bot.process_dependabot(dp["number"], repo=repo, auto_merge=True, dry_run=dry_run)
                 triage_results.append(t_res)
             wf_res["steps"].append({"action": "process-dependabot", "processed": triage_results})
 
@@ -1015,19 +1017,21 @@ def factory_run(ctx: click.Context, factory_id: str, repo: str | None) -> None:
             scan_res = janitor_bot.scan_stale_branches(repo=repo)
             pruned = []
             for b in scan_res.get("stale_branches", []):
-                p_res = janitor_bot.prune_branch(b["branch"], remote=True)
+                p_res = janitor_bot.prune_branch(b["branch"], remote=True, dry_run=dry_run)
                 pruned.append({"branch": b["branch"], "result": p_res})
             wf_res["steps"].append({"action": "prune-branches", "pruned": pruned})
 
         results.append(wf_res)
 
-    response = _build_response(ctx, command="factory.run", state="ok", data={
+    response = _build_response(ctx, command="factory.run", state="ok", dry_run=dry_run, data={
         "factory_id": factory_id,
-        "workflows": results
+        "dry_run": dry_run,
+        "workflows": results,
     })
 
     def _text() -> None:
-        click.echo(f"Executed factory '{factory_id}':")
+        prefix = "[DRY-RUN] " if dry_run else ""
+        click.echo(f"{prefix}Executed factory '{factory_id}':")
         for w in results:
             click.echo(f"  • Workflow [{w['id']}]: {w['name']}")
             for st in w["steps"]:
@@ -1110,27 +1114,127 @@ def janitor_scan(ctx: click.Context, repo: str | None) -> None:
 
 @janitor.command("prune")
 @click.option("--repo", default=None, help="Target GitHub repository (owner/repo).")
+@click.option("--dry-run", is_flag=True, default=False, help="Simulate pruning without deleting branches.")
 @click.pass_context
-def janitor_prune(ctx: click.Context, repo: str | None) -> None:
+def janitor_prune(ctx: click.Context, repo: str | None, dry_run: bool) -> None:
     """Scan and prune all merged or closed branches."""
     from hath0r_cli.bots import GitJanitorBot
     bot = GitJanitorBot()
     scan = bot.scan_stale_branches(repo=repo)
     pruned = []
     for b in scan.get("stale_branches", []):
-        res = bot.prune_branch(b["branch"], remote=True)
-        pruned.append({"branch": b["branch"], "success": res.get("success")})
+        res = bot.prune_branch(b["branch"], remote=True, dry_run=dry_run)
+        pruned.append({
+            "branch": b["branch"],
+            "success": res.get("success"),
+            "action": res.get("action"),
+        })
 
-    response = _build_response(ctx, command="janitor.prune", state="ok", data={
+    response = _build_response(ctx, command="janitor.prune", state="ok", dry_run=dry_run, data={
         "scanned": scan.get("scanned_count"),
+        "dry_run": dry_run,
         "pruned": pruned,
     })
 
     def _text() -> None:
-        click.echo(f"Pruned {len(pruned)} stale branches.")
+        prefix = "[DRY-RUN] " if dry_run else ""
+        click.echo(f"{prefix}Pruned {len(pruned)} stale branches.")
         for p in pruned:
             status = "✓" if p["success"] else "✗"
-            click.echo(f"  {status} {p['branch']}")
+            act = f" ({p['action']})" if p.get("action") else ""
+            click.echo(f"  {status} {p['branch']}{act}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+
+@main.group()
+def jev() -> None:
+    """JEV System One decision-layer status across the suite."""
+
+
+@jev.command("status")
+@click.pass_context
+def jev_status(ctx: click.Context) -> None:
+    """Report local JEV env mode and known MCP integration paths."""
+    import os
+    from pathlib import Path as P
+
+    mode = (os.environ.get("JEV_MODE") or "off").strip().lower()
+    enabled = mode in {"stub", "live"} or (os.environ.get("JEV_TOOL_GUARD_ENABLED") or "").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+        "stub",
+    }
+    key_set = bool(
+        (
+            os.environ.get("JEV_API_KEY")
+            or os.environ.get("TYPESAFE_API_KEY")
+            or os.environ.get("AUTOJEV_API_KEY")
+            or ""
+        ).strip()
+    )
+    integrations = [
+        {
+            "repo": "BAI/MCP",
+            "path": str(P.home() / "Development/BAI/MCP"),
+            "role": "full tool-guard on mutating MCP tools",
+            "modules": [
+                "src/knowledgebase/core/jev_client.py",
+                "src/knowledgebase/core/jev_tool_guard.py",
+            ],
+        },
+        {
+            "repo": "OpenSource/hath0r-mcp",
+            "path": str(P.home() / "Development/OpenSource/hath0r-mcp"),
+            "role": "tool-guard + suite_info/kb_search JEV metadata",
+            "modules": [
+                "src/knowledgebase/core/jev_client.py",
+                "src/knowledgebase/core/jev_tool_guard.py",
+            ],
+        },
+        {
+            "repo": "1-Nation/MCP",
+            "path": str(P.home() / "Development/1-Nation/MCP"),
+            "role": "tool-guard + suite_info/kb_search JEV metadata",
+            "modules": [
+                "src/knowledgebase/core/jev_client.py",
+                "src/knowledgebase/core/jev_tool_guard.py",
+            ],
+        },
+        {
+            "repo": "OpenSource/hath0r-framework",
+            "path": str(P.home() / "Development/OpenSource/hath0r-framework"),
+            "role": "canonical portable reference under lib/jev/",
+            "modules": ["lib/jev/jev_client.py", "lib/jev/jev_tool_guard.py"],
+        },
+    ]
+    for item in integrations:
+        root = P(item["path"])
+        item["present"] = (root / item["modules"][0].split("/")[0]).exists() if root.exists() else False
+        # better present check
+        item["present"] = all((root / m).is_file() for m in item["modules"]) if root.is_dir() else False
+
+    data = {
+        "local_env": {
+            "JEV_MODE": mode,
+            "enabled": enabled,
+            "api_key_configured": key_set,
+            "endpoint": os.environ.get("JEV_ENDPOINT") or "https://www.jevai.org/api/v1/decisions/tool-guard",
+            "on_error": os.environ.get("JEV_ON_ERROR") or "allow",
+        },
+        "integrations": integrations,
+        "docs": "Each MCP: docs/jev-tool-guard-poc.md — enable with JEV_MODE=stub|live",
+    }
+    response = _build_response(ctx, command="jev.status", state="ok", data=data)
+
+    def _text() -> None:
+        click.echo(f"JEV mode={mode} enabled={enabled} api_key_set={key_set}")
+        for item in integrations:
+            mark = "ok" if item["present"] else "missing"
+            click.echo(f"  [{mark}] {item['repo']}: {item['role']}")
 
     _emit_response(ctx, response, text_renderer=_text)
 

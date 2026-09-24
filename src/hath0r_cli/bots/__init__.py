@@ -102,10 +102,18 @@ class BranchBot:
         return f"{prefix}/{issue_number}-{clean_slug}"
 
     def create_branch(
-        self, prefix: str, issue_number: int, slug: str, base: str = "development"
+        self, prefix: str, issue_number: int, slug: str, base: str = "development", dry_run: bool = False
     ) -> Dict[str, Any]:
         """Create and checkout branch from specified base (default: development)."""
         branch_name = self.format_branch_name(prefix, issue_number, slug)
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "branch": branch_name,
+                "base": base,
+                "action": f"[DRY-RUN] Would checkout branch '{branch_name}' from '{base}'",
+            }
         # Fetch base
         run_cmd(["git", "fetch", "origin", base], cwd=self.cwd)
         # Checkout new branch
@@ -161,7 +169,9 @@ class PRBot:
         except Exception as exc:
             return {"error": str(exc), "pr_number": pr_number}
 
-    def process_dependabot(self, pr_number: int, repo: Optional[str] = None, auto_merge: bool = True) -> Dict[str, Any]:
+    def process_dependabot(
+        self, pr_number: int, repo: Optional[str] = None, auto_merge: bool = True, dry_run: bool = False
+    ) -> Dict[str, Any]:
         """Triage, validate, and optionally auto-merge Dependabot PRs."""
         status = self.check_pr_status(pr_number, repo=repo)
         if "error" in status:
@@ -194,6 +204,18 @@ class PRBot:
             }
 
         actions_taken = []
+        if dry_run:
+            actions_taken.append("[DRY-RUN] Would approve PR")
+            if auto_merge:
+                actions_taken.append("[DRY-RUN] Would enable auto-merge")
+            return {
+                "pr_number": pr_number,
+                "is_dependabot": True,
+                "dry_run": True,
+                "actions": actions_taken,
+                "status": "dry-run",
+            }
+
         # Approve
         review_cmd = [
             "gh", "pr", "review", str(pr_number),
@@ -220,8 +242,17 @@ class PRBot:
             "status": "processed",
         }
 
-    def merge_pr(self, pr_number: int, repo: Optional[str] = None, admin: bool = False) -> Dict[str, Any]:
+    def merge_pr(
+        self, pr_number: int, repo: Optional[str] = None, admin: bool = False, dry_run: bool = False
+    ) -> Dict[str, Any]:
         """Merge PR safely."""
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "pr_number": pr_number,
+                "action": f"[DRY-RUN] Would merge PR #{pr_number}{' with --admin' if admin else ''}",
+            }
         cmd = ["gh", "pr", "merge", str(pr_number), "--merge"]
         if admin:
             cmd.append("--admin")
@@ -282,10 +313,18 @@ class GitJanitorBot:
             "stale_branches": stale,
         }
 
-    def prune_branch(self, branch: str, remote: bool = True) -> Dict[str, Any]:
+    def prune_branch(self, branch: str, remote: bool = True, dry_run: bool = False) -> Dict[str, Any]:
         """Safely delete branch locally and/or remotely."""
         if branch in CANONICAL_BRANCHES:
             return {"success": False, "branch": branch, "error": "Cannot delete canonical branch"}
+
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "branch": branch,
+                "action": f"[DRY-RUN] Would prune branch '{branch}' (remote={remote})",
+            }
 
         results = {}
         # Delete remote
