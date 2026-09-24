@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Suite standards: OpenTelemetry, OpenFeature, OpenObservation (#58–#60)
+- CLI-first governance doc (#61); workflow documentation standard + inventory (#62)
+- Docker group templates (hath0r/1-nation/bai) + workflow JSON (#63)
+- Observability/feature-flag cfg stubs under `cfg/observability` and `cfg/feature-flags`
+
+
+### Added
+
 - Factory Manager bot CRUD: `hath0r factory create|update|delete` (#64)
 - Preflight bot: `hath0r preflight run` (#67)
 - Deploy test bot: `hath0r deploy pre|post` (#66)

@@ -1,0 +1,25 @@
+{
+  "apiVersion": "hath0r.observability.openobservation/v1",
+  "kind": "OpenObservationConfig",
+  "metadata": {
+    "name": "control-tower-openobservation",
+    "control_tower": "Bayly-AI/HATH0R-CLI",
+    "updated": "2026-09-24",
+    "issue": 58
+  },
+  "golden_signals": ["latency", "traffic", "errors", "saturation"],
+  "slis": [
+    {"id": "mcp.health.success_rate", "target": 0.99, "window": "24h"},
+    {"id": "mcp.tool.error_rate", "target_max": 0.05, "window": "1h"},
+    {"id": "factory.step.abort_rate", "target_max": 0.1, "window": "24h"}
+  ],
+  "event_classes": ["security", "governance", "ops", "product"],
+  "spool": {
+    "path": ".hath0r/spool",
+    "never_block": true,
+    "never_secrets": true
+  },
+  "alert_hooks": {
+    "webhook_url_env": "HATH0R_OBSERVATION_WEBHOOK_URL"
+  }
+}

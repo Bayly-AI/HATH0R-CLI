@@ -1,0 +1,5 @@
+# Default compose path referenced by Docker workflows.
+# Canonical group file:
+#   cfg/docker/groups/hath0r/docker-compose.yml
+include:
+  - path: groups/hath0r/docker-compose.yml

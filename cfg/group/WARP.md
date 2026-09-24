@@ -89,3 +89,16 @@ Do not skip the playbook/runbook gate. Layout scaffolding without a documented o
 ## PR workflow hardening
 
 See HATH0R-CLI `docs/governance/pr-workflow.md`. Feature PRs → development (agents + CODEOWNERS). Human gate before staging/master. Environments: `testing`, `staging`, `production`.
+
+## Suite standards (control tower)
+
+Canonical docs in HATH0R-CLI `docs/governance/`:
+
+- OpenTelemetry — `opentelemetry-standards.md` (#60)
+- OpenFeature — `openfeature-standards.md` (#59)
+- OpenObservation — `openobservation-standards.md` (#58)
+- CLI-first — `cli-first-rules.md` (#61) + root `AGENTS.md`
+- Workflow documentation set — `workflow-documentation-standard.md` (#62)
+- Docker groups — `docker-group-standard.md` + `cfg/docker/groups/*` (#63)
+
+Member repos inherit by reference; copy `cfg/observability` / `cfg/feature-flags` stubs when instrumenting services.
