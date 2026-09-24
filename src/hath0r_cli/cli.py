@@ -199,13 +199,20 @@ def _emit_version(ctx: click.Context) -> None:
 
 
 @main.command()
+@click.option(
+    "--mcp",
+    "check_mcp",
+    is_flag=True,
+    default=False,
+    help="Include live MCP server connection checks (BaylyAI, 1-Nation, Hath0r).",
+)
 @click.pass_context
-def doctor(ctx: click.Context) -> None:
+def doctor(ctx: click.Context, check_mcp: bool) -> None:
     """Check group paths, control tower, member repos, and KB hub presence."""
     root = _group_root()
     kb = _kb_path()
     verbose = bool(ctx.obj.get("verbose", False))
-    result = run_checks(root, kb)
+    result = run_checks(root, kb, check_mcp=check_mcp)
 
     diagnostics = [
         Diagnostic(
@@ -437,6 +444,12 @@ _ADR003_PLANES = [
         "status": "planned",
         "notes": "continuous validation system",
     },
+    {
+        "id": "mcp",
+        "commands": ["mcp list", "mcp check", "mcp call"],
+        "status": "shipped",
+        "notes": "MCP connection management, live probe, and tool execution (BaylyAI, 1-Nation, Hath0r)",
+    },
 ]
 
 _SHIPPED_COMMANDS = [
@@ -480,6 +493,27 @@ _SHIPPED_COMMANDS = [
         "invocation": ["hath0r planes"],
         "status": "shipped",
         "effects": "read_only",
+        "output_kind": "data",
+    },
+    {
+        "name": "mcp.list",
+        "invocation": ["hath0r mcp list"],
+        "status": "shipped",
+        "effects": "read_only",
+        "output_kind": "data",
+    },
+    {
+        "name": "mcp.check",
+        "invocation": ["hath0r mcp check"],
+        "status": "shipped",
+        "effects": "read_only",
+        "output_kind": "data",
+    },
+    {
+        "name": "mcp.call",
+        "invocation": ["hath0r mcp call"],
+        "status": "shipped",
+        "effects": "interactive",
         "output_kind": "data",
     },
 ]
@@ -580,6 +614,160 @@ def schema(ctx: click.Context, status_filter: str) -> None:
             click.echo(f"  - {plane['id']}: {plane['status']}")
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
+# ============================================================================
+# MCP (Model Context Protocol) Connection Plane
+# ============================================================================
+
+@main.group()
+def mcp() -> None:
+    """Model Context Protocol (MCP) server connections and tool operations."""
+
+
+@mcp.command("list")
+@click.pass_context
+def mcp_list(ctx: click.Context) -> None:
+    """List configured MCP servers (BaylyAI, 1-Nation, Hath0r)."""
+    from hath0r_cli.mcp import load_mcp_connections
+
+    root = _discover_group_root()
+    servers = load_mcp_connections(root)
+    response = _build_response(
+        ctx,
+        command="mcp.list",
+        state="ok",
+        data={"servers": servers, "count": len(servers)},
+    )
+
+    def _text() -> None:
+        table = Table(title="Configured MCP Servers")
+        table.add_column("ID", style="bold cyan")
+        table.add_column("Name", style="green")
+        table.add_column("Group", style="magenta")
+        table.add_column("Transport", style="blue")
+        table.add_column("Base URL", style="yellow")
+        table.add_column("Enabled")
+        for s in servers:
+            table.add_row(
+                s.get("id", ""),
+                s.get("name", ""),
+                s.get("group", ""),
+                s.get("transport", ""),
+                s.get("base_url", ""),
+                "[green]yes[/green]" if s.get("enabled", True) else "[red]no[/red]",
+            )
+        console.print(table)
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@mcp.command("check")
+@click.option("--timeout", default=2.5, type=float, help="Probe timeout in seconds per server.")
+@click.pass_context
+def mcp_check(ctx: click.Context, timeout: float) -> None:
+    """Verify live connectivity and tool discovery across all MCP connections."""
+    from hath0r_cli.mcp import check_all_mcp_connections
+
+    root = _discover_group_root()
+    results = check_all_mcp_connections(group_root=root, timeout=timeout)
+
+    all_ok = all(r.state == "ok" for r in results)
+    state = "ok" if all_ok else ("degraded" if any(r.state == "ok" for r in results) else "error")
+
+    data = {
+        "servers": [r.to_dict() for r in results],
+        "total": len(results),
+        "ok_count": sum(1 for r in results if r.state == "ok"),
+        "failed_count": sum(1 for r in results if r.state != "ok"),
+    }
+
+    diagnostics: list[Diagnostic] = []
+    for r in results:
+        if r.state != "ok":
+            diagnostics.append(
+                Diagnostic(
+                    code="MCP_CONNECTION_FAILED",
+                    message=f"MCP server '{r.name}' failed check: {r.message}",
+                    severity="warning" if r.state == "degraded" else "error",
+                    remediation=f"Ensure {r.name} container or process is running at {r.base_url}.",
+                    provenance={"component": "hath0r-cli", "operation": "mcp.check"},
+                    details={"server_id": r.server_id, "url": r.base_url},
+                )
+            )
+
+    response = _build_response(ctx, command="mcp.check", state=state, data=data, diagnostics=diagnostics)
+
+    def _text() -> None:
+        table = Table(title="MCP Server Connection Health")
+        table.add_column("Server", style="bold cyan")
+        table.add_column("Status")
+        table.add_column("Latency")
+        table.add_column("Tools", justify="right")
+        table.add_column("Endpoint / Detail")
+
+        for r in results:
+            if r.state == "ok":
+                status = "[green]OK[/green]"
+            elif r.state == "degraded":
+                status = "[yellow]DEGRADED[/yellow]"
+            else:
+                status = "[red]UNREACHABLE[/red]"
+
+            table.add_row(
+                r.name,
+                status,
+                f"{r.latency_ms}ms",
+                str(r.tools_count),
+                r.base_url if r.state == "ok" else r.message,
+            )
+        console.print(table)
+        if all_ok:
+            console.print("[green]All MCP connections active and responding.[/green]")
+        else:
+            msg = f"{data['failed_count']} of {data['total']} MCP server(s) degraded or unreachable."
+            console.print(f"[yellow]{msg}[/yellow]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not all_ok and state == "error":
+        raise SystemExit(6)
+
+
+@mcp.command("call")
+@click.argument("server_id")
+@click.argument("tool_name")
+@click.option("--args", "json_args", default="{}", help="Tool arguments as JSON string.")
+@click.pass_context
+def mcp_call(ctx: click.Context, server_id: str, tool_name: str, json_args: str) -> None:
+    """Execute an MCP tool on a specified server."""
+    import json
+
+    from hath0r_cli.mcp import call_mcp_tool
+
+    try:
+        parsed_args = json.loads(json_args)
+    except Exception as exc:
+        raise click.BadParameter(f"Invalid JSON in --args: {exc}")
+
+    root = _discover_group_root()
+    try:
+        result = call_mcp_tool(server_id, tool_name, arguments=parsed_args, group_root=root)
+        response = _build_response(
+            ctx,
+            command="mcp.call",
+            state="ok",
+            data={"server_id": server_id, "tool": tool_name, "result": result},
+        )
+
+        def _text() -> None:
+            click.echo(json.dumps(result, indent=2))
+
+        _emit_response(ctx, response, text_renderer=_text)
+    except Exception as exc:
+        diag = [Diagnostic(code="MCP_CALL_FAILED", message=str(exc), severity="error")]
+        response = _build_response(ctx, command="mcp.call", state="error", diagnostics=diag)
+        _emit_response(ctx, response)
+        ctx.exit(1)
 
 
 if __name__ == "__main__":

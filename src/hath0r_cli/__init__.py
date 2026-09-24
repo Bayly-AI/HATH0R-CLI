@@ -5,7 +5,7 @@ from __future__ import annotations
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
-_FALLBACK_VERSION = "0.2.0"
+_FALLBACK_VERSION = "0.3.0"
 
 
 def _package_version() -> str:
