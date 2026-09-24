@@ -8,7 +8,7 @@
 # AGENTS.md — OpenSource Project (group `hath0r-opensource`)
 
 > Group control rules for every product under `/Users/raybayly/Development/OpenSource`  
-> Updated: 2026-09-19
+> Updated: 2026-09-23
 
 ## Identity (CRITICAL)
 
@@ -71,28 +71,42 @@ Multiple `repo:` qualifiers are OR’d. Prefer this group query over single-repo
 
 ## Branch & PR governance (CRITICAL — cr-branch-gov-001)
 
-Applies to every OpenSource Project member repo:
+Applies to every OpenSource Project member repo (and org siblings following this tower):
 
 1. **Issue first** — no GitHub issue → no work branch.
-2. Branch from **`development` only**:
-   `feature|bugfix|enhancement|research|fix|chore/<issue-number>-short-slug`
-3. Feature PRs target **`development` only** (never testing/staging/master).
-4. Owner approval required (`@somesayray` / CODEOWNERS).
-5. Promote only along: `development → testing → staging → master`.
+2. Branch from **`development` only** using a work prefix:
+   `feature|bugfix|hotfix|enhancement|research|fix|chore/<issue-number>-short-slug`
+3. **Work PRs target `development` only** (never testing/staging/master).
+4. Owner approval required (`@somesayray` / CODEOWNERS + branch protection).
+5. **Release trains** use `release/x.x.x` cut from `development` for promotion beyond development.
+6. Promote only along: `development → testing → staging → master` (via `development` and/or `release/x.x.x` heads — never feature/* into stage branches).
 
-### Canonical branches (locked)
+### Canonical branches (locked / protected)
 
-`development` (default), `testing`, `staging`, `master`
+| Branch | Role |
+|--------|------|
+| `development` | Default; only merge target for work PRs |
+| `testing` | Pre-staging; accepts `development` or `release/x.x.x` |
+| `staging` | Pre-production; human review |
+| `master` | Production; human review |
 
-Forbidden: sideways merges of canonical branches; feature PRs into non-development; branches without issue numbers.
+Protection (where GitHub plan allows): PR required, 1 approving review, code-owner review, no force-push, no deletions, required check `validate-promotion-path`, conversation resolution required.
+
+### Release branches
+
+`release/x.x.x` (SemVer) — promotion only; not day-to-day feature work.
+
+Forbidden: sideways merges of canonical branches; work PRs into non-development; branches without issue numbers; force-push/delete on locked branches.
+
+Full checklist: `docs/governance/branch-rules.md`
 
 ## Environment promotion (CRITICAL — CR-BAI-001)
 
 ```text
-local → development → testing → staging → master (Production)
+local → work branch → development → (release/x.x.x) → testing → staging → master (Production)
 ```
 
-Never skip stages. Details: `WARP.md` (this folder) and org policy when present.
+Never skip stages. Details: `WARP.md` (this folder), `docs/governance/branch-rules.md`, and CI `.github/workflows/enforce-promotion-path.yml`.
 
 ## Credentials
 
