@@ -21,7 +21,7 @@ ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 @pytest.fixture
 def runner() -> CliRunner:
-    return CliRunner(mix_stderr=False)
+    return CliRunner()
 
 
 def _parse_envelope(stdout: str) -> dict:

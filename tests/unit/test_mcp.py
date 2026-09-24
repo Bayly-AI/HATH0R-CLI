@@ -18,7 +18,7 @@ from hath0r_cli.mcp import (
 
 @pytest.fixture
 def runner() -> CliRunner:
-    return CliRunner(mix_stderr=False)
+    return CliRunner()
 
 
 def test_load_mcp_connections_returns_default_servers() -> None:
