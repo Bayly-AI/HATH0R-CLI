@@ -15,9 +15,7 @@ from hath0r_cli import __version__, cli
 from hath0r_cli.envelope import RESPONSE_SCHEMA, CliResponse, Diagnostic, ResponseMeta
 from hath0r_cli.output import emit, progress_err, resolve_output_mode
 
-RFC3339_Z = re.compile(
-    r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
-)
+RFC3339_Z = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$")
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 
@@ -185,9 +183,7 @@ def test_doctor_json_basic_envelope(runner: CliRunner, tmp_path: Path, monkeypat
     assert isinstance(payload["diagnostics"], list)
 
 
-def test_doctor_text_still_works(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_doctor_text_still_works(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     root = tmp_path / "OpenSource"
     root.mkdir()
     (root / "AGENTS.md").write_text("hath0r-opensource\n", encoding="utf-8")
@@ -199,9 +195,7 @@ def test_doctor_text_still_works(
     assert f"hath0r {__version__}" in result.output
 
 
-def test_kb_path_json_envelope(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_path_json_envelope(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     kb = tmp_path / "kb"
     kb.mkdir()
     monkeypatch.setenv("HATH0R_KB_PATH", str(kb))
@@ -213,9 +207,7 @@ def test_kb_path_json_envelope(
     assert payload["schema"] == "hath0r.cli.response/1"
 
 
-def test_kb_path_text_preserves_path(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kb_path_text_preserves_path(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     kb = tmp_path / "kb"
     kb.mkdir()
     monkeypatch.setenv("HATH0R_KB_PATH", str(kb))
@@ -224,9 +216,7 @@ def test_kb_path_text_preserves_path(
     assert str(kb) in result.output
 
 
-def test_quiet_suppresses_stderr_progress(
-    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_quiet_suppresses_stderr_progress(runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     kb = tmp_path / "kb"
     kb.mkdir()
     monkeypatch.setenv("HATH0R_KB_PATH", str(kb))

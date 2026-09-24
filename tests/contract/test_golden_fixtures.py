@@ -67,9 +67,7 @@ def test_all_required_fixtures_present() -> None:
 
 
 @pytest.mark.parametrize("name", REQUIRED_FIXTURES)
-def test_fixture_validates_against_framework_schemas(
-    name: str, envelope_validator: jsonschema.Draft7Validator
-) -> None:
+def test_fixture_validates_against_framework_schemas(name: str, envelope_validator: jsonschema.Draft7Validator) -> None:
     raw = (FIXTURES / name).read_text(encoding="utf-8")
     assert REAL_PATH_RE.search(raw) is None, f"{name} contains real home paths"
     assert "password" not in raw.lower()

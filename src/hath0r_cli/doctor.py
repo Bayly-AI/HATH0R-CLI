@@ -266,8 +266,7 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
         checks,
         check_id="tower-control-tower-path",
         label="tower control_tower_path",
-        ok=_file_contains(kt, expected_tower)
-        and _file_contains(tower_cfg / "suite.yaml", expected_tower),
+        ok=_file_contains(kt, expected_tower) and _file_contains(tower_cfg / "suite.yaml", expected_tower),
         ok_message="Tower configs reference the control tower path.",
         fail_message="Tower control_tower_path is mismatched.",
         path=kt,
@@ -288,9 +287,7 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
         product_id = member_product_ids[name]
         # Control tower + framework stay required. Non-canonical catalog rows
         # (e.g. archived POC) are optional local fixtures — missing is ok.
-        required = True if name in {"cli", "framework"} else canonical_flags.get(
-            product_id, True
-        )
+        required = True if name in {"cli", "framework"} else canonical_flags.get(product_id, True)
         present = _path_ok(path)
 
         if not required and not present:
@@ -299,10 +296,7 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
                 check_id=f"member-{name}",
                 label=f"member:{name}",
                 ok=True,
-                ok_message=(
-                    f"Optional member {name} is not checked out "
-                    f"(archived/non-canonical fixture; ok)."
-                ),
+                ok_message=(f"Optional member {name} is not checked out (archived/non-canonical fixture; ok)."),
                 fail_message=f"Member repository {name} is missing.",
                 path=path,
             )
@@ -321,10 +315,7 @@ def run_checks(root: Path, kb: Path) -> DoctorResult:
                     check_id=f"member-tower-pointer-{name}",
                     label=f"member tower pointer:{name}",
                     ok=True,
-                    ok_message=(
-                        f"Optional member {name} tower pointer skipped "
-                        f"(not checked out)."
-                    ),
+                    ok_message=(f"Optional member {name} tower pointer skipped (not checked out)."),
                     fail_message=f"Member {name} has no control tower pointer.",
                     path=path,
                 )
