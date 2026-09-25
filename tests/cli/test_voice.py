@@ -98,3 +98,14 @@ def test_voice_service_cli_lifecycle():
     assert data_stop["state"] == "ok"
     assert data_stop["data"]["status"] == "not_running"
 
+
+def test_voice_service_cli_help():
+    runner = CliRunner()
+    res = runner.invoke(main, ["voice", "service", "--help"])
+    assert res.exit_code == 0
+    assert "install" in res.output
+    assert "uninstall" in res.output
+    assert "start" in res.output
+    assert "stop" in res.output
+
+

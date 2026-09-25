@@ -1345,6 +1345,40 @@ class BotRegistry:
                 data=res,
                 dry_run=dry_run,
             )
+        elif action == "install-service":
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="voice-service-daemon-bot",
+                    action=action,
+                    success=True,
+                    data={"status": "dry_run_installed"},
+                    dry_run=True,
+                )
+            res = bot.install_os_service(ambient=bool(args.get("ambient", True)))
+            return StepExecutionResult(
+                bot_id="voice-service-daemon-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action == "uninstall-service":
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="voice-service-daemon-bot",
+                    action=action,
+                    success=True,
+                    data={"status": "dry_run_uninstalled"},
+                    dry_run=True,
+                )
+            res = bot.uninstall_os_service()
+            return StepExecutionResult(
+                bot_id="voice-service-daemon-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
         elif action == "run-service-loop":
             if dry_run:
                 return StepExecutionResult(
