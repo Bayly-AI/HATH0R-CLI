@@ -20,6 +20,7 @@ from hath0r_cli.bots import (
 )
 from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
 from hath0r_cli.factory_manager import FactoryManagerBot
+from hath0r_cli.telemetry import get_current_trace_context, trace_span
 
 
 @dataclass
@@ -909,55 +910,76 @@ def execute_workflow(
     all_success = True
     aborted = False
 
-    for step in steps:
-        if not isinstance(step, dict):
-            continue
-        bot_id = str(step.get("bot", ""))
-        action = str(step.get("action", ""))
-        args = step.get("args") if isinstance(step.get("args"), dict) else {}
-        on_failure = str(step.get("on_failure", "abort")).lower()
-        if on_failure not in {"continue", "abort", "retry"}:
-            on_failure = "abort"
-        max_retries = int(step.get("retry_count", 2)) if on_failure == "retry" else 0
+    with trace_span(
+        f"hath0r.workflow.{wf_id}",
+        attributes={
+            "workflow.id": wf_id,
+            "workflow.name": name,
+            "workflow.run_id": active_run_id,
+            "workflow.step_count": len(steps),
+            "workflow.dry_run": dry_run,
+        },
+    ):
+        for step in steps:
+            if not isinstance(step, dict):
+                continue
+            bot_id = str(step.get("bot", ""))
+            action = str(step.get("action", ""))
+            args = step.get("args") if isinstance(step.get("args"), dict) else {}
+            on_failure = str(step.get("on_failure", "abort")).lower()
+            if on_failure not in {"continue", "abort", "retry"}:
+                on_failure = "abort"
+            max_retries = int(step.get("retry_count", 2)) if on_failure == "retry" else 0
 
-        t0 = time.perf_counter()
-        attempt = 0
-        step_res: StepExecutionResult | None = None
+            t0 = time.perf_counter()
+            attempt = 0
+            step_res: StepExecutionResult | None = None
 
-        while True:
-            attempt += 1
-            step_res = registry.invoke(
-                bot_id=bot_id,
-                action=action,
-                args=args,
-                repo=repo,
-                dry_run=dry_run,
-                context=context,
-            )
-            if step_res.success or attempt > max_retries:
-                break
+            with trace_span(
+                f"hath0r.step.{bot_id}.{action}",
+                attributes={
+                    "step.bot": bot_id,
+                    "step.action": action,
+                    "step.policy": on_failure,
+                    "step.dry_run": dry_run,
+                    "workflow.id": wf_id,
+                    "workflow.run_id": active_run_id,
+                },
+            ):
+                while True:
+                    attempt += 1
+                    step_res = registry.invoke(
+                        bot_id=bot_id,
+                        action=action,
+                        args=args,
+                        repo=repo,
+                        dry_run=dry_run,
+                        context=context,
+                    )
+                    if step_res.success or attempt > max_retries:
+                        break
 
-        duration_ms = max(0, int((time.perf_counter() - t0) * 1000))
-        step_res.duration_ms = duration_ms
-        step_res.policy = on_failure
-        step_res.retries = attempt - 1
+            duration_ms = max(0, int((time.perf_counter() - t0) * 1000))
+            step_res.duration_ms = duration_ms
+            step_res.policy = on_failure
+            step_res.retries = attempt - 1
 
-        results.append(step_res)
+            results.append(step_res)
 
-        if not step_res.success:
-            if on_failure == "abort":
-                all_success = False
-                aborted = True
-                step_res.aborted = True
-                break
-            elif on_failure == "continue":
-                # continue logs finding/error but workflow continues
-                all_success = False
-            else:  # retry exhausted
-                all_success = False
-                aborted = True
-                step_res.aborted = True
-                break
+            if not step_res.success:
+                if on_failure == "abort":
+                    all_success = False
+                    aborted = True
+                    step_res.aborted = True
+                    break
+                elif on_failure == "continue":
+                    # continue logs finding/error but workflow continues
+                    all_success = False
+                else:  # retry exhausted
+                    all_success = False
+                    aborted = True
+                    step_res.aborted = True
+                    break
 
     return WorkflowExecutionResult(
         workflow_id=wf_id,
@@ -999,13 +1021,21 @@ def spool_telemetry_event(
         today = datetime.now(timezone.utc).strftime("%Y%m%d")
         spool_file = spool_dir / f"telemetry-{today}.jsonl"
 
-        event = {
+        trace_ctx = get_current_trace_context()
+        event_payload = dict(payload)
+        if trace_ctx:
+            event_payload.setdefault("trace_context", trace_ctx)
+
+        event: dict[str, Any] = {
             "schema": "hath0r.telemetry.event/1",
             "event_id": f"evt_{uuid.uuid4().hex[:12]}",
             "event_type": event_type,
             "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "payload": payload,
+            "payload": event_payload,
         }
+        if trace_ctx:
+            event["trace_id"] = trace_ctx.get("trace_id")
+            event["span_id"] = trace_ctx.get("span_id")
 
         with spool_file.open("a", encoding="utf-8") as f:
             f.write(json.dumps(event, separators=(",", ":")) + "\n")
