@@ -12,7 +12,6 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -40,8 +39,14 @@ DEFAULT_BAYLYAI_REPOS = [
 
 # Patterns detecting dependency relationships in issue descriptions
 DEPENDENCY_PATTERNS = [
-    re.compile(r"(?:depends\s+on|blocked\s+by|after|requires)\s+(?:#|https?://github\.com/[^/\s]+/[^/\s]+/issues/)(\d+)", re.IGNORECASE),
-    re.compile(r"(?:blocks|before|prerequisite\s+for)\s+(?:#|https?://github\.com/[^/\s]+/[^/\s]+/issues/)(\d+)", re.IGNORECASE),
+    re.compile(
+        r"(?:depends\s+on|blocked\s+by|after|requires)\s+(?:#|https?://github\.com/[^/\s]+/[^/\s]+/issues/)(\d+)",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"(?:blocks|before|prerequisite\s+for)\s+(?:#|https?://github\.com/[^/\s]+/[^/\s]+/issues/)(\d+)",
+        re.IGNORECASE,
+    ),
 ]
 
 
@@ -52,7 +57,7 @@ def resolve_baylyai_repos(repo: Optional[str] = None) -> List[str]:
         if not r.startswith("Bayly-AI/") and "/" not in r:
             r = f"Bayly-AI/{r}"
         return [r]
-    
+
     # Try dynamic discovery via gh cli
     code, out, _ = run_cmd(["gh", "repo", "list", "Bayly-AI", "--limit", "40", "--json", "nameWithOwner,isArchived"])
     if code == 0 and out.strip():
@@ -171,9 +176,6 @@ class IssueManagerBot:
 
     def structure_priorities(self, issues: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Organize issues into priority tiers considering dependencies, epics, blockers, and roles."""
-        # 1. Parse dependencies for each issue
-        issue_lookup = {(i["repository"], i["number"]): i for i in issues}
-
         for issue in issues:
             body = issue.get("body") or ""
             deps: List[int] = []
@@ -188,13 +190,15 @@ class IssueManagerBot:
             issue["blocks"] = sorted(list(set(blocks)))
 
         # 2. Priority scoring
-        # Tier 1 (Blockers/Prerequisites/High Infra/Control Tower) -> Tier 2 (Dependencies resolved) -> Tier 3 (Independent)
+        # Tier 1 (Blockers/Prerequisites/High Infra/Control Tower)
+        # Tier 2 (Dependencies resolved) -> Tier 3 (Independent)
         def _compute_score(item: Dict[str, Any]) -> Tuple[int, int, str]:
             title = (item.get("title") or "").lower()
             repo = item.get("repository", "")
-            
+
             # Highest priority: Blockers that block other tickets or foundational control tower/contracts
-            is_epic = "epic" in title or any(l.get("name", "").lower() == "epic" for l in item.get("labels", []))
+            has_epic_label = any(label.get("name", "").lower() == "epic" for label in item.get("labels", []))
+            is_epic = "epic" in title or has_epic_label
             is_control_tower = "hath0r-cli" in repo.lower()
             blocks_count = len(item.get("blocks", []))
             depends_count = len(item.get("depends_on", []))

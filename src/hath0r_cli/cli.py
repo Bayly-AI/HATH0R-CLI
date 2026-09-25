@@ -2655,7 +2655,9 @@ def issue_create(ctx: click.Context, repo: str, title: str, body: str, labels: t
 
     def _text() -> None:
         if res.get("success"):
-            console.print(f"[bold green]✓ Created issue #{res.get('issue_number')} on {res.get('repo')}:[/bold green] {res.get('url')}")
+            num = res.get("issue_number")
+            repo_name = res.get("repo")
+            console.print(f"[bold green]✓ Created issue #{num} on {repo_name}:[/bold green] {res.get('url')}")
         else:
             console.print(f"[bold red]✗ Failed to create issue:[/bold red] {res.get('error')}")
 
@@ -2664,7 +2666,185 @@ def issue_create(ctx: click.Context, repo: str, title: str, body: str, labels: t
         ctx.exit(1)
 
 
+# ============================================================================
+# Voice Command Group (HATHOR-TS-006 / Issue #131)
+# ============================================================================
+
+
+@main.group()
+def voice() -> None:
+    """Voice interface subsystem and hands-free action dispatch."""
+
+
+@voice.command("status")
+@click.pass_context
+def voice_status(ctx: click.Context) -> None:
+    """Inspect audio devices, STT/TTS status, and router health."""
+    from hath0r_cli.voice import inspect_voice_subsystem
+
+    data = inspect_voice_subsystem()
+    response = _build_response(ctx, command="voice.status", state="ok", data=data)
+
+    def _text() -> None:
+        table = Table(title="HATH0R Voice Subsystem Status")
+        table.add_column("Component", style="cyan")
+        table.add_column("Status", style="green")
+        table.add_column("Details", style="white")
+
+        table.add_row("System Status", data.get("status", "ok"), f"Platform: {data.get('platform')}")
+        stt = data.get("stt", {})
+        table.add_row(
+            "STT Provider",
+            stt.get("status", "ok"),
+            f"{stt.get('provider')} ({stt.get('sample_rate')}Hz, VAD={stt.get('vad_enabled')})",
+        )
+        tts = data.get("tts", {})
+        table.add_row("TTS Engine", tts.get("status", "ok"), f"Engine: {tts.get('engine')}")
+        router = data.get("router", {})
+        table.add_row(
+            "Router Fast-Path",
+            router.get("status", "ok"),
+            f"{router.get('provider')} (<={router.get('max_fastpath_latency_ms')}ms)",
+        )
+        gov = data.get("governance", {})
+        table.add_row("Trust Governance", "active", f"Default Tier: {gov.get('default_tier')}")
+
+        console.print(table)
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice.command("exec")
+@click.argument("transcript")
+@click.option(
+    "--trust-tier",
+    "-t",
+    type=click.Choice(["guest", "elevated", "sovereign"]),
+    default="elevated",
+    show_default=True,
+    help="Execution authorization tier.",
+)
+@click.option("--dry-run", is_flag=True, default=False, help="Simulate execution without triggering OS side-effects.")
+@click.option("--speak/--no-speak", default=False, help="Speak feedback acknowledgment via TTS.")
+@click.pass_context
+def voice_exec(ctx: click.Context, transcript: str, trust_tier: str, dry_run: bool, speak: bool) -> None:
+    """Evaluate and dispatch a transcribed voice statement."""
+    from hath0r_cli.voice import evaluate_and_dispatch_voice
+
+    data, diagnostics, state = evaluate_and_dispatch_voice(
+        transcript=transcript,
+        trust_tier=trust_tier,
+        dry_run=dry_run,
+        speak=speak,
+    )
+    response = _build_response(
+        ctx, command="voice.exec", state=state, dry_run=dry_run, data=data, diagnostics=diagnostics
+    )
+
+    def _text() -> None:
+        if data.get("blocked"):
+            console.print(f"[bold red]✗ Voice Action Blocked:[/bold red] {data.get('rejection_reason')}")
+            return
+
+        action = data.get("action", {})
+        intent = action.get("intent", "unresolved")
+        tier = action.get("routing_tier", "system_one")
+        duration = data.get("duration_ms", 0.0)
+
+        console.print(f"[bold green]✓ Voice Action Resolved[/bold green] in {duration:.1f}ms ([cyan]{tier}[/cyan]):")
+        console.print(f"  • [bold]Transcript:[/bold] \"{action.get('transcript')}\"")
+        console.print(f"  • [bold]Intent:[/bold] {intent} (confidence={action.get('confidence', 1.0):.2f})")
+        payload = action.get("payload", {})
+        if "command" in payload:
+            console.print(f"  • [bold]Command:[/bold] [yellow]{payload.get('command')}[/yellow]")
+        if "target" in payload:
+            console.print(f"  • [bold]Target:[/bold] [magenta]{payload.get('target')}[/magenta]")
+        if "feedback_text" in payload:
+            console.print(f"  • [bold]Feedback:[/bold] {payload.get('feedback_text')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if data.get("blocked"):
+        ctx.exit(1)
+
+
+@voice.command("listen")
+@click.option(
+    "--push-to-talk",
+    is_flag=True,
+    default=False,
+    help="Wait for user Enter keypress before capturing utterance.",
+)
+@click.option(
+    "--max-utterances",
+    type=int,
+    default=1,
+    show_default=True,
+    help="Number of utterances to capture before exiting.",
+)
+@click.option(
+    "--trust-tier",
+    "-t",
+    type=click.Choice(["guest", "elevated", "sovereign"]),
+    default="elevated",
+    show_default=True,
+    help="Execution authorization tier.",
+)
+@click.pass_context
+def voice_listen(ctx: click.Context, push_to_talk: bool, max_utterances: int, trust_tier: str) -> None:
+    """Continuous ambient or push-to-talk listening loop."""
+    from hath0r_cli.voice import evaluate_and_dispatch_voice
+
+    is_json = _output_mode(ctx) == "json"
+    mode_label = "Push-to-talk" if push_to_talk else "Ambient continuous"
+    if not is_json:
+        console.print(f"[bold cyan]HATH0R Voice Listening[/bold cyan] ({mode_label}, trust-tier={trust_tier})")
+        console.print("[dim]Press Ctrl+C to stop listening.[/dim]\n")
+
+    captured = 0
+    results = []
+    try:
+        while max_utterances is None or captured < max_utterances:
+            if push_to_talk:
+                click.prompt(
+                    "Press [Enter] to speak (or type transcript for simulated input)",
+                    default="",
+                    show_default=False,
+                    err=is_json,
+                )
+
+            if not is_json:
+                console.print("[bold yellow]● Listening...[/bold yellow]")
+                transcript = click.prompt("Utterance transcript", default="hath0r doctor", show_default=True)
+                console.print(f"[dim]Processing: '{transcript}'...[/dim]")
+            else:
+                line = click.get_text_stream("stdin").readline()
+                transcript = line.strip() if line else "hath0r doctor"
+
+            data, diagnostics, state = evaluate_and_dispatch_voice(transcript=transcript, trust_tier=trust_tier)
+            results.append(data)
+            captured += 1
+
+            if not is_json:
+                if data.get("blocked"):
+                    console.print(f"[red]✗ Blocked:[/red] {data.get('rejection_reason')}")
+                else:
+                    dur = data.get("duration_ms", 0.0)
+                    act = data.get("action", {})
+                    fb = act.get("payload", {}).get("feedback_text", "")
+                    console.print(f"[green]✓ Dispatched[/green] ({act.get('intent')}, {dur:.1f}ms): {fb}\n")
+
+    except (KeyboardInterrupt, click.Abort):
+        if not is_json:
+            console.print("\n[dim]Listening terminated by operator.[/dim]")
+
+    response = _build_response(
+        ctx, command="voice.listen", state="ok", data={"captured_count": captured, "results": results}
+    )
+    _emit_response(ctx, response)
+
+
 if __name__ == "__main__":
     main()
+
 
 

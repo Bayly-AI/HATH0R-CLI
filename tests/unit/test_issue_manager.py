@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+
+import yaml
+
 from hath0r_cli.bots.issue_manager import (
     IssueManagerBot,
     resolve_baylyai_repos,
-    DEFAULT_BAYLYAI_REPOS,
 )
 from hath0r_cli.step_runner import BotRegistry
-import yaml
 
 
 def test_resolve_baylyai_repos_default():
@@ -37,7 +38,11 @@ def test_issue_manager_bot_validate_description_and_status():
     # Valid issue
     valid_data = {
         "title": "feat(core): implement high-performance scheduler engine",
-        "body": "## Summary\nImplement a high-performance scheduler engine for Hath0r tasks with concurrency controls.\n\n## Acceptance Criteria\n- Clean benchmarks\n- Full unit test coverage",
+        "body": (
+            "## Summary\n"
+            "Implement a high-performance scheduler engine for Hath0r tasks with concurrency controls.\n\n"
+            "## Acceptance Criteria\n- Clean benchmarks\n- Full unit test coverage"
+        ),
         "state": "OPEN",
     }
     val = bot.validate_issue_data(valid_data)
