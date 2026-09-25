@@ -582,7 +582,7 @@ def test_cli_task_start_dry_run() -> None:
     data = json.loads(res.stdout)
     assert data["state"] == "ok"
     assert data["data"]["workflow"]["id"] == "start-of-task"
-    assert len(data["data"]["workflow"]["steps"]) == 2
+    assert len(data["data"]["workflow"]["steps"]) == 3
 
     # Start with new issue title
     res_title = runner.invoke(

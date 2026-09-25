@@ -325,3 +325,58 @@ class IssueManagerBot:
             "issue_number": issue_number,
             "output": out or err,
         }
+
+    def validate_issue(
+        self,
+        issue_number: int,
+        repo: Optional[str] = None,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Fetch and validate an issue referenced in a task, returning health status and dependency insights."""
+        target_repo = repo if (repo and "/" in repo) else (f"Bayly-AI/{repo}" if repo else None)
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "issue_number": issue_number,
+                "action": f"[DRY-RUN] Validate issue #{issue_number} status, description, and dependencies",
+            }
+
+        cmd = ["gh", "issue", "view", str(issue_number), "--json", "number,title,state,body,labels,url"]
+        if target_repo:
+            cmd.extend(["--repo", target_repo])
+
+        code, out, err = run_cmd(cmd, cwd=self.cwd)
+        if code != 0:
+            return {
+                "success": False,
+                "issue_number": issue_number,
+                "error": err or f"Issue #{issue_number} not found.",
+            }
+
+        try:
+            data = json.loads(out)
+        except Exception as exc:
+            return {"success": False, "issue_number": issue_number, "error": str(exc)}
+
+        validation = self.validate_issue_data(data)
+
+        # Parse dependencies
+        body = data.get("body") or ""
+        deps = [int(m.group(1)) for m in DEPENDENCY_PATTERNS[0].finditer(body)]
+        blocks = [int(m.group(1)) for m in DEPENDENCY_PATTERNS[1].finditer(body)]
+
+        return {
+            "success": validation.get("is_valid", False),
+            "issue_number": issue_number,
+            "title": data.get("title"),
+            "state": data.get("state"),
+            "validation": validation,
+            "depends_on": sorted(list(set(deps))),
+            "blocks": sorted(list(set(blocks))),
+            "message": (
+                f"Issue #{issue_number} '{data.get('title')}' is valid."
+                if validation.get("is_valid")
+                else f"Issue #{issue_number} warning: {'; '.join(validation.get('findings', []))}"
+            ),
+        }

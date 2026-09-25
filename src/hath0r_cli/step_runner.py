@@ -313,6 +313,17 @@ class BotRegistry:
                 error=res.get("error"),
                 dry_run=dry_run,
             )
+        elif action in ("validate-issue", "validate"):
+            issue_num = int(args.get("issue_number") or context.get("issue_number") or 0)
+            res = bot.validate_issue(issue_num, repo=target_repo, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="issue-manager-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
 
         return StepExecutionResult(
             bot_id="issue-manager-bot",
