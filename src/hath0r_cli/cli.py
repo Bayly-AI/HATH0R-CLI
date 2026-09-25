@@ -18,7 +18,7 @@ from hath0r_cli.catalog import CatalogError, parse_catalog
 from hath0r_cli.doctor import diagnostics_for, run_checks
 from hath0r_cli.envelope import CliResponse, Diagnostic, ResponseMeta
 from hath0r_cli.output import OUTPUT_CHOICES, emit, progress_err, resolve_output_mode
-from hath0r_cli.telemetry import get_current_trace_context, init_tracer, trace_span
+from hath0r_cli.telemetry import init_tracer
 
 console = Console()
 
