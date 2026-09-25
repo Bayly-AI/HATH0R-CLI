@@ -11,13 +11,16 @@ from typing import Any
 from hath0r_cli.bots import (
     BranchBot,
     BranchGuardBot,
+    ConfigOrganizerBot,
     DockerBot,
     DocumentationBot,
     EndOfTaskDaemonBot,
     GitJanitorBot,
     IssueGuardBot,
     IssueManagerBot,
+    KnowledgeOrganizerBot,
     PRBot,
+    RepoHygieneBot,
     TaskAnnouncerBot,
 )
 from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
@@ -107,6 +110,9 @@ class BotRegistry:
             "preflight-bot": PreflightBot(cwd=self.cwd),
             "deploy-test-bot": DeployTestBot(cwd=self.cwd),
             "release-bot": ReleaseBot(cwd=self.cwd),
+            "repo-hygiene-bot": RepoHygieneBot(cwd=self.cwd),
+            "config-organizer-bot": ConfigOrganizerBot(cwd=self.cwd),
+            "knowledge-organizer-bot": KnowledgeOrganizerBot(cwd=self.cwd),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -171,6 +177,12 @@ class BotRegistry:
                 return self._dispatch_deploy_test(bot, action, args, dry_run=dry_run)
             elif bot_id == "release-bot":
                 return self._dispatch_release(bot, action, args, repo=repo, dry_run=dry_run)
+            elif bot_id == "repo-hygiene-bot":
+                return self._dispatch_repo_hygiene(bot, action, args, dry_run=dry_run)
+            elif bot_id == "config-organizer-bot":
+                return self._dispatch_config_organizer(bot, action, args, dry_run=dry_run)
+            elif bot_id == "knowledge-organizer-bot":
+                return self._dispatch_knowledge_organizer(bot, action, args, dry_run=dry_run)
             else:
                 return StepExecutionResult(
                     bot_id=bot_id,
@@ -1017,6 +1029,108 @@ class BotRegistry:
             success=bool(res.get("success")),
             data=res,
             error=res.get("error") or (None if res.get("success") else res.get("message")),
+            dry_run=dry_run,
+        )
+
+    def _dispatch_repo_hygiene(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("scan", "scan-root", "audit"):
+            res = bot.scan_root()
+            return StepExecutionResult(
+                bot_id="repo-hygiene-bot",
+                action=action,
+                success=bool(res.get("clean")),
+                data=res,
+                error=None if res.get("clean") else f"Found {res.get('errant_count')} errant file(s) in root.",
+                dry_run=dry_run,
+            )
+        elif action in ("clean", "clean-root", "archive"):
+            res = bot.clean_root(dry_run=dry_run, archive_dir=args.get("archive_dir", ".hath0r/spool/archive"))
+            return StepExecutionResult(
+                bot_id="repo-hygiene-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="repo-hygiene-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for repo-hygiene-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_config_organizer(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("scan", "scan-misplaced", "audit"):
+            res = bot.scan_misplaced_configs()
+            return StepExecutionResult(
+                bot_id="config-organizer-bot",
+                action=action,
+                success=bool(res.get("clean")),
+                data=res,
+                error=None if res.get("clean") else f"Found {res.get('misplaced_count')} misplaced root config(s).",
+                dry_run=dry_run,
+            )
+        elif action in ("organize", "relocate", "clean"):
+            target_folder = args.get("target_folder", ".cfg")
+            res = bot.organize_configs(target_folder=target_folder, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="config-organizer-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="config-organizer-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for config-organizer-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_knowledge_organizer(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("audit", "audit-structure", "scan"):
+            res = bot.audit_knowledge_structure()
+            err_msg = (
+                None
+                if res.get("organized")
+                else f"Found {res.get('findings_count')} knowledge structure violation(s)."
+            )
+            return StepExecutionResult(
+                bot_id="knowledge-organizer-bot",
+                action=action,
+                success=bool(res.get("organized")),
+                data=res,
+                error=err_msg,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="knowledge-organizer-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for knowledge-organizer-bot.",
             dry_run=dry_run,
         )
 
