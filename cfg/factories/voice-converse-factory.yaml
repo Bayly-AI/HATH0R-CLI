@@ -1,0 +1,97 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: voice-converse-factory
+# Issue: #141
+
+factory_id: voice-converse-factory
+name: Voice Conversational Interface and Meeting Factory
+version: 1.0.0
+description: >
+  Autonomous factory powering two-way conversational voice interaction,
+  hands-free meeting participation, dialogue turn-taking, and proactive
+  verbal agent announcements across the OpenSource Project suite via hath0r CLI.
+
+author: Bayly-AI
+category: human-agent-interaction
+
+bots:
+  - id: speech-listener-bot
+    name: Speech Listener Bot
+    role: voice-turn-capture
+    description: Manages conversational speech capture and turn onset detection.
+    capabilities:
+      - listen
+      - capture-turn
+      - check-vad
+
+  - id: agent-dialogue-bot
+    name: Agent Dialogue Bot
+    role: conversational-reasoning-and-routing
+    description: Processes conversational turns, maintains dialogue state, and routes to System 1 fastpath or System 2 model.
+    capabilities:
+      - reason
+      - route-intent
+      - generate-response
+
+  - id: voice-synthesizer-bot
+    name: Voice Synthesizer Bot
+    role: audio-speech-output
+    description: Synthesizes agent speech responses with natural cadence and interruption support.
+    capabilities:
+      - speak
+      - synthesize
+      - mute
+
+  - id: proactive-speaker-bot
+    name: Proactive Speaker Bot
+    role: autonomous-verbal-announcements
+    description: Enables agents to verbally speak up during meetings or announce task completions.
+    capabilities:
+      - announce
+      - check-in
+      - alert
+
+workflows:
+  - id: converse-session
+    name: Interactive Conversational Session
+    description: Continuous multi-turn dialogue loop between operator and agent.
+    steps:
+      - bot: speech-listener-bot
+        action: listen
+        on_failure: continue
+
+      - bot: agent-dialogue-bot
+        action: reason
+        on_failure: continue
+
+      - bot: voice-synthesizer-bot
+        action: speak
+        on_failure: continue
+
+  - id: meeting-mode
+    name: Hands-Free Meeting Participant Mode
+    description: Participates in a team meeting or standup, listening and speaking up when addressed.
+    steps:
+      - bot: proactive-speaker-bot
+        action: check-in
+        on_failure: continue
+
+      - bot: speech-listener-bot
+        action: listen
+        on_failure: continue
+
+      - bot: agent-dialogue-bot
+        action: reason
+        on_failure: continue
+
+      - bot: voice-synthesizer-bot
+        action: speak
+        on_failure: continue
+
+  - id: proactive-announcement
+    name: Proactive Task Announcement
+    description: Verbally speaks a status notification or alert to the operator.
+    steps:
+      - bot: proactive-speaker-bot
+        action: announce
+        on_failure: continue

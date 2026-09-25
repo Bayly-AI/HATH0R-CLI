@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from hath0r_cli.bots import (
+    AgentDialogueBot,
     BranchBot,
     BranchGuardBot,
     ConfigOrganizerBot,
@@ -20,8 +21,11 @@ from hath0r_cli.bots import (
     IssueManagerBot,
     KnowledgeOrganizerBot,
     PRBot,
+    ProactiveSpeakerBot,
     RepoHygieneBot,
+    SpeechListenerBot,
     TaskAnnouncerBot,
+    VoiceSynthesizerBot,
 )
 from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
 from hath0r_cli.factory_manager import FactoryManagerBot
@@ -113,6 +117,10 @@ class BotRegistry:
             "repo-hygiene-bot": RepoHygieneBot(cwd=self.cwd),
             "config-organizer-bot": ConfigOrganizerBot(cwd=self.cwd),
             "knowledge-organizer-bot": KnowledgeOrganizerBot(cwd=self.cwd),
+            "speech-listener-bot": SpeechListenerBot(cwd=self.cwd),
+            "agent-dialogue-bot": AgentDialogueBot(cwd=self.cwd),
+            "voice-synthesizer-bot": VoiceSynthesizerBot(cwd=self.cwd),
+            "proactive-speaker-bot": ProactiveSpeakerBot(cwd=self.cwd),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -183,6 +191,14 @@ class BotRegistry:
                 return self._dispatch_config_organizer(bot, action, args, dry_run=dry_run)
             elif bot_id == "knowledge-organizer-bot":
                 return self._dispatch_knowledge_organizer(bot, action, args, dry_run=dry_run)
+            elif bot_id == "speech-listener-bot":
+                return self._dispatch_speech_listener(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "agent-dialogue-bot":
+                return self._dispatch_agent_dialogue(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "voice-synthesizer-bot":
+                return self._dispatch_voice_synthesizer(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "proactive-speaker-bot":
+                return self._dispatch_proactive_speaker(bot, action, args, dry_run=dry_run, context=ctx)
             else:
                 return StepExecutionResult(
                     bot_id=bot_id,
@@ -1131,6 +1147,140 @@ class BotRegistry:
             action=action,
             success=False,
             error=f"Unknown action '{action}' for knowledge-organizer-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_speech_listener(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("listen", "capture-turn", "check-vad"):
+            ptt = bool(args.get("push_to_talk", context.get("push_to_talk", True)))
+            key = args.get("key") or context.get("key")
+            simulated = args.get("simulated_transcript") or context.get("simulated_transcript")
+            res = bot.listen(push_to_talk=ptt, key=key, simulated_transcript=simulated)
+            if res.get("transcript"):
+                context["transcript"] = res["transcript"]
+            return StepExecutionResult(
+                bot_id="speech-listener-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="speech-listener-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for speech-listener-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_agent_dialogue(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("reason", "route-intent", "generate-response"):
+            transcript = str(args.get("transcript") or context.get("transcript") or "hath0r doctor")
+            tier = str(args.get("trust_tier") or context.get("trust_tier") or "elevated")
+            res = bot.reason(transcript=transcript, trust_tier=tier, dry_run=dry_run)
+            if res.get("response_text"):
+                context["response_text"] = res["response_text"]
+            return StepExecutionResult(
+                bot_id="agent-dialogue-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="agent-dialogue-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for agent-dialogue-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_voice_synthesizer(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("speak", "synthesize", "mute"):
+            text = str(args.get("text") or context.get("response_text") or "")
+            voice = args.get("voice_name")
+            if dry_run or action == "mute":
+                return StepExecutionResult(
+                    bot_id="voice-synthesizer-bot",
+                    action=action,
+                    success=True,
+                    data={"spoken": False, "text": text, "dry_run": dry_run},
+                    dry_run=dry_run,
+                )
+            res = bot.speak(text=text, voice_name=voice)
+            return StepExecutionResult(
+                bot_id="voice-synthesizer-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="voice-synthesizer-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for voice-synthesizer-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_proactive_speaker(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("announce", "alert"):
+            message = str(args.get("message") or context.get("message") or "Agent update ready.")
+            res = bot.announce(message=message, speak=not dry_run)
+            return StepExecutionResult(
+                bot_id="proactive-speaker-bot",
+                action=action,
+                success=bool(res.get("announced")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("check-in", "standup"):
+            topic = args.get("topic") or context.get("topic")
+            res = bot.check_in(topic=topic, speak=not dry_run)
+            return StepExecutionResult(
+                bot_id="proactive-speaker-bot",
+                action=action,
+                success=bool(res.get("announced")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="proactive-speaker-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for proactive-speaker-bot.",
             dry_run=dry_run,
         )
 

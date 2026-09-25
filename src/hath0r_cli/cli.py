@@ -3093,6 +3093,162 @@ def voice_listen(
     _emit_response(ctx, response)
 
 
+@voice.command("converse")
+@click.option(
+    "--push-to-talk/--ambient",
+    "push_to_talk",
+    default=True,
+    show_default=True,
+    help="Enable push-to-talk mode or ambient continuous conversation.",
+)
+@click.option(
+    "--key",
+    "-k",
+    type=str,
+    default=None,
+    help="Push-to-talk trigger button (default: right_ctrl).",
+)
+@click.option(
+    "--max-turns",
+    type=int,
+    default=5,
+    show_default=True,
+    help="Maximum dialogue turns before ending conversation session.",
+)
+@click.option(
+    "--trust-tier",
+    "-t",
+    type=click.Choice(["guest", "elevated", "sovereign"]),
+    default="elevated",
+    show_default=True,
+    help="Execution authorization tier.",
+)
+@click.option(
+    "--repo",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Target repository context for agent reasoning.",
+)
+@click.pass_context
+def voice_converse(
+    ctx: click.Context,
+    push_to_talk: bool,
+    key: Optional[str],
+    max_turns: int,
+    trust_tier: str,
+    repo: Optional[Path],
+) -> None:
+    """Run an interactive two-way voice dialogue session with active Hath0r agent."""
+    from hath0r_cli.bots.voice_converse import AgentDialogueBot, SpeechListenerBot, VoiceSynthesizerBot
+
+    target_repo = repo or Path.cwd()
+    listener = SpeechListenerBot(cwd=target_repo)
+    dialogue = AgentDialogueBot(cwd=target_repo)
+    synth = VoiceSynthesizerBot(cwd=target_repo)
+
+    is_json = _output_mode(ctx) == "json"
+    if not is_json:
+        console.print("[bold cyan]HATH0R Conversational Voice Session[/bold cyan]")
+        console.print(f"[dim]Repo: {target_repo} | Trust Tier: {trust_tier} | Max Turns: {max_turns}[/dim]\n")
+        synth.speak("Conversational voice session started. I am listening.")
+
+    turns: list[dict[str, Any]] = []
+    try:
+        for turn_idx in range(1, max_turns + 1):
+            if not is_json:
+                console.print(f"[bold yellow]Turn {turn_idx}/{max_turns}: Listening...[/bold yellow]")
+
+            listen_res = listener.listen(push_to_talk=push_to_talk, key=key)
+            transcript = listen_res.get("transcript", "").strip()
+            if not transcript or transcript.lower() in ("cancel", "stop", "exit", "quit", "bye"):
+                if not is_json:
+                    console.print("[dim]Conversation ended by operator.[/dim]")
+                    synth.speak("Goodbye.")
+                break
+
+            if not is_json:
+                console.print(f"[dim]You:[/dim] {transcript}")
+
+            reason_res = dialogue.reason(transcript=transcript, trust_tier=trust_tier)
+            reply = reason_res.get("response_text", "")
+
+            if not is_json:
+                console.print(f"[bold green]Agent:[/bold green] {reply}\n")
+
+            synth.speak(reply)
+            turns.append({"turn": turn_idx, "user": transcript, "agent": reply})
+    except (KeyboardInterrupt, click.Abort):
+        if not is_json:
+            console.print("\n[dim]Conversation terminated by operator.[/dim]")
+
+    response = _build_response(
+        ctx,
+        command="voice.converse",
+        state="ok",
+        data={"turns_count": len(turns), "turns": turns},
+    )
+    _emit_response(ctx, response)
+
+
+@voice.command("meeting")
+@click.option(
+    "--mode",
+    type=click.Choice(["standup", "review", "ambient"]),
+    default="standup",
+    show_default=True,
+    help="Meeting participation mode.",
+)
+@click.option(
+    "--topic",
+    type=str,
+    default="Daily Engineering Standup",
+    show_default=True,
+    help="Meeting topic or context.",
+)
+@click.pass_context
+def voice_meeting(ctx: click.Context, mode: str, topic: str) -> None:
+    """Hands-free meeting participant mode with proactive check-in."""
+    from hath0r_cli.bots.voice_converse import ProactiveSpeakerBot
+
+    speaker = ProactiveSpeakerBot()
+    checkin_res = speaker.check_in(topic=f"{topic} ({mode})", speak=True)
+
+    response = _build_response(
+        ctx,
+        command="voice.meeting",
+        state="ok",
+        data={"mode": mode, "topic": topic, "check_in": checkin_res},
+    )
+    _emit_response(ctx, response)
+
+
+@voice.command("speak")
+@click.argument("message")
+@click.option(
+    "--voice",
+    "-v",
+    "voice_name",
+    type=str,
+    default=None,
+    help="Optional TTS voice name identifier.",
+)
+@click.pass_context
+def voice_speak(ctx: click.Context, message: str, voice_name: Optional[str]) -> None:
+    """Vocalize a message out loud using the platform speech engine."""
+    from hath0r_cli.bots.voice_converse import VoiceSynthesizerBot
+
+    synth = VoiceSynthesizerBot()
+    res = synth.speak(text=message, voice_name=voice_name)
+
+    response = _build_response(
+        ctx,
+        command="voice.speak",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+    _emit_response(ctx, response)
+
+
 if __name__ == "__main__":
     main()
 
