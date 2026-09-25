@@ -1,0 +1,51 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: issue-factory
+
+factory_id: issue-factory
+name: Issue Management and Prioritization Factory
+version: 1.0.0
+description: >
+  Hath0r automation factory for organization-wide issue management, status validation,
+  detailed description quality enforcement, and dependency-aware priority structuring across BaylyAI repositories.
+
+author: Bayly-AI
+category: governance-and-automation
+
+# Participating bots
+bots:
+  - id: issue-manager-bot
+    name: Issue Manager Bot
+    role: organization-issue-lifecycle-and-prioritization
+    description: Manages cross-repo issue discovery, status validation, description quality gates, and dependency priority resolution.
+    capabilities:
+      - list-issues
+      - create-issue
+      - update-issue
+      - validate-issue
+
+# Declarative workflows
+workflows:
+  - id: scan-and-prioritize
+    name: Organization-Wide Issue Scan & Priority Ordering
+    description: Scans all active BaylyAI repositories (or single repo), validates issue states, and structures priorities by dependency blockers.
+    steps:
+      - bot: issue-manager-bot
+        action: list-issues
+        on_failure: abort
+
+  - id: create-governed-issue
+    name: Governed Issue Creation
+    description: Creates an issue ensuring minimum description detail, structured sections, and repository attribution.
+    steps:
+      - bot: issue-manager-bot
+        action: create-issue
+        on_failure: abort
+
+  - id: update-governed-issue
+    name: Governed Issue Update
+    description: Updates an existing issue ensuring modified descriptions maintain required technical detail and sections.
+    steps:
+      - bot: issue-manager-bot
+        action: update-issue
+        on_failure: abort
