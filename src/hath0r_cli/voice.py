@@ -434,15 +434,91 @@ def _speak_feedback_standalone(text: str) -> None:
 
 
 
+def get_active_wake_words() -> List[str]:
+    """Retrieve list of valid wake words including hath0r and the active voice profile name."""
+    wake_words = ["hathor", "hath0r"]
+    try:
+        from hath0r_cli.bots.voice_speaker import VoiceProfileBot
+
+        prof = VoiceProfileBot().get_active_profile()
+        v_name = prof.get("voice_name")
+        if v_name:
+            v_clean = v_name.strip().lower()
+            if v_clean and v_clean not in wake_words and v_clean != "default":
+                wake_words.append(v_clean)
+    except Exception:
+        pass
+    return wake_words
+
+
 def _standalone_fast_route(transcript: str) -> Dict[str, Any]:
     """Lightweight built-in fast path for standalone CLI execution."""
     t = transcript.strip().lower()
     action_id = str(uuid.uuid4())
 
-    if t.startswith("hathor ") or t.startswith("hath0r ") or t in ("hathor", "hath0r"):
-        parts = t.split()
-        subcmd = parts[1] if len(parts) > 1 else "doctor"
-        args = parts[2:]
+    # Check for addressed wake word (e.g. "hathor", "hath0r", "moira", "hey moira", "hey hathor", "hi moira")
+    wake_words = get_active_wake_words()
+    active_profile_name = wake_words[-1].capitalize() if len(wake_words) > 2 else "Hathor"
+
+    matched_wake = None
+    stripped_cmd = t
+
+    # Check standard wake prefixes: "[hey|hi|hello] <wake_word>[,|:]? <command>"
+    for w in wake_words:
+        patterns = [
+            rf"^(?:hey\s+|hi\s+|hello\s+)?{re.escape(w)}(?:,|\s*:)?\s*(.*)$",
+        ]
+        for pat in patterns:
+            m = re.match(pat, t)
+            if m:
+                matched_wake = w
+                stripped_cmd = m.group(1).strip()
+                break
+        if matched_wake:
+            break
+
+    if matched_wake is not None:
+        cmd_to_eval = stripped_cmd if stripped_cmd else "doctor"
+        parts = cmd_to_eval.split()
+        subcmd = parts[0] if parts else "doctor"
+        args = parts[1:] if len(parts) > 1 else []
+
+        # Check if subcmd is an app open or system control
+        open_m = re.match(r"^(?:open|launch|start)\s+([a-zA-Z0-9\s\.\-_]+)$", cmd_to_eval, re.IGNORECASE)
+        if open_m:
+            app_name = open_m.group(1).strip()
+            return {
+                "schema": "hath0r.voice.action/1",
+                "action_id": action_id,
+                "transcript": transcript,
+                "routing_tier": "system_one",
+                "intent": "computer_use",
+                "confidence": 0.95,
+                "payload": {
+                    "target": app_name,
+                    "action": "open_app",
+                    "feedback_text": f"Opening {app_name}",
+                    "addressed_to": matched_wake.capitalize(),
+                },
+                "metadata": {"router": "cli_fastpath", "addressed_wake": matched_wake},
+            }
+
+        if cmd_to_eval in ("mute", "unmute", "stop listening", "cancel"):
+            return {
+                "schema": "hath0r.voice.action/1",
+                "action_id": action_id,
+                "transcript": transcript,
+                "routing_tier": "system_one",
+                "intent": "system_control",
+                "confidence": 0.99,
+                "payload": {
+                    "action": cmd_to_eval,
+                    "feedback_text": f"{cmd_to_eval.capitalize()} acknowledged",
+                    "addressed_to": matched_wake.capitalize(),
+                },
+                "metadata": {"router": "cli_fastpath", "addressed_wake": matched_wake},
+            }
+
         return {
             "schema": "hath0r.voice.action/1",
             "action_id": action_id,
@@ -453,9 +529,10 @@ def _standalone_fast_route(transcript: str) -> Dict[str, Any]:
             "payload": {
                 "command": f"hath0r {subcmd}",
                 "args": args,
-                "feedback_text": f"Running Hathor {subcmd}",
+                "feedback_text": f"Running {active_profile_name} {subcmd}",
+                "addressed_to": matched_wake.capitalize(),
             },
-            "metadata": {"router": "cli_fastpath"},
+            "metadata": {"router": "cli_fastpath", "addressed_wake": matched_wake},
         }
 
     open_match = re.match(r"^(?:open|launch|start)\s+([a-zA-Z0-9\s\.\-_]+)$", transcript.strip(), re.IGNORECASE)
@@ -501,3 +578,4 @@ def _standalone_fast_route(transcript: str) -> Dict[str, Any]:
         },
         "metadata": {"delegated": True},
     }
+
