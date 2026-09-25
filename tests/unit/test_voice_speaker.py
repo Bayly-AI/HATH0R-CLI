@@ -347,6 +347,23 @@ def test_interpret_response_for_speech():
     assert "Summary: All good." in t4
     assert "```" not in t4
 
+    # 5. Task start receipt confirmation
+    t5 = interpret_response_for_speech(
+        "task.start",
+        "ok",
+        {
+            "workflow": {
+                "steps": [
+                    {"data": {"issue_number": 151, "open": True}},
+                    {"data": {"branch": "feature/151-voice-speaker"}},
+                ]
+            }
+        },
+    )
+    assert "Task receipt confirmed for Issue #151" in t5
+    assert "feature/151-voice-speaker" in t5
+
+
 
 
 

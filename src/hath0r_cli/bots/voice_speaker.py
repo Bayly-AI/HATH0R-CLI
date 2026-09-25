@@ -421,11 +421,30 @@ def interpret_response_for_speech(command: str, state: str, data: Optional[Dict[
         stale = data_dict.get("stale_count", 0)
         return f"Repository audit completed. Found {stale} items to clean."
 
+    if "task.start" in cmd_norm:
+        wf = data_dict.get("workflow", {})
+        steps = wf.get("steps", []) if isinstance(wf, dict) else []
+        issue_num = None
+        branch_name = None
+        for s in steps:
+            data_s = s.get("data") if isinstance(s, dict) and isinstance(s.get("data"), dict) else {}
+            if "issue_number" in data_s:
+                issue_num = data_s["issue_number"]
+            if "branch" in data_s:
+                branch_name = data_s["branch"]
+        if issue_num and branch_name:
+            return f"Task receipt confirmed for Issue #{issue_num}. Work branch {branch_name} initialized."
+        return "Task receipt confirmed. Work branch and environment initialized."
+
+    if "task.finish" in cmd_norm:
+        return "Task completion finalized. PR quality gates and lifecycle verification complete."
+
     # 3. Default fallback interpretation
     clean_cmd = cmd_norm.replace(".", " ")
     if state == "ok":
         return f"Hathor {clean_cmd} completed successfully."
     return f"Hathor {clean_cmd} finished with status {state}."
+
 
 
 @dataclass
