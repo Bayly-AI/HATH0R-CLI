@@ -36,12 +36,12 @@ class SpeechListenerBot:
     def _find_listener_binary(self) -> Optional[Path]:
         """Locate native hath0r-listen executable if present."""
         base_dir = Path(__file__).resolve().parent.parent / "bin"
-        app_bin = base_dir / "Hath0rListen.app" / "Contents" / "MacOS" / "hath0r-listen"
-        if app_bin.is_file() and os.access(app_bin, os.X_OK):
-            return app_bin
         raw_bin = base_dir / "hath0r-listen"
         if raw_bin.is_file() and os.access(raw_bin, os.X_OK):
             return raw_bin
+        app_bin = base_dir / "Hath0rListen.app" / "Contents" / "MacOS" / "hath0r-listen"
+        if app_bin.is_file() and os.access(app_bin, os.X_OK):
+            return app_bin
         return None
 
     def listen(
@@ -76,6 +76,7 @@ class SpeechListenerBot:
                 with tempfile.NamedTemporaryFile(suffix=".m4a", delete=False) as tmp:
                     tmp_audio_path = tmp.name
 
+                print("  🎙️  Recording from microphone... (speak now)", flush=True)
                 proc = subprocess.run(
                     [str(listener_bin), str(min(timeout, 8.0)), tmp_audio_path],
                     capture_output=True,
@@ -85,6 +86,7 @@ class SpeechListenerBot:
                 captured = ""
                 audio_file = Path(tmp_audio_path)
                 if audio_file.is_file() and audio_file.stat().st_size > 500:
+                    print("  ⚡ Transcribing audio...", flush=True)
                     captured = transcribe_audio(audio_file) or ""
                     audio_file.unlink(missing_ok=True)
                 elif audio_file.is_file():
