@@ -30,12 +30,24 @@ class SpeechListenerBot:
     def __init__(self, cwd: Optional[Path] = None) -> None:
         self.cwd = Path(cwd) if cwd else Path.cwd()
 
+    def _find_listener_binary(self) -> Optional[Path]:
+        """Locate native hath0r-listen executable if present."""
+        base_dir = Path(__file__).resolve().parent.parent / "bin"
+        app_bin = base_dir / "Hath0rListen.app" / "Contents" / "MacOS" / "hath0r-listen"
+        if app_bin.is_file() and os.access(app_bin, os.X_OK):
+            return app_bin
+        raw_bin = base_dir / "hath0r-listen"
+        if raw_bin.is_file() and os.access(raw_bin, os.X_OK):
+            return raw_bin
+        return None
+
     def listen(
         self,
         push_to_talk: bool = True,
         key: Optional[str] = None,
         simulated_transcript: Optional[str] = None,
         timeout: float = 30.0,
+        enable_microphone: bool = True,
     ) -> Dict[str, Any]:
         """Capture or receive an utterance turn."""
         ptt_cfg = get_push_to_talk_config()
@@ -49,7 +61,7 @@ class SpeechListenerBot:
                 "key": selected_key,
             }
 
-        # If non-interactive stdin, return empty or default
+        # If non-interactive stdin and not simulated, return default
         if not os.isatty(sys.stdin.fileno()):
             return {
                 "success": True,
@@ -61,7 +73,41 @@ class SpeechListenerBot:
         if push_to_talk:
             wait_for_push_to_talk_trigger(selected_key, timeout_seconds=timeout)
 
-        # Standard terminal line capture
+        # Attempt native microphone STT if on macOS Darwin and binary available
+        listener_bin = self._find_listener_binary() if enable_microphone else None
+        if listener_bin and sys.platform == "darwin":
+            try:
+                import tempfile
+                with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as tmp:
+                    tmp_path = tmp.name
+
+                proc = subprocess.run(
+                    [str(listener_bin), str(min(timeout, 12.0)), tmp_path],
+                    capture_output=True,
+                    text=True,
+                    timeout=timeout + 2.0,
+                )
+                captured = ""
+                if Path(tmp_path).is_file():
+                    try:
+                        captured = Path(tmp_path).read_text(encoding="utf-8").strip()
+                        Path(tmp_path).unlink(missing_ok=True)
+                    except Exception:
+                        pass
+                if not captured and proc.stdout:
+                    captured = proc.stdout.strip()
+
+                if captured:
+                    return {
+                        "success": True,
+                        "transcript": captured,
+                        "mode": "microphone_native",
+                        "key": selected_key,
+                    }
+            except Exception:
+                pass
+
+        # Standard terminal line capture fallback
         try:
             line = input().strip()
             transcript = line if line else "hath0r doctor"
