@@ -1026,7 +1026,7 @@ def spool_telemetry_event(
         if trace_ctx:
             event_payload.setdefault("trace_context", trace_ctx)
 
-        event = {
+        event: dict[str, Any] = {
             "schema": "hath0r.telemetry.event/1",
             "event_id": f"evt_{uuid.uuid4().hex[:12]}",
             "event_type": event_type,
