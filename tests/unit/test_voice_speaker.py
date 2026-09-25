@@ -236,9 +236,9 @@ def test_voice_profile_bot_lifecycle(tmp_path: Path):
     assert "voices" in profiles_res
     assert isinstance(profiles_res["voices"], list)
 
-    # Get active profile (default Samantha)
+    # Get active profile (default Samantha on darwin, default on linux)
     active = bot.get_active_profile()
-    assert active["voice_name"] == "Samantha"
+    assert active["voice_name"] in ("Samantha", "default")
 
     # Set new profile (e.g. Daniel with rate 190)
     set_res = bot.set_profile("Daniel", rate_wpm=190, preview=False, dry_run=False)
@@ -248,6 +248,7 @@ def test_voice_profile_bot_lifecycle(tmp_path: Path):
 
     # Verify active profile is now Daniel
     active_now = bot.get_active_profile()
+
     assert active_now["voice_name"] == "Daniel"
     assert active_now["rate_wpm"] == 190
 
@@ -362,6 +363,38 @@ def test_interpret_response_for_speech():
     )
     assert "Task receipt confirmed for Issue #151" in t5
     assert "feature/151-voice-speaker" in t5
+
+
+def test_expand_technical_tokens():
+    from hath0r_cli.bots.voice_speaker import expand_technical_tokens
+
+    # Test PR, CLI, issue numbers, SemVer
+    raw = "Resolved CLI bug in PR #152 for #151 with v1.2.3 in repo."
+    expanded = expand_technical_tokens(raw)
+    assert "C-L-I" in expanded
+    assert "pull request 152" in expanded
+    assert "issue 151" in expanded
+    assert "version 1 point 2 point 3" in expanded
+    assert "repository" in expanded
+
+
+def test_local_neural_voice_engine(tmp_path: Path):
+    from hath0r_cli.bots.voice_speaker import LocalNeuralVoiceEngine
+
+    engine = LocalNeuralVoiceEngine(cwd=tmp_path)
+    engines = engine.list_supported_engines()
+    assert len(engines) >= 3
+    engine_ids = [e["id"] for e in engines]
+    assert "say" in engine_ids
+    assert "coreml-82m" in engine_ids
+    assert "onnx-neural" in engine_ids
+
+    # Test synthesis dry run
+    synth = engine.synthesize("Testing local neural speech.", voice_name="Moira", dry_run=True)
+    assert synth["success"] is True
+    assert synth["engine"] == "coreml-82m"
+    assert synth["voice_name"] == "Moira"
+
 
 
 

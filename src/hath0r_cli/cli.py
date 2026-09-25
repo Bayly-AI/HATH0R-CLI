@@ -3623,6 +3623,48 @@ def voice_read(ctx: click.Context, text: Optional[str], selection: bool) -> None
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@voice.group("engine", invoke_without_command=True)
+@click.pass_context
+def voice_engine_group(ctx: click.Context) -> None:
+    """Manage local neural and platform speech synthesis engines (CoreML / ONNX / say)."""
+    if ctx.invoked_subcommand is None:
+        ctx.invoke(voice_engine_list)
+
+
+@voice_engine_group.command("list")
+@click.pass_context
+def voice_engine_list(ctx: click.Context) -> None:
+    """List available local neural (CoreML / ONNX) and platform speech engines."""
+    from hath0r_cli.bots.voice_speaker import LocalNeuralVoiceEngine
+
+    engine = LocalNeuralVoiceEngine()
+    engines = engine.list_supported_engines()
+
+    response = _build_response(
+        ctx,
+        command="voice.engine.list",
+        state="ok",
+        data={"engines": engines, "count": len(engines)},
+    )
+
+    def _text() -> None:
+        table = Table(title="HATH0R Local Neural & Platform Voice Engines")
+        table.add_column("Engine ID", style="bold cyan")
+        table.add_column("Type", style="dim")
+        table.add_column("Availability")
+        table.add_column("Description")
+
+        for eng in engines:
+            avail = "[green]● AVAILABLE[/green]" if eng.get("available") else "[dim]○ OFFLINE (model weights not found)[/dim]"
+            table.add_row(eng.get("id"), eng.get("type"), avail, eng.get("description"))
+
+        console.print(table)
+        console.print("  • CoreML 82M: High-efficiency local neural speech engine for Apple Silicon.")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+
 
 
 @main.group("speak", invoke_without_command=True)

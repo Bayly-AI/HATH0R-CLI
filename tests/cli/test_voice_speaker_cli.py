@@ -139,4 +139,15 @@ def test_cli_voice_read():
     assert "Active tab text content" in data["data"]["spoken_text"]
 
 
+def test_cli_voice_engine_list():
+    runner = CliRunner()
+    res = runner.invoke(main, ["--output", "json", "voice", "engine", "list"])
+    assert res.exit_code == 0
+    data = json.loads(res.output)
+    assert data["command"] == "voice.engine.list"
+    assert data["state"] == "ok"
+    assert len(data["data"]["engines"]) >= 3
+
+
+
 
