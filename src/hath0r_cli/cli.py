@@ -7,7 +7,7 @@ import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import click
 from rich.console import Console
@@ -2904,6 +2904,12 @@ def voice_status(ctx: click.Context) -> None:
             router.get("status", "ok"),
             f"{router.get('provider')} (<={router.get('max_fastpath_latency_ms')}ms)",
         )
+        ptt = data.get("push_to_talk", {})
+        table.add_row(
+            "Push-to-Talk",
+            "enabled" if ptt.get("enabled", True) else "disabled",
+            f"Key: {ptt.get('default_key', 'right_ctrl')} (ask_button={ptt.get('prompt_for_key', True)})",
+        )
         gov = data.get("governance", {})
         table.add_row("Trust Governance", "active", f"Default Tier: {gov.get('default_tier')}")
 
@@ -2967,10 +2973,25 @@ def voice_exec(ctx: click.Context, transcript: str, trust_tier: str, dry_run: bo
 
 @voice.command("listen")
 @click.option(
-    "--push-to-talk",
-    is_flag=True,
-    default=False,
-    help="Wait for user Enter keypress before capturing utterance.",
+    "--push-to-talk/--ambient",
+    "push_to_talk",
+    default=True,
+    show_default=True,
+    help="Enable push-to-talk mode or continuous ambient mode.",
+)
+@click.option(
+    "--key",
+    "-k",
+    type=str,
+    default=None,
+    help="Designated push-to-talk button (defaults to interactive selection with 'right_ctrl').",
+)
+@click.option(
+    "--ask-key/--no-ask-key",
+    "ask_key",
+    default=True,
+    show_default=True,
+    help="Always prompt operator to confirm/select which button to use for push-to-talk.",
 )
 @click.option(
     "--max-utterances",
@@ -2988,12 +3009,35 @@ def voice_exec(ctx: click.Context, transcript: str, trust_tier: str, dry_run: bo
     help="Execution authorization tier.",
 )
 @click.pass_context
-def voice_listen(ctx: click.Context, push_to_talk: bool, max_utterances: int, trust_tier: str) -> None:
+def voice_listen(
+    ctx: click.Context,
+    push_to_talk: bool,
+    key: Optional[str],
+    ask_key: bool,
+    max_utterances: int,
+    trust_tier: str,
+) -> None:
     """Continuous ambient or push-to-talk listening loop."""
-    from hath0r_cli.voice import evaluate_and_dispatch_voice
+    from hath0r_cli.voice import (
+        evaluate_and_dispatch_voice,
+        get_push_to_talk_config,
+        wait_for_push_to_talk_trigger,
+    )
 
     is_json = _output_mode(ctx) == "json"
-    mode_label = "Push-to-talk" if push_to_talk else "Ambient continuous"
+    ptt_cfg = get_push_to_talk_config()
+
+    selected_key = key or ptt_cfg.default_key
+    if push_to_talk and (ask_key or ptt_cfg.prompt_for_key) and not is_json:
+        console.print("[bold cyan]Push-to-Talk Activation Key Selection[/bold cyan]")
+        console.print(f"Supported keys: [dim]{', '.join(ptt_cfg.supported_keys)}[/dim]")
+        selected_key = click.prompt(
+            "Which button would you like to use for Push-to-Talk?",
+            default=selected_key,
+            show_default=True,
+        ).strip().lower().replace(" ", "_").replace("-", "_")
+
+    mode_label = f"Push-to-talk (key='{selected_key}')" if push_to_talk else "Ambient continuous"
     if not is_json:
         console.print(f"[bold cyan]HATH0R Voice Listening[/bold cyan] ({mode_label}, trust-tier={trust_tier})")
         console.print("[dim]Press Ctrl+C to stop listening.[/dim]\n")
@@ -3002,13 +3046,9 @@ def voice_listen(ctx: click.Context, push_to_talk: bool, max_utterances: int, tr
     results = []
     try:
         while max_utterances is None or captured < max_utterances:
-            if push_to_talk:
-                click.prompt(
-                    "Press [Enter] to speak (or type transcript for simulated input)",
-                    default="",
-                    show_default=False,
-                    err=is_json,
-                )
+            if push_to_talk and not is_json:
+                console.print(f"[bold green]Hold / press [{selected_key}] to speak...[/bold green] (or press Enter)")
+                wait_for_push_to_talk_trigger(selected_key, timeout_seconds=60.0)
 
             if not is_json:
                 console.print("[bold yellow]● Listening...[/bold yellow]")
@@ -3018,7 +3058,11 @@ def voice_listen(ctx: click.Context, push_to_talk: bool, max_utterances: int, tr
                 line = click.get_text_stream("stdin").readline()
                 transcript = line.strip() if line else "hath0r doctor"
 
-            data, diagnostics, state = evaluate_and_dispatch_voice(transcript=transcript, trust_tier=trust_tier)
+            data, diagnostics, state = evaluate_and_dispatch_voice(
+                transcript=transcript,
+                trust_tier=trust_tier,
+                speak=True,
+            )
             results.append(data)
             captured += 1
 
@@ -3036,7 +3080,15 @@ def voice_listen(ctx: click.Context, push_to_talk: bool, max_utterances: int, tr
             console.print("\n[dim]Listening terminated by operator.[/dim]")
 
     response = _build_response(
-        ctx, command="voice.listen", state="ok", data={"captured_count": captured, "results": results}
+        ctx,
+        command="voice.listen",
+        state="ok",
+        data={
+            "captured_count": captured,
+            "push_to_talk": push_to_talk,
+            "key": selected_key,
+            "results": results,
+        },
     )
     _emit_response(ctx, response)
 
