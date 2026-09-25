@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import json
+import os
 import re
 import shutil
+import subprocess
 import sys
 import time
 import uuid
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -23,6 +27,172 @@ _FRAMEWORK_CANDIDATES = [
     Path.home() / "Development" / "OpenSource" / "hath0r",
     Path.home() / "Development" / "OpenSource" / "hath0r-framework",
 ]
+
+# ============================================================================
+# Voice & Push-To-Talk Configuration
+# ============================================================================
+
+DEFAULT_VOICE_CONFIG_FILE = Path("cfg/voice.json")
+
+
+@dataclass
+class PushToTalkConfig:
+    """Push-to-talk key binding configuration."""
+
+    enabled: bool = True
+    default_key: str = "right_ctrl"
+    prompt_for_key: bool = True
+    supported_keys: List[str] = field(
+        default_factory=lambda: ["right_ctrl", "left_ctrl", "space", "enter"]
+    )
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+def load_voice_config(config_path: Optional[Path | str] = None) -> Dict[str, Any]:
+    """Load configuration dictionary from cfg/voice.json or framework fallback."""
+    target_path = Path(config_path) if config_path else DEFAULT_VOICE_CONFIG_FILE
+    if not target_path.is_file():
+        # Check framework candidate cfg/voice.json
+        for candidate in _FRAMEWORK_CANDIDATES:
+            cand_cfg = candidate / "cfg" / "voice.json"
+            if cand_cfg.is_file():
+                target_path = cand_cfg
+                break
+
+    if target_path.is_file():
+        try:
+            with open(target_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, dict):
+                    return data
+        except Exception:
+            pass
+
+    return {
+        "version": "1.0.0",
+        "enabled": True,
+        "push_to_talk": PushToTalkConfig().to_dict(),
+    }
+
+
+def get_push_to_talk_config(config_path: Optional[Path | str] = None) -> PushToTalkConfig:
+    """Extract PushToTalkConfig from active configuration."""
+    data = load_voice_config(config_path)
+    ptt_data = data.get("push_to_talk")
+    if isinstance(ptt_data, dict):
+        return PushToTalkConfig(
+            enabled=bool(ptt_data.get("enabled", True)),
+            default_key=str(ptt_data.get("default_key", "right_ctrl")),
+            prompt_for_key=bool(ptt_data.get("prompt_for_key", True)),
+            supported_keys=list(
+                ptt_data.get("supported_keys", ["right_ctrl", "left_ctrl", "space", "enter"])
+            ),
+        )
+    return PushToTalkConfig()
+
+
+def save_push_to_talk_config(
+    ptt_config: PushToTalkConfig, config_path: Optional[Path | str] = None
+) -> Path:
+    """Persist PushToTalkConfig into cfg/voice.json."""
+    target_path = Path(config_path) if config_path else DEFAULT_VOICE_CONFIG_FILE
+    data = load_voice_config(target_path)
+    data["push_to_talk"] = ptt_config.to_dict()
+    data["enabled"] = True
+
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(target_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    return target_path
+
+
+def is_macos_key_pressed(keycode: int) -> bool:
+    """Check if a specific virtual keycode is pressed on macOS via Carbon GetKeys."""
+    if sys.platform != "darwin":
+        return False
+    try:
+        import ctypes
+
+        carbon = ctypes.cdll.LoadLibrary("/System/Library/Frameworks/Carbon.framework/Carbon")
+        GetKeys = carbon.GetKeys
+        keymap = (ctypes.c_uint32 * 4)()
+        GetKeys(ctypes.byref(keymap))
+        word = keycode >> 5
+        bit = keycode & 31
+        return bool((keymap[word] >> bit) & 1)
+    except Exception:
+        return False
+
+
+def wait_for_push_to_talk_trigger(key_name: str, timeout_seconds: float = 30.0) -> bool:
+    """Wait for operator to press the designated push-to-talk key.
+
+    Supports:
+      - 'right_ctrl' (macOS keycode 62 or terminal newline)
+      - 'left_ctrl' (macOS keycode 59)
+      - 'space' (keycode 49 or terminal space)
+      - 'enter' (keycode 36 or terminal enter)
+    """
+    key_norm = key_name.strip().lower().replace(" ", "_").replace("-", "_")
+
+    # Check if stdin is an interactive TTY
+    try:
+        import select
+        import termios
+        import tty
+
+        fd = sys.stdin.fileno()
+        is_interactive = os.isatty(fd)
+    except Exception:
+        is_interactive = False
+
+    if not is_interactive:
+        return True
+
+    # If running on macOS with Carbon support and checking modifier keys
+    start_t = time.perf_counter()
+    old_settings = None
+    try:
+        old_settings = termios.tcgetattr(fd)
+        tty.setcbreak(fd)
+
+        while time.perf_counter() - start_t < timeout_seconds:
+            # Check macOS hardware modifier key if applicable
+            if sys.platform == "darwin" and key_norm in ("right_ctrl", "left_ctrl"):
+                keycode = 62 if key_norm == "right_ctrl" else 59
+                if is_macos_key_pressed(keycode):
+                    return True
+
+            # Check terminal keyboard input
+            rlist, _, _ = select.select([sys.stdin], [], [], 0.05)
+            if rlist:
+                ch = sys.stdin.read(1)
+                if key_norm == "space" and ch == " ":
+                    return True
+                if key_norm in ("enter", "return") and ch in ("\r", "\n"):
+                    return True
+                # Any enter/space or custom key allows proceeding
+                if ch in ("\r", "\n", " "):
+                    return True
+    except Exception:
+        try:
+            input()
+            return True
+        except Exception:
+            return True
+    finally:
+        if old_settings is not None:
+            try:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+            except Exception:
+                pass
+
+    return False
+
+
 
 for _candidate in _FRAMEWORK_CANDIDATES:
     if (_candidate / "lib" / "voice").is_dir():
@@ -124,6 +294,8 @@ def inspect_voice_subsystem() -> Dict[str, Any]:
     router_status = "ready"
     router_provider = "jev_fastpath"
 
+    ptt_cfg = get_push_to_talk_config()
+
     return {
         "status": "ready",
         "platform": sys.platform,
@@ -143,6 +315,7 @@ def inspect_voice_subsystem() -> Dict[str, Any]:
             "min_confidence": 0.85,
             "max_fastpath_latency_ms": 50.0,
         },
+        "push_to_talk": ptt_cfg.to_dict(),
         "governance": {
             "default_tier": TrustTier.ELEVATED.value,
             "supported_tiers": [t.value for t in TrustTier],
@@ -176,11 +349,13 @@ def evaluate_and_dispatch_voice(
 
         config = VoiceConfig.from_env()
         engine = VoiceEngine(config=config)
-        voice_action = engine.process_utterance(transcript, speak_feedback=False)
+        voice_action = engine.process_utterance(transcript, speak_feedback=speak)
         action_dict = voice_action.to_dict()
     except Exception:
         # Resilient standalone fallback router
         action_dict = _standalone_fast_route(transcript)
+        if speak:
+            _speak_feedback_standalone(action_dict.get("payload", {}).get("feedback_text", ""))
 
     intent = action_dict.get("intent", "unresolved")
     payload = action_dict.get("payload", {})
@@ -239,6 +414,24 @@ def evaluate_and_dispatch_voice(
     }
 
     return data, diagnostics, "ok"
+
+
+def _speak_feedback_standalone(text: str) -> None:
+    """Provide speech synthesis feedback for standalone runs."""
+    if not text:
+        return
+    clean_text = text.replace('"', '\\"')
+    try:
+        if sys.platform == "darwin" and shutil.which("say"):
+            subprocess.run(["say", clean_text], check=False, timeout=5)
+        elif sys.platform.startswith("linux"):
+            if shutil.which("espeak-ng"):
+                subprocess.run(["espeak-ng", clean_text], check=False, timeout=5)
+            elif shutil.which("espeak"):
+                subprocess.run(["espeak", clean_text], check=False, timeout=5)
+    except Exception:
+        pass
+
 
 
 def _standalone_fast_route(transcript: str) -> Dict[str, Any]:

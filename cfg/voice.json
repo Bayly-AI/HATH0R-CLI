@@ -1,0 +1,65 @@
+{
+  "description": "HATH0R Voice Interface Subsystem configuration",
+  "version": "1.0.0",
+  "enabled": true,
+  "mode": "auto",
+  "platform": "auto",
+  "audio": {
+    "sample_rate": 16000,
+    "channels": 1,
+    "chunk_size": 1024,
+    "vad_sensitivity": 0.6
+  },
+  "stt": {
+    "provider": "auto",
+    "supported_providers": [
+      "native",
+      "whisper",
+      "websocket",
+      "stub"
+    ],
+    "model_size": "base",
+    "language": "en"
+  },
+  "router": {
+    "provider": "jev",
+    "supported_providers": [
+      "jev",
+      "heuristic",
+      "agent_direct"
+    ],
+    "min_confidence": 0.85,
+    "timeout_ms": 250,
+    "fallback_to_system_two": true
+  },
+  "push_to_talk": {
+    "enabled": true,
+    "default_key": "right_ctrl",
+    "prompt_for_key": true,
+    "supported_keys": [
+      "right_ctrl",
+      "left_ctrl",
+      "space",
+      "enter"
+    ]
+  },
+  "agent_dispatcher": {
+    "mode": "active_framework_agent",
+    "cli_binary": "hath0r",
+    "mcp_enabled": true,
+    "default_governance_tier": "elevated"
+  },
+  "tts": {
+    "provider": "auto",
+    "supported_providers": [
+      "native",
+      "say",
+      "espeak",
+      "sapi",
+      "kokoro",
+      "stub"
+    ],
+    "rate_wpm": 200,
+    "voice_name": "default"
+  }
+}
