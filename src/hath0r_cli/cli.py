@@ -3590,6 +3590,40 @@ def voice_profile_status(ctx: click.Context) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@voice.command("read")
+@click.argument("text", required=False, default=None)
+@click.option("--selection", "-s", is_flag=True, default=False, help="Read highlighted/selected text from active app (Warp, Antigravity, VS Code).")
+@click.pass_context
+def voice_read(ctx: click.Context, text: Optional[str], selection: bool) -> None:
+    """Read and speak active tab text, input text, or highlighted selection aloud."""
+    from hath0r_cli.bots.voice_speaker import ActiveTabReaderBot
+
+    bot = ActiveTabReaderBot()
+    dry_run = bool(ctx.obj.get("dry_run", False))
+
+    if selection or text is None:
+        res = bot.read_selection(dry_run=dry_run)
+    else:
+        res = bot.read_text(text, dry_run=dry_run)
+
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(
+        ctx,
+        command="voice.read",
+        state=state,
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("success"):
+            console.print(f"[bold green]✓ Vocalized from {res.get('app')}:[/bold green] {res.get('spoken_text')}")
+        else:
+            console.print(f"[bold red]✗ Failed to read active window:[/bold red] {res.get('error')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+
 
 @main.group("speak", invoke_without_command=True)
 @click.pass_context

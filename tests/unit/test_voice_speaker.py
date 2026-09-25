@@ -266,3 +266,41 @@ def test_workflow_voice_profiles(tmp_path: Path):
     assert res_set.steps[0].data["voice_name"] == "Karen"
 
 
+def test_active_tab_reader_bot(tmp_path: Path):
+    from hath0r_cli.bots.voice_speaker import ActiveTabReaderBot
+
+    bot = ActiveTabReaderBot(cwd=tmp_path)
+    # Check frontmost app detection (returns non-empty string or 'system'/'Unknown')
+    app = bot.get_frontmost_app()
+    assert isinstance(app, str)
+    assert len(app) > 0
+
+    # Read text with dry run
+    sample_text = "# Current Status\n\n```python\nprint('code')\n```\nAll unit tests passed successfully."
+    res = bot.read_text(sample_text, dry_run=True)
+    assert res["success"] is True
+    assert res["dry_run"] is True
+    assert "All unit tests passed successfully." in res["spoken_text"]
+    assert "```" not in res["spoken_text"]
+
+
+def test_workflow_voice_read_active_tab(tmp_path: Path):
+    registry = BotRegistry(cwd=tmp_path)
+    wf_read = {
+        "id": "voice-read-active-tab",
+        "name": "Voice Read Active Tab Workflow",
+        "steps": [
+            {
+                "bot": "active-tab-reader-bot",
+                "action": "read-text",
+                "args": {"text": "Agent response from active tab ready."},
+                "on_failure": "continue",
+            }
+        ],
+    }
+    res_wf = execute_workflow(wf_read, registry=registry, dry_run=True)
+    assert res_wf.success is True
+    assert res_wf.steps[0].data["spoken_text"] == "Agent response from active tab ready."
+
+
+

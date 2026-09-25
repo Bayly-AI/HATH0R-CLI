@@ -4,10 +4,10 @@
 
 factory_id: voice-speaker-factory
 name: Voice Speaker and Spoken Notification Factory (Phase 1)
-version: 1.2.0
+version: 1.3.0
 description: >
   Micro-bots and workflows powering autonomous spoken feedback, announcements,
-  spool queue processing, persistent speak mode toggle, and voice profile configuration with natural language filtering.
+  spool queue processing, persistent speak mode toggle, active tab/selection reading, and voice profile configuration with natural language filtering.
 
 author: Bayly-AI
 category: voice-and-audio
@@ -49,6 +49,15 @@ bots:
       - list-profiles
       - get-active-profile
       - set-profile
+
+  - id: active-tab-reader-bot
+    name: Active Tab Reader Bot
+    role: active-tab-and-selection-speech
+    description: Reads and speaks content from the active application tab, window, or clipboard selection.
+    capabilities:
+      - read-selection
+      - read-text
+      - get-frontmost-app
 
 workflows:
   - id: voice-speak-message
@@ -106,3 +115,12 @@ workflows:
       - bot: voice-profile-bot
         action: set-profile
         on_failure: abort
+
+  - id: voice-read-active-tab
+    name: Voice Read Active Tab Workflow
+    description: Reads and speaks text from the frontmost application or active tab.
+    steps:
+      - bot: active-tab-reader-bot
+        action: read-text
+        on_failure: continue
+

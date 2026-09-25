@@ -107,3 +107,14 @@ def test_cli_voice_profile_list_set_status():
     assert data_st["data"]["voice_name"] == "Daniel"
 
 
+def test_cli_voice_read():
+    runner = CliRunner()
+    res = runner.invoke(main, ["--output", "json", "voice", "read", "Active tab text content for agent testing."])
+    assert res.exit_code == 0
+    data = json.loads(res.output)
+    assert data["command"] == "voice.read"
+    assert data["state"] == "ok"
+    assert "Active tab text content" in data["data"]["spoken_text"]
+
+
+

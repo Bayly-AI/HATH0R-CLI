@@ -638,3 +638,87 @@ class VoiceProfileBot:
         }
 
 
+@dataclass
+class ActiveTabReaderBot:
+    """Reads and speaks content from the active application tab, window, or clipboard selection."""
+
+    cwd: Path = field(default_factory=Path.cwd)
+    speaker: VoiceSpeakerBot = field(init=False)
+    mode_bot: VoiceSpeakerModeBot = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.speaker = VoiceSpeakerBot(cwd=self.cwd)
+        self.mode_bot = VoiceSpeakerModeBot(cwd=self.cwd)
+
+    def get_frontmost_app(self) -> str:
+        """Detect current active/frontmost application name on macOS."""
+        if sys.platform != "darwin":
+            return "system"
+        try:
+            script = 'tell application "System Events" to get name of first application process whose frontmost is true'
+            proc = subprocess.run(["osascript", "-e", script], capture_output=True, text=True, timeout=2)
+            if proc.returncode == 0:
+                return proc.stdout.strip()
+        except Exception:
+            pass
+        return "Unknown"
+
+    def get_selected_text(self) -> Optional[str]:
+        """Capture highlighted/selected text from frontmost application."""
+        if sys.platform != "darwin":
+            return None
+        try:
+            # Safely capture current clipboard, send cmd+c, read new clipboard, restore if desired
+            script = """
+            set oldClip to the clipboard
+            tell application "System Events" to keystroke "c" using {command down}
+            delay 0.1
+            set selectedText to the clipboard
+            return selectedText
+            """
+            proc = subprocess.run(["osascript", "-e", script], capture_output=True, text=True, timeout=3)
+            if proc.returncode == 0 and proc.stdout.strip():
+                return proc.stdout.strip()
+        except Exception:
+            pass
+        return None
+
+    def read_selection(self, dry_run: bool = False) -> Dict[str, Any]:
+        """Read and vocalize whatever is currently selected in the active tab/app."""
+        app_name = self.get_frontmost_app()
+        text = self.get_selected_text()
+        if not text:
+            msg = f"No text selected in active window ({app_name})."
+            return {
+                "success": False,
+                "app": app_name,
+                "error": msg,
+                "dry_run": dry_run,
+            }
+
+        filtered = filter_speech_text(text)
+        speak_res = self.speaker.speak(filtered, filter_code=False, dry_run=dry_run)
+        return {
+            "success": True,
+            "app": app_name,
+            "raw_length": len(text),
+            "spoken_text": filtered,
+            "speak_result": speak_res,
+            "dry_run": dry_run,
+        }
+
+    def read_text(self, text: str, dry_run: bool = False) -> Dict[str, Any]:
+        """Read and vocalize provided active tab text."""
+        app_name = self.get_frontmost_app()
+        filtered = filter_speech_text(text)
+        speak_res = self.speaker.speak(filtered, filter_code=False, dry_run=dry_run)
+        return {
+            "success": True,
+            "app": app_name,
+            "spoken_text": filtered,
+            "speak_result": speak_res,
+            "dry_run": dry_run,
+        }
+
+
+

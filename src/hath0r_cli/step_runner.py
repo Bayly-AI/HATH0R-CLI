@@ -12,6 +12,7 @@ from hath0r_cli.bots import (
     AgentDialogueBot,
     BranchBot,
     BranchGuardBot,
+    ActiveTabReaderBot,
     ConfigOrganizerBot,
     DockerBot,
     DocumentationBot,
@@ -129,6 +130,7 @@ class BotRegistry:
             "spoken-notification-service-bot": SpokenNotificationServiceBot(cwd=self.cwd),
             "voice-speaker-mode-bot": VoiceSpeakerModeBot(cwd=self.cwd),
             "voice-profile-bot": VoiceProfileBot(cwd=self.cwd),
+            "active-tab-reader-bot": ActiveTabReaderBot(cwd=self.cwd),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -215,6 +217,8 @@ class BotRegistry:
                 return self._dispatch_voice_speaker_mode(bot, action, args, dry_run=dry_run)
             elif bot_id == "voice-profile-bot":
                 return self._dispatch_voice_profile(bot, action, args, dry_run=dry_run)
+            elif bot_id == "active-tab-reader-bot":
+                return self._dispatch_active_tab_reader(bot, action, args, dry_run=dry_run)
             else:
                 return StepExecutionResult(
                     bot_id=bot_id,
@@ -1517,8 +1521,53 @@ class BotRegistry:
             dry_run=dry_run,
         )
 
+    def _dispatch_active_tab_reader(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("read-selection", "selection", "read-selected"):
+            res = bot.read_selection(dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="active-tab-reader-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("read-text", "read"):
+            text = str(args.get("text") or "")
+            res = bot.read_text(text, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="active-tab-reader-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("get-frontmost-app", "app", "frontmost"):
+            app_name = bot.get_frontmost_app()
+            return StepExecutionResult(
+                bot_id="active-tab-reader-bot",
+                action=action,
+                success=True,
+                data={"app": app_name},
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="active-tab-reader-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for active-tab-reader-bot.",
+            dry_run=dry_run,
+        )
+
 
 def execute_workflow(
+
     workflow_def: dict[str, Any],
     registry: BotRegistry,
     *,

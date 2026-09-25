@@ -1153,6 +1153,7 @@ from hath0r_cli.bots.voice_converse import (  # noqa: E402
     VoiceSynthesizerBot,
 )
 from hath0r_cli.bots.voice_speaker import (  # noqa: E402
+    ActiveTabReaderBot,
     SpokenNotificationServiceBot,
     VoiceProfileBot,
     VoiceSpeakerBot,
@@ -1161,6 +1162,7 @@ from hath0r_cli.bots.voice_speaker import (  # noqa: E402
 )
 
 __all__ = [
+    "ActiveTabReaderBot",
     "AgentDialogueBot",
     "BranchBot",
     "BranchGuardBot",
@@ -1190,6 +1192,7 @@ __all__ = [
     "VoiceSynthesizerBot",
     "filter_speech_text",
 ]
+
 
 
 
