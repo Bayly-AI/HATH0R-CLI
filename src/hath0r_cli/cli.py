@@ -18,6 +18,7 @@ from hath0r_cli.catalog import CatalogError, parse_catalog
 from hath0r_cli.doctor import diagnostics_for, run_checks
 from hath0r_cli.envelope import CliResponse, Diagnostic, ResponseMeta
 from hath0r_cli.output import OUTPUT_CHOICES, emit, progress_err, resolve_output_mode
+from hath0r_cli.telemetry import get_current_trace_context, init_tracer, trace_span
 
 console = Console()
 
@@ -174,6 +175,8 @@ def main(ctx: click.Context, output: str, quiet: bool, verbose: bool, version: b
     ctx.obj["quiet"] = quiet
     ctx.obj["verbose"] = verbose
     ctx.obj["started_at"] = time.perf_counter()
+
+    init_tracer()
 
     if version:
         _emit_version(ctx)
