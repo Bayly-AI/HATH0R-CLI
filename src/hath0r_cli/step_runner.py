@@ -1431,8 +1431,9 @@ class BotRegistry:
         dry_run: bool,
     ) -> StepExecutionResult:
         speak = bool(args.get("speak", True))
+        tab_only = bool(args.get("tab_only", False) or args.get("active_tab_only", False))
         if action in ("enable", "enable-speak-mode", "on"):
-            res = bot.enable(speak=speak, dry_run=dry_run)
+            res = bot.enable(tab_only=tab_only, speak=speak, dry_run=dry_run)
             return StepExecutionResult(
                 bot_id="voice-speaker-mode-bot",
                 action=action,
@@ -1450,7 +1451,8 @@ class BotRegistry:
                 dry_run=dry_run,
             )
         elif action in ("toggle", "toggle-speak-mode"):
-            res = bot.toggle(speak=speak, dry_run=dry_run)
+            res = bot.toggle(tab_only=tab_only, speak=speak, dry_run=dry_run)
+
             return StepExecutionResult(
                 bot_id="voice-speaker-mode-bot",
                 action=action,

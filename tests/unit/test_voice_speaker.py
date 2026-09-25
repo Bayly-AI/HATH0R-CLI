@@ -167,6 +167,30 @@ def test_voice_speaker_mode_bot_lifecycle(tmp_path: Path):
     assert dis_res["enabled"] is False
 
 
+def test_voice_speaker_mode_bot_tab_scoping(tmp_path: Path):
+    from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
+
+    bot = VoiceSpeakerModeBot(cwd=tmp_path)
+    current_tab = bot.get_current_tab_id()
+    assert current_tab is not None
+
+    # Enable with tab_only=True
+    en_res = bot.enable(tab_only=True, speak=False)
+    assert en_res["enabled"] is True
+    assert en_res["scope"] == "tab"
+    assert en_res["tab_id"] == current_tab
+
+    # Status check
+    st = bot.status()
+    assert st["enabled"] is True
+    assert st["scope"] == "tab"
+    assert st["saved_tab"] == current_tab
+
+    # Verify is_enabled() in matching tab
+    assert bot.is_enabled() is True
+
+
+
 def test_workflow_enable_disable_speak_mode():
     registry = BotRegistry()
     wf_on = {

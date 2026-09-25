@@ -393,37 +393,77 @@ class VoiceSpeakerModeBot:
     def config_file(self) -> Path:
         return self.cwd / ".hath0r" / "speak_mode.json"
 
+    def get_current_tab_id(self) -> str:
+        """Derive a stable identifier for the active terminal tab or process session."""
+        # 1. TTY name if available
+        for fd in (sys.stdin, sys.stdout, sys.stderr):
+            try:
+                if fd and hasattr(fd, "fileno") and fd.isatty():
+                    return os.ttyname(fd.fileno())
+            except Exception:
+                pass
+
+        # 2. Terminal session environment variable
+        for env_var in ("TERM_SESSION_ID", "WARP_SESSION_ID", "VSCODE_INJECTION", "WINDOWID", "SSH_TTY"):
+            val = os.environ.get(env_var)
+            if val:
+                return f"{env_var}:{val}"
+
+        # 3. Process session / PPID
+        return f"ppid:{os.getppid()}"
+
     def is_enabled(self) -> bool:
-        """Check if global spoken feedback mode is currently active."""
-        if os.environ.get("HATH0R_SPEAK", "").lower() in ("1", "true", "yes", "on"):
+        """Check if spoken feedback mode is active for the current context/tab."""
+        env_val = os.environ.get("HATH0R_SPEAK", "").lower()
+        if env_val in ("1", "true", "yes", "on"):
             return True
+        if env_val in ("0", "false", "no", "off"):
+            return False
+
         if not self.config_file.is_file():
             return False
         try:
             data = json.loads(self.config_file.read_text(encoding="utf-8"))
-            return bool(data.get("enabled", False))
+            if not bool(data.get("enabled", False)):
+                return False
+
+            scope = data.get("scope", "global")
+            if scope in ("tab", "active_tab"):
+                saved_tab = data.get("tab_id")
+                current_tab = self.get_current_tab_id()
+                return bool(saved_tab and current_tab and saved_tab == current_tab)
+
+            return True
         except Exception:
             return False
 
-    def enable(self, speak: bool = True, dry_run: bool = False) -> Dict[str, Any]:
-        """Turn ON global spoken feedback mode."""
+    def enable(self, tab_only: bool = False, speak: bool = True, dry_run: bool = False) -> Dict[str, Any]:
+        """Turn ON spoken feedback mode (globally or for the current active tab only)."""
         self.config_file.parent.mkdir(parents=True, exist_ok=True)
+        current_tab = self.get_current_tab_id()
+        scope = "tab" if tab_only else "global"
+
+        record = {
+            "enabled": True,
+            "scope": scope,
+            "tab_id": current_tab if tab_only else None,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+
         if not dry_run:
-            self.config_file.write_text(
-                json.dumps(
-                    {
-                        "enabled": True,
-                        "updated_at": datetime.now(timezone.utc).isoformat(),
-                    },
-                    indent=2,
-                ),
-                encoding="utf-8",
-            )
-        msg = "Hath0r speak mode enabled. I will vocalize all agent actions and responses."
+            self.config_file.write_text(json.dumps(record, indent=2), encoding="utf-8")
+
+        msg = (
+            f"Hath0r speak mode enabled for active tab only ({current_tab})."
+            if tab_only
+            else "Hath0r speak mode enabled. I will vocalize all agent actions and responses."
+        )
         speak_res = self.speaker.speak(msg, dry_run=dry_run) if speak else None
         return {
             "success": True,
             "enabled": True,
+            "scope": scope,
+            "tab_id": current_tab if tab_only else None,
             "message": msg,
             "config_file": str(self.config_file),
             "speak_result": speak_res,
@@ -437,6 +477,8 @@ class VoiceSpeakerModeBot:
                 json.dumps(
                     {
                         "enabled": False,
+                        "scope": "global",
+                        "tab_id": None,
                         "updated_at": datetime.now(timezone.utc).isoformat(),
                     },
                     indent=2,
@@ -448,26 +490,43 @@ class VoiceSpeakerModeBot:
         return {
             "success": True,
             "enabled": False,
+            "scope": "global",
             "message": msg,
             "config_file": str(self.config_file),
             "speak_result": speak_res,
         }
 
-    def toggle(self, speak: bool = True, dry_run: bool = False) -> Dict[str, Any]:
+    def toggle(self, tab_only: bool = False, speak: bool = True, dry_run: bool = False) -> Dict[str, Any]:
         """Toggle speak mode on or off."""
         currently_enabled = self.is_enabled()
         if currently_enabled:
             return self.disable(speak=speak, dry_run=dry_run)
-        return self.enable(speak=speak, dry_run=dry_run)
+        return self.enable(tab_only=tab_only, speak=speak, dry_run=dry_run)
 
     def status(self) -> Dict[str, Any]:
-        """Return speak mode status."""
+        """Return speak mode status and scope."""
         enabled = self.is_enabled()
+        scope = "global"
+        saved_tab = None
+        current_tab = self.get_current_tab_id()
+
+        if self.config_file.is_file():
+            try:
+                data = json.loads(self.config_file.read_text(encoding="utf-8"))
+                scope = data.get("scope", "global")
+                saved_tab = data.get("tab_id")
+            except Exception:
+                pass
+
         return {
             "enabled": enabled,
             "status": "enabled" if enabled else "disabled",
+            "scope": scope,
+            "saved_tab": saved_tab,
+            "current_tab": current_tab,
             "config_file": str(self.config_file),
         }
+
 
     def vocalize_response(
         self,

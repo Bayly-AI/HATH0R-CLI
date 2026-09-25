@@ -82,6 +82,28 @@ def test_cli_speak_mode_on_off_status_toggle():
     assert data_off["data"]["enabled"] is False
 
 
+def test_cli_speak_mode_tab_only():
+    runner = CliRunner()
+    # 1. Enable speak mode with --tab-only
+    res_on = runner.invoke(main, ["--output", "json", "speak", "on", "--tab-only", "--silent"])
+    assert res_on.exit_code == 0
+    data_on = json.loads(res_on.output)
+    assert data_on["command"] == "speak.on"
+    assert data_on["data"]["enabled"] is True
+    assert data_on["data"]["scope"] == "tab"
+
+    # 2. Check status shows tab scope
+    res_st = runner.invoke(main, ["--output", "json", "speak", "status"])
+    assert res_st.exit_code == 0
+    data_st = json.loads(res_st.output)
+    assert data_st["command"] == "speak.status"
+    assert data_st["data"]["scope"] == "tab"
+
+    # 3. Clean up
+    runner.invoke(main, ["--output", "json", "speak", "off", "--silent"])
+
+
+
 def test_cli_voice_profile_list_set_status():
     runner = CliRunner()
     # 1. List profiles

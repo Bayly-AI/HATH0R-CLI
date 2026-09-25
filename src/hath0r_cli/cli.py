@@ -3643,23 +3643,28 @@ def speak_group(ctx: click.Context) -> None:
 
         def _text() -> None:
             state_label = "[bold green]ENABLED[/bold green]" if st["enabled"] else "[dim]DISABLED[/dim]"
-            console.print(f"Hath0r Speak Mode: {state_label}")
-            console.print("  • Use 'hath0r speak on' to enable automatic voice responses.")
+            scope_label = f" (Scope: [cyan]{st.get('scope', 'global')}[/cyan])" if st["enabled"] else ""
+            console.print(f"Hath0r Speak Mode: {state_label}{scope_label}")
+            if st.get("scope") == "tab" and st.get("saved_tab"):
+                console.print(f"  • Scoped Tab: {st.get('saved_tab')}")
+            console.print("  • Use 'hath0r speak on' to enable across all tabs.")
+            console.print("  • Use 'hath0r speak on --tab-only' for active tab only.")
             console.print("  • Use 'hath0r speak off' to disable automatic voice responses.")
 
         _emit_response(ctx, response, text_renderer=_text)
 
 
 @speak_group.command("on")
+@click.option("--tab-only", "--this-tab", "tab_only", is_flag=True, default=False, help="Enable speak mode only for the current active terminal tab.")
 @click.option("--silent", is_flag=True, default=False, help="Enable without vocal announcement.")
 @click.pass_context
-def speak_on(ctx: click.Context, silent: bool) -> None:
-    """Turn ON global spoken feedback mode."""
+def speak_on(ctx: click.Context, tab_only: bool, silent: bool) -> None:
+    """Turn ON spoken feedback mode (globally or for the current active tab only)."""
     from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
 
     bot = VoiceSpeakerModeBot()
     dry_run = bool(ctx.obj.get("dry_run", False))
-    res = bot.enable(speak=not silent and not dry_run, dry_run=dry_run)
+    res = bot.enable(tab_only=tab_only, speak=not silent and not dry_run, dry_run=dry_run)
 
     response = _build_response(
         ctx,
@@ -3669,7 +3674,10 @@ def speak_on(ctx: click.Context, silent: bool) -> None:
     )
 
     def _text() -> None:
-        console.print("[bold green]✓ Hath0r Speak Mode: ENABLED[/bold green]")
+        scope_str = "ACTIVE TAB ONLY" if res.get("scope") == "tab" else "GLOBAL (ALL TABS)"
+        console.print(f"[bold green]✓ Hath0r Speak Mode: ENABLED ({scope_str})[/bold green]")
+        if res.get("tab_id"):
+            console.print(f"  • Bound to Tab: [cyan]{res.get('tab_id')}[/cyan]")
         console.print("  • The agent will now vocalize all actions and responses out loud.")
 
     _emit_response(ctx, response, text_renderer=_text)
@@ -3700,14 +3708,15 @@ def speak_off(ctx: click.Context, silent: bool) -> None:
 
 
 @speak_group.command("toggle")
+@click.option("--tab-only", "--this-tab", "tab_only", is_flag=True, default=False, help="Toggle speak mode scoped to active tab only.")
 @click.pass_context
-def speak_toggle(ctx: click.Context) -> None:
-    """Toggle global spoken feedback mode between on and off."""
+def speak_toggle(ctx: click.Context, tab_only: bool) -> None:
+    """Toggle spoken feedback mode between on and off."""
     from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
 
     bot = VoiceSpeakerModeBot()
     dry_run = bool(ctx.obj.get("dry_run", False))
-    res = bot.toggle(speak=not dry_run, dry_run=dry_run)
+    res = bot.toggle(tab_only=tab_only, speak=not dry_run, dry_run=dry_run)
 
     response = _build_response(
         ctx,
@@ -3718,11 +3727,13 @@ def speak_toggle(ctx: click.Context) -> None:
 
     def _text() -> None:
         if res.get("enabled"):
-            console.print("[bold green]✓ Hath0r Speak Mode: ENABLED[/bold green]")
+            scope_str = "ACTIVE TAB ONLY" if res.get("scope") == "tab" else "GLOBAL"
+            console.print(f"[bold green]✓ Hath0r Speak Mode: ENABLED ({scope_str})[/bold green]")
         else:
             console.print("[dim]○ Hath0r Speak Mode: DISABLED[/dim]")
 
     _emit_response(ctx, response, text_renderer=_text)
+
 
 
 @speak_group.command("status")
