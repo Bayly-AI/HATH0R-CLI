@@ -42,6 +42,9 @@ class EndOfTaskDaemonBot:
         self.janitor_bot = GitJanitorBot(cwd=self.cwd)
         self.doc_bot = DocumentationBot(cwd=self.cwd)
         self.announcer_bot = TaskAnnouncerBot(cwd=self.cwd)
+        from hath0r_cli.bots.quality import DeployTestBot
+
+        self.test_bot = DeployTestBot(cwd=self.cwd)
 
     def run_daemon(
         self,
@@ -50,10 +53,29 @@ class EndOfTaskDaemonBot:
         repo: Optional[str] = None,
         semver: str = "patch",
         dry_run: bool = False,
+        skip_tests: bool = False,
     ) -> Dict[str, Any]:
         """Execute autonomous end-of-task state machine."""
         history: List[Dict[str, Any]] = []
         started_at = datetime.now(timezone.utc).isoformat()
+
+        # Step 0: Autonomous test suite validation before PR creation
+        if not pr_number and not skip_tests:
+            test_res = self.test_bot.run_pre_deploy(dry_run=dry_run)
+            history.append({"phase": "test_suite", "result": test_res})
+            if not test_res.get("success"):
+                issues = test_res.get("issues", [])
+                error_msg = f"Local test suite failed with {len(issues)} issue(s)."
+                if issues:
+                    error_msg += f" First failure: {issues[0].get('test')} ({issues[0].get('detail')})"
+                return {
+                    "success": False,
+                    "phase": "test_suite",
+                    "error": error_msg,
+                    "issues": issues,
+                    "test_results": test_res,
+                    "history": history,
+                }
 
         # Step 1: Discover or ensure PR
         current_pr = pr_number
@@ -165,7 +187,23 @@ class EndOfTaskDaemonBot:
                 self.sleeper(self.poll_interval)
                 continue
 
-            rollup = status.get("statusCheckRollup", []) or []
+            raw_rollup = status.get("statusCheckRollup", []) or []
+            # Deduplicate check runs by name, keeping the latest completedAt/startedAt
+            latest_by_name: Dict[str, Dict[str, Any]] = {}
+            for c in raw_rollup:
+                name = str(c.get("name") or c.get("context") or "")
+                if not name:
+                    continue
+                existing = latest_by_name.get(name)
+                if not existing:
+                    latest_by_name[name] = c
+                else:
+                    t_new = str(c.get("completedAt") or c.get("startedAt") or "")
+                    t_old = str(existing.get("completedAt") or existing.get("startedAt") or "")
+                    if t_new >= t_old:
+                        latest_by_name[name] = c
+
+            rollup = list(latest_by_name.values())
             failing = [
                 c.get("name") or c.get("context")
                 for c in rollup

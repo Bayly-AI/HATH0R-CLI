@@ -366,6 +366,53 @@ class DeployTestBot:
             }
         return self._run_phase("post_deploy", commands, dry_run=dry_run)
 
+    @staticmethod
+    def _parse_test_output(stdout: str, stderr: str) -> Dict[str, Any]:
+        """Extract structured test metrics and failure diagnostics from pytest/unittest output."""
+        combined = f"{stdout}\n{stderr}"
+        parsed: Dict[str, Any] = {
+            "summary_line": None,
+            "passed": 0,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0,
+            "failures": [],
+        }
+
+        # Look for pytest short summary lines like "=== 1 failed, 40 passed in 1.23s ==="
+        summary_match = re.search(
+            r"==+\s+((?:\d+\s+(?:failed|passed|error|errors|skipped|warning|warnings)(?:,\s*)?)+).*==+",
+            combined,
+        )
+        if summary_match:
+            parsed["summary_line"] = summary_match.group(0).strip()
+            summary_text = summary_match.group(1)
+            for count_type in re.findall(r"(\d+)\s+([a-zA-Z]+)", summary_text):
+                num, label = int(count_type[0]), count_type[1].lower()
+                if "pass" in label:
+                    parsed["passed"] = num
+                elif "fail" in label:
+                    parsed["failed"] = num
+                elif "error" in label:
+                    parsed["errors"] = num
+                elif "skip" in label:
+                    parsed["skipped"] = num
+
+        # Look for FAILED test cases (e.g. "FAILED tests/unit/test_foo.py::test_bar - AssertionError...")
+        for fail_match in re.finditer(r"FAILED\s+([^\s\n]+)(?:\s+-\s+([^\n]+))?", combined):
+            parsed["failures"].append({
+                "test": fail_match.group(1),
+                "detail": (fail_match.group(2) or "").strip(),
+            })
+
+        # Look for FAIL: / ERROR: from unittest style
+        for fail_match in re.finditer(r"(?:FAIL|ERROR):\s+([^\s\n]+)", combined):
+            test_id = fail_match.group(1)
+            if not any(f["test"] == test_id for f in parsed["failures"]):
+                parsed["failures"].append({"test": test_id, "detail": "unittest failure/error"})
+
+        return parsed
+
     def _run_phase(
         self,
         phase: str,
@@ -391,16 +438,32 @@ class DeployTestBot:
             }
 
         results = []
+        all_failures: List[Dict[str, Any]] = []
+        total_passed = 0
+        total_failed = 0
+        total_errors = 0
+
         for cmd in commands:
             try:
                 proc = subprocess.run(cmd, cwd=self.cwd, capture_output=True, text=True, check=False)
+                stdout_text = proc.stdout or ""
+                stderr_text = proc.stderr or ""
+                parsed_metrics = self._parse_test_output(stdout_text, stderr_text)
+
+                total_passed += parsed_metrics["passed"]
+                total_failed += parsed_metrics["failed"]
+                total_errors += parsed_metrics["errors"]
+                if parsed_metrics["failures"]:
+                    all_failures.extend(parsed_metrics["failures"])
+
                 results.append(
                     {
                         "command": cmd,
                         "ok": proc.returncode == 0,
                         "exit_code": proc.returncode,
-                        "stdout_tail": (proc.stdout or "")[-400:],
-                        "stderr_tail": (proc.stderr or "")[-400:],
+                        "stdout_tail": stdout_text[-800:],
+                        "stderr_tail": stderr_text[-800:],
+                        "metrics": parsed_metrics,
                     }
                 )
             except FileNotFoundError as exc:
@@ -411,6 +474,10 @@ class DeployTestBot:
             "success": success,
             "phase": phase,
             "results": results,
+            "issues": all_failures,
+            "total_passed": total_passed,
+            "total_failed": total_failed,
+            "total_errors": total_errors,
             "counts_toward_coverage": bool(phase_cfg.get("counts_toward_coverage", phase == "pre_deploy")),
             "message": f"{phase} {'passed' if success else 'failed'}",
         }

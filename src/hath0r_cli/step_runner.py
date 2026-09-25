@@ -725,12 +725,14 @@ class BotRegistry:
             pr_num = args.get("pr_number") or context.get("pr_number")
             branch = args.get("branch") or context.get("branch")
             semver = args.get("semver", "patch")
+            skip_tests = bool(args.get("skip_tests", False))
             res = bot.run_daemon(
                 pr_number=int(pr_num) if pr_num else None,
                 branch=str(branch) if branch else None,
                 repo=repo or args.get("repo"),
                 semver=semver,
                 dry_run=dry_run,
+                skip_tests=skip_tests,
             )
             return StepExecutionResult(
                 bot_id="end-of-task-daemon-bot",
@@ -992,7 +994,7 @@ class BotRegistry:
         args: dict[str, Any],
         dry_run: bool,
     ) -> StepExecutionResult:
-        if action in ("pre-deploy", "run-pre-deploy"):
+        if action in ("pre-deploy", "run-pre-deploy", "run", "test", "run-tests"):
             res = bot.run_pre_deploy(dry_run=dry_run)
         elif action in ("post-deploy", "run-post-deploy"):
             res = bot.run_post_deploy(base_url=args.get("base_url"), dry_run=dry_run)
