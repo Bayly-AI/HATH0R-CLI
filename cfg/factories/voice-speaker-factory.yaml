@@ -4,10 +4,10 @@
 
 factory_id: voice-speaker-factory
 name: Voice Speaker and Spoken Notification Factory (Phase 1)
-version: 1.1.0
+version: 1.2.0
 description: >
   Micro-bots and workflows powering autonomous spoken feedback, announcements,
-  spool queue processing, persistent speak mode toggle, and task vocalization with natural language filtering.
+  spool queue processing, persistent speak mode toggle, and voice profile configuration with natural language filtering.
 
 author: Bayly-AI
 category: voice-and-audio
@@ -40,6 +40,15 @@ bots:
       - disable
       - toggle
       - status
+
+  - id: voice-profile-bot
+    name: Voice Profile Bot
+    role: voice-profile-management
+    description: Manages voice profile discovery, listing, selection, and vocal preview.
+    capabilities:
+      - list-profiles
+      - get-active-profile
+      - set-profile
 
 workflows:
   - id: voice-speak-message
@@ -80,4 +89,20 @@ workflows:
     steps:
       - bot: voice-speaker-mode-bot
         action: disable
+        on_failure: abort
+
+  - id: list-voice-profiles
+    name: List Available Voice Profiles
+    description: Lists all installed voice profiles on the system.
+    steps:
+      - bot: voice-profile-bot
+        action: list-profiles
+        on_failure: abort
+
+  - id: set-voice-profile
+    name: Set Active Voice Profile
+    description: Sets and persists the active voice profile for all spoken outputs.
+    steps:
+      - bot: voice-profile-bot
+        action: set-profile
         on_failure: abort

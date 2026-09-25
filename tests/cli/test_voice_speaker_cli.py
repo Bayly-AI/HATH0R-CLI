@@ -81,3 +81,29 @@ def test_cli_speak_mode_on_off_status_toggle():
     assert data_off["command"] == "speak.off"
     assert data_off["data"]["enabled"] is False
 
+
+def test_cli_voice_profile_list_set_status():
+    runner = CliRunner()
+    # 1. List profiles
+    res_list = runner.invoke(main, ["--output", "json", "voice", "profile", "list"])
+    assert res_list.exit_code == 0
+    data_list = json.loads(res_list.output)
+    assert data_list["command"] == "voice.profile.list"
+    assert "voices" in data_list["data"]
+
+    # 2. Set profile with --no-preview
+    res_set = runner.invoke(main, ["--output", "json", "voice", "profile", "set", "Daniel", "--rate", "185", "--no-preview"])
+    assert res_set.exit_code == 0
+    data_set = json.loads(res_set.output)
+    assert data_set["command"] == "voice.profile.set"
+    assert data_set["data"]["voice_name"] == "Daniel"
+    assert data_set["data"]["rate_wpm"] == 185
+
+    # 3. Check status
+    res_st = runner.invoke(main, ["--output", "json", "voice", "profile", "status"])
+    assert res_st.exit_code == 0
+    data_st = json.loads(res_st.output)
+    assert data_st["command"] == "voice.profile.status"
+    assert data_st["data"]["voice_name"] == "Daniel"
+
+

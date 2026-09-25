@@ -26,6 +26,7 @@ from hath0r_cli.bots import (
     SpeechListenerBot,
     SpokenNotificationServiceBot,
     TaskAnnouncerBot,
+    VoiceProfileBot,
     VoiceSpeakerBot,
     VoiceSpeakerModeBot,
     VoiceSynthesizerBot,
@@ -127,6 +128,7 @@ class BotRegistry:
             "voice-speaker-bot": VoiceSpeakerBot(cwd=self.cwd),
             "spoken-notification-service-bot": SpokenNotificationServiceBot(cwd=self.cwd),
             "voice-speaker-mode-bot": VoiceSpeakerModeBot(cwd=self.cwd),
+            "voice-profile-bot": VoiceProfileBot(cwd=self.cwd),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -211,6 +213,8 @@ class BotRegistry:
                 return self._dispatch_spoken_notification_service(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "voice-speaker-mode-bot":
                 return self._dispatch_voice_speaker_mode(bot, action, args, dry_run=dry_run)
+            elif bot_id == "voice-profile-bot":
+                return self._dispatch_voice_profile(bot, action, args, dry_run=dry_run)
             else:
                 return StepExecutionResult(
                     bot_id=bot_id,
@@ -1464,6 +1468,52 @@ class BotRegistry:
             action=action,
             success=False,
             error=f"Unknown action '{action}' for voice-speaker-mode-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_voice_profile(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("list-profiles", "list", "ls"):
+            res = bot.list_profiles()
+            return StepExecutionResult(
+                bot_id="voice-profile-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("get-active-profile", "get-active", "status"):
+            res = bot.get_active_profile()
+            return StepExecutionResult(
+                bot_id="voice-profile-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("set-profile", "set"):
+            voice_name = str(args.get("voice_name") or args.get("name") or "Samantha")
+            rate = args.get("rate_wpm")
+            preview = bool(args.get("preview", True))
+            res = bot.set_profile(voice_name=voice_name, rate_wpm=rate, preview=preview, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-profile-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="voice-profile-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for voice-profile-bot.",
             dry_run=dry_run,
         )
 

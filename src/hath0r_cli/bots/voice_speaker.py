@@ -102,8 +102,22 @@ class VoiceSpeakerBot:
                 "spoken": False,
                 "dry_run": True,
                 "text": spoken_text,
+                "voice_name": voice_name or "Samantha",
                 "engine": "simulated",
             }
+
+        # Determine voice name and rate from active profile if not explicitly passed
+        target_voice = voice_name
+        target_rate = rate_wpm
+        if not target_voice or not target_rate:
+            try:
+                prof = VoiceProfileBot(cwd=self.cwd).get_active_profile()
+                if not target_voice:
+                    target_voice = prof.get("voice_name")
+                if not target_rate:
+                    target_rate = prof.get("rate_wpm")
+            except Exception:
+                pass
 
         clean_text = spoken_text.replace('"', '\\"')
         spoken = False
@@ -112,10 +126,10 @@ class VoiceSpeakerBot:
         try:
             if sys.platform == "darwin" and shutil.which("say"):
                 cmd = ["say"]
-                if voice_name:
-                    cmd.extend(["-v", voice_name])
-                if rate_wpm:
-                    cmd.extend(["-r", str(rate_wpm)])
+                if target_voice and target_voice != "default":
+                    cmd.extend(["-v", target_voice])
+                if target_rate:
+                    cmd.extend(["-r", str(target_rate)])
                 cmd.append(clean_text)
                 subprocess.run(cmd, check=False, timeout=12)
                 spoken = True
@@ -123,10 +137,10 @@ class VoiceSpeakerBot:
             elif sys.platform.startswith("linux"):
                 if shutil.which("espeak-ng"):
                     cmd = ["espeak-ng"]
-                    if voice_name:
-                        cmd.extend(["-v", voice_name])
-                    if rate_wpm:
-                        cmd.extend(["-s", str(rate_wpm)])
+                    if target_voice and target_voice != "default":
+                        cmd.extend(["-v", target_voice])
+                    if target_rate:
+                        cmd.extend(["-s", str(target_rate)])
                     cmd.append(clean_text)
                     subprocess.run(cmd, check=False, timeout=12)
                     spoken = True
@@ -477,4 +491,150 @@ class VoiceSpeakerModeBot:
             spoken_text = f"Hathor {command.replace('.', ' ')} reported status {state}."
 
         return self.speaker.speak(spoken_text, filter_code=True, dry_run=dry_run)
+
+
+@dataclass
+class VoiceProfileBot:
+    """Manages voice profile discovery, listing, selection, and preview."""
+
+    cwd: Path = field(default_factory=Path.cwd)
+
+    @property
+    def config_file(self) -> Path:
+        return self.cwd / ".hath0r" / "voice_profile.json"
+
+    @property
+    def shared_voice_config(self) -> Path:
+        return self.cwd / "cfg" / "voice.json"
+
+    def get_active_profile(self) -> Dict[str, Any]:
+        """Retrieve current active voice profile name and speech rate."""
+        # 1. Local state file
+        if self.config_file.is_file():
+            try:
+                data = json.loads(self.config_file.read_text(encoding="utf-8"))
+                if data.get("voice_name"):
+                    return {
+                        "voice_name": data["voice_name"],
+                        "rate_wpm": data.get("rate_wpm", 200),
+                        "source": "local_state",
+                    }
+            except Exception:
+                pass
+
+        # 2. Shared cfg/voice.json
+        if self.shared_voice_config.is_file():
+            try:
+                data = json.loads(self.shared_voice_config.read_text(encoding="utf-8"))
+                tts = data.get("tts", {})
+                v_name = tts.get("voice_name")
+                if v_name and v_name != "default":
+                    return {
+                        "voice_name": v_name,
+                        "rate_wpm": tts.get("rate_wpm", 200),
+                        "source": "cfg_voice",
+                    }
+            except Exception:
+                pass
+
+        # 3. Platform default
+        default_voice = "Samantha" if sys.platform == "darwin" else "default"
+        return {"voice_name": default_voice, "rate_wpm": 200, "source": "default"}
+
+    def list_profiles(self) -> Dict[str, Any]:
+        """Enumerate all available platform voices."""
+        active = self.get_active_profile()
+        active_name = active.get("voice_name", "").lower()
+        voices: List[Dict[str, Any]] = []
+
+        if sys.platform == "darwin":
+            try:
+                proc = subprocess.run(["say", "-v", "?"], capture_output=True, text=True, timeout=5)
+                if proc.returncode == 0:
+                    for line in proc.stdout.splitlines():
+                        line = line.strip()
+                        if not line:
+                            continue
+                        parts = line.split("#", 1)
+                        desc = parts[1].strip() if len(parts) > 1 else ""
+                        header_parts = parts[0].strip().split()
+                        if header_parts:
+                            v_name = " ".join(header_parts[:-1]) if len(header_parts) > 1 else header_parts[0]
+                            locale = header_parts[-1] if len(header_parts) > 1 else "en_US"
+                            voices.append(
+                                {
+                                    "name": v_name,
+                                    "locale": locale,
+                                    "description": desc,
+                                    "is_active": v_name.lower() == active_name,
+                                }
+                            )
+            except Exception:
+                pass
+
+        if not voices:
+            fallback_names = ["Samantha", "Daniel", "Karen", "Moira", "Reed", "Flo", "Eddy", "Alex", "Fred"]
+            for f_name in fallback_names:
+                voices.append(
+                    {
+                        "name": f_name,
+                        "locale": "en_US" if f_name != "Daniel" else "en_GB",
+                        "description": f"Standard voice profile: {f_name}",
+                        "is_active": f_name.lower() == active_name,
+                    }
+                )
+
+        return {
+            "success": True,
+            "active_profile": active,
+            "count": len(voices),
+            "voices": voices,
+        }
+
+    def set_profile(
+        self,
+        voice_name: str,
+        rate_wpm: Optional[int] = None,
+        preview: bool = True,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Set and persist the active voice profile."""
+        clean_name = voice_name.strip()
+        rate = rate_wpm or 200
+
+        record = {
+            "voice_name": clean_name,
+            "rate_wpm": rate,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+
+        if not dry_run:
+            self.config_file.parent.mkdir(parents=True, exist_ok=True)
+            self.config_file.write_text(json.dumps(record, indent=2), encoding="utf-8")
+
+            if self.shared_voice_config.is_file():
+                try:
+                    cfg_data = json.loads(self.shared_voice_config.read_text(encoding="utf-8"))
+                    cfg_data.setdefault("tts", {})["voice_name"] = clean_name
+                    if rate_wpm:
+                        cfg_data["tts"]["rate_wpm"] = rate
+                    self.shared_voice_config.write_text(json.dumps(cfg_data, indent=2), encoding="utf-8")
+                except Exception:
+                    pass
+
+        preview_result = None
+        if preview and not dry_run:
+            speaker = VoiceSpeakerBot(cwd=self.cwd)
+            preview_msg = f"Voice profile set to {clean_name}."
+            preview_result = speaker.speak(preview_msg, voice_name=clean_name, rate_wpm=rate)
+
+        return {
+            "success": True,
+            "voice_name": clean_name,
+            "rate_wpm": rate,
+            "preview_spoken": bool(preview and not dry_run),
+            "preview_result": preview_result,
+            "config_file": str(self.config_file),
+        }
+
 

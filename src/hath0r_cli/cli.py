@@ -3486,6 +3486,111 @@ def voice_speaker_drain(ctx: click.Context, max_messages: Optional[int]) -> None
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@voice.group("profile", invoke_without_command=True)
+@click.pass_context
+def voice_profile_group(ctx: click.Context) -> None:
+    """Manage and configure speech synthesis voice profiles."""
+    if ctx.invoked_subcommand is None:
+        ctx.invoke(voice_profile_list)
+
+
+@voice_profile_group.command("list")
+@click.option("--all", "show_all", is_flag=True, default=False, help="Show all installed platform voices.")
+@click.pass_context
+def voice_profile_list(ctx: click.Context, show_all: bool) -> None:
+    """List available voice profiles and inspect current active voice."""
+    from hath0r_cli.bots.voice_speaker import VoiceProfileBot
+
+    bot = VoiceProfileBot()
+    res = bot.list_profiles()
+
+    response = _build_response(
+        ctx,
+        command="voice.profile.list",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        table = Table(title="HATH0R Speech Synthesis Voice Profiles")
+        table.add_column("Status", style="bold", width=8)
+        table.add_column("Voice Name", style="bold cyan")
+        table.add_column("Locale", style="dim")
+        table.add_column("Description")
+
+        voices = res.get("voices", [])
+        # If not show_all, prioritize English / common voices
+        if not show_all:
+            voices = [v for v in voices if "en" in v.get("locale", "").lower()] or voices[:15]
+
+        for v in voices:
+            status_icon = "[green]● ACTIVE[/green]" if v.get("is_active") else ""
+            table.add_row(status_icon, v.get("name", ""), v.get("locale", ""), v.get("description", ""))
+
+        console.print(table)
+        active_prof = res.get("active_profile", {})
+        console.print(f"Active Voice: [bold green]{active_prof.get('voice_name')}[/bold green] (Rate: {active_prof.get('rate_wpm')} WPM)")
+        console.print("  • Change voice: 'hath0r voice profile set <name>'")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_profile_group.command("set")
+@click.argument("voice_name")
+@click.option("--rate", "-r", "rate_wpm", type=int, default=None, help="Optional speech rate (words per minute).")
+@click.option("--no-preview", is_flag=True, default=False, help="Set voice without vocal preview.")
+@click.pass_context
+def voice_profile_set(ctx: click.Context, voice_name: str, rate_wpm: Optional[int], no_preview: bool) -> None:
+    """Set and persist the active voice profile for all spoken outputs."""
+    from hath0r_cli.bots.voice_speaker import VoiceProfileBot
+
+    bot = VoiceProfileBot()
+    dry_run = bool(ctx.obj.get("dry_run", False))
+    res = bot.set_profile(
+        voice_name=voice_name,
+        rate_wpm=rate_wpm,
+        preview=not no_preview and not dry_run,
+        dry_run=dry_run,
+    )
+
+    response = _build_response(
+        ctx,
+        command="voice.profile.set",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        console.print(f"[bold green]✓ Voice Profile Set:[/bold green] [cyan]{res.get('voice_name')}[/cyan]")
+        console.print(f"  • Speech Rate: {res.get('rate_wpm')} WPM")
+        console.print(f"  • Configuration saved to {res.get('config_file')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_profile_group.command("status")
+@click.pass_context
+def voice_profile_status(ctx: click.Context) -> None:
+    """Get active voice profile status."""
+    from hath0r_cli.bots.voice_speaker import VoiceProfileBot
+
+    bot = VoiceProfileBot()
+    res = bot.get_active_profile()
+
+    response = _build_response(
+        ctx,
+        command="voice.profile.status",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        console.print(f"Active Voice Profile: [bold green]{res.get('voice_name')}[/bold green] (Rate: {res.get('rate_wpm')} WPM)")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+
 @main.group("speak", invoke_without_command=True)
 @click.pass_context
 def speak_group(ctx: click.Context) -> None:

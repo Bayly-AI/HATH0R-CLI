@@ -201,3 +201,68 @@ def test_workflow_enable_disable_speak_mode():
     assert res_off.success is True
     assert res_off.steps[0].data["enabled"] is False
 
+
+def test_voice_profile_bot_lifecycle(tmp_path: Path):
+    from hath0r_cli.bots.voice_speaker import VoiceProfileBot
+
+    bot = VoiceProfileBot(cwd=tmp_path)
+    # List profiles
+    profiles_res = bot.list_profiles()
+    assert profiles_res["success"] is True
+    assert "voices" in profiles_res
+    assert isinstance(profiles_res["voices"], list)
+
+    # Get active profile (default Samantha)
+    active = bot.get_active_profile()
+    assert active["voice_name"] == "Samantha"
+
+    # Set new profile (e.g. Daniel with rate 190)
+    set_res = bot.set_profile("Daniel", rate_wpm=190, preview=False, dry_run=False)
+    assert set_res["success"] is True
+    assert set_res["voice_name"] == "Daniel"
+    assert set_res["rate_wpm"] == 190
+
+    # Verify active profile is now Daniel
+    active_now = bot.get_active_profile()
+    assert active_now["voice_name"] == "Daniel"
+    assert active_now["rate_wpm"] == 190
+
+
+
+def test_workflow_voice_profiles(tmp_path: Path):
+    registry = BotRegistry(cwd=tmp_path)
+    # Test list workflow
+    wf_list = {
+        "id": "list-voice-profiles",
+        "name": "List Voice Profiles Workflow",
+        "steps": [
+            {
+                "bot": "voice-profile-bot",
+                "action": "list-profiles",
+                "args": {},
+                "on_failure": "abort",
+            }
+        ],
+    }
+    res_list = execute_workflow(wf_list, registry=registry, dry_run=True)
+    assert res_list.success is True
+    assert "voices" in res_list.steps[0].data
+
+    # Test set workflow
+    wf_set = {
+        "id": "set-voice-profile",
+        "name": "Set Voice Profile Workflow",
+        "steps": [
+            {
+                "bot": "voice-profile-bot",
+                "action": "set-profile",
+                "args": {"voice_name": "Karen", "rate_wpm": 185, "preview": False},
+                "on_failure": "abort",
+            }
+        ],
+    }
+    res_set = execute_workflow(wf_set, registry=registry, dry_run=True)
+    assert res_set.success is True
+    assert res_set.steps[0].data["voice_name"] == "Karen"
+
+
