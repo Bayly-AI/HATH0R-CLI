@@ -27,6 +27,7 @@ from hath0r_cli.bots import (
     SpokenNotificationServiceBot,
     TaskAnnouncerBot,
     VoiceSpeakerBot,
+    VoiceSpeakerModeBot,
     VoiceSynthesizerBot,
 )
 from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
@@ -125,6 +126,7 @@ class BotRegistry:
             "proactive-speaker-bot": ProactiveSpeakerBot(cwd=self.cwd),
             "voice-speaker-bot": VoiceSpeakerBot(cwd=self.cwd),
             "spoken-notification-service-bot": SpokenNotificationServiceBot(cwd=self.cwd),
+            "voice-speaker-mode-bot": VoiceSpeakerModeBot(cwd=self.cwd),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -207,6 +209,8 @@ class BotRegistry:
                 return self._dispatch_voice_speaker(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "spoken-notification-service-bot":
                 return self._dispatch_spoken_notification_service(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "voice-speaker-mode-bot":
+                return self._dispatch_voice_speaker_mode(bot, action, args, dry_run=dry_run)
             else:
                 return StepExecutionResult(
                     bot_id=bot_id,
@@ -1407,6 +1411,59 @@ class BotRegistry:
             action=action,
             success=False,
             error=f"Unknown action '{action}' for spoken-notification-service-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_voice_speaker_mode(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        speak = bool(args.get("speak", True))
+        if action in ("enable", "enable-speak-mode", "on"):
+            res = bot.enable(speak=speak, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-speaker-mode-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("disable", "disable-speak-mode", "off"):
+            res = bot.disable(speak=speak, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-speaker-mode-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("toggle", "toggle-speak-mode"):
+            res = bot.toggle(speak=speak, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-speaker-mode-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("status", "get-status"):
+            res = bot.status()
+            return StepExecutionResult(
+                bot_id="voice-speaker-mode-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="voice-speaker-mode-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for voice-speaker-mode-bot.",
             dry_run=dry_run,
         )
 

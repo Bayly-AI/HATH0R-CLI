@@ -136,3 +136,68 @@ def test_workflow_voice_task_announcement_dry_run():
     assert wf_res.success is True
     assert len(wf_res.steps) == 1
     assert "All checks for Build Pipeline have passed." in wf_res.steps[0].data["text"]
+
+
+def test_voice_speaker_mode_bot_lifecycle(tmp_path: Path):
+    from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
+
+    bot = VoiceSpeakerModeBot(cwd=tmp_path)
+    # Default is disabled
+    assert bot.is_enabled() is False
+
+    # Enable
+    en_res = bot.enable(speak=False)
+    assert en_res["success"] is True
+    assert en_res["enabled"] is True
+    assert bot.is_enabled() is True
+
+    # Vocalize response summary
+    voc_res = bot.vocalize_response("doctor", "ok", {"message": "All checks passed."}, dry_run=True)
+    assert voc_res is not None
+    assert voc_res["dry_run"] is True
+    assert "All checks passed." in voc_res["text"]
+
+    # Toggle to disable
+    tog_res = bot.toggle(speak=False)
+    assert tog_res["enabled"] is False
+    assert bot.is_enabled() is False
+
+    # Disable explicitly
+    dis_res = bot.disable(speak=False)
+    assert dis_res["enabled"] is False
+
+
+def test_workflow_enable_disable_speak_mode():
+    registry = BotRegistry()
+    wf_on = {
+        "id": "enable-speak-mode",
+        "name": "Enable Global Spoken Feedback Mode",
+        "steps": [
+            {
+                "bot": "voice-speaker-mode-bot",
+                "action": "enable",
+                "args": {"speak": False},
+                "on_failure": "abort",
+            }
+        ],
+    }
+    res_on = execute_workflow(wf_on, registry=registry, dry_run=True)
+    assert res_on.success is True
+    assert res_on.steps[0].data["enabled"] is True
+
+    wf_off = {
+        "id": "disable-speak-mode",
+        "name": "Disable Global Spoken Feedback Mode",
+        "steps": [
+            {
+                "bot": "voice-speaker-mode-bot",
+                "action": "disable",
+                "args": {"speak": False},
+                "on_failure": "abort",
+            }
+        ],
+    }
+    res_off = execute_workflow(wf_off, registry=registry, dry_run=True)
+    assert res_off.success is True
+    assert res_off.steps[0].data["enabled"] is False
+

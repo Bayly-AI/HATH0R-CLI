@@ -49,3 +49,35 @@ def test_cli_voice_speaker_stop():
     data = json.loads(res.output)
     assert data["command"] == "voice.speaker.stop"
     assert data["data"]["status"] == "not_running"
+
+
+def test_cli_speak_mode_on_off_status_toggle():
+    runner = CliRunner()
+    # 1. Enable speak mode
+    res_on = runner.invoke(main, ["--output", "json", "speak", "on", "--silent"])
+    assert res_on.exit_code == 0
+    data_on = json.loads(res_on.output)
+    assert data_on["command"] == "speak.on"
+    assert data_on["data"]["enabled"] is True
+
+    # 2. Status
+    res_st = runner.invoke(main, ["--output", "json", "speak", "status"])
+    assert res_st.exit_code == 0
+    data_st = json.loads(res_st.output)
+    assert data_st["command"] == "speak.status"
+    assert data_st["data"]["enabled"] is True
+
+    # 3. Toggle off
+    res_tog = runner.invoke(main, ["--output", "json", "speak", "toggle"])
+    assert res_tog.exit_code == 0
+    data_tog = json.loads(res_tog.output)
+    assert data_tog["command"] == "speak.toggle"
+    assert data_tog["data"]["enabled"] is False
+
+    # 4. Explicit off
+    res_off = runner.invoke(main, ["--output", "json", "speak", "off", "--silent"])
+    assert res_off.exit_code == 0
+    data_off = json.loads(res_off.output)
+    assert data_off["command"] == "speak.off"
+    assert data_off["data"]["enabled"] is False
+

@@ -139,6 +139,23 @@ def _emit_response(
     mode = ctx.obj.get("output", "auto")
     emit(response, mode, console, text_renderer=text_renderer)
 
+    # Automatic spoken feedback if speak mode is active
+    try:
+        from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
+
+        speak_bot = VoiceSpeakerModeBot()
+        if speak_bot.is_enabled() and not bool(ctx.obj.get("quiet", False)):
+            cmd = response.command or ""
+            # Don't duplicate speech for direct speak commands
+            if not cmd.startswith("voice.speak") and not cmd.startswith("speak") and not cmd.startswith("voice.announce"):
+                speak_bot.vocalize_response(
+                    command=cmd,
+                    state=response.state,
+                    data=response.data if isinstance(response.data, dict) else {},
+                )
+    except Exception:
+        pass
+
 
 @click.group(invoke_without_command=True)
 @click.option(
@@ -3469,8 +3486,132 @@ def voice_speaker_drain(ctx: click.Context, max_messages: Optional[int]) -> None
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@main.group("speak", invoke_without_command=True)
+@click.pass_context
+def speak_group(ctx: click.Context) -> None:
+    """Manage global Hath0r spoken feedback mode (vocalize all agent outputs)."""
+    if ctx.invoked_subcommand is None:
+        from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
+
+        bot = VoiceSpeakerModeBot()
+        st = bot.status()
+        response = _build_response(
+            ctx,
+            command="speak.status",
+            state="ok",
+            data=st,
+        )
+
+        def _text() -> None:
+            state_label = "[bold green]ENABLED[/bold green]" if st["enabled"] else "[dim]DISABLED[/dim]"
+            console.print(f"Hath0r Speak Mode: {state_label}")
+            console.print("  • Use 'hath0r speak on' to enable automatic voice responses.")
+            console.print("  • Use 'hath0r speak off' to disable automatic voice responses.")
+
+        _emit_response(ctx, response, text_renderer=_text)
+
+
+@speak_group.command("on")
+@click.option("--silent", is_flag=True, default=False, help="Enable without vocal announcement.")
+@click.pass_context
+def speak_on(ctx: click.Context, silent: bool) -> None:
+    """Turn ON global spoken feedback mode."""
+    from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
+
+    bot = VoiceSpeakerModeBot()
+    dry_run = bool(ctx.obj.get("dry_run", False))
+    res = bot.enable(speak=not silent and not dry_run, dry_run=dry_run)
+
+    response = _build_response(
+        ctx,
+        command="speak.on",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        console.print("[bold green]✓ Hath0r Speak Mode: ENABLED[/bold green]")
+        console.print("  • The agent will now vocalize all actions and responses out loud.")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@speak_group.command("off")
+@click.option("--silent", is_flag=True, default=False, help="Disable without vocal announcement.")
+@click.pass_context
+def speak_off(ctx: click.Context, silent: bool) -> None:
+    """Turn OFF global spoken feedback mode."""
+    from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
+
+    bot = VoiceSpeakerModeBot()
+    dry_run = bool(ctx.obj.get("dry_run", False))
+    res = bot.disable(speak=not silent and not dry_run, dry_run=dry_run)
+
+    response = _build_response(
+        ctx,
+        command="speak.off",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        console.print("[dim]○ Hath0r Speak Mode: DISABLED[/dim]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@speak_group.command("toggle")
+@click.pass_context
+def speak_toggle(ctx: click.Context) -> None:
+    """Toggle global spoken feedback mode between on and off."""
+    from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
+
+    bot = VoiceSpeakerModeBot()
+    dry_run = bool(ctx.obj.get("dry_run", False))
+    res = bot.toggle(speak=not dry_run, dry_run=dry_run)
+
+    response = _build_response(
+        ctx,
+        command="speak.toggle",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("enabled"):
+            console.print("[bold green]✓ Hath0r Speak Mode: ENABLED[/bold green]")
+        else:
+            console.print("[dim]○ Hath0r Speak Mode: DISABLED[/dim]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@speak_group.command("status")
+@click.pass_context
+def speak_status(ctx: click.Context) -> None:
+    """Check if global spoken feedback mode is active."""
+    from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
+
+    bot = VoiceSpeakerModeBot()
+    st = bot.status()
+
+    response = _build_response(
+        ctx,
+        command="speak.status",
+        state="ok",
+        data=st,
+    )
+
+    def _text() -> None:
+        state_label = "[bold green]ENABLED[/bold green]" if st["enabled"] else "[dim]DISABLED[/dim]"
+        console.print(f"Hath0r Speak Mode: {state_label}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
 if __name__ == "__main__":
     main()
+
 
 
 

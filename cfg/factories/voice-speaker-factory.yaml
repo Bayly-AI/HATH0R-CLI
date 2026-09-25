@@ -4,10 +4,10 @@
 
 factory_id: voice-speaker-factory
 name: Voice Speaker and Spoken Notification Factory (Phase 1)
-version: 1.0.0
+version: 1.1.0
 description: >
   Micro-bots and workflows powering autonomous spoken feedback, announcements,
-  spool queue processing, and task vocalization with natural language filtering.
+  spool queue processing, persistent speak mode toggle, and task vocalization with natural language filtering.
 
 author: Bayly-AI
 category: voice-and-audio
@@ -30,6 +30,16 @@ bots:
       - drain-queue
       - start-daemon
       - stop-daemon
+
+  - id: voice-speaker-mode-bot
+    name: Voice Speaker Mode Bot
+    role: global-spoken-feedback-toggle
+    description: Manages persistent Hath0r speak mode to vocalize all agent responses and outputs.
+    capabilities:
+      - enable
+      - disable
+      - toggle
+      - status
 
 workflows:
   - id: voice-speak-message
@@ -55,3 +65,19 @@ workflows:
       - bot: spoken-notification-service-bot
         action: queue-message
         on_failure: continue
+
+  - id: enable-speak-mode
+    name: Enable Global Spoken Feedback Mode
+    description: Turns on Hath0r speak mode to vocalize all subsequent actions and outputs.
+    steps:
+      - bot: voice-speaker-mode-bot
+        action: enable
+        on_failure: abort
+
+  - id: disable-speak-mode
+    name: Disable Global Spoken Feedback Mode
+    description: Turns off Hath0r speak mode to silence automatic vocalization.
+    steps:
+      - bot: voice-speaker-mode-bot
+        action: disable
+        on_failure: abort

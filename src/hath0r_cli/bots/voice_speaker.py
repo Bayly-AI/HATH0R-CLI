@@ -363,3 +363,118 @@ class SpokenNotificationServiceBot:
             "pending_count": queue_count,
             "log_file": str(self.log_file) if self.log_file.is_file() else None,
         }
+
+
+@dataclass
+class VoiceSpeakerModeBot:
+    """Manages persistent hath0r-speak mode to vocalize all agent responses and outputs."""
+
+    cwd: Path = field(default_factory=Path.cwd)
+    speaker: VoiceSpeakerBot = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.speaker = VoiceSpeakerBot(cwd=self.cwd)
+
+    @property
+    def config_file(self) -> Path:
+        return self.cwd / ".hath0r" / "speak_mode.json"
+
+    def is_enabled(self) -> bool:
+        """Check if global spoken feedback mode is currently active."""
+        if os.environ.get("HATH0R_SPEAK", "").lower() in ("1", "true", "yes", "on"):
+            return True
+        if not self.config_file.is_file():
+            return False
+        try:
+            data = json.loads(self.config_file.read_text(encoding="utf-8"))
+            return bool(data.get("enabled", False))
+        except Exception:
+            return False
+
+    def enable(self, speak: bool = True, dry_run: bool = False) -> Dict[str, Any]:
+        """Turn ON global spoken feedback mode."""
+        self.config_file.parent.mkdir(parents=True, exist_ok=True)
+        if not dry_run:
+            self.config_file.write_text(
+                json.dumps(
+                    {
+                        "enabled": True,
+                        "updated_at": datetime.now(timezone.utc).isoformat(),
+                    },
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+        msg = "Hath0r speak mode enabled. I will vocalize all agent actions and responses."
+        speak_res = self.speaker.speak(msg, dry_run=dry_run) if speak else None
+        return {
+            "success": True,
+            "enabled": True,
+            "message": msg,
+            "config_file": str(self.config_file),
+            "speak_result": speak_res,
+        }
+
+    def disable(self, speak: bool = True, dry_run: bool = False) -> Dict[str, Any]:
+        """Turn OFF global spoken feedback mode."""
+        self.config_file.parent.mkdir(parents=True, exist_ok=True)
+        if not dry_run:
+            self.config_file.write_text(
+                json.dumps(
+                    {
+                        "enabled": False,
+                        "updated_at": datetime.now(timezone.utc).isoformat(),
+                    },
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+        msg = "Hath0r speak mode disabled."
+        speak_res = self.speaker.speak(msg, dry_run=dry_run) if speak else None
+        return {
+            "success": True,
+            "enabled": False,
+            "message": msg,
+            "config_file": str(self.config_file),
+            "speak_result": speak_res,
+        }
+
+    def toggle(self, speak: bool = True, dry_run: bool = False) -> Dict[str, Any]:
+        """Toggle speak mode on or off."""
+        currently_enabled = self.is_enabled()
+        if currently_enabled:
+            return self.disable(speak=speak, dry_run=dry_run)
+        return self.enable(speak=speak, dry_run=dry_run)
+
+    def status(self) -> Dict[str, Any]:
+        """Return speak mode status."""
+        enabled = self.is_enabled()
+        return {
+            "enabled": enabled,
+            "status": "enabled" if enabled else "disabled",
+            "config_file": str(self.config_file),
+        }
+
+    def vocalize_response(
+        self,
+        command: str,
+        state: str,
+        data: Optional[Dict[str, Any]] = None,
+        dry_run: bool = False,
+    ) -> Optional[Dict[str, Any]]:
+        """Automatically summarize and speak the result of an action or command."""
+        if not self.is_enabled() and not dry_run:
+            return None
+
+        # Build concise spoken sentence
+        data_dict = data or {}
+        custom_msg = data_dict.get("message")
+        if custom_msg and isinstance(custom_msg, str):
+            spoken_text = filter_speech_text(custom_msg)
+        elif state == "ok":
+            spoken_text = f"Hathor {command.replace('.', ' ')} completed successfully."
+        else:
+            spoken_text = f"Hathor {command.replace('.', ' ')} reported status {state}."
+
+        return self.speaker.speak(spoken_text, filter_code=True, dry_run=dry_run)
+
