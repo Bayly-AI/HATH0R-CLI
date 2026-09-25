@@ -4,12 +4,12 @@
 
 factory_id: start-of-task-factory
 name: Start of Task Automation Factory
-version: 1.0.0
+version: 1.1.0
 description: >
   Canonical automation factory executed at the start of any task in any Hath0r repository.
-  Enforces issue-first governance (cr-branch-gov-001) by verifying or creating the GitHub ticket,
-  validating the git workspace state, preventing edits on canonical branches, and ensuring
-  checkout of a properly named work branch.
+  Enforces issue-first governance (cr-branch-gov-001) by invoking the issue-factory, verifying
+  or creating the GitHub ticket, validating issue state and detailed descriptions, checking dependencies,
+  preventing edits on canonical branches, and ensuring checkout of a properly named work branch.
 
 author: Bayly-AI
 category: governance-and-automation
@@ -25,6 +25,16 @@ bots:
       - create-issue
       - view-issue
 
+  - id: issue-manager-bot
+    name: Issue Manager Bot
+    role: organization-issue-lifecycle-and-prioritization
+    description: Validates issue status, detailed descriptions, and dependency priorities.
+    capabilities:
+      - list-issues
+      - create-issue
+      - update-issue
+      - validate-issue
+
   - id: branch-guard-bot
     name: Branch Guard Bot
     role: branch-governance-and-isolation
@@ -37,11 +47,15 @@ bots:
 workflows:
   - id: start-of-task
     name: Canonical Start of Task Lifecycle
-    description: Verify issue existence, check branch status, and switch to compliant work branch.
+    description: Verify issue existence, validate description & dependencies, check branch status, and switch to work branch.
     steps:
       - bot: issue-guard-bot
         action: verify-issue
         on_failure: abort
+
+      - bot: issue-manager-bot
+        action: validate-issue
+        on_failure: continue
 
       - bot: branch-guard-bot
         action: ensure-work-branch

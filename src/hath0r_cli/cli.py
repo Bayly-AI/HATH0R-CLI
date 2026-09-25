@@ -1672,8 +1672,15 @@ def task_start(
             "args": {"issue_number": issue_number, "repo": repo},
             "on_failure": "abort",
         })
+        # Step 2: run issue-factory validation & dependency checking
+        steps.append({
+            "bot": "issue-manager-bot",
+            "action": "validate-issue",
+            "args": {"issue_number": issue_number, "repo": repo},
+            "on_failure": "warn",
+        })
 
-    # Step 2: ensure work branch
+    # Step 3: ensure work branch
     steps.append({
         "bot": "branch-guard-bot",
         "action": "ensure-work-branch",
