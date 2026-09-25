@@ -327,4 +327,26 @@ def test_workflow_voice_read_active_tab(tmp_path: Path):
     assert res_wf.steps[0].data["spoken_text"] == "Agent response from active tab ready."
 
 
+def test_interpret_response_for_speech():
+    from hath0r_cli.bots.voice_speaker import interpret_response_for_speech
+
+    # 1. Issue list interpretation
+    t1 = interpret_response_for_speech("issue.list", "ok", {"total_count": 5, "repo_count": 16})
+    assert "Found 5 active issues across 16 repositories" in t1
+
+    # 2. Quality gate interpretation
+    t2 = interpret_response_for_speech("quality.check", "ok", {"passed": True})
+    assert "Quality gates passed successfully." in t2
+
+    # 3. Doctor interpretation
+    t3 = interpret_response_for_speech("doctor", "ok", {})
+    assert "doctor check completed" in t3
+
+    # 4. Explicit message override with code block filtering
+    t4 = interpret_response_for_speech("any.command", "ok", {"message": "Summary: ```sh\nls\n``` All good."})
+    assert "Summary: All good." in t4
+    assert "```" not in t4
+
+
+
 

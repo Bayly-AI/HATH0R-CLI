@@ -1159,6 +1159,7 @@ from hath0r_cli.bots.voice_speaker import (  # noqa: E402
     VoiceSpeakerBot,
     VoiceSpeakerModeBot,
     filter_speech_text,
+    interpret_response_for_speech,
 )
 
 __all__ = [
@@ -1191,7 +1192,9 @@ __all__ = [
     "VoiceSpeakerModeBot",
     "VoiceSynthesizerBot",
     "filter_speech_text",
+    "interpret_response_for_speech",
 ]
+
 
 
 

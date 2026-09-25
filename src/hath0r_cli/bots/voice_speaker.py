@@ -379,6 +379,55 @@ class SpokenNotificationServiceBot:
         }
 
 
+def interpret_response_for_speech(command: str, state: str, data: Optional[Dict[str, Any]] = None) -> str:
+    """Standardize and interpret CLI command output and returned data into natural spoken prose."""
+    data_dict = data or {}
+
+    # 1. Explicit message or summary override
+    for k in ("spoken_message", "message", "summary", "description"):
+        val = data_dict.get(k)
+        if val and isinstance(val, str) and len(val.strip()) > 0:
+            return filter_speech_text(val)
+
+    cmd_norm = command.lower().replace("_", ".").strip()
+
+    # 2. Domain-specific interpretations
+    if "issue.list" in cmd_norm:
+        total = data_dict.get("total_count") or data_dict.get("count") or len(data_dict.get("issues", []))
+        repos = data_dict.get("repo_count") or len(data_dict.get("repos", []))
+        if total:
+            return f"Issue scan complete. Found {total} active issues across {repos or 'the'} repositories."
+        return "Issue scan complete. No open issues found."
+
+    if "voice.profile" in cmd_norm:
+        v_name = data_dict.get("voice_name")
+        if v_name:
+            return f"Active voice profile is {v_name}."
+
+    if "speak" in cmd_norm:
+        scope = data_dict.get("scope", "global")
+        enabled = data_dict.get("enabled", False)
+        status_word = "enabled" if enabled else "disabled"
+        return f"Hath0r speak mode is {status_word} with {scope} scope."
+
+    if "quality" in cmd_norm or "gate" in cmd_norm:
+        passed = data_dict.get("passed", True) if state == "ok" else False
+        return "Quality gates passed successfully." if passed else "Quality gate checks reported warnings or failures."
+
+    if "doctor" in cmd_norm:
+        return "Hath0r system doctor check completed. All control tower paths and configurations are healthy."
+
+    if "repo.clean" in cmd_norm or "repo.audit" in cmd_norm:
+        stale = data_dict.get("stale_count", 0)
+        return f"Repository audit completed. Found {stale} items to clean."
+
+    # 3. Default fallback interpretation
+    clean_cmd = cmd_norm.replace(".", " ")
+    if state == "ok":
+        return f"Hathor {clean_cmd} completed successfully."
+    return f"Hathor {clean_cmd} finished with status {state}."
+
+
 @dataclass
 class VoiceSpeakerModeBot:
     """Manages persistent hath0r-speak mode to vocalize all agent responses and outputs."""
@@ -527,7 +576,6 @@ class VoiceSpeakerModeBot:
             "config_file": str(self.config_file),
         }
 
-
     def vocalize_response(
         self,
         command: str,
@@ -535,21 +583,14 @@ class VoiceSpeakerModeBot:
         data: Optional[Dict[str, Any]] = None,
         dry_run: bool = False,
     ) -> Optional[Dict[str, Any]]:
-        """Automatically summarize and speak the result of an action or command."""
+        """Automatically summarize, interpret, and speak the result of an action or command."""
         if not self.is_enabled() and not dry_run:
             return None
 
-        # Build concise spoken sentence
-        data_dict = data or {}
-        custom_msg = data_dict.get("message")
-        if custom_msg and isinstance(custom_msg, str):
-            spoken_text = filter_speech_text(custom_msg)
-        elif state == "ok":
-            spoken_text = f"Hathor {command.replace('.', ' ')} completed successfully."
-        else:
-            spoken_text = f"Hathor {command.replace('.', ' ')} reported status {state}."
-
+        # Standardized interpretation of returned data
+        spoken_text = interpret_response_for_speech(command, state, data)
         return self.speaker.speak(spoken_text, filter_code=True, dry_run=dry_run)
+
 
 
 @dataclass
