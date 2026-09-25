@@ -441,9 +441,9 @@ _ADR003_PLANES = [
     },
     {
         "id": "repo",
-        "commands": ["repo …"],
-        "status": "planned",
-        "notes": "UPL validate/init beyond bootstrap scripts",
+        "commands": ["repo audit", "repo clean"],
+        "status": "shipped",
+        "notes": "Repository hygiene, root cleanliness, and configuration organization",
     },
     {
         "id": "delivery",
@@ -534,6 +534,20 @@ _SHIPPED_COMMANDS = [
         "invocation": ["hath0r mcp sources list|test|fetch-sample"],
         "status": "shipped",
         "effects": "read_only",
+        "output_kind": "data",
+    },
+    {
+        "name": "repo.audit",
+        "invocation": ["hath0r repo audit"],
+        "status": "shipped",
+        "effects": "read_only",
+        "output_kind": "data",
+    },
+    {
+        "name": "repo.clean",
+        "invocation": ["hath0r repo clean"],
+        "status": "shipped",
+        "effects": "modifying",
         "output_kind": "data",
     },
 ]
@@ -2664,6 +2678,113 @@ def issue_create(ctx: click.Context, repo: str, title: str, body: str, labels: t
     _emit_response(ctx, response, text_renderer=_text)
     if not res.get("success"):
         ctx.exit(1)
+
+
+# ============================================================================
+# Repository Hygiene & Organization Group (Issue #135)
+# ============================================================================
+
+
+@main.group()
+def repo() -> None:
+    """Repository Hygiene & Organization: audit and clean root files and configs."""
+
+
+@repo.command("audit")
+@click.pass_context
+def repo_audit(ctx: click.Context) -> None:
+    """Audit project root, configuration placement, and knowledge modularity."""
+    from hath0r_cli.bots.repo_clean import ConfigOrganizerBot, KnowledgeOrganizerBot, RepoHygieneBot
+
+    hygiene = RepoHygieneBot(cwd=Path.cwd()).scan_root()
+    configs = ConfigOrganizerBot(cwd=Path.cwd()).scan_misplaced_configs()
+    knowledge = KnowledgeOrganizerBot(cwd=Path.cwd()).audit_knowledge_structure()
+
+    is_clean = hygiene.get("clean") and configs.get("clean") and knowledge.get("organized")
+    status_state = "ok" if is_clean else "degraded"
+
+    data = {
+        "clean": is_clean,
+        "hygiene": hygiene,
+        "configs": configs,
+        "knowledge": knowledge,
+    }
+    response = _build_response(ctx, command="repo.audit", state=status_state, data=data)
+
+    def _text() -> None:
+        console.print("[bold cyan]Repository Cleanliness & Structure Audit[/bold cyan]")
+        console.print("-" * 65)
+
+        # Root files
+        if hygiene.get("clean"):
+            console.print("  [green]✓ Project Root:[/green] Clean (no errant or unwhitelisted files)")
+        else:
+            console.print(f"  [red]✗ Project Root:[/red] Found {hygiene.get('errant_count')} errant file(s):")
+            for ef in hygiene.get("errant_files", []):
+                console.print(f"    - {ef.get('name')} ({ef.get('size_bytes')} bytes)")
+
+        # Configs
+        if configs.get("clean"):
+            console.print("  [green]✓ Configuration Placement:[/green] Clean (all configs properly stored)")
+        else:
+            misplaced_cnt = configs.get('misplaced_count')
+            console.print(f"  [yellow]! Configuration Placement:[/yellow] {misplaced_cnt} misplaced root config(s):")
+            for mc in configs.get("misplaced_configs", []):
+                console.print(f"    - {mc.get('name')} -> recommended: {mc.get('recommended_dest')}")
+
+        # Knowledge
+        if knowledge.get("organized"):
+            console.print("  [green]✓ Knowledge & Rules Modularity:[/green] Organized across topic folders")
+        else:
+            findings_cnt = knowledge.get('findings_count')
+            console.print(f"  [yellow]! Knowledge & Rules Modularity:[/yellow] {findings_cnt} issue(s):")
+            for f in knowledge.get("findings", []):
+                console.print(f"    - {f.get('file')} ({f.get('lines')} lines): {f.get('recommendation')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not is_clean:
+        ctx.exit(1)
+
+
+@repo.command("clean")
+@click.option("--target-folder", default=".cfg", show_default=True, help="Target folder for relocated configs.")
+@click.option(
+    "--archive-dir",
+    default=".hath0r/spool/archive",
+    show_default=True,
+    help="Directory to archive errant root files.",
+)
+@click.option("--dry-run", is_flag=True, default=False, help="Simulate actions without moving files.")
+@click.pass_context
+def repo_clean(ctx: click.Context, target_folder: str, archive_dir: str, dry_run: bool) -> None:
+    """Relocate misplaced configs to .cfg/ and clean errant root files."""
+    from hath0r_cli.bots.repo_clean import ConfigOrganizerBot, RepoHygieneBot
+
+    config_res = ConfigOrganizerBot(cwd=Path.cwd()).organize_configs(target_folder=target_folder, dry_run=dry_run)
+    hygiene_res = RepoHygieneBot(cwd=Path.cwd()).clean_root(dry_run=dry_run, archive_dir=archive_dir)
+
+    data = {
+        "dry_run": dry_run,
+        "config_relocations": config_res,
+        "root_cleanup": hygiene_res,
+    }
+    response = _build_response(ctx, command="repo.clean", state="ok", dry_run=dry_run, data=data)
+
+    def _text() -> None:
+        prefix = "[DRY-RUN] " if dry_run else ""
+        console.print(f"[bold cyan]{prefix}Repository Cleanup & Organization[/bold cyan]")
+        console.print("-" * 65)
+
+        for rel in config_res.get("relocations", []):
+            console.print(f"  [green]✓ Config:[/green] {rel.get('action')}")
+
+        for cln in hygiene_res.get("actions", []):
+            console.print(f"  [green]✓ Root File:[/green] {cln.get('action')}")
+
+        if not config_res.get("relocations") and not hygiene_res.get("actions"):
+            console.print("  [green]✓ Nothing to clean. Repository root is spotless.[/green]")
+
+    _emit_response(ctx, response, text_renderer=_text)
 
 
 # ============================================================================

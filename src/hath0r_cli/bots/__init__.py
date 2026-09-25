@@ -1145,10 +1145,12 @@ class DockerBot:
 
 from hath0r_cli.bots.daemon import EndOfTaskDaemonBot  # noqa: E402
 from hath0r_cli.bots.issue_manager import IssueManagerBot  # noqa: E402
+from hath0r_cli.bots.repo_clean import ConfigOrganizerBot, KnowledgeOrganizerBot, RepoHygieneBot  # noqa: E402
 
 __all__ = [
     "BranchBot",
     "BranchGuardBot",
+    "ConfigOrganizerBot",
     "DeployTestBot",
     "DockerBot",
     "DockerMonitorBot",
@@ -1158,11 +1160,14 @@ __all__ = [
     "GitJanitorBot",
     "IssueGuardBot",
     "IssueManagerBot",
+    "KnowledgeOrganizerBot",
     "PRBot",
     "PreflightBot",
     "QualityGateBot",
     "ReleaseBot",
+    "RepoHygieneBot",
     "TaskAnnouncerBot",
 ]
+
 
 
