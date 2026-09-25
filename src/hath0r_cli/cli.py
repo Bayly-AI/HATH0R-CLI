@@ -1804,6 +1804,12 @@ def task_start(
     default=None,
     help="Target PR number for finish or daemon watch.",
 )
+@click.option(
+    "--skip-tests",
+    is_flag=True,
+    default=False,
+    help="Skip autonomous test suite pre-validation.",
+)
 @click.pass_context
 def task_finish(
     ctx: click.Context,
@@ -1814,6 +1820,7 @@ def task_finish(
     poll_interval: float,
     timeout: float,
     pr_number: int | None,
+    skip_tests: bool,
 ) -> None:
     """Execute canonical end-of-task factory before completing an assignment."""
     import uuid
@@ -1835,6 +1842,7 @@ def task_finish(
             repo=repo,
             semver=semver,
             dry_run=dry_run,
+            skip_tests=skip_tests,
         )
         all_success = bool(daemon_res.get("success"))
         state = "ok" if all_success else "error"
