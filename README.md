@@ -57,6 +57,9 @@ make wheel
 | `hath0r --version` | Package version |
 | `hath0r planes` | ADR-003 domain status map (shipped/partial/planned) |
 | `hath0r schema` | Bounded surface schema + forbidden legacy roots |
+| `hath0r mcp sources list` | List 1-Nation federal vote-source inventory through MCP |
+| `hath0r mcp sources test SOURCE_ID` | Test an allowlisted vote source through 1N-MCP |
+| `hath0r mcp sources fetch-sample SOURCE_ID` | Fetch a bounded vote-source sample through 1N-MCP |
 
 Shipped surface is discoverable via `planes`/`schema`. Full process/work/validate/
 knowledge-write domains remain **planned** until implemented behind contracts.
