@@ -459,9 +459,9 @@ _ADR003_PLANES = [
     },
     {
         "id": "mcp",
-        "commands": ["mcp list", "mcp check", "mcp call"],
+        "commands": ["mcp list", "mcp check", "mcp call", "mcp sources list|test|fetch-sample"],
         "status": "shipped",
-        "notes": "MCP connection management, live probe, and tool execution (BaylyAI, 1-Nation, Hath0r)",
+        "notes": "MCP connection management, live probe, tool execution, and 1-Nation vote-source operations",
     },
 ]
 
@@ -527,6 +527,13 @@ _SHIPPED_COMMANDS = [
         "invocation": ["hath0r mcp call"],
         "status": "shipped",
         "effects": "interactive",
+        "output_kind": "data",
+    },
+    {
+        "name": "mcp.sources",
+        "invocation": ["hath0r mcp sources list|test|fetch-sample"],
+        "status": "shipped",
+        "effects": "read_only",
         "output_kind": "data",
     },
 ]
@@ -628,14 +635,130 @@ def schema(ctx: click.Context, status_filter: str) -> None:
 
     _emit_response(ctx, response, text_renderer=_text)
 
-
-# ============================================================================
-# MCP (Model Context Protocol) Connection Plane
-# ============================================================================
-
 @main.group()
 def mcp() -> None:
     """Model Context Protocol (MCP) server connections and tool operations."""
+
+
+@mcp.group("sources")
+def mcp_sources() -> None:
+    """Use bounded 1-Nation MCP tools for federal vote-source operations."""
+
+
+def _mcp_source_operation(
+    ctx: click.Context,
+    *,
+    command: str,
+    operation: str,
+    source_id: str | None,
+    server_id: str,
+) -> None:
+    from hath0r_cli.mcp import call_vote_source_operation
+
+    root = _discover_group_root()
+    try:
+        result = call_vote_source_operation(
+            operation,
+            source_id,
+            server_id=server_id,
+            group_root=root,
+        )
+    except Exception as exc:
+        response = _build_response(
+            ctx,
+            command=command,
+            state="error",
+            diagnostics=[
+                Diagnostic(
+                    code="VOTE_SOURCE_MCP_CALL_FAILED",
+                    message=str(exc),
+                    severity="error",
+                    remediation="Run hath0r mcp check and verify the configured 1-Nation MCP server.",
+                    provenance={"component": "hath0r-cli", "operation": command},
+                    details={"server_id": server_id, "source_id": source_id},
+                )
+            ],
+        )
+        _emit_response(ctx, response)
+        ctx.exit(1)
+
+    source_state = str(result.get("state", "ok" if operation == "list" else "error"))
+    state = "ok" if source_state == "ok" else "degraded"
+    diagnostics: list[Diagnostic] = []
+    if source_state != "ok":
+        diagnostics.append(
+            Diagnostic(
+                code=f"VOTE_SOURCE_{source_state.upper()}",
+                message=f"Vote source operation returned {source_state}.",
+                severity="warning",
+                remediation=(
+                    "Configure the external credential through the documented credentials file."
+                    if source_state == "credential_required"
+                    else "Inspect the structured source response and follow the ATC vote-source procedure."
+                ),
+                provenance={"component": "hath0r-cli", "operation": command},
+                details={"server_id": server_id, "source_id": source_id, "source_state": source_state},
+            )
+        )
+
+    response = _build_response(
+        ctx,
+        command=command,
+        state=state,
+        data={"server_id": server_id, "operation": operation, "result": result},
+        diagnostics=diagnostics,
+    )
+
+    def _text() -> None:
+        click.echo(json.dumps(result, indent=2))
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if source_state not in {"ok", "credential_required"}:
+        ctx.exit(6)
+
+
+@mcp_sources.command("list")
+@click.option("--server", "server_id", default="1-nation-mcp", show_default=True)
+@click.pass_context
+def mcp_sources_list(ctx: click.Context, server_id: str) -> None:
+    """List configured federal vote sources through 1N-MCP."""
+    _mcp_source_operation(
+        ctx,
+        command="mcp.sources.list",
+        operation="list",
+        source_id=None,
+        server_id=server_id,
+    )
+
+
+@mcp_sources.command("test")
+@click.argument("source_id")
+@click.option("--server", "server_id", default="1-nation-mcp", show_default=True)
+@click.pass_context
+def mcp_sources_test(ctx: click.Context, source_id: str, server_id: str) -> None:
+    """Test a catalog-declared federal vote source through 1N-MCP."""
+    _mcp_source_operation(
+        ctx,
+        command="mcp.sources.test",
+        operation="test",
+        source_id=source_id,
+        server_id=server_id,
+    )
+
+
+@mcp_sources.command("fetch-sample")
+@click.argument("source_id")
+@click.option("--server", "server_id", default="1-nation-mcp", show_default=True)
+@click.pass_context
+def mcp_sources_fetch_sample(ctx: click.Context, source_id: str, server_id: str) -> None:
+    """Fetch a bounded sample from a catalog-declared vote source through 1N-MCP."""
+    _mcp_source_operation(
+        ctx,
+        command="mcp.sources.fetch-sample",
+        operation="fetch_sample",
+        source_id=source_id,
+        server_id=server_id,
+    )
 
 
 @mcp.command("list")

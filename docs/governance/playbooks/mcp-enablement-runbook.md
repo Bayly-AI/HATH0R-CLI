@@ -28,3 +28,21 @@
    ```bash
    hath0r mcp call <server-id> <tool-name> --args '{}'
    ```
+
+## 3. Operating 1-Nation vote sources
+
+The `1-nation-mcp` source catalog is the only authority for its outbound federal
+vote-source routes. Do not bypass it with curl, source-specific scripts, or
+credential-bearing CLI flags.
+
+```bash
+hath0r --output json mcp sources list
+hath0r --output json mcp sources test house-clerk-rollcall
+hath0r --output json mcp sources fetch-sample house-clerk-rollcall
+hath0r --output json mcp sources test senate-lis-rollcall
+hath0r --output json mcp sources fetch-sample senate-lis-rollcall
+```
+
+`congress-gov-v3` returns `credential_required` until 1N-MCP receives its key
+from `/Users/raybayly/Development/.credentials/congress-gov/.env`. That result
+is a safe configuration state and must never reveal a credential value.

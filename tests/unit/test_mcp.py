@@ -11,6 +11,7 @@ from click.testing import CliRunner
 from hath0r_cli import cli
 from hath0r_cli.mcp import (
     McpConnectionStatus,
+    call_vote_source_operation,
     check_mcp_connection,
     load_mcp_connections,
 )
@@ -131,6 +132,65 @@ def test_cli_mcp_call_mocked(runner: CliRunner) -> None:
         res = runner.invoke(cli.main, ["mcp", "call", "hath0r-mcp", "suite_info"])
         assert res.exit_code == 0
         assert "echo" in res.stdout
+
+
+def test_vote_source_operation_uses_registered_mcp_tool() -> None:
+    response = {
+        "content": [
+            {
+                "type": "text",
+                "text": json.dumps({"source_id": "house-clerk-rollcall", "state": "ok"}),
+            }
+        ],
+        "isError": False,
+    }
+    with patch("hath0r_cli.mcp.call_mcp_tool", return_value=response) as call:
+        result = call_vote_source_operation("test", "house-clerk-rollcall")
+
+    assert result["state"] == "ok"
+    call.assert_called_once_with(
+        "1-nation-mcp",
+        "vote_source_test",
+        arguments={"source_id": "house-clerk-rollcall"},
+        group_root=None,
+        timeout=20.0,
+    )
+
+
+def test_vote_source_operation_rejects_invalid_operation_and_tool_error() -> None:
+    with pytest.raises(ValueError, match="Unknown vote-source operation"):
+        call_vote_source_operation("delete")
+
+    response = {"content": [{"type": "text", "text": "unknown_source"}], "isError": True}
+    with patch("hath0r_cli.mcp.call_mcp_tool", return_value=response):
+        with pytest.raises(RuntimeError, match="unknown_source"):
+            call_vote_source_operation("test", "not-a-source")
+
+
+def test_cli_mcp_sources_list_and_credential_state(runner: CliRunner) -> None:
+    inventory = {"sources": [{"id": "house-clerk-rollcall", "enabled": True}], "count": 1}
+    with patch("hath0r_cli.mcp.call_vote_source_operation", return_value=inventory):
+        res = runner.invoke(cli.main, ["--output", "json", "mcp", "sources", "list"])
+    assert res.exit_code == 0
+    payload = json.loads(res.stdout)
+    assert payload["command"] == "mcp.sources.list"
+    assert payload["state"] == "ok"
+    assert payload["data"]["result"]["count"] == 1
+
+    with patch(
+        "hath0r_cli.mcp.call_vote_source_operation",
+        return_value={"source_id": "congress-gov-v3", "state": "credential_required"},
+    ):
+        res = runner.invoke(
+            cli.main,
+            ["--output", "json", "mcp", "sources", "test", "congress-gov-v3", "--server", "custom"],
+        )
+    assert res.exit_code == 0
+    payload = json.loads(res.stdout)
+    assert payload["command"] == "mcp.sources.test"
+    assert payload["state"] == "degraded"
+    assert payload["data"]["server_id"] == "custom"
+    assert payload["diagnostics"][0]["code"] == "VOTE_SOURCE_CREDENTIAL_REQUIRED"
 
 
 def test_sort_mcp_servers_by_priority() -> None:
