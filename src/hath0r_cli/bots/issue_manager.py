@@ -20,21 +20,22 @@ from hath0r_cli.bots import run_cmd
 
 # Canonical BaylyAI active repositories (excluding archived)
 DEFAULT_BAYLYAI_REPOS = [
-    "Bayly-AI/HATH0R-CLI",
-    "Bayly-AI/HATH0R-Agentic-Framework",
-    "Bayly-AI/HATH0R-POC",
-    "Bayly-AI/HATH0R-ATC",
-    "Bayly-AI/HATH0R-MCP",
-    "Bayly-AI/BAI-MCP",
-    "Bayly-AI/1-Nation-MCP",
-    "Bayly-AI/1-Nation-ATC",
     "Bayly-AI/1-Nation",
-    "Bayly-AI/baylyai-uxp",
+    "Bayly-AI/1-Nation-ATC",
+    "Bayly-AI/1-Nation-ATC-Wiki",
+    "Bayly-AI/1-Nation-MCP",
+    "Bayly-AI/BAI-MCP",
     "Bayly-AI/Bayly-Consulting",
+    "Bayly-AI/baylyai-uxp",
+    "Bayly-AI/Dr-Sleep",
+    "Bayly-AI/HATH0R-ATC",
+    "Bayly-AI/HATH0R-Agentic-Framework",
+    "Bayly-AI/HATH0R-CLI",
+    "Bayly-AI/HATH0R-MCP",
+    "Bayly-AI/HATH0R-POC",
+    "Bayly-AI/knit-happens",
     "Bayly-AI/MG-Author-Ray-Bayly",
     "Bayly-AI/midgardmedia",
-    "Bayly-AI/knit-happens",
-    "Bayly-AI/Dr-Sleep",
 ]
 
 # Patterns detecting dependency relationships in issue descriptions

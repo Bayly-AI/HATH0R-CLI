@@ -14,9 +14,13 @@ import yaml
 
 def test_resolve_baylyai_repos_default():
     repos = resolve_baylyai_repos(None)
-    assert len(repos) > 0
+    assert len(repos) >= 16
     assert "Bayly-AI/HATH0R-CLI" in repos
     assert "Bayly-AI/baylyai-uxp" in repos
+    assert "Bayly-AI/1-Nation-ATC-Wiki" in repos
+    assert "Bayly-AI/1-Nation" in repos
+    assert "Bayly-AI/1-Nation-ATC" in repos
+    assert "Bayly-AI/1-Nation-MCP" in repos
 
 
 def test_resolve_baylyai_repos_specific():
