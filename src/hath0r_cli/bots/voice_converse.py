@@ -511,6 +511,7 @@ class VoiceServiceDaemonBot:
         self,
         ambient: bool = True,
         trust_tier: str = TrustTier.ELEVATED.value,
+        speak: bool = False,
     ) -> Dict[str, Any]:
         """Install and register Hath0r voice daemon as a native OS service (launchd on macOS / systemd on Linux)."""
         cli_entry = sys.executable
@@ -564,7 +565,8 @@ class VoiceServiceDaemonBot:
             except Exception:
                 loaded = True
 
-            self.synthesizer.speak("Hath0r voice OS service installed.")
+            if speak:
+                self.synthesizer.speak("Hath0r voice OS service installed.")
             return {
                 "success": True,
                 "platform": "darwin",
@@ -603,6 +605,8 @@ WantedBy=default.target
                 )
             except Exception:
                 pass
+            if speak:
+                self.synthesizer.speak("Hath0r voice OS service installed.")
             return {
                 "success": True,
                 "platform": "linux",
@@ -616,7 +620,7 @@ WantedBy=default.target
             "error": f"OS service installation not supported on platform {sys.platform}",
         }
 
-    def uninstall_os_service(self) -> Dict[str, Any]:
+    def uninstall_os_service(self, speak: bool = False) -> Dict[str, Any]:
         """Uninstall and unload the OS-level Hath0r voice service."""
         if sys.platform == "darwin":
             plist_path = self.launchd_plist_path
@@ -626,7 +630,8 @@ WantedBy=default.target
                 except Exception:
                     pass
                 plist_path.unlink(missing_ok=True)
-                self.synthesizer.speak("Hath0r voice OS service uninstalled.")
+                if speak:
+                    self.synthesizer.speak("Hath0r voice OS service uninstalled.")
                 return {
                     "success": True,
                     "platform": "darwin",

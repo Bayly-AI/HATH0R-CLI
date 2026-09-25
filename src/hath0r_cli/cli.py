@@ -3466,7 +3466,7 @@ def voice_service_install(
     from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
 
     bot = VoiceServiceDaemonBot()
-    res = bot.install_os_service(ambient=ambient, trust_tier=trust_tier)
+    res = bot.install_os_service(ambient=ambient, trust_tier=trust_tier, speak=True)
 
     response = _build_response(
         ctx,
@@ -3494,7 +3494,7 @@ def voice_service_uninstall(ctx: click.Context) -> None:
     from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
 
     bot = VoiceServiceDaemonBot()
-    res = bot.uninstall_os_service()
+    res = bot.uninstall_os_service(speak=True)
 
     response = _build_response(
         ctx,
