@@ -3270,6 +3270,130 @@ def voice_speak(ctx: click.Context, message: str, voice_name: Optional[str]) -> 
     _emit_response(ctx, response)
 
 
+@voice.group("service")
+def voice_service() -> None:
+    """Manage background voice listening and conversational service daemon."""
+
+
+@voice_service.command("start")
+@click.option(
+    "--background/--foreground",
+    "background",
+    default=True,
+    show_default=True,
+    help="Run as a background daemon process or foreground loop.",
+)
+@click.option(
+    "--ambient/--push-to-talk",
+    "ambient",
+    default=True,
+    show_default=True,
+    help="Enable ambient continuous listening or push-to-talk mode.",
+)
+@click.option(
+    "-t",
+    "--trust-tier",
+    type=click.Choice(["guest", "elevated", "sovereign"], case_sensitive=False),
+    default="elevated",
+    show_default=True,
+    help="Execution authorization tier.",
+)
+@click.pass_context
+def voice_service_start(
+    ctx: click.Context,
+    background: bool,
+    ambient: bool,
+    trust_tier: str,
+) -> None:
+    """Start the background voice listener daemon service."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+
+    bot = VoiceServiceDaemonBot()
+    res = bot.start_service(background=background, ambient=ambient, trust_tier=trust_tier)
+
+    response = _build_response(
+        ctx,
+        command="voice.service.start",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+    _emit_response(ctx, response)
+
+
+@voice_service.command("stop")
+@click.pass_context
+def voice_service_stop(ctx: click.Context) -> None:
+    """Stop the active background voice listener daemon service."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+
+    bot = VoiceServiceDaemonBot()
+    res = bot.stop_service()
+
+    response = _build_response(
+        ctx,
+        command="voice.service.stop",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+    _emit_response(ctx, response)
+
+
+@voice_service.command("status")
+@click.pass_context
+def voice_service_status(ctx: click.Context) -> None:
+    """Check the status of the background voice listener daemon service."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+
+    bot = VoiceServiceDaemonBot()
+    res = bot.status()
+
+    response = _build_response(
+        ctx,
+        command="voice.service.status",
+        state="ok",
+        data=res,
+    )
+    _emit_response(ctx, response)
+
+
+@voice_service.command("restart")
+@click.option(
+    "--ambient/--push-to-talk",
+    "ambient",
+    default=True,
+    show_default=True,
+    help="Enable ambient continuous listening or push-to-talk mode.",
+)
+@click.option(
+    "-t",
+    "--trust-tier",
+    type=click.Choice(["guest", "elevated", "sovereign"], case_sensitive=False),
+    default="elevated",
+    show_default=True,
+    help="Execution authorization tier.",
+)
+@click.pass_context
+def voice_service_restart(
+    ctx: click.Context,
+    ambient: bool,
+    trust_tier: str,
+) -> None:
+    """Restart the background voice listener daemon service."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+
+    bot = VoiceServiceDaemonBot()
+    bot.stop_service()
+    res = bot.start_service(background=True, ambient=ambient, trust_tier=trust_tier)
+
+    response = _build_response(
+        ctx,
+        command="voice.service.restart",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+    _emit_response(ctx, response)
+
+
 if __name__ == "__main__":
     main()
 

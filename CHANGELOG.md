@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Autonomous Background Voice Daemon Service: `hath0r voice service start|stop|status|restart` (#147)
+- Intelligent Speech Sanitizer / Filter (`filter_speech_text`) stripping code blocks, diffs, tables, and markdown syntax for natural voice synthesis (#147)
+- Registered `voice-service-daemon-bot` and `voice-daemon-service` workflow inside `cfg/factories/voice-converse-factory.yaml` (#147)
 - Project closure report: suite multi-repo epics verification (`docs/governance/project-closure-suite-epics-2026-09-24.md`) (#112)
 - Control-tower `docs/governance/SUITE_STANDARDS.md` index for member inheritance
 - Suite standards: OpenTelemetry, OpenFeature, OpenObservation (#58–#60)

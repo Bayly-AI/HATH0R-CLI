@@ -78,3 +78,23 @@ def test_voice_listen_simulation():
     assert data["command"] == "voice.listen"
     assert data["state"] == "ok"
     assert data["data"]["captured_count"] == 1
+
+
+def test_voice_service_cli_lifecycle():
+    runner = CliRunner()
+    # Check status initially
+    res_status = runner.invoke(main, ["--output", "json", "voice", "service", "status"])
+    assert res_status.exit_code == 0
+    data_status = json.loads(res_status.output)
+    assert data_status["command"] == "voice.service.status"
+    assert data_status["state"] == "ok"
+    assert data_status["data"]["running"] is False
+
+    # Stop service when not running
+    res_stop = runner.invoke(main, ["--output", "json", "voice", "service", "stop"])
+    assert res_stop.exit_code == 0
+    data_stop = json.loads(res_stop.output)
+    assert data_stop["command"] == "voice.service.stop"
+    assert data_stop["state"] == "ok"
+    assert data_stop["data"]["status"] == "not_running"
+
