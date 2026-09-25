@@ -13,6 +13,7 @@ from hath0r_cli.bots import (
     BranchGuardBot,
     DockerBot,
     DocumentationBot,
+    EndOfTaskDaemonBot,
     GitJanitorBot,
     IssueGuardBot,
     PRBot,
@@ -96,6 +97,7 @@ class BotRegistry:
             "git-janitor-bot": GitJanitorBot(cwd=self.cwd),
             "documentation-bot": DocumentationBot(cwd=self.cwd),
             "task-announcer-bot": TaskAnnouncerBot(cwd=self.cwd),
+            "end-of-task-daemon-bot": EndOfTaskDaemonBot(cwd=self.cwd),
             "docker-bot": DockerBot(cwd=self.cwd),
             "docker-monitor-bot": DockerBot(cwd=self.cwd),
             "factory-manager-bot": FactoryManagerBot(cwd=self.cwd),
@@ -151,6 +153,8 @@ class BotRegistry:
                 return self._dispatch_doc_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
             elif bot_id == "task-announcer-bot":
                 return self._dispatch_announcer_bot(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "end-of-task-daemon-bot":
+                return self._dispatch_end_of_task_daemon(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
             elif bot_id in ("docker-bot", "docker-monitor-bot"):
                 return self._dispatch_docker_bot(bot, bot_id, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "factory-manager-bot":
@@ -588,6 +592,43 @@ class BotRegistry:
             action=action,
             success=False,
             error=f"Unknown action '{action}' for task-announcer-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_end_of_task_daemon(
+        self,
+        bot: EndOfTaskDaemonBot,
+        action: str,
+        args: dict[str, Any],
+        repo: str | None,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("run-daemon", "watch", "finish"):
+            pr_num = args.get("pr_number") or context.get("pr_number")
+            branch = args.get("branch") or context.get("branch")
+            semver = args.get("semver", "patch")
+            res = bot.run_daemon(
+                pr_number=int(pr_num) if pr_num else None,
+                branch=str(branch) if branch else None,
+                repo=repo or args.get("repo"),
+                semver=semver,
+                dry_run=dry_run,
+            )
+            return StepExecutionResult(
+                bot_id="end-of-task-daemon-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+
+        return StepExecutionResult(
+            bot_id="end-of-task-daemon-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for end-of-task-daemon-bot.",
             dry_run=dry_run,
         )
 
