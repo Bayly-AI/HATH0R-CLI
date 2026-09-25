@@ -67,32 +67,30 @@ class SpeechListenerBot:
         if push_to_talk:
             wait_for_push_to_talk_trigger(selected_key, timeout_seconds=timeout)
 
-        # Attempt native microphone STT if on macOS Darwin and binary available
+        # Attempt native microphone audio capture & STT
         listener_bin = self._find_listener_binary() if enable_microphone else None
         if listener_bin and sys.platform == "darwin":
             try:
                 import tempfile
 
-                with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as tmp:
-                    tmp_path = tmp.name
+                with tempfile.NamedTemporaryFile(suffix=".m4a", delete=False) as tmp:
+                    tmp_audio_path = tmp.name
 
                 proc = subprocess.run(
-                    [str(listener_bin), str(min(timeout, 12.0)), tmp_path],
+                    [str(listener_bin), str(min(timeout, 8.0)), tmp_audio_path],
                     capture_output=True,
                     text=True,
-                    timeout=timeout + 2.0,
+                    timeout=timeout + 3.0,
                 )
                 captured = ""
-                if Path(tmp_path).is_file():
-                    try:
-                        captured = Path(tmp_path).read_text(encoding="utf-8").strip()
-                        Path(tmp_path).unlink(missing_ok=True)
-                    except Exception:
-                        pass
-                if not captured and proc.stdout:
-                    captured = proc.stdout.strip()
+                audio_file = Path(tmp_audio_path)
+                if audio_file.is_file() and audio_file.stat().st_size > 500:
+                    captured = transcribe_audio(audio_file) or ""
+                    audio_file.unlink(missing_ok=True)
+                elif audio_file.is_file():
+                    audio_file.unlink(missing_ok=True)
 
-                if captured:
+                if captured and captured.upper() not in ("EMPTY", "EMPTY."):
                     return {
                         "success": True,
                         "transcript": captured,
@@ -216,6 +214,63 @@ def find_gemini_api_key() -> Optional[str]:
     return None
 
 
+def transcribe_audio(audio_path: Path | str, timeout: float = 10.0) -> Optional[str]:
+    """Transcribe spoken audio file directly using Google Gemini Multimodal Audio."""
+    api_key = find_gemini_api_key()
+    if not api_key:
+        return None
+
+    path = Path(audio_path)
+    if not path.is_file() or path.stat().st_size < 100:
+        return None
+
+    import base64
+    import json
+    import urllib.request
+
+    try:
+        audio_bytes = path.read_bytes()
+        b64_audio = base64.b64encode(audio_bytes).decode("utf-8")
+        mime = "audio/mp4" if path.suffix.lower() in (".m4a", ".mp4", ".aac") else "audio/wav"
+
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={api_key}"
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {"inlineData": {"mimeType": mime, "data": b64_audio}},
+                        {
+                            "text": (
+                                "Transcribe this spoken audio clip verbatim. "
+                                "Output ONLY the exact words spoken by the user. "
+                                "If the audio is silent, background noise, or contains no speech, respond with EMPTY."
+                            )
+                        },
+                    ]
+                }
+            ]
+        }
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            candidates = data.get("candidates", [])
+            if candidates and "content" in candidates[0]:
+                parts = candidates[0]["content"].get("parts", [])
+                if parts and "text" in parts[0]:
+                    transcript = parts[0]["text"].strip()
+                    if transcript.upper() in ("EMPTY", "EMPTY.", ""):
+                        return None
+                    return transcript
+    except Exception:
+        pass
+    return None
+
+
 def query_standalone_llm(
     prompt: str,
     history: Optional[List[Dict[str, str]]] = None,
@@ -229,7 +284,7 @@ def query_standalone_llm(
     import json
     import urllib.request
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={api_key}"
 
     system_instruction = (
         "You are Hath0r, an autonomous AI coding and system companion. "

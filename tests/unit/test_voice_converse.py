@@ -206,5 +206,18 @@ def test_os_service_plist_generation(tmp_path: Path, monkeypatch):
     assert not (tmp_path / "ai.bayly.hath0r-voice.plist").is_file()
 
 
+def test_transcribe_audio_missing_or_empty(tmp_path: Path):
+    from hath0r_cli.bots.voice_converse import transcribe_audio
+
+    # Non-existent file
+    assert transcribe_audio(tmp_path / "nonexistent.m4a") is None
+
+    # Empty file
+    empty_f = tmp_path / "empty.m4a"
+    empty_f.write_bytes(b"")
+    assert transcribe_audio(empty_f) is None
+
+
+
 
 
