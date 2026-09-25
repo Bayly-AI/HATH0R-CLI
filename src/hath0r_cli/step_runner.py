@@ -16,6 +16,7 @@ from hath0r_cli.bots import (
     EndOfTaskDaemonBot,
     GitJanitorBot,
     IssueGuardBot,
+    IssueManagerBot,
     PRBot,
     TaskAnnouncerBot,
 )
@@ -93,6 +94,7 @@ class BotRegistry:
             "branch-bot": BranchBot(cwd=self.cwd),
             "branch-guard-bot": BranchGuardBot(cwd=self.cwd),
             "issue-guard-bot": IssueGuardBot(cwd=self.cwd),
+            "issue-manager-bot": IssueManagerBot(cwd=self.cwd),
             "pr-bot": PRBot(cwd=self.cwd),
             "git-janitor-bot": GitJanitorBot(cwd=self.cwd),
             "documentation-bot": DocumentationBot(cwd=self.cwd),
@@ -141,6 +143,8 @@ class BotRegistry:
             # Dispatch based on bot type and action name
             if bot_id == "issue-guard-bot":
                 return self._dispatch_issue_guard_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
+            elif bot_id == "issue-manager-bot":
+                return self._dispatch_issue_manager_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
             elif bot_id == "branch-guard-bot":
                 return self._dispatch_branch_guard_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "pr-bot":
@@ -241,6 +245,80 @@ class BotRegistry:
             action=action,
             success=False,
             error=f"Unknown action '{action}' for issue-guard-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_issue_manager_bot(
+        self,
+        bot: IssueManagerBot,
+        action: str,
+        args: dict[str, Any],
+        repo: str | None,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        target_repo = args.get("repo") or repo
+        if action in ("list-issues", "list", "scan"):
+            state = args.get("state", "open")
+            res = bot.list_issues(repo=target_repo, state=state, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="issue-manager-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action in ("create-issue", "create"):
+            title = args.get("title", "")
+            body = args.get("body", "")
+            labels = args.get("labels")
+            if not target_repo:
+                return StepExecutionResult(
+                    bot_id="issue-manager-bot",
+                    action=action,
+                    success=False,
+                    error="Repository is required to create an issue.",
+                    dry_run=dry_run,
+                )
+            res = bot.create_issue(repo=target_repo, title=title, body=body, labels=labels, dry_run=dry_run)
+            if res.get("issue_number"):
+                context["issue_number"] = res["issue_number"]
+            return StepExecutionResult(
+                bot_id="issue-manager-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action in ("update-issue", "update", "edit"):
+            issue_num = int(args.get("issue_number") or context.get("issue_number") or 0)
+            title = args.get("title")
+            body = args.get("body")
+            if not target_repo or not issue_num:
+                return StepExecutionResult(
+                    bot_id="issue-manager-bot",
+                    action=action,
+                    success=False,
+                    error="Repository and issue_number are required to update an issue.",
+                    dry_run=dry_run,
+                )
+            res = bot.update_issue(repo=target_repo, issue_number=issue_num, title=title, body=body, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="issue-manager-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+
+        return StepExecutionResult(
+            bot_id="issue-manager-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for issue-manager-bot.",
             dry_run=dry_run,
         )
 
