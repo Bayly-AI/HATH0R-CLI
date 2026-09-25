@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+
 from click.testing import CliRunner
 
 from hath0r_cli.cli import main
@@ -57,7 +58,8 @@ def test_voice_exec_guest_tier_blocks_unauthorized_action():
 
 def test_voice_exec_elevated_tier_allows_computer_use():
     runner = CliRunner()
-    res = runner.invoke(main, ["--output", "json", "voice", "exec", "open Spotify", "--trust-tier", "elevated", "--dry-run"])
+    args = ["--output", "json", "voice", "exec", "open Spotify", "--trust-tier", "elevated", "--dry-run"]
+    res = runner.invoke(main, args)
     assert res.exit_code == 0
     data = json.loads(res.output)
     assert data["state"] == "ok"

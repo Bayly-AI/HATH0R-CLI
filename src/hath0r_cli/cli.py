@@ -2655,7 +2655,9 @@ def issue_create(ctx: click.Context, repo: str, title: str, body: str, labels: t
 
     def _text() -> None:
         if res.get("success"):
-            console.print(f"[bold green]✓ Created issue #{res.get('issue_number')} on {res.get('repo')}:[/bold green] {res.get('url')}")
+            num = res.get("issue_number")
+            repo_name = res.get("repo")
+            console.print(f"[bold green]✓ Created issue #{num} on {repo_name}:[/bold green] {res.get('url')}")
         else:
             console.print(f"[bold red]✗ Failed to create issue:[/bold red] {res.get('error')}")
 
@@ -2766,8 +2768,19 @@ def voice_exec(ctx: click.Context, transcript: str, trust_tier: str, dry_run: bo
 
 
 @voice.command("listen")
-@click.option("--push-to-talk", is_flag=True, default=False, help="Wait for user Enter keypress before capturing utterance.")
-@click.option("--max-utterances", type=int, default=1, show_default=True, help="Number of utterances to capture before exiting.")
+@click.option(
+    "--push-to-talk",
+    is_flag=True,
+    default=False,
+    help="Wait for user Enter keypress before capturing utterance.",
+)
+@click.option(
+    "--max-utterances",
+    type=int,
+    default=1,
+    show_default=True,
+    help="Number of utterances to capture before exiting.",
+)
 @click.option(
     "--trust-tier",
     "-t",
@@ -2817,9 +2830,8 @@ def voice_listen(ctx: click.Context, push_to_talk: bool, max_utterances: int, tr
                 else:
                     dur = data.get("duration_ms", 0.0)
                     act = data.get("action", {})
-                    console.print(
-                        f"[green]✓ Dispatched[/green] ({act.get('intent')}, {dur:.1f}ms): {act.get('payload', {}).get('feedback_text', '')}\n"
-                    )
+                    fb = act.get("payload", {}).get("feedback_text", "")
+                    console.print(f"[green]✓ Dispatched[/green] ({act.get('intent')}, {dur:.1f}ms): {fb}\n")
 
     except (KeyboardInterrupt, click.Abort):
         if not is_json:

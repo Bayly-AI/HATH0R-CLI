@@ -2,16 +2,14 @@
 
 from __future__ import annotations
 
-import os
 import re
 import shutil
 import sys
 import time
 import uuid
-from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from hath0r_cli.envelope import Diagnostic
 
