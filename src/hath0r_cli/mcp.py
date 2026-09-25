@@ -372,6 +372,12 @@ def check_all_mcp_connections(
     return results
 
 
+
+VOTE_SOURCE_TOOL_NAMES = {
+    "list": "vote_source_list",
+    "test": "vote_source_test",
+    "fetch_sample": "vote_source_fetch_sample",
+}
 def call_mcp_tool(
     server_id: str,
     tool_name: str,
@@ -402,3 +408,62 @@ def call_mcp_tool(
 
     result = data.get("result", {})
     return result if isinstance(result, dict) else {"result": result}
+
+
+def call_vote_source_operation(
+    operation: str,
+    source_id: str | None = None,
+    *,
+    server_id: str = "1-nation-mcp",
+    group_root: Path | None = None,
+    timeout: float = 20.0,
+) -> dict[str, Any]:
+    """Call one bounded vote-source operation through the configured 1N-MCP server."""
+    tool_name = VOTE_SOURCE_TOOL_NAMES.get(operation)
+    if tool_name is None:
+        raise ValueError(f"Unknown vote-source operation: {operation}")
+    if operation == "list":
+        arguments: dict[str, Any] = {}
+    elif source_id:
+        arguments = {"source_id": source_id}
+    else:
+        raise ValueError(f"Vote-source operation '{operation}' requires a source ID")
+
+    result = call_mcp_tool(
+        server_id,
+        tool_name,
+        arguments=arguments,
+        group_root=group_root,
+        timeout=timeout,
+    )
+    if result.get("isError"):
+        raise RuntimeError(_mcp_tool_message(result) or "Vote-source MCP tool returned an error")
+    return _mcp_tool_data(result)
+
+
+def _mcp_tool_data(result: dict[str, Any]) -> dict[str, Any]:
+    """Decode FastMCP text content into a structured result without guessing."""
+    content = result.get("content")
+    if not isinstance(content, list):
+        raise RuntimeError("MCP tool response did not contain content")
+    for block in content:
+        if not isinstance(block, dict) or not isinstance(block.get("text"), str):
+            continue
+        try:
+            decoded = json.loads(block["text"])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(decoded, dict):
+            return decoded
+    raise RuntimeError("MCP tool response did not contain a JSON object")
+
+
+def _mcp_tool_message(result: dict[str, Any]) -> str | None:
+    """Extract a safe human-readable tool error without exposing raw transport data."""
+    content = result.get("content")
+    if not isinstance(content, list):
+        return None
+    for block in content:
+        if isinstance(block, dict) and isinstance(block.get("text"), str):
+            return block["text"][:500]
+    return None
