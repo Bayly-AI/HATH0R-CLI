@@ -47,6 +47,16 @@ bots:
       - prune-branch
       - pull-development
 
+  - id: deploy-test-bot
+    name: Deploy Test Bot
+    role: test-suite-verification
+    description: Autonomous test runner executing test suites and diagnosing failures.
+    capabilities:
+      - pre-deploy
+      - post-deploy
+      - run
+      - test
+
   - id: task-announcer-bot
     name: Task Announcer Bot
     role: notification-and-announcements
@@ -60,6 +70,10 @@ workflows:
     name: Canonical End of Task Lifecycle
     description: Complete PR promotion, branch pruning, knowledge sync, and task completion announcement.
     steps:
+      - bot: deploy-test-bot
+        action: pre-deploy
+        on_failure: abort
+
       - bot: pr-bot
         action: create-pr
         on_failure: abort

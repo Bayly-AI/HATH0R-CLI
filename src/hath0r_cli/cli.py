@@ -2428,6 +2428,19 @@ def deploy_pre(ctx: click.Context, dry_run: bool) -> None:
 
     def _text() -> None:
         click.echo(res.get("message") or res.get("action"))
+        if res.get("total_passed") or res.get("total_failed") or res.get("total_errors"):
+            click.echo(
+                f"  Results: {res.get('total_passed', 0)} passed, "
+                f"{res.get('total_failed', 0)} failed, "
+                f"{res.get('total_errors', 0)} error(s)"
+            )
+        issues = res.get("issues", [])
+        if issues:
+            click.echo(f"  Detected {len(issues)} failure(s):")
+            for iss in issues[:10]:
+                click.echo(f"    ✗ {iss.get('test')}: {iss.get('detail')}")
+            if len(issues) > 10:
+                click.echo(f"    ... and {len(issues) - 10} more.")
 
     _emit_response(ctx, response, text_renderer=_text)
     if not res.get("success"):

@@ -28,6 +28,8 @@ bots:
     capabilities:
       - pre-deploy
       - post-deploy
+      - run
+      - test
 
   - id: quality-gate-bot
     name: Quality Gate Bot

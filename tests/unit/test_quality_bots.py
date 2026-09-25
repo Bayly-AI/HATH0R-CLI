@@ -183,3 +183,73 @@ def test_preflight_branch_check_on_canonical(tmp_path: Path, monkeypatch) -> Non
     res = bot.run(skip_tests=True)
     assert res["success"] is False
     assert any(c.get("check") == "branch" and not c.get("ok") for c in res["checks"])
+
+
+def test_deploy_test_bot_parse_pytest_output() -> None:
+    from hath0r_cli.bots.quality import DeployTestBot
+
+    sample_stdout = """
+============================= test session starts ==============================
+rootdir: /path/to/repo
+collected 42 items
+
+tests/unit/test_one.py ...........                                       [ 26%]
+tests/unit/test_two.py F..                                               [ 33%]
+tests/unit/test_three.py ............................                    [100%]
+
+=================================== FAILURES ===================================
+___________________________________ test_fail __________________________________
+FAILED tests/unit/test_two.py::test_fail - AssertionError: assert 1 == 2
+======================== 1 failed, 41 passed in 1.25s ==========================
+"""
+    metrics = DeployTestBot._parse_test_output(sample_stdout, "")
+    assert metrics["passed"] == 41
+    assert metrics["failed"] == 1
+    assert len(metrics["failures"]) == 1
+    assert metrics["failures"][0]["test"] == "tests/unit/test_two.py::test_fail"
+    assert "AssertionError" in metrics["failures"][0]["detail"]
+
+
+def test_deploy_test_bot_dry_run() -> None:
+    from hath0r_cli.bots.quality import DeployTestBot
+
+    bot = DeployTestBot()
+    res = bot.run_pre_deploy(dry_run=True)
+    assert res["success"] is True
+    assert res["dry_run"] is True
+    assert res["phase"] == "pre_deploy"
+
+
+def test_end_of_task_daemon_bot_test_suite_failure(tmp_path: Path, monkeypatch) -> None:
+    from hath0r_cli.bots import EndOfTaskDaemonBot
+
+    daemon_bot = EndOfTaskDaemonBot(cwd=tmp_path)
+
+    # Mock DeployTestBot to fail
+    def fake_run_pre_deploy(dry_run=False):
+        return {
+            "success": False,
+            "phase": "pre_deploy",
+            "issues": [{"test": "tests/unit/test_fail.py::test_bad", "detail": "AssertionError"}],
+            "total_passed": 10,
+            "total_failed": 1,
+            "total_errors": 0,
+            "message": "pre_deploy failed",
+        }
+
+    monkeypatch.setattr(daemon_bot.test_bot, "run_pre_deploy", fake_run_pre_deploy)
+
+    res = daemon_bot.run_daemon(branch="feature/145-test", semver="patch", dry_run=False)
+    assert res["success"] is False
+    assert res["phase"] == "test_suite"
+    assert "Local test suite failed" in res["error"]
+    assert len(res["issues"]) == 1
+
+
+def test_cli_deploy_pre_dry_run() -> None:
+    runner = CliRunner(mix_stderr=False)
+    res = runner.invoke(cli.main, ["--output", "json", "deploy", "pre", "--dry-run"])
+    assert res.exit_code == 0
+    data = json.loads(res.stdout)
+    assert data["state"] == "ok"
+    assert data["data"]["dry_run"] is True
