@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Set
 ALLOWED_ROOT_FILES: Set[str] = {
     # Core Hath0r / UPL files
     "AGENTS.md",
+    "WARP.md",
     "README.md",
     "LICENSE",
     "NOTICE",
@@ -32,6 +33,34 @@ ALLOWED_ROOT_FILES: Set[str] = {
     ".gitmodules",
     ".dockerignore",
     ".editorconfig",
+    ".env.example",
+    # Containers & Dependencies
+    "Dockerfile",
+    "Containerfile",
+    "requirements.txt",
+    "requirements-dev.txt",
+    "docker-compose.yml",
+    # Frontend / JS / TS ecosystem
+    "package.json",
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "yarn.lock",
+    "tsconfig.json",
+    "tsconfig.app.json",
+    "tsconfig.node.json",
+    "tsconfig.server.json",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "vitest.smoke.config.ts",
+    "playwright.config.ts",
+    "eslint.config.js",
+    ".prettierrc.json",
+    ".prettierignore",
+    "index.html",
+    "nginx.conf",
+    # Coverage outputs
+    ".coverage",
+    "coverage.xml",
     # OS files
     ".DS_Store",
 }
@@ -53,6 +82,10 @@ ALLOWED_ROOT_DIRS: Set[str] = {
     "scripts",
     "packaging",
     "dist",
+    "data",
+    "logs",
+    "reports",
+    "knowledgebase",
     ".mypy_cache",
     ".pytest_cache",
     ".ruff_cache",
@@ -68,6 +101,16 @@ ROOT_ESSENTIAL_CONFIGS: Set[str] = {
     "pytest.ini",
     "sonar-project.properties",
     "MANIFEST.json",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json",
+    "tsconfig.app.json",
+    "tsconfig.node.json",
+    "tsconfig.server.json",
+    "docker-compose.yml",
+    ".prettierrc.json",
+    "nginx.conf",
+    "coverage.xml",
 }
 
 # Maximum line count for a markdown file before flagging as potentially monolithic

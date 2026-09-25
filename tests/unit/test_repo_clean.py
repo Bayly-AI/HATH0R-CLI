@@ -113,3 +113,36 @@ def test_repo_clean_step_runner_workflow(tmp_path: Path):
     wf_res = execute_workflow(wf_def, registry, dry_run=True)
     assert wf_res.success is True
     assert len(wf_res.steps) == 3
+
+
+def test_resolve_target_repos(tmp_path: Path):
+    from hath0r_cli.cli import _resolve_target_repos
+
+    repo1 = tmp_path / "repo1"
+    repo2 = tmp_path / "repo2"
+    repo1.mkdir()
+    repo2.mkdir()
+    (repo1 / ".git").mkdir()
+    (repo2 / ".git").mkdir()
+
+    # Specific repo
+    res = _resolve_target_repos(str(repo1), all_repos=False)
+    assert res == [repo1]
+
+    # Mock group root for all_repos
+    import os
+    orig_env = os.environ.get("HATH0R_GROUP_ROOT")
+    try:
+        os.environ["HATH0R_GROUP_ROOT"] = str(tmp_path)
+        (tmp_path / "AGENTS.md").write_text("hath0r-opensource", encoding="utf-8")
+        (tmp_path / ".hath0r").mkdir()
+        res_all = _resolve_target_repos(None, all_repos=True)
+        assert len(res_all) == 2
+        assert repo1 in res_all
+        assert repo2 in res_all
+    finally:
+        if orig_env:
+            os.environ["HATH0R_GROUP_ROOT"] = orig_env
+        else:
+            os.environ.pop("HATH0R_GROUP_ROOT", None)
+
