@@ -112,7 +112,7 @@ class SpeechListenerBot:
         if not is_tty:
             return {
                 "success": True,
-                "transcript": "hath0r doctor",
+                "transcript": "",
                 "mode": "non_interactive",
                 "key": selected_key,
             }
@@ -120,7 +120,7 @@ class SpeechListenerBot:
         # Standard terminal line capture fallback
         try:
             line = input().strip()
-            transcript = line if line else "hath0r doctor"
+            transcript = line
         except (EOFError, KeyboardInterrupt):
             transcript = "cancel"
 
