@@ -1142,3 +1142,25 @@ class DockerBot:
             "error": err if rc != 0 else None,
         }
 
+
+from hath0r_cli.bots.daemon import EndOfTaskDaemonBot  # noqa: E402
+
+__all__ = [
+    "BranchBot",
+    "BranchGuardBot",
+    "DeployTestBot",
+    "DockerBot",
+    "DockerMonitorBot",
+    "DocumentationBot",
+    "EndOfTaskDaemonBot",
+    "FactoryManagerBot",
+    "GitJanitorBot",
+    "IssueGuardBot",
+    "PRBot",
+    "PreflightBot",
+    "QualityGateBot",
+    "ReleaseBot",
+    "TaskAnnouncerBot",
+]
+
+

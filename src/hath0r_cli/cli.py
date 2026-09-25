@@ -1633,8 +1633,44 @@ def task_start(
     type=click.Choice(["major", "minor", "patch", "none"]),
     help="SemVer impact.",
 )
+@click.option(
+    "--daemon",
+    "--watch",
+    "daemon_mode",
+    is_flag=True,
+    default=False,
+    help="Autonomous daemon mode: continuously watch PR checks, merge, and reap branches.",
+)
+@click.option(
+    "--poll-interval",
+    default=10.0,
+    type=float,
+    help="Polling interval in seconds for daemon checks.",
+)
+@click.option(
+    "--timeout",
+    default=600.0,
+    type=float,
+    help="Timeout in seconds for daemon checks completion.",
+)
+@click.option(
+    "--pr",
+    "pr_number",
+    type=int,
+    default=None,
+    help="Target PR number for finish or daemon watch.",
+)
 @click.pass_context
-def task_finish(ctx: click.Context, repo: str | None, dry_run: bool, semver: str) -> None:
+def task_finish(
+    ctx: click.Context,
+    repo: str | None,
+    dry_run: bool,
+    semver: str,
+    daemon_mode: bool,
+    poll_interval: float,
+    timeout: float,
+    pr_number: int | None,
+) -> None:
     """Execute canonical end-of-task factory before completing an assignment."""
     import uuid
     from pathlib import Path
@@ -1642,6 +1678,67 @@ def task_finish(ctx: click.Context, repo: str | None, dry_run: bool, semver: str
     import yaml
 
     from hath0r_cli.step_runner import BotRegistry, execute_workflow, spool_telemetry_event
+
+    registry = BotRegistry(cwd=Path.cwd())
+    run_id = f"run_{uuid.uuid4().hex[:12]}"
+
+    if daemon_mode:
+        from hath0r_cli.bots import EndOfTaskDaemonBot
+
+        daemon_bot = EndOfTaskDaemonBot(cwd=Path.cwd(), poll_interval=poll_interval, timeout=timeout)
+        daemon_res = daemon_bot.run_daemon(
+            pr_number=pr_number,
+            repo=repo,
+            semver=semver,
+            dry_run=dry_run,
+        )
+        all_success = bool(daemon_res.get("success"))
+        state = "ok" if all_success else "error"
+        diagnostics = []
+        if not all_success:
+            diagnostics.append(
+                Diagnostic(
+                    code="DAEMON_EXECUTION_FAILED",
+                    message=f"[end-of-task::daemon] {daemon_res.get('error') or 'Daemon cycle failed'}",
+                    severity="error",
+                    provenance={"component": "hath0r-cli", "operation": "task.finish"},
+                )
+            )
+        spool_telemetry_event(
+            event_type="task.finish.daemon",
+            payload={
+                "run_id": run_id,
+                "state": state,
+                "dry_run": dry_run,
+                "daemon": daemon_res,
+            },
+            base_dir=_discover_group_root(),
+        )
+        response = _build_response(
+            ctx,
+            command="task.finish",
+            state=state,
+            dry_run=dry_run,
+            data={
+                "run_id": run_id,
+                "daemon": daemon_res,
+            },
+            diagnostics=diagnostics,
+        )
+
+        def _daemon_text() -> None:
+            prefix = "[DRY-RUN] " if dry_run else ""
+            status_str = "SUCCESS" if all_success else "FAILED"
+            click.echo(f"{prefix}Completed Autonomous End of Task Daemon ({status_str}):")
+            for h in daemon_res.get("history", []):
+                p = h.get("phase")
+                detail = h.get("status") or h.get("result") or h.get("error") or h.get("pr_number")
+                click.echo(f"  • [{p}]: {detail}")
+
+        _emit_response(ctx, response, text_renderer=_daemon_text)
+        if not all_success:
+            ctx.exit(1)
+        return
 
     cli_repo_root = Path(__file__).resolve().parents[2]
     factory_file = cli_repo_root / "cfg" / "factories" / "end-of-task-factory.yaml"
@@ -1664,9 +1761,6 @@ def task_finish(ctx: click.Context, repo: str | None, dry_run: bool, semver: str
 
     factory_data = yaml.safe_load(factory_file.read_text(encoding="utf-8"))
     workflow_def = factory_data.get("workflows", [{}])[0]
-
-    registry = BotRegistry(cwd=Path.cwd())
-    run_id = f"run_{uuid.uuid4().hex[:12]}"
 
     exec_res = execute_workflow(workflow_def, registry, repo=repo, dry_run=dry_run, run_id=run_id)
     all_success = exec_res.success
