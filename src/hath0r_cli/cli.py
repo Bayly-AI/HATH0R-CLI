@@ -2731,7 +2731,7 @@ def repo_audit(ctx: click.Context, target_repo: str | None, all_repos: bool) -> 
         hygiene = RepoHygieneBot(cwd=r).scan_root()
         configs = ConfigOrganizerBot(cwd=r).scan_misplaced_configs()
         knowledge = KnowledgeOrganizerBot(cwd=r).audit_knowledge_structure()
-        is_clean = hygiene.get("clean") and configs.get("clean") and knowledge.get("organized")
+        is_clean = bool(hygiene.get("clean")) and bool(configs.get("clean")) and bool(knowledge.get("organized"))
         if not is_clean:
             all_clean = False
         results_by_repo.append({
@@ -2756,12 +2756,12 @@ def repo_audit(ctx: click.Context, target_repo: str | None, all_repos: bool) -> 
         console.print("=" * 65)
 
         for rep in results_by_repo:
-            r_name = rep["repo"]
+            r_name = str(rep["repo"])
             console.print(f"\n[bold]{r_name}[/bold] ({rep['path']})")
             console.print("-" * 40)
-            hyg = rep["hygiene"]
-            cfg = rep["configs"]
-            kno = rep["knowledge"]
+            hyg: dict[str, Any] = rep["hygiene"] if isinstance(rep["hygiene"], dict) else {}
+            cfg: dict[str, Any] = rep["configs"] if isinstance(rep["configs"], dict) else {}
+            kno: dict[str, Any] = rep["knowledge"] if isinstance(rep["knowledge"], dict) else {}
 
             # Root files
             if hyg.get("clean"):
@@ -2786,7 +2786,7 @@ def repo_audit(ctx: click.Context, target_repo: str | None, all_repos: bool) -> 
             if kno.get("organized"):
                 console.print("  [green]✓ Knowledge & Rules Modularity:[/green] Organized across topic folders")
             else:
-                findings_cnt = kno.get('findings_count')
+                findings_cnt = kno.get("findings_count")
                 console.print(f"  [yellow]! Knowledge & Rules Modularity:[/yellow] {findings_cnt} issue(s):")
                 for f in kno.get("findings", []):
                     console.print(f"    - {f.get('file')} ({f.get('lines')} lines): {f.get('recommendation')}")
@@ -2847,8 +2847,10 @@ def repo_clean(
         for rep in results_by_repo:
             console.print(f"\n[bold]{rep['repo']}[/bold] ({rep['path']})")
             console.print("-" * 40)
-            cfg_rel = rep["config_relocations"].get("relocations", [])
-            hyg_act = rep["root_cleanup"].get("actions", [])
+            cfg_dict: dict[str, Any] = rep["config_relocations"] if isinstance(rep["config_relocations"], dict) else {}
+            hyg_dict: dict[str, Any] = rep["root_cleanup"] if isinstance(rep["root_cleanup"], dict) else {}
+            cfg_rel = cfg_dict.get("relocations", [])
+            hyg_act = hyg_dict.get("actions", [])
 
             for rel in cfg_rel:
                 console.print(f"  [green]✓ Config:[/green] {rel.get('action')}")
