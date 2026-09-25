@@ -64,21 +64,6 @@ class SpeechListenerBot:
                 "key": selected_key,
             }
 
-        # If non-interactive stdin and not simulated, return default
-        is_tty = False
-        try:
-            is_tty = bool(hasattr(sys.stdin, "isatty") and sys.stdin.isatty())
-        except Exception:
-            is_tty = False
-
-        if not is_tty:
-            return {
-                "success": True,
-                "transcript": "hath0r doctor",
-                "mode": "non_interactive",
-                "key": selected_key,
-            }
-
         if push_to_talk:
             wait_for_push_to_talk_trigger(selected_key, timeout_seconds=timeout)
 
@@ -87,6 +72,7 @@ class SpeechListenerBot:
         if listener_bin and sys.platform == "darwin":
             try:
                 import tempfile
+
                 with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as tmp:
                     tmp_path = tmp.name
 
@@ -115,6 +101,21 @@ class SpeechListenerBot:
                     }
             except Exception:
                 pass
+
+        # Check if stdin is a tty
+        is_tty = False
+        try:
+            is_tty = bool(hasattr(sys.stdin, "isatty") and sys.stdin.isatty())
+        except Exception:
+            is_tty = False
+
+        if not is_tty:
+            return {
+                "success": True,
+                "transcript": "hath0r doctor",
+                "mode": "non_interactive",
+                "key": selected_key,
+            }
 
         # Standard terminal line capture fallback
         try:
@@ -330,7 +331,7 @@ class VoiceServiceDaemonBot:
     ) -> Dict[str, Any]:
         """Start the voice listener service in background or foreground."""
         running, existing_pid = self.is_running()
-        if running:
+        if running and existing_pid != os.getpid():
             return {
                 "success": True,
                 "status": "already_running",
@@ -436,10 +437,14 @@ class VoiceServiceDaemonBot:
                 iterations += 1
                 listen_res = self.listener.listen(
                     push_to_talk=not ambient,
-                    timeout=20.0,
+                    timeout=15.0,
+                    enable_microphone=True,
                 )
                 transcript = listen_res.get("transcript", "").strip()
-                if not transcript:
+                mode = listen_res.get("mode")
+
+                if not transcript or transcript.lower() in ("cancel", "empty"):
+                    time.sleep(0.5)
                     continue
 
                 if transcript.lower() in (
@@ -467,6 +472,10 @@ class VoiceServiceDaemonBot:
                         "intent": reason_res.get("intent"),
                     }
                 )
+
+                # If non-interactive mode without microphone, back off to avoid busy spinning
+                if mode == "non_interactive":
+                    time.sleep(2.0)
         finally:
             self.pid_file.unlink(missing_ok=True)
 
