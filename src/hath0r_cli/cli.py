@@ -3253,13 +3253,41 @@ def voice_meeting(ctx: click.Context, mode: str, topic: str) -> None:
     default=None,
     help="Optional TTS voice name identifier.",
 )
+@click.option(
+    "--rate",
+    "-r",
+    "rate_wpm",
+    type=int,
+    default=None,
+    help="Optional speech rate (words per minute).",
+)
+@click.option(
+    "--no-filter",
+    "no_filter",
+    is_flag=True,
+    default=False,
+    help="Disable automatic markdown and code filtering.",
+)
 @click.pass_context
-def voice_speak(ctx: click.Context, message: str, voice_name: Optional[str]) -> None:
+def voice_speak(
+    ctx: click.Context,
+    message: str,
+    voice_name: Optional[str],
+    rate_wpm: Optional[int],
+    no_filter: bool,
+) -> None:
     """Vocalize a message out loud using the platform speech engine."""
-    from hath0r_cli.bots.voice_converse import VoiceSynthesizerBot
+    from hath0r_cli.bots.voice_speaker import VoiceSpeakerBot
 
-    synth = VoiceSynthesizerBot()
-    res = synth.speak(text=message, voice_name=voice_name)
+    speaker = VoiceSpeakerBot()
+    dry_run = bool(ctx.obj.get("dry_run", False))
+    res = speaker.speak(
+        text=message,
+        voice_name=voice_name,
+        rate_wpm=rate_wpm,
+        filter_code=not no_filter,
+        dry_run=dry_run,
+    )
 
     response = _build_response(
         ctx,
@@ -3267,11 +3295,183 @@ def voice_speak(ctx: click.Context, message: str, voice_name: Optional[str]) -> 
         state="ok" if res.get("success") else "degraded",
         data=res,
     )
-    _emit_response(ctx, response)
+
+    def _text() -> None:
+        console.print(f"[bold green]✓ Spoken Message:[/bold green] {res.get('text')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice.command("announce")
+@click.argument("message")
+@click.option(
+    "--queue",
+    "-q",
+    "queue_only",
+    is_flag=True,
+    default=False,
+    help="Enqueue to spoken notification spool rather than speaking synchronously.",
+)
+@click.option(
+    "--priority",
+    type=click.Choice(["low", "normal", "high", "urgent"]),
+    default="normal",
+    help="Announcement priority level.",
+)
+@click.pass_context
+def voice_announce(ctx: click.Context, message: str, queue_only: bool, priority: str) -> None:
+    """Make a spoken announcement or queue it for background voice broadcaster."""
+    from hath0r_cli.bots.voice_speaker import SpokenNotificationServiceBot, VoiceSpeakerBot
+
+    if queue_only:
+        svc = SpokenNotificationServiceBot()
+        res = svc.queue_message(message=message, priority=priority)
+        response = _build_response(
+            ctx,
+            command="voice.announce",
+            state="ok",
+            data=res,
+        )
+
+        def _text() -> None:
+            console.print(f"[bold green]✓ Queued spoken announcement:[/bold green] {message}")
+
+        _emit_response(ctx, response, text_renderer=_text)
+    else:
+        speaker = VoiceSpeakerBot()
+        dry_run = bool(ctx.obj.get("dry_run", False))
+        res = speaker.speak(text=message, dry_run=dry_run)
+        response = _build_response(
+            ctx,
+            command="voice.announce",
+            state="ok" if res.get("success") else "degraded",
+            data=res,
+        )
+
+        def _text() -> None:
+            console.print(f"[bold green]✓ Spoken Announcement:[/bold green] {res.get('text')}")
+
+        _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice.group("speaker")
+def voice_speaker() -> None:
+    """Manage background spoken notification daemon worker."""
+
+
+@voice_speaker.command("start")
+@click.option(
+    "--background/--foreground",
+    "background",
+    default=True,
+    show_default=True,
+    help="Run as a background daemon process or foreground loop.",
+)
+@click.pass_context
+def voice_speaker_start(ctx: click.Context, background: bool) -> None:
+    """Start the background spoken notification service worker."""
+    from hath0r_cli.bots.voice_speaker import SpokenNotificationServiceBot
+
+    svc = SpokenNotificationServiceBot()
+    res = svc.start_daemon(background=background)
+
+    response = _build_response(
+        ctx,
+        command="voice.speaker.start",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("status") == "already_running":
+            console.print(f"[yellow]● Speaker Daemon is already running[/yellow] (PID: [bold]{res.get('pid')}[/bold])")
+        elif res.get("status") == "started":
+            console.print(f"[bold green]✓ Speaker Daemon Started[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
+        else:
+            console.print(res.get("message", "Speaker daemon status updated."))
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_speaker.command("stop")
+@click.pass_context
+def voice_speaker_stop(ctx: click.Context) -> None:
+    """Stop the running background spoken notification service worker."""
+    from hath0r_cli.bots.voice_speaker import SpokenNotificationServiceBot
+
+    svc = SpokenNotificationServiceBot()
+    res = svc.stop_daemon()
+
+    response = _build_response(
+        ctx,
+        command="voice.speaker.stop",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("status") == "stopped":
+            console.print(f"[bold green]✓ Speaker Daemon Stopped[/bold green] (PID: [dim]{res.get('pid')}[/dim])")
+        else:
+            console.print("[dim]Speaker daemon is not currently running.[/dim]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_speaker.command("status")
+@click.pass_context
+def voice_speaker_status(ctx: click.Context) -> None:
+    """Check the status of the background spoken notification worker."""
+    from hath0r_cli.bots.voice_speaker import SpokenNotificationServiceBot
+
+    svc = SpokenNotificationServiceBot()
+    res = svc.status()
+
+    response = _build_response(
+        ctx,
+        command="voice.speaker.status",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("running"):
+            console.print(f"[bold green]● Speaker Daemon is RUNNING[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
+            console.print(f"  • Pending Queue Messages: [cyan]{res.get('pending_count')}[/cyan]")
+        else:
+            console.print("[dim]○ Speaker Daemon is STOPPED[/dim]")
+            console.print(f"  • Pending Queue Messages: [cyan]{res.get('pending_count')}[/cyan]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_speaker.command("drain")
+@click.option("--max-messages", type=int, default=None, help="Maximum messages to drain.")
+@click.pass_context
+def voice_speaker_drain(ctx: click.Context, max_messages: Optional[int]) -> None:
+    """Drain and speak all pending queued spoken announcements."""
+    from hath0r_cli.bots.voice_speaker import SpokenNotificationServiceBot
+
+    svc = SpokenNotificationServiceBot()
+    dry_run = bool(ctx.obj.get("dry_run", False))
+    items = svc.drain_queue(max_messages=max_messages, dry_run=dry_run)
+
+    response = _build_response(
+        ctx,
+        command="voice.speaker.drain",
+        state="ok",
+        data={"drained_count": len(items), "items": items},
+    )
+
+    def _text() -> None:
+        console.print(f"[bold green]✓ Drained {len(items)} queued announcements.[/bold green]")
+
+    _emit_response(ctx, response, text_renderer=_text)
 
 
 if __name__ == "__main__":
     main()
+
 
 
 

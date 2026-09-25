@@ -1,0 +1,57 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: voice-speaker-factory
+
+factory_id: voice-speaker-factory
+name: Voice Speaker and Spoken Notification Factory (Phase 1)
+version: 1.0.0
+description: >
+  Micro-bots and workflows powering autonomous spoken feedback, announcements,
+  spool queue processing, and task vocalization with natural language filtering.
+
+author: Bayly-AI
+category: voice-and-audio
+
+bots:
+  - id: voice-speaker-bot
+    name: Voice Speaker Bot
+    role: voice-synthesis-and-filtering
+    description: Synthesizes spoken speech feedback out loud with natural language filtering.
+    capabilities:
+      - speak
+      - announce-task-status
+
+  - id: spoken-notification-service-bot
+    name: Spoken Notification Service Bot
+    role: background-spoken-queue-management
+    description: Manages queued spoken announcements and background daemon worker.
+    capabilities:
+      - queue-message
+      - drain-queue
+      - start-daemon
+      - stop-daemon
+
+workflows:
+  - id: voice-speak-message
+    name: Voice Speak Message Workflow
+    description: Vocalizes a single spoken message out loud.
+    steps:
+      - bot: voice-speaker-bot
+        action: speak
+        on_failure: continue
+
+  - id: voice-task-announcement
+    name: Voice Task Announcement Workflow
+    description: Announces task completion or failure out loud.
+    steps:
+      - bot: voice-speaker-bot
+        action: announce-task-status
+        on_failure: continue
+
+  - id: voice-queue-announcement
+    name: Voice Queue Announcement Workflow
+    description: Enqueues announcement to spool queue.
+    steps:
+      - bot: spoken-notification-service-bot
+        action: queue-message
+        on_failure: continue

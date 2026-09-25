@@ -24,7 +24,9 @@ from hath0r_cli.bots import (
     ProactiveSpeakerBot,
     RepoHygieneBot,
     SpeechListenerBot,
+    SpokenNotificationServiceBot,
     TaskAnnouncerBot,
+    VoiceSpeakerBot,
     VoiceSynthesizerBot,
 )
 from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
@@ -121,6 +123,8 @@ class BotRegistry:
             "agent-dialogue-bot": AgentDialogueBot(cwd=self.cwd),
             "voice-synthesizer-bot": VoiceSynthesizerBot(cwd=self.cwd),
             "proactive-speaker-bot": ProactiveSpeakerBot(cwd=self.cwd),
+            "voice-speaker-bot": VoiceSpeakerBot(cwd=self.cwd),
+            "spoken-notification-service-bot": SpokenNotificationServiceBot(cwd=self.cwd),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -199,6 +203,10 @@ class BotRegistry:
                 return self._dispatch_voice_synthesizer(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "proactive-speaker-bot":
                 return self._dispatch_proactive_speaker(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "voice-speaker-bot":
+                return self._dispatch_voice_speaker(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "spoken-notification-service-bot":
+                return self._dispatch_spoken_notification_service(bot, action, args, dry_run=dry_run, context=ctx)
             else:
                 return StepExecutionResult(
                     bot_id=bot_id,
@@ -1283,6 +1291,122 @@ class BotRegistry:
             action=action,
             success=False,
             error=f"Unknown action '{action}' for proactive-speaker-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_voice_speaker(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("speak", "vocalize"):
+            text = str(args.get("text") or context.get("message") or context.get("response_text") or "")
+            voice = args.get("voice_name")
+            rate = args.get("rate_wpm")
+            filter_code = bool(args.get("filter_code", True))
+            res = bot.speak(text=text, voice_name=voice, rate_wpm=rate, filter_code=filter_code, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-speaker-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("announce-task-status", "announce-task", "announce"):
+            task_name = str(args.get("task_name") or context.get("task_id") or "Lifecycle Task")
+            status = str(args.get("status") or "completed")
+            details = args.get("details")
+            res = bot.announce_task_status(task_name=task_name, status=status, details=details, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-speaker-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="voice-speaker-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for voice-speaker-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_spoken_notification_service(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("queue-message", "queue-announcement", "queue"):
+            msg = str(args.get("message") or context.get("message") or "")
+            priority = str(args.get("priority") or "normal")
+            category = str(args.get("category") or "notification")
+            res = bot.queue_message(message=msg, priority=priority, category=category)
+            return StepExecutionResult(
+                bot_id="spoken-notification-service-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("drain-queue", "drain"):
+            max_msgs = args.get("max_messages")
+            res = bot.drain_queue(max_messages=max_msgs, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="spoken-notification-service-bot",
+                action=action,
+                success=True,
+                data={"drained_count": len(res), "items": res},
+                dry_run=dry_run,
+            )
+        elif action in ("start-daemon", "start-worker"):
+            bg = bool(args.get("background", True))
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="spoken-notification-service-bot",
+                    action=action,
+                    success=True,
+                    data={"dry_run": True, "action": "Would start spoken notification daemon"},
+                    dry_run=dry_run,
+                )
+            res = bot.start_daemon(background=bg)
+            return StepExecutionResult(
+                bot_id="spoken-notification-service-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("stop-daemon", "stop-worker"):
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="spoken-notification-service-bot",
+                    action=action,
+                    success=True,
+                    data={"dry_run": True, "action": "Would stop spoken notification daemon"},
+                    dry_run=dry_run,
+                )
+            res = bot.stop_daemon()
+            return StepExecutionResult(
+                bot_id="spoken-notification-service-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="spoken-notification-service-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for spoken-notification-service-bot.",
             dry_run=dry_run,
         )
 

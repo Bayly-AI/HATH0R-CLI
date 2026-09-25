@@ -1152,6 +1152,11 @@ from hath0r_cli.bots.voice_converse import (  # noqa: E402
     SpeechListenerBot,
     VoiceSynthesizerBot,
 )
+from hath0r_cli.bots.voice_speaker import (  # noqa: E402
+    SpokenNotificationServiceBot,
+    VoiceSpeakerBot,
+    filter_speech_text,
+)
 
 __all__ = [
     "AgentDialogueBot",
@@ -1175,8 +1180,11 @@ __all__ = [
     "ReleaseBot",
     "RepoHygieneBot",
     "SpeechListenerBot",
+    "SpokenNotificationServiceBot",
     "TaskAnnouncerBot",
+    "VoiceSpeakerBot",
     "VoiceSynthesizerBot",
+    "filter_speech_text",
 ]
 
 
