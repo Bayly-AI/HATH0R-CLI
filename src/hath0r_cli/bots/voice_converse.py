@@ -119,7 +119,7 @@ class SpeechListenerBot:
 
         # Standard terminal line capture fallback
         try:
-            line = input().strip()
+            line = input("You > ").strip()
             transcript = line
         except (EOFError, KeyboardInterrupt):
             transcript = "cancel"

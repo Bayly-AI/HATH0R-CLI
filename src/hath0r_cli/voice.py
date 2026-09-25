@@ -179,7 +179,6 @@ def wait_for_push_to_talk_trigger(key_name: str, timeout_seconds: float = 30.0) 
                     return True
     except Exception:
         try:
-            input()
             return True
         except Exception:
             return True
