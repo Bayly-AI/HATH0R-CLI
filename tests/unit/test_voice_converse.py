@@ -75,3 +75,13 @@ def test_workflow_proactive_announcement_dry_run():
     assert wf_res.success is True
     assert len(wf_res.steps) == 1
     assert wf_res.steps[0].data["announced"] is True
+
+
+def test_speech_listener_bot_binary_discovery(tmp_path: Path):
+    bot = SpeechListenerBot(cwd=tmp_path)
+    bin_path = bot._find_listener_binary()
+    # If compiled locally on Darwin, returns Path; on other platforms or CI clean checkout, returns None or Path
+    if bin_path is not None:
+        assert bin_path.is_file()
+
+

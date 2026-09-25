@@ -12,3 +12,5 @@ venv/
 .mypy_cache/
 .ruff_cache/
 .hath0r/spool/
+src/hath0r_cli/bin/hath0r-listen
+src/hath0r_cli/bin/*.app
