@@ -77,7 +77,7 @@ class SpeechListenerBot:
                     tmp_audio_path = tmp.name
 
                 print("  🎙️  Recording from microphone... (speak now)", flush=True)
-                proc = subprocess.run(
+                subprocess.run(
                     [str(listener_bin), str(min(timeout, 8.0)), tmp_audio_path],
                     capture_output=True,
                     text=True,
@@ -264,7 +264,7 @@ def transcribe_audio(audio_path: Path | str, timeout: float = 10.0) -> Optional[
             if candidates and "content" in candidates[0]:
                 parts = candidates[0]["content"].get("parts", [])
                 if parts and "text" in parts[0]:
-                    transcript = parts[0]["text"].strip()
+                    transcript = str(parts[0]["text"]).strip()
                     if transcript.upper() in ("EMPTY", "EMPTY.", ""):
                         return None
                     return transcript
