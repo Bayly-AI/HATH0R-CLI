@@ -554,14 +554,17 @@ def interpret_response_for_speech(command: str, state: str, data: Optional[Dict[
         issue_num = None
         branch_name = None
         for s in steps:
-            data_s = s.get("data") if isinstance(s, dict) and isinstance(s.get("data"), dict) else {}
-            if "issue_number" in data_s:
-                issue_num = data_s["issue_number"]
-            if "branch" in data_s:
-                branch_name = data_s["branch"]
+            if isinstance(s, dict):
+                raw_d = s.get("data")
+                if isinstance(raw_d, dict):
+                    if "issue_number" in raw_d:
+                        issue_num = raw_d["issue_number"]
+                    if "branch" in raw_d:
+                        branch_name = raw_d["branch"]
         if issue_num and branch_name:
             return f"Task receipt confirmed for Issue #{issue_num}. Work branch {branch_name} initialized."
         return "Task receipt confirmed. Work branch and environment initialized."
+
 
     if "task.finish" in cmd_norm:
         return "Task completion finalized. PR quality gates and lifecycle verification complete."
