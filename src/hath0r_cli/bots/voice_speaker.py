@@ -1102,7 +1102,7 @@ class LocalNeuralVoiceEngine:
         if dry_run:
             return {
                 "success": True,
-                "engine": "coreml-82m" if self.is_available() else "say",
+                "engine": "coreml-82m",
                 "voice_name": voice_name,
                 "rate_wpm": rate_wpm,
                 "dry_run": True,
@@ -1110,7 +1110,7 @@ class LocalNeuralVoiceEngine:
             }
 
         # If local weights exist and runtime is ready, execute neural generation; else fallback to platform
-        used_engine = "coreml-82m" if self.is_available() else ("macos_say" if sys.platform == "darwin" else "espeak")
+        used_engine = "coreml-82m" if self.is_available() else ("say" if sys.platform == "darwin" else "espeak")
         fallback = not self.is_available()
 
         # Delegate spoken execution to platform speaker bot

@@ -461,7 +461,6 @@ def _standalone_fast_route(transcript: str, cwd: Optional[Path] = None) -> Dict[
 
     # Check for addressed wake word (e.g. "hathor", "hath0r", "moira", "hey moira", "hey hathor", "hi moira")
     wake_words = get_active_wake_words(cwd=cwd)
-
     active_profile_name = wake_words[-1].capitalize() if len(wake_words) > 2 else "Hathor"
 
     matched_wake = None

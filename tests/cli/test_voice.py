@@ -122,6 +122,7 @@ def test_voice_exec_addressed_by_profile_name():
         data = json.loads(res.output)
         assert data["state"] == "ok"
         assert data["data"]["action"]["schema"] == "hath0r.voice.action/1"
+        assert data["data"]["action"]["intent"] == "cli_command"
         assert data["data"]["action"]["payload"]["command"] == "hath0r doctor"
         assert data["data"]["action"]["payload"]["addressed_to"] == "Moira"
 

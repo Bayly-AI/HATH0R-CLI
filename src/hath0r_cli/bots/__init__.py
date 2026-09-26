@@ -1152,7 +1152,6 @@ from hath0r_cli.bots.voice_converse import (  # noqa: E402
     SpeechListenerBot,
     VoiceServiceDaemonBot,
     VoiceSynthesizerBot,
-    filter_speech_text,
 )
 from hath0r_cli.bots.voice_speaker import (  # noqa: E402
     ActiveTabReaderBot,
@@ -1162,6 +1161,7 @@ from hath0r_cli.bots.voice_speaker import (  # noqa: E402
     VoiceSpeakerBot,
     VoiceSpeakerModeBot,
     expand_technical_tokens,
+    filter_speech_text,
     interpret_response_for_speech,
 )
 

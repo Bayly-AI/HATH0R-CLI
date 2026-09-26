@@ -247,4 +247,3 @@ def test_agent_dialogue_bot_addressed_by_profile_name(tmp_path: Path):
     assert res3["intent"] == "system_control"
     assert res3["action"]["payload"]["action"] == "mute"
     assert res3["action"]["payload"]["addressed_to"] == "Moira"
-
