@@ -5,11 +5,12 @@
 
 factory_id: voice-converse-factory
 name: Voice Conversational Interface and Meeting Factory
-version: 1.0.0
+version: 1.1.0
 description: >
   Autonomous factory powering two-way conversational voice interaction,
-  hands-free meeting participation, dialogue turn-taking, and proactive
-  verbal agent announcements across the OpenSource Project suite via hath0r CLI.
+  background daemon listening service, hands-free meeting participation,
+  dialogue turn-taking, and proactive verbal agent announcements across
+  the OpenSource Project suite via hath0r CLI.
 
 author: Bayly-AI
 category: human-agent-interaction
@@ -36,7 +37,7 @@ bots:
   - id: voice-synthesizer-bot
     name: Voice Synthesizer Bot
     role: audio-speech-output
-    description: Synthesizes agent speech responses with natural cadence and interruption support.
+    description: Synthesizes agent speech responses with natural cadence, code-filtering, and interruption support.
     capabilities:
       - speak
       - synthesize
@@ -50,6 +51,18 @@ bots:
       - announce
       - check-in
       - alert
+
+  - id: voice-service-daemon-bot
+    name: Voice Service Daemon Bot
+    role: background-voice-listening-service
+    description: Manages persistent background ambient listening, turn processing, and spoken response loop.
+    capabilities:
+      - start-service
+      - stop-service
+      - status
+      - run-service-loop
+      - install-service
+      - uninstall-service
 
 workflows:
   - id: converse-session
@@ -66,6 +79,14 @@ workflows:
 
       - bot: voice-synthesizer-bot
         action: speak
+        on_failure: continue
+
+  - id: voice-daemon-service
+    name: Autonomous Background Voice Daemon Service
+    description: Persistent background listening service that captures speech and responds out loud.
+    steps:
+      - bot: voice-service-daemon-bot
+        action: start-service
         on_failure: continue
 
   - id: meeting-mode

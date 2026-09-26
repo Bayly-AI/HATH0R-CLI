@@ -1,121 +1,93 @@
 import AVFoundation
 import Foundation
-import Speech
 
-class AudioListener: NSObject {
-    private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
-    private let audioEngine = AVAudioEngine()
-    private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
-    private var recognitionTask: SFSpeechRecognitionTask?
-    private var lastTranscript: String = ""
+class VoiceAudioRecorder: NSObject, AVAudioRecorderDelegate {
+    private var recorder: AVAudioRecorder?
+    private let outputFile: URL
+    private let maxDuration: TimeInterval
     private var isDone: Bool = false
-    private let maxSilenceSeconds: TimeInterval = 1.8
     private var silenceTimer: Timer?
-    private let outputFile: String?
+    private var speechDetected: Bool = false
+    private let silenceThresholdDB: Float = -42.0
+    private let pauseSilenceSeconds: TimeInterval = 1.4
 
-    init(outputFile: String? = nil) {
+    init(outputFile: URL, maxDuration: TimeInterval = 8.0) {
         self.outputFile = outputFile
+        self.maxDuration = maxDuration
         super.init()
     }
 
-    func startListening(timeoutSeconds: TimeInterval) {
-        SFSpeechRecognizer.requestAuthorization { authStatus in
-            guard authStatus == .authorized else {
-                FileHandle.standardError.write("Speech recognition not authorized: \(authStatus.rawValue)\n".data(using: .utf8)!)
-                self.isDone = true
-                return
-            }
-            self.recordAndRecognize(timeoutSeconds: timeoutSeconds)
+    func record() {
+        let settings: [String: Any] = [
+            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+            AVSampleRateKey: 16000.0,
+            AVNumberOfChannelsKey: 1,
+            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
+        ]
+
+        do {
+            recorder = try AVAudioRecorder(url: outputFile, settings: settings)
+            recorder?.delegate = self
+            recorder?.isMeteringEnabled = true
+            recorder?.record(forDuration: maxDuration)
+        } catch {
+            FileHandle.standardError.write("Audio recorder init error: \(error)\n".data(using: .utf8)!)
+            return
         }
 
-        let loopUntil = Date().addingTimeInterval(timeoutSeconds + 2.0)
+        // Metering poll loop
+        let pollTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] timer in
+            guard let self = self, let recorder = self.recorder, recorder.isRecording else {
+                timer.invalidate()
+                return
+            }
+            recorder.updateMeters()
+            let power = recorder.averagePower(forChannel: 0)
+
+            if power > self.silenceThresholdDB {
+                self.speechDetected = true
+                self.silenceTimer?.invalidate()
+                self.silenceTimer = Timer.scheduledTimer(withTimeInterval: self.pauseSilenceSeconds, repeats: false) { [weak self] _ in
+                    self?.finish()
+                }
+            }
+        }
+
+        let loopUntil = Date().addingTimeInterval(maxDuration + 1.0)
         while !isDone && RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.1)) {
             if Date() > loopUntil {
                 break
             }
         }
-    }
 
-    private func recordAndRecognize(timeoutSeconds: TimeInterval) {
-        recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-        guard let recognitionRequest = recognitionRequest else {
-            isDone = true
-            return
-        }
-
-        recognitionRequest.shouldReportPartialResults = true
-
-        let inputNode = audioEngine.inputNode
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
-            self.recognitionRequest?.append(buffer)
-        }
-
-        audioEngine.prepare()
-        do {
-            try audioEngine.start()
-        } catch {
-            FileHandle.standardError.write("Audio engine start error: \(error)\n".data(using: .utf8)!)
-            isDone = true
-            return
-        }
-
-        recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest) { result, error in
-            if let result = result {
-                let text = result.bestTranscription.formattedString.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !text.isEmpty {
-                    self.lastTranscript = text
-                    self.resetSilenceTimer()
-                }
-                if result.isFinal {
-                    self.finish()
-                }
-            }
-            if error != nil {
-                self.finish()
-            }
-        }
-
-        Timer.scheduledTimer(withTimeInterval: timeoutSeconds, repeats: false) { _ in
-            self.finish()
-        }
-    }
-
-    private func resetSilenceTimer() {
-        silenceTimer?.invalidate()
-        silenceTimer = Timer.scheduledTimer(withTimeInterval: maxSilenceSeconds, repeats: false) { _ in
-            self.finish()
-        }
+        pollTimer.invalidate()
+        finish()
     }
 
     private func finish() {
         guard !isDone else { return }
         isDone = true
         silenceTimer?.invalidate()
-        audioEngine.stop()
-        audioEngine.inputNode.removeTap(onBus: 0)
-        recognitionRequest?.endAudio()
-        recognitionTask?.cancel()
-
-        if !lastTranscript.isEmpty {
-            if let path = outputFile {
-                try? lastTranscript.write(toFile: path, atomically: true, encoding: .utf8)
-            }
-            FileHandle.standardOutput.write("\(lastTranscript)\n".data(using: .utf8)!)
+        if let rec = recorder, rec.isRecording {
+            rec.stop()
         }
+        FileHandle.standardOutput.write("RECORD_COMPLETE:\(outputFile.path)\n".data(using: .utf8)!)
     }
 }
 
 let args = CommandLine.arguments
-var timeout: TimeInterval = 10.0
-var outPath: String? = nil
+var duration: TimeInterval = 7.0
+var outPath = "/tmp/hath0r_voice_input.m4a"
 
-if args.count > 1, let t = Double(args[1]) {
-    timeout = t
+if args.count > 1, let d = Double(args[1]) {
+    duration = d
 }
 if args.count > 2 {
     outPath = args[2]
 }
 
-let listener = AudioListener(outputFile: outPath)
-listener.startListening(timeoutSeconds: timeout)
+let fileURL = URL(fileURLWithPath: outPath)
+try? FileManager.default.removeItem(at: fileURL)
+
+let voiceRecorder = VoiceAudioRecorder(outputFile: fileURL, maxDuration: duration)
+voiceRecorder.record()

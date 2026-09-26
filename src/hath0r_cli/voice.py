@@ -161,9 +161,8 @@ def wait_for_push_to_talk_trigger(key_name: str, timeout_seconds: float = 30.0) 
 
         while time.perf_counter() - start_t < timeout_seconds:
             # Check macOS hardware modifier key if applicable
-            if sys.platform == "darwin" and key_norm in ("right_ctrl", "left_ctrl"):
-                keycode = 62 if key_norm == "right_ctrl" else 59
-                if is_macos_key_pressed(keycode):
+            if sys.platform == "darwin" and key_norm in ("right_ctrl", "left_ctrl", "ctrl", "control"):
+                if is_macos_key_pressed(62) or is_macos_key_pressed(59):
                     return True
 
             # Check terminal keyboard input
@@ -179,7 +178,6 @@ def wait_for_push_to_talk_trigger(key_name: str, timeout_seconds: float = 30.0) 
                     return True
     except Exception:
         try:
-            input()
             return True
         except Exception:
             return True
@@ -333,6 +331,7 @@ def evaluate_and_dispatch_voice(
     trust_tier: str = TrustTier.ELEVATED.value,
     dry_run: bool = False,
     speak: bool = False,
+    cwd: Optional[Path] = None,
 ) -> Tuple[Dict[str, Any], List[Diagnostic], str]:
     """Evaluate transcript against System 1 router and governance tier, then dispatch.
 
@@ -342,20 +341,24 @@ def evaluate_and_dispatch_voice(
     start_time = time.perf_counter()
     diagnostics: List[Diagnostic] = []
 
-    # Attempt to import framework VoiceEngine, or use built-in fast router
-    voice_action: Optional[Any] = None
-    try:
-        from lib.voice import VoiceConfig, VoiceEngine
+    # Evaluate using fast-path router
+    action_dict = _standalone_fast_route(transcript, cwd=cwd)
+    if not action_dict or action_dict.get("intent") == "agent_delegate":
+        try:
+            from lib.voice import VoiceConfig, VoiceEngine
 
-        config = VoiceConfig.from_env()
-        engine = VoiceEngine(config=config)
-        voice_action = engine.process_utterance(transcript, speak_feedback=speak)
-        action_dict = voice_action.to_dict()
-    except Exception:
-        # Resilient standalone fallback router
-        action_dict = _standalone_fast_route(transcript)
-        if speak:
-            _speak_feedback_standalone(action_dict.get("payload", {}).get("feedback_text", ""))
+            config = VoiceConfig.from_env()
+            engine = VoiceEngine(config=config)
+            voice_action = engine.process_utterance(transcript, speak_feedback=speak)
+            if voice_action and voice_action.routing_tier == "system_one":
+                action_dict = voice_action.to_dict()
+        except Exception:
+            pass
+
+    if speak and action_dict:
+        _speak_feedback_standalone(action_dict.get("payload", {}).get("feedback_text", ""))
+
+
 
     intent = action_dict.get("intent", "unresolved")
     payload = action_dict.get("payload", {})
@@ -434,13 +437,13 @@ def _speak_feedback_standalone(text: str) -> None:
 
 
 
-def get_active_wake_words() -> List[str]:
+def get_active_wake_words(cwd: Optional[Path] = None) -> List[str]:
     """Retrieve list of valid wake words including hath0r and the active voice profile name."""
     wake_words = ["hathor", "hath0r"]
     try:
         from hath0r_cli.bots.voice_speaker import VoiceProfileBot
 
-        prof = VoiceProfileBot().get_active_profile()
+        prof = VoiceProfileBot(cwd=cwd or Path.cwd()).get_active_profile()
         v_name = prof.get("voice_name")
         if v_name:
             v_clean = v_name.strip().lower()
@@ -451,13 +454,13 @@ def get_active_wake_words() -> List[str]:
     return wake_words
 
 
-def _standalone_fast_route(transcript: str) -> Dict[str, Any]:
+def _standalone_fast_route(transcript: str, cwd: Optional[Path] = None) -> Dict[str, Any]:
     """Lightweight built-in fast path for standalone CLI execution."""
     t = transcript.strip().lower()
     action_id = str(uuid.uuid4())
 
     # Check for addressed wake word (e.g. "hathor", "hath0r", "moira", "hey moira", "hey hathor", "hi moira")
-    wake_words = get_active_wake_words()
+    wake_words = get_active_wake_words(cwd=cwd)
     active_profile_name = wake_words[-1].capitalize() if len(wake_words) > 2 else "Hathor"
 
     matched_wake = None

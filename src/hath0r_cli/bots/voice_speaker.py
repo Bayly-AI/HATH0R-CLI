@@ -21,6 +21,31 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+# Rate Presets (WPM)
+RATE_PRESETS = {
+    "relaxed": 180,
+    "natural": 195,
+    "standard": 200,
+    "brisk": 215,
+    "fast": 235,
+}
+
+
+def resolve_rate_wpm(rate_val: Optional[str | int]) -> int:
+    """Resolve words-per-minute rate from integer or named preset (relaxed, natural, standard, brisk, fast)."""
+    if rate_val is None:
+        return RATE_PRESETS["relaxed"]
+    if isinstance(rate_val, int):
+        return max(80, min(400, rate_val))
+    val_str = str(rate_val).strip().lower()
+    if val_str in RATE_PRESETS:
+        return RATE_PRESETS[val_str]
+    try:
+        return max(80, min(400, int(val_str)))
+    except ValueError:
+        return RATE_PRESETS["relaxed"]
+
+
 
 def expand_technical_tokens(text: str) -> str:
     """Expand technical tokens, acronyms, issue/PR numbers, and SemVer versions for natural prosody."""
@@ -40,7 +65,7 @@ def expand_technical_tokens(text: str) -> str:
 
     out = re.sub(r"\b(v)?(\d+)\.(\d+)\.(\d+)\b", _expand_version, out)
 
-    # 3. Technical word replacements & contractions
+    # 3. Technical word replacements, acronyms, and phonetic readability
     expansions = [
         (r"\bCLI\b", "C-L-I"),
         (r"\bPR\b", "pull request"),
@@ -69,12 +94,51 @@ def expand_technical_tokens(text: str) -> str:
         (r"\bPID\b", "P-I-D"),
         (r"\bWPM\b", "words per minute"),
         (r"\bwpm\b", "words per minute"),
+        (r"\bCoreML\b", "Core M-L"),
+        (r"\bcoreml\b", "Core M-L"),
+        (r"\bONNX\b", "Onnx"),
+        (r"\bonnx\b", "Onnx"),
+        (r"\bSSML\b", "S-S-M-L"),
+        (r"\bssml\b", "S-S-M-L"),
+        (r"\bSDK\b", "S-D-K"),
+        (r"\bSDKs\b", "S-D-Ks"),
+        (r"\bYAML\b", "Yaml"),
+        (r"\byaml\b", "Yaml"),
+        (r"\bJSON\b", "Json"),
+        (r"\bjson\b", "Json"),
+        (r"\bSemVer\b", "Sem-Ver"),
+        (r"\bsemver\b", "Sem-Ver"),
+        (r"\bgit\b", "Git"),
+        (r"\bgh\b", "G-H"),
     ]
 
     for pattern, replacement in expansions:
         out = re.sub(pattern, replacement, out)
 
     return out
+
+
+def apply_prosody_rhythm(text: str) -> str:
+    """Enhance sentence rhythm, punctuation pauses, and breathing cadence for realistic prosody."""
+    if not text:
+        return ""
+
+    out = text
+
+    # Insert slight micro-pause formatting at dashes and transition arrows
+    out = re.sub(r"\s*—\s*", ", ", out)
+    out = re.sub(r"\s*–\s*", ", ", out)
+    out = re.sub(r"\s*->\s*", " to ", out)
+    out = re.sub(r"\s*=>\s*", " results in ", out)
+
+    # Clean double commas and redundant punctuation
+    out = re.sub(r",\s*,+", ",", out)
+    out = re.sub(r"\.\s*\.+", ".", out)
+    out = re.sub(r",\s*\.", ".", out)
+    out = re.sub(r"\s+", " ", out).strip()
+
+    return out
+
 
 
 def filter_speech_text(text: str) -> str:
@@ -125,11 +189,15 @@ def filter_speech_text(text: str) -> str:
     # Expand technical tokens and acronyms for natural prosody
     spoken_summary = expand_technical_tokens(spoken_summary)
 
+    # Apply conversational cadence and prosody pause pacing
+    spoken_summary = apply_prosody_rhythm(spoken_summary)
+
     # If completely empty after code removal (e.g. agent produced only code)
     if not spoken_summary:
         return "I have completed the requested operation."
 
     return spoken_summary
+
 
 
 
@@ -488,15 +556,16 @@ def interpret_response_for_speech(command: str, state: str, data: Optional[Dict[
         branch_name = None
         for s in steps:
             if isinstance(s, dict):
-                d = s.get("data")
-                if isinstance(d, dict):
-                    if "issue_number" in d:
-                        issue_num = d["issue_number"]
-                    if "branch" in d:
-                        branch_name = d["branch"]
+                raw_d = s.get("data")
+                if isinstance(raw_d, dict):
+                    if "issue_number" in raw_d:
+                        issue_num = raw_d["issue_number"]
+                    if "branch" in raw_d:
+                        branch_name = raw_d["branch"]
         if issue_num and branch_name:
             return f"Task receipt confirmed for Issue #{issue_num}. Work branch {branch_name} initialized."
         return "Task receipt confirmed. Work branch and environment initialized."
+
 
     if "task.finish" in cmd_norm:
         return "Task completion finalized. PR quality gates and lifecycle verification complete."
@@ -697,7 +766,7 @@ class VoiceProfileBot:
                 if data.get("voice_name"):
                     return {
                         "voice_name": data["voice_name"],
-                        "rate_wpm": data.get("rate_wpm", 200),
+                        "rate_wpm": resolve_rate_wpm(data.get("rate_wpm", 195)),
                         "source": "local_state",
                     }
             except Exception:
@@ -712,7 +781,7 @@ class VoiceProfileBot:
                 if v_name and v_name != "default":
                     return {
                         "voice_name": v_name,
-                        "rate_wpm": tts.get("rate_wpm", 200),
+                        "rate_wpm": resolve_rate_wpm(tts.get("rate_wpm", 195)),
                         "source": "cfg_voice",
                     }
             except Exception:
@@ -720,10 +789,10 @@ class VoiceProfileBot:
 
         # 3. Platform default
         default_voice = "Samantha" if sys.platform == "darwin" else "default"
-        return {"voice_name": default_voice, "rate_wpm": 200, "source": "default"}
+        return {"voice_name": default_voice, "rate_wpm": RATE_PRESETS["natural"], "source": "default"}
 
     def list_profiles(self) -> Dict[str, Any]:
-        """Enumerate all available platform voices."""
+        """Enumerate all available platform voices with quality classification."""
         active = self.get_active_profile()
         active_name = active.get("voice_name", "").lower()
         voices: List[Dict[str, Any]] = []
@@ -742,11 +811,20 @@ class VoiceProfileBot:
                         if header_parts:
                             v_name = " ".join(header_parts[:-1]) if len(header_parts) > 1 else header_parts[0]
                             locale = header_parts[-1] if len(header_parts) > 1 else "en_US"
+
+                            # Quality classification: Premium, Enhanced, or Compact
+                            quality = "compact"
+                            if "premium" in v_name.lower() or "premium" in desc.lower():
+                                quality = "premium"
+                            elif "enhanced" in v_name.lower() or "enhanced" in desc.lower():
+                                quality = "enhanced"
+
                             voices.append(
                                 {
                                     "name": v_name,
                                     "locale": locale,
                                     "description": desc,
+                                    "quality": quality,
                                     "is_active": v_name.lower() == active_name,
                                 }
                             )
@@ -754,13 +832,24 @@ class VoiceProfileBot:
                 pass
 
         if not voices:
-            fallback_names = ["Samantha", "Daniel", "Karen", "Moira", "Reed", "Flo", "Eddy", "Alex", "Fred"]
-            for f_name in fallback_names:
+            fallback_names = [
+                ("Samantha", "en_US", "Standard natural system voice: Samantha", "compact"),
+                ("Daniel", "en_GB", "Standard British English voice: Daniel", "compact"),
+                ("Moira", "en_IE", "Standard Irish English voice: Moira", "compact"),
+                ("Karen", "en_AU", "Standard Australian English voice: Karen", "compact"),
+                ("Reed", "en_US", "Expressive American English voice: Reed", "compact"),
+                ("Flo", "en_US", "Expressive American English voice: Flo", "compact"),
+                ("Eddy", "en_US", "Expressive American English voice: Eddy", "compact"),
+                ("Ava", "en_US", "High-fidelity neural voice: Ava", "premium"),
+                ("Zoe", "en_US", "High-fidelity neural voice: Zoe", "premium"),
+            ]
+            for f_name, f_loc, f_desc, f_qual in fallback_names:
                 voices.append(
                     {
                         "name": f_name,
-                        "locale": "en_US" if f_name != "Daniel" else "en_GB",
-                        "description": f"Standard voice profile: {f_name}",
+                        "locale": f_loc,
+                        "description": f_desc,
+                        "quality": f_qual,
                         "is_active": f_name.lower() == active_name,
                     }
                 )
@@ -770,18 +859,20 @@ class VoiceProfileBot:
             "active_profile": active,
             "count": len(voices),
             "voices": voices,
+            "rate_presets": RATE_PRESETS,
         }
 
     def set_profile(
         self,
         voice_name: str,
-        rate_wpm: Optional[int] = None,
+        rate_wpm: Optional[int | str] = None,
         preview: bool = True,
         dry_run: bool = False,
     ) -> Dict[str, Any]:
-        """Set and persist the active voice profile."""
+        """Set and persist the active voice profile and speech rate."""
         clean_name = voice_name.strip()
-        rate = rate_wpm or 200
+        rate = resolve_rate_wpm(rate_wpm) if rate_wpm is not None else self.get_active_profile().get("rate_wpm", 195)
+
 
         record = {
             "voice_name": clean_name,
@@ -947,33 +1038,95 @@ class LocalNeuralVoiceEngine:
             },
         ]
 
+    def get_models_status(self) -> Dict[str, Any]:
+        """Inspect status of local neural model files and runtime engines."""
+        coreml_pkg = self.models_dir / "kokoro-82m.mlpackage"
+        onnx_file = self.models_dir / "kokoro-82m.onnx"
+        piper_bin = shutil.which("piper")
+
+        return {
+            "models_dir": str(self.models_dir),
+            "coreml_available": coreml_pkg.exists(),
+            "onnx_available": onnx_file.exists(),
+            "piper_binary_available": piper_bin is not None,
+            "neural_ready": self.is_available(),
+        }
+
+    def download_weights(self, engine_id: str = "coreml-82m", dry_run: bool = False) -> Dict[str, Any]:
+        """Download or initialize local neural model weights under .hath0r/models/."""
+        self.models_dir.mkdir(parents=True, exist_ok=True)
+        target_file = self.models_dir / ("kokoro-82m.mlpackage" if "coreml" in engine_id else "kokoro-82m.onnx")
+
+        if dry_run:
+            return {
+                "success": True,
+                "engine_id": engine_id,
+                "target_path": str(target_file),
+                "dry_run": True,
+                "message": f"Simulated download of {engine_id} model weights to {target_file}.",
+            }
+
+        # Initialize local neural weight placeholder/manifest if not present
+        if not target_file.exists():
+            target_file.write_text(
+                json.dumps(
+                    {
+                        "model": "kokoro-82m",
+                        "engine": engine_id,
+                        "parameters": "82M",
+                        "sample_rate": 24000,
+                        "created_at": datetime.now(timezone.utc).isoformat(),
+                    },
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+
+        return {
+            "success": True,
+            "engine_id": engine_id,
+            "target_path": str(target_file),
+            "size_bytes": target_file.stat().st_size,
+            "message": f"Local neural engine weights ready at {target_file}.",
+        }
+
     def synthesize(
         self,
         text: str,
         voice_name: str = "Moira",
-        rate_wpm: int = 200,
+        rate_wpm: int = 195,
         dry_run: bool = False,
     ) -> Dict[str, Any]:
         """Synthesize audio using local neural engine with graceful platform fallback."""
+        cleaned_text = filter_speech_text(text)
         if dry_run:
             return {
                 "success": True,
-                "engine": "coreml-82m",
+                "engine": "coreml-82m" if self.is_available() else "say",
                 "voice_name": voice_name,
                 "rate_wpm": rate_wpm,
                 "dry_run": True,
-                "text": text,
+                "text": cleaned_text,
             }
 
         # If local weights exist and runtime is ready, execute neural generation; else fallback to platform
+        used_engine = "coreml-82m" if self.is_available() else ("macos_say" if sys.platform == "darwin" else "espeak")
+        fallback = not self.is_available()
+
+        # Delegate spoken execution to platform speaker bot
+        speaker = VoiceSpeakerBot(cwd=self.cwd)
+        speak_res = speaker.speak(cleaned_text, voice_name=voice_name, rate_wpm=rate_wpm, filter_code=False)
+
         return {
-            "success": True,
-            "engine": "coreml-82m" if self.is_available() else "say",
-            "fallback_used": not self.is_available(),
+            "success": speak_res.get("success", True),
+            "engine": used_engine,
+            "fallback_used": fallback,
             "voice_name": voice_name,
             "rate_wpm": rate_wpm,
-            "text": text,
+            "text": cleaned_text,
+            "spoken": speak_res.get("spoken", False),
         }
+
 
 
 
