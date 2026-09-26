@@ -119,8 +119,7 @@ class SpeechListenerBot:
 
         # Standard terminal line capture fallback
         try:
-            line = input("You > ").strip()
-            transcript = line
+            transcript = input("You > ").strip()
         except (EOFError, KeyboardInterrupt):
             transcript = "cancel"
 
@@ -373,7 +372,9 @@ class AgentDialogueBot:
             trust_tier=trust_tier,
             dry_run=dry_run,
             speak=False,
+            cwd=self.cwd,
         )
+
 
         action = data.get("action", {})
         intent = action.get("intent", "unresolved")
@@ -658,7 +659,6 @@ WantedBy=default.target
             return {"success": True, "message": "No systemd service was installed."}
 
         return {"success": False, "error": f"Unsupported platform {sys.platform}"}
-
     def start_service(
         self,
         background: bool = True,

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from hath0r_cli.bots import (
+    ActiveTabReaderBot,
     AgentDialogueBot,
     BranchBot,
     BranchGuardBot,
@@ -24,8 +25,12 @@ from hath0r_cli.bots import (
     ProactiveSpeakerBot,
     RepoHygieneBot,
     SpeechListenerBot,
+    SpokenNotificationServiceBot,
     TaskAnnouncerBot,
+    VoiceProfileBot,
     VoiceServiceDaemonBot,
+    VoiceSpeakerBot,
+    VoiceSpeakerModeBot,
     VoiceSynthesizerBot,
 )
 from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
@@ -123,6 +128,11 @@ class BotRegistry:
             "voice-synthesizer-bot": VoiceSynthesizerBot(cwd=self.cwd),
             "proactive-speaker-bot": ProactiveSpeakerBot(cwd=self.cwd),
             "voice-service-daemon-bot": VoiceServiceDaemonBot(cwd=self.cwd),
+            "voice-speaker-bot": VoiceSpeakerBot(cwd=self.cwd),
+            "spoken-notification-service-bot": SpokenNotificationServiceBot(cwd=self.cwd),
+            "voice-speaker-mode-bot": VoiceSpeakerModeBot(cwd=self.cwd),
+            "voice-profile-bot": VoiceProfileBot(cwd=self.cwd),
+            "active-tab-reader-bot": ActiveTabReaderBot(cwd=self.cwd),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -203,6 +213,16 @@ class BotRegistry:
                 return self._dispatch_proactive_speaker(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "voice-service-daemon-bot":
                 return self._dispatch_voice_service_daemon(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "voice-speaker-bot":
+                return self._dispatch_voice_speaker(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "spoken-notification-service-bot":
+                return self._dispatch_spoken_notification_service(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "voice-speaker-mode-bot":
+                return self._dispatch_voice_speaker_mode(bot, action, args, dry_run=dry_run)
+            elif bot_id == "voice-profile-bot":
+                return self._dispatch_voice_profile(bot, action, args, dry_run=dry_run)
+            elif bot_id == "active-tab-reader-bot":
+                return self._dispatch_active_tab_reader(bot, action, args, dry_run=dry_run)
             else:
                 return StepExecutionResult(
                     bot_id=bot_id,
@@ -1292,7 +1312,7 @@ class BotRegistry:
 
     def _dispatch_voice_service_daemon(
         self,
-        bot: Any,
+        bot: VoiceServiceDaemonBot,
         action: str,
         args: dict[str, Any],
         *,
@@ -1405,8 +1425,269 @@ class BotRegistry:
             dry_run=dry_run,
         )
 
+    def _dispatch_voice_speaker(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("speak", "vocalize"):
+            text = str(args.get("text") or context.get("message") or context.get("response_text") or "")
+            voice = args.get("voice_name")
+            rate = args.get("rate_wpm")
+            filter_code = bool(args.get("filter_code", True))
+            res = bot.speak(text=text, voice_name=voice, rate_wpm=rate, filter_code=filter_code, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-speaker-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("announce-task-status", "announce-task", "announce"):
+            task_name = str(args.get("task_name") or context.get("task_id") or "Lifecycle Task")
+            status = str(args.get("status") or "completed")
+            details = args.get("details")
+            res = bot.announce_task_status(task_name=task_name, status=status, details=details, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-speaker-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="voice-speaker-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for voice-speaker-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_spoken_notification_service(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("queue-message", "queue-announcement", "queue"):
+            msg = str(args.get("message") or context.get("message") or "")
+            priority = str(args.get("priority") or "normal")
+            category = str(args.get("category") or "notification")
+            res = bot.queue_message(message=msg, priority=priority, category=category)
+            return StepExecutionResult(
+                bot_id="spoken-notification-service-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("drain-queue", "drain"):
+            max_msgs = args.get("max_messages")
+            res = bot.drain_queue(max_messages=max_msgs, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="spoken-notification-service-bot",
+                action=action,
+                success=True,
+                data={"drained_count": len(res), "items": res},
+                dry_run=dry_run,
+            )
+        elif action in ("start-daemon", "start-worker"):
+            bg = bool(args.get("background", True))
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="spoken-notification-service-bot",
+                    action=action,
+                    success=True,
+                    data={"dry_run": True, "action": "Would start spoken notification daemon"},
+                    dry_run=dry_run,
+                )
+            res = bot.start_daemon(background=bg)
+            return StepExecutionResult(
+                bot_id="spoken-notification-service-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("stop-daemon", "stop-worker"):
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="spoken-notification-service-bot",
+                    action=action,
+                    success=True,
+                    data={"dry_run": True, "action": "Would stop spoken notification daemon"},
+                    dry_run=dry_run,
+                )
+            res = bot.stop_daemon()
+            return StepExecutionResult(
+                bot_id="spoken-notification-service-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="spoken-notification-service-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for spoken-notification-service-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_voice_speaker_mode(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        speak = bool(args.get("speak", True))
+        tab_only = bool(args.get("tab_only", False) or args.get("active_tab_only", False))
+        if action in ("enable", "enable-speak-mode", "on"):
+            res = bot.enable(tab_only=tab_only, speak=speak, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-speaker-mode-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("disable", "disable-speak-mode", "off"):
+            res = bot.disable(speak=speak, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-speaker-mode-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("toggle", "toggle-speak-mode"):
+            res = bot.toggle(tab_only=tab_only, speak=speak, dry_run=dry_run)
+
+            return StepExecutionResult(
+                bot_id="voice-speaker-mode-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("status", "get-status"):
+            res = bot.status()
+            return StepExecutionResult(
+                bot_id="voice-speaker-mode-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="voice-speaker-mode-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for voice-speaker-mode-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_voice_profile(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("list-profiles", "list", "ls"):
+            res = bot.list_profiles()
+            return StepExecutionResult(
+                bot_id="voice-profile-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("get-active-profile", "get-active", "status"):
+            res = bot.get_active_profile()
+            return StepExecutionResult(
+                bot_id="voice-profile-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("set-profile", "set"):
+            voice_name = str(args.get("voice_name") or args.get("name") or "Samantha")
+            rate = args.get("rate_wpm")
+            preview = bool(args.get("preview", True))
+            res = bot.set_profile(voice_name=voice_name, rate_wpm=rate, preview=preview, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-profile-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="voice-profile-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for voice-profile-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_active_tab_reader(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("read-selection", "selection", "read-selected"):
+            res = bot.read_selection(dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="active-tab-reader-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("read-text", "read"):
+            text = str(args.get("text") or "")
+            res = bot.read_text(text, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="active-tab-reader-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("get-frontmost-app", "app", "frontmost"):
+            app_name = bot.get_frontmost_app()
+            return StepExecutionResult(
+                bot_id="active-tab-reader-bot",
+                action=action,
+                success=True,
+                data={"app": app_name},
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="active-tab-reader-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for active-tab-reader-bot.",
+            dry_run=dry_run,
+        )
 
 def execute_workflow(
+
     workflow_def: dict[str, Any],
     registry: BotRegistry,
     *,

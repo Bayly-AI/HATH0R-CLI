@@ -139,6 +139,23 @@ def _emit_response(
     mode = ctx.obj.get("output", "auto")
     emit(response, mode, console, text_renderer=text_renderer)
 
+    # Automatic spoken feedback if speak mode is active
+    try:
+        from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
+
+        speak_bot = VoiceSpeakerModeBot()
+        if speak_bot.is_enabled() and not bool(ctx.obj.get("quiet", False)):
+            cmd = response.command or ""
+            skip_speak = cmd.startswith("voice.speak") or cmd.startswith("speak") or cmd.startswith("voice.announce")
+            if not skip_speak:
+                speak_bot.vocalize_response(
+                    command=cmd,
+                    state=response.state,
+                    data=response.data if isinstance(response.data, dict) else {},
+                )
+    except Exception:
+        pass
+
 
 @click.group(invoke_without_command=True)
 @click.option(
@@ -3253,13 +3270,41 @@ def voice_meeting(ctx: click.Context, mode: str, topic: str) -> None:
     default=None,
     help="Optional TTS voice name identifier.",
 )
+@click.option(
+    "--rate",
+    "-r",
+    "rate_wpm",
+    type=int,
+    default=None,
+    help="Optional speech rate (words per minute).",
+)
+@click.option(
+    "--no-filter",
+    "no_filter",
+    is_flag=True,
+    default=False,
+    help="Disable automatic markdown and code filtering.",
+)
 @click.pass_context
-def voice_speak(ctx: click.Context, message: str, voice_name: Optional[str]) -> None:
+def voice_speak(
+    ctx: click.Context,
+    message: str,
+    voice_name: Optional[str],
+    rate_wpm: Optional[int],
+    no_filter: bool,
+) -> None:
     """Vocalize a message out loud using the platform speech engine."""
-    from hath0r_cli.bots.voice_converse import VoiceSynthesizerBot
+    from hath0r_cli.bots.voice_speaker import VoiceSpeakerBot
 
-    synth = VoiceSynthesizerBot()
-    res = synth.speak(text=message, voice_name=voice_name)
+    speaker = VoiceSpeakerBot()
+    dry_run = bool(ctx.obj.get("dry_run", False))
+    res = speaker.speak(
+        text=message,
+        voice_name=voice_name,
+        rate_wpm=rate_wpm,
+        filter_code=not no_filter,
+        dry_run=dry_run,
+    )
 
     response = _build_response(
         ctx,
@@ -3267,9 +3312,571 @@ def voice_speak(ctx: click.Context, message: str, voice_name: Optional[str]) -> 
         state="ok" if res.get("success") else "degraded",
         data=res,
     )
-    _emit_response(ctx, response)
+
+    def _text() -> None:
+        console.print(f"[bold green]✓ Spoken Message:[/bold green] {res.get('text')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
 
 
+@voice.command("announce")
+@click.argument("message")
+@click.option(
+    "--queue",
+    "-q",
+    "queue_only",
+    is_flag=True,
+    default=False,
+    help="Enqueue to spoken notification spool rather than speaking synchronously.",
+)
+@click.option(
+    "--priority",
+    type=click.Choice(["low", "normal", "high", "urgent"]),
+    default="normal",
+    help="Announcement priority level.",
+)
+@click.pass_context
+def voice_announce(ctx: click.Context, message: str, queue_only: bool, priority: str) -> None:
+    """Make a spoken announcement or queue it for background voice broadcaster."""
+    from hath0r_cli.bots.voice_speaker import SpokenNotificationServiceBot, VoiceSpeakerBot
+
+    if queue_only:
+        svc = SpokenNotificationServiceBot()
+        res = svc.queue_message(message=message, priority=priority)
+        response = _build_response(
+            ctx,
+            command="voice.announce",
+            state="ok",
+            data=res,
+        )
+
+        def _text() -> None:
+            console.print(f"[bold green]✓ Queued spoken announcement:[/bold green] {message}")
+
+        _emit_response(ctx, response, text_renderer=_text)
+    else:
+        speaker = VoiceSpeakerBot()
+        dry_run = bool(ctx.obj.get("dry_run", False))
+        res = speaker.speak(text=message, dry_run=dry_run)
+        response = _build_response(
+            ctx,
+            command="voice.announce",
+            state="ok" if res.get("success") else "degraded",
+            data=res,
+        )
+
+        def _text() -> None:
+            console.print(f"[bold green]✓ Spoken Announcement:[/bold green] {res.get('text')}")
+
+        _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice.group("speaker")
+def voice_speaker() -> None:
+    """Manage background spoken notification daemon worker."""
+
+
+@voice_speaker.command("start")
+@click.option(
+    "--background/--foreground",
+    "background",
+    default=True,
+    show_default=True,
+    help="Run as a background daemon process or foreground loop.",
+)
+@click.pass_context
+def voice_speaker_start(ctx: click.Context, background: bool) -> None:
+    """Start the background spoken notification service worker."""
+    from hath0r_cli.bots.voice_speaker import SpokenNotificationServiceBot
+
+    svc = SpokenNotificationServiceBot()
+    res = svc.start_daemon(background=background)
+
+    response = _build_response(
+        ctx,
+        command="voice.speaker.start",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("status") == "already_running":
+            console.print(f"[yellow]● Speaker Daemon is already running[/yellow] (PID: [bold]{res.get('pid')}[/bold])")
+        elif res.get("status") == "started":
+            console.print(f"[bold green]✓ Speaker Daemon Started[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
+        else:
+            console.print(res.get("message", "Speaker daemon status updated."))
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_speaker.command("stop")
+@click.pass_context
+def voice_speaker_stop(ctx: click.Context) -> None:
+    """Stop the running background spoken notification service worker."""
+    from hath0r_cli.bots.voice_speaker import SpokenNotificationServiceBot
+
+    svc = SpokenNotificationServiceBot()
+    res = svc.stop_daemon()
+
+    response = _build_response(
+        ctx,
+        command="voice.speaker.stop",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("status") == "stopped":
+            console.print(f"[bold green]✓ Speaker Daemon Stopped[/bold green] (PID: [dim]{res.get('pid')}[/dim])")
+        else:
+            console.print("[dim]Speaker daemon is not currently running.[/dim]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_speaker.command("status")
+@click.pass_context
+def voice_speaker_status(ctx: click.Context) -> None:
+    """Check the status of the background spoken notification worker."""
+    from hath0r_cli.bots.voice_speaker import SpokenNotificationServiceBot
+
+    svc = SpokenNotificationServiceBot()
+    res = svc.status()
+
+    response = _build_response(
+        ctx,
+        command="voice.speaker.status",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("running"):
+            console.print(f"[bold green]● Speaker Daemon is RUNNING[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
+            console.print(f"  • Pending Queue Messages: [cyan]{res.get('pending_count')}[/cyan]")
+        else:
+            console.print("[dim]○ Speaker Daemon is STOPPED[/dim]")
+            console.print(f"  • Pending Queue Messages: [cyan]{res.get('pending_count')}[/cyan]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_speaker.command("drain")
+@click.option("--max-messages", type=int, default=None, help="Maximum messages to drain.")
+@click.pass_context
+def voice_speaker_drain(ctx: click.Context, max_messages: Optional[int]) -> None:
+    """Drain and speak all pending queued spoken announcements."""
+    from hath0r_cli.bots.voice_speaker import SpokenNotificationServiceBot
+
+    svc = SpokenNotificationServiceBot()
+    dry_run = bool(ctx.obj.get("dry_run", False))
+    items = svc.drain_queue(max_messages=max_messages, dry_run=dry_run)
+
+    response = _build_response(
+        ctx,
+        command="voice.speaker.drain",
+        state="ok",
+        data={"drained_count": len(items), "items": items},
+    )
+
+    def _text() -> None:
+        console.print(f"[bold green]✓ Drained {len(items)} queued announcements.[/bold green]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice.group("profile", invoke_without_command=True)
+@click.pass_context
+def voice_profile_group(ctx: click.Context) -> None:
+    """Manage and configure speech synthesis voice profiles."""
+    if ctx.invoked_subcommand is None:
+        ctx.invoke(voice_profile_list)
+
+
+@voice_profile_group.command("list")
+@click.option("--all", "show_all", is_flag=True, default=False, help="Show all installed platform voices.")
+@click.pass_context
+def voice_profile_list(ctx: click.Context, show_all: bool) -> None:
+    """List available voice profiles and inspect current active voice."""
+    from hath0r_cli.bots.voice_speaker import VoiceProfileBot
+
+    bot = VoiceProfileBot()
+    res = bot.list_profiles()
+
+    response = _build_response(
+        ctx,
+        command="voice.profile.list",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        table = Table(title="HATH0R Speech Synthesis Voice Profiles")
+        table.add_column("Status", style="bold", width=8)
+        table.add_column("Voice Name", style="bold cyan")
+        table.add_column("Quality", style="yellow")
+        table.add_column("Locale", style="dim")
+        table.add_column("Description")
+
+        voices = res.get("voices", [])
+        # If not show_all, prioritize English / common voices
+        if not show_all:
+            voices = [v for v in voices if "en" in v.get("locale", "").lower()] or voices[:15]
+
+        for v in voices:
+            status_icon = "[green]● ACTIVE[/green]" if v.get("is_active") else ""
+            q_color = "bold green" if v.get("quality") == "premium" else "cyan"
+            quality_str = f"[{q_color}]{v.get('quality', 'compact').upper()}[/]"
+            table.add_row(status_icon, v.get("name", ""), quality_str, v.get("locale", ""), v.get("description", ""))
+
+        console.print(table)
+        active_prof = res.get("active_profile", {})
+        v_name = active_prof.get("voice_name")
+        r_wpm = active_prof.get("rate_wpm")
+        console.print(f"Active Voice: [bold green]{v_name}[/bold green] (Rate: {r_wpm} WPM)")
+        console.print(
+            "  • Change voice: 'hath0r voice profile set <name> [--rate relaxed|natural|standard|brisk|fast|<wpm>]'"
+        )
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_profile_group.command("set")
+@click.argument("voice_name")
+@click.option(
+    "--rate",
+    "-r",
+    "rate_wpm",
+    type=str,
+    default=None,
+    help="Optional speech rate (WPM or preset: relaxed, natural, standard, brisk, fast).",
+)
+@click.option("--no-preview", is_flag=True, default=False, help="Set voice without vocal preview.")
+@click.pass_context
+def voice_profile_set(ctx: click.Context, voice_name: str, rate_wpm: Optional[str], no_preview: bool) -> None:
+    """Set and persist the active voice profile for all spoken outputs."""
+    from hath0r_cli.bots.voice_speaker import VoiceProfileBot
+
+    bot = VoiceProfileBot()
+    dry_run = bool(ctx.obj.get("dry_run", False))
+    res = bot.set_profile(
+        voice_name=voice_name,
+        rate_wpm=rate_wpm,
+        preview=not no_preview and not dry_run,
+        dry_run=dry_run,
+    )
+
+    response = _build_response(
+        ctx,
+        command="voice.profile.set",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        console.print(f"[bold green]✓ Voice Profile Set:[/bold green] [cyan]{res.get('voice_name')}[/cyan]")
+        console.print(f"  • Speech Rate: {res.get('rate_wpm')} WPM")
+        console.print(f"  • Configuration saved to {res.get('config_file')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_profile_group.command("status")
+@click.pass_context
+def voice_profile_status(ctx: click.Context) -> None:
+    """Get active voice profile status."""
+    from hath0r_cli.bots.voice_speaker import VoiceProfileBot
+
+    bot = VoiceProfileBot()
+    res = bot.get_active_profile()
+
+    response = _build_response(
+        ctx,
+        command="voice.profile.status",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        v_name = res.get("voice_name")
+        r_wpm = res.get("rate_wpm")
+        console.print(f"Active Voice Profile: [bold green]{v_name}[/bold green] (Rate: {r_wpm} WPM)")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice.command("read")
+@click.argument("text", required=False, default=None)
+@click.option(
+    "--selection",
+    "-s",
+    is_flag=True,
+    default=False,
+    help="Read highlighted/selected text from active app (Warp, Antigravity, VS Code).",
+)
+@click.pass_context
+def voice_read(ctx: click.Context, text: Optional[str], selection: bool) -> None:
+    """Read and speak active tab text, input text, or highlighted selection aloud."""
+    from hath0r_cli.bots.voice_speaker import ActiveTabReaderBot
+
+    bot = ActiveTabReaderBot()
+    dry_run = bool(ctx.obj.get("dry_run", False))
+
+    if selection or text is None:
+        res = bot.read_selection(dry_run=dry_run)
+    else:
+        res = bot.read_text(text, dry_run=dry_run)
+
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(
+        ctx,
+        command="voice.read",
+        state=state,
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("success"):
+            console.print(f"[bold green]✓ Vocalized from {res.get('app')}:[/bold green] {res.get('spoken_text')}")
+        else:
+            console.print(f"[bold red]✗ Failed to read active window:[/bold red] {res.get('error')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice.group("engine", invoke_without_command=True)
+@click.pass_context
+def voice_engine_group(ctx: click.Context) -> None:
+    """Manage local neural and platform speech synthesis engines (CoreML / ONNX / say)."""
+    if ctx.invoked_subcommand is None:
+        ctx.invoke(voice_engine_list)
+
+
+@voice_engine_group.command("list")
+@click.pass_context
+def voice_engine_list(ctx: click.Context) -> None:
+    """List available local neural (CoreML / ONNX) and platform speech engines."""
+    from hath0r_cli.bots.voice_speaker import LocalNeuralVoiceEngine
+
+    engine = LocalNeuralVoiceEngine()
+    engines = engine.list_supported_engines()
+    status = engine.get_models_status()
+
+    response = _build_response(
+        ctx,
+        command="voice.engine.list",
+        state="ok",
+        data={"engines": engines, "status": status, "count": len(engines)},
+    )
+
+    def _text() -> None:
+        table = Table(title="HATH0R Local Neural & Platform Voice Engines")
+        table.add_column("Engine ID", style="bold cyan")
+        table.add_column("Type", style="dim")
+        table.add_column("Availability")
+        table.add_column("Description")
+
+        for eng in engines:
+            avail = (
+                "[green]● AVAILABLE[/green]"
+                if eng.get("available")
+                else "[dim]○ OFFLINE (model weights not found)[/dim]"
+            )
+            table.add_row(eng.get("id"), eng.get("type"), avail, eng.get("description"))
+
+        console.print(table)
+        console.print(f"  • Models Directory: [cyan]{status.get('models_dir')}[/cyan]")
+        console.print("  • CoreML 82M: High-efficiency local neural speech engine for Apple Silicon.")
+        console.print("  • Download weights: 'hath0r voice engine download --engine coreml-82m'")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_engine_group.command("download")
+@click.option(
+    "--engine",
+    "-e",
+    "engine_id",
+    type=click.Choice(["coreml-82m", "onnx-neural"], case_sensitive=False),
+    default="coreml-82m",
+    help="Neural model engine weights to download.",
+)
+@click.option("--dry-run", is_flag=True, default=False, help="Simulate download without filesystem changes.")
+@click.pass_context
+def voice_engine_download(ctx: click.Context, engine_id: str, dry_run: bool) -> None:
+    """Download and cache offline local neural weights (Kokoro-82M CoreML/ONNX)."""
+    from hath0r_cli.bots.voice_speaker import LocalNeuralVoiceEngine
+
+    engine = LocalNeuralVoiceEngine()
+    is_dry_run = dry_run or bool(ctx.obj.get("dry_run", False))
+    res = engine.download_weights(engine_id=engine_id, dry_run=is_dry_run)
+
+
+    response = _build_response(
+        ctx,
+        command="voice.engine.download",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        console.print(f"[bold green]✓ {res.get('message')}[/bold green]")
+        console.print(f"  • Target Path: [cyan]{res.get('target_path')}[/cyan]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+
+
+
+
+@main.group("speak", invoke_without_command=True)
+@click.pass_context
+def speak_group(ctx: click.Context) -> None:
+    """Manage global Hath0r spoken feedback mode (vocalize all agent outputs)."""
+    if ctx.invoked_subcommand is None:
+        from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
+
+        bot = VoiceSpeakerModeBot()
+        st = bot.status()
+        response = _build_response(
+            ctx,
+            command="speak.status",
+            state="ok",
+            data=st,
+        )
+
+        def _text() -> None:
+            state_label = "[bold green]ENABLED[/bold green]" if st["enabled"] else "[dim]DISABLED[/dim]"
+            scope_label = f" (Scope: [cyan]{st.get('scope', 'global')}[/cyan])" if st["enabled"] else ""
+            console.print(f"Hath0r Speak Mode: {state_label}{scope_label}")
+            if st.get("scope") == "tab" and st.get("saved_tab"):
+                console.print(f"  • Scoped Tab: {st.get('saved_tab')}")
+            console.print("  • Use 'hath0r speak on' to enable across all tabs.")
+            console.print("  • Use 'hath0r speak on --tab-only' for active tab only.")
+            console.print("  • Use 'hath0r speak off' to disable automatic voice responses.")
+
+        _emit_response(ctx, response, text_renderer=_text)
+
+
+@speak_group.command("on")
+@click.option(
+    "--tab-only",
+    "--this-tab",
+    "tab_only",
+    is_flag=True,
+    default=False,
+    help="Enable speak mode only for the current active terminal tab.",
+)
+@click.option("--silent", is_flag=True, default=False, help="Enable without vocal announcement.")
+@click.pass_context
+def speak_on(ctx: click.Context, tab_only: bool, silent: bool) -> None:
+    """Turn ON spoken feedback mode (globally or for the current active tab only)."""
+    from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
+
+    bot = VoiceSpeakerModeBot()
+    dry_run = bool(ctx.obj.get("dry_run", False))
+    res = bot.enable(tab_only=tab_only, speak=not silent and not dry_run, dry_run=dry_run)
+
+    response = _build_response(
+        ctx,
+        command="speak.on",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        scope_str = "ACTIVE TAB ONLY" if res.get("scope") == "tab" else "GLOBAL (ALL TABS)"
+        console.print(f"[bold green]✓ Hath0r Speak Mode: ENABLED ({scope_str})[/bold green]")
+        if res.get("tab_id"):
+            console.print(f"  • Bound to Tab: [cyan]{res.get('tab_id')}[/cyan]")
+        console.print("  • The agent will now vocalize all actions and responses out loud.")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@speak_group.command("off")
+@click.option("--silent", is_flag=True, default=False, help="Disable without vocal announcement.")
+@click.pass_context
+def speak_off(ctx: click.Context, silent: bool) -> None:
+    """Turn OFF global spoken feedback mode."""
+    from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
+
+    bot = VoiceSpeakerModeBot()
+    dry_run = bool(ctx.obj.get("dry_run", False))
+    res = bot.disable(speak=not silent and not dry_run, dry_run=dry_run)
+
+    response = _build_response(
+        ctx,
+        command="speak.off",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        console.print("[dim]○ Hath0r Speak Mode: DISABLED[/dim]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@speak_group.command("toggle")
+@click.option(
+    "--tab-only",
+    "--this-tab",
+    "tab_only",
+    is_flag=True,
+    default=False,
+    help="Toggle speak mode scoped to active tab only.",
+)
+@click.pass_context
+def speak_toggle(ctx: click.Context, tab_only: bool) -> None:
+    """Toggle spoken feedback mode between on and off."""
+    from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
+
+    bot = VoiceSpeakerModeBot()
+    dry_run = bool(ctx.obj.get("dry_run", False))
+    res = bot.toggle(tab_only=tab_only, speak=not dry_run, dry_run=dry_run)
+
+    response = _build_response(
+        ctx,
+        command="speak.toggle",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("enabled"):
+            scope_str = "ACTIVE TAB ONLY" if res.get("scope") == "tab" else "GLOBAL"
+            console.print(f"[bold green]✓ Hath0r Speak Mode: ENABLED ({scope_str})[/bold green]")
+        else:
+            console.print("[dim]○ Hath0r Speak Mode: DISABLED[/dim]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+
+@speak_group.command("status")
+@click.pass_context
+def speak_status(ctx: click.Context) -> None:
+    """Check if global spoken feedback mode is active."""
+    from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
+
+    bot = VoiceSpeakerModeBot()
+    st = bot.status()
+
+    response = _build_response(
+        ctx,
+        command="speak.status",
+        state="ok",
+        data=st,
+    )
+
+    def _text() -> None:
+        state_label = "[bold green]ENABLED[/bold green]" if st["enabled"] else "[dim]DISABLED[/dim]"
+        console.print(f"Hath0r Speak Mode: {state_label}")
+
+    _emit_response(ctx, response, text_renderer=_text)
 @voice.group("service")
 def voice_service() -> None:
     """Manage background voice listening and conversational service daemon."""
@@ -3515,6 +4122,8 @@ def voice_service_uninstall(ctx: click.Context) -> None:
 
 if __name__ == "__main__":
     main()
+
+
 
 
 

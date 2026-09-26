@@ -218,6 +218,33 @@ def test_transcribe_audio_missing_or_empty(tmp_path: Path):
     assert transcribe_audio(empty_f) is None
 
 
+def test_agent_dialogue_bot_addressed_by_profile_name(tmp_path: Path):
+    from hath0r_cli.bots.voice_speaker import VoiceProfileBot
 
+    # Configure profile to Moira
+    prof_bot = VoiceProfileBot(cwd=tmp_path)
+    prof_bot.set_profile("Moira", preview=False)
 
+    dialogue_bot = AgentDialogueBot(cwd=tmp_path)
+
+    # 1. Direct profile address: "Moira, doctor"
+    res = dialogue_bot.reason("Moira, doctor", dry_run=True)
+    assert res["success"] is True
+    assert res["intent"] == "cli_command"
+    assert res["action"]["payload"]["command"] == "hath0r doctor"
+    assert res["action"]["payload"]["addressed_to"] == "Moira"
+
+    # 2. Conversational prefix: "Hey Moira, list all issues"
+    res2 = dialogue_bot.reason("Hey Moira, issue list", dry_run=True)
+    assert res2["success"] is True
+    assert res2["intent"] == "cli_command"
+    assert res2["action"]["payload"]["command"] == "hath0r issue"
+    assert res2["action"]["payload"]["addressed_to"] == "Moira"
+
+    # 3. System control: "Moira: mute"
+    res3 = dialogue_bot.reason("Moira: mute", dry_run=True)
+    assert res3["success"] is True
+    assert res3["intent"] == "system_control"
+    assert res3["action"]["payload"]["action"] == "mute"
+    assert res3["action"]["payload"]["addressed_to"] == "Moira"
 
