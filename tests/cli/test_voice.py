@@ -98,3 +98,20 @@ def test_voice_service_cli_lifecycle():
     assert data_stop["state"] == "ok"
     assert data_stop["data"]["status"] == "not_running"
 
+
+def test_voice_exec_addressed_by_profile_name():
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        # Set profile to Moira
+        prof_res = runner.invoke(main, ["voice", "profile", "set", "Moira", "--no-preview"])
+        assert prof_res.exit_code == 0
+
+        # Run command addressing Moira
+        res = runner.invoke(main, ["--output", "json", "voice", "exec", "Moira, doctor", "--dry-run"])
+        assert res.exit_code == 0
+        data = json.loads(res.output)
+        assert data["state"] == "ok"
+        assert data["data"]["action"]["schema"] == "hath0r.voice.action/1"
+        assert data["data"]["action"]["payload"]["command"] == "hath0r doctor"
+        assert data["data"]["action"]["payload"]["addressed_to"] == "Moira"
+

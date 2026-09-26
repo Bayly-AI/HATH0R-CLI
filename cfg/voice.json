@@ -59,7 +59,7 @@
       "kokoro",
       "stub"
     ],
-    "rate_wpm": 200,
-    "voice_name": "default"
+    "rate_wpm": 180,
+    "voice_name": "Fiona (Enhanced)"
   }
 }

@@ -1,0 +1,126 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: voice-speaker-factory
+
+factory_id: voice-speaker-factory
+name: Voice Speaker and Spoken Notification Factory (Phase 1)
+version: 1.3.0
+description: >
+  Micro-bots and workflows powering autonomous spoken feedback, announcements,
+  spool queue processing, persistent speak mode toggle, active tab/selection reading, and voice profile configuration with natural language filtering.
+
+author: Bayly-AI
+category: voice-and-audio
+
+bots:
+  - id: voice-speaker-bot
+    name: Voice Speaker Bot
+    role: voice-synthesis-and-filtering
+    description: Synthesizes spoken speech feedback out loud with natural language filtering.
+    capabilities:
+      - speak
+      - announce-task-status
+
+  - id: spoken-notification-service-bot
+    name: Spoken Notification Service Bot
+    role: background-spoken-queue-management
+    description: Manages queued spoken announcements and background daemon worker.
+    capabilities:
+      - queue-message
+      - drain-queue
+      - start-daemon
+      - stop-daemon
+
+  - id: voice-speaker-mode-bot
+    name: Voice Speaker Mode Bot
+    role: global-spoken-feedback-toggle
+    description: Manages persistent Hath0r speak mode to vocalize all agent responses and outputs.
+    capabilities:
+      - enable
+      - disable
+      - toggle
+      - status
+
+  - id: voice-profile-bot
+    name: Voice Profile Bot
+    role: voice-profile-management
+    description: Manages voice profile discovery, listing, selection, and vocal preview.
+    capabilities:
+      - list-profiles
+      - get-active-profile
+      - set-profile
+
+  - id: active-tab-reader-bot
+    name: Active Tab Reader Bot
+    role: active-tab-and-selection-speech
+    description: Reads and speaks content from the active application tab, window, or clipboard selection.
+    capabilities:
+      - read-selection
+      - read-text
+      - get-frontmost-app
+
+workflows:
+  - id: voice-speak-message
+    name: Voice Speak Message Workflow
+    description: Vocalizes a single spoken message out loud.
+    steps:
+      - bot: voice-speaker-bot
+        action: speak
+        on_failure: continue
+
+  - id: voice-task-announcement
+    name: Voice Task Announcement Workflow
+    description: Announces task completion or failure out loud.
+    steps:
+      - bot: voice-speaker-bot
+        action: announce-task-status
+        on_failure: continue
+
+  - id: voice-queue-announcement
+    name: Voice Queue Announcement Workflow
+    description: Enqueues announcement to spool queue.
+    steps:
+      - bot: spoken-notification-service-bot
+        action: queue-message
+        on_failure: continue
+
+  - id: enable-speak-mode
+    name: Enable Global Spoken Feedback Mode
+    description: Turns on Hath0r speak mode to vocalize all subsequent actions and outputs.
+    steps:
+      - bot: voice-speaker-mode-bot
+        action: enable
+        on_failure: abort
+
+  - id: disable-speak-mode
+    name: Disable Global Spoken Feedback Mode
+    description: Turns off Hath0r speak mode to silence automatic vocalization.
+    steps:
+      - bot: voice-speaker-mode-bot
+        action: disable
+        on_failure: abort
+
+  - id: list-voice-profiles
+    name: List Available Voice Profiles
+    description: Lists all installed voice profiles on the system.
+    steps:
+      - bot: voice-profile-bot
+        action: list-profiles
+        on_failure: abort
+
+  - id: set-voice-profile
+    name: Set Active Voice Profile
+    description: Sets and persists the active voice profile for all spoken outputs.
+    steps:
+      - bot: voice-profile-bot
+        action: set-profile
+        on_failure: abort
+
+  - id: voice-read-active-tab
+    name: Voice Read Active Tab Workflow
+    description: Reads and speaks text from the frontmost application or active tab.
+    steps:
+      - bot: active-tab-reader-bot
+        action: read-text
+        on_failure: continue
+
