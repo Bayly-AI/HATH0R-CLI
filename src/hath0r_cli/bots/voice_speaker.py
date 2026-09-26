@@ -35,7 +35,7 @@ RATE_PRESETS = {
 def resolve_rate_wpm(rate_val: Optional[str | int]) -> int:
     """Resolve words-per-minute rate from integer or named preset (relaxed, natural, standard, brisk, fast)."""
     if rate_val is None:
-        return RATE_PRESETS["natural"]
+        return RATE_PRESETS["relaxed"]
     if isinstance(rate_val, int):
         return max(80, min(400, rate_val))
     val_str = str(rate_val).strip().lower()
@@ -44,7 +44,8 @@ def resolve_rate_wpm(rate_val: Optional[str | int]) -> int:
     try:
         return max(80, min(400, int(val_str)))
     except ValueError:
-        return RATE_PRESETS["natural"]
+        return RATE_PRESETS["relaxed"]
+
 
 
 def expand_technical_tokens(text: str) -> str:

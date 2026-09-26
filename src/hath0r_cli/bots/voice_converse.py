@@ -141,7 +141,9 @@ class AgentDialogueBot:
             trust_tier=trust_tier,
             dry_run=dry_run,
             speak=False,
+            cwd=self.cwd,
         )
+
 
         action = data.get("action", {})
         intent = action.get("intent", "unresolved")

@@ -422,7 +422,7 @@ def test_rate_presets_and_prosody_rhythm():
     assert resolve_rate_wpm("brisk") == 215
     assert resolve_rate_wpm("fast") == 235
     assert resolve_rate_wpm(185) == 185
-    assert resolve_rate_wpm(None) == RATE_PRESETS["natural"]
+    assert resolve_rate_wpm(None) == RATE_PRESETS["relaxed"]
 
     # Test prosody rhythm pause pacing
     raw = "Status: OK — Task complete -> Next step"
