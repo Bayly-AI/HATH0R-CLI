@@ -9,10 +9,10 @@ from pathlib import Path
 from typing import Any
 
 from hath0r_cli.bots import (
+    ActiveTabReaderBot,
     AgentDialogueBot,
     BranchBot,
     BranchGuardBot,
-    ActiveTabReaderBot,
     ConfigOrganizerBot,
     DockerBot,
     DocumentationBot,

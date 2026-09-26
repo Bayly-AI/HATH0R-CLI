@@ -146,8 +146,8 @@ def _emit_response(
         speak_bot = VoiceSpeakerModeBot()
         if speak_bot.is_enabled() and not bool(ctx.obj.get("quiet", False)):
             cmd = response.command or ""
-            # Don't duplicate speech for direct speak commands
-            if not cmd.startswith("voice.speak") and not cmd.startswith("speak") and not cmd.startswith("voice.announce"):
+            skip_speak = cmd.startswith("voice.speak") or cmd.startswith("speak") or cmd.startswith("voice.announce")
+            if not skip_speak:
                 speak_bot.vocalize_response(
                     command=cmd,
                     state=response.state,
@@ -3529,7 +3529,9 @@ def voice_profile_list(ctx: click.Context, show_all: bool) -> None:
 
         console.print(table)
         active_prof = res.get("active_profile", {})
-        console.print(f"Active Voice: [bold green]{active_prof.get('voice_name')}[/bold green] (Rate: {active_prof.get('rate_wpm')} WPM)")
+        v_name = active_prof.get("voice_name")
+        r_wpm = active_prof.get("rate_wpm")
+        console.print(f"Active Voice: [bold green]{v_name}[/bold green] (Rate: {r_wpm} WPM)")
         console.print("  • Change voice: 'hath0r voice profile set <name>'")
 
     _emit_response(ctx, response, text_renderer=_text)
@@ -3585,14 +3587,22 @@ def voice_profile_status(ctx: click.Context) -> None:
     )
 
     def _text() -> None:
-        console.print(f"Active Voice Profile: [bold green]{res.get('voice_name')}[/bold green] (Rate: {res.get('rate_wpm')} WPM)")
+        v_name = res.get("voice_name")
+        r_wpm = res.get("rate_wpm")
+        console.print(f"Active Voice Profile: [bold green]{v_name}[/bold green] (Rate: {r_wpm} WPM)")
 
     _emit_response(ctx, response, text_renderer=_text)
 
 
 @voice.command("read")
 @click.argument("text", required=False, default=None)
-@click.option("--selection", "-s", is_flag=True, default=False, help="Read highlighted/selected text from active app (Warp, Antigravity, VS Code).")
+@click.option(
+    "--selection",
+    "-s",
+    is_flag=True,
+    default=False,
+    help="Read highlighted/selected text from active app (Warp, Antigravity, VS Code).",
+)
 @click.pass_context
 def voice_read(ctx: click.Context, text: Optional[str], selection: bool) -> None:
     """Read and speak active tab text, input text, or highlighted selection aloud."""
@@ -3655,16 +3665,17 @@ def voice_engine_list(ctx: click.Context) -> None:
         table.add_column("Description")
 
         for eng in engines:
-            avail = "[green]● AVAILABLE[/green]" if eng.get("available") else "[dim]○ OFFLINE (model weights not found)[/dim]"
+            avail = (
+                "[green]● AVAILABLE[/green]"
+                if eng.get("available")
+                else "[dim]○ OFFLINE (model weights not found)[/dim]"
+            )
             table.add_row(eng.get("id"), eng.get("type"), avail, eng.get("description"))
 
         console.print(table)
         console.print("  • CoreML 82M: High-efficiency local neural speech engine for Apple Silicon.")
 
     _emit_response(ctx, response, text_renderer=_text)
-
-
-
 
 
 @main.group("speak", invoke_without_command=True)
@@ -3697,7 +3708,14 @@ def speak_group(ctx: click.Context) -> None:
 
 
 @speak_group.command("on")
-@click.option("--tab-only", "--this-tab", "tab_only", is_flag=True, default=False, help="Enable speak mode only for the current active terminal tab.")
+@click.option(
+    "--tab-only",
+    "--this-tab",
+    "tab_only",
+    is_flag=True,
+    default=False,
+    help="Enable speak mode only for the current active terminal tab.",
+)
 @click.option("--silent", is_flag=True, default=False, help="Enable without vocal announcement.")
 @click.pass_context
 def speak_on(ctx: click.Context, tab_only: bool, silent: bool) -> None:
@@ -3750,7 +3768,14 @@ def speak_off(ctx: click.Context, silent: bool) -> None:
 
 
 @speak_group.command("toggle")
-@click.option("--tab-only", "--this-tab", "tab_only", is_flag=True, default=False, help="Toggle speak mode scoped to active tab only.")
+@click.option(
+    "--tab-only",
+    "--this-tab",
+    "tab_only",
+    is_flag=True,
+    default=False,
+    help="Toggle speak mode scoped to active tab only.",
+)
 @click.pass_context
 def speak_toggle(ctx: click.Context, tab_only: bool) -> None:
     """Toggle spoken feedback mode between on and off."""

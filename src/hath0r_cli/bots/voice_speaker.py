@@ -424,7 +424,8 @@ class SpokenNotificationServiceBot:
         queue_count = 0
         if self.queue_file.is_file():
             try:
-                queue_count = len([l for l in self.queue_file.read_text(encoding="utf-8").splitlines() if l.strip()])
+                lines = self.queue_file.read_text(encoding="utf-8").splitlines()
+                queue_count = len([line for line in lines if line.strip()])
             except Exception:
                 pass
 
@@ -486,11 +487,13 @@ def interpret_response_for_speech(command: str, state: str, data: Optional[Dict[
         issue_num = None
         branch_name = None
         for s in steps:
-            data_s = s.get("data") if isinstance(s, dict) and isinstance(s.get("data"), dict) else {}
-            if "issue_number" in data_s:
-                issue_num = data_s["issue_number"]
-            if "branch" in data_s:
-                branch_name = data_s["branch"]
+            if isinstance(s, dict):
+                d = s.get("data")
+                if isinstance(d, dict):
+                    if "issue_number" in d:
+                        issue_num = d["issue_number"]
+                    if "branch" in d:
+                        branch_name = d["branch"]
         if issue_num and branch_name:
             return f"Task receipt confirmed for Issue #{issue_num}. Work branch {branch_name} initialized."
         return "Task receipt confirmed. Work branch and environment initialized."
@@ -917,7 +920,6 @@ class LocalNeuralVoiceEngine:
 
     def list_supported_engines(self) -> List[Dict[str, Any]]:
         """List neural and platform synthesis engines with availability status."""
-        is_neural = self.is_available()
         return [
             {
                 "id": "say",

@@ -1,7 +1,6 @@
 """CLI command tests for Phase 1 voice speaker and announcements."""
 
 import json
-from pathlib import Path
 
 from click.testing import CliRunner
 
@@ -115,7 +114,8 @@ def test_cli_voice_profile_list_set_status():
         assert "voices" in data_list["data"]
 
         # 2. Set profile with --no-preview
-        res_set = runner.invoke(main, ["--output", "json", "voice", "profile", "set", "Daniel", "--rate", "185", "--no-preview"])
+        args = ["--output", "json", "voice", "profile", "set", "Daniel", "--rate", "185", "--no-preview"]
+        res_set = runner.invoke(main, args)
         assert res_set.exit_code == 0
         data_set = json.loads(res_set.output)
         assert data_set["command"] == "voice.profile.set"
