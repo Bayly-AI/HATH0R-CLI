@@ -190,6 +190,7 @@ def test_query_standalone_llm_without_key(monkeypatch):
 
 
 def test_os_service_plist_generation(tmp_path: Path, monkeypatch):
+    monkeypatch.setattr("sys.platform", "darwin")
     bot = VoiceServiceDaemonBot(cwd=tmp_path)
     # Redirect LaunchAgents path to tmp_path
     monkeypatch.setattr(
