@@ -151,5 +151,28 @@ def test_cli_voice_engine_list():
     assert len(data["data"]["engines"]) >= 3
 
 
+def test_cli_voice_engine_download():
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        res = runner.invoke(main, ["--output", "json", "voice", "engine", "download", "--engine", "coreml-82m", "--dry-run"])
+        assert res.exit_code == 0
+        data = json.loads(res.output)
+        assert data["command"] == "voice.engine.download"
+        assert data["state"] == "ok"
+        assert data["data"]["engine_id"] == "coreml-82m"
+
+
+def test_cli_voice_profile_set_named_rate_preset():
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        res = runner.invoke(main, ["--output", "json", "voice", "profile", "set", "Moira", "--rate", "relaxed", "--no-preview"])
+        assert res.exit_code == 0
+        data = json.loads(res.output)
+        assert data["command"] == "voice.profile.set"
+        assert data["data"]["voice_name"] == "Moira"
+        assert data["data"]["rate_wpm"] == 180
+
+
+
 
 

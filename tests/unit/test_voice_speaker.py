@@ -389,11 +389,49 @@ def test_local_neural_voice_engine(tmp_path: Path):
     assert "coreml-82m" in engine_ids
     assert "onnx-neural" in engine_ids
 
-    # Test synthesis dry run
+    # Test download weights dry run
+    dl = engine.download_weights(engine_id="coreml-82m", dry_run=True)
+    assert dl["success"] is True
+    assert dl["dry_run"] is True
+    assert "coreml-82m" in dl["engine_id"]
+
+    # Test download weights execution
+    dl_real = engine.download_weights(engine_id="coreml-82m", dry_run=False)
+    assert dl_real["success"] is True
+    assert Path(dl_real["target_path"]).is_file()
+    assert engine.is_available() is True
+
+    # Test synthesis with local neural engine
     synth = engine.synthesize("Testing local neural speech.", voice_name="Moira", dry_run=True)
     assert synth["success"] is True
     assert synth["engine"] == "coreml-82m"
     assert synth["voice_name"] == "Moira"
+
+
+def test_rate_presets_and_prosody_rhythm():
+    from hath0r_cli.bots.voice_speaker import (
+        RATE_PRESETS,
+        apply_prosody_rhythm,
+        resolve_rate_wpm,
+    )
+
+    # Test named presets
+    assert resolve_rate_wpm("relaxed") == 180
+    assert resolve_rate_wpm("natural") == 195
+    assert resolve_rate_wpm("standard") == 200
+    assert resolve_rate_wpm("brisk") == 215
+    assert resolve_rate_wpm("fast") == 235
+    assert resolve_rate_wpm(185) == 185
+    assert resolve_rate_wpm(None) == RATE_PRESETS["natural"]
+
+    # Test prosody rhythm pause pacing
+    raw = "Status: OK — Task complete -> Next step"
+    paced = apply_prosody_rhythm(raw)
+    assert "Status: OK, Task complete to Next step" in paced
+    assert "—" not in paced
+    assert "->" not in paced
+
+
 
 
 
