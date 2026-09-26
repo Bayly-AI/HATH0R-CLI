@@ -3320,10 +3320,12 @@ def voice_service_start(
 
     def _text() -> None:
         if res.get("status") == "already_running":
-            console.print(f"[yellow]● Voice Daemon Service is already running[/yellow] (PID: [bold]{res.get('pid')}[/bold])")
+            pid = res.get("pid")
+            console.print(f"[yellow]● Voice Daemon Service is already running[/yellow] (PID: [bold]{pid}[/bold])")
         elif res.get("status") == "started":
             mode_str = "Ambient Continuous" if ambient else "Push-to-Talk"
-            console.print(f"[bold green]✓ Voice Daemon Service Started[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
+            pid = res.get("pid")
+            console.print(f"[bold green]✓ Voice Daemon Service Started[/bold green] (PID: [bold]{pid}[/bold])")
             console.print(f"  • Mode: [cyan]{mode_str}[/cyan]")
             console.print(f"  • Trust Tier: [magenta]{trust_tier}[/magenta]")
             console.print(f"  • Log File: [dim]{res.get('log_file')}[/dim]")
@@ -3376,7 +3378,8 @@ def voice_service_status(ctx: click.Context) -> None:
 
     def _text() -> None:
         if res.get("running"):
-            console.print(f"[bold green]● Voice Daemon Service is RUNNING[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
+            pid = res.get("pid")
+            console.print(f"[bold green]● Voice Daemon Service is RUNNING[/bold green] (PID: [bold]{pid}[/bold])")
             if res.get("log_file"):
                 console.print(f"  • Log File: [dim]{res.get('log_file')}[/dim]")
         else:
