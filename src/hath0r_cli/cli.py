@@ -146,8 +146,8 @@ def _emit_response(
         speak_bot = VoiceSpeakerModeBot()
         if speak_bot.is_enabled() and not bool(ctx.obj.get("quiet", False)):
             cmd = response.command or ""
-            # Don't duplicate speech for direct speak commands
-            if not cmd.startswith("voice.speak") and not cmd.startswith("speak") and not cmd.startswith("voice.announce"):
+            skip_speak = cmd.startswith("voice.speak") or cmd.startswith("speak") or cmd.startswith("voice.announce")
+            if not skip_speak:
                 speak_bot.vocalize_response(
                     command=cmd,
                     state=response.state,
@@ -3526,20 +3526,32 @@ def voice_profile_list(ctx: click.Context, show_all: bool) -> None:
 
         for v in voices:
             status_icon = "[green]● ACTIVE[/green]" if v.get("is_active") else ""
-            quality_str = f"[{'bold green' if v.get('quality') == 'premium' else 'cyan'}]{v.get('quality', 'compact').upper()}[/]"
+            q_color = "bold green" if v.get("quality") == "premium" else "cyan"
+            quality_str = f"[{q_color}]{v.get('quality', 'compact').upper()}[/]"
             table.add_row(status_icon, v.get("name", ""), quality_str, v.get("locale", ""), v.get("description", ""))
 
         console.print(table)
         active_prof = res.get("active_profile", {})
-        console.print(f"Active Voice: [bold green]{active_prof.get('voice_name')}[/bold green] (Rate: {active_prof.get('rate_wpm')} WPM)")
-        console.print("  • Change voice: 'hath0r voice profile set <name> [--rate relaxed|natural|standard|brisk|fast|<wpm>]'")
+        v_name = active_prof.get("voice_name")
+        r_wpm = active_prof.get("rate_wpm")
+        console.print(f"Active Voice: [bold green]{v_name}[/bold green] (Rate: {r_wpm} WPM)")
+        console.print(
+            "  • Change voice: 'hath0r voice profile set <name> [--rate relaxed|natural|standard|brisk|fast|<wpm>]'"
+        )
 
     _emit_response(ctx, response, text_renderer=_text)
 
 
 @voice_profile_group.command("set")
 @click.argument("voice_name")
-@click.option("--rate", "-r", "rate_wpm", type=str, default=None, help="Optional speech rate (WPM or preset: relaxed, natural, standard, brisk, fast).")
+@click.option(
+    "--rate",
+    "-r",
+    "rate_wpm",
+    type=str,
+    default=None,
+    help="Optional speech rate (WPM or preset: relaxed, natural, standard, brisk, fast).",
+)
 @click.option("--no-preview", is_flag=True, default=False, help="Set voice without vocal preview.")
 @click.pass_context
 def voice_profile_set(ctx: click.Context, voice_name: str, rate_wpm: Optional[str], no_preview: bool) -> None:
@@ -3587,14 +3599,22 @@ def voice_profile_status(ctx: click.Context) -> None:
     )
 
     def _text() -> None:
-        console.print(f"Active Voice Profile: [bold green]{res.get('voice_name')}[/bold green] (Rate: {res.get('rate_wpm')} WPM)")
+        v_name = res.get("voice_name")
+        r_wpm = res.get("rate_wpm")
+        console.print(f"Active Voice Profile: [bold green]{v_name}[/bold green] (Rate: {r_wpm} WPM)")
 
     _emit_response(ctx, response, text_renderer=_text)
 
 
 @voice.command("read")
 @click.argument("text", required=False, default=None)
-@click.option("--selection", "-s", is_flag=True, default=False, help="Read highlighted/selected text from active app (Warp, Antigravity, VS Code).")
+@click.option(
+    "--selection",
+    "-s",
+    is_flag=True,
+    default=False,
+    help="Read highlighted/selected text from active app (Warp, Antigravity, VS Code).",
+)
 @click.pass_context
 def voice_read(ctx: click.Context, text: Optional[str], selection: bool) -> None:
     """Read and speak active tab text, input text, or highlighted selection aloud."""
@@ -3658,7 +3678,11 @@ def voice_engine_list(ctx: click.Context) -> None:
         table.add_column("Description")
 
         for eng in engines:
-            avail = "[green]● AVAILABLE[/green]" if eng.get("available") else "[dim]○ OFFLINE (model weights not found)[/dim]"
+            avail = (
+                "[green]● AVAILABLE[/green]"
+                if eng.get("available")
+                else "[dim]○ OFFLINE (model weights not found)[/dim]"
+            )
             table.add_row(eng.get("id"), eng.get("type"), avail, eng.get("description"))
 
         console.print(table)
@@ -3670,7 +3694,14 @@ def voice_engine_list(ctx: click.Context) -> None:
 
 
 @voice_engine_group.command("download")
-@click.option("--engine", "-e", "engine_id", type=click.Choice(["coreml-82m", "onnx-neural"], case_sensitive=False), default="coreml-82m", help="Neural model engine weights to download.")
+@click.option(
+    "--engine",
+    "-e",
+    "engine_id",
+    type=click.Choice(["coreml-82m", "onnx-neural"], case_sensitive=False),
+    default="coreml-82m",
+    help="Neural model engine weights to download.",
+)
 @click.option("--dry-run", is_flag=True, default=False, help="Simulate download without filesystem changes.")
 @click.pass_context
 def voice_engine_download(ctx: click.Context, engine_id: str, dry_run: bool) -> None:
@@ -3730,7 +3761,14 @@ def speak_group(ctx: click.Context) -> None:
 
 
 @speak_group.command("on")
-@click.option("--tab-only", "--this-tab", "tab_only", is_flag=True, default=False, help="Enable speak mode only for the current active terminal tab.")
+@click.option(
+    "--tab-only",
+    "--this-tab",
+    "tab_only",
+    is_flag=True,
+    default=False,
+    help="Enable speak mode only for the current active terminal tab.",
+)
 @click.option("--silent", is_flag=True, default=False, help="Enable without vocal announcement.")
 @click.pass_context
 def speak_on(ctx: click.Context, tab_only: bool, silent: bool) -> None:
@@ -3783,7 +3821,14 @@ def speak_off(ctx: click.Context, silent: bool) -> None:
 
 
 @speak_group.command("toggle")
-@click.option("--tab-only", "--this-tab", "tab_only", is_flag=True, default=False, help="Toggle speak mode scoped to active tab only.")
+@click.option(
+    "--tab-only",
+    "--this-tab",
+    "tab_only",
+    is_flag=True,
+    default=False,
+    help="Toggle speak mode scoped to active tab only.",
+)
 @click.pass_context
 def speak_toggle(ctx: click.Context, tab_only: bool) -> None:
     """Toggle spoken feedback mode between on and off."""
@@ -3830,6 +3875,169 @@ def speak_status(ctx: click.Context) -> None:
     def _text() -> None:
         state_label = "[bold green]ENABLED[/bold green]" if st["enabled"] else "[dim]DISABLED[/dim]"
         console.print(f"Hath0r Speak Mode: {state_label}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice.group("service")
+def voice_service() -> None:
+    """Manage background voice listening and conversational service daemon."""
+
+
+@voice_service.command("start")
+@click.option(
+    "--background/--foreground",
+    "background",
+    default=True,
+    show_default=True,
+    help="Run as a background daemon process or foreground loop.",
+)
+@click.option(
+    "--ambient/--push-to-talk",
+    "ambient",
+    default=True,
+    show_default=True,
+    help="Enable ambient continuous listening or push-to-talk mode.",
+)
+@click.option(
+    "-t",
+    "--trust-tier",
+    type=click.Choice(["guest", "elevated", "sovereign"], case_sensitive=False),
+    default="elevated",
+    show_default=True,
+    help="Execution authorization tier.",
+)
+@click.pass_context
+def voice_service_start(
+    ctx: click.Context,
+    background: bool,
+    ambient: bool,
+    trust_tier: str,
+) -> None:
+    """Start the background voice listener daemon service."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+
+    bot = VoiceServiceDaemonBot()
+    res = bot.start_service(background=background, ambient=ambient, trust_tier=trust_tier)
+
+    response = _build_response(
+        ctx,
+        command="voice.service.start",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("status") == "already_running":
+            pid = res.get("pid")
+            console.print(f"[yellow]● Voice Daemon Service is already running[/yellow] (PID: [bold]{pid}[/bold])")
+        elif res.get("status") == "started":
+            mode_str = "Ambient Continuous" if ambient else "Push-to-Talk"
+            pid = res.get("pid")
+            console.print(f"[bold green]✓ Voice Daemon Service Started[/bold green] (PID: [bold]{pid}[/bold])")
+            console.print(f"  • Mode: [cyan]{mode_str}[/cyan]")
+            console.print(f"  • Trust Tier: [magenta]{trust_tier}[/magenta]")
+            console.print(f"  • Log File: [dim]{res.get('log_file')}[/dim]")
+        else:
+            console.print(res.get("message", "Voice service status updated."))
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_service.command("stop")
+@click.pass_context
+def voice_service_stop(ctx: click.Context) -> None:
+    """Stop the active background voice listener daemon service."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+
+    bot = VoiceServiceDaemonBot()
+    res = bot.stop_service()
+
+    response = _build_response(
+        ctx,
+        command="voice.service.stop",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("status") == "stopped":
+            console.print(f"[bold green]✓ Voice Daemon Service Stopped[/bold green] (PID: [dim]{res.get('pid')}[/dim])")
+        else:
+            console.print("[dim]Voice daemon service is not currently running.[/dim]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_service.command("status")
+@click.pass_context
+def voice_service_status(ctx: click.Context) -> None:
+    """Check the status of the background voice listener daemon service."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+
+    bot = VoiceServiceDaemonBot()
+    res = bot.status()
+
+    response = _build_response(
+        ctx,
+        command="voice.service.status",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("running"):
+            pid = res.get("pid")
+            console.print(f"[bold green]● Voice Daemon Service is RUNNING[/bold green] (PID: [bold]{pid}[/bold])")
+            if res.get("log_file"):
+                console.print(f"  • Log File: [dim]{res.get('log_file')}[/dim]")
+        else:
+            console.print("[dim]○ Voice Daemon Service is STOPPED[/dim]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_service.command("restart")
+@click.option(
+    "--ambient/--push-to-talk",
+    "ambient",
+    default=True,
+    show_default=True,
+    help="Enable ambient continuous listening or push-to-talk mode.",
+)
+@click.option(
+    "-t",
+    "--trust-tier",
+    type=click.Choice(["guest", "elevated", "sovereign"], case_sensitive=False),
+    default="elevated",
+    show_default=True,
+    help="Execution authorization tier.",
+)
+@click.pass_context
+def voice_service_restart(
+    ctx: click.Context,
+    ambient: bool,
+    trust_tier: str,
+) -> None:
+    """Restart the background voice listener daemon service."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+
+    bot = VoiceServiceDaemonBot()
+    bot.stop_service()
+    res = bot.start_service(background=True, ambient=ambient, trust_tier=trust_tier)
+
+    response = _build_response(
+        ctx,
+        command="voice.service.restart",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+
+    def _text() -> None:
+        mode_str = "Ambient Continuous" if ambient else "Push-to-Talk"
+        console.print(f"[bold green]✓ Voice Daemon Service Restarted[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
+        console.print(f"  • Mode: [cyan]{mode_str}[/cyan]")
+        console.print(f"  • Trust Tier: [magenta]{trust_tier}[/magenta]")
 
     _emit_response(ctx, response, text_renderer=_text)
 

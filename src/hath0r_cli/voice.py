@@ -445,7 +445,7 @@ def get_active_wake_words(cwd: Optional[Path] = None) -> List[str]:
     try:
         from hath0r_cli.bots.voice_speaker import VoiceProfileBot
 
-        prof = VoiceProfileBot(cwd=cwd).get_active_profile()
+        prof = VoiceProfileBot(cwd=cwd or Path.cwd()).get_active_profile()
         v_name = prof.get("voice_name")
         if v_name:
             v_clean = v_name.strip().lower()

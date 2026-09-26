@@ -21,7 +21,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-
 # Rate Presets (WPM)
 RATE_PRESETS = {
     "relaxed": 180,
@@ -493,7 +492,8 @@ class SpokenNotificationServiceBot:
         queue_count = 0
         if self.queue_file.is_file():
             try:
-                queue_count = len([l for l in self.queue_file.read_text(encoding="utf-8").splitlines() if l.strip()])
+                lines = self.queue_file.read_text(encoding="utf-8").splitlines()
+                queue_count = len([line for line in lines if line.strip()])
             except Exception:
                 pass
 
@@ -811,7 +811,7 @@ class VoiceProfileBot:
                         if header_parts:
                             v_name = " ".join(header_parts[:-1]) if len(header_parts) > 1 else header_parts[0]
                             locale = header_parts[-1] if len(header_parts) > 1 else "en_US"
-                            
+
                             # Quality classification: Premium, Enhanced, or Compact
                             quality = "compact"
                             if "premium" in v_name.lower() or "premium" in desc.lower():
@@ -1011,7 +1011,6 @@ class LocalNeuralVoiceEngine:
 
     def list_supported_engines(self) -> List[Dict[str, Any]]:
         """List neural and platform synthesis engines with availability status."""
-        is_neural = self.is_available()
         return [
             {
                 "id": "say",

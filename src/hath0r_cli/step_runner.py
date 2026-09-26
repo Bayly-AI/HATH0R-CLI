@@ -9,10 +9,10 @@ from pathlib import Path
 from typing import Any
 
 from hath0r_cli.bots import (
+    ActiveTabReaderBot,
     AgentDialogueBot,
     BranchBot,
     BranchGuardBot,
-    ActiveTabReaderBot,
     ConfigOrganizerBot,
     DockerBot,
     DocumentationBot,
@@ -28,6 +28,7 @@ from hath0r_cli.bots import (
     SpokenNotificationServiceBot,
     TaskAnnouncerBot,
     VoiceProfileBot,
+    VoiceServiceDaemonBot,
     VoiceSpeakerBot,
     VoiceSpeakerModeBot,
     VoiceSynthesizerBot,
@@ -126,6 +127,7 @@ class BotRegistry:
             "agent-dialogue-bot": AgentDialogueBot(cwd=self.cwd),
             "voice-synthesizer-bot": VoiceSynthesizerBot(cwd=self.cwd),
             "proactive-speaker-bot": ProactiveSpeakerBot(cwd=self.cwd),
+            "voice-service-daemon-bot": VoiceServiceDaemonBot(cwd=self.cwd),
             "voice-speaker-bot": VoiceSpeakerBot(cwd=self.cwd),
             "spoken-notification-service-bot": SpokenNotificationServiceBot(cwd=self.cwd),
             "voice-speaker-mode-bot": VoiceSpeakerModeBot(cwd=self.cwd),
@@ -209,6 +211,8 @@ class BotRegistry:
                 return self._dispatch_voice_synthesizer(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "proactive-speaker-bot":
                 return self._dispatch_proactive_speaker(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "voice-service-daemon-bot":
+                return self._dispatch_voice_service_daemon(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "voice-speaker-bot":
                 return self._dispatch_voice_speaker(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "spoken-notification-service-bot":
@@ -1303,6 +1307,87 @@ class BotRegistry:
             action=action,
             success=False,
             error=f"Unknown action '{action}' for proactive-speaker-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_voice_service_daemon(
+        self,
+        bot: VoiceServiceDaemonBot,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action == "start-service":
+            bg = bool(args.get("background", True))
+            ambient = bool(args.get("ambient", True))
+            trust_tier = str(args.get("trust_tier", "elevated"))
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="voice-service-daemon-bot",
+                    action=action,
+                    success=True,
+                    data={"status": "dry_run_started", "background": bg, "ambient": ambient},
+                    dry_run=True,
+                )
+            res = bot.start_service(background=bg, ambient=ambient, trust_tier=trust_tier)
+            return StepExecutionResult(
+                bot_id="voice-service-daemon-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action == "stop-service":
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="voice-service-daemon-bot",
+                    action=action,
+                    success=True,
+                    data={"status": "dry_run_stopped"},
+                    dry_run=True,
+                )
+            res = bot.stop_service()
+            return StepExecutionResult(
+                bot_id="voice-service-daemon-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action == "status":
+            res = bot.status()
+            return StepExecutionResult(
+                bot_id="voice-service-daemon-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action == "run-service-loop":
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="voice-service-daemon-bot",
+                    action=action,
+                    success=True,
+                    data={"status": "dry_run_loop"},
+                    dry_run=True,
+                )
+            max_iter = args.get("max_iterations")
+            res = bot.run_service_loop(ambient=bool(args.get("ambient", True)), max_iterations=max_iter)
+            return StepExecutionResult(
+                bot_id="voice-service-daemon-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="voice-service-daemon-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for voice-service-daemon-bot.",
             dry_run=dry_run,
         )
 
