@@ -35,7 +35,7 @@ Group policy: `/Users/raybayly/Development/OpenSource/WARP.md`
 1. Own suite orientation: `cfg/control-tower.yaml`, `cfg/suite.yaml`, `cfg/products.yaml`, `cfg/knowledge-tower.yaml`.
 2. Mediate operator paths via `hath0r` (doctor, KB path resolution, product catalog).
 3. Keep member knowledgebases as **stubs**; durable group KB lives at the OpenSource hub.
-4. Do **not** treat private internal product trees (e.g. BAI/AEGIS) as OpenSource canonical sources.
+4. Do **not** treat private internal product trees (e.g. BAI Enterprise Agentic Platform) as OpenSource canonical sources.
 
 ## CLI-First & Missing Capability Offer (CRITICAL — cr-cli-first-001)
 
