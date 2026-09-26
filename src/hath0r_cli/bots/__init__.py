@@ -1152,8 +1152,20 @@ from hath0r_cli.bots.voice_converse import (  # noqa: E402
     SpeechListenerBot,
     VoiceSynthesizerBot,
 )
+from hath0r_cli.bots.voice_speaker import (  # noqa: E402
+    ActiveTabReaderBot,
+    LocalNeuralVoiceEngine,
+    SpokenNotificationServiceBot,
+    VoiceProfileBot,
+    VoiceSpeakerBot,
+    VoiceSpeakerModeBot,
+    expand_technical_tokens,
+    filter_speech_text,
+    interpret_response_for_speech,
+)
 
 __all__ = [
+    "ActiveTabReaderBot",
     "AgentDialogueBot",
     "BranchBot",
     "BranchGuardBot",
@@ -1168,6 +1180,7 @@ __all__ = [
     "IssueGuardBot",
     "IssueManagerBot",
     "KnowledgeOrganizerBot",
+    "LocalNeuralVoiceEngine",
     "PRBot",
     "PreflightBot",
     "ProactiveSpeakerBot",
@@ -1175,9 +1188,19 @@ __all__ = [
     "ReleaseBot",
     "RepoHygieneBot",
     "SpeechListenerBot",
+    "SpokenNotificationServiceBot",
     "TaskAnnouncerBot",
+    "VoiceProfileBot",
+    "VoiceSpeakerBot",
+    "VoiceSpeakerModeBot",
     "VoiceSynthesizerBot",
+    "expand_technical_tokens",
+    "filter_speech_text",
+    "interpret_response_for_speech",
 ]
+
+
+
 
 
 
