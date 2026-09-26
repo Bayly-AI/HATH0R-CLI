@@ -161,9 +161,8 @@ def wait_for_push_to_talk_trigger(key_name: str, timeout_seconds: float = 30.0) 
 
         while time.perf_counter() - start_t < timeout_seconds:
             # Check macOS hardware modifier key if applicable
-            if sys.platform == "darwin" and key_norm in ("right_ctrl", "left_ctrl"):
-                keycode = 62 if key_norm == "right_ctrl" else 59
-                if is_macos_key_pressed(keycode):
+            if sys.platform == "darwin" and key_norm in ("right_ctrl", "left_ctrl", "ctrl", "control"):
+                if is_macos_key_pressed(62) or is_macos_key_pressed(59):
                     return True
 
             # Check terminal keyboard input
@@ -179,7 +178,6 @@ def wait_for_push_to_talk_trigger(key_name: str, timeout_seconds: float = 30.0) 
                     return True
     except Exception:
         try:
-            input()
             return True
         except Exception:
             return True

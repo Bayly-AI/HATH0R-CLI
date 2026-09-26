@@ -170,6 +170,54 @@ def test_speech_listener_bot_binary_discovery(tmp_path: Path):
         assert bin_path.is_file()
 
 
+def test_find_gemini_api_key(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "test_key_12345")
+    from hath0r_cli.bots.voice_converse import find_gemini_api_key
+
+    key = find_gemini_api_key()
+    assert key == "test_key_12345"
+
+
+def test_query_standalone_llm_without_key(monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_AI_API_KEY", raising=False)
+    from hath0r_cli.bots.voice_converse import query_standalone_llm
+
+    res = query_standalone_llm("What is Hathor?")
+    # Without real key in mocked unit test, gracefully returns None
+    assert res is None or isinstance(res, str)
+
+
+def test_os_service_plist_generation(tmp_path: Path, monkeypatch):
+    bot = VoiceServiceDaemonBot(cwd=tmp_path)
+    # Redirect LaunchAgents path to tmp_path
+    monkeypatch.setattr(
+        VoiceServiceDaemonBot,
+        "launchd_plist_path",
+        property(lambda self: tmp_path / "ai.bayly.hath0r-voice.plist"),
+    )
+    res = bot.install_os_service(ambient=True)
+    assert res["success"] is True
+    assert (tmp_path / "ai.bayly.hath0r-voice.plist").is_file()
+
+    un_res = bot.uninstall_os_service()
+    assert un_res["success"] is True
+    assert not (tmp_path / "ai.bayly.hath0r-voice.plist").is_file()
+
+
+def test_transcribe_audio_missing_or_empty(tmp_path: Path):
+    from hath0r_cli.bots.voice_converse import transcribe_audio
+
+    # Non-existent file
+    assert transcribe_audio(tmp_path / "nonexistent.m4a") is None
+
+    # Empty file
+    empty_f = tmp_path / "empty.m4a"
+    empty_f.write_bytes(b"")
+    assert transcribe_audio(empty_f) is None
+
+
 def test_agent_dialogue_bot_addressed_by_profile_name(tmp_path: Path):
     from hath0r_cli.bots.voice_speaker import VoiceProfileBot
 

@@ -61,6 +61,8 @@ bots:
       - stop-service
       - status
       - run-service-loop
+      - install-service
+      - uninstall-service
 
 workflows:
   - id: converse-session

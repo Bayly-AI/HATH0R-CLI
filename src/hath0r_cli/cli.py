@@ -3877,8 +3877,6 @@ def speak_status(ctx: click.Context) -> None:
         console.print(f"Hath0r Speak Mode: {state_label}")
 
     _emit_response(ctx, response, text_renderer=_text)
-
-
 @voice.group("service")
 def voice_service() -> None:
     """Manage background voice listening and conversational service daemon."""
@@ -3929,12 +3927,14 @@ def voice_service_start(
 
     def _text() -> None:
         if res.get("status") == "already_running":
-            pid = res.get("pid")
-            console.print(f"[yellow]● Voice Daemon Service is already running[/yellow] (PID: [bold]{pid}[/bold])")
+            console.print(
+                f"[yellow]● Voice Daemon Service is already running[/yellow] (PID: [bold]{res.get('pid')}[/bold])"
+            )
         elif res.get("status") == "started":
             mode_str = "Ambient Continuous" if ambient else "Push-to-Talk"
-            pid = res.get("pid")
-            console.print(f"[bold green]✓ Voice Daemon Service Started[/bold green] (PID: [bold]{pid}[/bold])")
+            console.print(
+                f"[bold green]✓ Voice Daemon Service Started[/bold green] (PID: [bold]{res.get('pid')}[/bold])"
+            )
             console.print(f"  • Mode: [cyan]{mode_str}[/cyan]")
             console.print(f"  • Trust Tier: [magenta]{trust_tier}[/magenta]")
             console.print(f"  • Log File: [dim]{res.get('log_file')}[/dim]")
@@ -3962,7 +3962,9 @@ def voice_service_stop(ctx: click.Context) -> None:
 
     def _text() -> None:
         if res.get("status") == "stopped":
-            console.print(f"[bold green]✓ Voice Daemon Service Stopped[/bold green] (PID: [dim]{res.get('pid')}[/dim])")
+            console.print(
+                f"[bold green]✓ Voice Daemon Service Stopped[/bold green] (PID: [dim]{res.get('pid')}[/dim])"
+            )
         else:
             console.print("[dim]Voice daemon service is not currently running.[/dim]")
 
@@ -3987,8 +3989,9 @@ def voice_service_status(ctx: click.Context) -> None:
 
     def _text() -> None:
         if res.get("running"):
-            pid = res.get("pid")
-            console.print(f"[bold green]● Voice Daemon Service is RUNNING[/bold green] (PID: [bold]{pid}[/bold])")
+            console.print(
+                f"[bold green]● Voice Daemon Service is RUNNING[/bold green] (PID: [bold]{res.get('pid')}[/bold])"
+            )
             if res.get("log_file"):
                 console.print(f"  • Log File: [dim]{res.get('log_file')}[/dim]")
         else:
@@ -4035,9 +4038,84 @@ def voice_service_restart(
 
     def _text() -> None:
         mode_str = "Ambient Continuous" if ambient else "Push-to-Talk"
-        console.print(f"[bold green]✓ Voice Daemon Service Restarted[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
+        console.print(
+            f"[bold green]✓ Voice Daemon Service Restarted[/bold green] (PID: [bold]{res.get('pid')}[/bold])"
+        )
         console.print(f"  • Mode: [cyan]{mode_str}[/cyan]")
         console.print(f"  • Trust Tier: [magenta]{trust_tier}[/magenta]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_service.command("install")
+@click.option(
+    "--ambient/--push-to-talk",
+    "ambient",
+    default=True,
+    show_default=True,
+    help="Enable ambient continuous listening or push-to-talk mode.",
+)
+@click.option(
+    "-t",
+    "--trust-tier",
+    type=click.Choice(["guest", "elevated", "sovereign"], case_sensitive=False),
+    default="elevated",
+    show_default=True,
+    help="Execution authorization tier.",
+)
+@click.pass_context
+def voice_service_install(
+    ctx: click.Context,
+    ambient: bool,
+    trust_tier: str,
+) -> None:
+    """Install Hath0r voice service as a native OS background daemon (launchd/systemd)."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+
+    bot = VoiceServiceDaemonBot()
+    res = bot.install_os_service(ambient=ambient, trust_tier=trust_tier, speak=True)
+
+    response = _build_response(
+        ctx,
+        command="voice.service.install",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("success"):
+            mgr = res.get("service_manager")
+            console.print(f"[bold green]✓ Hath0r Voice OS Service Installed[/bold green] ({mgr})")
+            console.print(f"  • Path: [dim]{res.get('plist_path') or res.get('service_path')}[/dim]")
+            console.print("  • Status: [cyan]Registered with OS session[/cyan]")
+        else:
+            console.print(f"[bold red]✗ Failed to install OS service:[/bold red] {res.get('error')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_service.command("uninstall")
+@click.pass_context
+def voice_service_uninstall(ctx: click.Context) -> None:
+    """Uninstall and remove Hath0r voice service from native OS background daemon."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+
+    bot = VoiceServiceDaemonBot()
+    res = bot.uninstall_os_service(speak=True)
+
+    response = _build_response(
+        ctx,
+        command="voice.service.uninstall",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("success"):
+            console.print("[bold green]✓ Hath0r Voice OS Service Uninstalled[/bold green]")
+            console.print(f"  • {res.get('message')}")
+        else:
+            console.print(f"[bold red]✗ Failed to uninstall OS service:[/bold red] {res.get('error')}")
 
     _emit_response(ctx, response, text_renderer=_text)
 
