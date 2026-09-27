@@ -85,14 +85,14 @@ def test_voice_service_daemon_stop_when_not_running(tmp_path: Path):
     assert res["status"] == "not_running"
 
 
-def test_workflow_voice_daemon_service_dry_run():
+def test_workflow_voice_bot_service_dry_run():
     registry = BotRegistry()
     wf_def = {
         "id": "voice-daemon-service",
-        "name": "Autonomous Background Voice Daemon Service",
+        "name": "Autonomous Background Voice Bot Service",
         "steps": [
             {
-                "bot": "voice-service-daemon-bot",
+                "bot": "voice-service-bot",
                 "action": "start-service",
                 "args": {"background": True, "ambient": True},
                 "on_failure": "continue",

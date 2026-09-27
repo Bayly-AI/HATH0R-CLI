@@ -82,7 +82,7 @@ def test_cli_task_finish_daemon_dry_run() -> None:
     runner = CliRunner(mix_stderr=False)
     res = runner.invoke(
         cli.main,
-        ["--output", "json", "task", "finish", "--daemon", "--pr", "77", "--dry-run"],
+        ["--output", "json", "task", "finish", "--bot", "--pr", "77", "--dry-run"],
     )
     assert res.exit_code == 0
     data = json.loads(res.stdout)
