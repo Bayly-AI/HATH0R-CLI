@@ -1170,6 +1170,7 @@ class DockerBot:
 from hath0r_cli.bots.eot_bot import EndOfTaskBot  # noqa: E402
 from hath0r_cli.bots.issue_manager import IssueManagerBot  # noqa: E402
 from hath0r_cli.bots.memory_manager import MemoryManagerBot  # noqa: E402
+from hath0r_cli.bots.memory_manager import MemoryManagerBot  # noqa: E402
 from hath0r_cli.bots.repo_clean import ConfigOrganizerBot, KnowledgeOrganizerBot, RepoHygieneBot  # noqa: E402
 from hath0r_cli.bots.version_bot import VersionBot  # noqa: E402
 from hath0r_cli.bots.voice_converse import (  # noqa: E402
@@ -1221,6 +1222,7 @@ __all__ = [
     "VoiceServiceBot",
     "MemoryManagerBot",
     "VersionBot",
+    "MemoryManagerBot",
     "VoiceSpeakerBot",
     "VoiceSpeakerModeBot",
     "VoiceSynthesizerBot",
