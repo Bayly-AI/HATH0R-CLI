@@ -1189,6 +1189,8 @@ from hath0r_cli.bots.voice_speaker import (  # noqa: E402
     interpret_response_for_speech,
 )
 
+from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
 __all__ = [
     "ActiveTabReaderBot",
     "AgentDialogueBot",
