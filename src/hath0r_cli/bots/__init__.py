@@ -1217,6 +1217,7 @@ __all__ = [
     "TaskAnnouncerBot",
     "VoiceProfileBot",
     "VoiceServiceBot",
+    "MemoryManagerBot",
     "VoiceSpeakerBot",
     "VoiceSpeakerModeBot",
     "VoiceSynthesizerBot",

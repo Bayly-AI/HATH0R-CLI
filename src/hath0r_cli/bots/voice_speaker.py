@@ -532,7 +532,7 @@ def interpret_response_for_speech(command: str, state: str, data: Optional[Dict[
         scope = data_dict.get("scope", "global")
         enabled = data_dict.get("enabled", False)
         status_word = "enabled" if enabled else "disabled"
-        return f"Hath0r speak mode is {status_word} with {scope} scope."
+        return f"Hathor speak mode is {status_word} with {scope} scope."
 
     if "quality" in cmd_norm or "gate" in cmd_norm:
         passed = data_dict.get("passed", True) if state == "ok" else False
@@ -647,9 +647,9 @@ class VoiceSpeakerModeBot:
             self.config_file.write_text(json.dumps(record, indent=2), encoding="utf-8")
 
         msg = (
-            f"Hath0r speak mode enabled for active tab only ({current_tab})."
+            f"Hathor speak mode enabled for active tab only ({current_tab})."
             if tab_only
-            else "Hath0r speak mode enabled. I will vocalize all agent actions and responses."
+            else "Hathor speak mode enabled. I will vocalize all agent actions and responses."
         )
         speak_res = self.speaker.speak(msg, dry_run=dry_run) if speak else None
         return {
@@ -678,7 +678,7 @@ class VoiceSpeakerModeBot:
                 ),
                 encoding="utf-8",
             )
-        msg = "Hath0r speak mode disabled."
+        msg = "Hathor speak mode disabled."
         speak_res = self.speaker.speak(msg, dry_run=dry_run) if speak else None
         return {
             "success": True,
