@@ -1,0 +1,102 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: update-cli-factory
+
+factory_id: update-cli-factory
+name: CLI Update & Propagation Factory
+version: 1.0.0
+description: >
+  Canonical automation factory executed when changes are made to the HATH0R-CLI control tower.
+  Validates CLI functionality, updates associated documentation, synchronizes knowledge across 1NMCP and local hubs,
+  publishes the updated CLI, and finally orients all dependent repositories to use the latest version before 
+  handing off to the End of Task PR lifecycle.
+
+author: Bayly-AI
+category: governance-and-automation
+
+# Participating bots
+bots:
+  - id: deploy-test-bot
+    name: Deploy Test Bot
+    role: test-suite-verification
+    description: Autonomous test runner executing test suites and diagnosing failures.
+    capabilities:
+      - validate-cli
+      
+  - id: documentation-bot
+    name: Documentation Bot
+    role: knowledge-and-wiki-sync
+    description: Generates PR summaries, wiki synchronization, and knowledgebase sharing.
+    capabilities:
+      - update-docs
+      - share-knowledge
+
+  - id: release-bot
+    name: Release Bot
+    role: version-and-publishing
+    description: Publishes the CLI payload and tags releases.
+    capabilities:
+      - publish-cli
+
+  - id: orient-bot
+    name: Orient Bot
+    role: repository-orientation-and-sync
+    description: Ensures all dependent repos are updated to utilize the latest CLI and framework versions.
+    capabilities:
+      - orient-repos
+
+  - id: factory-dispatcher-bot
+    name: Factory Dispatcher Bot
+    role: workflow-handoff
+    description: Dispatches to other factories to continue the lifecycle.
+    capabilities:
+      - handoff-to-pr-factory
+
+  - id: task-announcer-bot
+    name: Task Announcer Bot
+    role: notification-and-announcements
+    description: Broadcasts task completion and hands back control to the agent.
+    capabilities:
+      - announce-complete
+
+# Declarative workflows
+workflows:
+  - id: update-cli-lifecycle
+    name: Update CLI and Propagate
+    description: Validate, Document, Publish, Orient, and Hand over to PR.
+    steps:
+      - bot: deploy-test-bot
+        action: validate-cli
+        on_failure: abort
+
+      - bot: documentation-bot
+        action: update-docs
+        on_failure: continue
+
+      - bot: documentation-bot
+        action: share-knowledge
+        args:
+          targets:
+            - local-kb
+            - 1nmcp-kb
+        on_failure: continue
+
+      - bot: release-bot
+        action: publish-cli
+        on_failure: abort
+
+      - bot: orient-bot
+        action: orient-repos
+        description: Ensure repos are using the latest version of the CLI and framework
+        on_failure: abort
+
+      - bot: factory-dispatcher-bot
+        action: handoff-to-pr-factory
+        args:
+          target_factory: end-of-task-factory
+        on_failure: abort
+
+      - bot: task-announcer-bot
+        action: announce-complete
+        description: Hand back to the agent and announce complete
+        on_failure: continue
