@@ -28,6 +28,7 @@ from hath0r_cli.bots import (
     SpeechListenerBot,
     SpokenNotificationServiceBot,
     TaskAnnouncerBot,
+    VersionBot,
     VoiceProfileBot,
     VoiceServiceBot,
     VoiceSpeakerBot,
@@ -130,6 +131,7 @@ class BotRegistry:
             "proactive-speaker-bot": ProactiveSpeakerBot(cwd=self.cwd),
             "voice-service-bot": VoiceServiceBot(cwd=self.cwd),
             "memory-manager-bot": MemoryManagerBot(cwd=self.cwd),
+            "version-bot": VersionBot(cwd=self.cwd),
             "voice-speaker-bot": VoiceSpeakerBot(cwd=self.cwd),
             "spoken-notification-service-bot": SpokenNotificationServiceBot(cwd=self.cwd),
             "voice-speaker-mode-bot": VoiceSpeakerModeBot(cwd=self.cwd),
@@ -215,6 +217,8 @@ class BotRegistry:
                 return self._dispatch_proactive_speaker(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "memory-manager-bot":
                 return self._dispatch_memory_manager_bot(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "version-bot":
+                return self._dispatch_version_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "voice-service-bot":
                 return self._dispatch_voice_service_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "voice-speaker-bot":
@@ -1734,6 +1738,34 @@ class BotRegistry:
                 action=action,
                 success=False,
                 error=f"Unknown action '{action}' for memory-manager-bot.",
+                dry_run=dry_run,
+            )
+
+    def _dispatch_version_bot(
+        self,
+        bot: VersionBot,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool = False,
+        context: dict[str, Any] | None = None,
+    ) -> StepExecutionResult:
+        if action == "enforce-version":
+            res = bot.enforce_version(dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="version-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        else:
+            return StepExecutionResult(
+                bot_id="version-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action '{action}' for version-bot.",
                 dry_run=dry_run,
             )
 
