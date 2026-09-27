@@ -118,44 +118,54 @@ class EndOfTaskDaemonBot:
                 }
             current_pr = create_res.get("pr_number")
 
-        history.append({
-            "phase": "pr_identified",
-            "pr_number": current_pr,
-            "branch": target_branch,
-            "dry_run": dry_run,
-        })
+        history.append(
+            {
+                "phase": "pr_identified",
+                "pr_number": current_pr,
+                "branch": target_branch,
+                "dry_run": dry_run,
+            }
+        )
 
         if dry_run:
             # Simulate remaining phases in dry-run
             history.append({"phase": "poll_checks", "status": "simulated_passed", "dry_run": True})
-            history.append({
-                "phase": "merge_pr",
-                "result": self.pr_bot.merge_pr(current_pr or 1, repo=repo, dry_run=True),
-            })
+            history.append(
+                {
+                    "phase": "merge_pr",
+                    "result": self.pr_bot.merge_pr(current_pr or 1, repo=repo, dry_run=True),
+                }
+            )
             if target_branch:
-                history.append({
-                    "phase": "reap_branch",
-                    "result": self.janitor_bot.prune_branch(target_branch, remote=True, dry_run=True),
-                })
-            history.append({
-                "phase": "sync_development",
-                "result": self.janitor_bot.pull_development(base="development", dry_run=True),
-            })
-            history.append({
-                "phase": "share_knowledge",
-                "result": self.doc_bot.share_knowledge(
-                    summary=f"Automated daemon completion for PR #{current_pr or 1}",
-                    pr_number=current_pr or 1,
-                    repo=repo,
-                    dry_run=True,
-                ),
-            })
-            history.append({
-                "phase": "announce",
-                "result": self.announcer_bot.announce_complete(
-                    task_id=f"pr-{current_pr or 1}", dry_run=True
-                ),
-            })
+                history.append(
+                    {
+                        "phase": "reap_branch",
+                        "result": self.janitor_bot.prune_branch(target_branch, remote=True, dry_run=True),
+                    }
+                )
+            history.append(
+                {
+                    "phase": "sync_development",
+                    "result": self.janitor_bot.pull_development(base="development", dry_run=True),
+                }
+            )
+            history.append(
+                {
+                    "phase": "share_knowledge",
+                    "result": self.doc_bot.share_knowledge(
+                        summary=f"Automated daemon completion for PR #{current_pr or 1}",
+                        pr_number=current_pr or 1,
+                        repo=repo,
+                        dry_run=True,
+                    ),
+                }
+            )
+            history.append(
+                {
+                    "phase": "announce",
+                    "result": self.announcer_bot.announce_complete(task_id=f"pr-{current_pr or 1}", dry_run=True),
+                }
+            )
             return {
                 "success": True,
                 "dry_run": True,
@@ -207,8 +217,7 @@ class EndOfTaskDaemonBot:
             failing = [
                 c.get("name") or c.get("context")
                 for c in rollup
-                if c.get("conclusion") in ("FAILURE", "TIMED_OUT", "STARTUP_FAILURE")
-                or c.get("state") == "FAILURE"
+                if c.get("conclusion") in ("FAILURE", "TIMED_OUT", "STARTUP_FAILURE") or c.get("state") == "FAILURE"
             ]
             pending = [
                 c.get("name") or c.get("context")
@@ -218,17 +227,17 @@ class EndOfTaskDaemonBot:
             ]
 
             # Separate non-bypassable code checks vs bypassable infra checks (SonarCloud missing secret)
-            code_failing = [
-                name for name in failing if "sonar" not in str(name).lower()
-            ]
+            code_failing = [name for name in failing if "sonar" not in str(name).lower()]
 
             if code_failing:
                 # Hard code/lint failure — abort loop immediately
-                history.append({
-                    "phase": "poll_checks",
-                    "error": f"Hard CI failure detected in checks: {code_failing}",
-                    "failing": failing,
-                })
+                history.append(
+                    {
+                        "phase": "poll_checks",
+                        "error": f"Hard CI failure detected in checks: {code_failing}",
+                        "failing": failing,
+                    }
+                )
                 return {
                     "success": False,
                     "phase": "poll_checks",
@@ -240,12 +249,14 @@ class EndOfTaskDaemonBot:
             # If all code checks finished and none are pending
             if len(pending) == 0 and len(rollup) > 0:
                 checks_passed = True
-                history.append({
-                    "phase": "poll_checks",
-                    "status": "passed",
-                    "total_checks": len(rollup),
-                    "infra_bypassed": [f for f in failing if "sonar" in str(f).lower()],
-                })
+                history.append(
+                    {
+                        "phase": "poll_checks",
+                        "status": "passed",
+                        "total_checks": len(rollup),
+                        "infra_bypassed": [f for f in failing if "sonar" in str(f).lower()],
+                    }
+                )
                 break
 
             self.sleeper(self.poll_interval)

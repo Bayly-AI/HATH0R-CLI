@@ -12,9 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 VALID_BRANCH_PREFIXES = ("feature", "bugfix", "hotfix", "enhancement", "research", "fix", "chore")
 CANONICAL_BRANCHES = ("development", "testing", "staging", "master")
-BRANCH_REGEX = re.compile(
-    r"^(feature|bugfix|hotfix|enhancement|research|fix|chore)/(\d+)-([a-z0-9-]+)$"
-)
+BRANCH_REGEX = re.compile(r"^(feature|bugfix|hotfix|enhancement|research|fix|chore)/(\d+)-([a-z0-9-]+)$")
 SEMVER_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9.]+))?$")
 
 
@@ -25,6 +23,7 @@ def run_cmd(args: List[str], cwd: Optional[Path] = None) -> Tuple[int, str, str]
         return proc.returncode, proc.stdout.strip(), proc.stderr.strip()
     except Exception as exc:
         return 1, "", str(exc)
+
 
 # Default hard-gate check name fragments (case-insensitive substring match)
 DEFAULT_HARD_GATES = (
@@ -96,13 +95,7 @@ class QualityGateBot:
 
         failing = [_name(c) for c in rollup if _failed(c) and _name(c)]
         pending = [_name(c) for c in rollup if _pending(c) and _name(c) and not _failed(c)]
-        passing = [
-            _name(c)
-            for c in rollup
-            if _name(c)
-            and not _failed(c)
-            and not _pending(c)
-        ]
+        passing = [_name(c) for c in rollup if _name(c) and not _failed(c) and not _pending(c)]
 
         hard_failures = []
         hard_missing = []
@@ -400,10 +393,12 @@ class DeployTestBot:
 
         # Look for FAILED test cases (e.g. "FAILED tests/unit/test_foo.py::test_bar - AssertionError...")
         for fail_match in re.finditer(r"FAILED\s+([^\s\n]+)(?:\s+-\s+([^\n]+))?", combined):
-            parsed["failures"].append({
-                "test": fail_match.group(1),
-                "detail": (fail_match.group(2) or "").strip(),
-            })
+            parsed["failures"].append(
+                {
+                    "test": fail_match.group(1),
+                    "detail": (fail_match.group(2) or "").strip(),
+                }
+            )
 
         # Look for FAIL: / ERROR: from unittest style
         for fail_match in re.finditer(r"(?:FAIL|ERROR):\s+([^\s\n]+)", combined):

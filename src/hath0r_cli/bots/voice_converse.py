@@ -234,7 +234,9 @@ def transcribe_audio(audio_path: Path | str, timeout: float = 10.0) -> Optional[
         b64_audio = base64.b64encode(audio_bytes).decode("utf-8")
         mime = "audio/mp4" if path.suffix.lower() in (".m4a", ".mp4", ".aac") else "audio/wav"
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={api_key}"
+        url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={api_key}"
+        )
         payload = {
             "contents": [
                 {
@@ -374,7 +376,6 @@ class AgentDialogueBot:
             speak=False,
             cwd=self.cwd,
         )
-
 
         action = data.get("action", {})
         intent = action.get("intent", "unresolved")
@@ -659,6 +660,7 @@ WantedBy=default.target
             return {"success": True, "message": "No systemd service was installed."}
 
         return {"success": False, "error": f"Unsupported platform {sys.platform}"}
+
     def start_service(
         self,
         background: bool = True,

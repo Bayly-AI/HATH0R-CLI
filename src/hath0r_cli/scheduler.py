@@ -183,14 +183,16 @@ def sync_factory_schedules_to_github(
         if not dry_run:
             file_path.write_text(content, encoding="utf-8")
 
-        results.append({
-            "factory_id": item.factory_id,
-            "workflow_id": item.workflow_id,
-            "schedule": item.schedule,
-            "file": str(file_path),
-            "filename": filename,
-            "action": f"[DRY-RUN] would {action}" if dry_run else action,
-            "dry_run": dry_run,
-        })
+        results.append(
+            {
+                "factory_id": item.factory_id,
+                "workflow_id": item.workflow_id,
+                "schedule": item.schedule,
+                "file": str(file_path),
+                "filename": filename,
+                "action": f"[DRY-RUN] would {action}" if dry_run else action,
+                "dry_run": dry_run,
+            }
+        )
 
     return results

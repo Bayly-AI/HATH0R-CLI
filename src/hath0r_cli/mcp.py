@@ -320,7 +320,7 @@ def check_mcp_connection(server: dict[str, Any], timeout: float = 2.5) -> McpCon
     ready = True
     if ready_ep != health_ep:
         r_code, _, _ = _http_get(ready_url, timeout=timeout)
-        ready = (r_code == 200)
+        ready = r_code == 200
 
     # 3. MCP JSON-RPC tools/list
     m_code, m_data, m_err = _http_jsonrpc(mcp_url, "tools/list", timeout=timeout)
@@ -372,12 +372,12 @@ def check_all_mcp_connections(
     return results
 
 
-
 VOTE_SOURCE_TOOL_NAMES = {
     "list": "vote_source_list",
     "test": "vote_source_test",
     "fetch_sample": "vote_source_fetch_sample",
 }
+
 
 def call_mcp_tool(
     server_id: str,

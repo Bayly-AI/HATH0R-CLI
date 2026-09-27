@@ -108,7 +108,7 @@ def test_repo_clean_step_runner_workflow(tmp_path: Path):
             {"bot": "repo-hygiene-bot", "action": "scan", "on_failure": "continue"},
             {"bot": "config-organizer-bot", "action": "scan", "on_failure": "continue"},
             {"bot": "knowledge-organizer-bot", "action": "audit", "on_failure": "continue"},
-        ]
+        ],
     }
     wf_res = execute_workflow(wf_def, registry, dry_run=True)
     assert wf_res.success is True
@@ -131,6 +131,7 @@ def test_resolve_target_repos(tmp_path: Path):
 
     # Mock group root for all_repos
     import os
+
     orig_env = os.environ.get("HATH0R_GROUP_ROOT")
     try:
         os.environ["HATH0R_GROUP_ROOT"] = str(tmp_path)
@@ -145,4 +146,3 @@ def test_resolve_target_repos(tmp_path: Path):
             os.environ["HATH0R_GROUP_ROOT"] = orig_env
         else:
             os.environ.pop("HATH0R_GROUP_ROOT", None)
-

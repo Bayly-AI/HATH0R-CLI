@@ -42,9 +42,7 @@ class PushToTalkConfig:
     enabled: bool = True
     default_key: str = "right_ctrl"
     prompt_for_key: bool = True
-    supported_keys: List[str] = field(
-        default_factory=lambda: ["right_ctrl", "left_ctrl", "space", "enter"]
-    )
+    supported_keys: List[str] = field(default_factory=lambda: ["right_ctrl", "left_ctrl", "space", "enter"])
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -86,16 +84,12 @@ def get_push_to_talk_config(config_path: Optional[Path | str] = None) -> PushToT
             enabled=bool(ptt_data.get("enabled", True)),
             default_key=str(ptt_data.get("default_key", "right_ctrl")),
             prompt_for_key=bool(ptt_data.get("prompt_for_key", True)),
-            supported_keys=list(
-                ptt_data.get("supported_keys", ["right_ctrl", "left_ctrl", "space", "enter"])
-            ),
+            supported_keys=list(ptt_data.get("supported_keys", ["right_ctrl", "left_ctrl", "space", "enter"])),
         )
     return PushToTalkConfig()
 
 
-def save_push_to_talk_config(
-    ptt_config: PushToTalkConfig, config_path: Optional[Path | str] = None
-) -> Path:
+def save_push_to_talk_config(ptt_config: PushToTalkConfig, config_path: Optional[Path | str] = None) -> Path:
     """Persist PushToTalkConfig into cfg/voice.json."""
     target_path = Path(config_path) if config_path else DEFAULT_VOICE_CONFIG_FILE
     data = load_voice_config(target_path)
@@ -189,7 +183,6 @@ def wait_for_push_to_talk_trigger(key_name: str, timeout_seconds: float = 30.0) 
                 pass
 
     return False
-
 
 
 for _candidate in _FRAMEWORK_CANDIDATES:
@@ -358,8 +351,6 @@ def evaluate_and_dispatch_voice(
     if speak and action_dict:
         _speak_feedback_standalone(action_dict.get("payload", {}).get("feedback_text", ""))
 
-
-
     intent = action_dict.get("intent", "unresolved")
     payload = action_dict.get("payload", {})
     command = payload.get("command")
@@ -434,7 +425,6 @@ def _speak_feedback_standalone(text: str) -> None:
                 subprocess.run(["espeak", clean_text], check=False, timeout=5)
     except Exception:
         pass
-
 
 
 def get_active_wake_words(cwd: Optional[Path] = None) -> List[str]:
@@ -581,4 +571,3 @@ def _standalone_fast_route(transcript: str, cwd: Optional[Path] = None) -> Dict[
         },
         "metadata": {"delegated": True},
     }
-
