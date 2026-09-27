@@ -4238,8 +4238,9 @@ def memory():
 @click.option("--dry-run", is_flag=True, help="Simulate initialization.")
 def memory_init(dry_run):
     """Initialize the core local memory spaces."""
-    from hath0r_cli.bots.memory_manager import MemoryManagerBot
     from rich.console import Console
+
+    from hath0r_cli.bots.memory_manager import MemoryManagerBot
     console = Console()
     bot = MemoryManagerBot()
     res = bot.initialize_memory(dry_run=dry_run)
@@ -4252,9 +4253,10 @@ def memory_init(dry_run):
 @click.argument("topic", default="core")
 def memory_read(topic):
     """Read a canonical memory topic."""
-    from hath0r_cli.bots.memory_manager import MemoryManagerBot
     from rich.console import Console
     from rich.markdown import Markdown
+
+    from hath0r_cli.bots.memory_manager import MemoryManagerBot
     console = Console()
     bot = MemoryManagerBot()
     res = bot.read_memory(topic=topic)
@@ -4269,8 +4271,9 @@ def memory_read(topic):
 @click.option("--dry-run", is_flag=True, help="Simulate update.")
 def memory_update(topic, content, dry_run):
     """Update a canonical memory topic."""
-    from hath0r_cli.bots.memory_manager import MemoryManagerBot
     from rich.console import Console
+
+    from hath0r_cli.bots.memory_manager import MemoryManagerBot
     console = Console()
     bot = MemoryManagerBot()
     res = bot.update_memory(topic=topic, content=content, dry_run=dry_run)
