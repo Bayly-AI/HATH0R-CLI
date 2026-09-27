@@ -1,0 +1,30 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: hyper-context-factory
+
+factory_id: hyper-context-factory
+name: Hyper Context Spreader Factory
+version: 1.0.0
+description: >
+  Ensures hyper context architecture by generating and spreading AGENTS.md, rules.md, and canonical.md
+  to specific sub-directories, and wiring them into the root index.
+
+author: Bayly-AI
+category: governance-and-automation
+
+bots:
+  - id: hyper-context-bot
+    name: Hyper Context Bot
+    role: architectural-context-management
+    description: Generates localized agent context files and links them to the root.
+    capabilities:
+      - spread-context
+
+workflows:
+  - id: execute-hyper-context
+    name: Execute Hyper Context Spread
+    description: Spreads context to a target directory.
+    steps:
+      - bot: hyper-context-bot
+        action: spread-context
+        on_failure: abort
