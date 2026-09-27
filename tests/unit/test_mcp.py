@@ -272,4 +272,3 @@ def test_validate_mcp_config_valid(tmp_path) -> None:
     assert warning is None
     assert len(servers) == 2
     assert servers[0]["id"] == "proj"
-

@@ -102,7 +102,6 @@ def test_cli_speak_mode_tab_only():
     runner.invoke(main, ["--output", "json", "speak", "off", "--silent"])
 
 
-
 def test_cli_voice_profile_list_set_status():
     runner = CliRunner()
     with runner.isolated_filesystem():
@@ -130,7 +129,6 @@ def test_cli_voice_profile_list_set_status():
         assert data_st["data"]["voice_name"] == "Daniel"
 
 
-
 def test_cli_voice_read():
     runner = CliRunner()
     res = runner.invoke(main, ["--output", "json", "voice", "read", "Active tab text content for agent testing."])
@@ -149,7 +147,3 @@ def test_cli_voice_engine_list():
     assert data["command"] == "voice.engine.list"
     assert data["state"] == "ok"
     assert len(data["data"]["engines"]) >= 3
-
-
-
-

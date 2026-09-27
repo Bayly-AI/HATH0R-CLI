@@ -666,6 +666,7 @@ def schema(ctx: click.Context, status_filter: str) -> None:
 
     _emit_response(ctx, response, text_renderer=_text)
 
+
 @main.group()
 def mcp() -> None:
     """Model Context Protocol (MCP) server connections and tool operations."""
@@ -937,10 +938,10 @@ def mcp_call(ctx: click.Context, server_id: str, tool_name: str, json_args: str)
         ctx.exit(1)
 
 
-
 # ============================================================================
 # Factory & Bot Suite Commands
 # ============================================================================
+
 
 @main.group()
 def factory() -> None:
@@ -967,15 +968,17 @@ def factory_list(ctx: click.Context) -> None:
             try:
                 data = yaml.safe_load(f.read_text(encoding="utf-8"))
                 if isinstance(data, dict) and "factory_id" in data:
-                    items.append({
-                        "id": data.get("factory_id"),
-                        "name": data.get("name"),
-                        "version": data.get("version"),
-                        "description": data.get("description", "").strip(),
-                        "bots_count": len(data.get("bots", [])),
-                        "workflows_count": len(data.get("workflows", [])),
-                        "file": str(f),
-                    })
+                    items.append(
+                        {
+                            "id": data.get("factory_id"),
+                            "name": data.get("name"),
+                            "version": data.get("version"),
+                            "description": data.get("description", "").strip(),
+                            "bots_count": len(data.get("bots", [])),
+                            "workflows_count": len(data.get("workflows", [])),
+                            "file": str(f),
+                        }
+                    )
             except Exception:
                 pass
 
@@ -992,9 +995,7 @@ def factory_list(ctx: click.Context) -> None:
         table.add_column("Bots", style="yellow")
         table.add_column("Workflows", style="blue")
         for it in items:
-            table.add_row(
-                it["id"], it["name"], str(it["version"]), str(it["bots_count"]), str(it["workflows_count"])
-            )
+            table.add_row(it["id"], it["name"], str(it["version"]), str(it["bots_count"]), str(it["workflows_count"]))
         console.print(table)
 
     _emit_response(ctx, response, text_renderer=_text)
@@ -1190,9 +1191,7 @@ def factory_validate(ctx: click.Context, factory_id: str | None) -> None:
 @click.option("--repo", default=None, help="Target GitHub repository (owner/repo).")
 @click.option("--dry-run", is_flag=True, default=False, help="Simulate execution without modifying git or GitHub.")
 @click.pass_context
-def factory_run(
-    ctx: click.Context, factory_id: str, workflow_id: str | None, repo: str | None, dry_run: bool
-) -> None:
+def factory_run(ctx: click.Context, factory_id: str, workflow_id: str | None, repo: str | None, dry_run: bool) -> None:
     """Execute workflows defined in a factory."""
     import uuid
     from pathlib import Path
@@ -1218,9 +1217,15 @@ def factory_run(
             pass
 
     if not factory_file:
-        response = _build_response(ctx, command="factory.run", state="error", dry_run=dry_run, diagnostics=[
-            Diagnostic(severity="error", code="FACTORY_NOT_FOUND", message=f"Factory '{factory_id}' not found.")
-        ])
+        response = _build_response(
+            ctx,
+            command="factory.run",
+            state="error",
+            dry_run=dry_run,
+            diagnostics=[
+                Diagnostic(severity="error", code="FACTORY_NOT_FOUND", message=f"Factory '{factory_id}' not found.")
+            ],
+        )
         _emit_response(ctx, response)
         ctx.exit(1)
 
@@ -1492,7 +1497,6 @@ def factory_schedule_sync(ctx: click.Context, target_dir: str | None, dry_run: b
     _emit_response(ctx, response, text_renderer=_text)
 
 
-
 @main.group()
 def branch() -> None:
     """Branch Bot: create, validate, and manage git branches."""
@@ -1504,6 +1508,7 @@ def branch() -> None:
 def branch_validate(ctx: click.Context, name: str) -> None:
     """Validate branch name against governance taxonomy."""
     from hath0r_cli.bots import BranchBot
+
     bot = BranchBot()
     res = bot.validate_name(name)
     state = "ok" if res.get("valid") else "degraded"
@@ -1529,6 +1534,7 @@ def pr() -> None:
 def pr_dependabot(ctx: click.Context, pr_number: int, repo: str | None, auto_merge: bool) -> None:
     """Triage and automatically process Dependabot PRs."""
     from hath0r_cli.bots import PRBot
+
     bot = PRBot()
     res = bot.process_dependabot(pr_number, repo=repo, auto_merge=auto_merge)
     state = "ok" if res.get("status") == "processed" else "degraded"
@@ -1551,6 +1557,7 @@ def janitor() -> None:
 def janitor_scan(ctx: click.Context, repo: str | None) -> None:
     """Scan for merged, closed, or stale branches."""
     from hath0r_cli.bots import GitJanitorBot
+
     bot = GitJanitorBot()
     res = bot.scan_stale_branches(repo=repo)
     response = _build_response(ctx, command="janitor.scan", state="ok", data=res)
@@ -1572,22 +1579,31 @@ def janitor_scan(ctx: click.Context, repo: str | None) -> None:
 def janitor_prune(ctx: click.Context, repo: str | None, dry_run: bool) -> None:
     """Scan and prune all merged or closed branches."""
     from hath0r_cli.bots import GitJanitorBot
+
     bot = GitJanitorBot()
     scan = bot.scan_stale_branches(repo=repo)
     pruned = []
     for b in scan.get("stale_branches", []):
         res = bot.prune_branch(b["branch"], remote=True, dry_run=dry_run)
-        pruned.append({
-            "branch": b["branch"],
-            "success": res.get("success"),
-            "action": res.get("action"),
-        })
+        pruned.append(
+            {
+                "branch": b["branch"],
+                "success": res.get("success"),
+                "action": res.get("action"),
+            }
+        )
 
-    response = _build_response(ctx, command="janitor.prune", state="ok", dry_run=dry_run, data={
-        "scanned": scan.get("scanned_count"),
-        "dry_run": dry_run,
-        "pruned": pruned,
-    })
+    response = _build_response(
+        ctx,
+        command="janitor.prune",
+        state="ok",
+        dry_run=dry_run,
+        data={
+            "scanned": scan.get("scanned_count"),
+            "dry_run": dry_run,
+            "pruned": pruned,
+        },
+    )
 
     def _text() -> None:
         prefix = "[DRY-RUN] " if dry_run else ""
@@ -1689,40 +1705,48 @@ def task_start(
     steps = []
     if not issue_number and title:
         # Step 1: create issue
-        steps.append({
-            "bot": "issue-guard-bot",
-            "action": "create-issue",
-            "args": {"title": title, "repo": repo},
-            "on_failure": "abort",
-        })
+        steps.append(
+            {
+                "bot": "issue-guard-bot",
+                "action": "create-issue",
+                "args": {"title": title, "repo": repo},
+                "on_failure": "abort",
+            }
+        )
     else:
         # Step 1: verify issue
-        steps.append({
-            "bot": "issue-guard-bot",
-            "action": "verify-issue",
-            "args": {"issue_number": issue_number, "repo": repo},
-            "on_failure": "abort",
-        })
+        steps.append(
+            {
+                "bot": "issue-guard-bot",
+                "action": "verify-issue",
+                "args": {"issue_number": issue_number, "repo": repo},
+                "on_failure": "abort",
+            }
+        )
         # Step 2: run issue-factory validation & dependency checking
-        steps.append({
-            "bot": "issue-manager-bot",
-            "action": "validate-issue",
-            "args": {"issue_number": issue_number, "repo": repo},
-            "on_failure": "warn",
-        })
+        steps.append(
+            {
+                "bot": "issue-manager-bot",
+                "action": "validate-issue",
+                "args": {"issue_number": issue_number, "repo": repo},
+                "on_failure": "warn",
+            }
+        )
 
     # Step 3: ensure work branch
-    steps.append({
-        "bot": "branch-guard-bot",
-        "action": "ensure-work-branch",
-        "args": {
-            "issue_number": issue_number,
-            "slug": clean_slug,
-            "prefix": prefix,
-            "base": base,
-        },
-        "on_failure": "abort",
-    })
+    steps.append(
+        {
+            "bot": "branch-guard-bot",
+            "action": "ensure-work-branch",
+            "args": {
+                "issue_number": issue_number,
+                "slug": clean_slug,
+                "prefix": prefix,
+                "base": base,
+            },
+            "on_failure": "abort",
+        }
+    )
 
     dynamic_wf = {
         "id": workflow_def.get("id", "start-of-task"),
@@ -2120,9 +2144,7 @@ def docker_workflow_validate(ctx: click.Context, workflow_file: str) -> None:
             ctx,
             command="docker.workflow.validate",
             state="error",
-            diagnostics=[
-                Diagnostic(severity="error", code="INVALID_JSON", message=f"Failed to parse JSON: {exc}")
-            ],
+            diagnostics=[Diagnostic(severity="error", code="INVALID_JSON", message=f"Failed to parse JSON: {exc}")],
         )
         _emit_response(ctx, response)
         ctx.exit(1)
@@ -2132,8 +2154,7 @@ def docker_workflow_validate(ctx: click.Context, workflow_file: str) -> None:
 
     state = "ok" if res.get("valid") else "error"
     diagnostics = [
-        Diagnostic(severity="error", code="WORKFLOW_SCHEMA_ERROR", message=err)
-        for err in res.get("errors", [])
+        Diagnostic(severity="error", code="WORKFLOW_SCHEMA_ERROR", message=err) for err in res.get("errors", [])
     ]
     response = _build_response(
         ctx,
@@ -2195,9 +2216,7 @@ def docker_workflow_run(ctx: click.Context, workflow_file: str, dry_run: bool) -
             command="docker.workflow.run",
             state="error",
             dry_run=dry_run,
-            diagnostics=[
-                Diagnostic(severity="error", code="INVALID_JSON", message=f"Failed to parse JSON: {exc}")
-            ],
+            diagnostics=[Diagnostic(severity="error", code="INVALID_JSON", message=f"Failed to parse JSON: {exc}")],
         )
         _emit_response(ctx, response)
         ctx.exit(1)
@@ -2253,12 +2272,14 @@ def docker_workflow_run(ctx: click.Context, workflow_file: str, dry_run: bool) -
         else:
             action = op
 
-        factory_steps.append({
-            "bot": "docker-bot",
-            "action": action,
-            "args": params,
-            "on_failure": step.get("on_failure", "abort"),
-        })
+        factory_steps.append(
+            {
+                "bot": "docker-bot",
+                "action": action,
+                "args": params,
+                "on_failure": step.get("on_failure", "abort"),
+            }
+        )
 
     factory_wf_def = {
         "id": wf_id,
@@ -2412,13 +2433,7 @@ def preflight_run(ctx: click.Context, skip_tests: bool, dry_run: bool) -> None:
         click.echo(res.get("message") or "preflight complete")
         for c in res.get("checks", []):
             icon = "✓" if c.get("ok") else "✗"
-            detail = (
-                c.get("error")
-                or c.get("message")
-                or c.get("version")
-                or c.get("branch")
-                or ""
-            )
+            detail = c.get("error") or c.get("message") or c.get("version") or c.get("branch") or ""
             click.echo(f"  {icon} {c.get('check')}: {detail}")
 
     _emit_response(ctx, response, text_renderer=_text)
@@ -2537,9 +2552,7 @@ def release_notes(ctx: click.Context, version: str | None) -> None:
 @click.option("--skip-github-release", is_flag=True, default=False)
 @click.option("--dry-run", is_flag=True, default=False)
 @click.pass_context
-def release_publish(
-    ctx: click.Context, repo: str | None, skip_github_release: bool, dry_run: bool
-) -> None:
+def release_publish(ctx: click.Context, repo: str | None, skip_github_release: bool, dry_run: bool) -> None:
     """Create annotated tag and optional GitHub Release."""
     from hath0r_cli.bots.quality import ReleaseBot
 
@@ -2622,8 +2635,7 @@ def docs_share(
 
     bot = DocumentationBot(cwd=Path.cwd())
     res = bot.share_knowledge(
-        summary=summary
-        or (f"Knowledge share for PR #{pr_number}" if pr_number else "Knowledge share"),
+        summary=summary or (f"Knowledge share for PR #{pr_number}" if pr_number else "Knowledge share"),
         pr_number=pr_number,
         repo=repo,
         target_kb=target_kb,
@@ -2772,14 +2784,16 @@ def repo_audit(ctx: click.Context, target_repo: str | None, all_repos: bool) -> 
         is_clean = bool(hygiene.get("clean")) and bool(configs.get("clean")) and bool(knowledge.get("organized"))
         if not is_clean:
             all_clean = False
-        results_by_repo.append({
-            "repo": r.name,
-            "path": str(r),
-            "clean": is_clean,
-            "hygiene": hygiene,
-            "configs": configs,
-            "knowledge": knowledge,
-        })
+        results_by_repo.append(
+            {
+                "repo": r.name,
+                "path": str(r),
+                "clean": is_clean,
+                "hygiene": hygiene,
+                "configs": configs,
+                "knowledge": knowledge,
+            }
+        )
 
     status_state = "ok" if all_clean else "degraded"
     data = {
@@ -2863,12 +2877,14 @@ def repo_clean(
     for r in repos:
         config_res = ConfigOrganizerBot(cwd=r).organize_configs(target_folder=target_folder, dry_run=dry_run)
         hygiene_res = RepoHygieneBot(cwd=r).clean_root(dry_run=dry_run, archive_dir=archive_dir)
-        results_by_repo.append({
-            "repo": r.name,
-            "path": str(r),
-            "config_relocations": config_res,
-            "root_cleanup": hygiene_res,
-        })
+        results_by_repo.append(
+            {
+                "repo": r.name,
+                "path": str(r),
+                "config_relocations": config_res,
+                "root_cleanup": hygiene_res,
+            }
+        )
 
     data = {
         "dry_run": dry_run,
@@ -2994,7 +3010,7 @@ def voice_exec(ctx: click.Context, transcript: str, trust_tier: str, dry_run: bo
         duration = data.get("duration_ms", 0.0)
 
         console.print(f"[bold green]✓ Voice Action Resolved[/bold green] in {duration:.1f}ms ([cyan]{tier}[/cyan]):")
-        console.print(f"  • [bold]Transcript:[/bold] \"{action.get('transcript')}\"")
+        console.print(f'  • [bold]Transcript:[/bold] "{action.get("transcript")}"')
         console.print(f"  • [bold]Intent:[/bold] {intent} (confidence={action.get('confidence', 1.0):.2f})")
         payload = action.get("payload", {})
         if "command" in payload:
@@ -3069,11 +3085,17 @@ def voice_listen(
     if push_to_talk and (ask_key or ptt_cfg.prompt_for_key) and not is_json:
         console.print("[bold cyan]Push-to-Talk Activation Key Selection[/bold cyan]")
         console.print(f"Supported keys: [dim]{', '.join(ptt_cfg.supported_keys)}[/dim]")
-        selected_key = click.prompt(
-            "Which button would you like to use for Push-to-Talk?",
-            default=selected_key,
-            show_default=True,
-        ).strip().lower().replace(" ", "_").replace("-", "_")
+        selected_key = (
+            click.prompt(
+                "Which button would you like to use for Push-to-Talk?",
+                default=selected_key,
+                show_default=True,
+            )
+            .strip()
+            .lower()
+            .replace(" ", "_")
+            .replace("-", "_")
+        )
 
     mode_label = f"Push-to-talk (key='{selected_key}')" if push_to_talk else "Ambient continuous"
     if not is_json:
@@ -3712,7 +3734,6 @@ def voice_engine_download(ctx: click.Context, engine_id: str, dry_run: bool) -> 
     is_dry_run = dry_run or bool(ctx.obj.get("dry_run", False))
     res = engine.download_weights(engine_id=engine_id, dry_run=is_dry_run)
 
-
     response = _build_response(
         ctx,
         command="voice.engine.download",
@@ -3725,10 +3746,6 @@ def voice_engine_download(ctx: click.Context, engine_id: str, dry_run: bool) -> 
         console.print(f"  • Target Path: [cyan]{res.get('target_path')}[/cyan]")
 
     _emit_response(ctx, response, text_renderer=_text)
-
-
-
-
 
 
 @main.group("speak", invoke_without_command=True)
@@ -3855,7 +3872,6 @@ def speak_toggle(ctx: click.Context, tab_only: bool) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
-
 @speak_group.command("status")
 @click.pass_context
 def speak_status(ctx: click.Context) -> None:
@@ -3877,6 +3893,8 @@ def speak_status(ctx: click.Context) -> None:
         console.print(f"Hath0r Speak Mode: {state_label}")
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
 @voice.group("service")
 def voice_service() -> None:
     """Manage background voice listening and conversational service daemon."""
@@ -3962,9 +3980,7 @@ def voice_service_stop(ctx: click.Context) -> None:
 
     def _text() -> None:
         if res.get("status") == "stopped":
-            console.print(
-                f"[bold green]✓ Voice Daemon Service Stopped[/bold green] (PID: [dim]{res.get('pid')}[/dim])"
-            )
+            console.print(f"[bold green]✓ Voice Daemon Service Stopped[/bold green] (PID: [dim]{res.get('pid')}[/dim])")
         else:
             console.print("[dim]Voice daemon service is not currently running.[/dim]")
 
@@ -4038,9 +4054,7 @@ def voice_service_restart(
 
     def _text() -> None:
         mode_str = "Ambient Continuous" if ambient else "Push-to-Talk"
-        console.print(
-            f"[bold green]✓ Voice Daemon Service Restarted[/bold green] (PID: [bold]{res.get('pid')}[/bold])"
-        )
+        console.print(f"[bold green]✓ Voice Daemon Service Restarted[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
         console.print(f"  • Mode: [cyan]{mode_str}[/cyan]")
         console.print(f"  • Trust Tier: [magenta]{trust_tier}[/magenta]")
 
@@ -4120,10 +4134,66 @@ def voice_service_uninstall(ctx: click.Context) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@main.group()
+def playbook() -> None:
+    """Read and list Hath0r diagnostic and operational playbooks."""
+    pass
+
+
+@playbook.command("list")
+@click.pass_context
+def playbook_list(ctx: click.Context) -> None:
+    """List available playbooks."""
+    from pathlib import Path
+
+    playbooks_dir = Path("docs/governance/playbooks")
+    playbooks = []
+    if playbooks_dir.exists():
+        for p in playbooks_dir.glob("*.md"):
+            playbooks.append(p.stem)
+
+    response = _build_response(ctx, command="playbook.list", state="ok", data={"playbooks": playbooks})
+
+    def _text() -> None:
+        console.print("[bold cyan]Available Playbooks:[/bold cyan]")
+        for pb in playbooks:
+            console.print(f"  • {pb}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@playbook.command("read")
+@click.argument("name")
+@click.pass_context
+def playbook_read(ctx: click.Context, name: str) -> None:
+    """Read a specific playbook by name (e.g. playbook-troubleshooting)."""
+    from pathlib import Path
+
+    target = Path(f"docs/governance/playbooks/{name}.md")
+    content = ""
+    success = False
+
+    if target.exists():
+        content = target.read_text(encoding="utf-8")
+        success = True
+
+    response = _build_response(
+        ctx,
+        command="playbook.read",
+        state="ok" if success else "error",
+        data={"name": name, "content": content, "success": success},
+    )
+
+    def _text() -> None:
+        if success:
+            from rich.markdown import Markdown
+
+            console.print(Markdown(content))
+        else:
+            console.print(f"[bold red]✗ Playbook not found:[/bold red] {name}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
 if __name__ == "__main__":
     main()
-
-
-
-
-

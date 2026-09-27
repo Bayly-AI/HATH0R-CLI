@@ -190,7 +190,6 @@ def test_voice_speaker_mode_bot_tab_scoping(tmp_path: Path):
     assert bot.is_enabled() is True
 
 
-
 def test_workflow_enable_disable_speak_mode():
     registry = BotRegistry()
     wf_on = {
@@ -251,7 +250,6 @@ def test_voice_profile_bot_lifecycle(tmp_path: Path):
 
     assert active_now["voice_name"] == "Daniel"
     assert active_now["rate_wpm"] == 190
-
 
 
 def test_workflow_voice_profiles(tmp_path: Path):
@@ -394,9 +392,3 @@ def test_local_neural_voice_engine(tmp_path: Path):
     assert synth["success"] is True
     assert synth["engine"] == "coreml-82m"
     assert synth["voice_name"] == "Moira"
-
-
-
-
-
-

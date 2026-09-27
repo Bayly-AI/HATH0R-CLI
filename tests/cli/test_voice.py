@@ -125,4 +125,3 @@ def test_voice_exec_addressed_by_profile_name():
         assert data["data"]["action"]["intent"] == "cli_command"
         assert data["data"]["action"]["payload"]["command"] == "hath0r doctor"
         assert data["data"]["action"]["payload"]["addressed_to"] == "Moira"
-

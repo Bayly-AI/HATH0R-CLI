@@ -46,7 +46,6 @@ def resolve_rate_wpm(rate_val: Optional[str | int]) -> int:
         return RATE_PRESETS["relaxed"]
 
 
-
 def expand_technical_tokens(text: str) -> str:
     """Expand technical tokens, acronyms, issue/PR numbers, and SemVer versions for natural prosody."""
     if not text:
@@ -140,7 +139,6 @@ def apply_prosody_rhythm(text: str) -> str:
     return out
 
 
-
 def filter_speech_text(text: str) -> str:
     """Filter out code blocks, diffs, markdown formatting, and raw syntax.
 
@@ -197,8 +195,6 @@ def filter_speech_text(text: str) -> str:
         return "I have completed the requested operation."
 
     return spoken_summary
-
-
 
 
 @dataclass
@@ -352,7 +348,7 @@ class SpokenNotificationServiceBot:
         """Enqueue spoken announcement to spool."""
         self.spool_dir.mkdir(parents=True, exist_ok=True)
         record = {
-            "id": f"msg-{int(time.time()*1000)}",
+            "id": f"msg-{int(time.time() * 1000)}",
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "message": message,
             "priority": priority,
@@ -566,7 +562,6 @@ def interpret_response_for_speech(command: str, state: str, data: Optional[Dict[
             return f"Task receipt confirmed for Issue #{issue_num}. Work branch {branch_name} initialized."
         return "Task receipt confirmed. Work branch and environment initialized."
 
-
     if "task.finish" in cmd_norm:
         return "Task completion finalized. PR quality gates and lifecycle verification complete."
 
@@ -575,7 +570,6 @@ def interpret_response_for_speech(command: str, state: str, data: Optional[Dict[
     if state == "ok":
         return f"Hathor {clean_cmd} completed successfully."
     return f"Hathor {clean_cmd} finished with status {state}."
-
 
 
 @dataclass
@@ -742,7 +736,6 @@ class VoiceSpeakerModeBot:
         return self.speaker.speak(spoken_text, filter_code=True, dry_run=dry_run)
 
 
-
 @dataclass
 class VoiceProfileBot:
     """Manages voice profile discovery, listing, selection, and preview."""
@@ -872,7 +865,6 @@ class VoiceProfileBot:
         """Set and persist the active voice profile and speech rate."""
         clean_name = voice_name.strip()
         rate = resolve_rate_wpm(rate_wpm) if rate_wpm is not None else self.get_active_profile().get("rate_wpm", 195)
-
 
         record = {
             "voice_name": clean_name,
@@ -1126,8 +1118,3 @@ class LocalNeuralVoiceEngine:
             "text": cleaned_text,
             "spoken": speak_res.get("spoken", False),
         }
-
-
-
-
-

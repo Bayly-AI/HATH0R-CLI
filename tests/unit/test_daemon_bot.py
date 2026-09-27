@@ -32,17 +32,19 @@ def test_daemon_bot_polling_success() -> None:
     bot = EndOfTaskDaemonBot(poll_interval=0.01, timeout=5.0, sleeper=lambda _: None)
 
     # Mock PR bot methods
-    bot.pr_bot.check_pr_status = MagicMock(return_value={
-        "state": "OPEN",
-        "statusCheckRollup": [
-            {"name": "CI / test-and-lint", "conclusion": "SUCCESS", "state": "SUCCESS"},
-            {"name": "PR Workflow Guard", "conclusion": "SUCCESS", "state": "SUCCESS"},
-            {"name": "Version Policy Guard", "conclusion": "SUCCESS", "state": "SUCCESS"},
-            {"name": "Enforce Promotion Path", "conclusion": "SUCCESS", "state": "SUCCESS"},
-            # Simulate Sonar token infra failure that is bypassed
-            {"name": "SonarCloud Quality Gate", "conclusion": "FAILURE", "state": "FAILURE"},
-        ],
-    })
+    bot.pr_bot.check_pr_status = MagicMock(
+        return_value={
+            "state": "OPEN",
+            "statusCheckRollup": [
+                {"name": "CI / test-and-lint", "conclusion": "SUCCESS", "state": "SUCCESS"},
+                {"name": "PR Workflow Guard", "conclusion": "SUCCESS", "state": "SUCCESS"},
+                {"name": "Version Policy Guard", "conclusion": "SUCCESS", "state": "SUCCESS"},
+                {"name": "Enforce Promotion Path", "conclusion": "SUCCESS", "state": "SUCCESS"},
+                # Simulate Sonar token infra failure that is bypassed
+                {"name": "SonarCloud Quality Gate", "conclusion": "FAILURE", "state": "FAILURE"},
+            ],
+        }
+    )
     bot.pr_bot.merge_pr = MagicMock(return_value={"success": True, "output": "Merged PR #101"})
     bot.janitor_bot.pull_development = MagicMock(return_value={"success": True, "output": "Already up to date."})
     bot.janitor_bot.prune_branch = MagicMock(return_value={"success": True, "branch": "feature/101-test"})
@@ -60,12 +62,14 @@ def test_daemon_bot_polling_success() -> None:
 def test_daemon_bot_hard_code_failure_aborts() -> None:
     bot = EndOfTaskDaemonBot(poll_interval=0.01, timeout=5.0, sleeper=lambda _: None)
 
-    bot.pr_bot.check_pr_status = MagicMock(return_value={
-        "state": "OPEN",
-        "statusCheckRollup": [
-            {"name": "CI / test-and-lint", "conclusion": "FAILURE", "state": "FAILURE"},
-        ],
-    })
+    bot.pr_bot.check_pr_status = MagicMock(
+        return_value={
+            "state": "OPEN",
+            "statusCheckRollup": [
+                {"name": "CI / test-and-lint", "conclusion": "FAILURE", "state": "FAILURE"},
+            ],
+        }
+    )
     bot.pr_bot.merge_pr = MagicMock()
 
     res = bot.run_daemon(pr_number=102, branch="feature/102-test", dry_run=False)

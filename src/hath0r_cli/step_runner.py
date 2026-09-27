@@ -1156,9 +1156,7 @@ class BotRegistry:
         if action in ("audit", "audit-structure", "scan"):
             res = bot.audit_knowledge_structure()
             err_msg = (
-                None
-                if res.get("organized")
-                else f"Found {res.get('findings_count')} knowledge structure violation(s)."
+                None if res.get("organized") else f"Found {res.get('findings_count')} knowledge structure violation(s)."
             )
             return StepExecutionResult(
                 bot_id="knowledge-organizer-bot",
@@ -1686,8 +1684,8 @@ class BotRegistry:
             dry_run=dry_run,
         )
 
-def execute_workflow(
 
+def execute_workflow(
     workflow_def: dict[str, Any],
     registry: BotRegistry,
     *,

@@ -132,8 +132,7 @@ class FactoryManagerBot:
             "factory_id": factory_id,
             "name": name or factory_id.replace("-", " ").title(),
             "version": "1.0.0",
-            "description": description
-            or f"Automation factory '{factory_id}' managed by Factory Manager bot.",
+            "description": description or f"Automation factory '{factory_id}' managed by Factory Manager bot.",
             "author": "Bayly-AI",
             "category": category,
             "bots": [
@@ -228,8 +227,7 @@ class FactoryManagerBot:
 
         path.write_text(
             "# Hath0r Factory Specification v1\n"
-            "# Updated by Factory Manager bot\n\n"
-            + yaml.safe_dump(data, sort_keys=False, default_flow_style=False),
+            "# Updated by Factory Manager bot\n\n" + yaml.safe_dump(data, sort_keys=False, default_flow_style=False),
             encoding="utf-8",
         )
         validation = validate_factory_file(path)

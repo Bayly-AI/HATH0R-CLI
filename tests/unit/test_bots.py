@@ -54,14 +54,16 @@ def test_cli_factory_list() -> None:
 
 def test_documentation_bot_summary() -> None:
     bot = DocumentationBot()
-    summary = bot.generate_pr_summary({
-        "number": 54,
-        "title": "chore: sync",
-        "headRefName": "chore/53-governance-sync",
-        "baseRefName": "development",
-        "author": {"login": "somesayray"},
-        "body": "Test summary",
-    })
+    summary = bot.generate_pr_summary(
+        {
+            "number": 54,
+            "title": "chore: sync",
+            "headRefName": "chore/53-governance-sync",
+            "baseRefName": "development",
+            "author": {"login": "somesayray"},
+            "body": "Test summary",
+        }
+    )
     assert "# PR #54: chore: sync" in summary
     assert "@somesayray" in summary
 
@@ -105,24 +107,18 @@ def test_cli_factory_validate_invalid(tmp_path) -> None:
 
     bad_factory = tmp_path / "bad-factory.yaml"
     bad_factory.write_text(
-        yaml.dump({
-            "factory_id": "bad-factory",
-            "name": "Bad Factory",
-            "version": "1.0.0",
-            "bots": [
-                {"id": "bot-a", "name": "Bot A", "capabilities": ["do-a"]}
-            ],
-            "workflows": [
-                {
-                    "id": "wf-1",
-                    "name": "WF 1",
-                    "steps": [
-                        {"bot": "nonexistent-bot", "action": "do-unknown"}
-                    ]
-                }
-            ]
-        }),
-        encoding="utf-8"
+        yaml.dump(
+            {
+                "factory_id": "bad-factory",
+                "name": "Bad Factory",
+                "version": "1.0.0",
+                "bots": [{"id": "bot-a", "name": "Bot A", "capabilities": ["do-a"]}],
+                "workflows": [
+                    {"id": "wf-1", "name": "WF 1", "steps": [{"bot": "nonexistent-bot", "action": "do-unknown"}]}
+                ],
+            }
+        ),
+        encoding="utf-8",
     )
 
     runner = CliRunner(mix_stderr=False)
@@ -394,13 +390,14 @@ def test_factory_scheduler_discovery_and_generation(tmp_path: Path) -> None:
     assert triage_wf.schedule == "0 */2 * * *"
     try:
         import croniter  # noqa: F401
+
         assert triage_wf.next_run is not None
     except ImportError:
         pass
 
     # Test workflow YAML generation
     gh_yaml = generate_github_workflow_content(triage_wf, repo="Bayly-AI/HATH0R-CLI")
-    assert "cron: \"0 */2 * * *\"" in gh_yaml
+    assert 'cron: "0 */2 * * *"' in gh_yaml
     assert "hath0r factory run pr-and-branch-lifecycle-factory --workflow triage-dependabot" in gh_yaml
 
     # Test sync with dry-run

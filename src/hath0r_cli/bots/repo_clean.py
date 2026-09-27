@@ -133,12 +133,14 @@ class RepoHygieneBot:
             if p.is_file():
                 root_files.append(name)
                 if name not in ALLOWED_ROOT_FILES:
-                    errant_files.append({
-                        "name": name,
-                        "path": str(p),
-                        "size_bytes": p.stat().st_size,
-                        "is_config": p.suffix.lower() in CONFIG_EXTENSIONS,
-                    })
+                    errant_files.append(
+                        {
+                            "name": name,
+                            "path": str(p),
+                            "size_bytes": p.stat().st_size,
+                            "is_config": p.suffix.lower() in CONFIG_EXTENSIONS,
+                        }
+                    )
 
         return {
             "success": True,
@@ -164,20 +166,20 @@ class RepoHygieneBot:
 
             dest = target_archive / p.name
             action_desc = (
-                f"[DRY-RUN] Would move {p.name} -> {archive_dir}/"
-                if dry_run
-                else f"Moved {p.name} -> {archive_dir}/"
+                f"[DRY-RUN] Would move {p.name} -> {archive_dir}/" if dry_run else f"Moved {p.name} -> {archive_dir}/"
             )
             if not dry_run:
                 target_archive.mkdir(parents=True, exist_ok=True)
                 shutil.move(str(p), str(dest))
 
-            actions.append({
-                "file": p.name,
-                "action": action_desc,
-                "destination": str(dest),
-                "moved": not dry_run,
-            })
+            actions.append(
+                {
+                    "file": p.name,
+                    "action": action_desc,
+                    "destination": str(dest),
+                    "moved": not dry_run,
+                }
+            )
 
         return {
             "success": True,
@@ -201,11 +203,13 @@ class ConfigOrganizerBot:
                 name = p.name
                 if p.suffix.lower() in CONFIG_EXTENSIONS:
                     if name not in ROOT_ESSENTIAL_CONFIGS and name not in ALLOWED_ROOT_FILES:
-                        misplaced.append({
-                            "name": name,
-                            "path": str(p),
-                            "recommended_dest": ".cfg/" + name,
-                        })
+                        misplaced.append(
+                            {
+                                "name": name,
+                                "path": str(p),
+                                "recommended_dest": ".cfg/" + name,
+                            }
+                        )
 
         return {
             "success": True,
@@ -233,13 +237,15 @@ class ConfigOrganizerBot:
                 dest_dir.mkdir(parents=True, exist_ok=True)
                 shutil.move(str(src), str(dest))
 
-            relocations.append({
-                "file": src.name,
-                "source": str(src),
-                "destination": str(dest),
-                "action": action_desc,
-                "moved": not dry_run,
-            })
+            relocations.append(
+                {
+                    "file": src.name,
+                    "source": str(src),
+                    "destination": str(dest),
+                    "action": action_desc,
+                    "moved": not dry_run,
+                }
+            )
 
         return {
             "success": True,
@@ -279,14 +285,16 @@ class KnowledgeOrganizerBot:
                         line_count = len(item.read_text(encoding="utf-8", errors="ignore").splitlines())
                         scanned_files += 1
                         if line_count > MAX_MONOLITHIC_LINES:
-                            findings.append({
-                                "file": str(item.relative_to(self.cwd)),
-                                "lines": line_count,
-                                "issue": "monolithic_file",
-                                "recommendation": (
-                                    f"Partition into modular files inside a dedicated subdirectory ({item.stem}/)"
-                                ),
-                            })
+                            findings.append(
+                                {
+                                    "file": str(item.relative_to(self.cwd)),
+                                    "lines": line_count,
+                                    "issue": "monolithic_file",
+                                    "recommendation": (
+                                        f"Partition into modular files inside a dedicated subdirectory ({item.stem}/)"
+                                    ),
+                                }
+                            )
 
             # Check all md files recursively for monolithic files
             for md in base.rglob("*.md"):
@@ -297,12 +305,14 @@ class KnowledgeOrganizerBot:
                         rel = str(md.relative_to(self.cwd))
                         # Avoid duplicates
                         if not any(f["file"] == rel for f in findings):
-                            findings.append({
-                                "file": rel,
-                                "lines": lines,
-                                "issue": "oversized_monolithic_knowledge",
-                                "recommendation": "Split content across topic-based subfolder documents",
-                            })
+                            findings.append(
+                                {
+                                    "file": rel,
+                                    "lines": lines,
+                                    "issue": "oversized_monolithic_knowledge",
+                                    "recommendation": "Split content across topic-based subfolder documents",
+                                }
+                            )
                 except Exception:
                     pass
 

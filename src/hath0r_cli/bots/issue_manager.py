@@ -63,11 +63,7 @@ def resolve_baylyai_repos(repo: Optional[str] = None) -> List[str]:
     if code == 0 and out.strip():
         try:
             data = json.loads(out)
-            repos = [
-                item["nameWithOwner"]
-                for item in data
-                if isinstance(item, dict) and not item.get("isArchived")
-            ]
+            repos = [item["nameWithOwner"] for item in data if isinstance(item, dict) and not item.get("isArchived")]
             if repos:
                 return sorted(repos)
         except Exception:
@@ -104,11 +100,17 @@ class IssueManagerBot:
 
         for r in target_repos:
             cmd = [
-                "gh", "issue", "list",
-                "--repo", r,
-                "--state", state,
-                "--json", "number,title,state,body,labels,createdAt,updatedAt,url",
-                "--limit", "100",
+                "gh",
+                "issue",
+                "list",
+                "--repo",
+                r,
+                "--state",
+                state,
+                "--json",
+                "number,title,state,body,labels,createdAt,updatedAt,url",
+                "--limit",
+                "100",
             ]
             code, out, _ = run_cmd(cmd, cwd=self.cwd)
             if code == 0 and out.strip():
@@ -226,9 +228,12 @@ class IssueManagerBot:
             issue["priority_rank"] = rank
             issue["priority_tier"] = tier
             issue["priority_label"] = (
-                "P1-Blocker/Core" if tier == 1
-                else "P2-Foundation/Epic" if tier == 2
-                else "P3-Ready" if tier == 3
+                "P1-Blocker/Core"
+                if tier == 1
+                else "P2-Foundation/Epic"
+                if tier == 2
+                else "P3-Ready"
+                if tier == 3
                 else "P4-Blocked-By-Dependencies"
             )
 
