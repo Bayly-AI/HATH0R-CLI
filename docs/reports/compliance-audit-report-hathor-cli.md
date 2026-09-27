@@ -18,7 +18,7 @@ This compliance audit certifies that `Bayly-AI/HATH0R-CLI` fulfills all organiza
 | Category | Requirement | Evaluation | Status |
 |:---|:---|:---|:---:|
 | **Control Tower Role** | Control tower registration & discovery | Acts as root control tower (`hath0r` CLI) | **PASS** |
-| **Hidden Root** | Hidden root restricted exclusively to `.hath0r/` | `.hath0r/` verified; no `.ai/`, `.aegis/`, or `.infraOS/` | **PASS** |
+| **Hidden Root** | Hidden root restricted exclusively to `.hath0r/` | `.hath0r/` verified; no `.ai/`, `.customerSystem/`, or `.infraOS/` | **PASS** |
 | **Identity Contract** | Canonical `AGENTS.md` identity declaration | Declares group `hath0r-opensource`, roles, and tower links | **PASS** |
 | **Schema Contracts** | Versioned contracts pinned in `contracts/` | `hath0r-cli-response-v1.schema.json`, `doctor`, `version` | **PASS** |
 | **Configuration** | Tower and product configuration in `cfg/` | `control-tower.yaml`, `suite.yaml`, `products.yaml` | **PASS** |

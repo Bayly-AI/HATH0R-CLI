@@ -51,7 +51,7 @@ Group policy: `/Users/raybayly/Development/OpenSource/WARP.md`
 
 Use **only** `.hath0r/` for framework-created / modified / saved project metadata (including this repo’s KB stub).
 
-Do **not** use `.ai/`, `.aegis/`, or `.infraOS/`.
+Do **not** use `.ai/`, `.customerSystem/`, or `.infraOS/`.
 
 ## Knowledgebase (CRITICAL — cr-kb-tower-001)
 

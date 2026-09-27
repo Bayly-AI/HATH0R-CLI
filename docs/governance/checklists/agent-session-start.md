@@ -30,7 +30,7 @@
 
 6. **Hidden Root Compliance (`cr-hath0r-root-001`)**:
    - Store all project metadata, KB pointers, and local caches under `.hath0r/` only.
-   - Never create `.ai/`, `.aegis/`, or `.infraOS/`.
+   - Never create `.ai/`, `.customerSystem/`, or `.infraOS/`.
 
 7. **End-of-Task Lifecycle (`#64`)**:
    - When implementation and local tests/lint pass, execute the canonical end-of-task automation:

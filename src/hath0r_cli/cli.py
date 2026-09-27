@@ -405,7 +405,7 @@ def kb_products(ctx: click.Context) -> None:
 # --- ADR-003 surface discovery (F5) -----------------------------------------
 # Full domain implementations land behind contracts over time. These commands
 # expose the canonical surface with honest shipped|planned status so agents
-# never invent verbs and never call legacy `aegis`.
+# never invent verbs and never call legacy `customerSystem`.
 
 _ADR003_PLANES = [
     {
@@ -579,7 +579,7 @@ def planes(ctx: click.Context) -> None:
         "cli_version": __version__,
         "authority": "HATHOR-ADR-003",
         "hidden_root": ".hath0r/",
-        "legacy_forbidden": [".aegis/", ".ai/", ".infraOS/", "aegis binary"],
+        "legacy_forbidden": [".customerSystem/", ".ai/", ".infraOS/", "customerSystem binary"],
         "planes": list(_ADR003_PLANES),
         "counts": {
             "total": len(_ADR003_PLANES),
@@ -603,7 +603,7 @@ def planes(ctx: click.Context) -> None:
             notes = str(plane.get("notes") or "")
             table.add_row(plane_id, f"[{color}]{status}[/{color}]", notes)
         console.print(table)
-        console.print("Operator binary: hath0r — never aegis. Hidden root: .hath0r/ only.")
+        console.print("Operator binary: hath0r — never customerSystem. Hidden root: .hath0r/ only.")
 
     _emit_response(ctx, response, text_renderer=_text)
 
@@ -644,8 +644,8 @@ def schema(ctx: click.Context, status_filter: str) -> None:
         "commands": commands,
         "planes": plane_rows,
         "forbidden_legacy": {
-            "binaries": ["aegis"],
-            "hidden_roots": [".aegis/", ".ai/", ".infraOS/"],
+            "binaries": ["customerSystem"],
+            "hidden_roots": [".customerSystem/", ".ai/", ".infraOS/"],
             "canonical_hidden_root": ".hath0r/",
         },
         "notes": [

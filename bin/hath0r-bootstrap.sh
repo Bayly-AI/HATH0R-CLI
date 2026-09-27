@@ -40,7 +40,7 @@ fi
 echo "==> layout ok"
 
 # Forbidden legacy roots
-for bad in .ai .aegis .infraOS; do
+for bad in .ai .customerSystem .infraOS; do
   if [[ -e "$ROOT/$bad" ]]; then
     echo "FAIL: forbidden hidden root $bad present (cr-hath0r-root-001)"
     exit 1

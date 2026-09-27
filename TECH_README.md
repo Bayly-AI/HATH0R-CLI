@@ -62,7 +62,7 @@ make wheel
 
 Shipped surface is discoverable via `planes`/`schema`. Full process/work/validate/knowledge-write domains remain **planned** until implemented behind contracts.
 
-> **Note**: Never call `aegis` or create `.aegis/`.
+> **Note**: Never call `customerSystem` or create `.customerSystem/`.
 
 ---
 

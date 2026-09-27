@@ -27,7 +27,7 @@ In local demos and controlled proof-of-concepts, this works like magic. But the 
 
 To build production-grade agentic architectures that survive enterprise workloads, we must advance **Beyond Naive RAG**. 
 
-This article deconstructs the battle-tested blueprint developed across our multi-suite systems (**Hath0r OpenSource**, **BaylyAI Enterprise / Aegis**, and **1-Nation**):
+This article deconstructs the battle-tested blueprint developed across our multi-suite systems (**Hath0r OpenSource**, **BaylyAI Enterprise / customerSystem**, and **1-Nation**):
 1. **Hybrid kNN/BM25 Retrieval & Reciprocal Fusion**
 2. **Standardized Protocol Orchestration via the Model Context Protocol (MCP)**
 3. **Resilient AWS Bedrock Foundation Model & Embedding Workflows**
@@ -50,7 +50,7 @@ flowchart TD
 
     subgraph Orchestration["MCP Server Gateway & Mesh"]
         Hath0rMCP["Hath0r MCP (:38083)<br/>Streamable HTTP (FastMCP)"]
-        BaylyMCP["BaylyAI / Aegis MCP (:48080)<br/>HTTP-JSONRPC / Storage Factory"]
+        BaylyMCP["BaylyAI / customerSystem MCP (:48080)<br/>HTTP-JSONRPC / Storage Factory"]
         NationMCP["1-Nation MCP (:58083)<br/>Streamable HTTP (FastMCP)"]
         JEV["JEV Tool Guard & Policy Evaluator"]
     end
@@ -177,7 +177,7 @@ In modern enterprise architectures, agent pipelines must interact with multiple 
 
 In our production ecosystem, three canonical MCP nodes operate concurrently:
 1. **`hath0r-mcp` (Port 38083)**: FastMCP-based streamable HTTP server providing operator CLI controls, governance stubs, audio dispatchers, and system diagnostics.
-2. **`bai-mcp` (Port 48080)**: Aegis Enterprise knowledge base and runbook engine supporting OpenSearch storage, chunking pipelines, and compliance auditing.
+2. **`bai-mcp` (Port 48080)**: customerSystem Enterprise knowledge base and runbook engine supporting OpenSearch storage, chunking pipelines, and compliance auditing.
 3. **`1-nation-mcp` (Port 58083)**: Streamable reference service for dedicated multi-agent team coordination.
 
 ### MCP Gateway Configuration (`cfg/mcp-connections.yaml`)
