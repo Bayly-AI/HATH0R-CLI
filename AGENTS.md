@@ -175,3 +175,7 @@ Canonical flow, human gates, and PR templates:
 ## Lexicon & Nomenclature (CRITICAL)
 - Refer to background processes, watchers, and autonomous loops as **bots** or **factories**, not "daemons".
 - This is a canonical project-wide rule to unify language across all HATH0R OpenSource repositories.
+
+## Agent Orientation Memory Space (CRITICAL)
+- **Local Memory Space**: Agents MUST read the Local Memory Space first when orienting to the app. 
+- Execute `hath0r memory read core` and `hath0r memory read architecture` via the CLI before making any code modifications or forming plans.

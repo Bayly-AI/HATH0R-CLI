@@ -21,6 +21,7 @@ from hath0r_cli.bots import (
     IssueGuardBot,
     IssueManagerBot,
     KnowledgeOrganizerBot,
+    MemoryManagerBot,
     PRBot,
     ProactiveSpeakerBot,
     RepoHygieneBot,
@@ -128,6 +129,7 @@ class BotRegistry:
             "voice-synthesizer-bot": VoiceSynthesizerBot(cwd=self.cwd),
             "proactive-speaker-bot": ProactiveSpeakerBot(cwd=self.cwd),
             "voice-service-bot": VoiceServiceBot(cwd=self.cwd),
+            "memory-manager-bot": MemoryManagerBot(cwd=self.cwd),
             "voice-speaker-bot": VoiceSpeakerBot(cwd=self.cwd),
             "spoken-notification-service-bot": SpokenNotificationServiceBot(cwd=self.cwd),
             "voice-speaker-mode-bot": VoiceSpeakerModeBot(cwd=self.cwd),
@@ -211,6 +213,8 @@ class BotRegistry:
                 return self._dispatch_voice_synthesizer(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "proactive-speaker-bot":
                 return self._dispatch_proactive_speaker(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "memory-manager-bot":
+                return self._dispatch_memory_manager_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "voice-service-bot":
                 return self._dispatch_voice_service_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "voice-speaker-bot":
@@ -1685,6 +1689,54 @@ class BotRegistry:
         )
 
 
+    def _dispatch_memory_manager_bot(
+        self,
+        bot: MemoryManagerBot,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool = False,
+        context: dict[str, Any] | None = None,
+    ) -> StepExecutionResult:
+        if action == "init":
+            res = bot.initialize_memory(dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action == "read":
+            res = bot.read_memory(topic=args.get("topic", "core"))
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action == "update":
+            res = bot.update_memory(topic=str(args.get("topic")), content=args.get("content", ""), dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        else:
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action '{action}' for memory-manager-bot.",
+                dry_run=dry_run,
+            )
+
 def execute_workflow(
     workflow_def: dict[str, Any],
     registry: BotRegistry,
@@ -1838,3 +1890,4 @@ def spool_telemetry_event(
     except Exception:
         # Telemetry is strictly never-fatal per AEG-REQ-TEL-002
         return None
+
