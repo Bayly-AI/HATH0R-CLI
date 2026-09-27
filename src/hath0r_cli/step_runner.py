@@ -29,6 +29,7 @@ from hath0r_cli.bots import (
     TaskAnnouncerBot,
     VoiceProfileBot,
     VoiceServiceBot,
+    MemoryManagerBot,
     VoiceSpeakerBot,
     VoiceSpeakerModeBot,
     VoiceSynthesizerBot,
@@ -1314,6 +1315,7 @@ class BotRegistry:
     def _dispatch_voice_service_bot(
         self,
         bot: VoiceServiceBot,
+    MemoryManagerBot,
         action: str,
         args: dict[str, Any],
         *,
