@@ -87,6 +87,6 @@ def test_cli_task_finish_daemon_dry_run() -> None:
     assert res.exit_code == 0
     data = json.loads(res.stdout)
     assert data["state"] == "ok"
-    assert "daemon" in data["data"]
-    assert data["data"]["daemon"]["success"] is True
-    assert data["data"]["daemon"]["pr_number"] == 77
+    assert "bot" in data["data"]
+    assert data["data"]["bot"]["success"] is True
+    assert data["data"]["bot"]["pr_number"] == 77

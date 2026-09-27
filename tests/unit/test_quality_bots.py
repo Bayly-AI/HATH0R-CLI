@@ -239,7 +239,7 @@ def test_end_of_task_daemon_bot_test_suite_failure(tmp_path: Path, monkeypatch) 
 
     monkeypatch.setattr(daemon_bot.test_bot, "run_pre_deploy", fake_run_pre_deploy)
 
-    res = daemon_bot.run_daemon(branch="feature/145-test", semver="patch", dry_run=False)
+    res = daemon_bot.run_bot(branch="feature/145-test", semver="patch", dry_run=False)
     assert res["success"] is False
     assert res["phase"] == "test_suite"
     assert "Local test suite failed" in res["error"]
