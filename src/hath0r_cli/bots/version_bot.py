@@ -4,6 +4,7 @@ from typing import Any
 
 import yaml
 
+
 class VersionBot:
     """Ensures semantic versioning and injects UI version footers across repositories."""
 
@@ -24,7 +25,7 @@ class VersionBot:
                     version = str(data["version"])
             except Exception:
                 pass
-        
+
         # Verify valid semver
         if not re.match(r"^\d+\.\d+\.\d+(-.*)?$", version):
             return {
@@ -40,18 +41,23 @@ class VersionBot:
         injected_files = []
         footer_block = (
             "<!-- HATH0R-VERSION-FOOTER -->\n"
-            f"<div style=\"position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 8px; color: lightgrey; font-family: 'Avenir Next', 'Avenir Next Roman', sans-serif; z-index: 9999;\">"
+            f"<div style=\"position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; "
+            f"font-size: 8px; color: lightgrey; font-family: 'Avenir Next', 'Avenir Next Roman', "
+            f"sans-serif; z-index: 9999;\">"
             f"v{version}</div>\n"
             "<!-- /HATH0R-VERSION-FOOTER -->"
         )
 
         html_files = list(self.cwd.rglob("*.html"))
         # Exclude hidden directories like .hath0r, .git, node_modules
-        html_files = [f for f in html_files if not any(p.startswith(".") or p == "node_modules" for p in f.relative_to(self.cwd).parts)]
+        html_files = [
+            f for f in html_files
+            if not any(p.startswith(".") or p == "node_modules" for p in f.relative_to(self.cwd).parts)
+        ]
 
         for html_file in html_files:
             content = html_file.read_text(encoding="utf-8")
-            
+
             # If already has footer, replace it
             pattern = re.compile(r"<!-- HATH0R-VERSION-FOOTER -->.*?<!-- /HATH0R-VERSION-FOOTER -->", re.DOTALL)
             if pattern.search(content):
@@ -62,7 +68,7 @@ class VersionBot:
                     new_content = content.replace("</body>", f"{footer_block}\n</body>")
                 else:
                     new_content = content + f"\n{footer_block}"
-                    
+
             if new_content != content:
                 if not dry_run:
                     html_file.write_text(new_content, encoding="utf-8")
