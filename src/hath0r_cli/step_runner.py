@@ -217,11 +217,8 @@ class BotRegistry:
                 return self._dispatch_proactive_speaker(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "memory-manager-bot":
                 return self._dispatch_memory_manager_bot(bot, action, args, dry_run=dry_run, context=ctx)
-            elif bot_id == "version-bot":
                 return self._dispatch_version_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "voice-service-bot":
-                return self._dispatch_voice_service_bot(bot, action, args, dry_run=dry_run, context=ctx)
-            elif bot_id == "voice-speaker-bot":
                 return self._dispatch_voice_speaker(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "spoken-notification-service-bot":
                 return self._dispatch_spoken_notification_service(bot, action, args, dry_run=dry_run, context=ctx)
