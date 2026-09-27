@@ -1,4 +1,4 @@
-"""Autonomous End-of-Task Daemon Bot.
+"""Autonomous End-of-Task Bot Bot.
 
 Automates the continuous observation, quality-gate evaluation, merge execution,
 branch reaping, development synchronization, and knowledge sharing lifecycle.
@@ -16,14 +16,14 @@ from hath0r_cli.bots import DocumentationBot, GitJanitorBot, PRBot, TaskAnnounce
 
 
 @dataclass
-class DaemonCycleResult:
+class BotCycleResult:
     phase: str
     success: bool
     data: Dict[str, Any] = field(default_factory=dict)
     error: Optional[str] = None
 
 
-class EndOfTaskDaemonBot:
+class EndOfTaskBot:
     """Orchestrates autonomous end-of-task lifecycle from PR monitoring to merge and reaping."""
 
     def __init__(
@@ -46,7 +46,7 @@ class EndOfTaskDaemonBot:
 
         self.test_bot = DeployTestBot(cwd=self.cwd)
 
-    def run_daemon(
+    def run_bot(
         self,
         pr_number: Optional[int] = None,
         branch: Optional[str] = None,
@@ -153,7 +153,7 @@ class EndOfTaskDaemonBot:
                 {
                     "phase": "share_knowledge",
                     "result": self.doc_bot.share_knowledge(
-                        summary=f"Automated daemon completion for PR #{current_pr or 1}",
+                        summary=f"Automated bot completion for PR #{current_pr or 1}",
                         pr_number=current_pr or 1,
                         repo=repo,
                         dry_run=True,
@@ -294,7 +294,7 @@ class EndOfTaskDaemonBot:
 
         # Step 6: Post-merge knowledge share
         kb_res = self.doc_bot.share_knowledge(
-            summary=f"Autonomous daemon completed PR #{current_pr} ({target_branch or 'feature'})",
+            summary=f"Autonomous bot completed PR #{current_pr} ({target_branch or 'feature'})",
             pr_number=current_pr,
             repo=repo,
             dry_run=False,
@@ -304,7 +304,7 @@ class EndOfTaskDaemonBot:
         # Step 7: Announce completion
         ann_res = self.announcer_bot.announce_complete(
             task_id=f"pr-{current_pr}",
-            summary=f"PR #{current_pr} merged and branch {target_branch} pruned by EndOfTaskDaemonBot.",
+            summary=f"PR #{current_pr} merged and branch {target_branch} pruned by EndOfTaskBot.",
             dry_run=False,
         )
         history.append({"phase": "announce", "result": ann_res})

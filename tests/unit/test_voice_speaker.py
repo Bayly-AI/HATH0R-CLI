@@ -92,7 +92,7 @@ def test_spoken_notification_service_daemon_status_and_stop(tmp_path: Path):
     st = bot.status()
     assert st["running"] is False
 
-    stop_res = bot.stop_daemon()
+    stop_res = bot.stop_bot()
     assert stop_res["success"] is True
     assert stop_res["status"] == "not_running"
 
