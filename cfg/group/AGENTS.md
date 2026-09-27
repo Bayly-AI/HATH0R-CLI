@@ -59,7 +59,7 @@ Member repos keep their own `AGENTS.md` but **defer** to this file and to the co
 ## Hidden root (CRITICAL — cr-hath0r-root-001)
 
 - **Use only** `.hath0r/` for framework-created / modified / saved project metadata.
-- **Do not** create or write `.ai/`, `.aegis/`, or `.infraOS/`.
+- **Do not** create or write `.ai/`, `.customerSystem/`, or `.infraOS/`.
 
 ## Open issues tracking (group-wide)
 

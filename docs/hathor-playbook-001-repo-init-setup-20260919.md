@@ -76,7 +76,7 @@ Reference same-tech peers before inventing process (e.g. Bayly Consulting UXP â†
   dist/                    # build output (gitkeep if empty)
 ```
 
-Hidden root rule (**cr-hath0r-root-001**): use **only** `.hath0r/`. Never create `.ai/`, `.aegis/`, or `.infraOS/` for framework metadata.
+Hidden root rule (**cr-hath0r-root-001**): use **only** `.hath0r/`. Never create `.ai/`, `.customerSystem/`, or `.infraOS/` for framework metadata.
 
 ## Procedure
 

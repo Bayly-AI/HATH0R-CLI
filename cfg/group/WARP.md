@@ -45,7 +45,7 @@ Members point `control_tower_path` at the tower repo, not at the bare group fold
 
 ## Hidden root
 
-Only `.hath0r/`. Forbidden: `.ai/`, `.aegis/`, `.infraOS/`.
+Only `.hath0r/`. Forbidden: `.ai/`, `.customerSystem/`, `.infraOS/`.
 
 ## CLI-first & missing capability offer (cr-cli-first-001)
 

@@ -1,7 +1,7 @@
 """Factory Manager — CRUD + path resolution for declarative factory manifests.
 
 Factories live under ``cfg/factories/`` (preferred) or ``.hath0r/factories/``.
-Never under ``.ai/`` / ``.aegis/`` / ``.infraOS/``.
+Never under ``.ai/`` / ``.customerSystem/`` / ``.infraOS/``.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ import yaml
 from hath0r_cli.factory_validation import validate_factory_file
 
 _FACTORY_ID_RE = re.compile(r"^[a-z0-9-]+$")
-_FORBIDDEN_ROOTS = (".ai", ".aegis", ".infraOS")
+_FORBIDDEN_ROOTS = (".ai", ".customerSystem", ".infraOS")
 
 
 def _safe_load(path: Path) -> dict[str, Any] | None:
