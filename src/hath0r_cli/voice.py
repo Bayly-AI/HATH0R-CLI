@@ -350,6 +350,18 @@ def evaluate_and_dispatch_voice(
 
     if speak and action_dict:
         _speak_feedback_standalone(action_dict.get("payload", {}).get("feedback_text", ""))
+    # Attempt to import framework VoiceEngine, or use built-in fast router
+    voice_action: Optional[Any] = None
+    try:
+        from lib.voice import VoiceConfig, VoiceEngine
+
+        config = VoiceConfig.from_env()
+        engine = VoiceEngine(config=config)
+        voice_action = engine.process_utterance(transcript, speak_feedback=False)
+        action_dict = voice_action.to_dict()
+    except Exception:
+        # Resilient standalone fallback router
+        action_dict = _standalone_fast_route(transcript)
 
     intent = action_dict.get("intent", "unresolved")
     payload = action_dict.get("payload", {})
@@ -445,6 +457,7 @@ def get_active_wake_words(cwd: Optional[Path] = None) -> List[str]:
 
 
 def _standalone_fast_route(transcript: str, cwd: Optional[Path] = None) -> Dict[str, Any]:
+def _standalone_fast_route(transcript: str) -> Dict[str, Any]:
     """Lightweight built-in fast path for standalone CLI execution."""
     t = transcript.strip().lower()
     action_id = str(uuid.uuid4())
@@ -512,6 +525,10 @@ def _standalone_fast_route(transcript: str, cwd: Optional[Path] = None) -> Dict[
                 "metadata": {"router": "cli_fastpath", "addressed_wake": matched_wake},
             }
 
+    if t.startswith("hathor ") or t.startswith("hath0r ") or t in ("hathor", "hath0r"):
+        parts = t.split()
+        subcmd = parts[1] if len(parts) > 1 else "doctor"
+        args = parts[2:]
         return {
             "schema": "hath0r.voice.action/1",
             "action_id": action_id,
@@ -526,6 +543,9 @@ def _standalone_fast_route(transcript: str, cwd: Optional[Path] = None) -> Dict[
                 "addressed_to": matched_wake.capitalize(),
             },
             "metadata": {"router": "cli_fastpath", "addressed_wake": matched_wake},
+                "feedback_text": f"Running Hathor {subcmd}",
+            },
+            "metadata": {"router": "cli_fastpath"},
         }
 
     open_match = re.match(r"^(?:open|launch|start)\s+([a-zA-Z0-9\s\.\-_]+)$", transcript.strip(), re.IGNORECASE)
