@@ -1819,31 +1819,31 @@ def task_start(
     help="SemVer impact.",
 )
 @click.option(
-    "--daemon",
+    "--bot",
     "--watch",
-    "daemon_mode",
+    "bot_mode",
     is_flag=True,
     default=False,
-    help="Autonomous daemon mode: continuously watch PR checks, merge, and reap branches.",
+    help="Autonomous bot mode: continuously watch PR checks, merge, and reap branches.",
 )
 @click.option(
     "--poll-interval",
     default=10.0,
     type=float,
-    help="Polling interval in seconds for daemon checks.",
+    help="Polling interval in seconds for bot checks.",
 )
 @click.option(
     "--timeout",
     default=600.0,
     type=float,
-    help="Timeout in seconds for daemon checks completion.",
+    help="Timeout in seconds for bot checks completion.",
 )
 @click.option(
     "--pr",
     "pr_number",
     type=int,
     default=None,
-    help="Target PR number for finish or daemon watch.",
+    help="Target PR number for finish or bot watch.",
 )
 @click.option(
     "--skip-tests",
@@ -1857,7 +1857,7 @@ def task_finish(
     repo: str | None,
     dry_run: bool,
     semver: str,
-    daemon_mode: bool,
+    bot_mode: bool,
     poll_interval: float,
     timeout: float,
     pr_number: int | None,
@@ -1874,36 +1874,36 @@ def task_finish(
     registry = BotRegistry(cwd=Path.cwd())
     run_id = f"run_{uuid.uuid4().hex[:12]}"
 
-    if daemon_mode:
-        from hath0r_cli.bots import EndOfTaskDaemonBot
+    if bot_mode:
+        from hath0r_cli.bots import EndOfTaskBot
 
-        daemon_bot = EndOfTaskDaemonBot(cwd=Path.cwd(), poll_interval=poll_interval, timeout=timeout)
-        daemon_res = daemon_bot.run_daemon(
+        bot_worker = EndOfTaskBot(cwd=Path.cwd(), poll_interval=poll_interval, timeout=timeout)
+        bot_res = bot_worker.run_bot(
             pr_number=pr_number,
             repo=repo,
             semver=semver,
             dry_run=dry_run,
             skip_tests=skip_tests,
         )
-        all_success = bool(daemon_res.get("success"))
+        all_success = bool(bot_res.get("success"))
         state = "ok" if all_success else "error"
         diagnostics = []
         if not all_success:
             diagnostics.append(
                 Diagnostic(
-                    code="DAEMON_EXECUTION_FAILED",
-                    message=f"[end-of-task::daemon] {daemon_res.get('error') or 'Daemon cycle failed'}",
+                    code="BOT_EXECUTION_FAILED",
+                    message=f"[end-of-task::bot] {bot_res.get('error') or 'Bot cycle failed'}",
                     severity="error",
                     provenance={"component": "hath0r-cli", "operation": "task.finish"},
                 )
             )
         spool_telemetry_event(
-            event_type="task.finish.daemon",
+            event_type="task.finish.bot",
             payload={
                 "run_id": run_id,
                 "state": state,
                 "dry_run": dry_run,
-                "daemon": daemon_res,
+                "bot": bot_res,
             },
             base_dir=_discover_group_root(),
         )
@@ -1914,21 +1914,21 @@ def task_finish(
             dry_run=dry_run,
             data={
                 "run_id": run_id,
-                "daemon": daemon_res,
+                "bot": bot_res,
             },
             diagnostics=diagnostics,
         )
 
-        def _daemon_text() -> None:
+        def _bot_text() -> None:
             prefix = "[DRY-RUN] " if dry_run else ""
             status_str = "SUCCESS" if all_success else "FAILED"
-            click.echo(f"{prefix}Completed Autonomous End of Task Daemon ({status_str}):")
-            for h in daemon_res.get("history", []):
+            click.echo(f"{prefix}Completed Autonomous End of Task Bot ({status_str}):")
+            for h in bot_res.get("history", []):
                 p = h.get("phase")
                 detail = h.get("status") or h.get("result") or h.get("error") or h.get("pr_number")
                 click.echo(f"  • [{p}]: {detail}")
 
-        _emit_response(ctx, response, text_renderer=_daemon_text)
+        _emit_response(ctx, response, text_renderer=_bot_text)
         if not all_success:
             ctx.exit(1)
         return
@@ -3395,7 +3395,7 @@ def voice_announce(ctx: click.Context, message: str, queue_only: bool, priority:
 
 @voice.group("speaker")
 def voice_speaker() -> None:
-    """Manage background spoken notification daemon worker."""
+    """Manage background spoken notification bot worker."""
 
 
 @voice_speaker.command("start")
@@ -3404,7 +3404,7 @@ def voice_speaker() -> None:
     "background",
     default=True,
     show_default=True,
-    help="Run as a background daemon process or foreground loop.",
+    help="Run as a background bot process or foreground loop.",
 )
 @click.pass_context
 def voice_speaker_start(ctx: click.Context, background: bool) -> None:
@@ -3412,7 +3412,7 @@ def voice_speaker_start(ctx: click.Context, background: bool) -> None:
     from hath0r_cli.bots.voice_speaker import SpokenNotificationServiceBot
 
     svc = SpokenNotificationServiceBot()
-    res = svc.start_daemon(background=background)
+    res = svc.start_bot(background=background)
 
     response = _build_response(
         ctx,
@@ -3423,11 +3423,11 @@ def voice_speaker_start(ctx: click.Context, background: bool) -> None:
 
     def _text() -> None:
         if res.get("status") == "already_running":
-            console.print(f"[yellow]● Speaker Daemon is already running[/yellow] (PID: [bold]{res.get('pid')}[/bold])")
+            console.print(f"[yellow]● Speaker Bot is already running[/yellow] (PID: [bold]{res.get('pid')}[/bold])")
         elif res.get("status") == "started":
-            console.print(f"[bold green]✓ Speaker Daemon Started[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
+            console.print(f"[bold green]✓ Speaker Bot Started[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
         else:
-            console.print(res.get("message", "Speaker daemon status updated."))
+            console.print(res.get("message", "Speaker bot status updated."))
 
     _emit_response(ctx, response, text_renderer=_text)
 
@@ -3439,7 +3439,7 @@ def voice_speaker_stop(ctx: click.Context) -> None:
     from hath0r_cli.bots.voice_speaker import SpokenNotificationServiceBot
 
     svc = SpokenNotificationServiceBot()
-    res = svc.stop_daemon()
+    res = svc.stop_bot()
 
     response = _build_response(
         ctx,
@@ -3450,9 +3450,9 @@ def voice_speaker_stop(ctx: click.Context) -> None:
 
     def _text() -> None:
         if res.get("status") == "stopped":
-            console.print(f"[bold green]✓ Speaker Daemon Stopped[/bold green] (PID: [dim]{res.get('pid')}[/dim])")
+            console.print(f"[bold green]✓ Speaker Bot Stopped[/bold green] (PID: [dim]{res.get('pid')}[/dim])")
         else:
-            console.print("[dim]Speaker daemon is not currently running.[/dim]")
+            console.print("[dim]Speaker bot is not currently running.[/dim]")
 
     _emit_response(ctx, response, text_renderer=_text)
 
@@ -3475,10 +3475,10 @@ def voice_speaker_status(ctx: click.Context) -> None:
 
     def _text() -> None:
         if res.get("running"):
-            console.print(f"[bold green]● Speaker Daemon is RUNNING[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
+            console.print(f"[bold green]● Speaker Bot is RUNNING[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
             console.print(f"  • Pending Queue Messages: [cyan]{res.get('pending_count')}[/cyan]")
         else:
-            console.print("[dim]○ Speaker Daemon is STOPPED[/dim]")
+            console.print("[dim]○ Speaker Bot is STOPPED[/dim]")
             console.print(f"  • Pending Queue Messages: [cyan]{res.get('pending_count')}[/cyan]")
 
     _emit_response(ctx, response, text_renderer=_text)
@@ -3897,7 +3897,7 @@ def speak_status(ctx: click.Context) -> None:
 
 @voice.group("service")
 def voice_service() -> None:
-    """Manage background voice listening and conversational service daemon."""
+    """Manage background voice listening and conversational service bot."""
 
 
 @voice_service.command("start")
@@ -3906,7 +3906,7 @@ def voice_service() -> None:
     "background",
     default=True,
     show_default=True,
-    help="Run as a background daemon process or foreground loop.",
+    help="Run as a background bot process or foreground loop.",
 )
 @click.option(
     "--ambient/--push-to-talk",
@@ -3930,10 +3930,10 @@ def voice_service_start(
     ambient: bool,
     trust_tier: str,
 ) -> None:
-    """Start the background voice listener daemon service."""
-    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+    """Start the background voice listener bot service."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceBot
 
-    bot = VoiceServiceDaemonBot()
+    bot = VoiceServiceBot()
     res = bot.start_service(background=background, ambient=ambient, trust_tier=trust_tier)
 
     response = _build_response(
@@ -3946,13 +3946,11 @@ def voice_service_start(
     def _text() -> None:
         if res.get("status") == "already_running":
             console.print(
-                f"[yellow]● Voice Daemon Service is already running[/yellow] (PID: [bold]{res.get('pid')}[/bold])"
+                f"[yellow]● Voice Bot Service is already running[/yellow] (PID: [bold]{res.get('pid')}[/bold])"
             )
         elif res.get("status") == "started":
             mode_str = "Ambient Continuous" if ambient else "Push-to-Talk"
-            console.print(
-                f"[bold green]✓ Voice Daemon Service Started[/bold green] (PID: [bold]{res.get('pid')}[/bold])"
-            )
+            console.print(f"[bold green]✓ Voice Bot Service Started[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
             console.print(f"  • Mode: [cyan]{mode_str}[/cyan]")
             console.print(f"  • Trust Tier: [magenta]{trust_tier}[/magenta]")
             console.print(f"  • Log File: [dim]{res.get('log_file')}[/dim]")
@@ -3965,10 +3963,10 @@ def voice_service_start(
 @voice_service.command("stop")
 @click.pass_context
 def voice_service_stop(ctx: click.Context) -> None:
-    """Stop the active background voice listener daemon service."""
-    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+    """Stop the active background voice listener bot service."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceBot
 
-    bot = VoiceServiceDaemonBot()
+    bot = VoiceServiceBot()
     res = bot.stop_service()
 
     response = _build_response(
@@ -3980,9 +3978,9 @@ def voice_service_stop(ctx: click.Context) -> None:
 
     def _text() -> None:
         if res.get("status") == "stopped":
-            console.print(f"[bold green]✓ Voice Daemon Service Stopped[/bold green] (PID: [dim]{res.get('pid')}[/dim])")
+            console.print(f"[bold green]✓ Voice Bot Service Stopped[/bold green] (PID: [dim]{res.get('pid')}[/dim])")
         else:
-            console.print("[dim]Voice daemon service is not currently running.[/dim]")
+            console.print("[dim]Voice bot service is not currently running.[/dim]")
 
     _emit_response(ctx, response, text_renderer=_text)
 
@@ -3990,10 +3988,10 @@ def voice_service_stop(ctx: click.Context) -> None:
 @voice_service.command("status")
 @click.pass_context
 def voice_service_status(ctx: click.Context) -> None:
-    """Check the status of the background voice listener daemon service."""
-    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+    """Check the status of the background voice listener bot service."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceBot
 
-    bot = VoiceServiceDaemonBot()
+    bot = VoiceServiceBot()
     res = bot.status()
 
     response = _build_response(
@@ -4006,12 +4004,12 @@ def voice_service_status(ctx: click.Context) -> None:
     def _text() -> None:
         if res.get("running"):
             console.print(
-                f"[bold green]● Voice Daemon Service is RUNNING[/bold green] (PID: [bold]{res.get('pid')}[/bold])"
+                f"[bold green]● Voice Bot Service is RUNNING[/bold green] (PID: [bold]{res.get('pid')}[/bold])"
             )
             if res.get("log_file"):
                 console.print(f"  • Log File: [dim]{res.get('log_file')}[/dim]")
         else:
-            console.print("[dim]○ Voice Daemon Service is STOPPED[/dim]")
+            console.print("[dim]○ Voice Bot Service is STOPPED[/dim]")
 
     _emit_response(ctx, response, text_renderer=_text)
 
@@ -4038,10 +4036,10 @@ def voice_service_restart(
     ambient: bool,
     trust_tier: str,
 ) -> None:
-    """Restart the background voice listener daemon service."""
-    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+    """Restart the background voice listener bot service."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceBot
 
-    bot = VoiceServiceDaemonBot()
+    bot = VoiceServiceBot()
     bot.stop_service()
     res = bot.start_service(background=True, ambient=ambient, trust_tier=trust_tier)
 
@@ -4054,7 +4052,7 @@ def voice_service_restart(
 
     def _text() -> None:
         mode_str = "Ambient Continuous" if ambient else "Push-to-Talk"
-        console.print(f"[bold green]✓ Voice Daemon Service Restarted[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
+        console.print(f"[bold green]✓ Voice Bot Service Restarted[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
         console.print(f"  • Mode: [cyan]{mode_str}[/cyan]")
         console.print(f"  • Trust Tier: [magenta]{trust_tier}[/magenta]")
 
@@ -4083,10 +4081,10 @@ def voice_service_install(
     ambient: bool,
     trust_tier: str,
 ) -> None:
-    """Install Hath0r voice service as a native OS background daemon (launchd/systemd)."""
-    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+    """Install Hath0r voice service as a native OS background service (launchd/systemd)."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceBot
 
-    bot = VoiceServiceDaemonBot()
+    bot = VoiceServiceBot()
     res = bot.install_os_service(ambient=ambient, trust_tier=trust_tier, speak=True)
 
     response = _build_response(
@@ -4111,10 +4109,10 @@ def voice_service_install(
 @voice_service.command("uninstall")
 @click.pass_context
 def voice_service_uninstall(ctx: click.Context) -> None:
-    """Uninstall and remove Hath0r voice service from native OS background daemon."""
-    from hath0r_cli.bots.voice_converse import VoiceServiceDaemonBot
+    """Uninstall and remove Hath0r voice service from native OS background service."""
+    from hath0r_cli.bots.voice_converse import VoiceServiceBot
 
-    bot = VoiceServiceDaemonBot()
+    bot = VoiceServiceBot()
     res = bot.uninstall_os_service(speak=True)
 
     response = _build_response(

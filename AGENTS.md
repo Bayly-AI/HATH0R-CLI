@@ -171,3 +171,7 @@ Canonical flow, human gates, and PR templates:
 
 ## Hyper Context Pointers
 - **Test Suite Subsystem**: `tests/AGENTS.md`
+
+## Lexicon & Nomenclature (CRITICAL)
+- Refer to background processes, watchers, and autonomous loops as **bots** or **factories**, not "daemons".
+- This is a canonical project-wide rule to unify language across all HATH0R OpenSource repositories.
