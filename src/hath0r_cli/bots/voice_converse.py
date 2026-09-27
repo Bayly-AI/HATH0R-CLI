@@ -475,14 +475,14 @@ class ProactiveSpeakerBot:
         return self.announce(greeting, speak=speak)
 
 
-class VoiceServiceDaemonBot:
+class VoiceServiceBot:
     """Manages background/daemon voice listening and conversational response service."""
 
     def __init__(self, cwd: Optional[Path] = None) -> None:
         self.cwd = Path(cwd) if cwd else Path.cwd()
         self.state_dir = self.cwd / ".hath0r"
-        self.pid_file = self.state_dir / "voice-daemon.pid"
-        self.log_file = self.state_dir / "voice-daemon.log"
+        self.pid_file = self.state_dir / "voice-bot.pid"
+        self.log_file = self.state_dir / "voice-bot.log"
         self.listener = SpeechListenerBot(cwd=self.cwd)
         self.dialogue = AgentDialogueBot(cwd=self.cwd)
         self.synthesizer = VoiceSynthesizerBot(cwd=self.cwd)
@@ -515,7 +515,7 @@ class VoiceServiceDaemonBot:
         trust_tier: str = TrustTier.ELEVATED.value,
         speak: bool = False,
     ) -> Dict[str, Any]:
-        """Install and register Hath0r voice daemon as a native OS service (launchd on macOS / systemd on Linux)."""
+        """Install and register Hath0r voice bot as a native OS service (launchd on macOS / systemd on Linux)."""
         cli_entry = sys.executable
         mode_flag = "--ambient" if ambient else "--push-to-talk"
 
@@ -674,7 +674,7 @@ WantedBy=default.target
                 "success": True,
                 "status": "already_running",
                 "pid": existing_pid,
-                "message": f"Voice daemon service is already running (PID: {existing_pid}).",
+                "message": f"Voice bot service is already running (PID: {existing_pid}).",
             }
 
         self.state_dir.mkdir(parents=True, exist_ok=True)
@@ -704,7 +704,7 @@ WantedBy=default.target
                     start_new_session=True,
                 )
             self.pid_file.write_text(str(proc.pid), encoding="utf-8")
-            self.synthesizer.speak("Voice daemon service started in background.")
+            self.synthesizer.speak("Voice bot service started in background.")
             return {
                 "success": True,
                 "status": "started",
@@ -713,7 +713,7 @@ WantedBy=default.target
                 "ambient": ambient,
                 "trust_tier": trust_tier,
                 "log_file": str(self.log_file),
-                "message": f"Voice daemon service started in background (PID: {proc.pid}).",
+                "message": f"Voice bot service started in background (PID: {proc.pid}).",
             }
 
         return self.run_service_loop(ambient=ambient, trust_tier=trust_tier)
@@ -725,7 +725,7 @@ WantedBy=default.target
             return {
                 "success": True,
                 "status": "not_running",
-                "message": "Voice daemon service is not currently running.",
+                "message": "Voice bot service is not currently running.",
             }
 
         try:
@@ -737,12 +737,12 @@ WantedBy=default.target
             pass
 
         self.pid_file.unlink(missing_ok=True)
-        self.synthesizer.speak("Voice daemon service stopped.")
+        self.synthesizer.speak("Voice bot service stopped.")
         return {
             "success": True,
             "status": "stopped",
             "pid": pid,
-            "message": f"Voice daemon service (PID: {pid}) stopped.",
+            "message": f"Voice bot service (PID: {pid}) stopped.",
         }
 
     def status(self) -> Dict[str, Any]:

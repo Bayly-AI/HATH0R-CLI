@@ -333,11 +333,11 @@ class SpokenNotificationServiceBot:
 
     @property
     def pid_file(self) -> Path:
-        return self.cwd / ".hath0r" / "speaker-daemon.pid"
+        return self.cwd / ".hath0r" / "speaker-bot.pid"
 
     @property
     def log_file(self) -> Path:
-        return self.cwd / ".hath0r" / "speaker-daemon.log"
+        return self.cwd / ".hath0r" / "speaker-bot.log"
 
     def queue_message(
         self,
@@ -407,15 +407,15 @@ class SpokenNotificationServiceBot:
             self.pid_file.unlink(missing_ok=True)
             return False, None
 
-    def start_daemon(self, background: bool = True, poll_interval: float = 1.0) -> Dict[str, Any]:
-        """Start background speaker daemon."""
+    def start_bot(self, background: bool = True, poll_interval: float = 1.0) -> Dict[str, Any]:
+        """Start background speaker bot."""
         running, existing_pid = self.is_running()
         if running and existing_pid != os.getpid():
             return {
                 "success": True,
                 "status": "already_running",
                 "pid": existing_pid,
-                "message": f"Speaker daemon is already running (PID: {existing_pid}).",
+                "message": f"Speaker bot is already running (PID: {existing_pid}).",
             }
 
         (self.cwd / ".hath0r").mkdir(parents=True, exist_ok=True)
@@ -444,7 +444,7 @@ class SpokenNotificationServiceBot:
                 "status": "started",
                 "pid": proc.pid,
                 "background": True,
-                "message": f"Voice speaker daemon started (PID: {proc.pid}).",
+                "message": f"Voice speaker bot started (PID: {proc.pid}).",
             }
 
         # Foreground worker loop
@@ -456,14 +456,14 @@ class SpokenNotificationServiceBot:
         finally:
             self.pid_file.unlink(missing_ok=True)
 
-    def stop_daemon(self) -> Dict[str, Any]:
-        """Stop running speaker daemon."""
+    def stop_bot(self) -> Dict[str, Any]:
+        """Stop running speaker bot."""
         running, pid = self.is_running()
         if not running or pid is None:
             return {
                 "success": True,
                 "status": "not_running",
-                "message": "Speaker daemon is not currently running.",
+                "message": "Speaker bot is not currently running.",
             }
 
         try:
@@ -479,7 +479,7 @@ class SpokenNotificationServiceBot:
             "success": True,
             "status": "stopped",
             "pid": pid,
-            "message": f"Speaker daemon (PID: {pid}) stopped.",
+            "message": f"Speaker bot (PID: {pid}) stopped.",
         }
 
     def status(self) -> Dict[str, Any]:

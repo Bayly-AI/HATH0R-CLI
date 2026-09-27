@@ -1167,14 +1167,14 @@ class DockerBot:
         }
 
 
-from hath0r_cli.bots.daemon import EndOfTaskDaemonBot  # noqa: E402
+from hath0r_cli.bots.eot_bot import EndOfTaskBot  # noqa: E402
 from hath0r_cli.bots.issue_manager import IssueManagerBot  # noqa: E402
 from hath0r_cli.bots.repo_clean import ConfigOrganizerBot, KnowledgeOrganizerBot, RepoHygieneBot  # noqa: E402
 from hath0r_cli.bots.voice_converse import (  # noqa: E402
     AgentDialogueBot,
     ProactiveSpeakerBot,
     SpeechListenerBot,
-    VoiceServiceDaemonBot,
+    VoiceServiceBot,
     VoiceSynthesizerBot,
 )
 from hath0r_cli.bots.voice_speaker import (  # noqa: E402
@@ -1199,7 +1199,7 @@ __all__ = [
     "DockerBot",
     "DockerMonitorBot",
     "DocumentationBot",
-    "EndOfTaskDaemonBot",
+    "EndOfTaskBot",
     "FactoryManagerBot",
     "GitJanitorBot",
     "IssueGuardBot",
@@ -1216,7 +1216,7 @@ __all__ = [
     "SpokenNotificationServiceBot",
     "TaskAnnouncerBot",
     "VoiceProfileBot",
-    "VoiceServiceDaemonBot",
+    "VoiceServiceBot",
     "VoiceSpeakerBot",
     "VoiceSpeakerModeBot",
     "VoiceSynthesizerBot",

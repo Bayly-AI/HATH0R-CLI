@@ -6,7 +6,7 @@ from hath0r_cli.bots.voice_converse import (
     AgentDialogueBot,
     ProactiveSpeakerBot,
     SpeechListenerBot,
-    VoiceServiceDaemonBot,
+    VoiceServiceBot,
     VoiceSynthesizerBot,
     filter_speech_text,
 )
@@ -62,8 +62,8 @@ def test_voice_synthesizer_bot_filter_code():
     assert "All systems operational." in res["text"]
 
 
-def test_voice_service_daemon_bot_lifecycle(tmp_path: Path):
-    bot = VoiceServiceDaemonBot(cwd=tmp_path)
+def test_voice_service_eot_bot_lifecycle(tmp_path: Path):
+    bot = VoiceServiceBot(cwd=tmp_path)
     # Status before starting
     st1 = bot.status()
     assert st1["running"] is False
@@ -79,7 +79,7 @@ def test_voice_service_daemon_bot_lifecycle(tmp_path: Path):
 
 
 def test_voice_service_daemon_stop_when_not_running(tmp_path: Path):
-    bot = VoiceServiceDaemonBot(cwd=tmp_path)
+    bot = VoiceServiceBot(cwd=tmp_path)
     res = bot.stop_service()
     assert res["success"] is True
     assert res["status"] == "not_running"
@@ -191,10 +191,10 @@ def test_query_standalone_llm_without_key(monkeypatch):
 
 def test_os_service_plist_generation(tmp_path: Path, monkeypatch):
     monkeypatch.setattr("sys.platform", "darwin")
-    bot = VoiceServiceDaemonBot(cwd=tmp_path)
+    bot = VoiceServiceBot(cwd=tmp_path)
     # Redirect LaunchAgents path to tmp_path
     monkeypatch.setattr(
-        VoiceServiceDaemonBot,
+        VoiceServiceBot,
         "launchd_plist_path",
         property(lambda self: tmp_path / "ai.bayly.hath0r-voice.plist"),
     )

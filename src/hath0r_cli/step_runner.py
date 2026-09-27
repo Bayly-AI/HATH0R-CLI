@@ -16,7 +16,7 @@ from hath0r_cli.bots import (
     ConfigOrganizerBot,
     DockerBot,
     DocumentationBot,
-    EndOfTaskDaemonBot,
+    EndOfTaskBot,
     GitJanitorBot,
     IssueGuardBot,
     IssueManagerBot,
@@ -28,7 +28,7 @@ from hath0r_cli.bots import (
     SpokenNotificationServiceBot,
     TaskAnnouncerBot,
     VoiceProfileBot,
-    VoiceServiceDaemonBot,
+    VoiceServiceBot,
     VoiceSpeakerBot,
     VoiceSpeakerModeBot,
     VoiceSynthesizerBot,
@@ -112,7 +112,7 @@ class BotRegistry:
             "git-janitor-bot": GitJanitorBot(cwd=self.cwd),
             "documentation-bot": DocumentationBot(cwd=self.cwd),
             "task-announcer-bot": TaskAnnouncerBot(cwd=self.cwd),
-            "end-of-task-daemon-bot": EndOfTaskDaemonBot(cwd=self.cwd),
+            "end-of-task-bot": EndOfTaskBot(cwd=self.cwd),
             "docker-bot": DockerBot(cwd=self.cwd),
             "docker-monitor-bot": DockerBot(cwd=self.cwd),
             "factory-manager-bot": FactoryManagerBot(cwd=self.cwd),
@@ -127,7 +127,7 @@ class BotRegistry:
             "agent-dialogue-bot": AgentDialogueBot(cwd=self.cwd),
             "voice-synthesizer-bot": VoiceSynthesizerBot(cwd=self.cwd),
             "proactive-speaker-bot": ProactiveSpeakerBot(cwd=self.cwd),
-            "voice-service-daemon-bot": VoiceServiceDaemonBot(cwd=self.cwd),
+            "voice-service-bot": VoiceServiceBot(cwd=self.cwd),
             "voice-speaker-bot": VoiceSpeakerBot(cwd=self.cwd),
             "spoken-notification-service-bot": SpokenNotificationServiceBot(cwd=self.cwd),
             "voice-speaker-mode-bot": VoiceSpeakerModeBot(cwd=self.cwd),
@@ -183,8 +183,8 @@ class BotRegistry:
                 return self._dispatch_doc_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
             elif bot_id == "task-announcer-bot":
                 return self._dispatch_announcer_bot(bot, action, args, dry_run=dry_run, context=ctx)
-            elif bot_id == "end-of-task-daemon-bot":
-                return self._dispatch_end_of_task_daemon(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
+            elif bot_id == "end-of-task-bot":
+                return self._dispatch_end_of_task_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
             elif bot_id in ("docker-bot", "docker-monitor-bot"):
                 return self._dispatch_docker_bot(bot, bot_id, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "factory-manager-bot":
@@ -211,8 +211,8 @@ class BotRegistry:
                 return self._dispatch_voice_synthesizer(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "proactive-speaker-bot":
                 return self._dispatch_proactive_speaker(bot, action, args, dry_run=dry_run, context=ctx)
-            elif bot_id == "voice-service-daemon-bot":
-                return self._dispatch_voice_service_daemon(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "voice-service-bot":
+                return self._dispatch_voice_service_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "voice-speaker-bot":
                 return self._dispatch_voice_speaker(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "spoken-notification-service-bot":
@@ -736,21 +736,21 @@ class BotRegistry:
             dry_run=dry_run,
         )
 
-    def _dispatch_end_of_task_daemon(
+    def _dispatch_end_of_task_bot(
         self,
-        bot: EndOfTaskDaemonBot,
+        bot: EndOfTaskBot,
         action: str,
         args: dict[str, Any],
         repo: str | None,
         dry_run: bool,
         context: dict[str, Any],
     ) -> StepExecutionResult:
-        if action in ("run-daemon", "watch", "finish"):
+        if action in ("run-bot", "watch", "finish"):
             pr_num = args.get("pr_number") or context.get("pr_number")
             branch = args.get("branch") or context.get("branch")
             semver = args.get("semver", "patch")
             skip_tests = bool(args.get("skip_tests", False))
-            res = bot.run_daemon(
+            res = bot.run_bot(
                 pr_number=int(pr_num) if pr_num else None,
                 branch=str(branch) if branch else None,
                 repo=repo or args.get("repo"),
@@ -759,7 +759,7 @@ class BotRegistry:
                 skip_tests=skip_tests,
             )
             return StepExecutionResult(
-                bot_id="end-of-task-daemon-bot",
+                bot_id="end-of-task-bot",
                 action=action,
                 success=bool(res.get("success")),
                 data=res,
@@ -768,10 +768,10 @@ class BotRegistry:
             )
 
         return StepExecutionResult(
-            bot_id="end-of-task-daemon-bot",
+            bot_id="end-of-task-bot",
             action=action,
             success=False,
-            error=f"Unknown action '{action}' for end-of-task-daemon-bot.",
+            error=f"Unknown action '{action}' for end-of-task-bot.",
             dry_run=dry_run,
         )
 
@@ -1308,9 +1308,9 @@ class BotRegistry:
             dry_run=dry_run,
         )
 
-    def _dispatch_voice_service_daemon(
+    def _dispatch_voice_service_bot(
         self,
-        bot: VoiceServiceDaemonBot,
+        bot: VoiceServiceBot,
         action: str,
         args: dict[str, Any],
         *,
@@ -1323,7 +1323,7 @@ class BotRegistry:
             trust_tier = str(args.get("trust_tier", "elevated"))
             if dry_run:
                 return StepExecutionResult(
-                    bot_id="voice-service-daemon-bot",
+                    bot_id="voice-service-bot",
                     action=action,
                     success=True,
                     data={"status": "dry_run_started", "background": bg, "ambient": ambient},
@@ -1331,7 +1331,7 @@ class BotRegistry:
                 )
             res = bot.start_service(background=bg, ambient=ambient, trust_tier=trust_tier)
             return StepExecutionResult(
-                bot_id="voice-service-daemon-bot",
+                bot_id="voice-service-bot",
                 action=action,
                 success=bool(res.get("success")),
                 data=res,
@@ -1340,7 +1340,7 @@ class BotRegistry:
         elif action == "stop-service":
             if dry_run:
                 return StepExecutionResult(
-                    bot_id="voice-service-daemon-bot",
+                    bot_id="voice-service-bot",
                     action=action,
                     success=True,
                     data={"status": "dry_run_stopped"},
@@ -1348,7 +1348,7 @@ class BotRegistry:
                 )
             res = bot.stop_service()
             return StepExecutionResult(
-                bot_id="voice-service-daemon-bot",
+                bot_id="voice-service-bot",
                 action=action,
                 success=bool(res.get("success")),
                 data=res,
@@ -1357,7 +1357,7 @@ class BotRegistry:
         elif action == "status":
             res = bot.status()
             return StepExecutionResult(
-                bot_id="voice-service-daemon-bot",
+                bot_id="voice-service-bot",
                 action=action,
                 success=True,
                 data=res,
@@ -1366,7 +1366,7 @@ class BotRegistry:
         elif action == "install-service":
             if dry_run:
                 return StepExecutionResult(
-                    bot_id="voice-service-daemon-bot",
+                    bot_id="voice-service-bot",
                     action=action,
                     success=True,
                     data={"status": "dry_run_installed"},
@@ -1374,7 +1374,7 @@ class BotRegistry:
                 )
             res = bot.install_os_service(ambient=bool(args.get("ambient", True)))
             return StepExecutionResult(
-                bot_id="voice-service-daemon-bot",
+                bot_id="voice-service-bot",
                 action=action,
                 success=bool(res.get("success")),
                 data=res,
@@ -1383,7 +1383,7 @@ class BotRegistry:
         elif action == "uninstall-service":
             if dry_run:
                 return StepExecutionResult(
-                    bot_id="voice-service-daemon-bot",
+                    bot_id="voice-service-bot",
                     action=action,
                     success=True,
                     data={"status": "dry_run_uninstalled"},
@@ -1391,7 +1391,7 @@ class BotRegistry:
                 )
             res = bot.uninstall_os_service()
             return StepExecutionResult(
-                bot_id="voice-service-daemon-bot",
+                bot_id="voice-service-bot",
                 action=action,
                 success=bool(res.get("success")),
                 data=res,
@@ -1400,7 +1400,7 @@ class BotRegistry:
         elif action == "run-service-loop":
             if dry_run:
                 return StepExecutionResult(
-                    bot_id="voice-service-daemon-bot",
+                    bot_id="voice-service-bot",
                     action=action,
                     success=True,
                     data={"status": "dry_run_loop"},
@@ -1409,17 +1409,17 @@ class BotRegistry:
             max_iter = args.get("max_iterations")
             res = bot.run_service_loop(ambient=bool(args.get("ambient", True)), max_iterations=max_iter)
             return StepExecutionResult(
-                bot_id="voice-service-daemon-bot",
+                bot_id="voice-service-bot",
                 action=action,
                 success=bool(res.get("success")),
                 data=res,
                 dry_run=dry_run,
             )
         return StepExecutionResult(
-            bot_id="voice-service-daemon-bot",
+            bot_id="voice-service-bot",
             action=action,
             success=False,
-            error=f"Unknown action '{action}' for voice-service-daemon-bot.",
+            error=f"Unknown action '{action}' for voice-service-bot.",
             dry_run=dry_run,
         )
 
@@ -1496,7 +1496,7 @@ class BotRegistry:
                 data={"drained_count": len(res), "items": res},
                 dry_run=dry_run,
             )
-        elif action in ("start-daemon", "start-worker"):
+        elif action in ("start-bot", "start-worker"):
             bg = bool(args.get("background", True))
             if dry_run:
                 return StepExecutionResult(
@@ -1506,7 +1506,7 @@ class BotRegistry:
                     data={"dry_run": True, "action": "Would start spoken notification daemon"},
                     dry_run=dry_run,
                 )
-            res = bot.start_daemon(background=bg)
+            res = bot.start_bot(background=bg)
             return StepExecutionResult(
                 bot_id="spoken-notification-service-bot",
                 action=action,
@@ -1514,7 +1514,7 @@ class BotRegistry:
                 data=res,
                 dry_run=dry_run,
             )
-        elif action in ("stop-daemon", "stop-worker"):
+        elif action in ("stop-bot", "stop-worker"):
             if dry_run:
                 return StepExecutionResult(
                     bot_id="spoken-notification-service-bot",
@@ -1523,7 +1523,7 @@ class BotRegistry:
                     data={"dry_run": True, "action": "Would stop spoken notification daemon"},
                     dry_run=dry_run,
                 )
-            res = bot.stop_daemon()
+            res = bot.stop_bot()
             return StepExecutionResult(
                 bot_id="spoken-notification-service-bot",
                 action=action,
