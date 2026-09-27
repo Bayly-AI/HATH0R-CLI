@@ -1315,7 +1315,6 @@ class BotRegistry:
     def _dispatch_voice_service_bot(
         self,
         bot: VoiceServiceBot,
-    MemoryManagerBot,
         action: str,
         args: dict[str, Any],
         *,
