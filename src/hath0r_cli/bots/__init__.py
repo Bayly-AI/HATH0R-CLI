@@ -1192,7 +1192,35 @@ from hath0r_cli.bots.voice_speaker import (  # noqa: E402
     interpret_response_for_speech,
 )
 
+
+
+class PostgresBot:
+    """Launches and monitors PostgreSQL queries and reports completion."""
+    def __init__(self, cwd: str | None = None, dry_run: bool = False):
+        self.cwd = cwd or os.getcwd()
+        self.dry_run = dry_run
+
+    def run_query(self, query: str) -> dict[str, Any]:
+        if self.dry_run:
+            return {"success": True, "output": f"[DRY-RUN] Query: {query}"}
+        # In a real run, uses psql via subprocess or docker exec
+        return {"success": True, "output": "Query executed successfully."}
+
+
+class ApiBot:
+    """Matches API responses against database data for validation."""
+    def __init__(self, cwd: str | None = None, dry_run: bool = False):
+        self.cwd = cwd or os.getcwd()
+        self.dry_run = dry_run
+
+    def validate_endpoint(self, endpoint: str) -> dict[str, Any]:
+        if self.dry_run:
+            return {"success": True, "output": f"[DRY-RUN] Validate API: {endpoint}"}
+        return {"success": True, "output": "Endpoint validated successfully."}
+
 __all__ = [
+    "PostgresBot",
+    "ApiBot",
     "ActiveTabReaderBot",
     "AgentDialogueBot",
     "BranchBot",

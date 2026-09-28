@@ -36,6 +36,8 @@ from hath0r_cli.bots import (
     VoiceSynthesizerBot,
 )
 from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
+from hath0r_cli.bots.political_data_mining import DataMinerBot, ComplianceBot
+from hath0r_cli.bots.postgres_validation import DataAuditorBot, ReportingBot
 from hath0r_cli.factory_manager import FactoryManagerBot
 from hath0r_cli.telemetry import get_current_trace_context, trace_span
 
@@ -137,6 +139,10 @@ class BotRegistry:
             "voice-speaker-mode-bot": VoiceSpeakerModeBot(cwd=self.cwd),
             "voice-profile-bot": VoiceProfileBot(cwd=self.cwd),
             "active-tab-reader-bot": ActiveTabReaderBot(cwd=self.cwd),
+            "data-miner-bot": DataMinerBot(cwd=self.cwd),
+            "compliance-bot": ComplianceBot(cwd=self.cwd),
+            "data-auditor-bot": DataAuditorBot(cwd=self.cwd),
+            "reporting-bot": ReportingBot(cwd=self.cwd),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -228,6 +234,14 @@ class BotRegistry:
                 return self._dispatch_voice_profile(bot, action, args, dry_run=dry_run)
             elif bot_id == "active-tab-reader-bot":
                 return self._dispatch_active_tab_reader(bot, action, args, dry_run=dry_run)
+            elif bot_id == "data-miner-bot":
+                return self._dispatch_data_miner_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "compliance-bot":
+                return self._dispatch_compliance_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "data-auditor-bot":
+                return self._dispatch_data_auditor_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "reporting-bot":
+                return self._dispatch_reporting_bot(bot, action, args, dry_run=dry_run)
             else:
                 return StepExecutionResult(
                     bot_id=bot_id,
@@ -1765,6 +1779,56 @@ class BotRegistry:
                 error=f"Unknown action '{action}' for version-bot.",
                 dry_run=dry_run,
             )
+
+    def _dispatch_data_miner_bot(
+        self, bot: DataMinerBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "mine-political-data":
+            res = bot.mine_political_data(**args)
+        elif action == "gather-historic-data":
+            res = bot.gather_historic_data(**args)
+        elif action == "ensure-completeness":
+            res = bot.ensure_completeness(**args)
+        elif action == "ingest-legislative-recordset":
+            res = bot.ingest_legislative_recordset(**args)
+        elif action == "patch-missing-data":
+            res = bot.patch_missing_data(**args)
+        elif action == "show-statistics":
+            res = bot.show_statistics(**args)
+        else:
+            return StepExecutionResult(bot_id="data-miner-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
+        return StepExecutionResult(bot_id="data-miner-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run)
+
+    def _dispatch_compliance_bot(
+        self, bot: ComplianceBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "run-compliance-checks":
+            res = bot.run_compliance_checks(**args)
+        elif action == "validate-schema":
+            res = bot.validate_schema(**args)
+        else:
+            return StepExecutionResult(bot_id="compliance-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
+        return StepExecutionResult(bot_id="compliance-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run)
+
+    def _dispatch_data_auditor_bot(
+        self, bot: DataAuditorBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "scan-tables":
+            res = bot.scan_tables(**args)
+        elif action == "identify-missing-data":
+            res = bot.identify_missing_data(**args)
+        else:
+            return StepExecutionResult(bot_id="data-auditor-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
+        return StepExecutionResult(bot_id="data-auditor-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run)
+
+    def _dispatch_reporting_bot(
+        self, bot: ReportingBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "generate-unfound-report":
+            res = bot.generate_unfound_report(**args)
+        else:
+            return StepExecutionResult(bot_id="reporting-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
+        return StepExecutionResult(bot_id="reporting-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run)
 
 def execute_workflow(
     workflow_def: dict[str, Any],
