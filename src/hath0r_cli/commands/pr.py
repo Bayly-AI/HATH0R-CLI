@@ -33,6 +33,3 @@ def pr_dependabot(ctx: click.Context, pr_number: int, repo: str | None, auto_mer
         click.echo(f"PR #{pr_number} Dependabot triage: {res.get('action') or res.get('status')}")
 
     _emit_response(ctx, response, text_renderer=_text)
-
-
-

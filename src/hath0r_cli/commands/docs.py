@@ -93,6 +93,3 @@ def docs_share(
     _emit_response(ctx, response, text_renderer=_text)
     if not res.get("success"):
         ctx.exit(1)
-
-
-

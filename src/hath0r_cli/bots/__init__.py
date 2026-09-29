@@ -1195,6 +1195,7 @@ from hath0r_cli.bots.voice_speaker import (  # noqa: E402
 
 class PostgresBot:
     """Launches and monitors PostgreSQL queries and reports completion."""
+
     def __init__(self, cwd: str | None = None, dry_run: bool = False):
         self.cwd = cwd or os.getcwd()
         self.dry_run = dry_run
@@ -1208,6 +1209,7 @@ class PostgresBot:
 
 class ApiBot:
     """Matches API responses against database data for validation."""
+
     def __init__(self, cwd: str | None = None, dry_run: bool = False):
         self.cwd = cwd or os.getcwd()
         self.dry_run = dry_run
@@ -1216,6 +1218,7 @@ class ApiBot:
         if self.dry_run:
             return {"success": True, "output": f"[DRY-RUN] Validate API: {endpoint}"}
         return {"success": True, "output": "Endpoint validated successfully."}
+
 
 __all__ = [
     "PostgresBot",

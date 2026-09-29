@@ -317,9 +317,7 @@ class TestHarnessBot:
         if not dry_run:
             tests_dir.mkdir(parents=True, exist_ok=True)
             if stack == "python" and not (tests_dir / "test_smoke.py").exists():
-                (tests_dir / "test_smoke.py").write_text(
-                    "def test_smoke():\n    assert True\n", encoding="utf-8"
-                )
+                (tests_dir / "test_smoke.py").write_text("def test_smoke():\n    assert True\n", encoding="utf-8")
                 created.append("tests/test_smoke.py")
             elif stack == "node-typescript" and not (tests_dir / "smoke.test.ts").exists():
                 (tests_dir / "smoke.test.ts").write_text(
@@ -378,11 +376,13 @@ class TriGraphIngestBot:
         nodes: List[Dict[str, Any]] = []
         for md in self.cwd.rglob("*.md"):
             if not any(p.startswith(".") and p != ".hath0r" for p in md.relative_to(self.cwd).parts[:-1]):
-                nodes.append({
-                    "id": f"doc:{md.relative_to(self.cwd)}",
-                    "path": str(md.relative_to(self.cwd)),
-                    "title": md.stem,
-                })
+                nodes.append(
+                    {
+                        "id": f"doc:{md.relative_to(self.cwd)}",
+                        "path": str(md.relative_to(self.cwd)),
+                        "title": md.stem,
+                    }
+                )
 
         if not dry_run:
             target_file.parent.mkdir(parents=True, exist_ok=True)
@@ -425,8 +425,18 @@ class TriGraphIngestBot:
 
         target = self.cwd / ".hath0r" / "memory" / "graph.json"
         nodes = [
-            {"id": "rule:cr-cli-entry-001", "type": "rule", "label": "Start with CLI Rule", "content": "Always start with hath0r."},
-            {"id": "concept:tri-graph", "type": "concept", "label": "Tri-Graph Substrate", "content": "KnowledgeGraph, ContextGraph, MemoryGraph."},
+            {
+                "id": "rule:cr-cli-entry-001",
+                "type": "rule",
+                "label": "Start with CLI Rule",
+                "content": "Always start with hath0r.",
+            },
+            {
+                "id": "concept:tri-graph",
+                "type": "concept",
+                "label": "Tri-Graph Substrate",
+                "content": "KnowledgeGraph, ContextGraph, MemoryGraph.",
+            },
         ]
 
         if not dry_run:

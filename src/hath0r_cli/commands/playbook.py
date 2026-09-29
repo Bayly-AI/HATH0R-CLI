@@ -70,6 +70,3 @@ def playbook_read(ctx: click.Context, name: str) -> None:
             console.print(f"[bold red]✗ Playbook not found:[/bold red] {name}")
 
     _emit_response(ctx, response, text_renderer=_text)
-
-
-

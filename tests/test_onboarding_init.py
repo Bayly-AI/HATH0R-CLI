@@ -79,4 +79,3 @@ def test_hath0r_init_cli_dry_run() -> None:
     assert result.exit_code == 0
     assert '"command":"init"' in result.output
     assert '"state":"ok"' in result.output
-

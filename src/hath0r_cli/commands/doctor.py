@@ -79,6 +79,3 @@ def doctor(ctx: click.Context, check_mcp: bool, check_factories: bool) -> None:
     if result.failed_count:
         # Exit 6 = dependency unhealthy (Framework exit-code contract).
         raise SystemExit(6)
-
-
-

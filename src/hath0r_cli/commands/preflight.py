@@ -40,6 +40,3 @@ def preflight_run(ctx: click.Context, skip_tests: bool, dry_run: bool) -> None:
     _emit_response(ctx, response, text_renderer=_text)
     if not res.get("success"):
         ctx.exit(1)
-
-
-

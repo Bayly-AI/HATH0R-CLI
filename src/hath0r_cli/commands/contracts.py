@@ -122,6 +122,8 @@ def contracts_sync(ctx: click.Context, target_dir: str | None, canonical_dir: st
             for s in synced:
                 console.print(f"  • {s}")
         else:
-            console.print("[green]✓ All local schema contracts are already up to date with canonical definitions.[/green]")
+            console.print(
+                "[green]✓ All local schema contracts are already up to date with canonical definitions.[/green]"
+            )
 
     _emit_response(ctx, response, text_renderer=_text)

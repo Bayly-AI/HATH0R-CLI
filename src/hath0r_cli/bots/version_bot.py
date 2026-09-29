@@ -28,10 +28,7 @@ class VersionBot:
 
         # Verify valid semver
         if not re.match(r"^\d+\.\d+\.\d+(-.*)?$", version):
-            return {
-                "success": False,
-                "error": f"Version '{version}' does not comply with Semantic Versioning."
-            }
+            return {"success": False, "error": f"Version '{version}' does not comply with Semantic Versioning."}
 
         if not dry_run:
             # Always ensure the file exists and is updated
@@ -41,9 +38,9 @@ class VersionBot:
         injected_files = []
         footer_block = (
             "<!-- HATH0R-VERSION-FOOTER -->\n"
-            f"<div style=\"position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; "
+            f'<div style="position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; '
             f"font-size: 8px; color: lightgrey; font-family: 'Avenir Next', 'Avenir Next Roman', "
-            f"sans-serif; z-index: 9999;\">"
+            f'sans-serif; z-index: 9999;">'
             f"v{version}</div>\n"
             "<!-- /HATH0R-VERSION-FOOTER -->"
         )
@@ -51,7 +48,8 @@ class VersionBot:
         html_files = list(self.cwd.rglob("*.html"))
         # Exclude hidden directories like .hath0r, .git, node_modules
         html_files = [
-            f for f in html_files
+            f
+            for f in html_files
             if not any(p.startswith(".") or p == "node_modules" for p in f.relative_to(self.cwd).parts)
         ]
 

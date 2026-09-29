@@ -566,6 +566,3 @@ def factory_schedule_sync(ctx: click.Context, target_dir: str | None, dry_run: b
             console.print(f"  • {item['action']} [cyan]{item['filename']}[/cyan] ({item['schedule']})")
 
     _emit_response(ctx, response, text_renderer=_text)
-
-
-

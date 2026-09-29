@@ -17,12 +17,9 @@ class DataAuditorBot:
         return {
             "status": "success",
             "message": "Identified missing records.",
-            "data": {
-                "missing_first_name": 812,
-                "missing_photo": 1,
-                "missing_voting_records": 11928
-            }
+            "data": {"missing_first_name": 812, "missing_photo": 1, "missing_voting_records": 11928},
         }
+
 
 class ReportingBot:
     """Bot to generate reports for unfound data."""
@@ -35,5 +32,5 @@ class ReportingBot:
         return {
             "status": "success",
             "message": "Report generated.",
-            "report": "760 records (mostly deceased prior to 1980) were irrecoverable and have been logged for manual review."
+            "report": "760 records (mostly deceased prior to 1980) were irrecoverable and have been logged for manual review.",
         }

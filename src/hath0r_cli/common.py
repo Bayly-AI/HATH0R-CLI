@@ -80,7 +80,11 @@ def _group_root() -> Path:
         return found
 
     cli_mod = sys.modules.get("hath0r_cli.cli")
-    soft_val = getattr(cli_mod, "_SOFT_FALLBACK_GROUP_ROOT", _SOFT_FALLBACK_GROUP_ROOT) if cli_mod else _SOFT_FALLBACK_GROUP_ROOT
+    soft_val = (
+        getattr(cli_mod, "_SOFT_FALLBACK_GROUP_ROOT", _SOFT_FALLBACK_GROUP_ROOT)
+        if cli_mod
+        else _SOFT_FALLBACK_GROUP_ROOT
+    )
     soft = Path(soft_val).expanduser()
     if _looks_like_group_root(soft):
         return soft.resolve()
