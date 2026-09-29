@@ -4,20 +4,29 @@
 
 # HATH0R CLI
 
-Operator and developer **control plane** for the HATHOR OpenSource agentic stack.
+**Operator & Developer Control Plane for the HATHOR Agentic Ecosystem**
 
-| Field | Value |
-|-------|-------|
-| Package | `hath0r-cli` |
-| Binary | `hath0r` |
-| Group | `hath0r-opensource` |
-| Canonical KB | `$HATH0R_GROUP_ROOT/.hath0r/knowledgebase` (discovered; see Environment) |
-| GitHub | [Bayly-AI/HATH0R-CLI](https://github.com/Bayly-AI/HATH0R-CLI) |
+HATH0R CLI is the globally installed operator interface, runtime execution gateway, and control tower for the Enterprise Agentic Platform. It defines the shared boundary between autonomous AI agents, developer tooling, security mediation, and project governance.
 
-## Install
+> **Technical Reference:** See [TECH_README.md](TECH_README.md) for in-depth architecture, subsystem maps, and developer specifications.
 
-Preferred (operators):
+---
 
+## 🌟 Sales & Feature Overview
+
+The HATH0R CLI empowers engineering teams and autonomous agents to build, verify, and operate enterprise software with zero tribal memory and hardened governance:
+
+- 🛡️ **Zero-Trust Tool Execution (JEV Guard):** Cryptographically mediates mutating agent actions against security policies before execution.
+- 🧠 **Dual-Layer Graph Substrate:** Native integration with **KnowledgeGraph** (static repository lineage and dependency tracking) and **ContextGraph** (dynamic runtime subagent delegation topologies).
+- 🎙️ **Streaming Voice Interface:** Low-latency speculative routing and push-to-talk conversational agents with real-time feedback.
+- ⚡ **Autonomous Factories & Micro-Bots:** Out-of-the-box workflows for automated git governance, PR lifecycle, Dependabot triage, and repo hygiene.
+- 🌐 **MCP Server Federation:** Seamless orchestration across Model Context Protocol servers for enterprise knowledge access.
+
+---
+
+## Quick Install & Doctor
+
+### Preferred Installation (Operators)
 ```sh
 pipx install hath0r-cli
 # or: python3 -m pip install hath0r-cli
@@ -25,90 +34,60 @@ hath0r --version
 hath0r doctor
 ```
 
-Developer (editable monorepo):
-
+### Developer Installation (Editable Monorepo)
 ```sh
-cd /path/to/OpenSource/HATH0R-CLI   # or set HATH0R_GROUP_ROOT
+cd /path/to/OpenSource/HATH0R-CLI
 python3 -m pip install -e ".[dev]"
 hath0r --version
 hath0r doctor
 hath0r kb path
 ```
 
-Release packaging (fileset, binary, npm client, CI): see
-[Install and release matrix](docs/hathor-guide-047-install-and-release-20260918.md)
-and issue [#30](https://github.com/Bayly-AI/HATH0R-CLI/issues/30).
+---
 
-```sh
-make fileset
-make wheel
-# optional engine binary:
-# pip install -e ".[release]" && make binary
-```
-
-
-## Commands (v0.2)
+## Core Commands Overview
 
 | Command | Purpose |
-|---------|---------|
+|---|---|
 | `hath0r doctor` | Verify control tower, group root/AGENTS/WARP, member pointers, and KB hub |
 | `hath0r kb path` | Print canonical group knowledgebase path |
-| `hath0r kb products` | Show suite product catalog |
-| `hath0r --version` | Package version |
-| `hath0r planes` | ADR-003 domain status map (shipped/partial/planned) |
-| `hath0r schema` | Bounded surface schema + forbidden legacy roots |
-| `hath0r mcp sources list` | List 1-Nation federal vote-source inventory through MCP |
-| `hath0r mcp sources test SOURCE_ID` | Test an allowlisted vote source through 1N-MCP |
-| `hath0r mcp sources fetch-sample SOURCE_ID` | Fetch a bounded vote-source sample through 1N-MCP |
+| `hath0r factory list` | List available declarative automation factories |
+| `hath0r factory run <id>` | Execute an autonomous multi-bot workflow |
+| `hath0r playbook list` | List available coding, troubleshooting, and governance playbooks |
+| `hath0r playbook read <name>` | Render interactive playbook in the terminal |
+| `hath0r voice start` | Launch streaming voice engine and conversational interface |
+| `hath0r context spread` | Distribute localized hyper-context (`AGENTS.md`, `rules.md`, `canonical.md`) |
 
-Shipped surface is discoverable via `planes`/`schema`. Full process/work/validate/
-knowledge-write domains remain **planned** until implemented behind contracts.
-Never call `customerSystem` or create `.customerSystem/`.
+> For comprehensive command lists and options, see [Current Command Reference](docs/hathor-guide-042-current-command-reference-20260916.md) and [TECH_README.md](TECH_README.md).
 
-## Changelog
+---
 
-See [CHANGELOG.md](CHANGELOG.md) for release history (current: **v0.2.0**).
+## Environment & Configuration
 
-## Documentation
-
-- [Documentation index](docs/INDEX.md)
-- [Current v0.2 command reference](docs/hathor-guide-042-current-command-reference-20260916.md)
-- [CLI, control-tower, and POC architecture](docs/hathor-arch-004-cli-control-tower-integration-20260916.md)
-- [Proposed POC machine interface](docs/hathor-ts-005-poc-machine-interface-20260916.md)
-- [POC adapter integration guide](docs/hathor-guide-043-poc-adapter-integration-20260916.md)
-
-The current command reference reflects executable source. The machine
-interface is a draft contract and must not be treated as shipped behavior.
-
-## Environment
-
-| Variable | Default / discovery | Purpose |
-|----------|---------------------|---------|
-| `HATH0R_GROUP_ROOT` | See discovery order below | OpenSource group root override |
+| Variable | Default / Discovery | Purpose |
+|---|---|---|
+| `HATH0R_GROUP_ROOT` | Discovered by walking up cwd | OpenSource group root override |
 | `HATH0R_KB_PATH` | `$HATH0R_GROUP_ROOT/.hath0r/knowledgebase` | Canonical KB override |
 
-### Group root discovery order
+---
 
-1. **`HATH0R_GROUP_ROOT`** — if set, use it (expanded/resolved).
-2. **Walk-up from cwd** — find a directory with `AGENTS.md` containing `hath0r-opensource` and a `.hath0r/` directory.
-3. **Soft fallback** — `~/Development/OpenSource` only if it looks like a real group root (same markers).
-4. **Error** — clear message with remediation if nothing matches.
+## Documentation & Governance
 
-`HATH0R_KB_PATH` always wins for the knowledgebase path when set; otherwise KB is `$group_root/.hath0r/knowledgebase`.
+- [Technical Reference Guide](TECH_README.md)
+- [Documentation Index](docs/INDEX.md)
+- [Governance Rules & Policies](docs/governance/)
+- [Release Changelog](CHANGELOG.md)
 
-## Group membership
+---
 
-This repo is a **canonical** member of OpenSource HATHOR alongside:
+## Group Membership
 
+This repo is the **control tower** of OpenSource HATHOR alongside:
 - Framework: `../hath0r` (`HATH0R-Agentic-Framework`)
 - POC: `../hath0r-poc` (`HATH0R-Agentic-POC`)
 
-See `AGENTS.md`, `cfg/suite.yaml`, and the group hub `../AGENTS.md`.
+---
 
 ## License
 
-Apache License 2.0 — see `LICENSE`.
-
-## Group hub policy sync
-
-Canonical OpenSource group `AGENTS.md` / `WARP.md` live in `cfg/group/`. Materialize to the group root with `./scripts/sync-group-hub.sh` (see `cfg/group/README.md`).
+Apache License 2.0 — see [LICENSE](LICENSE).
