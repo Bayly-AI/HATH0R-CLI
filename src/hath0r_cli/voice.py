@@ -457,7 +457,6 @@ def get_active_wake_words(cwd: Optional[Path] = None) -> List[str]:
 
 
 def _standalone_fast_route(transcript: str, cwd: Optional[Path] = None) -> Dict[str, Any]:
-def _standalone_fast_route(transcript: str) -> Dict[str, Any]:
     """Lightweight built-in fast path for standalone CLI execution."""
     t = transcript.strip().lower()
     action_id = str(uuid.uuid4())
@@ -543,9 +542,6 @@ def _standalone_fast_route(transcript: str) -> Dict[str, Any]:
                 "addressed_to": matched_wake.capitalize(),
             },
             "metadata": {"router": "cli_fastpath", "addressed_wake": matched_wake},
-                "feedback_text": f"Running Hathor {subcmd}",
-            },
-            "metadata": {"router": "cli_fastpath"},
         }
 
     open_match = re.match(r"^(?:open|launch|start)\s+([a-zA-Z0-9\s\.\-_]+)$", transcript.strip(), re.IGNORECASE)
