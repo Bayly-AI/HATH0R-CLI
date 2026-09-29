@@ -19,6 +19,7 @@ ALLOWED_ROOT_FILES: Set[str] = {
     "AGENTS.md",
     "WARP.md",
     "README.md",
+    "TECH_README.md",
     "LICENSE",
     "NOTICE",
     "MANIFEST.json",
@@ -40,6 +41,8 @@ ALLOWED_ROOT_FILES: Set[str] = {
     "requirements.txt",
     "requirements-dev.txt",
     "docker-compose.yml",
+    "uv.lock",
+    "poetry.lock",
     # Frontend / JS / TS ecosystem
     "package.json",
     "package-lock.json",
