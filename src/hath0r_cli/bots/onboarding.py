@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
-import re
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -375,7 +373,7 @@ class TriGraphIngestBot:
     def compile_knowledge_graph(self, dry_run: bool = False) -> Dict[str, Any]:
         """Compile repository markdown files into KnowledgeGraph cache."""
         target_file = self.cwd / ".hath0r" / "state" / "cache" / "knowledge.json"
-        
+
         # Ingest docs and root markdown files
         nodes: List[Dict[str, Any]] = []
         for md in self.cwd.rglob("*.md"):

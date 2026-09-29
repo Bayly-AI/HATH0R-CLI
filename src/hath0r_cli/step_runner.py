@@ -42,9 +42,9 @@ from hath0r_cli.bots.onboarding import (
     TestHarnessBot,
     TriGraphIngestBot,
 )
-from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
-from hath0r_cli.bots.political_data_mining import DataMinerBot, ComplianceBot
+from hath0r_cli.bots.political_data_mining import ComplianceBot, DataMinerBot
 from hath0r_cli.bots.postgres_validation import DataAuditorBot, ReportingBot
+from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
 from hath0r_cli.factory_manager import FactoryManagerBot
 from hath0r_cli.telemetry import get_current_trace_context, trace_span
 
@@ -238,8 +238,10 @@ class BotRegistry:
                 return self._dispatch_memory_manager_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "version-bot":
                 return self._dispatch_version_bot(bot, action, args, dry_run=dry_run, context=ctx)
-            elif bot_id == "voice-service-bot":
+            elif bot_id == "voice-speaker-bot":
                 return self._dispatch_voice_speaker(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "voice-service-bot":
+                return self._dispatch_voice_service_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "spoken-notification-service-bot":
                 return self._dispatch_spoken_notification_service(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "voice-speaker-mode-bot":

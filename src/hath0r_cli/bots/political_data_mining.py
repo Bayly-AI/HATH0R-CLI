@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Any
 
+
 class DataMinerBot:
     """Bot for mining and ingesting political and legislative data."""
 

@@ -1,9 +1,9 @@
 """Tests for hath0r init and universal repo-onboarding-factory."""
 
 from pathlib import Path
+
 from click.testing import CliRunner
 
-from hath0r_cli.cli import main
 from hath0r_cli.bots.onboarding import (
     DocRefactorBot,
     GovernanceBot,
@@ -11,6 +11,7 @@ from hath0r_cli.bots.onboarding import (
     TestHarnessBot,
     TriGraphIngestBot,
 )
+from hath0r_cli.cli import main
 
 
 def test_onboarding_bots_unit(tmp_path: Path) -> None:

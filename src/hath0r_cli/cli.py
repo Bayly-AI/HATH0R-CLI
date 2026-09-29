@@ -302,7 +302,7 @@ def init_cmd(ctx: click.Context, product_name: str | None, dry_run: bool, rollba
     mgr = FactoryManagerBot(cwd=cwd)
     factory_res = mgr.get_factory("repo-onboarding-factory")
 
-    if not factory_res.get("success") or not factory_res.get("factory"):
+    if factory_res is None or not factory_res.get("success") or not factory_res.get("factory"):
         # Fallback to local package factory definition if not in cwd
         pkg_factory_path = Path(__file__).resolve().parent.parent.parent / "cfg" / "factories" / "repo-onboarding-factory.yaml"
         if pkg_factory_path.exists():
@@ -342,9 +342,9 @@ def init_cmd(ctx: click.Context, product_name: str | None, dry_run: bool, rollba
     def _text() -> None:
         if rollback:
             if exec_res.success:
-                console.print(f"[bold green]✓ Successfully rolled back repository state from backup.[/bold green]")
+                console.print("[bold green]✓ Successfully rolled back repository state from backup.[/bold green]")
             else:
-                console.print(f"[bold red]✗ Failed to rollback repository state.[/bold red]")
+                console.print("[bold red]✗ Failed to rollback repository state.[/bold red]")
             return
 
         mode_str = "[bold yellow][DRY-RUN][/bold yellow] " if dry_run else ""
@@ -357,12 +357,12 @@ def init_cmd(ctx: click.Context, product_name: str | None, dry_run: bool, rollba
             console.print(f"  {mark} [{s.bot_id}] {s.action}: {msg}")
 
         if exec_res.success:
-            console.print(f"\n[bold green]✓ Repository is 100% aligned with HATH0R Agentic Framework.[/bold green]")
+            console.print("\n[bold green]✓ Repository is 100% aligned with HATH0R Agentic Framework.[/bold green]")
             console.print("  • Tri-Graph Substrate: KnowledgeGraph, ContextGraph, MemoryGraph ready.")
             console.print("  • Governance: AGENTS.md, SemVer, and playbooks active.")
             console.print("  • Run [bold cyan]hath0r doctor[/bold cyan] to verify system health.")
         else:
-            console.print(f"\n[bold red]✗ Initialization completed with errors.[/bold red]")
+            console.print("\n[bold red]✗ Initialization completed with errors.[/bold red]")
 
     _emit_response(ctx, response, text_renderer=_text)
     if not exec_res.success:
@@ -3045,10 +3045,12 @@ def voice_status(ctx: click.Context) -> None:
 
         ptt = data.get("push_to_talk", {})
         table.add_row(
+            "Push-to-Talk",
             "enabled" if ptt.get("enabled", True) else "disabled",
             f"Key: {ptt.get('default_key', 'right_ctrl')} (ask_button={ptt.get('prompt_for_key', True)})",
         )
         gov = data.get("governance", {})
+        table.add_row("Trust Governance", "active", f"Default Tier: {gov.get('default_tier')}")
         console.print(table)
 
     _emit_response(ctx, response, text_renderer=_text)
@@ -3130,12 +3132,6 @@ def voice_exec(ctx: click.Context, transcript: str, trust_tier: str, dry_run: bo
     help="Always prompt operator to confirm/select which button to use for push-to-talk.",
 )
 @click.option(
-    "--push-to-talk",
-    is_flag=True,
-    default=False,
-    help="Wait for user Enter keypress before capturing utterance.",
-)
-@click.option(
     "--max-utterances",
     type=int,
     default=1,
@@ -3186,12 +3182,6 @@ def voice_listen(
         )
 
     mode_label = f"Push-to-talk (key='{selected_key}')" if push_to_talk else "Ambient continuous"
-def voice_listen(ctx: click.Context, push_to_talk: bool, max_utterances: int, trust_tier: str) -> None:
-    """Continuous ambient or push-to-talk listening loop."""
-    from hath0r_cli.voice import evaluate_and_dispatch_voice
-
-    is_json = _output_mode(ctx) == "json"
-    mode_label = "Push-to-talk" if push_to_talk else "Ambient continuous"
     if not is_json:
         console.print(f"[bold cyan]HATH0R Voice Listening[/bold cyan] ({mode_label}, trust-tier={trust_tier})")
         console.print("[dim]Press Ctrl+C to stop listening.[/dim]\n")
@@ -3203,12 +3193,10 @@ def voice_listen(ctx: click.Context, push_to_talk: bool, max_utterances: int, tr
             if push_to_talk and not is_json:
                 console.print(f"[bold green]Hold / press [{selected_key}] to speak...[/bold green] (or press Enter)")
                 wait_for_push_to_talk_trigger(selected_key, timeout_seconds=60.0)
-            if push_to_talk:
                 click.prompt(
                     "Press [Enter] to speak (or type transcript for simulated input)",
                     default="",
                     show_default=False,
-                    err=is_json,
                 )
 
             if not is_json:

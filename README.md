@@ -12,7 +12,7 @@ HATH0R CLI is the globally installed operator interface, runtime execution gatew
 
 ---
 
-## 🌟 Sales & Feature Overview
+## 🌟 Feature Overview
 
 The HATH0R CLI empowers engineering teams and autonomous agents to build, verify, and operate enterprise software with zero tribal memory and hardened governance:
 

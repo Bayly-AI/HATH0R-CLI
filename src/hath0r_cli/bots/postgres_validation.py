@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Any
 
+
 class DataAuditorBot:
     """Bot for scanning Postgres for missing data."""
 
@@ -14,7 +15,7 @@ class DataAuditorBot:
     def identify_missing_data(self, **kwargs: Any) -> dict[str, Any]:
         """Identify specific missing records and columns."""
         return {
-            "status": "success", 
+            "status": "success",
             "message": "Identified missing records.",
             "data": {
                 "missing_first_name": 812,
