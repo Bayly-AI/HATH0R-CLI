@@ -46,23 +46,40 @@ make wheel
 
 ---
 
-## Command Reference (v0.2)
+## Command Reference (v0.3)
 
 | Command | Purpose |
 |---------|---------|
+| `hath0r init` | Autonomous onboarding & alignment of any repository (Python, Node/TS, Go, Rust, polyglot) |
 | `hath0r doctor` | Verify control tower, group root/AGENTS/WARP, member pointers, and KB hub |
+| `hath0r memory init` | Initialize local semantic working MemoryGraph (`.hath0r/memory/graph.json`) |
+| `hath0r memory read <topic>` | Query semantic memory space topics (`core_rules`, `trigraph`, etc.) |
+| `hath0r memory update <topic> <content>` | Update working memory space |
+| `hath0r factory list` | List registered declarative automation factories |
+| `hath0r factory run <id>` | Execute autonomous multi-bot workflows (e.g. `repo-onboard`, `git-branch-create`) |
 | `hath0r kb path` | Print canonical group knowledgebase path |
 | `hath0r kb products` | Show suite product catalog |
+| `hath0r voice service start\|stop\|status` | Manage background streaming voice synthesis daemon |
 | `hath0r --version` | Package version |
 | `hath0r planes` | ADR-003 domain status map (shipped/partial/planned) |
 | `hath0r schema` | Bounded surface schema + forbidden legacy roots |
 | `hath0r mcp sources list` | List 1-Nation federal vote-source inventory through MCP |
-| `hath0r mcp sources test SOURCE_ID` | Test an allowlisted vote source through 1N-MCP |
-| `hath0r mcp sources fetch-sample SOURCE_ID` | Fetch a bounded vote-source sample through 1N-MCP |
 
-Shipped surface is discoverable via `planes`/`schema`. Full process/work/validate/knowledge-write domains remain **planned** until implemented behind contracts.
+---
 
-> **Note**: Never call `customerSystem` or create `.customerSystem/`.
+## Architectural Map: Tri-Graph & Autonomous Execution
+
+```text
+                                  hath0r CLI
+                                       │
+            ┌──────────────────────────┼──────────────────────────┐
+            ▼                          ▼                          ▼
+     Tri-Graph Substrate       Declarative Factories       Zero-Trust Execution
+            │                          │                          │
+   • KnowledgeGraph (AST/Lineage) • repo-onboarding-factory  • JEV Guard Mediation
+   • ContextGraph (Agent Topology)• git-factory              • Preflight Verification
+   • MemoryGraph (Working Memory) • voice-converse-factory   • Promotion Path Gate
+```
 
 ---
 
