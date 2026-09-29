@@ -1761,7 +1761,7 @@ class BotRegistry:
         dry_run: bool = False,
         context: dict[str, Any] | None = None,
     ) -> StepExecutionResult:
-        if action == "enforce-version":
+        if action in ("ensure-version", "enforce-version"):
             res = bot.enforce_version(dry_run=dry_run)
             return StepExecutionResult(
                 bot_id="version-bot",
