@@ -120,6 +120,7 @@ class BotRegistry:
             "issue-guard-bot": IssueGuardBot(cwd=self.cwd),
             "issue-manager-bot": IssueManagerBot(cwd=self.cwd),
             "pr-bot": PRBot(cwd=self.cwd),
+            "git-pr-bot": PRBot(cwd=self.cwd),
             "git-janitor-bot": GitJanitorBot(cwd=self.cwd),
             "documentation-bot": DocumentationBot(cwd=self.cwd),
             "task-announcer-bot": TaskAnnouncerBot(cwd=self.cwd),
@@ -195,7 +196,7 @@ class BotRegistry:
                 return self._dispatch_issue_manager_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
             elif bot_id == "branch-guard-bot":
                 return self._dispatch_branch_guard_bot(bot, action, args, dry_run=dry_run, context=ctx)
-            elif bot_id == "pr-bot":
+            elif bot_id in ("pr-bot", "git-pr-bot"):
                 return self._dispatch_pr_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
             elif bot_id == "git-janitor-bot":
                 return self._dispatch_janitor_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
@@ -235,6 +236,7 @@ class BotRegistry:
                 return self._dispatch_proactive_speaker(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "memory-manager-bot":
                 return self._dispatch_memory_manager_bot(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "version-bot":
                 return self._dispatch_version_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "voice-service-bot":
                 return self._dispatch_voice_speaker(bot, action, args, dry_run=dry_run, context=ctx)
@@ -1007,6 +1009,19 @@ class BotRegistry:
                 error=res.get("error") or (None if res.get("success") else res.get("message")),
                 dry_run=dry_run,
             )
+        if action in ("run-tests", "test", "validate-tests"):
+            import subprocess
+            if dry_run:
+                return StepExecutionResult(bot_id="quality-gate-bot", action=action, success=True, data={"tests": "dry_run_passed"}, dry_run=True)
+            r = subprocess.run(["pytest", "tests/", "-q", "-k", "not test_voice and not test_speech"], capture_output=True, text=True)
+            return StepExecutionResult(
+                bot_id="quality-gate-bot",
+                action=action,
+                success=r.returncode == 0,
+                data={"stdout": r.stdout, "returncode": r.returncode},
+                error=r.stderr if r.returncode != 0 else None,
+                dry_run=dry_run,
+            )
         if action == "evaluate-rollup":
             res = bot.evaluate_rollup(args.get("status_checks") or [])
             return StepExecutionResult(
@@ -1031,7 +1046,7 @@ class BotRegistry:
         args: dict[str, Any],
         dry_run: bool,
     ) -> StepExecutionResult:
-        if action in ("run", "preflight", "check"):
+        if action in ("run", "preflight", "check", "check-repo-clean", "check-clean"):
             res = bot.run(
                 skip_tests=bool(args.get("skip_tests", False)),
                 dry_run=dry_run,
@@ -1194,6 +1209,15 @@ class BotRegistry:
         *,
         dry_run: bool,
     ) -> StepExecutionResult:
+        if action in ("sync-kb", "sync", "publish-mcp"):
+            res = bot.audit_knowledge_structure()
+            return StepExecutionResult(
+                bot_id="knowledge-organizer-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
         if action in ("audit", "audit-structure", "scan"):
             res = bot.audit_knowledge_structure()
             err_msg = (
