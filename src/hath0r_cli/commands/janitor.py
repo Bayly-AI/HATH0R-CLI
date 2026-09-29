@@ -78,6 +78,3 @@ def janitor_prune(ctx: click.Context, repo: str | None, dry_run: bool) -> None:
             click.echo(f"  {status} {p['branch']}{act}")
 
     _emit_response(ctx, response, text_renderer=_text)
-
-
-

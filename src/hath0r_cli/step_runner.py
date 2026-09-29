@@ -1013,9 +1013,18 @@ class BotRegistry:
             )
         if action in ("run-tests", "test", "validate-tests"):
             import subprocess
+
             if dry_run:
-                return StepExecutionResult(bot_id="quality-gate-bot", action=action, success=True, data={"tests": "dry_run_passed"}, dry_run=True)
-            r = subprocess.run(["pytest", "tests/", "-q", "-k", "not test_voice and not test_speech"], capture_output=True, text=True)
+                return StepExecutionResult(
+                    bot_id="quality-gate-bot",
+                    action=action,
+                    success=True,
+                    data={"tests": "dry_run_passed"},
+                    dry_run=True,
+                )
+            r = subprocess.run(
+                ["pytest", "tests/", "-q", "-k", "not test_voice and not test_speech"], capture_output=True, text=True
+            )
             return StepExecutionResult(
                 bot_id="quality-gate-bot",
                 action=action,
@@ -1751,7 +1760,6 @@ class BotRegistry:
             dry_run=dry_run,
         )
 
-
     def _dispatch_memory_manager_bot(
         self,
         bot: MemoryManagerBot,
@@ -1844,8 +1852,12 @@ class BotRegistry:
         elif action == "show-statistics":
             res = bot.show_statistics(**args)
         else:
-            return StepExecutionResult(bot_id="data-miner-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
-        return StepExecutionResult(bot_id="data-miner-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="data-miner-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run
+            )
+        return StepExecutionResult(
+            bot_id="data-miner-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run
+        )
 
     def _dispatch_compliance_bot(
         self, bot: ComplianceBot, action: str, args: dict[str, Any], *, dry_run: bool = False
@@ -1855,8 +1867,12 @@ class BotRegistry:
         elif action == "validate-schema":
             res = bot.validate_schema(**args)
         else:
-            return StepExecutionResult(bot_id="compliance-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
-        return StepExecutionResult(bot_id="compliance-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="compliance-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run
+            )
+        return StepExecutionResult(
+            bot_id="compliance-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run
+        )
 
     def _dispatch_data_auditor_bot(
         self, bot: DataAuditorBot, action: str, args: dict[str, Any], *, dry_run: bool = False
@@ -1866,8 +1882,16 @@ class BotRegistry:
         elif action == "identify-missing-data":
             res = bot.identify_missing_data(**args)
         else:
-            return StepExecutionResult(bot_id="data-auditor-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
-        return StepExecutionResult(bot_id="data-auditor-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="data-auditor-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action {action}",
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="data-auditor-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run
+        )
 
     def _dispatch_reporting_bot(
         self, bot: ReportingBot, action: str, args: dict[str, Any], *, dry_run: bool = False
@@ -1875,8 +1899,12 @@ class BotRegistry:
         if action == "generate-unfound-report":
             res = bot.generate_unfound_report(**args)
         else:
-            return StepExecutionResult(bot_id="reporting-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
-        return StepExecutionResult(bot_id="reporting-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="reporting-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run
+            )
+        return StepExecutionResult(
+            bot_id="reporting-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run
+        )
 
     def _dispatch_repo_layout_bot(
         self, bot: RepoLayoutBot, action: str, args: dict[str, Any], *, dry_run: bool = False
@@ -1888,8 +1916,16 @@ class BotRegistry:
         elif action == "rollback-init":
             res = bot.rollback_init(dry_run=dry_run)
         else:
-            return StepExecutionResult(bot_id="repo-layout-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
-        return StepExecutionResult(bot_id="repo-layout-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="repo-layout-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action {action}",
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="repo-layout-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run
+        )
 
     def _dispatch_governance_bot(
         self, bot: GovernanceBot, action: str, args: dict[str, Any], *, dry_run: bool = False
@@ -1901,8 +1937,12 @@ class BotRegistry:
         elif action == "spread-hyper-context":
             res = bot.spread_hyper_context(dry_run=dry_run)
         else:
-            return StepExecutionResult(bot_id="governance-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
-        return StepExecutionResult(bot_id="governance-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="governance-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run
+            )
+        return StepExecutionResult(
+            bot_id="governance-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run
+        )
 
     def _dispatch_doc_refactor_bot(
         self, bot: DocRefactorBot, action: str, args: dict[str, Any], *, dry_run: bool = False
@@ -1914,8 +1954,16 @@ class BotRegistry:
         elif action == "seed-playbooks":
             res = bot.seed_playbooks(dry_run=dry_run)
         else:
-            return StepExecutionResult(bot_id="doc-refactor-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
-        return StepExecutionResult(bot_id="doc-refactor-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="doc-refactor-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action {action}",
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="doc-refactor-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run
+        )
 
     def _dispatch_test_harness_bot(
         self, bot: TestHarnessBot, action: str, args: dict[str, Any], *, dry_run: bool = False
@@ -1927,8 +1975,16 @@ class BotRegistry:
         elif action == "provision-ci-workflows":
             res = bot.provision_ci_workflows(dry_run=dry_run)
         else:
-            return StepExecutionResult(bot_id="test-harness-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
-        return StepExecutionResult(bot_id="test-harness-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="test-harness-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action {action}",
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="test-harness-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run
+        )
 
     def _dispatch_tri_graph_ingest_bot(
         self, bot: TriGraphIngestBot, action: str, args: dict[str, Any], *, dry_run: bool = False
@@ -1940,8 +1996,17 @@ class BotRegistry:
         elif action == "ingest-memory-graph":
             res = bot.ingest_memory_graph(dry_run=dry_run)
         else:
-            return StepExecutionResult(bot_id="tri-graph-ingest-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
-        return StepExecutionResult(bot_id="tri-graph-ingest-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="tri-graph-ingest-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action {action}",
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="tri-graph-ingest-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run
+        )
+
 
 def execute_workflow(
     workflow_def: dict[str, Any],
@@ -2096,4 +2161,3 @@ def spool_telemetry_event(
     except Exception:
         # Telemetry is strictly never-fatal per AEG-REQ-TEL-002
         return None
-

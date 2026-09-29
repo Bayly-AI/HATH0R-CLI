@@ -290,6 +290,3 @@ def docker_diagnose(ctx: click.Context, container_name: str | None, dry_run: boo
 # ============================================================================
 # Quality / preflight / deploy / release / docs bots (#66–#71)
 # ============================================================================
-
-
-

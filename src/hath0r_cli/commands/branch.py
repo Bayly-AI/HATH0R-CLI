@@ -32,6 +32,3 @@ def branch_validate(ctx: click.Context, name: str) -> None:
         click.echo(click.style(res.get("message", ""), fg=color))
 
     _emit_response(ctx, response, text_renderer=_text)
-
-
-

@@ -31,8 +31,20 @@ def test_context_manager_bot_query_populated(tmp_path: Path) -> None:
         "nodes": [
             {"id": "agent-root", "type": "agent", "label": "Main Orchestrator", "state": "running"},
             {"id": "subagent-worker-1", "type": "subagent", "label": "Worker 1", "state": "running"},
-            {"id": "tool-exec-1", "type": "tool_invocation", "label": "invoke:view_file", "state": "completed", "properties": {"tool": "view_file"}},
-            {"id": "jev-guard-1", "type": "jev_guard", "label": "jev:allowed", "state": "completed", "properties": {"status": "allowed"}},
+            {
+                "id": "tool-exec-1",
+                "type": "tool_invocation",
+                "label": "invoke:view_file",
+                "state": "completed",
+                "properties": {"tool": "view_file"},
+            },
+            {
+                "id": "jev-guard-1",
+                "type": "jev_guard",
+                "label": "jev:allowed",
+                "state": "completed",
+                "properties": {"status": "allowed"},
+            },
         ],
         "edges": [
             {"source": "agent-root", "target": "subagent-worker-1", "relation": "delegated_to"},
@@ -81,9 +93,7 @@ def test_context_cli_query_commands(tmp_path: Path) -> None:
                         {"id": "agent-main", "type": "agent", "label": "Root Agent"},
                         {"id": "tool-run", "type": "tool_invocation", "label": "invoke:run_command"},
                     ],
-                    "edges": [
-                        {"source": "agent-main", "target": "tool-run", "relation": "executed_tool"}
-                    ],
+                    "edges": [{"source": "agent-main", "target": "tool-run", "relation": "executed_tool"}],
                 }
             )
         )

@@ -29,8 +29,8 @@ class DataMinerBot:
                 "missing_photos": 0,
                 "missing_votes": 0,
                 "schema_compliance": "100%",
-                "status": "COMPLETE_NO_GAPS"
-            }
+                "status": "COMPLETE_NO_GAPS",
+            },
         }
 
     def ingest_legislative_recordset(self, **kwargs: Any) -> dict[str, Any]:
@@ -42,10 +42,7 @@ class DataMinerBot:
         return {
             "status": "success",
             "message": "Patch operation completed.",
-            "data": {
-                "patched_records": 53,
-                "unfound_records": 760
-            }
+            "data": {"patched_records": 53, "unfound_records": 760},
         }
 
     def show_statistics(self, **kwargs: Any) -> dict[str, Any]:
@@ -57,8 +54,8 @@ class DataMinerBot:
                 "records_processed": 1084,
                 "compliance_failures": 0,
                 "date_range": "1961-1981",
-                "total_votes_recorded": 248600
-            }
+                "total_votes_recorded": 248600,
+            },
         }
 
 

@@ -402,6 +402,3 @@ def task_finish(
     _emit_response(ctx, response, text_renderer=_text)
     if not all_success:
         ctx.exit(1)
-
-
-

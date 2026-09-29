@@ -79,6 +79,3 @@ def release_publish(ctx: click.Context, repo: str | None, skip_github_release: b
     _emit_response(ctx, response, text_renderer=_text)
     if not res.get("success"):
         ctx.exit(1)
-
-
-

@@ -103,6 +103,3 @@ def jev_status(ctx: click.Context) -> None:
             click.echo(f"  [{mark}] {item['repo']}: {item['role']}")
 
     _emit_response(ctx, response, text_renderer=_text)
-
-
-

@@ -94,6 +94,3 @@ def issue_create(ctx: click.Context, repo: str, title: str, body: str, labels: t
 # ============================================================================
 # Repository Hygiene & Organization Group (Issue #135)
 # ============================================================================
-
-
-

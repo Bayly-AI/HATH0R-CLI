@@ -103,7 +103,7 @@ def voice_exec(ctx: click.Context, transcript: str, trust_tier: str, dry_run: bo
         duration = data.get("duration_ms", 0.0)
 
         console.print(f"[bold green]✓ Voice Action Resolved[/bold green] in {duration:.1f}ms ([cyan]{tier}[/cyan]):")
-        console.print(f"  • [bold]Transcript:[/bold] \"{action.get('transcript')}\"")
+        console.print(f'  • [bold]Transcript:[/bold] "{action.get("transcript")}"')
         console.print(f"  • [bold]Intent:[/bold] {intent} (confidence={action.get('confidence', 1.0):.2f})")
         payload = action.get("payload", {})
         if "command" in payload:
@@ -1226,4 +1226,149 @@ def voice_service_uninstall(ctx: click.Context) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
+# ============================================================================
+# Persistent Background Voice Daemon & IPC Streaming (#196)
+# ============================================================================
 
+
+@voice.group("daemon")
+def voice_daemon() -> None:
+    """Manage persistent ambient voice audio streaming and IPC event daemon."""
+    pass
+
+
+@voice_daemon.command("start")
+@click.option(
+    "--background/--foreground",
+    default=True,
+    show_default=True,
+    help="Run daemon process in background or foreground.",
+)
+@click.pass_context
+def voice_daemon_start(ctx: click.Context, background: bool) -> None:
+    """Start the persistent ambient voice audio streaming daemon."""
+    from hath0r_cli.bots.voice_daemon import VoiceDaemonBot
+
+    bot = VoiceDaemonBot()
+    res = bot.start_daemon(background=background)
+
+    response = _build_response(
+        ctx,
+        command="voice.daemon.start",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("status") == "already_running":
+            console.print(f"[yellow]● Voice daemon is already running[/yellow] (PID: [bold]{res.get('pid')}[/bold])")
+        elif res.get("status") == "started":
+            console.print(f"[bold green]✓ Voice Daemon Started[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
+            if res.get("socket"):
+                console.print(f"  • IPC Socket: [dim]{res.get('socket')}[/dim]")
+        else:
+            console.print(res.get("message", "Voice daemon status updated."))
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_daemon.command("stop")
+@click.pass_context
+def voice_daemon_stop(ctx: click.Context) -> None:
+    """Stop the running background voice streaming daemon."""
+    from hath0r_cli.bots.voice_daemon import VoiceDaemonBot
+
+    bot = VoiceDaemonBot()
+    res = bot.stop_daemon()
+
+    response = _build_response(
+        ctx,
+        command="voice.daemon.stop",
+        state="ok" if res.get("success") else "degraded",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("status") == "stopped":
+            console.print(f"[bold green]✓ Voice Daemon Stopped[/bold green] (PID: [dim]{res.get('pid')}[/dim])")
+        else:
+            console.print("[dim]Voice daemon is not currently running.[/dim]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_daemon.command("status")
+@click.pass_context
+def voice_daemon_status(ctx: click.Context) -> None:
+    """Check live status and event telemetry of the voice daemon."""
+    from hath0r_cli.bots.voice_daemon import VoiceDaemonBot
+
+    bot = VoiceDaemonBot()
+    res = bot.status()
+
+    response = _build_response(
+        ctx,
+        command="voice.daemon.status",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("running"):
+            console.print(f"[bold green]● Voice Daemon is RUNNING[/bold green] (PID: [bold]{res.get('pid')}[/bold])")
+            console.print(f"  • IPC Socket: [dim]{res.get('socket')}[/dim]")
+            console.print(f"  • Uptime: [cyan]{res.get('uptime_seconds')}s[/cyan]")
+            console.print(f"  • Events Processed: [cyan]{res.get('events_processed')}[/cyan]")
+        else:
+            console.print("[dim]○ Voice Daemon is STOPPED[/dim]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice_daemon.command("emit")
+@click.argument("event_type")
+@click.argument("message")
+@click.option("--payload", default=None, help="Optional JSON metadata payload for event.")
+@click.option("--speak/--no-speak", default=True, help="Trigger spoken feedback for event.")
+@click.pass_context
+def voice_daemon_emit(
+    ctx: click.Context,
+    event_type: str,
+    message: str,
+    payload: str | None,
+    speak: bool,
+) -> None:
+    """Emit a task/lifecycle broadcast event to the voice daemon."""
+    import json
+
+    from hath0r_cli.bots.voice_daemon import VoiceDaemonBot
+
+    parsed_payload = {}
+    if payload:
+        try:
+            parsed_payload = json.loads(payload)
+        except Exception:
+            pass
+
+    bot = VoiceDaemonBot()
+    res = bot.emit_event(
+        event_type=event_type,
+        message=message,
+        payload=parsed_payload,
+        speak=speak,
+    )
+
+    response = _build_response(
+        ctx,
+        command="voice.daemon.emit",
+        state="ok" if res.get("success") else "error",
+        data=res,
+    )
+
+    def _text() -> None:
+        delivery = res.get("ipc_delivery")
+        console.print(
+            f"[bold green]✓ Event Emitted[/bold green] ([cyan]{event_type}[/cyan] via [magenta]{delivery}[/magenta]): {message}"
+        )
+
+    _emit_response(ctx, response, text_renderer=_text)

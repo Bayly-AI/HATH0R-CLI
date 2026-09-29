@@ -17,10 +17,16 @@ from hath0r_cli.common import (
 @click.command("init")
 @click.option("--name", "product_name", default=None, help="Product or microservice name.")
 @click.option("--dry-run", is_flag=True, default=False, help="Preview onboarding changes without writing to disk.")
-@click.option("--rollback", is_flag=True, default=False, help="Roll back repository state from pre-init backup snapshot.")
-@click.option("--yes", "-y", "non_interactive", is_flag=True, default=False, help="Accept all defaults non-interactively.")
+@click.option(
+    "--rollback", is_flag=True, default=False, help="Roll back repository state from pre-init backup snapshot."
+)
+@click.option(
+    "--yes", "-y", "non_interactive", is_flag=True, default=False, help="Accept all defaults non-interactively."
+)
 @click.pass_context
-def init_cmd(ctx: click.Context, product_name: str | None, dry_run: bool, rollback: bool, non_interactive: bool) -> None:
+def init_cmd(
+    ctx: click.Context, product_name: str | None, dry_run: bool, rollback: bool, non_interactive: bool
+) -> None:
     """Initialize and align any repository with the HATHOR agentic framework."""
     from hath0r_cli.factory_manager import FactoryManagerBot
     from hath0r_cli.step_runner import BotRegistry, execute_workflow
@@ -36,9 +42,12 @@ def init_cmd(ctx: click.Context, product_name: str | None, dry_run: bool, rollba
         pkg_factory_path = _cli_repo_root() / "cfg" / "factories" / "repo-onboarding-factory.yaml"
         if pkg_factory_path.exists():
             import yaml
+
             spec = yaml.safe_load(pkg_factory_path.read_text(encoding="utf-8"))
         else:
-            response = _build_response(ctx, command="init", state="error", data={"error": "repo-onboarding-factory not found"})
+            response = _build_response(
+                ctx, command="init", state="error", data={"error": "repo-onboarding-factory not found"}
+            )
             _emit_response(ctx, response)
             raise SystemExit(1)
     else:
@@ -47,7 +56,9 @@ def init_cmd(ctx: click.Context, product_name: str | None, dry_run: bool, rollba
     wf_id = "repo-rollback" if rollback else "repo-onboard"
     workflow = next((w for w in spec.get("workflows", []) if w.get("id") == wf_id), None)
     if not workflow:
-        response = _build_response(ctx, command="init", state="error", data={"error": f"Workflow '{wf_id}' missing in factory spec."})
+        response = _build_response(
+            ctx, command="init", state="error", data={"error": f"Workflow '{wf_id}' missing in factory spec."}
+        )
         _emit_response(ctx, response)
         raise SystemExit(1)
 
@@ -96,6 +107,3 @@ def init_cmd(ctx: click.Context, product_name: str | None, dry_run: bool, rollba
     _emit_response(ctx, response, text_renderer=_text)
     if not exec_res.success:
         raise SystemExit(1)
-
-
-

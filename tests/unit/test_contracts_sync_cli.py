@@ -15,7 +15,9 @@ def test_contracts_bot_validate_and_sync(tmp_path: Path) -> None:
     canon_dir = tmp_path / "canonical" / "contracts" / "schemas"
     canon_dir.mkdir(parents=True)
     schema1 = canon_dir / "test-schema-v1.json"
-    schema1.write_text(json.dumps({"$schema": "http://json-schema.org/draft-07/schema#", "title": "Test1"}), encoding="utf-8")
+    schema1.write_text(
+        json.dumps({"$schema": "http://json-schema.org/draft-07/schema#", "title": "Test1"}), encoding="utf-8"
+    )
 
     member_dir = tmp_path / "member_repo"
     member_schemas = member_dir / "contracts" / "schemas"
@@ -59,7 +61,16 @@ def test_cli_contracts_validate_and_sync_commands(tmp_path: Path) -> None:
     # CLI Validate
     res_val = runner.invoke(
         main,
-        ["--output", "json", "contracts", "validate", "--canonical-dir", str(canon_dir), "--target-dir", str(member_dir)],
+        [
+            "--output",
+            "json",
+            "contracts",
+            "validate",
+            "--canonical-dir",
+            str(canon_dir),
+            "--target-dir",
+            str(member_dir),
+        ],
     )
     assert res_val.exit_code == 0
     data_val = json.loads(res_val.output)
@@ -69,7 +80,17 @@ def test_cli_contracts_validate_and_sync_commands(tmp_path: Path) -> None:
     # CLI Sync (dry-run)
     res_dry = runner.invoke(
         main,
-        ["--output", "json", "contracts", "sync", "--canonical-dir", str(canon_dir), "--target-dir", str(member_dir), "--dry-run"],
+        [
+            "--output",
+            "json",
+            "contracts",
+            "sync",
+            "--canonical-dir",
+            str(canon_dir),
+            "--target-dir",
+            str(member_dir),
+            "--dry-run",
+        ],
     )
     assert res_dry.exit_code == 0
     data_dry = json.loads(res_dry.output)

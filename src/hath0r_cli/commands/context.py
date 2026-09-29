@@ -49,12 +49,16 @@ def context_spread(ctx: click.Context, target: str, feature_name: str) -> None:
 
 
 @context.command("query")
-@click.option("--filter", "-f", "filter_query", default=None, help="Filter query substring for node id, label, or tool.")
+@click.option(
+    "--filter", "-f", "filter_query", default=None, help="Filter query substring for node id, label, or tool."
+)
 @click.option(
     "--type",
     "-t",
     "node_type",
-    type=click.Choice(["agent", "subagent", "task", "tool_invocation", "jev_guard", "context_slice", "artifact"], case_sensitive=False),
+    type=click.Choice(
+        ["agent", "subagent", "task", "tool_invocation", "jev_guard", "context_slice", "artifact"], case_sensitive=False
+    ),
     default=None,
     help="Filter by node type.",
 )

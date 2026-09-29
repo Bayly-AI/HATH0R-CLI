@@ -183,12 +183,7 @@ class MemoryManagerBot:
                 continue
 
             if q:
-                match = (
-                    q in nid.lower()
-                    or q in nlabel.lower()
-                    or q in ncontent.lower()
-                    or any(q in t for t in ntags)
-                )
+                match = q in nid.lower() or q in nlabel.lower() or q in ncontent.lower() or any(q in t for t in ntags)
                 if not match:
                     continue
 

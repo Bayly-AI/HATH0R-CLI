@@ -118,7 +118,10 @@ def memory_update(ctx: click.Context, topic: str, content: str, dry_run: bool) -
 @click.option(
     "--relation",
     "-r",
-    type=click.Choice(["ENFORCES", "REQUIRES", "DERIVES_FROM", "SUPERSEDES", "RELATES_TO", "RESOLVES", "PRECEDES"], case_sensitive=False),
+    type=click.Choice(
+        ["ENFORCES", "REQUIRES", "DERIVES_FROM", "SUPERSEDES", "RELATES_TO", "RESOLVES", "PRECEDES"],
+        case_sensitive=False,
+    ),
     default=None,
     help="Filter edge relationship traversal.",
 )
