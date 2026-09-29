@@ -3044,6 +3044,8 @@ def voice_exec(ctx: click.Context, transcript: str, trust_tier: str, dry_run: bo
     default=True,
     show_default=True,
     help="Always prompt operator to confirm/select which button to use for push-to-talk.",
+)
+@click.option(
     "--push-to-talk",
     is_flag=True,
     default=False,
@@ -3160,7 +3162,6 @@ def voice_listen(ctx: click.Context, push_to_talk: bool, max_utterances: int, tr
             "key": selected_key,
             "results": results,
         },
-        ctx, command="voice.listen", state="ok", data={"captured_count": captured, "results": results}
     )
     _emit_response(ctx, response)
 

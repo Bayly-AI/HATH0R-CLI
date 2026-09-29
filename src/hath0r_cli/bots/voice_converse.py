@@ -476,7 +476,7 @@ class ProactiveSpeakerBot:
 
 
 class VoiceServiceBot:
-    """Manages background/daemon voice listening and conversational response service."""
+    """Manages background voice listening and conversational response service."""
 
     def __init__(self, cwd: Optional[Path] = None) -> None:
         self.cwd = Path(cwd) if cwd else Path.cwd()
@@ -496,7 +496,7 @@ class VoiceServiceBot:
         return Path.home() / ".config" / "systemd" / "user" / "hath0r-voice.service"
 
     def is_running(self) -> Tuple[bool, Optional[int]]:
-        """Check if daemon process is currently active."""
+        """Check if bot process is currently active."""
         if not self.pid_file.is_file():
             return False, None
         try:
