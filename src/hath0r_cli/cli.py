@@ -3130,12 +3130,6 @@ def voice_exec(ctx: click.Context, transcript: str, trust_tier: str, dry_run: bo
     help="Always prompt operator to confirm/select which button to use for push-to-talk.",
 )
 @click.option(
-    "--push-to-talk",
-    is_flag=True,
-    default=False,
-    help="Wait for user Enter keypress before capturing utterance.",
-)
-@click.option(
     "--max-utterances",
     type=int,
     default=1,
@@ -3186,12 +3180,6 @@ def voice_listen(
         )
 
     mode_label = f"Push-to-talk (key='{selected_key}')" if push_to_talk else "Ambient continuous"
-def voice_listen(ctx: click.Context, push_to_talk: bool, max_utterances: int, trust_tier: str) -> None:
-    """Continuous ambient or push-to-talk listening loop."""
-    from hath0r_cli.voice import evaluate_and_dispatch_voice
-
-    is_json = _output_mode(ctx) == "json"
-    mode_label = "Push-to-talk" if push_to_talk else "Ambient continuous"
     if not is_json:
         console.print(f"[bold cyan]HATH0R Voice Listening[/bold cyan] ({mode_label}, trust-tier={trust_tier})")
         console.print("[dim]Press Ctrl+C to stop listening.[/dim]\n")
@@ -3203,12 +3191,10 @@ def voice_listen(ctx: click.Context, push_to_talk: bool, max_utterances: int, tr
             if push_to_talk and not is_json:
                 console.print(f"[bold green]Hold / press [{selected_key}] to speak...[/bold green] (or press Enter)")
                 wait_for_push_to_talk_trigger(selected_key, timeout_seconds=60.0)
-            if push_to_talk:
                 click.prompt(
                     "Press [Enter] to speak (or type transcript for simulated input)",
                     default="",
                     show_default=False,
-                    err=is_json,
                 )
 
             if not is_json:
