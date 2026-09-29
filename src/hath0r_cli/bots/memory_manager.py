@@ -17,7 +17,7 @@ class MemoryManagerBot:
 
         core_content = (
             "# Core Hath0r Rules\n"
-            "1. CLI-First: Always use the CLI capabilities before improvising.\n"
+            "1. CLI-First (CR-CLI-ENTRY-001): Always start with the CLI capabilities before improvising.\n"
             "2. Bots not Daemons: Background tasks are bots/factories.\n"
             "3. Hyper-Context: Always traverse the defined context paths (playbooks, procedures).\n"
             "4. Promotion Path: local -> development -> testing -> staging -> master.\n"
@@ -40,18 +40,40 @@ class MemoryManagerBot:
             "files": [str(core_file), str(arch_file)],
         }
 
+    def init_memory(self, dry_run: bool = False) -> Dict[str, Any]:
+        """Alias for initialize_memory."""
+        return self.initialize_memory(dry_run=dry_run)
+
+    def read_topic(self, topic: str) -> Optional[str]:
+        """Read content of a topic directly."""
+        res = self.read_memory(topic)
+        if res.get("success"):
+            return res.get("content")
+        return None
+
+    def update_topic(self, topic: str, content: str, dry_run: bool = False) -> Dict[str, Any]:
+        """Alias for update_memory."""
+        return self.update_memory(topic=topic, content=content, dry_run=dry_run)
+
     def read_memory(self, topic: str) -> Dict[str, Any]:
         """Read a specific memory topic."""
-        target_file = self.memory_dir / f"{topic}.md"
+        # Handle aliases: rules -> core_rules, core -> core_rules
+        actual_topic = "core_rules" if topic in ("rules", "core") else topic
+        target_file = self.memory_dir / f"{actual_topic}.md"
         if not target_file.exists():
-            return {"success": False, "error": f"Memory topic '{topic}' does not exist."}
+            # Try exact match without translation
+            target_file = self.memory_dir / f"{topic}.md"
+            if not target_file.exists():
+                return {"success": False, "error": f"Memory topic '{topic}' does not exist."}
 
         return {"success": True, "topic": topic, "content": target_file.read_text()}
 
     def update_memory(self, topic: str, content: str, dry_run: bool = False) -> Dict[str, Any]:
         """Update or create a specific memory topic."""
-        target_file = self.memory_dir / f"{topic}.md"
+        actual_topic = "core_rules" if topic in ("rules", "core") else topic
+        target_file = self.memory_dir / f"{actual_topic}.md"
         if not dry_run:
             target_file.write_text(content)
 
         return {"success": True, "message": f"Updated memory topic '{topic}'.", "file": str(target_file)}
+

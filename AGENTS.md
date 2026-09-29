@@ -179,3 +179,12 @@ Canonical flow, human gates, and PR templates:
 ## Agent Orientation Memory Space (CRITICAL)
 - **Local Memory Space**: Agents MUST read the Local Memory Space first when orienting to the app. 
 - Execute `hath0r memory read core` and `hath0r memory read architecture` via the CLI before making any code modifications or forming plans.
+
+## Hyper Context Pointers
+- **CLI Subsystem**: `src/hath0r_cli/AGENTS.md`
+
+## Hyper Context Pointers
+- **Documentation Subsystem**: `docs/AGENTS.md`
+
+## Hyper Context Pointers
+- **Testing Subsystem**: `tests/AGENTS.md`
