@@ -22,13 +22,15 @@ def contracts() -> None:
 
 @contracts.command("validate")
 @click.option("--target-dir", default=None, help="Target repository directory to validate contracts for.")
+@click.option("--canonical-dir", default=None, help="Canonical contracts directory to compare against.")
 @click.pass_context
-def contracts_validate(ctx: click.Context, target_dir: str | None) -> None:
+def contracts_validate(ctx: click.Context, target_dir: str | None, canonical_dir: str | None) -> None:
     """Validate repository schema contracts against canonical definitions."""
     from hath0r_cli.bots.contracts_bot import ContractsBot
 
     target_path = Path(target_dir).expanduser().resolve() if target_dir else None
-    bot = ContractsBot()
+    canon_path = Path(canonical_dir).expanduser().resolve() if canonical_dir else None
+    bot = ContractsBot(canonical_dir=canon_path)
     res = bot.validate_contracts(target_dir=target_path)
 
     response = _build_response(
@@ -89,14 +91,16 @@ def contracts_validate(ctx: click.Context, target_dir: str | None) -> None:
 
 @contracts.command("sync")
 @click.option("--target-dir", default=None, help="Target repository directory to synchronize contracts into.")
+@click.option("--canonical-dir", default=None, help="Canonical contracts directory to synchronize from.")
 @click.option("--dry-run", is_flag=True, help="Simulate synchronization without modifying files.")
 @click.pass_context
-def contracts_sync(ctx: click.Context, target_dir: str | None, dry_run: bool) -> None:
-    """Synchronize canonical schemas into target repository contracts/schemas."""
+def contracts_sync(ctx: click.Context, target_dir: str | None, canonical_dir: str | None, dry_run: bool) -> None:
+    """Synchronize canonical schemas into target repository contracts directory."""
     from hath0r_cli.bots.contracts_bot import ContractsBot
 
     target_path = Path(target_dir).expanduser().resolve() if target_dir else None
-    bot = ContractsBot()
+    canon_path = Path(canonical_dir).expanduser().resolve() if canonical_dir else None
+    bot = ContractsBot(canonical_dir=canon_path)
     res = bot.sync_contracts(target_dir=target_path, dry_run=dry_run)
 
     response = _build_response(

@@ -19,21 +19,27 @@ class ContractsBot:
         self.canonical_dir = canonical_dir or self._discover_canonical_schemas_dir()
 
     def _discover_canonical_schemas_dir(self) -> Path:
-        """Locate canonical contracts/schemas directory in group or CLI repo."""
+        """Locate canonical contracts/schemas directory in group, framework, or CLI repo."""
         group_root = _discover_group_root(self.cwd)
         if group_root:
             for cand_name in ("hath0r", "hath0r-framework", "HATH0R-Agentic-Framework"):
-                cand_dir = group_root / cand_name / "contracts" / "schemas"
-                if cand_dir.is_dir():
-                    return cand_dir
+                cand_root = group_root / cand_name
+                for sub in ("contracts/schemas", "contracts"):
+                    cand_dir = cand_root / sub
+                    if cand_dir.is_dir() and any(cand_dir.glob("*.json")):
+                        return cand_dir
 
         cli_root = _cli_repo_root()
-        cli_schemas = cli_root / "contracts" / "schemas"
-        if cli_schemas.is_dir():
-            return cli_schemas
+        for sub in ("contracts/schemas", "contracts"):
+            cli_schemas = cli_root / sub
+            if cli_schemas.is_dir() and any(cli_schemas.glob("*.json")):
+                return cli_schemas
 
-        # Fallback to local
-        return self.cwd / "contracts" / "schemas"
+        # Fallback to local contracts
+        local_schemas = self.cwd / "contracts" / "schemas"
+        if local_schemas.is_dir():
+            return local_schemas
+        return self.cwd / "contracts"
 
     @staticmethod
     def _file_sha256(path: Path) -> str:
@@ -42,20 +48,32 @@ class ContractsBot:
         hasher.update(path.read_bytes())
         return hasher.hexdigest()
 
+    def _resolve_target_dir(self, target_dir: Optional[Path]) -> Path:
+        base = target_dir or self.cwd
+        if (base / "contracts" / "schemas").is_dir():
+            return base / "contracts" / "schemas"
+        if (base / "contracts").is_dir():
+            return base / "contracts"
+        return base / "contracts" / "schemas"
+
     def validate_contracts(self, target_dir: Optional[Path] = None) -> Dict[str, Any]:
         """Validate local schema contracts against canonical definitions and check JSON schema syntax."""
-        local_schemas_dir = (target_dir or self.cwd) / "contracts" / "schemas"
-        if not self.canonical_dir.is_dir():
+        local_dir = self._resolve_target_dir(target_dir)
+
+        canonical_files: Dict[str, Path] = {}
+        if self.canonical_dir.is_dir():
+            canonical_files = {f.name: f for f in self.canonical_dir.glob("*.json")}
+
+        if not canonical_files:
             return {
                 "success": False,
-                "error": f"Canonical schemas directory not found: {self.canonical_dir}",
+                "error": f"No canonical schema contracts found in: {self.canonical_dir}",
             }
 
         local_files: Dict[str, Path] = {}
-        if local_schemas_dir.is_dir():
-            local_files = {f.name: f for f in local_schemas_dir.glob("*.json")}
+        if local_dir.is_dir():
+            local_files = {f.name: f for f in local_dir.glob("*.json")}
 
-        canonical_files = {f.name: f for f in self.canonical_dir.glob("*.json")}
         all_names: Set[str] = set(local_files.keys()).union(set(canonical_files.keys()))
 
         items: List[Dict[str, Any]] = []
@@ -120,7 +138,7 @@ class ContractsBot:
             "success": True,
             "state": overall_state,
             "canonical_dir": str(self.canonical_dir),
-            "local_dir": str(local_schemas_dir),
+            "local_dir": str(local_dir),
             "summary": {
                 "total_schemas": len(items),
                 "in_sync": in_sync_count,
@@ -132,13 +150,17 @@ class ContractsBot:
         }
 
     def sync_contracts(self, target_dir: Optional[Path] = None, dry_run: bool = False) -> Dict[str, Any]:
-        """Synchronize canonical schemas into target repository contracts/schemas."""
-        target_schemas_dir = (target_dir or self.cwd) / "contracts" / "schemas"
+        """Synchronize canonical schemas into target repository contracts directory."""
+        target_dir_path = self._resolve_target_dir(target_dir)
 
-        if not self.canonical_dir.is_dir():
+        canonical_files: Dict[str, Path] = {}
+        if self.canonical_dir.is_dir():
+            canonical_files = {f.name: f for f in self.canonical_dir.glob("*.json")}
+
+        if not canonical_files:
             return {
                 "success": False,
-                "error": f"Canonical schemas directory not found: {self.canonical_dir}",
+                "error": f"No canonical schema contracts found in: {self.canonical_dir}",
             }
 
         val = self.validate_contracts(target_dir=target_dir)
@@ -146,10 +168,9 @@ class ContractsBot:
             return val
 
         if not dry_run:
-            target_schemas_dir.mkdir(parents=True, exist_ok=True)
+            target_dir_path.mkdir(parents=True, exist_ok=True)
 
         synced: List[str] = []
-        canonical_files = {f.name: f for f in self.canonical_dir.glob("*.json")}
 
         for item in val.get("schemas", []):
             name = item.get("schema")
@@ -157,7 +178,7 @@ class ContractsBot:
 
             if status in ("drifted", "missing_local") and name in canonical_files:
                 src_file = canonical_files[name]
-                dst_file = target_schemas_dir / name
+                dst_file = target_dir_path / name
                 if not dry_run:
                     shutil.copy2(src_file, dst_file)
                 synced.append(name)
@@ -166,7 +187,7 @@ class ContractsBot:
             "success": True,
             "dry_run": dry_run,
             "canonical_dir": str(self.canonical_dir),
-            "target_dir": str(target_schemas_dir),
+            "target_dir": str(target_dir_path),
             "synced_count": len(synced),
             "synced_schemas": synced,
             "message": f"{'[DRY RUN] Would sync' if dry_run else 'Synced'} {len(synced)} schema contract(s).",

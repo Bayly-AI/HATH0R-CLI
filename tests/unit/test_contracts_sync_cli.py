@@ -57,18 +57,28 @@ def test_cli_contracts_validate_and_sync_commands(tmp_path: Path) -> None:
     runner = CliRunner()
 
     # CLI Validate
-    res_val = runner.invoke(main, ["--output", "json", "contracts", "validate", "--target-dir", str(member_dir)])
+    res_val = runner.invoke(
+        main,
+        ["--output", "json", "contracts", "validate", "--canonical-dir", str(canon_dir), "--target-dir", str(member_dir)],
+    )
     assert res_val.exit_code == 0
     data_val = json.loads(res_val.output)
     assert "data" in data_val
+    assert data_val["data"]["success"] is True
 
     # CLI Sync (dry-run)
-    res_dry = runner.invoke(main, ["--output", "json", "contracts", "sync", "--target-dir", str(member_dir), "--dry-run"])
+    res_dry = runner.invoke(
+        main,
+        ["--output", "json", "contracts", "sync", "--canonical-dir", str(canon_dir), "--target-dir", str(member_dir), "--dry-run"],
+    )
     assert res_dry.exit_code == 0
     data_dry = json.loads(res_dry.output)
     assert data_dry["data"]["dry_run"] is True
 
     # CLI Sync (real)
-    res_sync = runner.invoke(main, ["contracts", "sync", "--target-dir", str(member_dir)])
+    res_sync = runner.invoke(
+        main,
+        ["contracts", "sync", "--canonical-dir", str(canon_dir), "--target-dir", str(member_dir)],
+    )
     assert res_sync.exit_code == 0
     assert "Synced" in res_sync.output or "up to date" in res_sync.output
