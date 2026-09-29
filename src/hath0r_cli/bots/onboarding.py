@@ -18,7 +18,7 @@ class RepoLayoutBot:
     cwd: Path = field(default_factory=Path.cwd)
 
     def backup_state(self, dry_run: bool = False) -> Dict[str, Any]:
-        """Snapshot critical files (README.md, etc.) before initialization for safe rollback."""
+        """Snapshot critical files (README.md, .github workflows, etc.) before initialization for safe rollback."""
         backup_dir = self.cwd / ".hath0r" / "spool" / "init-backup"
         backed_up: List[str] = []
 
@@ -31,6 +31,15 @@ class RepoLayoutBot:
                     shutil.copy2(fpath, backup_dir / fname)
                     backed_up.append(fname)
 
+            # Backup workflows if present
+            wf_dir = self.cwd / ".github" / "workflows"
+            if wf_dir.is_dir():
+                bk_wf_dir = backup_dir / ".github" / "workflows"
+                bk_wf_dir.mkdir(parents=True, exist_ok=True)
+                for wf_file in wf_dir.glob("*.yml"):
+                    shutil.copy2(wf_file, bk_wf_dir / wf_file.name)
+                    backed_up.append(f".github/workflows/{wf_file.name}")
+
         return {
             "success": True,
             "dry_run": dry_run,
@@ -40,7 +49,7 @@ class RepoLayoutBot:
         }
 
     def scaffold_layout(self, dry_run: bool = False) -> Dict[str, Any]:
-        """Create canonical directories: .hath0r/, cfg/, contracts/, docs/, tests/."""
+        """Create canonical directories: .hath0r/, cfg/, contracts/, docs/, tests/, .github/workflows/."""
         dirs_to_create = [
             self.cwd / ".hath0r" / "cfg",
             self.cwd / ".hath0r" / "memory",
@@ -50,6 +59,7 @@ class RepoLayoutBot:
             self.cwd / "contracts" / "schemas",
             self.cwd / "docs" / "governance" / "playbooks",
             self.cwd / "docs" / "governance" / "rules",
+            self.cwd / ".github" / "workflows",
         ]
 
         created_dirs: List[str] = []
@@ -66,6 +76,52 @@ class RepoLayoutBot:
             "message": f"Scaffolded {len(created_dirs)} canonical directories.",
         }
 
+    def sync_ci_workflows(self, dry_run: bool = False) -> Dict[str, Any]:
+        """Provision and synchronize canonical CI promotion path and quality gate workflows."""
+        from hath0r_cli.common import _cli_repo_root, _discover_group_root
+
+        canonical_wf_dir: Optional[Path] = None
+        group_root = _discover_group_root(self.cwd)
+        if group_root:
+            cand = group_root / "HATH0R-CLI" / ".github" / "workflows"
+            if cand.is_dir():
+                canonical_wf_dir = cand
+
+        if not canonical_wf_dir:
+            cli_wf = _cli_repo_root() / ".github" / "workflows"
+            if cli_wf.is_dir():
+                canonical_wf_dir = cli_wf
+
+        if not canonical_wf_dir or not canonical_wf_dir.is_dir():
+            return {
+                "success": False,
+                "error": "Canonical CI workflows directory not found.",
+            }
+
+        target_wf_dir = self.cwd / ".github" / "workflows"
+        if not dry_run:
+            target_wf_dir.mkdir(parents=True, exist_ok=True)
+
+        synced: List[str] = []
+        workflows_to_sync = ["enforce-promotion-path.yml", "notify-pr-failure.yml"]
+        for wf_name in workflows_to_sync:
+            src_wf = canonical_wf_dir / wf_name
+            dst_wf = target_wf_dir / wf_name
+            if src_wf.is_file():
+                if not dry_run:
+                    shutil.copy2(src_wf, dst_wf)
+                synced.append(wf_name)
+
+        return {
+            "success": True,
+            "dry_run": dry_run,
+            "canonical_dir": str(canonical_wf_dir),
+            "target_dir": str(target_wf_dir),
+            "synced_workflows": synced,
+            "synced_count": len(synced),
+            "message": f"{'[DRY RUN] Would sync' if dry_run else 'Synced'} {len(synced)} CI workflow(s).",
+        }
+
     def rollback_init(self, dry_run: bool = False) -> Dict[str, Any]:
         """Restore repository state from init-backup snapshot."""
         backup_dir = self.cwd / ".hath0r" / "spool" / "init-backup"
@@ -78,6 +134,15 @@ class RepoLayoutBot:
                 if bfile.is_file():
                     shutil.copy2(bfile, self.cwd / bfile.name)
                     restored.append(bfile.name)
+
+            # Restore workflows if backed up
+            bk_wf_dir = backup_dir / ".github" / "workflows"
+            if bk_wf_dir.is_dir():
+                dst_wf_dir = self.cwd / ".github" / "workflows"
+                dst_wf_dir.mkdir(parents=True, exist_ok=True)
+                for wf_file in bk_wf_dir.glob("*.yml"):
+                    shutil.copy2(wf_file, dst_wf_dir / wf_file.name)
+                    restored.append(f".github/workflows/{wf_file.name}")
 
         return {
             "success": True,
