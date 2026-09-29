@@ -1,0 +1,106 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: repo-onboarding-factory
+
+factory_id: repo-onboarding-factory
+name: Universal Repository Onboarding & Alignment Factory
+version: 1.0.0
+description: >
+  Autonomous factory that brings any repository (Node, Python, Go, Rust, Java, polyglot)
+  into 100% compliance with the HATHOR standard. Scaffolds layout and metadata, establishes
+  governance and hyper-context, refactors documentation, compiles the Tri-Graph substrate
+  (KnowledgeGraph, ContextGraph, MemoryGraph), and provisions test harnesses and CI promotion gates.
+
+author: Bayly-AI
+category: governance-and-onboarding
+
+# Orchestrated micro-bots participating in this factory
+bots:
+  - id: repo-layout-bot
+    name: Repo Layout Bot
+    role: layout-and-metadata-scaffolding
+    description: Sets up .hath0r/, cfg/, contracts/, .gitignore rules, and backups for rollback.
+    capabilities:
+      - backup-state
+      - scaffold-layout
+      - enforce-hidden-root
+      - rollback-init
+
+  - id: governance-bot
+    name: Governance Bot
+    role: governance-and-versioning
+    description: Generates AGENTS.md, WARP.md, version.yaml, and spreads localized hyper-context.
+    capabilities:
+      - scaffold-agents-md
+      - scaffold-warp-md
+      - init-versioning
+      - spread-hyper-context
+
+  - id: doc-refactor-bot
+    name: Documentation Refactor Bot
+    role: documentation-standardization
+    description: Refactors README.md with Sales Overview and Tech links, creates TECH_README.md, and seeds playbooks.
+    capabilities:
+      - refactor-readme
+      - scaffold-tech-readme
+      - seed-playbooks
+
+  - id: tri-graph-ingest-bot
+    name: Tri-Graph Ingestion Bot
+    role: graph-substrate-compilation
+    description: Compiles KnowledgeGraph, initializes ContextGraph, and ingests docs into MemoryGraph.
+    capabilities:
+      - compile-knowledge-graph
+      - init-context-graph
+      - ingest-memory-graph
+
+  - id: test-harness-bot
+    name: Test Harness Bot
+    role: test-and-ci-provisioning
+    description: Detects tech stack, scaffolds test suites if missing, and installs promotion CI workflows.
+    capabilities:
+      - detect-stack
+      - scaffold-tests
+      - provision-ci-workflows
+
+# Sequential and orchestrated workflows
+workflows:
+  - id: repo-onboard
+    name: Full Universal Repository Onboarding
+    description: Complete end-to-end alignment and onboarding workflow for any repository.
+    steps:
+      - bot: repo-layout-bot
+        action: backup-state
+      - bot: repo-layout-bot
+        action: scaffold-layout
+      - bot: governance-bot
+        action: scaffold-agents-md
+      - bot: governance-bot
+        action: init-versioning
+      - bot: governance-bot
+        action: spread-hyper-context
+      - bot: doc-refactor-bot
+        action: refactor-readme
+      - bot: doc-refactor-bot
+        action: scaffold-tech-readme
+      - bot: doc-refactor-bot
+        action: seed-playbooks
+      - bot: test-harness-bot
+        action: detect-stack
+      - bot: test-harness-bot
+        action: scaffold-tests
+      - bot: test-harness-bot
+        action: provision-ci-workflows
+      - bot: tri-graph-ingest-bot
+        action: compile-knowledge-graph
+      - bot: tri-graph-ingest-bot
+        action: init-context-graph
+      - bot: tri-graph-ingest-bot
+        action: ingest-memory-graph
+
+  - id: repo-rollback
+    name: Rollback Onboarding Changes
+    description: Restores original repository state from pre-init snapshot.
+    steps:
+      - bot: repo-layout-bot
+        action: rollback-init
