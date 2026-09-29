@@ -1,6 +1,229 @@
 # Hath0r Factory Specification v1
 # Group: hath0r-opensource
 # Factory: git-factory
+# Canonical location: cfg/factories/git-factory.yaml
+# Suite mirror: 1-Nation/ATC/cfg/factories/git-factory.yaml
+
+factory_id: git-factory
+name: Git Automation Factory
+version: 1.0.0
+description: >
+  Autonomous factory managing the full Git lifecycle for all group repositories:
+  (1) commit staged changes to a feature branch, creating one when the working
+  branch is a protected/main branch;
+  (2) open a PR targeting `development`, monitor CI until completion or failure,
+  and announce the result;
+  (3) audit and prune stale non-canonical branches that are ≥1 day old —
+  ensuring any un-PR'd branch is PR'd before deletion.
+
+author: Bayly-AI
+category: git-and-version-control
+
+# ─── Supersedes ──────────────────────────────────────────────────────────────
+# pr-lifecycle-factory.yaml  (branch lifecycle + PR + janitor now unified here)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Branch governance constants (CR-BRANCH-GOV-001)
+constants:
+  protected_branches:
+    - master
+    - main
+    - development
+    - testing
+    - staging
+  canonical_branch_prefixes:
+    - feature/
+    - enhancement/
+    - bugfix/
+    - fix/
+    - chore/
+    - research/
+    - release/
+    - dependabot/
+  pr_base_branch: development
+  stale_age_days: 1
+
+# ─── Bots ────────────────────────────────────────────────────────────────────
+bots:
+  - id: commit-bot
+    name: Commit Bot
+    role: staged-change-commit
+    description: >
+      Detects dirty working trees, ensures the current branch is a feature
+      branch (creates one from the convention `feature/chore-sync-<date>` if
+      HEAD is a protected branch), stages all changes, and commits with a
+      conventional-commit message derived from diff context.
+    capabilities:
+      - detect-changes
+      - create-feature-branch
+      - stage-all
+      - commit
+
+  - id: pr-bot
+    name: PR Bot
+    role: pull-request-lifecycle
+    description: >
+      Opens a pull request from the current feature branch to `development`,
+      monitors CI checks via polling until all checks pass, fail, or time out,
+      then announces the final PR status (merged / failed / blocked).
+    capabilities:
+      - open-pr
+      - list-prs
+      - monitor-ci
+      - announce-result
+      - process-dependabot
+      - merge-green
+
+  - id: git-janitor-bot
+    name: Git Janitor Bot
+    role: stale-branch-hygiene
+    description: >
+      Enumerates all remote branches, filters out canonical/protected branches
+      and active Dependabot branches. For remaining branches ≥ stale_age_days
+      old: checks if a PR already exists; if not, opens one to `development`
+      before flagging. Prunes only branches that are already merged or have an
+      open/closed PR.
+    capabilities:
+      - scan-stale
+      - check-pr-exists
+      - open-pr-if-missing
+      - prune-merged
+      - report
+
+  - id: branch-bot
+    name: Branch Bot
+    role: branch-governance
+    description: >
+      Validates branch naming against canonical prefixes, enforces issue-first
+      creation policy, and syncs base branches before work begins.
+    capabilities:
+      - validate-name
+      - create-work-branch
+      - sync-base
+
+# ─── Workflows ───────────────────────────────────────────────────────────────
+workflows:
+
+  # ── 1. Commit to feature branch ──────────────────────────────────────────
+  - id: commit-to-feature
+    name: Commit All Changes to Feature Branch
+    description: >
+      Stage and commit all working-tree changes. If HEAD is on a protected
+      branch, a new feature branch is created first. Does NOT push or open a PR
+      — use `pr-and-monitor` after this step.
+    steps:
+      - bot: commit-bot
+        action: detect-changes
+        on_failure: abort
+        args:
+          fail_if_clean: false
+
+      - bot: branch-bot
+        action: validate-name
+        on_failure: continue          # non-fatal; just warns if name is non-canonical
+
+      - bot: commit-bot
+        action: create-feature-branch
+        on_failure: abort
+        args:
+          only_if_protected: true     # skip if already on a feature branch
+          naming_pattern: "feature/chore-sync-{date}"
+
+      - bot: commit-bot
+        action: stage-all
+        on_failure: abort
+
+      - bot: commit-bot
+        action: commit
+        on_failure: abort
+        args:
+          message_strategy: conventional  # derives type from diff
+
+  # ── 2. PR + CI monitor ───────────────────────────────────────────────────
+  - id: pr-and-monitor
+    name: Open PR and Monitor to Completion
+    description: >
+      Push the current feature branch, open a PR to `development`, poll CI
+      checks every 60 s (max 30 min), and announce pass/fail/blocked via
+      the agent announcement channel.
+    steps:
+      - bot: pr-bot
+        action: open-pr
+        on_failure: abort
+        args:
+          base: development
+          draft: false
+
+      - bot: pr-bot
+        action: monitor-ci
+        on_failure: continue
+        args:
+          poll_interval_seconds: 60
+          timeout_minutes: 30
+
+      - bot: pr-bot
+        action: announce-result
+        on_failure: continue
+
+  # ── 3. Stale branch janitor ──────────────────────────────────────────────
+  - id: cleanup-stale-branches
+    name: Audit and Prune Stale Branches
+    description: >
+      Scan all remote branches. Skip canonical/protected and active Dependabot
+      branches. For any branch ≥ 1 day old without an open PR, open a PR first.
+      Prune only merged or fully closed branches. Report results.
+    schedule: "0 2 * * *"    # nightly at 02:00 local
+    steps:
+      - bot: git-janitor-bot
+        action: scan-stale
+        on_failure: abort
+        args:
+          min_age_days: 1
+          skip_prefixes:
+            - dependabot/
+          skip_branches:
+            - master
+            - main
+            - development
+            - testing
+            - staging
+
+      - bot: git-janitor-bot
+        action: check-pr-exists
+        on_failure: continue
+
+      - bot: git-janitor-bot
+        action: open-pr-if-missing
+        on_failure: continue
+        args:
+          base: development
+          label: stale-branch-audit
+
+      - bot: git-janitor-bot
+        action: prune-merged
+        on_failure: continue
+        args:
+          dry_run: false
+
+      - bot: git-janitor-bot
+        action: report
+        on_failure: continue
+
+  # ── 4. Full Git lifecycle (commit → PR → janitor) ────────────────────────
+  - id: full-git-lifecycle
+    name: Full Git Lifecycle
+    description: >
+      Composite: commit-to-feature → pr-and-monitor → cleanup-stale-branches.
+      Run this for a complete end-to-end Git housekeeping pass.
+    steps:
+      - workflow: commit-to-feature
+        on_failure: abort
+
+      - workflow: pr-and-monitor
+        on_failure: continue       # announce even on failure
+
+      - workflow: cleanup-stale-branches
+        on_failure: continue       # janitor runs regardless
 
 factory_id: git-factory
 name: Git Unified Governance & Workflow Factory
