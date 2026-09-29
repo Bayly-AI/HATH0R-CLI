@@ -1,6 +1,7 @@
 """Tests for Local Memory Space and MemoryManagerBot."""
 
 from pathlib import Path
+
 from click.testing import CliRunner
 
 from hath0r_cli.bots.memory_manager import MemoryManagerBot

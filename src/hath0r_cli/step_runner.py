@@ -42,9 +42,9 @@ from hath0r_cli.bots.onboarding import (
     TestHarnessBot,
     TriGraphIngestBot,
 )
-from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
-from hath0r_cli.bots.political_data_mining import DataMinerBot, ComplianceBot
+from hath0r_cli.bots.political_data_mining import ComplianceBot, DataMinerBot
 from hath0r_cli.bots.postgres_validation import DataAuditorBot, ReportingBot
+from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
 from hath0r_cli.factory_manager import FactoryManagerBot
 from hath0r_cli.telemetry import get_current_trace_context, trace_span
 

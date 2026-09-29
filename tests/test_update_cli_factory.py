@@ -1,4 +1,3 @@
-import pytest
 from hath0r_cli.factory_manager import FactoryManagerBot
 from hath0r_cli.step_runner import BotRegistry, execute_workflow
 
