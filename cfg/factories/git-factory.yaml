@@ -1,0 +1,73 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: git-factory
+
+factory_id: git-factory
+name: Git Unified Governance & Workflow Factory
+version: 1.0.0
+description: >
+  Unified factory automating git commit standardization, branch creation and
+  governance (issue-first enforcement, naming conventions), PR lifecycle, and promotion
+  path validation across HATH0R repositories.
+
+author: Bayly-AI
+category: governance-and-automation
+
+# Orchestrated micro-bots participating in this factory
+bots:
+  - id: git-branch-bot
+    name: Git Branch Bot
+    role: branch-governance
+    description: Enforces issue-first branch naming (feature|bugfix|chore/<issue>-<slug>) and canonical targets.
+    capabilities:
+      - validate-branch-name
+      - check-base-branch
+      - create-governed-branch
+
+  - id: git-commit-bot
+    name: Git Commit Bot
+    role: commit-standardization
+    description: Standardizes semantic commit messages (feat, fix, docs, chore, refactor) and verifies signatures.
+    capabilities:
+      - format-commit
+      - validate-message
+      - stage-and-commit
+
+  - id: git-pr-bot
+    name: Git PR Bot
+    role: pull-request-lifecycle
+    description: Automates PR creation targeting development, check verification, and promotion path enforcement.
+    capabilities:
+      - create-pr
+      - verify-checks
+      - merge-pr
+      - promote-environment
+
+# Sequential and orchestrated workflows
+workflows:
+  - id: create-work-branch
+    name: Create Governed Work Branch
+    description: Verifies GitHub issue exists, cuts branch from development with proper slug.
+    steps:
+      - bot: git-branch-bot
+        action: validate-branch-name
+      - bot: git-branch-bot
+        action: create-governed-branch
+
+  - id: commit-and-pr
+    name: Commit Changes and Open Governed PR
+    description: Formats semantic commit, pushes branch, and opens PR targeting development.
+    steps:
+      - bot: git-commit-bot
+        action: stage-and-commit
+      - bot: git-pr-bot
+        action: create-pr
+        args:
+          base: development
+
+  - id: promote-stage
+    name: Promote Release Along Promotion Path
+    description: Enforces local -> development -> testing -> staging -> master promotion ladder.
+    steps:
+      - bot: git-pr-bot
+        action: promote-environment
