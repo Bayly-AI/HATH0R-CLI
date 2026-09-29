@@ -6,6 +6,7 @@ import click
 
 from hath0r_cli.commands.branch import branch
 from hath0r_cli.commands.context import context
+from hath0r_cli.commands.contracts import contracts
 from hath0r_cli.commands.deploy import deploy
 from hath0r_cli.commands.docker import docker
 from hath0r_cli.commands.docs import docs
@@ -56,6 +57,7 @@ def register_all_commands(cli: click.Group) -> None:
     cli.add_command(playbook)
     cli.add_command(context)
     cli.add_command(memory)
+    cli.add_command(contracts)
 
 
 __all__ = ["register_all_commands"]
