@@ -8,6 +8,7 @@ from pathlib import Path
 
 import jsonschema
 import pytest
+import referencing
 
 from tests.framework_paths import framework_schemas
 
@@ -40,19 +41,22 @@ def _load_schema(name: str) -> dict:
 
 
 def _envelope_validator() -> jsonschema.Draft7Validator:
-    """Build envelope validator with local diagnostic $ref resolution if present."""
+    """Build envelope validator with local diagnostic $ref resolution using referencing."""
     envelope = _load_schema("hath0r-cli-response-v1.schema.json")
     diagnostic = _load_schema("hath0r-cli-diagnostic-v1.schema.json")
-    store = {}
+
+    registry = referencing.Registry()
     for schema in (envelope, diagnostic):
+        resource = referencing.Resource.from_contents(schema)
         sid = schema.get("$id")
         if sid:
-            store[sid] = schema
-    # Also allow bare filename refs used in some drafts.
-    store["hath0r-cli-diagnostic-v1.schema.json"] = diagnostic
-    store["./hath0r-cli-diagnostic-v1.schema.json"] = diagnostic
-    resolver = jsonschema.RefResolver.from_schema(envelope, store=store)
-    return jsonschema.Draft7Validator(envelope, resolver=resolver)
+            registry = registry.with_resource(sid, resource)
+
+    diag_res = referencing.Resource.from_contents(diagnostic)
+    registry = registry.with_resource("hath0r-cli-diagnostic-v1.schema.json", diag_res)
+    registry = registry.with_resource("./hath0r-cli-diagnostic-v1.schema.json", diag_res)
+
+    return jsonschema.Draft7Validator(envelope, registry=registry)
 
 
 @pytest.fixture(scope="module")
