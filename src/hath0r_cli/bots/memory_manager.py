@@ -145,7 +145,7 @@ class MemoryManagerBot:
                 pass
 
         # Also ingest markdown topic files into virtual nodes if not present
-        existing_ids = {n.get("id") for n in nodes if n.get("id")}
+        existing_ids: Set[str] = {str(n["id"]) for n in nodes if n.get("id")}
         for md_file in self.memory_dir.glob("*.md"):
             topic_id = f"topic:{md_file.stem}"
             if topic_id not in existing_ids:
@@ -195,7 +195,7 @@ class MemoryManagerBot:
             matched_nodes.append(node)
 
         # Traverse edges for matched nodes
-        matched_ids: Set[str] = {n.get("id") for n in matched_nodes if n.get("id")}
+        matched_ids: Set[str] = {str(n["id"]) for n in matched_nodes if n.get("id")}
         connected_edges: List[Dict[str, Any]] = []
         traversed_node_ids: Set[str] = set(matched_ids)
 

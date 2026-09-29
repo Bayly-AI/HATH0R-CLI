@@ -105,7 +105,7 @@ class ContextManagerBot:
             matched_nodes.append(n)
 
         # Neighborhood / Connected Edge Traversal if requested
-        matched_ids: Set[str] = {n.get("id") for n in matched_nodes if n.get("id")}
+        matched_ids: Set[str] = {str(n["id"]) for n in matched_nodes if n.get("id")}
         connected_edges: List[Dict[str, Any]] = []
         traversed_node_ids: Set[str] = set(matched_ids)
 
