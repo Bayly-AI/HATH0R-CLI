@@ -21,18 +21,59 @@ from hath0r_cli.common import (
     "--rollback", is_flag=True, default=False, help="Roll back repository state from pre-init backup snapshot."
 )
 @click.option(
+    "--sync-ci", is_flag=True, default=False, help="Provision or synchronize canonical CI promotion workflows."
+)
+@click.option(
     "--yes", "-y", "non_interactive", is_flag=True, default=False, help="Accept all defaults non-interactively."
 )
 @click.pass_context
 def init_cmd(
-    ctx: click.Context, product_name: str | None, dry_run: bool, rollback: bool, non_interactive: bool
+    ctx: click.Context,
+    product_name: str | None,
+    dry_run: bool,
+    rollback: bool,
+    sync_ci: bool,
+    non_interactive: bool,
 ) -> None:
     """Initialize and align any repository with the HATHOR agentic framework."""
+    from hath0r_cli.bots.onboarding import RepoLayoutBot
     from hath0r_cli.factory_manager import FactoryManagerBot
     from hath0r_cli.step_runner import BotRegistry, execute_workflow
 
     cwd = Path.cwd()
     target_name = product_name or cwd.name
+
+    if sync_ci and not rollback:
+        layout_bot = RepoLayoutBot(cwd=cwd)
+        # Snapshot state before syncing CI
+        layout_bot.backup_state(dry_run=dry_run)
+        ci_res = layout_bot.sync_ci_workflows(dry_run=dry_run)
+        state = "ok" if ci_res.get("success") else "error"
+        response = _build_response(
+            ctx,
+            command="init",
+            state=state,
+            data={
+                "product_name": target_name,
+                "dry_run": dry_run,
+                "sync_ci": True,
+                "ci_sync": ci_res,
+            },
+            dry_run=dry_run,
+        )
+
+        def _text_ci() -> None:
+            if ci_res.get("success"):
+                console.print(f"[bold green]✓ Synchronized {ci_res.get('synced_count')} CI workflow(s).[/bold green]")
+                for wf in ci_res.get("synced_workflows", []):
+                    console.print(f"  • .github/workflows/{wf}")
+            else:
+                console.print(f"[bold red]✗ Failed to sync CI workflows:[/bold red] {ci_res.get('error')}")
+
+        _emit_response(ctx, response, text_renderer=_text_ci)
+        if not ci_res.get("success"):
+            raise SystemExit(1)
+        return
 
     mgr = FactoryManagerBot(cwd=cwd)
     factory_res = mgr.get_factory("repo-onboarding-factory")

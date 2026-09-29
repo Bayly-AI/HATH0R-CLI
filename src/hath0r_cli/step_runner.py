@@ -1913,6 +1913,8 @@ class BotRegistry:
             res = bot.backup_state(dry_run=dry_run)
         elif action == "scaffold-layout":
             res = bot.scaffold_layout(dry_run=dry_run)
+        elif action in ("sync-ci-workflows", "sync-ci"):
+            res = bot.sync_ci_workflows(dry_run=dry_run)
         elif action == "rollback-init":
             res = bot.rollback_init(dry_run=dry_run)
         else:

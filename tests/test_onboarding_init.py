@@ -67,7 +67,12 @@ def test_onboarding_bots_unit(tmp_path: Path) -> None:
     assert mg_res["success"] is True
     assert (tmp_path / ".hath0r" / "memory" / "graph.json").exists()
 
-    # 6. Rollback
+    # 6. CI Workflows Sync
+    sync_res = layout_bot.sync_ci_workflows()
+    assert sync_res["success"] is True
+    assert (tmp_path / ".github" / "workflows" / "enforce-promotion-path.yml").exists()
+
+    # 7. Rollback
     rollback_res = layout_bot.rollback_init()
     assert rollback_res["success"] is True
     assert (tmp_path / "README.md").read_text() == "# Existing Repo\n"
@@ -79,3 +84,12 @@ def test_hath0r_init_cli_dry_run() -> None:
     assert result.exit_code == 0
     assert '"command":"init"' in result.output
     assert '"state":"ok"' in result.output
+
+
+def test_hath0r_init_cli_sync_ci(tmp_path: Path) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem(temp_dir=tmp_path):
+        result = runner.invoke(main, ["--output", "json", "init", "--sync-ci"])
+        assert result.exit_code == 0
+        assert '"sync_ci":true' in result.output
+        assert Path(".github/workflows/enforce-promotion-path.yml").exists()
