@@ -35,6 +35,13 @@ from hath0r_cli.bots import (
     VoiceSpeakerModeBot,
     VoiceSynthesizerBot,
 )
+from hath0r_cli.bots.onboarding import (
+    DocRefactorBot,
+    GovernanceBot,
+    RepoLayoutBot,
+    TestHarnessBot,
+    TriGraphIngestBot,
+)
 from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
 from hath0r_cli.bots.political_data_mining import DataMinerBot, ComplianceBot
 from hath0r_cli.bots.postgres_validation import DataAuditorBot, ReportingBot
@@ -143,6 +150,11 @@ class BotRegistry:
             "compliance-bot": ComplianceBot(cwd=self.cwd),
             "data-auditor-bot": DataAuditorBot(cwd=self.cwd),
             "reporting-bot": ReportingBot(cwd=self.cwd),
+            "repo-layout-bot": RepoLayoutBot(cwd=self.cwd),
+            "governance-bot": GovernanceBot(cwd=self.cwd),
+            "doc-refactor-bot": DocRefactorBot(cwd=self.cwd),
+            "test-harness-bot": TestHarnessBot(cwd=self.cwd),
+            "tri-graph-ingest-bot": TriGraphIngestBot(cwd=self.cwd),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -242,6 +254,16 @@ class BotRegistry:
                 return self._dispatch_data_auditor_bot(bot, action, args, dry_run=dry_run)
             elif bot_id == "reporting-bot":
                 return self._dispatch_reporting_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "repo-layout-bot":
+                return self._dispatch_repo_layout_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "governance-bot":
+                return self._dispatch_governance_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "doc-refactor-bot":
+                return self._dispatch_doc_refactor_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "test-harness-bot":
+                return self._dispatch_test_harness_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "tri-graph-ingest-bot":
+                return self._dispatch_tri_graph_ingest_bot(bot, action, args, dry_run=dry_run)
             else:
                 return StepExecutionResult(
                     bot_id=bot_id,
@@ -1829,6 +1851,71 @@ class BotRegistry:
         else:
             return StepExecutionResult(bot_id="reporting-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
         return StepExecutionResult(bot_id="reporting-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run)
+
+    def _dispatch_repo_layout_bot(
+        self, bot: RepoLayoutBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "backup-state":
+            res = bot.backup_state(dry_run=dry_run)
+        elif action == "scaffold-layout":
+            res = bot.scaffold_layout(dry_run=dry_run)
+        elif action == "rollback-init":
+            res = bot.rollback_init(dry_run=dry_run)
+        else:
+            return StepExecutionResult(bot_id="repo-layout-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
+        return StepExecutionResult(bot_id="repo-layout-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run)
+
+    def _dispatch_governance_bot(
+        self, bot: GovernanceBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "scaffold-agents-md":
+            res = bot.scaffold_agents_md(dry_run=dry_run, **args)
+        elif action == "init-versioning":
+            res = bot.init_versioning(dry_run=dry_run, **args)
+        elif action == "spread-hyper-context":
+            res = bot.spread_hyper_context(dry_run=dry_run)
+        else:
+            return StepExecutionResult(bot_id="governance-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
+        return StepExecutionResult(bot_id="governance-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run)
+
+    def _dispatch_doc_refactor_bot(
+        self, bot: DocRefactorBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "refactor-readme":
+            res = bot.refactor_readme(dry_run=dry_run, **args)
+        elif action == "scaffold-tech-readme":
+            res = bot.scaffold_tech_readme(dry_run=dry_run, **args)
+        elif action == "seed-playbooks":
+            res = bot.seed_playbooks(dry_run=dry_run)
+        else:
+            return StepExecutionResult(bot_id="doc-refactor-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
+        return StepExecutionResult(bot_id="doc-refactor-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run)
+
+    def _dispatch_test_harness_bot(
+        self, bot: TestHarnessBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "detect-stack":
+            res = bot.detect_stack()
+        elif action == "scaffold-tests":
+            res = bot.scaffold_tests(dry_run=dry_run)
+        elif action == "provision-ci-workflows":
+            res = bot.provision_ci_workflows(dry_run=dry_run)
+        else:
+            return StepExecutionResult(bot_id="test-harness-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
+        return StepExecutionResult(bot_id="test-harness-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run)
+
+    def _dispatch_tri_graph_ingest_bot(
+        self, bot: TriGraphIngestBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "compile-knowledge-graph":
+            res = bot.compile_knowledge_graph(dry_run=dry_run)
+        elif action == "init-context-graph":
+            res = bot.init_context_graph(dry_run=dry_run)
+        elif action == "ingest-memory-graph":
+            res = bot.ingest_memory_graph(dry_run=dry_run)
+        else:
+            return StepExecutionResult(bot_id="tri-graph-ingest-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run)
+        return StepExecutionResult(bot_id="tri-graph-ingest-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run)
 
 def execute_workflow(
     workflow_def: dict[str, Any],
