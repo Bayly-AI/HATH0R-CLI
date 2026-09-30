@@ -28,6 +28,7 @@ from hath0r_cli.commands.quality import quality
 from hath0r_cli.commands.release import release
 from hath0r_cli.commands.repo import repo
 from hath0r_cli.commands.task import task
+from hath0r_cli.commands.tui import tui_cmd
 from hath0r_cli.commands.voice import speak_group, voice
 from hath0r_cli.commands.wasm import wasm_group
 
@@ -62,6 +63,7 @@ def register_all_commands(cli: click.Group) -> None:
     cli.add_command(contracts)
     cli.add_command(local_group)
     cli.add_command(wasm_group)
+    cli.add_command(tui_cmd)
 
 
 __all__ = ["register_all_commands"]
