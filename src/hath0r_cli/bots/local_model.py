@@ -120,23 +120,24 @@ class LocalModelBot:
                 headers={"Content-Type": "application/json", "User-Agent": "Hath0r-CLI"},
             )
             with urllib.request.urlopen(req, timeout=60.0) as resp:
-                if resp.status == 200:
-                    res_json = json.loads(resp.read().decode("utf-8"))
-                    latency = time.time() - start_time
-                    eval_count = res_json.get("eval_count", 0)
-                    eval_duration_ns = res_json.get("eval_duration", 1)
-                    tok_per_sec = (eval_count / (eval_duration_ns / 1e9)) if eval_duration_ns > 0 else 0.0
+                if resp.status != 200:
+                    raise RuntimeError(f"Ollama returned HTTP status {resp.status}")
+                res_json = json.loads(resp.read().decode("utf-8"))
+                latency = time.time() - start_time
+                eval_count = res_json.get("eval_count", 0)
+                eval_duration_ns = res_json.get("eval_duration", 1)
+                tok_per_sec = (eval_count / (eval_duration_ns / 1e9)) if eval_duration_ns > 0 else 0.0
 
-                    return {
-                        "response": res_json.get("response", ""),
-                        "model": model,
-                        "backend": "ollama",
-                        "prompt_tokens": res_json.get("prompt_eval_count", 0),
-                        "completion_tokens": eval_count,
-                        "latency_seconds": round(latency, 3),
-                        "tokens_per_second": round(tok_per_sec, 2),
-                        "status": "success",
-                    }
+                return {
+                    "response": res_json.get("response", ""),
+                    "model": model,
+                    "backend": "ollama",
+                    "prompt_tokens": res_json.get("prompt_eval_count", 0),
+                    "completion_tokens": eval_count,
+                    "latency_seconds": round(latency, 3),
+                    "tokens_per_second": round(tok_per_sec, 2),
+                    "status": "success",
+                }
         except Exception as e:
             # Fallback simulator for offline testing / development
             latency = time.time() - start_time
