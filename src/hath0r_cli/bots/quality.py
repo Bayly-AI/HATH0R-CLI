@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -616,3 +617,42 @@ class ReleaseBot:
             "tag": tag,
             **release_result,
         }
+
+    def build_and_rotate_artifacts(
+        self,
+        *,
+        out_dir: Optional[Path] = None,
+        previous_dir: Optional[Path] = None,
+        framework_dir: Optional[Path] = None,
+        rotate: bool = True,
+        sync_framework: bool = True,
+        checksums_only: bool = False,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Build, rotate previous releases, generate checksums, and sync with Framework."""
+        try:
+            # Import build execution from scripts/build_release_binaries.py
+            sys_path_added = False
+            scripts_dir = str(self.cwd / "scripts")
+            if scripts_dir not in sys.path:
+                sys.path.insert(0, scripts_dir)
+                sys_path_added = True
+
+            from build_release_binaries import execute_release_build
+
+            res = execute_release_build(
+                cli_root=self.cwd,
+                out_dir=out_dir,
+                previous_dir=previous_dir,
+                framework_release_dir=framework_dir,
+                rotate=rotate,
+                sync_framework=sync_framework,
+                checksums_only=checksums_only,
+                dry_run=dry_run,
+            )
+            return res
+        except Exception as ex:
+            return {"success": False, "error": str(ex)}
+        finally:
+            if sys_path_added and scripts_dir in sys.path:
+                sys.path.remove(scripts_dir)

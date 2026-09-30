@@ -253,7 +253,8 @@ class VoiceSpeakerBot:
                     cmd.extend(["-v", target_voice])
                 if target_rate:
                     cmd.extend(["-r", str(target_rate)])
-                cmd.append(clean_text)
+                darwin_text = f"[[slnc 700]] {clean_text}"
+                cmd.append(darwin_text)
                 subprocess.run(cmd, check=False, timeout=12)
                 spoken = True
                 engine_used = "macos_say"
