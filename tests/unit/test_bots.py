@@ -540,7 +540,7 @@ def test_cli_task_finish_dry_run() -> None:
     data = json.loads(res.stdout)
     assert data["state"] == "ok"
     assert data["data"]["workflow"]["id"] == "end-of-task"
-    assert len(data["data"]["workflow"]["steps"]) == 9
+    assert len(data["data"]["workflow"]["steps"]) == 10
 
 
 def test_issue_and_branch_guard_bots_dry_run() -> None:

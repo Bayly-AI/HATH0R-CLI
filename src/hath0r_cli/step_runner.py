@@ -13,6 +13,7 @@ from hath0r_cli.bots import (
     AgentDialogueBot,
     BranchBot,
     BranchGuardBot,
+    ChangeValidationBot,
     ConfigOrganizerBot,
     DockerBot,
     DocumentationBot,
@@ -123,6 +124,7 @@ class BotRegistry:
             "git-pr-bot": PRBot(cwd=self.cwd),
             "git-janitor-bot": GitJanitorBot(cwd=self.cwd),
             "documentation-bot": DocumentationBot(cwd=self.cwd),
+            "change-validation-bot": ChangeValidationBot(cwd=self.cwd),
             "task-announcer-bot": TaskAnnouncerBot(cwd=self.cwd),
             "end-of-task-bot": EndOfTaskBot(cwd=self.cwd),
             "docker-bot": DockerBot(cwd=self.cwd),
@@ -204,6 +206,8 @@ class BotRegistry:
                 return self._dispatch_branch_bot(bot, action, args, dry_run=dry_run)
             elif bot_id == "documentation-bot":
                 return self._dispatch_doc_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
+            elif bot_id == "change-validation-bot":
+                return self._dispatch_change_validation_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "task-announcer-bot":
                 return self._dispatch_announcer_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "end-of-task-bot":
@@ -750,6 +754,60 @@ class BotRegistry:
             action=action,
             success=False,
             error=f"Unknown action '{action}' for documentation-bot.",
+        )
+
+    def _dispatch_change_validation_bot(
+        self,
+        bot: ChangeValidationBot,
+        action: str,
+        args: dict[str, Any],
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if dry_run:
+            return StepExecutionResult(
+                bot_id="change-validation-bot",
+                action=action,
+                success=True,
+                data={
+                    "success": True,
+                    "dry_run": True,
+                    "action": f"[DRY-RUN] Validate changes with action '{action}'",
+                },
+                dry_run=True,
+            )
+
+        files = args.get("files")
+        if action == "classify-changes":
+            res = bot.classify_changes(files=files)
+            return StepExecutionResult(bot_id="change-validation-bot", action=action, success=True, data=res)
+        elif action == "validate-ui":
+            res = bot.validate_ui(files=files or [])
+            return StepExecutionResult(
+                bot_id="change-validation-bot", action=action, success=bool(res.get("passed", False)), data=res
+            )
+        elif action == "validate-script":
+            res = bot.validate_script(files=files or [])
+            return StepExecutionResult(
+                bot_id="change-validation-bot", action=action, success=bool(res.get("passed", False)), data=res
+            )
+        elif action == "validate-text":
+            res = bot.validate_text(files=files or [])
+            return StepExecutionResult(
+                bot_id="change-validation-bot", action=action, success=bool(res.get("passed", False)), data=res
+            )
+        elif action == "validate-all":
+            res = bot.validate_all(files=files)
+            return StepExecutionResult(
+                bot_id="change-validation-bot", action=action, success=bool(res.get("status") == "valid"), data=res
+            )
+
+        return StepExecutionResult(
+            bot_id="change-validation-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for change-validation-bot.",
+            dry_run=dry_run,
         )
 
     def _dispatch_announcer_bot(
