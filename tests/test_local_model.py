@@ -15,7 +15,7 @@ def test_detect_hardware():
 
 
 def test_generate_simulated_fallback():
-    bot = LocalModelBot(ollama_url="http://invalid-host:99999")
+    bot = LocalModelBot(ollama_url="http://127.0.0.1:59999")
     res = bot.generate(prompt="Hello local model", model="qwen2.5:7b")
     assert res["status"] in ("simulated", "success")
     assert "response" in res
