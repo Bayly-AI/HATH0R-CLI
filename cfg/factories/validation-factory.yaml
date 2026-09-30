@@ -1,0 +1,59 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: validation-factory
+
+factory_id: validation-factory
+name: Change Validation and Verification Factory
+version: 1.0.0
+description: >
+  Mandatory canonical validation factory executed when a task is completed,
+  immediately prior to task completion broadcast. Categorizes all modified files into
+  UI, Script, and Text changes, executes targeted live verification and test passes,
+  and either triggers completion announcement or returns structured failure diagnostics to the agent.
+
+author: Bayly-AI
+category: governance-and-automation
+
+# Participating bots
+bots:
+  - id: change-validation-bot
+    name: Change Validation Bot
+    role: change-type-verification
+    description: Inspects working directory diffs, categorizes changes into UI/Script/Text, and validates live execution.
+    capabilities:
+      - classify-changes
+      - validate-ui
+      - validate-script
+      - validate-text
+      - validate-all
+
+  - id: deploy-test-bot
+    name: Deploy Test Bot
+    role: test-suite-verification
+    description: Autonomous test runner executing test suites and diagnosing failures.
+    capabilities:
+      - pre-deploy
+      - post-deploy
+      - run
+      - test
+
+  - id: task-announcer-bot
+    name: Task Announcer Bot
+    role: notification-and-announcements
+    description: Broadcasts task completion and verification status across channels.
+    capabilities:
+      - announce-complete
+
+# Declarative workflows
+workflows:
+  - id: validate-and-announce
+    name: Validate Changes and Announce Completion
+    description: Classifies changes, runs live verification, and announces completion upon success.
+    steps:
+      - bot: change-validation-bot
+        action: validate-all
+        on_failure: abort
+
+      - bot: task-announcer-bot
+        action: announce-complete
+        on_failure: continue

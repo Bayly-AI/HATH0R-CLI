@@ -1220,6 +1220,8 @@ class ApiBot:
         return {"success": True, "output": "Endpoint validated successfully."}
 
 
+from hath0r_cli.bots.change_validation import ChangeValidationBot  # noqa: E402
+
 __all__ = [
     "PostgresBot",
     "ApiBot",
@@ -1227,6 +1229,7 @@ __all__ = [
     "AgentDialogueBot",
     "BranchBot",
     "BranchGuardBot",
+    "ChangeValidationBot",
     "ConfigOrganizerBot",
     "DeployTestBot",
     "DockerBot",
@@ -1252,7 +1255,6 @@ __all__ = [
     "VoiceServiceBot",
     "MemoryManagerBot",
     "VersionBot",
-    "MemoryManagerBot",
     "VoiceSpeakerBot",
     "VoiceSpeakerModeBot",
     "VoiceSynthesizerBot",

@@ -57,6 +57,17 @@ bots:
       - run
       - test
 
+  - id: change-validation-bot
+    name: Change Validation Bot
+    role: change-type-verification
+    description: Inspects working directory diffs, categorizes changes into UI/Script/Text, and validates live execution.
+    capabilities:
+      - classify-changes
+      - validate-ui
+      - validate-script
+      - validate-text
+      - validate-all
+
   - id: task-announcer-bot
     name: Task Announcer Bot
     role: notification-and-announcements
@@ -112,6 +123,10 @@ workflows:
       - bot: documentation-bot
         action: share-knowledge
         on_failure: continue
+
+      - bot: change-validation-bot
+        action: validate-all
+        on_failure: abort
 
       - bot: task-announcer-bot
         action: announce-complete
