@@ -1,0 +1,40 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: memory-management-factory
+
+factory_id: memory-management-factory
+name: Agent Local Memory Management Factory
+version: 1.0.0
+description: >
+  Initializes and manages the canonical Local Memory Space for AI agents.
+  This ensures an agent orienting to the app reads the CLI memory space first.
+
+author: Bayly-AI
+category: governance-and-automation
+
+bots:
+  - id: memory-manager-bot
+    name: Memory Manager Bot
+    role: memory-management
+    description: Initializes and updates the local memory spaces for the CLI.
+    capabilities:
+      - init
+      - read
+      - update
+
+workflows:
+  - id: init-memory-space
+    name: Initialize Local Memory Space
+    description: Creates the default core and architecture memory files.
+    steps:
+      - bot: memory-manager-bot
+        action: init
+        on_failure: abort
+
+  - id: update-memory-space
+    name: Update Local Memory Space
+    description: Updates an existing memory topic.
+    steps:
+      - bot: memory-manager-bot
+        action: update
+        on_failure: abort

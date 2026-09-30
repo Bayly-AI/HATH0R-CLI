@@ -416,6 +416,7 @@ def run_checks(root: Path, kb: Path, check_mcp: bool = False, check_factories: b
 
     if check_mcp:
         from hath0r_cli.mcp import check_all_mcp_connections
+
         for mcp_status in check_all_mcp_connections(group_root=root):
             _add(
                 checks,
@@ -430,6 +431,7 @@ def run_checks(root: Path, kb: Path, check_mcp: bool = False, check_factories: b
 
     if check_factories:
         from hath0r_cli.factory_validation import validate_all_factories
+
         factory_results = validate_all_factories(group_root=root)
         for fr in factory_results:
             _add(

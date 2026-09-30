@@ -21,6 +21,9 @@ Hath0r orchestrates multiple Model Context Protocol (MCP) servers providing tool
     4. Numeric `priority` ascending within matching scope.
 - **Config-Driven Dynamism**: Adding, removing, or disabling MCP servers requires no code changes—only updating `cfg/mcp.servers.json`.
 - **Zero Secrets**: Secrets, API keys, and credentials must NEVER be placed in `cfg/mcp.servers.json`. Use `env_ref` pointing to `/Users/raybayly/Development/.credentials/<service>/.env`.
+- **Source operations**: Source-specific connections are implemented by their
+  registered MCP server. The CLI must call its source tools rather than directly
+  issuing source-specific HTTP requests.
 
 ---
 
@@ -55,3 +58,21 @@ Hath0r orchestrates multiple Model Context Protocol (MCP) servers providing tool
 1. **Schema Compliance**: Validated against `contracts/hath0r-mcp-servers-v1.schema.json`.
 2. **Project MCP Presence**: `hath0r doctor` or runner verifies that at least one `project`-scoped server is configured and enabled.
 3. **Connectivity Probing**: `hath0r mcp check` verifies HTTP endpoints and tool discovery across all enabled servers.
+
+## 4. 1-Nation federal vote sources
+
+The registered `1-nation-mcp` service provides the bounded
+`vote_source_list`, `vote_source_test`, and `vote_source_fetch_sample` tools.
+Hath0r exposes them through:
+
+```bash
+hath0r mcp sources list
+hath0r mcp sources test house-clerk-rollcall
+hath0r mcp sources fetch-sample senate-lis-rollcall
+```
+
+The commands default to `1-nation-mcp`; use `--server` only to select another
+configured MCP server exposing the same tools. The source catalog, fixed routes,
+timeouts, content-type constraints, and response-size limits remain service
+owned. Congress.gov is credential-gated and reports `credential_required` when
+the external credential is absent; no key is accepted as a CLI argument.

@@ -32,6 +32,6 @@ The **canonical local knowledgebase** still lives in the OpenSource group hub (n
 
 1. Maintain a second full local KB here.
 2. Point OpenSource work at private internal suite knowledgebases as canonical.
-3. Create or use legacy roots: `.ai/`, `.aegis/`, `.infraOS/`.
+3. Create or use legacy roots: `.ai/`, `.customerSystem/`, `.infraOS/`.
 
 Updated: 2026-09-15T18:35:00Z

@@ -19,7 +19,9 @@
 
 4. **Issue-First & Branch Governance (`cr-branch-gov-001`)**:
    - Every task must correspond to an open GitHub issue.
-   - Run `hath0r task start --issue <number> --slug <short-slug>` to verify the issue and checkout the canonical work branch `feature/<issue>-<slug>` from `development`.
+   - Run `hath0r task start --issue <number> --slug <short-slug>`.
+   - **Issue Factory Trigger**: When an issue is referenced in a task, the `issue-factory` (`issue-manager-bot`) is automatically executed to validate the issue state, verify detailed description requirements, and evaluate dependency blockers.
+   - Checkout the canonical work branch `feature/<issue>-<slug>` from `development`.
    - Never commit directly to protected canonical branches (`development`, `testing`, `staging`, `master`).
 
 5. **Procedure / Strategy / Playbook / Runbook Gate (`CR-HATH0R-INIT-001`)**:
@@ -28,7 +30,7 @@
 
 6. **Hidden Root Compliance (`cr-hath0r-root-001`)**:
    - Store all project metadata, KB pointers, and local caches under `.hath0r/` only.
-   - Never create `.ai/`, `.aegis/`, or `.infraOS/`.
+   - Never create `.ai/`, `.customerSystem/`, or `.infraOS/`.
 
 7. **End-of-Task Lifecycle (`#64`)**:
    - When implementation and local tests/lint pass, execute the canonical end-of-task automation:

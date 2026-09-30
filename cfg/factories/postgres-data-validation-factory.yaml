@@ -1,0 +1,55 @@
+# Hath0r Factory Specification v1
+
+factory_id: postgres-data-validation-factory
+name: Postgres Data Validation Factory
+version: 1.0.0
+description: Factory to continuously audit Postgres for missing data and auto-patch it.
+author: Bayly-AI
+category: automation
+bots:
+- id: data-auditor-bot
+  name: Data Auditor Bot
+  role: data-auditing
+  capabilities:
+  - scan-tables
+  - identify-missing-data
+- id: data-miner-bot
+  name: Political Data Miner Bot
+  role: data-ingestion
+  capabilities:
+  - patch-missing-data
+- id: issue-manager-bot
+  name: Issue Manager Bot
+  role: issue-management
+  capabilities:
+  - create-issue
+- id: reporting-bot
+  name: Reporting Bot
+  role: data-reporting
+  capabilities:
+  - generate-unfound-report
+workflows:
+- id: validate-and-patch-postgres-data
+  name: Validate and Patch Postgres Data
+  description: Scan Postgres for missing data, attempt to mine and patch the missing fields, and report any irretrievable data.
+  steps:
+  - bot: data-auditor-bot
+    action: scan-tables
+    on_failure: abort
+  - bot: data-auditor-bot
+    action: identify-missing-data
+    on_failure: abort
+  - bot: data-miner-bot
+    action: patch-missing-data
+    on_failure: continue
+  - bot: reporting-bot
+    action: generate-unfound-report
+    on_failure: abort
+  - bot: issue-manager-bot
+    action: create-issue
+    args:
+      repo: Bayly-AI/1-Nation-MCP
+      title: "[Agent Task] Mine & Ingest Unfound Postgres Data"
+      body: "## Summary\n\nThe Postgres Data Validation Factory identified 760 irrecoverable historical records that automated patching could not resolve.\n\n## Acceptance Criteria\n\n1. An autonomous agent must research the missing records.\n2. Manual gaps must be patched directly into 1NPOSTGRES.\n3. The compliance schema must validate the patched data."
+      labels: ["agent-task", "data-mining", "automated"]
+    on_failure: continue
