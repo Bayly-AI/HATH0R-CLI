@@ -17,6 +17,7 @@ from hath0r_cli.commands.issue import issue
 from hath0r_cli.commands.janitor import janitor
 from hath0r_cli.commands.jev import jev
 from hath0r_cli.commands.kb import kb
+from hath0r_cli.commands.local import local_group
 from hath0r_cli.commands.mcp import mcp
 from hath0r_cli.commands.memory import memory
 from hath0r_cli.commands.planes import planes, schema
@@ -58,6 +59,7 @@ def register_all_commands(cli: click.Group) -> None:
     cli.add_command(context)
     cli.add_command(memory)
     cli.add_command(contracts)
+    cli.add_command(local_group)
 
 
 __all__ = ["register_all_commands"]
