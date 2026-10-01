@@ -26,7 +26,7 @@ from hath0r_cli.commands.pr import pr
 from hath0r_cli.commands.preflight import preflight
 from hath0r_cli.commands.quality import quality
 from hath0r_cli.commands.release import release
-from hath0r_cli.commands.repo import repo
+from hath0r_cli.commands.repo import clean_repo_cmd, clean_repos_cmd, repo
 from hath0r_cli.commands.serve import serve_cmd
 from hath0r_cli.commands.task import task
 from hath0r_cli.commands.tui import tui_cmd
@@ -57,6 +57,8 @@ def register_all_commands(cli: click.Group) -> None:
     cli.add_command(docs)
     cli.add_command(issue)
     cli.add_command(repo)
+    cli.add_command(clean_repos_cmd, name="clean-repos")
+    cli.add_command(clean_repo_cmd, name="clean-repo")
     cli.add_command(voice)
     cli.add_command(speak_group, name="speak")
     cli.add_command(playbook)
@@ -71,3 +73,4 @@ def register_all_commands(cli: click.Group) -> None:
 
 
 __all__ = ["register_all_commands"]
+
