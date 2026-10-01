@@ -210,6 +210,7 @@ class VoiceSpeakerBot:
         rate_wpm: Optional[int] = None,
         filter_code: bool = True,
         dry_run: bool = False,
+        engine: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Synthesize and vocalize text response."""
         if not text:
@@ -225,8 +226,24 @@ class VoiceSpeakerBot:
                 "spoken": False,
                 "dry_run": True,
                 "text": spoken_text,
-                "voice_name": voice_name or "Samantha",
-                "engine": "simulated",
+                "voice_name": voice_name or "af_heart" if engine == "kokoro" else (voice_name or "Samantha"),
+                "engine": engine or "simulated",
+            }
+
+        if engine == "kokoro" or (voice_name and voice_name.startswith(("af_", "am_", "bf_", "bm_"))):
+            from hath0r_cli.voice_kokoro import KokoroTTSEngine
+
+            kokoro = KokoroTTSEngine()
+            v_id = voice_name or "af_heart"
+            wav_bytes, meta = kokoro.synthesize(spoken_text, voice_id=v_id)
+            played = kokoro.play_wav(wav_bytes)
+            return {
+                "success": True,
+                "spoken": played,
+                "engine": "kokoro-82m",
+                "voice_name": v_id,
+                "text": spoken_text,
+                "meta": meta,
             }
 
         # Determine voice name and rate from active profile if not explicitly passed
