@@ -158,3 +158,62 @@ def context_query(
         )
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
+@context.command("compress")
+@click.option("--query", "-q", required=True, help="Active user query or instruction string.")
+@click.option("--context", "-c", "context_text", default=None, help="Inline context string to compress.")
+@click.option("--file", "-f", "file_path", default=None, type=click.Path(exists=True), help="Path to document file to compress.")
+@click.option("--threshold", "-t", default=0.5, type=float, help="Relevance score compression threshold (0.0 - 1.0).")
+@click.option("--local", "force_local", is_flag=True, default=False, help="Force local deterministic compression without network.")
+@click.pass_context
+def context_compress(
+    ctx: click.Context,
+    query: str,
+    context_text: str | None,
+    file_path: str | None,
+    threshold: float,
+    force_local: bool,
+) -> None:
+    """Compress extensive prompt or RAG context against query using SuperCompress."""
+    from pathlib import Path
+    import sys
+    from hath0r_cli.bots.supercompress_bot import SuperCompressBot
+
+    target_text = context_text
+    if file_path:
+        target_text = Path(file_path).read_text(encoding="utf-8")
+    elif not target_text:
+        if not sys.stdin.isatty():
+            target_text = sys.stdin.read()
+        else:
+            raise click.UsageError("Must provide --context, --file, or piped input via stdin.")
+
+    bot = SuperCompressBot()
+    res = bot.compress(
+        query=query,
+        context=target_text,
+        threshold=threshold,
+        force_local=force_local,
+    )
+
+    response = _build_response(
+        ctx,
+        command="context.compress",
+        state="ok" if res.get("success") else "error",
+        data=res,
+    )
+
+    def _text() -> None:
+        console.print(f"[bold green]✓ Context Compressed via {res.get('engine')}[/bold green] ({res.get('latency_ms', 0)}ms):")
+        console.print(f"  • Original Tokens: [bold]{res.get('original_tokens')}[/bold]")
+        console.print(f"  • Compressed Tokens: [bold cyan]{res.get('compressed_tokens')}[/bold cyan]")
+        console.print(f"  • Token Savings: [bold green]{res.get('savings_pct')}%[/bold green]")
+        ver = res.get("verifier", {})
+        if ver:
+            console.print(f"  • Verifier: Quality={ver.get('quality_score')}, EntityRecall={ver.get('entity_recall')}, KeywordRecall={ver.get('keyword_recall')}")
+        console.print("\n[bold]Compressed Text Output:[/bold]")
+        console.print(res.get("compressed_text", ""))
+
+    _emit_response(ctx, response, text_renderer=_text)
+
