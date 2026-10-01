@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.hath0r.dev/hath0r-vision-response-v1.schema.json",
+  "title": "hath0r.vision.response/1",
+  "description": "Structured schema for Hath0r Vision Transformers & Multimodal pipeline results.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "success",
+    "operation",
+    "provider"
+  ],
+  "properties": {
+    "success": {
+      "type": "boolean",
+      "description": "Indicates whether the vision operation completed successfully."
+    },
+    "operation": {
+      "type": "string",
+      "enum": ["inspect", "parse_doc", "ground", "embed", "doctor"],
+      "description": "Vision operation type executed."
+    },
+    "provider": {
+      "type": "string",
+      "description": "The vision backend provider used (e.g., 'ollama', 'gemini', 'openai', 'heuristic_fallback')."
+    },
+    "model": {
+      "type": "string",
+      "description": "The vision model identifier used for inference."
+    },
+    "image_path": {
+      "type": "string",
+      "description": "Normalized path of the processed image or document."
+    },
+    "image_metadata": {
+      "type": "object",
+      "properties": {
+        "format": { "type": "string" },
+        "width": { "type": "integer" },
+        "height": { "type": "integer" },
+        "channels": { "type": "integer" },
+        "size_bytes": { "type": "integer" },
+        "sha256": { "type": "string" }
+      }
+    },
+    "description": {
+      "type": "string",
+      "description": "High-level visual summary or description."
+    },
+    "detected_objects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["label"],
+        "properties": {
+          "label": { "type": "string" },
+          "confidence": { "type": "number" },
+          "bounding_box": {
+            "type": "array",
+            "items": { "type": "number" },
+            "minItems": 4,
+            "maxItems": 4
+          }
+        }
+      }
+    },
+    "extracted_text": {
+      "type": "string",
+      "description": "OCR or parsed textual content."
+    },
+    "document_structure": {
+      "type": "object",
+      "properties": {
+        "doc_type": { "type": "string" },
+        "sections": { "type": "array", "items": { "type": "string" } },
+        "entities": { "type": "object" },
+        "tables": { "type": "array" }
+      }
+    },
+    "grounded_target": {
+      "type": "object",
+      "properties": {
+        "target": { "type": "string" },
+        "found": { "type": "boolean" },
+        "bounding_box": {
+          "type": "array",
+          "items": { "type": "number" }
+        },
+        "center_coordinates": {
+          "type": "object",
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" }
+          }
+        }
+      }
+    },
+    "embedding": {
+      "type": "array",
+      "items": { "type": "number" },
+      "description": "Multimodal cross-modal embedding vector."
+    },
+    "error": {
+      "type": "string",
+      "description": "Error message when success is false."
+    }
+  }
+}

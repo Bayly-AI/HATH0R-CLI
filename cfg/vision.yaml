@@ -1,0 +1,21 @@
+version: "1.0"
+provider: "auto" # auto | ollama | remote | fallback
+local:
+  backend: "ollama"
+  model: "llava"
+  host: "http://localhost:11434"
+remote:
+  provider: "openai"
+  model: "gpt-4o"
+embedding:
+  model: "clip-vit-base-patch32"
+  dimensions: 512
+image_ingestion:
+  supported_extensions:
+    - ".png"
+    - ".jpg"
+    - ".jpeg"
+    - ".webp"
+    - ".svg"
+    - ".pdf"
+  max_image_dimension: 2048

@@ -32,13 +32,26 @@ from hath0r_cli.envelope import Diagnostic
     default=False,
     help="Include declarative factory specification schema and bot reference checks.",
 )
+@click.option(
+    "--vision",
+    "check_vision",
+    is_flag=True,
+    default=False,
+    help="Include Vision Transformer backend and configuration checks.",
+)
 @click.pass_context
-def doctor(ctx: click.Context, check_mcp: bool, check_factories: bool) -> None:
+def doctor(ctx: click.Context, check_mcp: bool, check_factories: bool, check_vision: bool) -> None:
     """Check group paths, control tower, member repos, and KB hub presence."""
     root = _group_root()
     kb = _kb_path()
     verbose = bool(ctx.obj.get("verbose", False))
-    result = run_checks(root, kb, check_mcp=check_mcp, check_factories=check_factories)
+    result = run_checks(
+        root,
+        kb,
+        check_mcp=check_mcp,
+        check_factories=check_factories,
+        check_vision=check_vision,
+    )
 
     diagnostics = [
         Diagnostic(
