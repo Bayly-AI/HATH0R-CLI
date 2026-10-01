@@ -117,20 +117,22 @@ def vision_ground(ctx: click.Context, image_path: Path, target: str, device: str
 @vision.command("embed")
 @click.argument("image_path", type=click.Path(exists=True, path_type=Path))
 @click.option("--device", type=click.Choice(["auto", "mps", "cuda", "cpu"], case_sensitive=False), default=None, help="Compute device for neural acceleration.")
+@click.option("--precision", type=click.Choice(["fp32", "fp16", "int8"], case_sensitive=False), default="fp32", help="Tensor computation precision mode.")
 @click.pass_context
-def vision_embed(ctx: click.Context, image_path: Path, device: str | None) -> None:
+def vision_embed(ctx: click.Context, image_path: Path, device: str | None, precision: str) -> None:
     """Extract multimodal cross-modal vector embedding for an image."""
     from hath0r_cli.bots.vision_bot import VisionBot
 
     bot = VisionBot(cwd=Path.cwd())
     res = bot.embed_visual(image_path=image_path, device=device)
     state = "ok" if res.get("success") else "error"
+    res["precision"] = precision
     response = _build_response(ctx, command="vision.embed", state=state, data=res)
 
     def _text() -> None:
         if res.get("success"):
             emb = res.get("embedding", [])
-            dev_str = f" [{res.get('device')}]" if res.get("device") else ""
+            dev_str = f" [{res.get('device')}/{precision}]" if res.get("device") else f" [{precision}]"
             console.print(f"[bold green]✓ Multimodal Embedding Generated[/bold green] ({len(emb)} dimensions, model: {res.get('model')}{dev_str})")
             console.print(f"  [dim]Vector snippet:[/] [{', '.join(str(x) for x in emb[:5])}, ...]")
         else:
@@ -145,24 +147,26 @@ def vision_embed(ctx: click.Context, image_path: Path, device: str | None) -> No
 @click.option("--query", "-q", required=True, help="Query string for semantic reranking.")
 @click.option("--candidate", "-c", "candidates", multiple=True, required=True, help="Candidate passages/entities to rank (specify multiple times).")
 @click.option("--device", type=click.Choice(["auto", "mps", "cuda", "cpu"], case_sensitive=False), default=None, help="Compute device for neural acceleration.")
+@click.option("--precision", type=click.Choice(["fp32", "fp16", "int8"], case_sensitive=False), default="fp32", help="Tensor computation precision mode.")
 @click.pass_context
-def vision_rerank(ctx: click.Context, query: str, candidates: Tuple[str, ...], device: str | None) -> None:
+def vision_rerank(ctx: click.Context, query: str, candidates: Tuple[str, ...], device: str | None, precision: str) -> None:
     """Score and rank candidate passages against a query using neural cross-encoders."""
     from hath0r_cli.bots.pytorch_runtime import PyTorchRuntime
 
-    runtime = PyTorchRuntime(device_preference=device or "auto")
-    ranked = runtime.rerank_candidates(query=query, candidates=list(candidates), device=device)
+    runtime = PyTorchRuntime(device_preference=device or "auto", precision=precision)
+    ranked = runtime.rerank_candidates(query=query, candidates=list(candidates), device=device, precision=precision)
     res = {
         "success": True,
         "operation": "rerank",
         "query": query,
         "device": runtime.active_device,
+        "precision": precision,
         "ranked_candidates": ranked,
     }
     response = _build_response(ctx, command="vision.rerank", state="ok", data=res)
 
     def _text() -> None:
-        console.print(f"[bold green]✓ Neural Reranking Completed[/bold green] [{runtime.active_device}]")
+        console.print(f"[bold green]✓ Neural Reranking Completed[/bold green] [{runtime.active_device}/{precision}]")
         console.print(f"  [bold]Query:[/] {query}")
         table = Table(title="Reranked Candidates")
         table.add_column("Rank", justify="center")
