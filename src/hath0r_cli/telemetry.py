@@ -10,22 +10,47 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Generator
 
-try:
-    from opentelemetry import trace
-    from opentelemetry.sdk.resources import Resource
-    from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export import SimpleSpanProcessor
-    from opentelemetry.trace import Status, StatusCode
+_OTEL_INITIALIZED: bool | None = None
+_TRACE_MODULE: Any = None
+_RESOURCE_CLS: Any = None
+_TRACER_PROVIDER_CLS: Any = None
+_SIMPLE_SPAN_PROCESSOR_CLS: Any = None
+_STATUS_CLS: Any = None
+_STATUS_CODE_CLS: Any = None
 
-    HAVE_OTEL = True
-except ImportError:
-    HAVE_OTEL = False
-    trace = None  # type: ignore[assignment]
-    Resource = None  # type: ignore[assignment, misc]
-    TracerProvider = None  # type: ignore[assignment, misc]
-    SimpleSpanProcessor = None  # type: ignore[assignment, misc]
-    Status = None  # type: ignore[assignment, misc]
-    StatusCode = None  # type: ignore[assignment, misc]
+
+def _load_otel_modules() -> bool:
+    """Lazy-load OpenTelemetry SDK modules on demand."""
+    global _OTEL_INITIALIZED, _TRACE_MODULE, _RESOURCE_CLS, _TRACER_PROVIDER_CLS
+    global _SIMPLE_SPAN_PROCESSOR_CLS, _STATUS_CLS, _STATUS_CODE_CLS
+
+    if _OTEL_INITIALIZED is not None:
+        return bool(_TRACE_MODULE is not None)
+
+    try:
+        from opentelemetry import trace
+        from opentelemetry.sdk.resources import Resource
+        from opentelemetry.sdk.trace import TracerProvider
+        from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+        from opentelemetry.trace import Status, StatusCode
+
+        _TRACE_MODULE = trace
+        _RESOURCE_CLS = Resource
+        _TRACER_PROVIDER_CLS = TracerProvider
+        _SIMPLE_SPAN_PROCESSOR_CLS = SimpleSpanProcessor
+        _STATUS_CLS = Status
+        _STATUS_CODE_CLS = StatusCode
+        _OTEL_INITIALIZED = True
+        return True
+    except ImportError:
+        _TRACE_MODULE = None
+        _RESOURCE_CLS = None
+        _TRACER_PROVIDER_CLS = None
+        _SIMPLE_SPAN_PROCESSOR_CLS = None
+        _STATUS_CLS = None
+        _STATUS_CODE_CLS = None
+        _OTEL_INITIALIZED = False
+        return False
 
 
 @dataclass
@@ -114,7 +139,7 @@ def load_otel_config(config_path: Path | None = None) -> OTelConfig:
 
 
 def init_tracer(config: OTelConfig | None = None) -> bool:
-    """Initialize OpenTelemetry tracer provider (or fallback provider)."""
+    """Initialize OpenTelemetry tracer provider on demand."""
     global _TRACER_INITIALIZED
     if _TRACER_INITIALIZED:
         return True
@@ -123,32 +148,33 @@ def init_tracer(config: OTelConfig | None = None) -> bool:
     if not cfg.enabled:
         return False
 
-    if not HAVE_OTEL or Resource is None or TracerProvider is None or trace is None:
+    has_otel = _load_otel_modules()
+    if not has_otel or _RESOURCE_CLS is None or _TRACER_PROVIDER_CLS is None or _TRACE_MODULE is None:
         # Fallback trace context engine initialized
         _TRACER_INITIALIZED = True
         return True
 
     try:
-        resource = Resource.create(
+        resource = _RESOURCE_CLS.create(
             {
                 "service.name": cfg.service_name,
                 "service.namespace": cfg.service_namespace,
                 "deployment.environment": cfg.deployment_environment,
             }
         )
-        provider = TracerProvider(resource=resource)
+        provider = _TRACER_PROVIDER_CLS(resource=resource)
 
         # In-memory / fallback exporter if otlp package is available
         try:
             from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 
-            if cfg.otlp_endpoint and SimpleSpanProcessor is not None:
+            if cfg.otlp_endpoint and _SIMPLE_SPAN_PROCESSOR_CLS is not None:
                 exporter = OTLPSpanExporter(endpoint=f"{cfg.otlp_endpoint.rstrip('/')}/v1/traces")
-                provider.add_span_processor(SimpleSpanProcessor(exporter))
+                provider.add_span_processor(_SIMPLE_SPAN_PROCESSOR_CLS(exporter))
         except ImportError:
             pass
 
-        trace.set_tracer_provider(provider)
+        _TRACE_MODULE.set_tracer_provider(provider)
         _TRACER_INITIALIZED = True
         return True
     except Exception:
@@ -161,15 +187,15 @@ def get_tracer(name: str = "hath0r_cli") -> Any:
     if not _TRACER_INITIALIZED:
         init_tracer()
 
-    if HAVE_OTEL and trace is not None:
-        return trace.get_tracer(name)
+    if _TRACE_MODULE is not None:
+        return _TRACE_MODULE.get_tracer(name)
     return "hath0r-fallback-tracer"
 
 
 def get_current_trace_context() -> dict[str, str]:
     """Return active trace_id and span_id if available."""
-    if HAVE_OTEL and trace is not None:
-        span = trace.get_current_span()
+    if _TRACE_MODULE is not None:
+        span = _TRACE_MODULE.get_current_span()
         if span:
             ctx = span.get_span_context()
             if ctx and ctx.is_valid:
@@ -193,16 +219,16 @@ def trace_span(
     """Context manager for tracing a block of execution with error handling and fallback support."""
     tracer = get_tracer(tracer_name)
 
-    if HAVE_OTEL and trace is not None and hasattr(tracer, "start_as_current_span"):
+    if _TRACE_MODULE is not None and hasattr(tracer, "start_as_current_span"):
         attrs = {k: v for k, v in (attributes or {}).items() if v is not None}
         with tracer.start_as_current_span(name, attributes=attrs) as span:
             try:
                 yield span
-                if Status is not None and StatusCode is not None:
-                    span.set_status(Status(StatusCode.OK))
+                if _STATUS_CLS is not None and _STATUS_CODE_CLS is not None:
+                    span.set_status(_STATUS_CLS(_STATUS_CODE_CLS.OK))
             except Exception as exc:
-                if Status is not None and StatusCode is not None:
-                    span.set_status(Status(StatusCode.ERROR, str(exc)))
+                if _STATUS_CLS is not None and _STATUS_CODE_CLS is not None:
+                    span.set_status(_STATUS_CLS(_STATUS_CODE_CLS.ERROR, str(exc)))
                 span.record_exception(exc)
                 raise
     else:
