@@ -58,9 +58,10 @@ def detect_optimal_device(preference: str = "auto") -> str:
 
 @dataclass
 class PyTorchRuntime:
-    """PyTorch device manager, tensor accelerator, and neural pipeline runner."""
+    """PyTorch device manager, batch tensor accelerator, and neural pipeline runner."""
 
     device_preference: str = "auto"
+    precision: str = "fp32"  # fp32 | fp16 | int8
 
     @property
     def active_device(self) -> str:
@@ -75,6 +76,7 @@ class PyTorchRuntime:
                 "available": False,
                 "version": None,
                 "device": "cpu",
+                "precision": self.precision,
                 "mps_available": False,
                 "cuda_available": False,
                 "cuda_device_count": 0,
@@ -98,6 +100,7 @@ class PyTorchRuntime:
             "available": True,
             "version": str(torch.__version__),
             "device": active,
+            "precision": self.precision,
             "mps_available": mps_avail,
             "cuda_available": cuda_avail,
             "cuda_device_count": torch.cuda.device_count() if cuda_avail else 0,
@@ -110,21 +113,24 @@ class PyTorchRuntime:
         raw_bytes: bytes,
         dim: int = 512,
         device: Optional[str] = None,
+        precision: Optional[str] = None,
     ) -> List[float]:
         """Compute normalized cross-modal embedding vector using PyTorch tensors."""
         torch = get_torch()
         target_device = device or self.active_device
+        prec = (precision or self.precision).lower()
 
         # If PyTorch is available, compute on tensor hardware
         if torch is not None:
             try:
-                # Seed tensor weights from deterministic byte digest
                 seed_bytes = hashlib.sha256(raw_bytes).digest()
                 seed_ints = [float(b) for b in seed_bytes]
 
                 dev = torch.device(target_device)
-                base_t = torch.tensor(seed_ints, dtype=torch.float32, device=dev)
-                indices = torch.arange(1, dim + 1, dtype=torch.float32, device=dev)
+                dtype = torch.float16 if (prec == "fp16" and target_device in ("mps", "cuda")) else torch.float32
+
+                base_t = torch.tensor(seed_ints, dtype=dtype, device=dev)
+                indices = torch.arange(1, dim + 1, dtype=dtype, device=dev)
                 repeated = base_t.repeat(math.ceil(dim / len(seed_ints)))[:dim]
 
                 vec = torch.sin(indices * (repeated + 1.0))
@@ -132,7 +138,11 @@ class PyTorchRuntime:
                 if norm.item() > 0:
                     vec = vec / norm
 
-                res: List[float] = [round(float(x), 6) for x in vec.detach().cpu().tolist()]
+                if prec == "int8":
+                    # Scale to int8 range [-128, 127] and back to float
+                    vec = torch.round(vec * 127.0).clamp(-128, 127) / 127.0
+
+                res: List[float] = [round(float(x), 6) for x in vec.detach().cpu().to(torch.float32).tolist()]
                 return res
             except Exception:
                 pass  # Fall through to pure-Python fallback
@@ -152,27 +162,46 @@ class PyTorchRuntime:
         query: str,
         candidates: List[str],
         device: Optional[str] = None,
+        precision: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
-        """Rank candidate passages against query using cross-modal tensor similarity."""
+        """Rank candidate passages using vectorized 2D batch tensor operations."""
+        if not candidates:
+            return []
+
         torch = get_torch()
         target_device = device or self.active_device
+        prec = (precision or self.precision).lower()
 
         q_bytes = query.encode("utf-8")
-        q_vec = self.compute_multimodal_embedding(q_bytes, dim=128, device=target_device)
-
-        scored_candidates: List[Dict[str, Any]] = []
+        dim = 128
+        q_vec = self.compute_multimodal_embedding(q_bytes, dim=dim, device=target_device, precision=prec)
 
         if torch is not None:
             try:
                 dev = torch.device(target_device)
-                q_tensor = torch.tensor(q_vec, dtype=torch.float32, device=dev)
+                dtype = torch.float16 if (prec == "fp16" and target_device in ("mps", "cuda")) else torch.float32
 
-                for idx, cand in enumerate(candidates):
-                    c_vec = self.compute_multimodal_embedding(cand.encode("utf-8"), dim=128, device=target_device)
-                    c_tensor = torch.tensor(c_vec, dtype=torch.float32, device=dev)
-                    score = float(torch.dot(q_tensor, c_tensor).item())
-                    # Normalize dot product to [0, 1] range
-                    sim = round((score + 1.0) / 2.0, 4)
+                # 1. Shape [1, D]
+                q_tensor = torch.tensor([q_vec], dtype=dtype, device=dev)
+
+                # 2. Build 2D batch tensor [N, D] for all candidates in one allocation
+                cand_vecs = [
+                    self.compute_multimodal_embedding(cand.encode("utf-8"), dim=dim, device=target_device, precision=prec)
+                    for cand in candidates
+                ]
+                c_batch = torch.tensor(cand_vecs, dtype=dtype, device=dev)
+
+                # 3. Vectorized batch matrix multiplication: [1, D] x [D, N] -> [1, N]
+                similarity_scores = torch.matmul(q_tensor, c_batch.T).squeeze(0)
+
+                if prec == "int8":
+                    similarity_scores = torch.round(similarity_scores * 127.0).clamp(-128, 127) / 127.0
+
+                scores_list = similarity_scores.detach().cpu().to(torch.float32).tolist()
+
+                scored_candidates: List[Dict[str, Any]] = []
+                for idx, (cand, score) in enumerate(zip(candidates, scores_list)):
+                    sim = round((float(score) + 1.0) / 2.0, 4)
                     scored_candidates.append({"candidate": cand, "score": sim, "index": idx})
 
                 scored_candidates.sort(key=lambda x: x["score"], reverse=True)
@@ -180,9 +209,10 @@ class PyTorchRuntime:
             except Exception:
                 pass
 
-        # Fallback pure-python similarity
+        # Fallback pure-Python vectorized computation
+        scored_candidates = []
         for idx, cand in enumerate(candidates):
-            c_vec = self.compute_multimodal_embedding(cand.encode("utf-8"), dim=128)
+            c_vec = self.compute_multimodal_embedding(cand.encode("utf-8"), dim=dim)
             dot = sum(a * b for a, b in zip(q_vec, c_vec))
             sim = round((dot + 1.0) / 2.0, 4)
             scored_candidates.append({"candidate": cand, "score": sim, "index": idx})
@@ -213,6 +243,7 @@ class PyTorchRuntime:
             "target": target,
             "found": True,
             "device": target_device,
+            "precision": self.precision,
             "bounding_box": [ymin, xmin, ymax, xmax],
             "center_coordinates": {"x": center_x, "y": center_y},
         }
