@@ -47,6 +47,27 @@ bots:
       - prune-branch
       - pull-development
 
+  - id: deploy-test-bot
+    name: Deploy Test Bot
+    role: test-suite-verification
+    description: Autonomous test runner executing test suites and diagnosing failures.
+    capabilities:
+      - pre-deploy
+      - post-deploy
+      - run
+      - test
+
+  - id: change-validation-bot
+    name: Change Validation Bot
+    role: change-type-verification
+    description: Inspects working directory diffs, categorizes changes into UI/Script/Text, and validates live execution.
+    capabilities:
+      - classify-changes
+      - validate-ui
+      - validate-script
+      - validate-text
+      - validate-all
+
   - id: task-announcer-bot
     name: Task Announcer Bot
     role: notification-and-announcements
@@ -60,6 +81,10 @@ workflows:
     name: Canonical End of Task Lifecycle
     description: Complete PR promotion, branch pruning, knowledge sync, and task completion announcement.
     steps:
+      - bot: deploy-test-bot
+        action: pre-deploy
+        on_failure: abort
+
       - bot: pr-bot
         action: create-pr
         on_failure: abort
@@ -98,6 +123,10 @@ workflows:
       - bot: documentation-bot
         action: share-knowledge
         on_failure: continue
+
+      - bot: change-validation-bot
+        action: validate-all
+        on_failure: abort
 
       - bot: task-announcer-bot
         action: announce-complete

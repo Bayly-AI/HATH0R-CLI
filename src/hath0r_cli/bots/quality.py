@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,9 +13,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 VALID_BRANCH_PREFIXES = ("feature", "bugfix", "hotfix", "enhancement", "research", "fix", "chore")
 CANONICAL_BRANCHES = ("development", "testing", "staging", "master")
-BRANCH_REGEX = re.compile(
-    r"^(feature|bugfix|hotfix|enhancement|research|fix|chore)/(\d+)-([a-z0-9-]+)$"
-)
+BRANCH_REGEX = re.compile(r"^(feature|bugfix|hotfix|enhancement|research|fix|chore)/(\d+)-([a-z0-9-]+)$")
 SEMVER_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9.]+))?$")
 
 
@@ -25,6 +24,7 @@ def run_cmd(args: List[str], cwd: Optional[Path] = None) -> Tuple[int, str, str]
         return proc.returncode, proc.stdout.strip(), proc.stderr.strip()
     except Exception as exc:
         return 1, "", str(exc)
+
 
 # Default hard-gate check name fragments (case-insensitive substring match)
 DEFAULT_HARD_GATES = (
@@ -96,13 +96,7 @@ class QualityGateBot:
 
         failing = [_name(c) for c in rollup if _failed(c) and _name(c)]
         pending = [_name(c) for c in rollup if _pending(c) and _name(c) and not _failed(c)]
-        passing = [
-            _name(c)
-            for c in rollup
-            if _name(c)
-            and not _failed(c)
-            and not _pending(c)
-        ]
+        passing = [_name(c) for c in rollup if _name(c) and not _failed(c) and not _pending(c)]
 
         hard_failures = []
         hard_missing = []
@@ -366,6 +360,55 @@ class DeployTestBot:
             }
         return self._run_phase("post_deploy", commands, dry_run=dry_run)
 
+    @staticmethod
+    def _parse_test_output(stdout: str, stderr: str) -> Dict[str, Any]:
+        """Extract structured test metrics and failure diagnostics from pytest/unittest output."""
+        combined = f"{stdout}\n{stderr}"
+        parsed: Dict[str, Any] = {
+            "summary_line": None,
+            "passed": 0,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0,
+            "failures": [],
+        }
+
+        # Look for pytest short summary lines like "=== 1 failed, 40 passed in 1.23s ==="
+        summary_match = re.search(
+            r"==+\s+((?:\d+\s+(?:failed|passed|error|errors|skipped|warning|warnings)(?:,\s*)?)+).*==+",
+            combined,
+        )
+        if summary_match:
+            parsed["summary_line"] = summary_match.group(0).strip()
+            summary_text = summary_match.group(1)
+            for count_type in re.findall(r"(\d+)\s+([a-zA-Z]+)", summary_text):
+                num, label = int(count_type[0]), count_type[1].lower()
+                if "pass" in label:
+                    parsed["passed"] = num
+                elif "fail" in label:
+                    parsed["failed"] = num
+                elif "error" in label:
+                    parsed["errors"] = num
+                elif "skip" in label:
+                    parsed["skipped"] = num
+
+        # Look for FAILED test cases (e.g. "FAILED tests/unit/test_foo.py::test_bar - AssertionError...")
+        for fail_match in re.finditer(r"FAILED\s+([^\s\n]+)(?:\s+-\s+([^\n]+))?", combined):
+            parsed["failures"].append(
+                {
+                    "test": fail_match.group(1),
+                    "detail": (fail_match.group(2) or "").strip(),
+                }
+            )
+
+        # Look for FAIL: / ERROR: from unittest style
+        for fail_match in re.finditer(r"(?:FAIL|ERROR):\s+([^\s\n]+)", combined):
+            test_id = fail_match.group(1)
+            if not any(f["test"] == test_id for f in parsed["failures"]):
+                parsed["failures"].append({"test": test_id, "detail": "unittest failure/error"})
+
+        return parsed
+
     def _run_phase(
         self,
         phase: str,
@@ -391,16 +434,32 @@ class DeployTestBot:
             }
 
         results = []
+        all_failures: List[Dict[str, Any]] = []
+        total_passed = 0
+        total_failed = 0
+        total_errors = 0
+
         for cmd in commands:
             try:
                 proc = subprocess.run(cmd, cwd=self.cwd, capture_output=True, text=True, check=False)
+                stdout_text = proc.stdout or ""
+                stderr_text = proc.stderr or ""
+                parsed_metrics = self._parse_test_output(stdout_text, stderr_text)
+
+                total_passed += parsed_metrics["passed"]
+                total_failed += parsed_metrics["failed"]
+                total_errors += parsed_metrics["errors"]
+                if parsed_metrics["failures"]:
+                    all_failures.extend(parsed_metrics["failures"])
+
                 results.append(
                     {
                         "command": cmd,
                         "ok": proc.returncode == 0,
                         "exit_code": proc.returncode,
-                        "stdout_tail": (proc.stdout or "")[-400:],
-                        "stderr_tail": (proc.stderr or "")[-400:],
+                        "stdout_tail": stdout_text[-800:],
+                        "stderr_tail": stderr_text[-800:],
+                        "metrics": parsed_metrics,
                     }
                 )
             except FileNotFoundError as exc:
@@ -411,6 +470,10 @@ class DeployTestBot:
             "success": success,
             "phase": phase,
             "results": results,
+            "issues": all_failures,
+            "total_passed": total_passed,
+            "total_failed": total_failed,
+            "total_errors": total_errors,
             "counts_toward_coverage": bool(phase_cfg.get("counts_toward_coverage", phase == "pre_deploy")),
             "message": f"{phase} {'passed' if success else 'failed'}",
         }
@@ -554,3 +617,42 @@ class ReleaseBot:
             "tag": tag,
             **release_result,
         }
+
+    def build_and_rotate_artifacts(
+        self,
+        *,
+        out_dir: Optional[Path] = None,
+        previous_dir: Optional[Path] = None,
+        framework_dir: Optional[Path] = None,
+        rotate: bool = True,
+        sync_framework: bool = True,
+        checksums_only: bool = False,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Build, rotate previous releases, generate checksums, and sync with Framework."""
+        try:
+            # Import build execution from scripts/build_release_binaries.py
+            sys_path_added = False
+            scripts_dir = str(self.cwd / "scripts")
+            if scripts_dir not in sys.path:
+                sys.path.insert(0, scripts_dir)
+                sys_path_added = True
+
+            from build_release_binaries import execute_release_build
+
+            res = execute_release_build(
+                cli_root=self.cwd,
+                out_dir=out_dir,
+                previous_dir=previous_dir,
+                framework_release_dir=framework_dir,
+                rotate=rotate,
+                sync_framework=sync_framework,
+                checksums_only=checksums_only,
+                dry_run=dry_run,
+            )
+            return res
+        except Exception as ex:
+            return {"success": False, "error": str(ex)}
+        finally:
+            if sys_path_added and scripts_dir in sys.path:
+                sys.path.remove(scripts_dir)

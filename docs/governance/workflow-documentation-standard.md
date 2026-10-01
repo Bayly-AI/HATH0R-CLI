@@ -32,6 +32,7 @@ Applies to:
 | pr-and-branch-lifecycle-factory | strategies/pr-lifecycle-strategy.md | (pr-workflow.md) | playbooks/pr-workflow-playbook.md | runbooks/pr-lifecycle-runbook.md | checklists/pr-pre-merge-development.md | tests/unit/test_bots.py |
 | docker-factory | strategies/docker-group-strategy.md | procedures/docker-group-procedure.md | playbooks/docker-group-playbook.md | runbooks/docker-group-runbook.md | checklists/docker-group.md | tests/unit/test_bots.py |
 | quality-release-factory | strategies/quality-release-strategy.md | procedures/quality-release-procedure.md | (quality-bots.md) | runbooks/quality-release-runbook.md | checklists/quality-bots.md | tests/unit/test_quality_bots.py |
+| repo-clean-factory | strategies/repo-clean-strategy.md | procedures/repo-clean-procedure.md | playbooks/repo-clean-playbook.md | runbooks/repo-clean-runbook.md | checklists/repo-clean.md | tests/unit/test_repo_clean.py |
 | mcp-doc-publish | strategies/mcp-doc-publish-strategy.md | procedures (via playbook) | playbooks/mcp-doc-publish-playbook.md | runbooks/mcp-doc-publish-runbook.md | checklists/mcp-doc-publish-checklist.md | docs/governance/mcp-doc-publish.md |
 
 Gap fill: any row missing a file MUST add it before claiming the workflow “production ready”.

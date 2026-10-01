@@ -1,0 +1,86 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: repo-clean-factory
+# Issue: #135
+
+factory_id: repo-clean-factory
+name: Repository Cleanliness and Hygiene Factory
+version: 1.0.0
+description: >
+  Autonomous factory responsible for maintaining repository cleanliness:
+  preventing errant files in root, enforcing structured folder partitioning for
+  all knowledge, rules, and agents, and organizing non-essential root configs into .cfg/.
+
+author: Bayly-AI
+category: governance-and-hygiene
+
+bots:
+  - id: repo-hygiene-bot
+    name: Repo Hygiene Bot
+    role: project-root-cleanliness
+    description: Audits project root against UPL allowable file rules and moves or flags errant files.
+    capabilities:
+      - scan
+      - scan-root
+      - audit
+      - clean
+      - clean-root
+      - archive
+
+  - id: config-organizer-bot
+    name: Config Organizer Bot
+    role: configuration-file-organization
+    description: Detects misplaced configuration files at root and relocates them to .cfg/ or cfg/.
+    capabilities:
+      - scan
+      - scan-misplaced
+      - audit
+      - organize
+      - relocate
+      - clean
+
+  - id: knowledge-organizer-bot
+    name: Knowledge Organizer Bot
+    role: modular-knowledge-governance
+    description: Enforces that knowledge, agent rules, and docs are partitioned into topic directories without monolithic files.
+    capabilities:
+      - audit
+      - audit-structure
+      - scan
+
+workflows:
+  - id: audit-cleanliness
+    name: Non-Mutating Repository Cleanliness Audit
+    description: Audit root files, configuration placement, and knowledge partition structure without making file modifications.
+    steps:
+      - bot: repo-hygiene-bot
+        action: scan
+        on_failure: continue
+
+      - bot: config-organizer-bot
+        action: scan
+        on_failure: continue
+
+      - bot: knowledge-organizer-bot
+        action: audit
+        on_failure: continue
+
+  - id: organize-cleanliness
+    name: Execute Repository Cleanliness and Organization
+    description: Relocate misplaced root configs into .cfg/ and clean errant root files into archive spool.
+    steps:
+      - bot: config-organizer-bot
+        action: organize
+        on_failure: continue
+        args:
+          target_folder: .cfg
+
+      - bot: repo-hygiene-bot
+        action: clean
+        on_failure: continue
+        args:
+          archive_dir: .hath0r/spool/archive
+
+      - bot: knowledge-organizer-bot
+        action: audit
+        on_failure: continue

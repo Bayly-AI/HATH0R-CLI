@@ -118,9 +118,7 @@ def validate_factory_file(file_path: Path, schema: dict[str, Any] | None = None)
                     bot_ref = st.get("bot")
                     action_ref = st.get("action")
                     if bot_ref and bot_ref not in declared_bots:
-                        errors.append(
-                            f"Workflow '{wf_id}' step {idx + 1} references undeclared bot '{bot_ref}'."
-                        )
+                        errors.append(f"Workflow '{wf_id}' step {idx + 1} references undeclared bot '{bot_ref}'.")
                     elif bot_ref in declared_bots and action_ref:
                         caps = declared_bots[bot_ref]
                         if caps and action_ref not in caps:

@@ -1,18 +1,35 @@
 #!/usr/bin/env python3
 """Publish group documentation into the proper MCP knowledgebase canonical tree."""
+
 from __future__ import annotations
-import argparse, hashlib, json, re, subprocess, sys
+
+import argparse
+import hashlib
+import json
+import re
+import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 BUCKETS_DEFAULT = [
-    "knowledge", "runbooks", "playbooks", "procedures", "checklists",
-    "strategies", "workflows", "rules", "plans", "lessons-learned",
+    "knowledge",
+    "runbooks",
+    "playbooks",
+    "procedures",
+    "checklists",
+    "strategies",
+    "workflows",
+    "rules",
+    "plans",
+    "lessons-learned",
 ]
+
 
 def load_config(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
 
 def classify(path: Path, rules: list[dict[str, Any]], default: str, force: str | None) -> str:
     if force:
@@ -24,6 +41,7 @@ def classify(path: Path, rules: list[dict[str, Any]], default: str, force: str |
             if m.lower() in hay or m.lower() in name:
                 return rule["bucket"]
     return default
+
 
 def should_exclude(path: Path, excludes: list[str]) -> bool:
     s = str(path).replace("\\", "/")
@@ -37,6 +55,7 @@ def should_exclude(path: Path, excludes: list[str]) -> bool:
     if any(x in s for x in ("/.git/", "/node_modules/", "/.credentials/", "/dist/", "/coverage/")):
         return True
     return False
+
 
 def stable_name(src: Path, root: Path | None) -> str:
     try:
@@ -53,6 +72,7 @@ def stable_name(src: Path, root: Path | None) -> str:
         safe += ".md"
     return f"{safe}__{digest}.md"
 
+
 def collect_files(source: dict[str, Any]) -> list[tuple[Path, Path | None]]:
     p = Path(source["path"]).expanduser()
     if not p.exists():
@@ -61,6 +81,7 @@ def collect_files(source: dict[str, Any]) -> list[tuple[Path, Path | None]]:
         return [(p, p.parent)]
     glob = source.get("glob") or "**/*.md"
     return [(f, p) for f in sorted(p.glob(glob)) if f.is_file()]
+
 
 def materialize_group(group_id: str, group: dict[str, Any], cfg: dict[str, Any], dry_run: bool) -> dict[str, Any]:
     mcp = group["mcp"]
@@ -83,9 +104,15 @@ def materialize_group(group_id: str, group: dict[str, Any], cfg: dict[str, Any],
     excludes = cfg.get("excludes", [])
     buckets = cfg.get("policy", {}).get("buckets", BUCKETS_DEFAULT)
     report = {
-        "group": group_id, "label": group.get("label"), "mcp_github": mcp.get("github"),
-        "target_canonical": str(canonical), "copied": 0, "skipped": 0, "by_bucket": {},
-        "missing_sources": [], "files": [],
+        "group": group_id,
+        "label": group.get("label"),
+        "mcp_github": mcp.get("github"),
+        "target_canonical": str(canonical),
+        "copied": 0,
+        "skipped": 0,
+        "by_bucket": {},
+        "missing_sources": [],
+        "files": [],
     }
     if not dry_run:
         for b in buckets:
@@ -109,7 +136,12 @@ def materialize_group(group_id: str, group: dict[str, Any], cfg: dict[str, Any],
                 continue
             bucket = classify(f, rules, default_bucket, force)
             dest = canonical / bucket / stable_name(f, root)
-            entry = {"source": str(f), "bucket": bucket, "dest": str(dest), "sensitivity": source.get("sensitivity", "unknown")}
+            entry = {
+                "source": str(f),
+                "bucket": bucket,
+                "dest": str(dest),
+                "sensitivity": source.get("sensitivity", "unknown"),
+            }
             report["files"].append(entry)
             report["copied"] += 1
             report["by_bucket"][bucket] = report["by_bucket"].get(bucket, 0) + 1
@@ -125,14 +157,25 @@ def materialize_group(group_id: str, group: dict[str, Any], cfg: dict[str, Any],
             dest.write_text(header + body, encoding="utf-8")
     prov = {
         "published_at": datetime.now(timezone.utc).isoformat(),
-        "group": group_id, "mcp": mcp.get("github"), "copied": report["copied"],
-        "by_bucket": report["by_bucket"], "missing_sources": report["missing_sources"],
-        "tool": "scripts/publish-docs-to-mcp.py", "config": "cfg/mcp-doc-publish.json",
+        "group": group_id,
+        "mcp": mcp.get("github"),
+        "copied": report["copied"],
+        "by_bucket": report["by_bucket"],
+        "missing_sources": report["missing_sources"],
+        "tool": "scripts/publish-docs-to-mcp.py",
+        "config": "cfg/mcp-doc-publish.json",
     }
     if not dry_run:
         canonical.mkdir(parents=True, exist_ok=True)
         (canonical / "PUBLISH_MANIFEST.json").write_text(json.dumps(prov, indent=2) + "\n", encoding="utf-8")
-        lines = [f"# MCP doc publish — {group.get('label', group_id)}", "", f"Published: `{prov['published_at']}`", f"Files: **{report['copied']}**", "", "## Buckets"]
+        lines = [
+            f"# MCP doc publish — {group.get('label', group_id)}",
+            "",
+            f"Published: `{prov['published_at']}`",
+            f"Files: **{report['copied']}**",
+            "",
+            "## Buckets",
+        ]
         for b, n in sorted(report["by_bucket"].items()):
             lines.append(f"- `{b}`: {n}")
         lines += ["", "See `PUBLISH_MANIFEST.json`.", ""]
@@ -140,18 +183,26 @@ def materialize_group(group_id: str, group: dict[str, Any], cfg: dict[str, Any],
     report["manifest"] = prov
     return report
 
+
 def maybe_kb_sync(mcp_path: Path, dry_run: bool) -> dict[str, Any]:
     if dry_run:
         return {"ran": False, "reason": "dry-run"}
     for cmd in (["kb", "sync", "local"], [sys.executable, "-m", "knowledgebase", "sync", "local"]):
         try:
             p = subprocess.run(cmd, cwd=str(mcp_path), capture_output=True, text=True, timeout=120)
-            return {"ran": True, "cmd": cmd, "returncode": p.returncode, "stdout_tail": (p.stdout or "")[-500:], "stderr_tail": (p.stderr or "")[-500:]}
+            return {
+                "ran": True,
+                "cmd": cmd,
+                "returncode": p.returncode,
+                "stdout_tail": (p.stdout or "")[-500:],
+                "stderr_tail": (p.stderr or "")[-500:],
+            }
         except FileNotFoundError:
             continue
         except Exception as exc:
             return {"ran": False, "error": str(exc)}
     return {"ran": False, "reason": "kb CLI not available; canonical files written only"}
+
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Publish docs to group MCP knowledgebases")
@@ -185,8 +236,9 @@ def main() -> int:
         for r in reports:
             print(f"== {r.get('group')} → {r.get('target_canonical')} ==")
             if r.get("error"):
-                print("  ERROR:", r["error"]); continue
-            print(f"  copied={r['copied']} skipped={r.get('skipped',0)}")
+                print("  ERROR:", r["error"])
+                continue
+            print(f"  copied={r['copied']} skipped={r.get('skipped', 0)}")
             for b, n in sorted(r.get("by_bucket", {}).items()):
                 print(f"  - {b}: {n}")
             if r.get("missing_sources"):
@@ -196,6 +248,7 @@ def main() -> int:
             if r.get("kb_sync"):
                 print("  kb_sync:", r["kb_sync"])
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

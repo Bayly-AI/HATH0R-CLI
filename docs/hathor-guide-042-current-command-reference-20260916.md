@@ -169,7 +169,7 @@ hath0r --output json schema --status shipped
 These commands close the discoverability gap for the HATHOR-ADR-003 target
 tree without claiming full domain execution. Planned domains appear with
 `status: planned` and must not be invented as live verbs. Forbidden legacy
-roots/binaries (`.aegis/`, `aegis`) are listed in the JSON payload.
+roots/binaries (`.customerSystem/`, `customerSystem`) are listed in the JSON payload.
 
 ## 8. Environment
 

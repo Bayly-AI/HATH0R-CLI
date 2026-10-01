@@ -153,7 +153,13 @@ def _product_canonical_flags(data: Any) -> dict[str, bool]:
     return out
 
 
-def run_checks(root: Path, kb: Path, check_mcp: bool = False, check_factories: bool = False) -> DoctorResult:
+def run_checks(
+    root: Path,
+    kb: Path,
+    check_mcp: bool = False,
+    check_factories: bool = False,
+    check_vision: bool = False,
+) -> DoctorResult:
     """Evaluate all doctor checks against root and kb paths."""
     tower = root / "HATH0R-CLI"
     tower_cfg = tower / "cfg"
@@ -416,6 +422,7 @@ def run_checks(root: Path, kb: Path, check_mcp: bool = False, check_factories: b
 
     if check_mcp:
         from hath0r_cli.mcp import check_all_mcp_connections
+
         for mcp_status in check_all_mcp_connections(group_root=root):
             _add(
                 checks,
@@ -430,6 +437,7 @@ def run_checks(root: Path, kb: Path, check_mcp: bool = False, check_factories: b
 
     if check_factories:
         from hath0r_cli.factory_validation import validate_all_factories
+
         factory_results = validate_all_factories(group_root=root)
         for fr in factory_results:
             _add(
@@ -445,6 +453,32 @@ def run_checks(root: Path, kb: Path, check_mcp: bool = False, check_factories: b
                 detail=str(fr.file_path),
                 fail_state="error",
             )
+
+    if check_vision:
+        from hath0r_cli.bots.vision_bot import VisionBot
+
+        vbot = VisionBot(cwd=root if root and root.is_dir() else Path.cwd())
+        vdiag = vbot.check_capabilities()
+        _add(
+            checks,
+            check_id="vision-config",
+            label="vision:config",
+            ok=vdiag.get("config_present", False),
+            ok_message="Vision configuration (cfg/vision.yaml) is present and valid.",
+            fail_message="Vision configuration (cfg/vision.yaml) is missing.",
+            detail=str(vdiag.get("config_path") or ""),
+            fail_state="degraded",
+        )
+        ollama_status = vdiag.get("local_ollama", {})
+        _add(
+            checks,
+            check_id="vision-runtime-ollama",
+            label="vision:ollama_runtime",
+            ok=True,  # Non-fatal if offline
+            ok_message=f"Ollama ViT runtime ({'online' if ollama_status.get('online') else 'offline/fallback'}).",
+            fail_message="Ollama ViT runtime offline.",
+            detail=f"{ollama_status.get('host')} (models: {len(ollama_status.get('available_models', []))})",
+        )
 
     tower_configured = any(c.id == "control-tower-root" and c.state == "ok" for c in checks)
     return DoctorResult(

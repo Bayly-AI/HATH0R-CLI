@@ -320,7 +320,7 @@ def check_mcp_connection(server: dict[str, Any], timeout: float = 2.5) -> McpCon
     ready = True
     if ready_ep != health_ep:
         r_code, _, _ = _http_get(ready_url, timeout=timeout)
-        ready = (r_code == 200)
+        ready = r_code == 200
 
     # 3. MCP JSON-RPC tools/list
     m_code, m_data, m_err = _http_jsonrpc(mcp_url, "tools/list", timeout=timeout)
@@ -372,6 +372,13 @@ def check_all_mcp_connections(
     return results
 
 
+VOTE_SOURCE_TOOL_NAMES = {
+    "list": "vote_source_list",
+    "test": "vote_source_test",
+    "fetch_sample": "vote_source_fetch_sample",
+}
+
+
 def call_mcp_tool(
     server_id: str,
     tool_name: str,
@@ -402,3 +409,182 @@ def call_mcp_tool(
 
     result = data.get("result", {})
     return result if isinstance(result, dict) else {"result": result}
+
+
+def call_vote_source_operation(
+    operation: str,
+    source_id: str | None = None,
+    *,
+    server_id: str = "1-nation-mcp",
+    group_root: Path | None = None,
+    timeout: float = 20.0,
+) -> dict[str, Any]:
+    """Call one bounded vote-source operation through the configured 1N-MCP server."""
+    tool_name = VOTE_SOURCE_TOOL_NAMES.get(operation)
+    if tool_name is None:
+        raise ValueError(f"Unknown vote-source operation: {operation}")
+    if operation == "list":
+        arguments: dict[str, Any] = {}
+    elif source_id:
+        arguments = {"source_id": source_id}
+    else:
+        raise ValueError(f"Vote-source operation '{operation}' requires a source ID")
+
+    result = call_mcp_tool(
+        server_id,
+        tool_name,
+        arguments=arguments,
+        group_root=group_root,
+        timeout=timeout,
+    )
+    if result.get("isError"):
+        raise RuntimeError(_mcp_tool_message(result) or "Vote-source MCP tool returned an error")
+    return _mcp_tool_data(result)
+
+
+def _mcp_tool_data(result: dict[str, Any]) -> dict[str, Any]:
+    """Decode FastMCP text content into a structured result without guessing."""
+    content = result.get("content")
+    if not isinstance(content, list):
+        raise RuntimeError("MCP tool response did not contain content")
+    for block in content:
+        if not isinstance(block, dict) or not isinstance(block.get("text"), str):
+            continue
+        try:
+            decoded = json.loads(block["text"])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(decoded, dict):
+            return decoded
+    raise RuntimeError("MCP tool response did not contain a JSON object")
+
+
+def _mcp_tool_message(result: dict[str, Any]) -> str | None:
+    """Extract a safe human-readable tool error without exposing raw transport data."""
+    content = result.get("content")
+    if not isinstance(content, list):
+        return None
+    for block in content:
+        if isinstance(block, dict):
+            text = block.get("text")
+            if isinstance(text, str):
+                return text[:500]
+    return None
+
+
+class SchemaPruner:
+    """Compresses verbose JSON Schema tool definitions to reduce prompt context bloat."""
+
+    def __init__(self, max_desc_len: int = 120, strip_titles: bool = True) -> None:
+        self.max_desc_len = max_desc_len
+        self.strip_titles = strip_titles
+
+    def prune(self, tool_spec: dict[str, Any]) -> dict[str, Any]:
+        """Prune tool spec preserving required fields, types, and enums."""
+        if not isinstance(tool_spec, dict):
+            return tool_spec
+
+        pruned: dict[str, Any] = {
+            "name": tool_spec.get("name", ""),
+        }
+
+        # Truncate or condense tool description
+        desc = tool_spec.get("description", "")
+        if desc:
+            pruned["description"] = desc[: self.max_desc_len].strip()
+
+        schema = tool_spec.get("inputSchema") or tool_spec.get("parameters") or {}
+        if isinstance(schema, dict):
+            pruned["parameters"] = self._prune_schema(schema)
+
+        return pruned
+
+    def _prune_schema(self, schema: dict[str, Any]) -> dict[str, Any]:
+        out: dict[str, Any] = {"type": schema.get("type", "object")}
+        if "required" in schema:
+            out["required"] = schema["required"]
+
+        props = schema.get("properties", {})
+        if isinstance(props, dict):
+            pruned_props = {}
+            for k, v in props.items():
+                if isinstance(v, dict):
+                    prop_entry = {"type": v.get("type", "string")}
+                    if "enum" in v:
+                        prop_entry["enum"] = v["enum"]
+                    if "default" in v:
+                        prop_entry["default"] = v["default"]
+                    if "description" in v and not self.strip_titles:
+                        prop_entry["description"] = v["description"][: self.max_desc_len]
+                    if v.get("type") == "object" and "properties" in v:
+                        prop_entry["properties"] = self._prune_schema(v).get("properties", {})
+                    pruned_props[k] = prop_entry
+            out["properties"] = pruned_props
+        return out
+
+
+class DynamicToolRouter:
+    """Dynamically routes and filters active tool schemas based on lexical and semantic relevance."""
+
+    def __init__(
+        self,
+        tools: list[dict[str, Any]] | None = None,
+        pruner: SchemaPruner | None = None,
+    ) -> None:
+        self.tools = tools or []
+        self.pruner = pruner or SchemaPruner()
+
+    def add_tool(self, tool: dict[str, Any]) -> None:
+        self.tools.append(tool)
+
+    def route(
+        self,
+        intent: str,
+        top_k: int = 5,
+        threshold: float = 0.0,
+        prune: bool = True,
+    ) -> list[dict[str, Any]]:
+        """Score and return top-K tool definitions matching task intent."""
+        if not self.tools:
+            return []
+
+        scored: list[tuple[float, dict[str, Any]]] = []
+        intent_tokens = set(intent.lower().replace("_", " ").replace("-", " ").split())
+
+        for tool in self.tools:
+            score = self.score_tool(intent_tokens, tool)
+            if score >= threshold:
+                scored.append((score, tool))
+
+        # Sort descending by score
+        scored.sort(key=lambda x: x[0], reverse=True)
+        top_tools = [tool for _, tool in scored[:top_k]]
+
+        if prune:
+            return [self.pruner.prune(t) for t in top_tools]
+        return top_tools
+
+    def score_tool(self, intent_tokens: set[str], tool: dict[str, Any]) -> float:
+        """Compute relevance score between query tokens and tool metadata."""
+        name = tool.get("name", "").lower()
+        desc = tool.get("description", "").lower()
+        tool_tokens = set(name.replace("_", " ").replace("-", " ").split())
+        tool_tokens.update(desc.replace("_", " ").replace("-", " ").split())
+
+        schema = tool.get("inputSchema") or tool.get("parameters") or {}
+        if isinstance(schema, dict):
+            props = schema.get("properties", {})
+            if isinstance(props, dict):
+                for p in props.keys():
+                    tool_tokens.update(p.lower().replace("_", " ").split())
+
+        if not intent_tokens or not tool_tokens:
+            return 0.0
+
+        overlap = intent_tokens.intersection(tool_tokens)
+        jaccard = len(overlap) / float(len(intent_tokens.union(tool_tokens)))
+
+        # Name match bonus
+        name_bonus = 0.5 if any(token in name for token in intent_tokens) else 0.0
+        return round(jaccard + name_bonus, 4)
+
