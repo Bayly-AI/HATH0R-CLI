@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-01
+
+### Changed
+
+- **Version Alignment & Ecosystem Promotion**: Canonical version bump to `0.5.1` across the suite promotion path (#257).
+- **Cognitive Testing & UI Validation**: Updated test execution wrappers and preflight validation checks to support Playwright UI test automation and master test catalog synchronization.
+
 ## [0.5.0] - 2026-10-01
 
 ### Added
