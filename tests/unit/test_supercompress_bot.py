@@ -1,10 +1,11 @@
 """Unit tests for SuperCompressBot and hath0r context compress CLI command."""
 
 from pathlib import Path
+
 from click.testing import CliRunner
 
-from hath0r_cli.cli import main as cli
 from hath0r_cli.bots.supercompress_bot import SuperCompressBot, _resolve_supercompress_token
+from hath0r_cli.cli import main as cli
 
 
 def test_supercompress_token_resolver(monkeypatch, tmp_path: Path):
@@ -116,7 +117,6 @@ def test_supercompress_api_mock(monkeypatch):
     """Verify API request and response parsing with mock urlopen."""
     import io
     import json
-    from urllib.response import addinfourl
 
     mock_resp_data = {
         "compressed_text": "Compressed architecture content.",

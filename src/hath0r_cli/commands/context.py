@@ -176,8 +176,9 @@ def context_compress(
     force_local: bool,
 ) -> None:
     """Compress extensive prompt or RAG context against query using SuperCompress."""
-    from pathlib import Path
     import sys
+    from pathlib import Path
+
     from hath0r_cli.bots.supercompress_bot import SuperCompressBot
 
     target_text = context_text
