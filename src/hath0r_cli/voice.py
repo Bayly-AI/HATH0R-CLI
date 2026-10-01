@@ -417,7 +417,7 @@ def _speak_feedback_standalone(text: str) -> None:
     clean_text = text.replace('"', '\\"')
     try:
         if sys.platform == "darwin" and shutil.which("say"):
-            subprocess.run(["say", clean_text], check=False, timeout=5)
+            subprocess.run(["say", f"[[slnc 700]] {clean_text}"], check=False, timeout=5)
         elif sys.platform.startswith("linux"):
             if shutil.which("espeak-ng"):
                 subprocess.run(["espeak-ng", clean_text], check=False, timeout=5)

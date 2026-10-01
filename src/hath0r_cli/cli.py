@@ -8,7 +8,6 @@ import click
 
 from hath0r_cli import __version__
 from hath0r_cli.commands import register_all_commands
-from hath0r_cli.commands.repo import _resolve_target_repos
 from hath0r_cli.common import (
     _GROUP_MARKER,
     _GROUP_ROOT_ERROR,
@@ -25,11 +24,18 @@ from hath0r_cli.common import (
     _utc_now,
     console,
 )
+from hath0r_cli.lazy_group import Hath0rLazyGroup
 from hath0r_cli.output import OUTPUT_CHOICES
-from hath0r_cli.telemetry import init_tracer
 
 
-@click.group(invoke_without_command=True)
+def _resolve_target_repos(*args, **kwargs):
+    """Lazy resolution helper for target repositories."""
+    from hath0r_cli.commands.repo import _resolve_target_repos as _resolver
+
+    return _resolver(*args, **kwargs)
+
+
+@click.group(cls=Hath0rLazyGroup, invoke_without_command=True)
 @click.option(
     "--output",
     "-o",
@@ -65,8 +71,6 @@ def main(ctx: click.Context, output: str, quiet: bool, verbose: bool, version: b
     ctx.obj["verbose"] = verbose
     ctx.obj["started_at"] = time.perf_counter()
 
-    init_tracer()
-
     if version:
         _emit_version(ctx)
         ctx.exit(0)
@@ -93,7 +97,7 @@ def _emit_version(ctx: click.Context) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
-# Register all modular command groups
+# Register all modular command groups on lazy group
 register_all_commands(main)
 
 

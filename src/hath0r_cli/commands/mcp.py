@@ -287,6 +287,92 @@ def mcp_call(ctx: click.Context, server_id: str, tool_name: str, json_args: str)
         ctx.exit(1)
 
 
+@mcp.command("route")
+@click.option("--intent", "-i", required=True, help="Task intent or natural language prompt.")
+@click.option("--top-k", "-k", default=5, type=int, help="Maximum number of tools to return.")
+@click.option("--threshold", "-t", default=0.0, type=float, help="Minimum relevance score threshold.")
+@click.option("--prune/--no-prune", default=True, help="Prune tool parameter schemas.")
+@click.pass_context
+def mcp_route(ctx: click.Context, intent: str, top_k: int, threshold: float, prune: bool) -> None:
+    """Dynamically route and rank active tools matching task intent to avoid context bloat."""
+    from hath0r_cli.mcp import DEFAULT_MCP_SERVERS, DynamicToolRouter
+
+    # Generate reference tools list
+    sample_tools = [
+        {"name": "git_branch_validate", "description": "Validate git branch naming and promotion path rules.", "parameters": {"type": "object", "properties": {"branch": {"type": "string"}}}},
+        {"name": "gh_pr_create", "description": "Create a GitHub pull request targeting development.", "parameters": {"type": "object", "properties": {"title": {"type": "string"}, "base": {"type": "string"}}}},
+        {"name": "vision_inspect", "description": "Inspect and parse visual diagrams, images, and UI mockups.", "parameters": {"type": "object", "properties": {"image_path": {"type": "string"}}}},
+        {"name": "kb_search", "description": "Search canonical knowledgebase and lessons learned documents.", "parameters": {"type": "object", "properties": {"query": {"type": "string"}}}},
+        {"name": "doctor_diagnose", "description": "Run diagnostic health checks on suite repos and tools.", "parameters": {"type": "object", "properties": {"verbose": {"type": "boolean"}}}},
+    ]
+
+    router = DynamicToolRouter(sample_tools)
+    selected = router.route(intent=intent, top_k=top_k, threshold=threshold, prune=prune)
+
+    response = _build_response(
+        ctx,
+        command="mcp.route",
+        state="ok",
+        data={
+            "intent": intent,
+            "top_k": top_k,
+            "selected_tools_count": len(selected),
+            "tools": selected,
+        },
+    )
+
+    def _text() -> None:
+        click.echo(f"Top {len(selected)} tools matching '{intent}':")
+        for t in selected:
+            click.echo(f"  • {t.get('name')}: {t.get('description', '')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@mcp.command("prune")
+@click.argument("schema_file", type=click.Path(exists=True, dir_okay=False))
+@click.pass_context
+def mcp_prune(ctx: click.Context, schema_file: str) -> None:
+    """Prune and compress a tool JSON schema to minimize context token footprint."""
+    from pathlib import Path
+    from hath0r_cli.mcp import SchemaPruner
+
+    p = Path(schema_file)
+    try:
+        raw_data = json.loads(p.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise click.BadParameter(f"Failed to parse JSON schema: {exc}")
+
+    pruner = SchemaPruner()
+    if isinstance(raw_data, list):
+        pruned_data = [pruner.prune(item) for item in raw_data]
+    else:
+        pruned_data = pruner.prune(raw_data)
+
+    orig_size = len(json.dumps(raw_data))
+    pruned_size = len(json.dumps(pruned_data))
+    reduction_pct = round((1.0 - (pruned_size / float(orig_size or 1))) * 100, 1)
+
+    response = _build_response(
+        ctx,
+        command="mcp.prune",
+        state="ok",
+        data={
+            "source_file": str(p),
+            "original_bytes": orig_size,
+            "pruned_bytes": pruned_size,
+            "reduction_percent": reduction_pct,
+            "pruned_schema": pruned_data,
+        },
+    )
+
+    def _text() -> None:
+        click.echo(f"Pruned {p.name}: {orig_size}B → {pruned_size}B ({reduction_pct}% reduction)")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+
 # ============================================================================
 # Factory & Bot Suite Commands
 # ============================================================================

@@ -198,6 +198,54 @@ def repo_clean(
     _emit_response(ctx, response, text_renderer=_text)
 
 
-# ============================================================================
-# Voice Command Group (HATHOR-TS-006 / Issue #131)
-# ============================================================================
+@repo.command("workflow")
+@click.option("--repo", "target_repo", default=None, help="Target specific repository directory.")
+@click.option("--all-repos", is_flag=True, default=False, help="Run clean workflow across all sibling repositories.")
+@click.option("--no-commit", is_flag=True, default=False, help="Disable auto-committing uncommitted changes.")
+@click.pass_context
+def repo_workflow(ctx: click.Context, target_repo: str | None, all_repos: bool, no_commit: bool) -> None:
+    """Execute the full 13-step Clean Repos Standard Operating Procedure."""
+    from hath0r_cli.bots.repo_clean import CleanReposWorkflowBot
+
+    repos = _resolve_target_repos(target_repo, all_repos)
+    bot = CleanReposWorkflowBot()
+    results = bot.run_clean_repo_workflow(target_repos=repos, auto_commit=not no_commit)
+
+    response = _build_response(ctx, command="repo.workflow", state="ok" if results.get("success") else "degraded", data=results)
+
+    def _text() -> None:
+        console.print(f"[bold cyan]13-Step Clean Repos Standard Operating Procedure[/bold cyan] ({len(repos)} repo(s))")
+        console.print("=" * 70)
+        for rep in results.get("repos", []):
+            console.print(f"\n[bold]{rep['repo']}[/bold] ({rep['path']})")
+            console.print("-" * 45)
+            steps = rep.get("steps", {})
+            for step_key, step_data in sorted(steps.items()):
+                console.print(f"  [green]✓[/green] [bold]{step_key}:[/bold] {step_data}")
+            if rep.get("clean"):
+                console.print("  [bold green]✓ Repository Clean & Fully In Sync[/bold green]")
+            else:
+                console.print(f"  [bold red]✗ Issues encountered:[/bold red] {rep.get('error')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@click.command("clean-repos")
+@click.option("--repo", "target_repo", default=None, help="Target specific repository directory.")
+@click.option("--all-repos", is_flag=True, default=True, help="Run clean workflow across all sibling repositories.")
+@click.option("--no-commit", is_flag=True, default=False, help="Disable auto-committing uncommitted changes.")
+@click.pass_context
+def clean_repos_cmd(ctx: click.Context, target_repo: str | None, all_repos: bool, no_commit: bool) -> None:
+    """Top-level command to execute the 13-step Clean Repos SOP."""
+    ctx.invoke(repo_workflow, target_repo=target_repo, all_repos=all_repos, no_commit=no_commit)
+
+
+@click.command("clean-repo")
+@click.option("--repo", "target_repo", default=None, help="Target specific repository directory.")
+@click.option("--all-repos", is_flag=True, default=False, help="Run clean workflow across all sibling repositories.")
+@click.option("--no-commit", is_flag=True, default=False, help="Disable auto-committing uncommitted changes.")
+@click.pass_context
+def clean_repo_cmd(ctx: click.Context, target_repo: str | None, all_repos: bool, no_commit: bool) -> None:
+    """Top-level command to execute the 13-step Clean Repo SOP on current repo."""
+    ctx.invoke(repo_workflow, target_repo=target_repo, all_repos=all_repos, no_commit=no_commit)
+
