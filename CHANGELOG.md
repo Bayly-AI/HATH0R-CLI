@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-01
+
+### Added
+
+- **Lazy Command Loading & Fast Startup**: Implemented `Hath0rLazyGroup` and deferred OpenTelemetry SDK initialization, reducing CLI cold-start latency from 663ms to 120ms ($5.5\times$ speedup) (#223 / PR #228)
+- **Dynamic Tool Routing & Schema Pruning**: Token compression via `SchemaPruner` (up to 65% token savings) and BM25 tool relevance ranking via `DynamicToolRouter` (`hath0r mcp route`, `hath0r mcp prune`) (#224 / PR #229)
+- **Vectorized Batch Tensor Operations & Dynamic Quantization**: Upgraded `PyTorchRuntime` with single-kernel 2D batch matrix multiplications (`torch.matmul`) and dynamic multi-precision support (`fp32`, `fp16` on MPS/CUDA, `int8` on CPU) with `hath0r vision rerank --precision` (#225 / PR #230)
+- **Persistent SQLite FTS5 & Vector Index Cache**: Built `KnowledgeIndexStore` and `SQLiteIndexStore` (`.hath0r/cache/kb_index.sqlite`) with native SQLite FTS5 BM25 search ($<1\text{ms}$ query latency), incremental SHA-256 sync, and `hath0r kb index|search|status` (#226 / PR #231)
+- **Programmatic Assertion & Schema Self-Repair Loops**: Added `SchemaRepairEngine` and `AssertionGuardrail` for automated in-flight JSON syntax sanitization, markdown fence removal, trailing comma repair, type coercion, and `hath0r quality repair` (#227 / PR #232)
+
 ## [0.3.0] - 2026-09-29
 
 ### Added
