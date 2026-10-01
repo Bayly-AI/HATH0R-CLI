@@ -1221,6 +1221,7 @@ class ApiBot:
 
 
 from hath0r_cli.bots.change_validation import ChangeValidationBot  # noqa: E402
+from hath0r_cli.bots.supercompress_bot import SuperCompressBot  # noqa: E402
 
 __all__ = [
     "PostgresBot",
@@ -1250,6 +1251,7 @@ __all__ = [
     "RepoHygieneBot",
     "SpeechListenerBot",
     "SpokenNotificationServiceBot",
+    "SuperCompressBot",
     "TaskAnnouncerBot",
     "VoiceProfileBot",
     "VoiceServiceBot",

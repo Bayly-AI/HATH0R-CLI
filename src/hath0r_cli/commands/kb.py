@@ -192,9 +192,26 @@ def kb_index(ctx: click.Context, target_dir: str | None, rebuild: bool, vision: 
 @click.option("--query", "-q", required=True, help="Search query string.")
 @click.option("--limit", "-n", default=5, type=int, help="Maximum search results to return.")
 @click.option("--hybrid/--fts-only", default=True, help="Enable hybrid FTS5 + neural reranking.")
+@click.option("--instruction", "-i", default=None, help="Instruction prompt to steer neural cross-encoder reranker.")
+@click.option(
+    "--model",
+    "-m",
+    "model_name",
+    type=click.Choice(["qwen3-reranker", "bge-reranker-v2-m3", "minilm-l6-v2"]),
+    default=None,
+    help="Cross-encoder reranker model architecture.",
+)
 @click.option("--vision", is_flag=True, default=False, help="Search visual documents and diagrams via ColPali late interaction.")
 @click.pass_context
-def kb_search(ctx: click.Context, query: str, limit: int, hybrid: bool, vision: bool) -> None:
+def kb_search(
+    ctx: click.Context,
+    query: str,
+    limit: int,
+    hybrid: bool,
+    instruction: str | None,
+    model_name: str | None,
+    vision: bool,
+) -> None:
     """Search knowledgebase documents and playbooks using SQLite FTS5, ColPali, and hybrid reranking."""
     from hath0r_cli.kb_index import SQLiteIndexStore
 
@@ -225,7 +242,7 @@ def kb_search(ctx: click.Context, query: str, limit: int, hybrid: bool, vision: 
 
     store = SQLiteIndexStore()
     if hybrid:
-        hits = store.search_hybrid(query, limit=limit)
+        hits = store.search_hybrid(query, limit=limit, instruction=instruction, model=model_name)
     else:
         hits = store.search_fts(query, limit=limit)
 
@@ -237,18 +254,60 @@ def kb_search(ctx: click.Context, query: str, limit: int, hybrid: bool, vision: 
         data={
             "query": query,
             "hybrid": hybrid,
+            "instruction": instruction,
+            "model": model_name or "qwen3-reranker",
             "count": len(results_data),
             "results": results_data,
         },
     )
 
     def _text() -> None:
-        click.echo(f"Found {len(hits)} results for '{query}':")
+        inst_note = f" [steered by: '{instruction}']" if instruction else ""
+        click.echo(f"Found {len(hits)} results for '{query}'{inst_note}:")
         for i, hit in enumerate(hits, start=1):
             click.echo(f"  {i}. [{hit.category}] {hit.title} (score: {hit.score:.3f})")
             click.echo(f"     Path: {hit.path}")
             if hit.snippet:
                 click.echo(f"     Snippet: {hit.snippet}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@kb.command("rerankers")
+@click.pass_context
+def kb_rerankers(ctx: click.Context) -> None:
+    """List supported instruction-aware neural cross-encoder rerankers."""
+    from rich.table import Table
+    from hath0r_cli.instruction_reranker import InstructionAwareReranker
+    from hath0r_cli.common import console
+
+    reranker = InstructionAwareReranker()
+    models = reranker.list_models()
+
+    response = _build_response(
+        ctx,
+        command="kb.rerankers",
+        state="ok",
+        data={"models": models, "count": len(models)},
+    )
+
+    def _text() -> None:
+        table = Table(title="Supported Neural Rerankers")
+        table.add_column("Model ID", style="cyan")
+        table.add_column("Hugging Face Repo", style="magenta")
+        table.add_column("Context", style="yellow")
+        table.add_column("Instruction Steered", style="green")
+        table.add_column("Description", style="white")
+
+        for m in models:
+            table.add_row(
+                m["model_id"],
+                m["hf_repo"],
+                str(m["context_length"]),
+                "✓ Yes" if m["supports_instructions"] else "✗ No",
+                m["description"],
+            )
+        console.print(table)
 
     _emit_response(ctx, response, text_renderer=_text)
 
