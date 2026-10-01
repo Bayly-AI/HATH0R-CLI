@@ -330,17 +330,28 @@ class SQLiteIndexStore(KnowledgeIndexStore):
 
         return results
 
-    def search_hybrid(self, query: str, limit: int = 10) -> List[SearchResult]:
-        """Execute hybrid search combining FTS5 lexical ranking and PyTorch reranking."""
+    def search_hybrid(
+        self,
+        query: str,
+        limit: int = 10,
+        instruction: Optional[str] = None,
+        model: Optional[str] = None,
+    ) -> List[SearchResult]:
+        """Execute hybrid search combining FTS5 lexical ranking and instruction-aware cross-encoder reranking."""
         fts_hits = self.search_fts(query, limit=max(limit * 2, 10))
         if not fts_hits:
             return []
 
-        from hath0r_cli.bots.pytorch_runtime import PyTorchRuntime
+        from hath0r_cli.instruction_reranker import InstructionAwareReranker
 
-        runtime = PyTorchRuntime()
+        reranker = InstructionAwareReranker(default_model=model or "qwen3-reranker")
         candidate_texts = [f"{h.title} {h.snippet}" for h in fts_hits]
-        reranked = runtime.rerank_candidates(query=query, candidates=candidate_texts)
+        reranked = reranker.rerank(
+            query=query,
+            candidates=candidate_texts,
+            instruction=instruction,
+            model_id=model,
+        )
 
         hybrid_results: List[SearchResult] = []
         for r in reranked[:limit]:

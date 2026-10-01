@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-01
+
+### Added
+
+- **SuperCompress Query-Aware Prompt & Context Compression**: Integrated `SuperCompressBot` with REST API support, deterministic local semantic fallback, and `hath0r context compress -q <query> [-c <text> | -f <file>]` providing 30–60% token reduction (#246 / PR #248)
+- **Dynamic MCP Server Manifest Generator & Sandbox Policy**: Built `DynamicMCPSecurity` with capability sandboxing, ephemeral manifest generation, and `hath0r mcp generate-manifest|check-policy` (#243 / PR #253)
+- **Isolated Git Worktree Management**: Implemented `GitWorktreeBot` for subagent task isolation and concurrent branching with `hath0r branch worktree create|list|remove|prune` (#242 / PR #252)
+- **Capability-Based WASM Micro-Runtime Sandboxing**: Integrated `WasmRuntimeBot` and Wasmtime execution engine with `hath0r wasm run|validate|audit` (#241 / PR #251)
+- **DeepSeek-R1 CoT Reasoning Extraction & Local Adapters**: Enhanced `LocalModelBot` with `<think>` chain-of-thought parsing, token telemetry, and streaming inference with `hath0r local run --model deepseek-r1` (#240 / PR #250)
+- **Instruction-Aware Neural Rerankers (Qwen3 & BGE-Reranker-v2-M3)**: Added instruction-steered cross-encoder reranking support to `KnowledgeIndexStore` and `hath0r kb search --instruction` (#239 / PR #249)
+- **ColPali & ColQwen Vision Document Retrieval**: Integrated late-interaction vision embeddings for OCR-free multi-page document parsing and visual RAG via `hath0r vision parse-doc` (#238 / PR #247)
+- **Kokoro-82M Ultra-Low Latency Neural TTS Engine**: Added `KokoroTTSEngine` with sub-50ms local voice synthesis and `hath0r voice speak --engine kokoro` (#237 / PR #245)
+- **Tree-sitter AST Multi-Language Parser**: Added AST parser and syntax graph extractor for Python, TypeScript, Rust, and Go via `hath0r code parse|symbols|ast` (#236 / PR #244)
+
 ## [0.4.0] - 2026-10-01
 
 ### Added

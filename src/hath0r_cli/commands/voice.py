@@ -387,12 +387,27 @@ def voice_meeting(ctx: click.Context, mode: str, topic: str) -> None:
     help="Optional TTS voice name identifier.",
 )
 @click.option(
+    "--engine",
+    "-e",
+    "engine",
+    type=click.Choice(["kokoro", "system", "simulated"]),
+    default=None,
+    help="Explicit TTS engine backend selection (kokoro or system).",
+)
+@click.option(
     "--rate",
     "-r",
     "rate_wpm",
     type=int,
     default=None,
     help="Optional speech rate (words per minute).",
+)
+@click.option(
+    "--dry-run",
+    "dry_run",
+    is_flag=True,
+    default=False,
+    help="Simulate speech synthesis without audio output.",
 )
 @click.option(
     "--no-filter",
@@ -406,20 +421,23 @@ def voice_speak(
     ctx: click.Context,
     message: str,
     voice_name: Optional[str],
+    engine: Optional[str],
     rate_wpm: Optional[int],
+    dry_run: bool,
     no_filter: bool,
 ) -> None:
-    """Vocalize a message out loud using the platform speech engine."""
+    """Vocalize a message out loud using Kokoro-82M neural TTS or platform speech engine."""
     from hath0r_cli.bots.voice_speaker import VoiceSpeakerBot
 
     speaker = VoiceSpeakerBot()
-    dry_run = bool(ctx.obj.get("dry_run", False))
+    is_dry_run = dry_run or bool(ctx.obj.get("dry_run", False) if ctx.obj else False)
     res = speaker.speak(
         text=message,
         voice_name=voice_name,
         rate_wpm=rate_wpm,
         filter_code=not no_filter,
-        dry_run=dry_run,
+        dry_run=is_dry_run,
+        engine=engine,
     )
 
     response = _build_response(
@@ -430,9 +448,41 @@ def voice_speak(
     )
 
     def _text() -> None:
-        console.print(f"[bold green]✓ Spoken Message:[/bold green] {res.get('text')}")
+        console.print(f"[bold green]✓ Spoken Message ({res.get('engine', 'unknown')}):[/bold green] {res.get('text')}")
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
+@voice.command("list-voices")
+@click.pass_context
+def voice_list_voices(ctx: click.Context) -> None:
+    """List all available neural and system voice models."""
+    from hath0r_cli.voice_kokoro import KokoroTTSEngine
+
+    kokoro = KokoroTTSEngine()
+    voices = kokoro.list_voices()
+
+    response = _build_response(
+        ctx,
+        command="voice.list-voices",
+        state="ok",
+        data={"voices": voices, "count": len(voices)},
+    )
+
+    def _text() -> None:
+        table = Table(title="Available Kokoro-82M Neural Voices")
+        table.add_column("Voice ID", style="cyan")
+        table.add_column("Name", style="magenta")
+        table.add_column("Gender", style="white")
+        table.add_column("Accent", style="yellow")
+        table.add_column("Description", style="green")
+
+        for v in voices:
+            table.add_row(v["id"], v["name"], v["gender"], v["accent"], v["description"])
+        console.print(table)
+
+    _emit_response(ctx, response, text_renderer=_text)
+
 
 
 @voice.command("announce")
