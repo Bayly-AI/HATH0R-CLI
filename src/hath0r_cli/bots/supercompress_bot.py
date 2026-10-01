@@ -131,6 +131,7 @@ class SuperCompressBot:
             data=payload,
             headers={
                 "Authorization": f"Bearer {self.token}",
+                "X-API-Key": self.token,
                 "Content-Type": "application/json",
                 "User-Agent": "Hath0r-CLI/0.4.0",
             },
@@ -142,10 +143,16 @@ class SuperCompressBot:
                 data = json.loads(resp.read().decode("utf-8"))
                 latency_ms = round((time.time() - start_time) * 1000, 2)
                 orig_tokens = data.get("original_tokens", self._estimate_tokens(context))
-                comp_tokens = data.get("compressed_tokens", self._estimate_tokens(data.get("compressed_text", context)))
+                comp_tokens = data.get(
+                    "kept_tokens",
+                    data.get("compressed_tokens", self._estimate_tokens(data.get("compressed_text", context))),
+                )
                 savings = data.get(
-                    "savings_pct",
-                    round(max(0.0, (1.0 - comp_tokens / max(1, orig_tokens)) * 100), 2),
+                    "tokens_saved_pct",
+                    data.get(
+                        "savings_pct",
+                        round(max(0.0, (1.0 - comp_tokens / max(1, orig_tokens)) * 100), 2),
+                    ),
                 )
 
                 return {
