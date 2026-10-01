@@ -1,84 +1,124 @@
-"""HATH0R CLI WebAssembly (WASI) sandboxed tool execution commands."""
+"""WASM micro-runtime sandboxing command group for Hath0r CLI."""
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Tuple
-
 import click
-from rich.console import Console
 from rich.table import Table
 
-from hath0r_cli.bots.wasm_sandbox import WasmSandboxBot
+from hath0r_cli.common import (
+    _build_response,
+    _emit_response,
+    console,
+)
 
-console = Console()
 
-
-@click.group("wasm")
-def wasm_group() -> None:
-    """Execute tools inside isolated WebAssembly (WASI) sandboxes with strict resource bounds."""
+@click.group()
+def wasm() -> None:
+    """Manage capability-based WASM micro-runtime agent sandboxes."""
     pass
 
 
-@wasm_group.command("info")
-def wasm_info() -> None:
-    """Display WebAssembly runtime status, engine availability, and security isolation support."""
-    bot = WasmSandboxBot()
-    table = Table(title="HATH0R WebAssembly (WASI) Sandboxing")
-    table.add_column("Property", style="cyan")
-    table.add_column("Value", style="green")
-
-    table.add_row("Wasmtime Binary", bot.wasmtime_bin or "[yellow]Not in PATH (simulator active)[/yellow]")
-    table.add_row("WASI Support", "[green]Enabled (Preview 1 & 2)[/green]")
-    table.add_row("Capability Security", "[green]Preopened Directory Isolation[/green]")
-    table.add_row("Resource Limiting", "[green]Fuel Counting & Hard Timeouts[/green]")
-
-    console.print(table)
-
-
-@wasm_group.command("run", context_settings=dict(ignore_unknown_options=True))
-@click.argument("wasm_file", type=click.Path(exists=True))
-@click.argument("module_args", nargs=-1, type=click.UNPROCESSED)
-@click.option("--fuel", "-f", type=int, default=None, help="Deterministic execution fuel limit.")
-@click.option("--timeout", "-t", type=float, default=15.0, help="Execution timeout in seconds.")
-@click.option("--dir", "-d", "dirs", multiple=True, help="Preopen directory access (format: HOST_DIR or GUEST::HOST).")
+@wasm.command("run")
+@click.argument("module_path", type=click.Path(exists=True))
+@click.option("--allow-read", "-r", multiple=True, help="Granted filesystem read directory roots.")
+@click.option("--allow-write", "-w", multiple=True, help="Granted filesystem write directory roots.")
+@click.option("--allow-net", "-n", multiple=True, help="Granted network hosts.")
+@click.option("--memory-mb", "-m", default=64, type=int, help="Memory ceiling cap in MB.")
+@click.option("--fuel", "-f", default=100_000_000, type=int, help="Maximum execution fuel instruction limit.")
+@click.option("--entry", "-e", default="_start", help="WASM entrypoint function.")
+@click.pass_context
 def wasm_run(
-    wasm_file: str,
-    module_args: Tuple[str, ...],
-    fuel: int | None,
-    timeout: float,
-    dirs: Tuple[str, ...],
+    ctx: click.Context,
+    module_path: str,
+    allow_read: tuple[str, ...],
+    allow_write: tuple[str, ...],
+    allow_net: tuple[str, ...],
+    memory_mb: int,
+    fuel: int,
+    entry: str,
 ) -> None:
-    """Execute a WebAssembly binary inside a secure WASI sandbox."""
-    bot = WasmSandboxBot()
+    """Execute a WASM binary inside the capability-governed sandbox."""
+    from hath0r_cli.bots.wasm_runtime_bot import WasmCapabilities, WasmRuntimeBot
 
-    preopened_dirs = {}
-    for d in dirs:
-        if "::" in d:
-            guest, host = d.split("::", 1)
-            preopened_dirs[host] = guest
+    caps = WasmCapabilities(
+        allow_read=list(allow_read),
+        allow_write=list(allow_write),
+        allow_net=list(allow_net),
+        max_memory_mb=memory_mb,
+        fuel_limit=fuel,
+    )
+
+    bot = WasmRuntimeBot()
+    res = bot.execute_module(module_path, capabilities=caps, entry_func=entry)
+
+    response = _build_response(
+        ctx,
+        command="wasm.run",
+        state="ok" if res.get("success") else "error",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("success"):
+            console.print(f"[bold green]✓ WASM Executed ({res.get('engine')}, {res.get('latency_ms')}ms):[/bold green]")
+            console.print(f"  • Module: {res.get('module_path')}")
+            console.print(f"  • Fuel Consumed: {res.get('fuel_consumed')} / {fuel}")
+            console.print(f"  • Memory Used: {res.get('memory_used_mb')} MB")
+            console.print(f"\n[bold]Output:[/bold]\n{res.get('stdout')}")
         else:
-            preopened_dirs[d] = d
+            console.print(f"[bold red]✗ Sandbox Execution Failed:[/bold red] {res.get('error')}")
 
-    with console.status(f"[bold green]Running sandboxed Wasm ({Path(wasm_file).name})...[/bold green]"):
-        result = bot.run(
-            wasm_path=wasm_file,
-            args=list(module_args),
-            preopened_dirs=preopened_dirs,
-            fuel_limit=fuel,
-            timeout_seconds=timeout,
-        )
+    _emit_response(ctx, response, text_renderer=_text)
 
-    if result.success:
-        console.print(
-            f"[bold green]Sandbox Execution Succeeded[/bold green] [dim]({result.runner}, {result.execution_time_seconds}s)[/dim]"
-        )
-        if result.stdout:
-            console.print("\n[bold cyan]STDOUT:[/bold cyan]")
-            console.print(result.stdout)
-    else:
-        console.print(f"[bold red]Sandbox Execution Failed[/bold red] (Exit code: {result.exit_code})")
-        if result.stderr:
-            console.print("\n[bold red]STDERR:[/bold red]")
-            console.print(result.stderr)
-        raise click.exceptions.Exit(result.exit_code)
+
+@wasm.command("validate")
+@click.argument("module_path", type=click.Path(exists=True))
+@click.pass_context
+def wasm_validate(ctx: click.Context, module_path: str) -> None:
+    """Validate a WASM binary header and format structure."""
+    from hath0r_cli.bots.wasm_runtime_bot import WasmRuntimeBot
+
+    bot = WasmRuntimeBot()
+    res = bot.validate_module(module_path)
+
+    response = _build_response(
+        ctx,
+        command="wasm.validate",
+        state="ok" if res.get("valid") else "error",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("valid"):
+            console.print(f"[bold green]✓ Valid WebAssembly Module:[/bold green] {module_path}")
+            console.print(f"  • Size: {res.get('size_bytes')} bytes")
+            console.print(f"  • WASM Version: {res.get('wasm_version')}")
+        else:
+            console.print(f"[bold red]✗ Invalid WASM Module:[/bold red] {res.get('error')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@wasm.command("status")
+@click.pass_context
+def wasm_status(ctx: click.Context) -> None:
+    """Display host WASM engine availability and capability security status."""
+    from hath0r_cli.bots.wasm_runtime_bot import WasmRuntimeBot
+
+    bot = WasmRuntimeBot()
+    status = bot.get_runtime_status()
+
+    response = _build_response(ctx, command="wasm.status", state="ok", data=status)
+
+    def _text() -> None:
+        console.print("[bold]Hath0r WASM Micro-Runtime Status:[/bold]")
+        console.print(f"  • Active Engine: [cyan]{status['engine']}[/cyan]")
+        console.print(f"  • Wasmtime Available: {'✓ Yes' if status['wasmtime_installed'] else '✗ No'}")
+        console.print(f"  • Wasmer Available: {'✓ Yes' if status['wasmer_installed'] else '✗ No'}")
+        console.print(f"  • Security Policy: [bold green]{status['capability_enforcement']}[/bold green]")
+        console.print(f"  • Default Memory Limit: {status['default_memory_limit_mb']} MB")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+wasm_group = wasm
