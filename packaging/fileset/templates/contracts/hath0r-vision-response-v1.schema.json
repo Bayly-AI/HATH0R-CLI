@@ -17,16 +17,20 @@
     },
     "operation": {
       "type": "string",
-      "enum": ["inspect", "parse_doc", "ground", "embed", "doctor"],
+      "enum": ["inspect", "parse_doc", "ground", "embed", "doctor", "rerank"],
       "description": "Vision operation type executed."
     },
     "provider": {
       "type": "string",
-      "description": "The vision backend provider used (e.g., 'ollama', 'gemini', 'openai', 'heuristic_fallback')."
+      "description": "The vision backend provider used (e.g., 'pytorch', 'ollama', 'gemini', 'openai', 'heuristic_fallback')."
     },
     "model": {
       "type": "string",
       "description": "The vision model identifier used for inference."
+    },
+    "device": {
+      "type": "string",
+      "description": "Hardware acceleration device used (e.g., 'mps', 'cuda', 'cpu')."
     },
     "image_path": {
       "type": "string",
@@ -99,6 +103,18 @@
       "type": "array",
       "items": { "type": "number" },
       "description": "Multimodal cross-modal embedding vector."
+    },
+    "ranked_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["candidate", "score"],
+        "properties": {
+          "candidate": { "type": "string" },
+          "score": { "type": "number" },
+          "index": { "type": "integer" }
+        }
+      }
     },
     "error": {
       "type": "string",
