@@ -1,6 +1,7 @@
 """Kb command for HATH0R CLI."""
 
-from __future__ import annotations
+import os
+from pathlib import Path
 
 import click
 
@@ -136,15 +137,31 @@ def kb_products(ctx: click.Context) -> None:
 @kb.command("index")
 @click.option("--target-dir", "-d", default=None, help="Target documentation directory to index (defaults to KB path).")
 @click.option("--rebuild", is_flag=True, default=False, help="Force complete rebuild of SQLite index.")
+@click.option("--vision", is_flag=True, default=False, help="Index visual documents and diagrams using ColPali late interaction.")
 @click.pass_context
-def kb_index(ctx: click.Context, target_dir: str | None, rebuild: bool) -> None:
-    """Index or incrementally synchronize documentation into the SQLite FTS5 cache."""
-    from pathlib import Path
+def kb_index(ctx: click.Context, target_dir: str | None, rebuild: bool, vision: bool) -> None:
+    """Index or incrementally synchronize documentation into SQLite FTS5 and ColPali visual index."""
     from hath0r_cli.kb_index import SQLiteIndexStore
 
     dir_to_index = Path(target_dir) if target_dir else _kb_path()
     store = SQLiteIndexStore()
     sync_stats = store.sync_directory(dir_to_index, force_rebuild=rebuild)
+
+    colpali_indexed = 0
+    if vision:
+        from hath0r_cli.colpali_engine import ColPaliEngine
+
+        colpali = ColPaliEngine()
+        if dir_to_index.is_dir():
+            for root, _, files in os.walk(dir_to_index):
+                for f in files:
+                    if f.lower().endswith((".png", ".jpg", ".jpeg", ".pdf", ".svg")):
+                        img_path = Path(root) / f
+                        try:
+                            colpali.index_document(img_path)
+                            colpali_indexed += 1
+                        except Exception:
+                            pass
 
     response = _build_response(
         ctx,
@@ -153,7 +170,9 @@ def kb_index(ctx: click.Context, target_dir: str | None, rebuild: bool) -> None:
         data={
             "target_dir": str(dir_to_index),
             "rebuild": rebuild,
+            "vision": vision,
             "stats": sync_stats,
+            "colpali_indexed": colpali_indexed,
             "database_path": str(store.db_path),
         },
     )
@@ -163,6 +182,8 @@ def kb_index(ctx: click.Context, target_dir: str | None, rebuild: bool) -> None:
         click.echo(f"  • Indexed: {sync_stats['indexed']}")
         click.echo(f"  • Updated: {sync_stats['updated']}")
         click.echo(f"  • Skipped: {sync_stats['skipped']}")
+        if vision:
+            click.echo(f"  • ColPali Visual Pages Indexed: {colpali_indexed}")
 
     _emit_response(ctx, response, text_renderer=_text)
 
@@ -171,10 +192,36 @@ def kb_index(ctx: click.Context, target_dir: str | None, rebuild: bool) -> None:
 @click.option("--query", "-q", required=True, help="Search query string.")
 @click.option("--limit", "-n", default=5, type=int, help="Maximum search results to return.")
 @click.option("--hybrid/--fts-only", default=True, help="Enable hybrid FTS5 + neural reranking.")
+@click.option("--vision", is_flag=True, default=False, help="Search visual documents and diagrams via ColPali late interaction.")
 @click.pass_context
-def kb_search(ctx: click.Context, query: str, limit: int, hybrid: bool) -> None:
-    """Search knowledgebase documents and playbooks using SQLite FTS5 and hybrid reranking."""
+def kb_search(ctx: click.Context, query: str, limit: int, hybrid: bool, vision: bool) -> None:
+    """Search knowledgebase documents and playbooks using SQLite FTS5, ColPali, and hybrid reranking."""
     from hath0r_cli.kb_index import SQLiteIndexStore
+
+    if vision:
+        from hath0r_cli.colpali_engine import ColPaliEngine
+
+        colpali = ColPaliEngine()
+        v_results = colpali.search(query, top_k=limit)
+        response = _build_response(
+            ctx,
+            command="kb.search",
+            state="ok",
+            data={
+                "query": query,
+                "mode": "colpali_maxsim",
+                "count": len(v_results),
+                "results": v_results,
+            },
+        )
+
+        def _v_text() -> None:
+            click.echo(f"Found {len(v_results)} visual document matches for '{query}':")
+            for i, res in enumerate(v_results, start=1):
+                click.echo(f"  {i}. {res['file_path']} (score: {res['score']:.4f}, patches: {res['patch_count']})")
+
+        _emit_response(ctx, response, text_renderer=_v_text)
+        return
 
     store = SQLiteIndexStore()
     if hybrid:
@@ -209,11 +256,15 @@ def kb_search(ctx: click.Context, query: str, limit: int, hybrid: bool) -> None:
 @kb.command("status")
 @click.pass_context
 def kb_status(ctx: click.Context) -> None:
-    """Display SQLite FTS5 knowledgebase index cache statistics."""
+    """Display SQLite FTS5 and ColPali knowledgebase index cache statistics."""
     from hath0r_cli.kb_index import SQLiteIndexStore
+    from hath0r_cli.colpali_engine import ColPaliEngine
 
     store = SQLiteIndexStore()
     stats = store.get_stats()
+    colpali = ColPaliEngine()
+    stats["colpali_pages"] = len(colpali.pages)
+
     response = _build_response(ctx, command="kb.status", state="ok", data=stats)
 
     def _text() -> None:
@@ -221,6 +272,7 @@ def kb_status(ctx: click.Context) -> None:
         click.echo(f"  • Database: {stats['database_path']}")
         click.echo(f"  • Size: {stats['size_bytes']} bytes")
         click.echo(f"  • Total Documents: {stats['total_documents']}")
+        click.echo(f"  • ColPali Visual Pages: {stats['colpali_pages']}")
         cats = stats.get("categories", {})
         if cats:
             click.echo("  • Categories:")
