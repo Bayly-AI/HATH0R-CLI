@@ -35,7 +35,7 @@ Group policy: `/Users/raybayly/Development/OpenSource/WARP.md`
 1. Own suite orientation: `cfg/control-tower.yaml`, `cfg/suite.yaml`, `cfg/products.yaml`, `cfg/knowledge-tower.yaml`.
 2. Mediate operator paths via `hath0r` (doctor, KB path resolution, product catalog).
 3. Keep member knowledgebases as **stubs**; durable group KB lives at the OpenSource hub.
-4. Do **not** treat private internal product trees (e.g. BAI/AEGIS) as OpenSource canonical sources.
+4. Do **not** treat private internal product trees (e.g. BAI Enterprise Agentic Platform) as OpenSource canonical sources.
 
 ## CLI-First & Missing Capability Offer (CRITICAL — cr-cli-first-001)
 
@@ -51,7 +51,7 @@ Group policy: `/Users/raybayly/Development/OpenSource/WARP.md`
 
 Use **only** `.hath0r/` for framework-created / modified / saved project metadata (including this repo’s KB stub).
 
-Do **not** use `.ai/`, `.aegis/`, or `.infraOS/`.
+Do **not** use `.ai/`, `.customerSystem/`, or `.infraOS/`.
 
 ## Knowledgebase (CRITICAL — cr-kb-tower-001)
 
@@ -156,3 +156,35 @@ Canonical flow, human gates, and PR templates:
 - Canonical source of truth: `VERSION` in repo root.
 - PRs must declare version impact (`major`, `minor`, `patch`, or `none`).
 - See `docs/governance/semantic-versioning.md` and `docs/governance/playbooks/release-runbook.md`.
+
+## Hyper Context Pointers
+- **CLI Core Subsystem**: `src/hath0r_cli/AGENTS.md`
+
+## Hyper Context Pointers
+- **Bots Subsystem**: `src/hath0r_cli/bots/AGENTS.md`
+
+## Hyper Context Pointers
+- **Configuration Subsystem**: `cfg/AGENTS.md`
+
+## Hyper Context Pointers
+- **Documentation Hub**: `docs/AGENTS.md`
+
+## Hyper Context Pointers
+- **Test Suite Subsystem**: `tests/AGENTS.md`
+
+## Lexicon & Nomenclature (CRITICAL)
+- Refer to background processes, watchers, and autonomous loops as **bots** or **factories**, not "daemons".
+- This is a canonical project-wide rule to unify language across all HATH0R OpenSource repositories.
+
+## Agent Orientation Memory Space (CRITICAL)
+- **Local Memory Space**: Agents MUST read the Local Memory Space first when orienting to the app. 
+- Execute `hath0r memory read core` and `hath0r memory read architecture` via the CLI before making any code modifications or forming plans.
+
+## Hyper Context Pointers
+- **CLI Subsystem**: `src/hath0r_cli/AGENTS.md`
+
+## Hyper Context Pointers
+- **Documentation Subsystem**: `docs/AGENTS.md`
+
+## Hyper Context Pointers
+- **Testing Subsystem**: `tests/AGENTS.md`

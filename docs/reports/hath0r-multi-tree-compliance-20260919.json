@@ -32,7 +32,7 @@
       },
       "legacy_roots": [],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": false,
       "pack": {
@@ -47,7 +47,7 @@
       "score": 77.5,
       "scores": {
         "layout_core": 1.0,
-        "aegis_indep": 1.0,
+        "customerSystem_indep": 1.0,
         "cli_docs": 1.0,
         "runbook": 1.0,
         "agent_maps": 0.0,
@@ -57,10 +57,10 @@
       "verdict": "PARTIAL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS",
-      "name": "AEGIS",
-      "rel": "BAI/AEGIS",
-      "family": "bai-aegis-product",
+      "path": "/Users/raybayly/Development/BAI/customerSystem",
+      "name": "customerSystem",
+      "rel": "BAI/customerSystem",
+      "family": "bai-customerSystem-product",
       "git": true,
       "remote": null,
       "branch": "master",
@@ -86,7 +86,7 @@
       },
       "legacy_roots": [],
       "agents_hath0r": false,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": false,
       "cr_bai": true,
       "pack": {
@@ -101,7 +101,7 @@
       "score": 5.5,
       "scores": {
         "layout_core": 0.1,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.0,
         "runbook": 0.0,
         "agent_maps": 0.0,
@@ -111,12 +111,12 @@
       "verdict": "NOT_INIT"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/ATC",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/ATC",
       "name": "ATC",
-      "rel": "BAI/AEGIS/ATC",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/ATC",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-Aegis-ATC.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-ATC.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -142,7 +142,7 @@
         ".ai"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -157,7 +157,7 @@
       "score": 23.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.0,
@@ -167,12 +167,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/CLI",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/CLI",
       "name": "CLI",
-      "rel": "BAI/AEGIS/CLI",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/CLI",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-Aegis-CLI.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-CLI.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -200,7 +200,7 @@
         ".infraos"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -215,7 +215,7 @@
       "score": 30.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.5,
@@ -225,12 +225,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/CMCP",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/CMCP",
       "name": "CMCP",
-      "rel": "BAI/AEGIS/CMCP",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/CMCP",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-AEGIS-CMCP.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-CMCP.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -256,7 +256,7 @@
         ".ai"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -271,7 +271,7 @@
       "score": 26.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.5,
@@ -281,12 +281,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/Ctrl",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/Ctrl",
       "name": "Ctrl",
-      "rel": "BAI/AEGIS/Ctrl",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/Ctrl",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-AEGIS-CTRL.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-CTRL.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -312,7 +312,7 @@
         ".ai"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -327,7 +327,7 @@
       "score": 21.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.0,
@@ -337,12 +337,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/Data",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/Data",
       "name": "Data",
-      "rel": "BAI/AEGIS/Data",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/Data",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-Aegis-Data.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-Data.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -368,7 +368,7 @@
         ".ai"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -383,7 +383,7 @@
       "score": 32.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.5,
@@ -393,12 +393,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/EA",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/EA",
       "name": "EA",
-      "rel": "BAI/AEGIS/EA",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/EA",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-AEGIS-EA.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-EA.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -424,7 +424,7 @@
         ".ai"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -439,7 +439,7 @@
       "score": 21.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.0,
@@ -449,12 +449,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/EDGE",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/EDGE",
       "name": "EDGE",
-      "rel": "BAI/AEGIS/EDGE",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/EDGE",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-Aegis-EDGE.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-EDGE.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -482,7 +482,7 @@
         ".infraos"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -497,7 +497,7 @@
       "score": 32.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.5,
@@ -507,12 +507,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/Forge",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/Forge",
       "name": "Forge",
-      "rel": "BAI/AEGIS/Forge",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/Forge",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-Aegis-Forge.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-Forge.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -538,7 +538,7 @@
         ".ai"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -553,7 +553,7 @@
       "score": 21.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.0,
@@ -563,12 +563,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/Gate",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/Gate",
       "name": "Gate",
-      "rel": "BAI/AEGIS/Gate",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/Gate",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-AEGIS-GATE.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-GATE.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -594,7 +594,7 @@
         ".ai"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -609,7 +609,7 @@
       "score": 32.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.5,
@@ -619,12 +619,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/HATH0R",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/HATH0R",
       "name": "HATH0R",
-      "rel": "BAI/AEGIS/HATH0R",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/HATH0R",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-AEGIS-HATH0R-FRAMEWORK.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-HATH0R-FRAMEWORK.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -647,11 +647,11 @@
         "docs": true
       },
       "legacy_roots": [
-        ".aegis",
+        ".customerSystem",
         ".ai"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -666,7 +666,7 @@
       "score": 17.5,
       "scores": {
         "layout_core": 0.1,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.0,
@@ -676,12 +676,12 @@
       "verdict": "NOT_INIT"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/Know",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/Know",
       "name": "Know",
-      "rel": "BAI/AEGIS/Know",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/Know",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-Aegis-Know.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-Know.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -709,7 +709,7 @@
         ".infraos"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -724,7 +724,7 @@
       "score": 36.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.5,
@@ -734,12 +734,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/MCP",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/MCP",
       "name": "MCP",
-      "rel": "BAI/AEGIS/MCP",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/MCP",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-Aegis-MCP.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-MCP.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -765,7 +765,7 @@
         ".ai"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -780,7 +780,7 @@
       "score": 26.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.5,
@@ -790,12 +790,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/Model",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/Model",
       "name": "Model",
-      "rel": "BAI/AEGIS/Model",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/Model",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-AEGIS-MODEL.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-MODEL.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -821,7 +821,7 @@
         ".ai"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -836,7 +836,7 @@
       "score": 28.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.5,
@@ -846,12 +846,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/OBS",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/OBS",
       "name": "OBS",
-      "rel": "BAI/AEGIS/OBS",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/OBS",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-AEGIS-OBS.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-OBS.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -877,7 +877,7 @@
         ".ai"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -892,7 +892,7 @@
       "score": 28.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.5,
@@ -902,12 +902,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/RT",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/RT",
       "name": "RT",
-      "rel": "BAI/AEGIS/RT",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/RT",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-AEGIS-RT.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-RT.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -935,7 +935,7 @@
         ".infraos"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -950,7 +950,7 @@
       "score": 28.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.5,
@@ -960,12 +960,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/UXP",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/UXP",
       "name": "UXP",
-      "rel": "BAI/AEGIS/UXP",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/UXP",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-Aegis-UXP.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-UXP.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -993,7 +993,7 @@
         ".infraos"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -1008,7 +1008,7 @@
       "score": 32.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.5,
@@ -1018,12 +1018,12 @@
       "verdict": "FAIL"
     },
     {
-      "path": "/Users/raybayly/Development/BAI/AEGIS/VS",
+      "path": "/Users/raybayly/Development/BAI/customerSystem/VS",
       "name": "VS",
-      "rel": "BAI/AEGIS/VS",
-      "family": "bai-aegis-product",
+      "rel": "BAI/customerSystem/VS",
+      "family": "bai-customerSystem-product",
       "git": true,
-      "remote": "https://github.com/Bayly-AI/BAI-AEGIS-VS.git",
+      "remote": "https://github.com/Bayly-AI/BAI-customerSystem-VS.git",
       "branch": "development",
       "product_id": null,
       "mode": null,
@@ -1051,7 +1051,7 @@
         ".infraos"
       ],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -1066,7 +1066,7 @@
       "score": 21.5,
       "scores": {
         "layout_core": 0.3,
-        "aegis_indep": 0.0,
+        "customerSystem_indep": 0.0,
         "cli_docs": 0.5,
         "runbook": 0.0,
         "agent_maps": 0.0,
@@ -1105,7 +1105,7 @@
       },
       "legacy_roots": [],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -1120,7 +1120,7 @@
       "score": 82.0,
       "scores": {
         "layout_core": 1.0,
-        "aegis_indep": 1.0,
+        "customerSystem_indep": 1.0,
         "cli_docs": 1.0,
         "runbook": 1.0,
         "agent_maps": 0.0,
@@ -1159,7 +1159,7 @@
       },
       "legacy_roots": [],
       "agents_hath0r": true,
-      "agents_aegis_cli_teaching": true,
+      "agents_customerSystem_cli_teaching": true,
       "cr_init": true,
       "cr_bai": true,
       "pack": {
@@ -1174,7 +1174,7 @@
       "score": 90.0,
       "scores": {
         "layout_core": 1.0,
-        "aegis_indep": 0.5,
+        "customerSystem_indep": 0.5,
         "cli_docs": 1.0,
         "runbook": 1.0,
         "agent_maps": 1.0,
@@ -1213,7 +1213,7 @@
       },
       "legacy_roots": [],
       "agents_hath0r": false,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": false,
       "cr_bai": false,
       "pack": {
@@ -1260,7 +1260,7 @@
       },
       "legacy_roots": [],
       "agents_hath0r": false,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": false,
       "cr_bai": false,
       "pack": {
@@ -1307,7 +1307,7 @@
       },
       "legacy_roots": [],
       "agents_hath0r": false,
-      "agents_aegis_cli_teaching": false,
+      "agents_customerSystem_cli_teaching": false,
       "cr_init": false,
       "cr_bai": false,
       "pack": {

@@ -1,0 +1,26 @@
+version: "1.0"
+provider: "auto" # auto | pytorch | ollama | remote | fallback
+pytorch:
+  device: "auto"    # auto | mps | cuda | cpu
+  precision: "fp16" # fp32 | fp16 | bf16
+  embedding_model: "clip-vit-base-patch32"
+  dimensions: 512
+local:
+  backend: "ollama"
+  model: "llava"
+  host: "http://localhost:11434"
+remote:
+  provider: "openai"
+  model: "gpt-4o"
+embedding:
+  model: "clip-vit-base-patch32"
+  dimensions: 512
+image_ingestion:
+  supported_extensions:
+    - ".png"
+    - ".jpg"
+    - ".jpeg"
+    - ".webp"
+    - ".svg"
+    - ".pdf"
+  max_image_dimension: 2048

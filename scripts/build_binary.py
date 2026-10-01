@@ -50,9 +50,7 @@ def main() -> int:
         import PyInstaller  # noqa: F401
     except ImportError:
         print(
-            "PyInstaller is required. Install with:\n"
-            '  pip install -e ".[release]"\n'
-            "or: pip install pyinstaller",
+            'PyInstaller is required. Install with:\n  pip install -e ".[release]"\nor: pip install pyinstaller',
             file=sys.stderr,
         )
         return 2

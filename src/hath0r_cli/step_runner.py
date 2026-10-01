@@ -9,17 +9,45 @@ from pathlib import Path
 from typing import Any
 
 from hath0r_cli.bots import (
+    ActiveTabReaderBot,
+    AgentDialogueBot,
     BranchBot,
     BranchGuardBot,
+    ChangeValidationBot,
+    ConfigOrganizerBot,
     DockerBot,
     DocumentationBot,
+    EndOfTaskBot,
     GitJanitorBot,
     IssueGuardBot,
+    IssueManagerBot,
+    KnowledgeOrganizerBot,
+    MemoryManagerBot,
     PRBot,
+    ProactiveSpeakerBot,
+    RepoHygieneBot,
+    SpeechListenerBot,
+    SpokenNotificationServiceBot,
     TaskAnnouncerBot,
+    VersionBot,
+    VoiceProfileBot,
+    VoiceServiceBot,
+    VoiceSpeakerBot,
+    VoiceSpeakerModeBot,
+    VoiceSynthesizerBot,
 )
+from hath0r_cli.bots.onboarding import (
+    DocRefactorBot,
+    GovernanceBot,
+    RepoLayoutBot,
+    TestHarnessBot,
+    TriGraphIngestBot,
+)
+from hath0r_cli.bots.political_data_mining import ComplianceBot, DataMinerBot
+from hath0r_cli.bots.postgres_validation import DataAuditorBot, ReportingBot
 from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
 from hath0r_cli.factory_manager import FactoryManagerBot
+from hath0r_cli.telemetry import get_current_trace_context, trace_span
 
 
 @dataclass
@@ -91,10 +119,14 @@ class BotRegistry:
             "branch-bot": BranchBot(cwd=self.cwd),
             "branch-guard-bot": BranchGuardBot(cwd=self.cwd),
             "issue-guard-bot": IssueGuardBot(cwd=self.cwd),
+            "issue-manager-bot": IssueManagerBot(cwd=self.cwd),
             "pr-bot": PRBot(cwd=self.cwd),
+            "git-pr-bot": PRBot(cwd=self.cwd),
             "git-janitor-bot": GitJanitorBot(cwd=self.cwd),
             "documentation-bot": DocumentationBot(cwd=self.cwd),
+            "change-validation-bot": ChangeValidationBot(cwd=self.cwd),
             "task-announcer-bot": TaskAnnouncerBot(cwd=self.cwd),
+            "end-of-task-bot": EndOfTaskBot(cwd=self.cwd),
             "docker-bot": DockerBot(cwd=self.cwd),
             "docker-monitor-bot": DockerBot(cwd=self.cwd),
             "factory-manager-bot": FactoryManagerBot(cwd=self.cwd),
@@ -102,6 +134,30 @@ class BotRegistry:
             "preflight-bot": PreflightBot(cwd=self.cwd),
             "deploy-test-bot": DeployTestBot(cwd=self.cwd),
             "release-bot": ReleaseBot(cwd=self.cwd),
+            "repo-hygiene-bot": RepoHygieneBot(cwd=self.cwd),
+            "config-organizer-bot": ConfigOrganizerBot(cwd=self.cwd),
+            "knowledge-organizer-bot": KnowledgeOrganizerBot(cwd=self.cwd),
+            "speech-listener-bot": SpeechListenerBot(cwd=self.cwd),
+            "agent-dialogue-bot": AgentDialogueBot(cwd=self.cwd),
+            "voice-synthesizer-bot": VoiceSynthesizerBot(cwd=self.cwd),
+            "proactive-speaker-bot": ProactiveSpeakerBot(cwd=self.cwd),
+            "voice-service-bot": VoiceServiceBot(cwd=self.cwd),
+            "memory-manager-bot": MemoryManagerBot(cwd=self.cwd),
+            "version-bot": VersionBot(cwd=self.cwd),
+            "voice-speaker-bot": VoiceSpeakerBot(cwd=self.cwd),
+            "spoken-notification-service-bot": SpokenNotificationServiceBot(cwd=self.cwd),
+            "voice-speaker-mode-bot": VoiceSpeakerModeBot(cwd=self.cwd),
+            "voice-profile-bot": VoiceProfileBot(cwd=self.cwd),
+            "active-tab-reader-bot": ActiveTabReaderBot(cwd=self.cwd),
+            "data-miner-bot": DataMinerBot(cwd=self.cwd),
+            "compliance-bot": ComplianceBot(cwd=self.cwd),
+            "data-auditor-bot": DataAuditorBot(cwd=self.cwd),
+            "reporting-bot": ReportingBot(cwd=self.cwd),
+            "repo-layout-bot": RepoLayoutBot(cwd=self.cwd),
+            "governance-bot": GovernanceBot(cwd=self.cwd),
+            "doc-refactor-bot": DocRefactorBot(cwd=self.cwd),
+            "test-harness-bot": TestHarnessBot(cwd=self.cwd),
+            "tri-graph-ingest-bot": TriGraphIngestBot(cwd=self.cwd),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -138,9 +194,11 @@ class BotRegistry:
             # Dispatch based on bot type and action name
             if bot_id == "issue-guard-bot":
                 return self._dispatch_issue_guard_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
+            elif bot_id == "issue-manager-bot":
+                return self._dispatch_issue_manager_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
             elif bot_id == "branch-guard-bot":
                 return self._dispatch_branch_guard_bot(bot, action, args, dry_run=dry_run, context=ctx)
-            elif bot_id == "pr-bot":
+            elif bot_id in ("pr-bot", "git-pr-bot"):
                 return self._dispatch_pr_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
             elif bot_id == "git-janitor-bot":
                 return self._dispatch_janitor_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
@@ -148,8 +206,12 @@ class BotRegistry:
                 return self._dispatch_branch_bot(bot, action, args, dry_run=dry_run)
             elif bot_id == "documentation-bot":
                 return self._dispatch_doc_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
+            elif bot_id == "change-validation-bot":
+                return self._dispatch_change_validation_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "task-announcer-bot":
                 return self._dispatch_announcer_bot(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "end-of-task-bot":
+                return self._dispatch_end_of_task_bot(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
             elif bot_id in ("docker-bot", "docker-monitor-bot"):
                 return self._dispatch_docker_bot(bot, bot_id, action, args, dry_run=dry_run, context=ctx)
             elif bot_id == "factory-manager-bot":
@@ -162,6 +224,54 @@ class BotRegistry:
                 return self._dispatch_deploy_test(bot, action, args, dry_run=dry_run)
             elif bot_id == "release-bot":
                 return self._dispatch_release(bot, action, args, repo=repo, dry_run=dry_run)
+            elif bot_id == "repo-hygiene-bot":
+                return self._dispatch_repo_hygiene(bot, action, args, dry_run=dry_run)
+            elif bot_id == "config-organizer-bot":
+                return self._dispatch_config_organizer(bot, action, args, dry_run=dry_run)
+            elif bot_id == "knowledge-organizer-bot":
+                return self._dispatch_knowledge_organizer(bot, action, args, dry_run=dry_run)
+            elif bot_id == "speech-listener-bot":
+                return self._dispatch_speech_listener(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "agent-dialogue-bot":
+                return self._dispatch_agent_dialogue(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "voice-synthesizer-bot":
+                return self._dispatch_voice_synthesizer(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "proactive-speaker-bot":
+                return self._dispatch_proactive_speaker(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "memory-manager-bot":
+                return self._dispatch_memory_manager_bot(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "version-bot":
+                return self._dispatch_version_bot(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "voice-speaker-bot":
+                return self._dispatch_voice_speaker(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "voice-service-bot":
+                return self._dispatch_voice_service_bot(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "spoken-notification-service-bot":
+                return self._dispatch_spoken_notification_service(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "voice-speaker-mode-bot":
+                return self._dispatch_voice_speaker_mode(bot, action, args, dry_run=dry_run)
+            elif bot_id == "voice-profile-bot":
+                return self._dispatch_voice_profile(bot, action, args, dry_run=dry_run)
+            elif bot_id == "active-tab-reader-bot":
+                return self._dispatch_active_tab_reader(bot, action, args, dry_run=dry_run)
+            elif bot_id == "data-miner-bot":
+                return self._dispatch_data_miner_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "compliance-bot":
+                return self._dispatch_compliance_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "data-auditor-bot":
+                return self._dispatch_data_auditor_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "reporting-bot":
+                return self._dispatch_reporting_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "repo-layout-bot":
+                return self._dispatch_repo_layout_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "governance-bot":
+                return self._dispatch_governance_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "doc-refactor-bot":
+                return self._dispatch_doc_refactor_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "test-harness-bot":
+                return self._dispatch_test_harness_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "tri-graph-ingest-bot":
+                return self._dispatch_tri_graph_ingest_bot(bot, action, args, dry_run=dry_run)
             else:
                 return StepExecutionResult(
                     bot_id=bot_id,
@@ -236,6 +346,91 @@ class BotRegistry:
             action=action,
             success=False,
             error=f"Unknown action '{action}' for issue-guard-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_issue_manager_bot(
+        self,
+        bot: IssueManagerBot,
+        action: str,
+        args: dict[str, Any],
+        repo: str | None,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        target_repo = args.get("repo") or repo
+        if action in ("list-issues", "list", "scan"):
+            state = args.get("state", "open")
+            res = bot.list_issues(repo=target_repo, state=state, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="issue-manager-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action in ("create-issue", "create"):
+            title = args.get("title", "")
+            body = args.get("body", "")
+            labels = args.get("labels")
+            if not target_repo:
+                return StepExecutionResult(
+                    bot_id="issue-manager-bot",
+                    action=action,
+                    success=False,
+                    error="Repository is required to create an issue.",
+                    dry_run=dry_run,
+                )
+            res = bot.create_issue(repo=target_repo, title=title, body=body, labels=labels, dry_run=dry_run)
+            if res.get("issue_number"):
+                context["issue_number"] = res["issue_number"]
+            return StepExecutionResult(
+                bot_id="issue-manager-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action in ("update-issue", "update", "edit"):
+            issue_num = int(args.get("issue_number") or context.get("issue_number") or 0)
+            title = args.get("title")
+            body = args.get("body")
+            if not target_repo or not issue_num:
+                return StepExecutionResult(
+                    bot_id="issue-manager-bot",
+                    action=action,
+                    success=False,
+                    error="Repository and issue_number are required to update an issue.",
+                    dry_run=dry_run,
+                )
+            res = bot.update_issue(repo=target_repo, issue_number=issue_num, title=title, body=body, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="issue-manager-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action in ("validate-issue", "validate"):
+            issue_num = int(args.get("issue_number") or context.get("issue_number") or 0)
+            res = bot.validate_issue(issue_num, repo=target_repo, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="issue-manager-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+
+        return StepExecutionResult(
+            bot_id="issue-manager-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for issue-manager-bot.",
             dry_run=dry_run,
         )
 
@@ -561,6 +756,60 @@ class BotRegistry:
             error=f"Unknown action '{action}' for documentation-bot.",
         )
 
+    def _dispatch_change_validation_bot(
+        self,
+        bot: ChangeValidationBot,
+        action: str,
+        args: dict[str, Any],
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if dry_run:
+            return StepExecutionResult(
+                bot_id="change-validation-bot",
+                action=action,
+                success=True,
+                data={
+                    "success": True,
+                    "dry_run": True,
+                    "action": f"[DRY-RUN] Validate changes with action '{action}'",
+                },
+                dry_run=True,
+            )
+
+        files = args.get("files")
+        if action == "classify-changes":
+            res = bot.classify_changes(files=files)
+            return StepExecutionResult(bot_id="change-validation-bot", action=action, success=True, data=res)
+        elif action == "validate-ui":
+            res = bot.validate_ui(files=files or [])
+            return StepExecutionResult(
+                bot_id="change-validation-bot", action=action, success=bool(res.get("passed", False)), data=res
+            )
+        elif action == "validate-script":
+            res = bot.validate_script(files=files or [])
+            return StepExecutionResult(
+                bot_id="change-validation-bot", action=action, success=bool(res.get("passed", False)), data=res
+            )
+        elif action == "validate-text":
+            res = bot.validate_text(files=files or [])
+            return StepExecutionResult(
+                bot_id="change-validation-bot", action=action, success=bool(res.get("passed", False)), data=res
+            )
+        elif action == "validate-all":
+            res = bot.validate_all(files=files)
+            return StepExecutionResult(
+                bot_id="change-validation-bot", action=action, success=bool(res.get("status") == "valid"), data=res
+            )
+
+        return StepExecutionResult(
+            bot_id="change-validation-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for change-validation-bot.",
+            dry_run=dry_run,
+        )
+
     def _dispatch_announcer_bot(
         self,
         bot: TaskAnnouncerBot,
@@ -587,6 +836,45 @@ class BotRegistry:
             action=action,
             success=False,
             error=f"Unknown action '{action}' for task-announcer-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_end_of_task_bot(
+        self,
+        bot: EndOfTaskBot,
+        action: str,
+        args: dict[str, Any],
+        repo: str | None,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("run-bot", "watch", "finish"):
+            pr_num = args.get("pr_number") or context.get("pr_number")
+            branch = args.get("branch") or context.get("branch")
+            semver = args.get("semver", "patch")
+            skip_tests = bool(args.get("skip_tests", False))
+            res = bot.run_bot(
+                pr_number=int(pr_num) if pr_num else None,
+                branch=str(branch) if branch else None,
+                repo=repo or args.get("repo"),
+                semver=semver,
+                dry_run=dry_run,
+                skip_tests=skip_tests,
+            )
+            return StepExecutionResult(
+                bot_id="end-of-task-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+
+        return StepExecutionResult(
+            bot_id="end-of-task-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for end-of-task-bot.",
             dry_run=dry_run,
         )
 
@@ -781,6 +1069,28 @@ class BotRegistry:
                 error=res.get("error") or (None if res.get("success") else res.get("message")),
                 dry_run=dry_run,
             )
+        if action in ("run-tests", "test", "validate-tests"):
+            import subprocess
+
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="quality-gate-bot",
+                    action=action,
+                    success=True,
+                    data={"tests": "dry_run_passed"},
+                    dry_run=True,
+                )
+            r = subprocess.run(
+                ["pytest", "tests/", "-q", "-k", "not test_voice and not test_speech"], capture_output=True, text=True
+            )
+            return StepExecutionResult(
+                bot_id="quality-gate-bot",
+                action=action,
+                success=r.returncode == 0,
+                data={"stdout": r.stdout, "returncode": r.returncode},
+                error=r.stderr if r.returncode != 0 else None,
+                dry_run=dry_run,
+            )
         if action == "evaluate-rollup":
             res = bot.evaluate_rollup(args.get("status_checks") or [])
             return StepExecutionResult(
@@ -805,7 +1115,7 @@ class BotRegistry:
         args: dict[str, Any],
         dry_run: bool,
     ) -> StepExecutionResult:
-        if action in ("run", "preflight", "check"):
+        if action in ("run", "preflight", "check", "check-repo-clean", "check-clean"):
             res = bot.run(
                 skip_tests=bool(args.get("skip_tests", False)),
                 dry_run=dry_run,
@@ -833,7 +1143,7 @@ class BotRegistry:
         args: dict[str, Any],
         dry_run: bool,
     ) -> StepExecutionResult:
-        if action in ("pre-deploy", "run-pre-deploy"):
+        if action in ("pre-deploy", "run-pre-deploy", "run", "test", "run-tests"):
             res = bot.run_pre_deploy(dry_run=dry_run)
         elif action in ("post-deploy", "run-post-deploy"):
             res = bot.run_post_deploy(base_url=args.get("base_url"), dry_run=dry_run)
@@ -889,6 +1199,874 @@ class BotRegistry:
             dry_run=dry_run,
         )
 
+    def _dispatch_repo_hygiene(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("scan", "scan-root", "audit"):
+            res = bot.scan_root()
+            return StepExecutionResult(
+                bot_id="repo-hygiene-bot",
+                action=action,
+                success=bool(res.get("clean")),
+                data=res,
+                error=None if res.get("clean") else f"Found {res.get('errant_count')} errant file(s) in root.",
+                dry_run=dry_run,
+            )
+        elif action in ("clean", "clean-root", "archive"):
+            res = bot.clean_root(dry_run=dry_run, archive_dir=args.get("archive_dir", ".hath0r/spool/archive"))
+            return StepExecutionResult(
+                bot_id="repo-hygiene-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="repo-hygiene-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for repo-hygiene-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_config_organizer(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("scan", "scan-misplaced", "audit"):
+            res = bot.scan_misplaced_configs()
+            return StepExecutionResult(
+                bot_id="config-organizer-bot",
+                action=action,
+                success=bool(res.get("clean")),
+                data=res,
+                error=None if res.get("clean") else f"Found {res.get('misplaced_count')} misplaced root config(s).",
+                dry_run=dry_run,
+            )
+        elif action in ("organize", "relocate", "clean"):
+            target_folder = args.get("target_folder", ".cfg")
+            res = bot.organize_configs(target_folder=target_folder, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="config-organizer-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="config-organizer-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for config-organizer-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_knowledge_organizer(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("sync-kb", "sync", "publish-mcp"):
+            res = bot.audit_knowledge_structure()
+            return StepExecutionResult(
+                bot_id="knowledge-organizer-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
+        if action in ("audit", "audit-structure", "scan"):
+            res = bot.audit_knowledge_structure()
+            err_msg = (
+                None if res.get("organized") else f"Found {res.get('findings_count')} knowledge structure violation(s)."
+            )
+            return StepExecutionResult(
+                bot_id="knowledge-organizer-bot",
+                action=action,
+                success=bool(res.get("organized")),
+                data=res,
+                error=err_msg,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="knowledge-organizer-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for knowledge-organizer-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_speech_listener(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("listen", "capture-turn", "check-vad"):
+            ptt = bool(args.get("push_to_talk", context.get("push_to_talk", True)))
+            key = args.get("key") or context.get("key")
+            simulated = args.get("simulated_transcript") or context.get("simulated_transcript")
+            res = bot.listen(push_to_talk=ptt, key=key, simulated_transcript=simulated)
+            if res.get("transcript"):
+                context["transcript"] = res["transcript"]
+            return StepExecutionResult(
+                bot_id="speech-listener-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="speech-listener-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for speech-listener-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_agent_dialogue(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("reason", "route-intent", "generate-response"):
+            transcript = str(args.get("transcript") or context.get("transcript") or "hath0r doctor")
+            tier = str(args.get("trust_tier") or context.get("trust_tier") or "elevated")
+            res = bot.reason(transcript=transcript, trust_tier=tier, dry_run=dry_run)
+            if res.get("response_text"):
+                context["response_text"] = res["response_text"]
+            return StepExecutionResult(
+                bot_id="agent-dialogue-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="agent-dialogue-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for agent-dialogue-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_voice_synthesizer(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("speak", "synthesize", "mute"):
+            text = str(args.get("text") or context.get("response_text") or "")
+            voice = args.get("voice_name")
+            if dry_run or action == "mute":
+                return StepExecutionResult(
+                    bot_id="voice-synthesizer-bot",
+                    action=action,
+                    success=True,
+                    data={"spoken": False, "text": text, "dry_run": dry_run},
+                    dry_run=dry_run,
+                )
+            res = bot.speak(text=text, voice_name=voice)
+            return StepExecutionResult(
+                bot_id="voice-synthesizer-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="voice-synthesizer-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for voice-synthesizer-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_proactive_speaker(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("announce", "alert"):
+            message = str(args.get("message") or context.get("message") or "Agent update ready.")
+            res = bot.announce(message=message, speak=not dry_run)
+            return StepExecutionResult(
+                bot_id="proactive-speaker-bot",
+                action=action,
+                success=bool(res.get("announced")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("check-in", "standup"):
+            topic = args.get("topic") or context.get("topic")
+            res = bot.check_in(topic=topic, speak=not dry_run)
+            return StepExecutionResult(
+                bot_id="proactive-speaker-bot",
+                action=action,
+                success=bool(res.get("announced")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="proactive-speaker-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for proactive-speaker-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_voice_service_bot(
+        self,
+        bot: VoiceServiceBot,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action == "start-service":
+            bg = bool(args.get("background", True))
+            ambient = bool(args.get("ambient", True))
+            trust_tier = str(args.get("trust_tier", "elevated"))
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="voice-service-bot",
+                    action=action,
+                    success=True,
+                    data={"status": "dry_run_started", "background": bg, "ambient": ambient},
+                    dry_run=True,
+                )
+            res = bot.start_service(background=bg, ambient=ambient, trust_tier=trust_tier)
+            return StepExecutionResult(
+                bot_id="voice-service-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action == "stop-service":
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="voice-service-bot",
+                    action=action,
+                    success=True,
+                    data={"status": "dry_run_stopped"},
+                    dry_run=True,
+                )
+            res = bot.stop_service()
+            return StepExecutionResult(
+                bot_id="voice-service-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action == "status":
+            res = bot.status()
+            return StepExecutionResult(
+                bot_id="voice-service-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action == "install-service":
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="voice-service-bot",
+                    action=action,
+                    success=True,
+                    data={"status": "dry_run_installed"},
+                    dry_run=True,
+                )
+            res = bot.install_os_service(ambient=bool(args.get("ambient", True)))
+            return StepExecutionResult(
+                bot_id="voice-service-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action == "uninstall-service":
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="voice-service-bot",
+                    action=action,
+                    success=True,
+                    data={"status": "dry_run_uninstalled"},
+                    dry_run=True,
+                )
+            res = bot.uninstall_os_service()
+            return StepExecutionResult(
+                bot_id="voice-service-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action == "run-service-loop":
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="voice-service-bot",
+                    action=action,
+                    success=True,
+                    data={"status": "dry_run_loop"},
+                    dry_run=True,
+                )
+            max_iter = args.get("max_iterations")
+            res = bot.run_service_loop(ambient=bool(args.get("ambient", True)), max_iterations=max_iter)
+            return StepExecutionResult(
+                bot_id="voice-service-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="voice-service-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for voice-service-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_voice_speaker(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("speak", "vocalize"):
+            text = str(args.get("text") or context.get("message") or context.get("response_text") or "")
+            voice = args.get("voice_name")
+            rate = args.get("rate_wpm")
+            filter_code = bool(args.get("filter_code", True))
+            res = bot.speak(text=text, voice_name=voice, rate_wpm=rate, filter_code=filter_code, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-speaker-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("announce-task-status", "announce-task", "announce"):
+            task_name = str(args.get("task_name") or context.get("task_id") or "Lifecycle Task")
+            status = str(args.get("status") or "completed")
+            details = args.get("details")
+            res = bot.announce_task_status(task_name=task_name, status=status, details=details, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-speaker-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="voice-speaker-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for voice-speaker-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_spoken_notification_service(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("queue-message", "queue-announcement", "queue"):
+            msg = str(args.get("message") or context.get("message") or "")
+            priority = str(args.get("priority") or "normal")
+            category = str(args.get("category") or "notification")
+            res = bot.queue_message(message=msg, priority=priority, category=category)
+            return StepExecutionResult(
+                bot_id="spoken-notification-service-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("drain-queue", "drain"):
+            max_msgs = args.get("max_messages")
+            res = bot.drain_queue(max_messages=max_msgs, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="spoken-notification-service-bot",
+                action=action,
+                success=True,
+                data={"drained_count": len(res), "items": res},
+                dry_run=dry_run,
+            )
+        elif action in ("start-bot", "start-worker"):
+            bg = bool(args.get("background", True))
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="spoken-notification-service-bot",
+                    action=action,
+                    success=True,
+                    data={"dry_run": True, "action": "Would start spoken notification daemon"},
+                    dry_run=dry_run,
+                )
+            res = bot.start_bot(background=bg)
+            return StepExecutionResult(
+                bot_id="spoken-notification-service-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("stop-bot", "stop-worker"):
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="spoken-notification-service-bot",
+                    action=action,
+                    success=True,
+                    data={"dry_run": True, "action": "Would stop spoken notification daemon"},
+                    dry_run=dry_run,
+                )
+            res = bot.stop_bot()
+            return StepExecutionResult(
+                bot_id="spoken-notification-service-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="spoken-notification-service-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for spoken-notification-service-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_voice_speaker_mode(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        speak = bool(args.get("speak", True))
+        tab_only = bool(args.get("tab_only", False) or args.get("active_tab_only", False))
+        if action in ("enable", "enable-speak-mode", "on"):
+            res = bot.enable(tab_only=tab_only, speak=speak, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-speaker-mode-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("disable", "disable-speak-mode", "off"):
+            res = bot.disable(speak=speak, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-speaker-mode-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("toggle", "toggle-speak-mode"):
+            res = bot.toggle(tab_only=tab_only, speak=speak, dry_run=dry_run)
+
+            return StepExecutionResult(
+                bot_id="voice-speaker-mode-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("status", "get-status"):
+            res = bot.status()
+            return StepExecutionResult(
+                bot_id="voice-speaker-mode-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="voice-speaker-mode-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for voice-speaker-mode-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_voice_profile(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("list-profiles", "list", "ls"):
+            res = bot.list_profiles()
+            return StepExecutionResult(
+                bot_id="voice-profile-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("get-active-profile", "get-active", "status"):
+            res = bot.get_active_profile()
+            return StepExecutionResult(
+                bot_id="voice-profile-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("set-profile", "set"):
+            voice_name = str(args.get("voice_name") or args.get("name") or "Samantha")
+            rate = args.get("rate_wpm")
+            preview = bool(args.get("preview", True))
+            res = bot.set_profile(voice_name=voice_name, rate_wpm=rate, preview=preview, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="voice-profile-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="voice-profile-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for voice-profile-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_active_tab_reader(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        if action in ("read-selection", "selection", "read-selected"):
+            res = bot.read_selection(dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="active-tab-reader-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("read-text", "read"):
+            text = str(args.get("text") or "")
+            res = bot.read_text(text, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="active-tab-reader-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("get-frontmost-app", "app", "frontmost"):
+            app_name = bot.get_frontmost_app()
+            return StepExecutionResult(
+                bot_id="active-tab-reader-bot",
+                action=action,
+                success=True,
+                data={"app": app_name},
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="active-tab-reader-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for active-tab-reader-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_memory_manager_bot(
+        self,
+        bot: MemoryManagerBot,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool = False,
+        context: dict[str, Any] | None = None,
+    ) -> StepExecutionResult:
+        if action == "init":
+            res = bot.initialize_memory(dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action == "read":
+            res = bot.read_memory(topic=args.get("topic", "core"))
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action == "update":
+            res = bot.update_memory(topic=str(args.get("topic")), content=args.get("content", ""), dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        else:
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action '{action}' for memory-manager-bot.",
+                dry_run=dry_run,
+            )
+
+    def _dispatch_version_bot(
+        self,
+        bot: VersionBot,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool = False,
+        context: dict[str, Any] | None = None,
+    ) -> StepExecutionResult:
+        if action in ("ensure-version", "enforce-version"):
+            res = bot.enforce_version(dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="version-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        else:
+            return StepExecutionResult(
+                bot_id="version-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action '{action}' for version-bot.",
+                dry_run=dry_run,
+            )
+
+    def _dispatch_data_miner_bot(
+        self, bot: DataMinerBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "mine-political-data":
+            res = bot.mine_political_data(**args)
+        elif action == "gather-historic-data":
+            res = bot.gather_historic_data(**args)
+        elif action == "ensure-completeness":
+            res = bot.ensure_completeness(**args)
+        elif action == "ingest-legislative-recordset":
+            res = bot.ingest_legislative_recordset(**args)
+        elif action == "patch-missing-data":
+            res = bot.patch_missing_data(**args)
+        elif action == "show-statistics":
+            res = bot.show_statistics(**args)
+        else:
+            return StepExecutionResult(
+                bot_id="data-miner-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run
+            )
+        return StepExecutionResult(
+            bot_id="data-miner-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run
+        )
+
+    def _dispatch_compliance_bot(
+        self, bot: ComplianceBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "run-compliance-checks":
+            res = bot.run_compliance_checks(**args)
+        elif action == "validate-schema":
+            res = bot.validate_schema(**args)
+        else:
+            return StepExecutionResult(
+                bot_id="compliance-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run
+            )
+        return StepExecutionResult(
+            bot_id="compliance-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run
+        )
+
+    def _dispatch_data_auditor_bot(
+        self, bot: DataAuditorBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "scan-tables":
+            res = bot.scan_tables(**args)
+        elif action == "identify-missing-data":
+            res = bot.identify_missing_data(**args)
+        else:
+            return StepExecutionResult(
+                bot_id="data-auditor-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action {action}",
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="data-auditor-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run
+        )
+
+    def _dispatch_reporting_bot(
+        self, bot: ReportingBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "generate-unfound-report":
+            res = bot.generate_unfound_report(**args)
+        else:
+            return StepExecutionResult(
+                bot_id="reporting-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run
+            )
+        return StepExecutionResult(
+            bot_id="reporting-bot", action=action, success=res.get("status") == "success", data=res, dry_run=dry_run
+        )
+
+    def _dispatch_repo_layout_bot(
+        self, bot: RepoLayoutBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "backup-state":
+            res = bot.backup_state(dry_run=dry_run)
+        elif action == "scaffold-layout":
+            res = bot.scaffold_layout(dry_run=dry_run)
+        elif action in ("sync-ci-workflows", "sync-ci"):
+            res = bot.sync_ci_workflows(dry_run=dry_run)
+        elif action == "rollback-init":
+            res = bot.rollback_init(dry_run=dry_run)
+        else:
+            return StepExecutionResult(
+                bot_id="repo-layout-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action {action}",
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="repo-layout-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run
+        )
+
+    def _dispatch_governance_bot(
+        self, bot: GovernanceBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "scaffold-agents-md":
+            res = bot.scaffold_agents_md(dry_run=dry_run, **args)
+        elif action == "init-versioning":
+            res = bot.init_versioning(dry_run=dry_run, **args)
+        elif action == "spread-hyper-context":
+            res = bot.spread_hyper_context(dry_run=dry_run)
+        else:
+            return StepExecutionResult(
+                bot_id="governance-bot", action=action, success=False, error=f"Unknown action {action}", dry_run=dry_run
+            )
+        return StepExecutionResult(
+            bot_id="governance-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run
+        )
+
+    def _dispatch_doc_refactor_bot(
+        self, bot: DocRefactorBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "refactor-readme":
+            res = bot.refactor_readme(dry_run=dry_run, **args)
+        elif action == "scaffold-tech-readme":
+            res = bot.scaffold_tech_readme(dry_run=dry_run, **args)
+        elif action == "seed-playbooks":
+            res = bot.seed_playbooks(dry_run=dry_run)
+        else:
+            return StepExecutionResult(
+                bot_id="doc-refactor-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action {action}",
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="doc-refactor-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run
+        )
+
+    def _dispatch_test_harness_bot(
+        self, bot: TestHarnessBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "detect-stack":
+            res = bot.detect_stack()
+        elif action == "scaffold-tests":
+            res = bot.scaffold_tests(dry_run=dry_run)
+        elif action == "provision-ci-workflows":
+            res = bot.provision_ci_workflows(dry_run=dry_run)
+        else:
+            return StepExecutionResult(
+                bot_id="test-harness-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action {action}",
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="test-harness-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run
+        )
+
+    def _dispatch_tri_graph_ingest_bot(
+        self, bot: TriGraphIngestBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action == "compile-knowledge-graph":
+            res = bot.compile_knowledge_graph(dry_run=dry_run)
+        elif action == "init-context-graph":
+            res = bot.init_context_graph(dry_run=dry_run)
+        elif action == "ingest-memory-graph":
+            res = bot.ingest_memory_graph(dry_run=dry_run)
+        else:
+            return StepExecutionResult(
+                bot_id="tri-graph-ingest-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action {action}",
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id="tri-graph-ingest-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run
+        )
+
 
 def execute_workflow(
     workflow_def: dict[str, Any],
@@ -909,55 +2087,76 @@ def execute_workflow(
     all_success = True
     aborted = False
 
-    for step in steps:
-        if not isinstance(step, dict):
-            continue
-        bot_id = str(step.get("bot", ""))
-        action = str(step.get("action", ""))
-        args = step.get("args") if isinstance(step.get("args"), dict) else {}
-        on_failure = str(step.get("on_failure", "abort")).lower()
-        if on_failure not in {"continue", "abort", "retry"}:
-            on_failure = "abort"
-        max_retries = int(step.get("retry_count", 2)) if on_failure == "retry" else 0
+    with trace_span(
+        f"hath0r.workflow.{wf_id}",
+        attributes={
+            "workflow.id": wf_id,
+            "workflow.name": name,
+            "workflow.run_id": active_run_id,
+            "workflow.step_count": len(steps),
+            "workflow.dry_run": dry_run,
+        },
+    ):
+        for step in steps:
+            if not isinstance(step, dict):
+                continue
+            bot_id = str(step.get("bot", ""))
+            action = str(step.get("action", ""))
+            args = step.get("args") if isinstance(step.get("args"), dict) else {}
+            on_failure = str(step.get("on_failure", "abort")).lower()
+            if on_failure not in {"continue", "abort", "retry"}:
+                on_failure = "abort"
+            max_retries = int(step.get("retry_count", 2)) if on_failure == "retry" else 0
 
-        t0 = time.perf_counter()
-        attempt = 0
-        step_res: StepExecutionResult | None = None
+            t0 = time.perf_counter()
+            attempt = 0
+            step_res: StepExecutionResult | None = None
 
-        while True:
-            attempt += 1
-            step_res = registry.invoke(
-                bot_id=bot_id,
-                action=action,
-                args=args,
-                repo=repo,
-                dry_run=dry_run,
-                context=context,
-            )
-            if step_res.success or attempt > max_retries:
-                break
+            with trace_span(
+                f"hath0r.step.{bot_id}.{action}",
+                attributes={
+                    "step.bot": bot_id,
+                    "step.action": action,
+                    "step.policy": on_failure,
+                    "step.dry_run": dry_run,
+                    "workflow.id": wf_id,
+                    "workflow.run_id": active_run_id,
+                },
+            ):
+                while True:
+                    attempt += 1
+                    step_res = registry.invoke(
+                        bot_id=bot_id,
+                        action=action,
+                        args=args,
+                        repo=repo,
+                        dry_run=dry_run,
+                        context=context,
+                    )
+                    if step_res.success or attempt > max_retries:
+                        break
 
-        duration_ms = max(0, int((time.perf_counter() - t0) * 1000))
-        step_res.duration_ms = duration_ms
-        step_res.policy = on_failure
-        step_res.retries = attempt - 1
+            duration_ms = max(0, int((time.perf_counter() - t0) * 1000))
+            step_res.duration_ms = duration_ms
+            step_res.policy = on_failure
+            step_res.retries = attempt - 1
 
-        results.append(step_res)
+            results.append(step_res)
 
-        if not step_res.success:
-            if on_failure == "abort":
-                all_success = False
-                aborted = True
-                step_res.aborted = True
-                break
-            elif on_failure == "continue":
-                # continue logs finding/error but workflow continues
-                all_success = False
-            else:  # retry exhausted
-                all_success = False
-                aborted = True
-                step_res.aborted = True
-                break
+            if not step_res.success:
+                if on_failure == "abort":
+                    all_success = False
+                    aborted = True
+                    step_res.aborted = True
+                    break
+                elif on_failure == "continue":
+                    # continue logs finding/error but workflow continues
+                    all_success = False
+                else:  # retry exhausted
+                    all_success = False
+                    aborted = True
+                    step_res.aborted = True
+                    break
 
     return WorkflowExecutionResult(
         workflow_id=wf_id,
@@ -999,13 +2198,21 @@ def spool_telemetry_event(
         today = datetime.now(timezone.utc).strftime("%Y%m%d")
         spool_file = spool_dir / f"telemetry-{today}.jsonl"
 
-        event = {
+        trace_ctx = get_current_trace_context()
+        event_payload = dict(payload)
+        if trace_ctx:
+            event_payload.setdefault("trace_context", trace_ctx)
+
+        event: dict[str, Any] = {
             "schema": "hath0r.telemetry.event/1",
             "event_id": f"evt_{uuid.uuid4().hex[:12]}",
             "event_type": event_type,
             "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "payload": payload,
+            "payload": event_payload,
         }
+        if trace_ctx:
+            event["trace_id"] = trace_ctx.get("trace_id")
+            event["span_id"] = trace_ctx.get("span_id")
 
         with spool_file.open("a", encoding="utf-8") as f:
             f.write(json.dumps(event, separators=(",", ":")) + "\n")

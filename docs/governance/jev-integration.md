@@ -1,4 +1,4 @@
-# JEV Integration Wiki — AegisCMCP & Suite
+# JEV Integration Wiki — customerSystemCMCP & Suite
 
 **Status:** Shipped on `development` (2026-09-24)  
 **Decision model:** TypeSafe **JEV** (System One) — typed decisions, not prose generation  
@@ -65,7 +65,7 @@ Mutations only — e.g. `kb_index_delete`, `kb_remove_document`, `kb_sync_all`, 
 
 | Repository | Integration | Merge |
 |------------|-------------|-------|
-| **BAI/MCP** (AegisCMCP) | Full tool-guard + tests | On `development` (pre-rollout + baseline) |
+| **BAI/MCP** (customerSystemCMCP) | Full tool-guard + tests | On `development` (pre-rollout + baseline) |
 | **HATH0R-MCP** | Full tool-guard + FastMCP metadata | PR [#7](https://github.com/Bayly-AI/HATH0R-MCP/pull/7) |
 | **1-Nation-MCP** | Full tool-guard + FastMCP metadata | PR [#25](https://github.com/Bayly-AI/1-Nation-MCP/pull/25) |
 | **HATH0R-CLI** | `hath0r jev status` + rollout doc | PR [#102](https://github.com/Bayly-AI/HATH0R-CLI/pull/102) / tip |
