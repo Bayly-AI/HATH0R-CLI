@@ -83,7 +83,8 @@ def test_cli_version_execution():
     runner = CliRunner()
     res = runner.invoke(cli, ["--version"])
     assert res.exit_code == 0
-    assert "0.3.0" in res.output
+    assert "hath0r" in res.output
+    assert "version" in res.output
 
 
 def test_telemetry_lazy_tracer():

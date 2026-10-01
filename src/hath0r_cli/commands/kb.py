@@ -1,6 +1,7 @@
 """Kb command for HATH0R CLI."""
 
-from __future__ import annotations
+import os
+from pathlib import Path
 
 import click
 
@@ -136,15 +137,31 @@ def kb_products(ctx: click.Context) -> None:
 @kb.command("index")
 @click.option("--target-dir", "-d", default=None, help="Target documentation directory to index (defaults to KB path).")
 @click.option("--rebuild", is_flag=True, default=False, help="Force complete rebuild of SQLite index.")
+@click.option("--vision", is_flag=True, default=False, help="Index visual documents and diagrams using ColPali late interaction.")
 @click.pass_context
-def kb_index(ctx: click.Context, target_dir: str | None, rebuild: bool) -> None:
-    """Index or incrementally synchronize documentation into the SQLite FTS5 cache."""
-    from pathlib import Path
+def kb_index(ctx: click.Context, target_dir: str | None, rebuild: bool, vision: bool) -> None:
+    """Index or incrementally synchronize documentation into SQLite FTS5 and ColPali visual index."""
     from hath0r_cli.kb_index import SQLiteIndexStore
 
     dir_to_index = Path(target_dir) if target_dir else _kb_path()
     store = SQLiteIndexStore()
     sync_stats = store.sync_directory(dir_to_index, force_rebuild=rebuild)
+
+    colpali_indexed = 0
+    if vision:
+        from hath0r_cli.colpali_engine import ColPaliEngine
+
+        colpali = ColPaliEngine()
+        if dir_to_index.is_dir():
+            for root, _, files in os.walk(dir_to_index):
+                for f in files:
+                    if f.lower().endswith((".png", ".jpg", ".jpeg", ".pdf", ".svg")):
+                        img_path = Path(root) / f
+                        try:
+                            colpali.index_document(img_path)
+                            colpali_indexed += 1
+                        except Exception:
+                            pass
 
     response = _build_response(
         ctx,
@@ -153,7 +170,9 @@ def kb_index(ctx: click.Context, target_dir: str | None, rebuild: bool) -> None:
         data={
             "target_dir": str(dir_to_index),
             "rebuild": rebuild,
+            "vision": vision,
             "stats": sync_stats,
+            "colpali_indexed": colpali_indexed,
             "database_path": str(store.db_path),
         },
     )
@@ -163,6 +182,8 @@ def kb_index(ctx: click.Context, target_dir: str | None, rebuild: bool) -> None:
         click.echo(f"  • Indexed: {sync_stats['indexed']}")
         click.echo(f"  • Updated: {sync_stats['updated']}")
         click.echo(f"  • Skipped: {sync_stats['skipped']}")
+        if vision:
+            click.echo(f"  • ColPali Visual Pages Indexed: {colpali_indexed}")
 
     _emit_response(ctx, response, text_renderer=_text)
 
@@ -171,14 +192,57 @@ def kb_index(ctx: click.Context, target_dir: str | None, rebuild: bool) -> None:
 @click.option("--query", "-q", required=True, help="Search query string.")
 @click.option("--limit", "-n", default=5, type=int, help="Maximum search results to return.")
 @click.option("--hybrid/--fts-only", default=True, help="Enable hybrid FTS5 + neural reranking.")
+@click.option("--instruction", "-i", default=None, help="Instruction prompt to steer neural cross-encoder reranker.")
+@click.option(
+    "--model",
+    "-m",
+    "model_name",
+    type=click.Choice(["qwen3-reranker", "bge-reranker-v2-m3", "minilm-l6-v2"]),
+    default=None,
+    help="Cross-encoder reranker model architecture.",
+)
+@click.option("--vision", is_flag=True, default=False, help="Search visual documents and diagrams via ColPali late interaction.")
 @click.pass_context
-def kb_search(ctx: click.Context, query: str, limit: int, hybrid: bool) -> None:
-    """Search knowledgebase documents and playbooks using SQLite FTS5 and hybrid reranking."""
+def kb_search(
+    ctx: click.Context,
+    query: str,
+    limit: int,
+    hybrid: bool,
+    instruction: str | None,
+    model_name: str | None,
+    vision: bool,
+) -> None:
+    """Search knowledgebase documents and playbooks using SQLite FTS5, ColPali, and hybrid reranking."""
     from hath0r_cli.kb_index import SQLiteIndexStore
+
+    if vision:
+        from hath0r_cli.colpali_engine import ColPaliEngine
+
+        colpali = ColPaliEngine()
+        v_results = colpali.search(query, top_k=limit)
+        response = _build_response(
+            ctx,
+            command="kb.search",
+            state="ok",
+            data={
+                "query": query,
+                "mode": "colpali_maxsim",
+                "count": len(v_results),
+                "results": v_results,
+            },
+        )
+
+        def _v_text() -> None:
+            click.echo(f"Found {len(v_results)} visual document matches for '{query}':")
+            for i, res in enumerate(v_results, start=1):
+                click.echo(f"  {i}. {res['file_path']} (score: {res['score']:.4f}, patches: {res['patch_count']})")
+
+        _emit_response(ctx, response, text_renderer=_v_text)
+        return
 
     store = SQLiteIndexStore()
     if hybrid:
-        hits = store.search_hybrid(query, limit=limit)
+        hits = store.search_hybrid(query, limit=limit, instruction=instruction, model=model_name)
     else:
         hits = store.search_fts(query, limit=limit)
 
@@ -190,13 +254,16 @@ def kb_search(ctx: click.Context, query: str, limit: int, hybrid: bool) -> None:
         data={
             "query": query,
             "hybrid": hybrid,
+            "instruction": instruction,
+            "model": model_name or "qwen3-reranker",
             "count": len(results_data),
             "results": results_data,
         },
     )
 
     def _text() -> None:
-        click.echo(f"Found {len(hits)} results for '{query}':")
+        inst_note = f" [steered by: '{instruction}']" if instruction else ""
+        click.echo(f"Found {len(hits)} results for '{query}'{inst_note}:")
         for i, hit in enumerate(hits, start=1):
             click.echo(f"  {i}. [{hit.category}] {hit.title} (score: {hit.score:.3f})")
             click.echo(f"     Path: {hit.path}")
@@ -206,14 +273,57 @@ def kb_search(ctx: click.Context, query: str, limit: int, hybrid: bool) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@kb.command("rerankers")
+@click.pass_context
+def kb_rerankers(ctx: click.Context) -> None:
+    """List supported instruction-aware neural cross-encoder rerankers."""
+    from rich.table import Table
+    from hath0r_cli.instruction_reranker import InstructionAwareReranker
+    from hath0r_cli.common import console
+
+    reranker = InstructionAwareReranker()
+    models = reranker.list_models()
+
+    response = _build_response(
+        ctx,
+        command="kb.rerankers",
+        state="ok",
+        data={"models": models, "count": len(models)},
+    )
+
+    def _text() -> None:
+        table = Table(title="Supported Neural Rerankers")
+        table.add_column("Model ID", style="cyan")
+        table.add_column("Hugging Face Repo", style="magenta")
+        table.add_column("Context", style="yellow")
+        table.add_column("Instruction Steered", style="green")
+        table.add_column("Description", style="white")
+
+        for m in models:
+            table.add_row(
+                m["model_id"],
+                m["hf_repo"],
+                str(m["context_length"]),
+                "✓ Yes" if m["supports_instructions"] else "✗ No",
+                m["description"],
+            )
+        console.print(table)
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
 @kb.command("status")
 @click.pass_context
 def kb_status(ctx: click.Context) -> None:
-    """Display SQLite FTS5 knowledgebase index cache statistics."""
+    """Display SQLite FTS5 and ColPali knowledgebase index cache statistics."""
     from hath0r_cli.kb_index import SQLiteIndexStore
+    from hath0r_cli.colpali_engine import ColPaliEngine
 
     store = SQLiteIndexStore()
     stats = store.get_stats()
+    colpali = ColPaliEngine()
+    stats["colpali_pages"] = len(colpali.pages)
+
     response = _build_response(ctx, command="kb.status", state="ok", data=stats)
 
     def _text() -> None:
@@ -221,6 +331,7 @@ def kb_status(ctx: click.Context) -> None:
         click.echo(f"  • Database: {stats['database_path']}")
         click.echo(f"  • Size: {stats['size_bytes']} bytes")
         click.echo(f"  • Total Documents: {stats['total_documents']}")
+        click.echo(f"  • ColPali Visual Pages: {stats['colpali_pages']}")
         cats = stats.get("categories", {})
         if cats:
             click.echo("  • Categories:")

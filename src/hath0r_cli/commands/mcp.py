@@ -372,6 +372,127 @@ def mcp_prune(ctx: click.Context, schema_file: str) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@mcp.command("connect")
+@click.argument("name")
+@click.option("--command", "-c", required=True, help="Command to launch the MCP server executable.")
+@click.option("--env", "-e", multiple=True, help="Environment variables in KEY=VALUE format.")
+@click.pass_context
+def mcp_connect(ctx: click.Context, name: str, command: str, env: tuple[str, ...]) -> None:
+    """Dynamically mount and register an MCP server connection."""
+    from hath0r_cli.mcp_security import DynamicMCPManager
+
+    env_dict = {}
+    for item in env:
+        if "=" in item:
+            k, v = item.split("=", 1)
+            env_dict[k.strip()] = v.strip()
+
+    mgr = DynamicMCPManager()
+    res = mgr.connect_server(name=name, command=command, env=env_dict)
+
+    response = _build_response(
+        ctx,
+        command="mcp.connect",
+        state="ok" if res.get("success") else "error",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("success"):
+            console.print(f"[bold green]✓ Dynamically Mounted MCP Server:[/bold green] [cyan]{name}[/cyan]")
+            console.print(f"  • Command: {command}")
+        else:
+            console.print(f"[bold red]✗ Failed to mount MCP server:[/bold red] {res.get('error')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@mcp.command("inspect")
+@click.option("--server", "-s", required=True, help="Target MCP server name.")
+@click.option("--tool", "-t", required=True, help="Invoked tool name.")
+@click.option("--args", "-a", "args_json", required=True, help="Tool arguments formatted as JSON string.")
+@click.pass_context
+def mcp_inspect(ctx: click.Context, server: str, tool: str, args_json: str) -> None:
+    """Inspect in-flight MCP tool invocation against security policies."""
+    from hath0r_cli.mcp_security import MCPSecurityPolicyEngine
+
+    try:
+        arguments = json.loads(args_json)
+    except Exception as exc:
+        raise click.BadParameter(f"Invalid JSON in --args: {exc}")
+
+    engine = MCPSecurityPolicyEngine()
+    verdict = engine.inspect_invocation(server_name=server, tool_name=tool, arguments=arguments)
+
+    response = _build_response(
+        ctx,
+        command="mcp.inspect",
+        state="ok" if verdict.allowed else "security_block",
+        data={
+            "server": server,
+            "tool": tool,
+            "arguments": arguments,
+            "verdict": verdict.to_dict(),
+        },
+    )
+
+    def _text() -> None:
+        if verdict.allowed:
+            console.print(f"[bold green]✓ In-Flight Tool Call ALLOWED:[/bold green] {server}::{tool}")
+            console.print(f"  • Risk Level: [cyan]{verdict.risk_level}[/cyan]")
+            console.print(f"  • Reason: {verdict.reason}")
+        else:
+            console.print(f"[bold red]✗ In-Flight Tool Call BLOCKED:[/bold red] {server}::{tool}")
+            console.print(f"  • Rule Triggered: [bold yellow]{verdict.rule_triggered}[/bold yellow]")
+            console.print(f"  • Risk Level: [bold red]{verdict.risk_level.upper()}[/bold red]")
+            console.print(f"  • Violation: {verdict.reason}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@mcp.group("policy")
+def mcp_policy() -> None:
+    """Manage and inspect in-flight MCP tool execution security guardrails."""
+    pass
+
+
+@mcp_policy.command("list")
+@click.pass_context
+def mcp_policy_list(ctx: click.Context) -> None:
+    """List all active MCP security guardrail policies."""
+    from hath0r_cli.mcp_security import MCPSecurityPolicyEngine
+
+    engine = MCPSecurityPolicyEngine()
+    rules = engine.list_rules()
+
+    response = _build_response(
+        ctx,
+        command="mcp.policy.list",
+        state="ok",
+        data={"rules": rules, "count": len(rules)},
+    )
+
+    def _text() -> None:
+        table = Table(title="MCP Security Guardrails")
+        table.add_column("Rule ID", style="cyan")
+        table.add_column("Name", style="magenta")
+        table.add_column("Risk Level", style="yellow")
+        table.add_column("Description", style="white")
+
+        for r in rules:
+            risk_color = "red" if r["risk"] == "CRITICAL" else "yellow"
+            table.add_row(
+                r["id"],
+                r["name"],
+                f"[{risk_color}]{r['risk']}[/{risk_color}]",
+                r["description"],
+            )
+        console.print(table)
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+
 
 # ============================================================================
 # Factory & Bot Suite Commands
