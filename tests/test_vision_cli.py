@@ -32,19 +32,20 @@ def test_vision_doctor_command():
     data = json.loads(res_json.output)
     assert data["state"] == "ok"
     assert data["data"]["operation"] == "doctor"
+    assert "pytorch" in data["data"]
 
 
 def test_vision_inspect_command():
-    """Verify hath0r vision inspect command."""
+    """Verify hath0r vision inspect command with device flag."""
     runner = CliRunner()
     with tempfile.TemporaryDirectory() as tmp_dir:
         img_path = _create_sample_png(Path(tmp_dir) / "test_img.png")
 
-        res = runner.invoke(cli, ["vision", "inspect", str(img_path)])
+        res = runner.invoke(cli, ["vision", "inspect", str(img_path), "--device", "cpu"])
         assert res.exit_code == 0
         assert "Vision Inspection Completed" in res.output or "inspection" in res.output.lower()
 
-        res_json = runner.invoke(cli, ["-o", "json", "vision", "inspect", str(img_path)])
+        res_json = runner.invoke(cli, ["-o", "json", "vision", "inspect", str(img_path), "--device", "cpu"])
         assert res_json.exit_code == 0
         payload = json.loads(res_json.output)
         assert payload["data"]["success"] is True
@@ -68,17 +69,61 @@ def test_vision_ground_command():
     with tempfile.TemporaryDirectory() as tmp_dir:
         ui_path = _create_sample_png(Path(tmp_dir) / "ui_mock.png")
 
-        res = runner.invoke(cli, ["vision", "ground", str(ui_path), "--target", "Submit Button"])
+        res = runner.invoke(cli, ["vision", "ground", str(ui_path), "--target", "Submit Button", "--device", "cpu"])
         assert res.exit_code == 0
         assert "Element Grounded" in res.output or "submit button" in res.output.lower()
 
 
 def test_vision_embed_command():
-    """Verify hath0r vision embed command."""
+    """Verify hath0r vision embed command with device flag."""
     runner = CliRunner()
     with tempfile.TemporaryDirectory() as tmp_dir:
         img_path = _create_sample_png(Path(tmp_dir) / "embed_img.png")
 
-        res = runner.invoke(cli, ["vision", "embed", str(img_path)])
+        res = runner.invoke(cli, ["vision", "embed", str(img_path), "--device", "cpu"])
         assert res.exit_code == 0
         assert "Embedding Generated" in res.output or "embedding" in res.output.lower()
+
+
+def test_vision_rerank_command():
+    """Verify hath0r vision rerank command."""
+    runner = CliRunner()
+    res = runner.invoke(
+        cli,
+        [
+            "-o",
+            "text",
+            "vision",
+            "rerank",
+            "-q",
+            "Docker orchestration",
+            "-c",
+            "Docker swarm container deployment",
+            "-c",
+            "Baking chocolate cookies",
+            "--device",
+            "cpu",
+        ],
+    )
+    assert res.exit_code == 0
+    assert "Neural Reranking Completed" in res.output or "rerank" in res.output.lower()
+
+    res_json = runner.invoke(
+        cli,
+        [
+            "-o",
+            "json",
+            "vision",
+            "rerank",
+            "-q",
+            "Docker orchestration",
+            "-c",
+            "Docker swarm container deployment",
+            "-c",
+            "Baking chocolate cookies",
+        ],
+    )
+    assert res_json.exit_code == 0
+    payload = json.loads(res_json.output)
+    assert payload["state"] == "ok"
+    assert len(payload["data"]["ranked_candidates"]) == 2

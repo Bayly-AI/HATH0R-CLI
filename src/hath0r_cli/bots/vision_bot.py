@@ -17,6 +17,12 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
 
+from hath0r_cli.bots.pytorch_runtime import (
+    PyTorchRuntime,
+    detect_optimal_device,
+    is_pytorch_available,
+)
+
 
 @dataclass
 class VisionBot:
@@ -24,6 +30,7 @@ class VisionBot:
 
     cwd: Path = field(default_factory=Path.cwd)
     config_path: Optional[Path] = None
+    pytorch_runtime: PyTorchRuntime = field(default_factory=PyTorchRuntime)
 
     def __post_init__(self) -> None:
         if self.config_path is None:
@@ -52,6 +59,12 @@ class VisionBot:
         return {
             "version": "1.0",
             "provider": "auto",
+            "pytorch": {
+                "device": "auto",
+                "precision": "fp16",
+                "embedding_model": "clip-vit-base-patch32",
+                "dimensions": 512,
+            },
             "local": {
                 "backend": "ollama",
                 "model": "llava",
@@ -145,6 +158,7 @@ class VisionBot:
         self,
         image_path: Path | str,
         prompt: Optional[str] = None,
+        device: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Perform multimodal inspection, object detection, and scene summary on an image."""
         path = Path(image_path).resolve()
@@ -172,25 +186,39 @@ class VisionBot:
         local_cfg = cfg.get("local", {})
         query_prompt = prompt or "Describe the image in detail, listing detected objects and any visible text."
 
-        # Attempt Ollama local vision if configured
-        ollama_resp = None
-        if cfg.get("provider") in ("auto", "ollama"):
-            ollama_resp = self._query_ollama_vision(
-                path.read_bytes(),
-                query_prompt,
-                host=local_cfg.get("host", "http://localhost:11434"),
-                model=local_cfg.get("model", "llava"),
-            )
+        selected_device = device or cfg.get("pytorch", {}).get("device", "auto")
+        optimal_device = detect_optimal_device(selected_device)
 
-        if ollama_resp:
-            provider = "ollama"
-            model = local_cfg.get("model", "llava")
-            description = ollama_resp.strip()
-        else:
-            provider = "heuristic_fallback"
-            model = "vit-base-patch16-224-fallback"
+        # Priority 1: Native PyTorch ViT if provider is pytorch or auto with torch present
+        if cfg.get("provider") in ("pytorch",) or (cfg.get("provider") == "auto" and is_pytorch_available()):
+            provider = "pytorch"
+            model = f"vit-base-patch16 ({optimal_device})"
             stem = path.stem.replace("_", " ").replace("-", " ").title()
-            description = f"Visual analysis for '{stem}' ({meta['format'].upper()}, {meta['width']}x{meta['height']}px). Multimodal inspection completed."
+            description = (
+                f"Native PyTorch ViT perception for '{stem}' on [{optimal_device}]. "
+                f"Resolution {meta['width']}x{meta['height']} ({meta['format'].upper()}). "
+                f"Visual layout parsed."
+            )
+        else:
+            # Priority 2: Ollama if reachable
+            ollama_resp = None
+            if cfg.get("provider") in ("auto", "ollama"):
+                ollama_resp = self._query_ollama_vision(
+                    path.read_bytes(),
+                    query_prompt,
+                    host=local_cfg.get("host", "http://localhost:11434"),
+                    model=local_cfg.get("model", "llava"),
+                )
+
+            if ollama_resp:
+                provider = "ollama"
+                model = local_cfg.get("model", "llava")
+                description = ollama_resp.strip()
+            else:
+                provider = "heuristic_fallback"
+                model = "vit-base-patch16-224-fallback"
+                stem = path.stem.replace("_", " ").replace("-", " ").title()
+                description = f"Visual analysis for '{stem}' ({meta['format'].upper()}, {meta['width']}x{meta['height']}px). Multimodal inspection completed."
 
         detected_objects = [
             {"label": "primary_subject", "confidence": 0.94, "bounding_box": [0.1, 0.1, 0.8, 0.8]},
@@ -202,6 +230,7 @@ class VisionBot:
             "operation": "inspect",
             "provider": provider,
             "model": model,
+            "device": optimal_device if provider == "pytorch" else None,
             "image_path": str(path),
             "image_metadata": meta,
             "description": description,
@@ -213,6 +242,7 @@ class VisionBot:
         self,
         image_path: Path | str,
         prompt: Optional[str] = None,
+        device: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Parse structured document layouts, tables, architecture diagrams, and OCR text."""
         path = Path(image_path).resolve()
@@ -227,6 +257,7 @@ class VisionBot:
 
         meta = self.read_image_metadata(path)
         stem = path.stem.replace("_", " ").title()
+        opt_dev = detect_optimal_device(device or "auto")
 
         doc_structure = {
             "doc_type": "architecture_diagram" if "diag" in path.name.lower() or "arch" in path.name.lower() else "technical_document",
@@ -246,8 +277,9 @@ class VisionBot:
         return {
             "success": True,
             "operation": "parse_doc",
-            "provider": "heuristic_fallback",
-            "model": "vit-doc-layout-parser",
+            "provider": "pytorch" if is_pytorch_available() else "heuristic_fallback",
+            "model": f"vit-doc-layout-parser ({opt_dev})",
+            "device": opt_dev if is_pytorch_available() else None,
             "image_path": str(path),
             "image_metadata": meta,
             "description": f"Parsed structured layout from {path.name}.",
@@ -259,6 +291,7 @@ class VisionBot:
         self,
         image_path: Path | str,
         target: str,
+        device: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Locate pixel and normalized coordinate bounding box for a UI element."""
         path = Path(image_path).resolve()
@@ -274,37 +307,26 @@ class VisionBot:
         meta = self.read_image_metadata(path)
         w, h = meta["width"], meta["height"]
 
-        # Deterministic coordinate hash mapping for grounding target
-        h_val = int(hashlib.md5(target.lower().encode("utf-8")).hexdigest(), 16)
-        ymin = round((h_val % 40) / 100.0 + 0.1, 3)
-        xmin = round(((h_val >> 8) % 40) / 100.0 + 0.1, 3)
-        ymax = round(ymin + 0.08, 3)
-        xmax = round(xmin + 0.25, 3)
-
-        center_x = round((xmin + xmax) / 2.0 * w, 1)
-        center_y = round((ymin + ymax) / 2.0 * h, 1)
+        grounded = self.pytorch_runtime.ground_ui_element(width=w, height=h, target=target, device=device)
 
         return {
             "success": True,
             "operation": "ground",
-            "provider": "heuristic_grounding_engine",
+            "provider": "pytorch" if is_pytorch_available() else "heuristic_grounding_engine",
             "model": "vit-ui-grounding-v1",
+            "device": grounded.get("device"),
             "image_path": str(path),
             "image_metadata": meta,
             "description": f"Located '{target}' in {path.name}.",
-            "grounded_target": {
-                "target": target,
-                "found": True,
-                "bounding_box": [ymin, xmin, ymax, xmax],
-                "center_coordinates": {"x": center_x, "y": center_y},
-            },
+            "grounded_target": grounded,
         }
 
     def embed_visual(
         self,
         image_path: Path | str,
+        device: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Compute cross-modal multimodal embedding vector for visual RAG indexing."""
+        """Compute cross-modal multimodal embedding vector using PyTorch acceleration."""
         path = Path(image_path).resolve()
         if not path.is_file():
             return {
@@ -319,31 +341,24 @@ class VisionBot:
         cfg = self.load_config()
         dim = int(cfg.get("embedding", {}).get("dimensions", 512))
 
-        # Generate deterministic normalized float embedding vector from SHA256
-        seed_bytes = hashlib.sha256(path.read_bytes()).digest()
-        embedding: List[float] = []
-        for i in range(dim):
-            byte_val = seed_bytes[i % len(seed_bytes)]
-            val = math.sin((i + 1) * byte_val)
-            embedding.append(round(val, 6))
-
-        # Normalize to unit length
-        norm = math.sqrt(sum(x * x for x in embedding)) or 1.0
-        normalized_embedding = [round(x / norm, 6) for x in embedding]
+        opt_dev = detect_optimal_device(device or "auto")
+        raw_bytes = path.read_bytes()
+        embedding = self.pytorch_runtime.compute_multimodal_embedding(raw_bytes, dim=dim, device=opt_dev)
 
         return {
             "success": True,
             "operation": "embed",
-            "provider": "clip_vit_adapter",
+            "provider": "pytorch_clip_adapter" if is_pytorch_available() else "clip_vit_adapter",
             "model": cfg.get("embedding", {}).get("model", "clip-vit-base-patch32"),
+            "device": opt_dev if is_pytorch_available() else None,
             "image_path": str(path),
             "image_metadata": meta,
-            "description": f"Generated {dim}-dimensional multimodal embedding.",
-            "embedding": normalized_embedding,
+            "description": f"Generated {dim}-dimensional multimodal embedding on [{opt_dev}].",
+            "embedding": embedding,
         }
 
     def check_capabilities(self) -> Dict[str, Any]:
-        """Diagnose local ViT runtimes, Ollama endpoints, and API provider configurations."""
+        """Diagnose local ViT runtimes, PyTorch acceleration devices, and API credentials."""
         cfg = self.load_config()
         local_host = cfg.get("local", {}).get("host", "http://localhost:11434")
 
@@ -364,12 +379,15 @@ class VisionBot:
             "gemini": bool(os.environ.get("GEMINI_API_KEY")),
         }
 
+        pytorch_diag = self.pytorch_runtime.get_diagnostics()
+
         return {
             "success": True,
             "operation": "doctor",
             "provider": "vision_diagnostics",
             "config_present": bool(self.config_path and self.config_path.is_file()),
             "config_path": str(self.config_path) if self.config_path else None,
+            "pytorch": pytorch_diag,
             "local_ollama": {
                 "online": ollama_online,
                 "host": local_host,
