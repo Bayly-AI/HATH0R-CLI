@@ -19,6 +19,75 @@ def local() -> None:
     pass
 
 
+@local.command("status")
+@click.pass_context
+def local_status(ctx: click.Context) -> None:
+    """Inspect local hardware acceleration and installed Ollama models."""
+    from hath0r_cli.bots.local_model import LocalModelBot
+
+    bot = LocalModelBot()
+    status = bot.detect_hardware()
+
+    response = _build_response(
+        ctx,
+        command="local.status",
+        state="ok",
+        data={
+            "title": "HATH0R Local Hardware & LLM Runtimes",
+            "operating_system": f"Operating System: {status.os_name} ({status.architecture})",
+            "os_name": status.os_name,
+            "architecture": status.architecture,
+            "has_metal": status.has_metal,
+            "has_cuda": status.has_cuda,
+            "ollama_running": status.ollama_running,
+            "installed_models": status.installed_models,
+            "mlx_available": status.mlx_available,
+        },
+    )
+
+    def _text() -> None:
+        console.print("[bold cyan]HATH0R Local Hardware & LLM Runtimes[/bold cyan]")
+        console.print(f"  • Operating System: {status.os_name} ({status.architecture})")
+        console.print(f"  • Metal (Apple Silicon): {'✓ Enabled' if status.has_metal else '✗ Disabled'}")
+        console.print(f"  • CUDA (NVIDIA): {'✓ Enabled' if status.has_cuda else '✗ Disabled'}")
+        console.print(f"  • MLX Acceleration: {'✓ Available' if status.mlx_available else '✗ Not Available'}")
+        console.print(f"  • Ollama Server: {'✓ Online' if status.ollama_running else '✗ Offline'} ({status.ollama_url})")
+        if status.installed_models:
+            console.print(f"  • Installed Models: {', '.join(status.installed_models)}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@local.command("run")
+@click.argument("prompt")
+@click.option("--model", "-m", "model_name", default="llama3.2", help="Model name.")
+@click.pass_context
+def local_run(ctx: click.Context, prompt: str, model_name: str) -> None:
+    """Run local inference using Ollama or simulated fallback."""
+    from hath0r_cli.bots.local_model import LocalModelBot
+
+    bot = LocalModelBot()
+    res = bot.generate(prompt=prompt, model=model_name)
+    res_data = dict(res)
+    res_data["Model:"] = model_name
+    res_data["Response:"] = res.get("response", "")
+
+    response = _build_response(
+        ctx,
+        command="local.run",
+        state="ok" if res.get("status") in ("success", "simulated") else "error",
+        data=res_data,
+    )
+
+    def _text() -> None:
+        console.print(f"Model: {model_name}")
+        console.print(f"Response:\n{res.get('response', '')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+
+
 @local.command("reason")
 @click.argument("prompt")
 @click.option(

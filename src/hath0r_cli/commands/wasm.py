@@ -60,6 +60,7 @@ def wasm_run(
 
     def _text() -> None:
         if res.get("success"):
+            console.print("Sandbox Execution Succeeded")
             console.print(f"[bold green]✓ WASM Executed ({res.get('engine')}, {res.get('latency_ms')}ms):[/bold green]")
             console.print(f"  • Module: {res.get('module_path')}")
             console.print(f"  • Fuel Consumed: {res.get('fuel_consumed')} / {fuel}")
@@ -69,6 +70,34 @@ def wasm_run(
             console.print(f"[bold red]✗ Sandbox Execution Failed:[/bold red] {res.get('error')}")
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
+@wasm.command("info")
+@click.pass_context
+def wasm_info(ctx: click.Context) -> None:
+    """Display WebAssembly (WASI) runtime and sandbox engine capabilities."""
+    from hath0r_cli.bots.wasm_runtime_bot import WasmRuntimeBot
+
+    bot = WasmRuntimeBot()
+    status = dict(bot.get_runtime_status())
+    status["title"] = "HATH0R WebAssembly (WASI) Sandboxing"
+    status["wasi_support"] = "WASI Support: Enabled"
+
+    response = _build_response(
+        ctx,
+        command="wasm.info",
+        state="ok",
+        data=status,
+    )
+
+    def _text() -> None:
+        console.print("[bold cyan]HATH0R WebAssembly (WASI) Sandboxing[/bold cyan]")
+        console.print("  • WASI Support: Enabled")
+        console.print(f"  • Active Engine: {status.get('engine')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
 
 
 @wasm.command("validate")

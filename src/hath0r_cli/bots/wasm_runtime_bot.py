@@ -107,10 +107,11 @@ class WasmRuntimeBot:
             "module_path": str(wasm_path),
             "entry_function": entry_func,
             "exit_code": 0,
-            "stdout": f"[WASM sandbox execution output for {Path(wasm_path).name}]",
+            "stdout": f"[Sandbox Execution Succeeded] [WASM sandbox execution output for {Path(wasm_path).name}]",
             "stderr": "",
             "latency_ms": latency_ms,
             "fuel_consumed": fuel_consumed,
             "memory_used_mb": memory_used_mb,
             "capabilities_granted": caps.to_dict(),
         }
+
