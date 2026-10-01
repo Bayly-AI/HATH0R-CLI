@@ -133,6 +133,104 @@ def kb_products(ctx: click.Context) -> None:
         _emit_response(ctx, response, text_renderer=_text)
 
 
+@kb.command("index")
+@click.option("--target-dir", "-d", default=None, help="Target documentation directory to index (defaults to KB path).")
+@click.option("--rebuild", is_flag=True, default=False, help="Force complete rebuild of SQLite index.")
+@click.pass_context
+def kb_index(ctx: click.Context, target_dir: str | None, rebuild: bool) -> None:
+    """Index or incrementally synchronize documentation into the SQLite FTS5 cache."""
+    from pathlib import Path
+    from hath0r_cli.kb_index import SQLiteIndexStore
+
+    dir_to_index = Path(target_dir) if target_dir else _kb_path()
+    store = SQLiteIndexStore()
+    sync_stats = store.sync_directory(dir_to_index, force_rebuild=rebuild)
+
+    response = _build_response(
+        ctx,
+        command="kb.index",
+        state="ok",
+        data={
+            "target_dir": str(dir_to_index),
+            "rebuild": rebuild,
+            "stats": sync_stats,
+            "database_path": str(store.db_path),
+        },
+    )
+
+    def _text() -> None:
+        click.echo(f"✓ SQLite FTS5 Index Synchronized ({dir_to_index.name}):")
+        click.echo(f"  • Indexed: {sync_stats['indexed']}")
+        click.echo(f"  • Updated: {sync_stats['updated']}")
+        click.echo(f"  • Skipped: {sync_stats['skipped']}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@kb.command("search")
+@click.option("--query", "-q", required=True, help="Search query string.")
+@click.option("--limit", "-n", default=5, type=int, help="Maximum search results to return.")
+@click.option("--hybrid/--fts-only", default=True, help="Enable hybrid FTS5 + neural reranking.")
+@click.pass_context
+def kb_search(ctx: click.Context, query: str, limit: int, hybrid: bool) -> None:
+    """Search knowledgebase documents and playbooks using SQLite FTS5 and hybrid reranking."""
+    from hath0r_cli.kb_index import SQLiteIndexStore
+
+    store = SQLiteIndexStore()
+    if hybrid:
+        hits = store.search_hybrid(query, limit=limit)
+    else:
+        hits = store.search_fts(query, limit=limit)
+
+    results_data = [h.to_dict() for h in hits]
+    response = _build_response(
+        ctx,
+        command="kb.search",
+        state="ok",
+        data={
+            "query": query,
+            "hybrid": hybrid,
+            "count": len(results_data),
+            "results": results_data,
+        },
+    )
+
+    def _text() -> None:
+        click.echo(f"Found {len(hits)} results for '{query}':")
+        for i, hit in enumerate(hits, start=1):
+            click.echo(f"  {i}. [{hit.category}] {hit.title} (score: {hit.score:.3f})")
+            click.echo(f"     Path: {hit.path}")
+            if hit.snippet:
+                click.echo(f"     Snippet: {hit.snippet}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@kb.command("status")
+@click.pass_context
+def kb_status(ctx: click.Context) -> None:
+    """Display SQLite FTS5 knowledgebase index cache statistics."""
+    from hath0r_cli.kb_index import SQLiteIndexStore
+
+    store = SQLiteIndexStore()
+    stats = store.get_stats()
+    response = _build_response(ctx, command="kb.status", state="ok", data=stats)
+
+    def _text() -> None:
+        click.echo("SQLite FTS5 KnowledgeBase Cache Status:")
+        click.echo(f"  • Database: {stats['database_path']}")
+        click.echo(f"  • Size: {stats['size_bytes']} bytes")
+        click.echo(f"  • Total Documents: {stats['total_documents']}")
+        cats = stats.get("categories", {})
+        if cats:
+            click.echo("  • Categories:")
+            for cat, count in cats.items():
+                click.echo(f"    - {cat}: {count}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+
 # --- ADR-003 surface discovery (F5) -----------------------------------------
 # Full domain implementations land behind contracts over time. These commands
 # expose the canonical surface with honest shipped|planned status so agents
