@@ -44,7 +44,7 @@ def _resolve_supercompress_token() -> Optional[str]:
 class SuperCompressBot:
     """Manages prompt and RAG context compression via SuperCompress."""
 
-    api_url: str = "https://supercompress.dev/api/v1/compress"
+    api_url: str = "https://api.supercompress.dev/v1/compress"
     timeout_sec: float = 10.0
     token: Optional[str] = field(default_factory=_resolve_supercompress_token)
 
