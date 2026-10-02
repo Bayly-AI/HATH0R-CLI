@@ -177,6 +177,41 @@ _SHIPPED_COMMANDS = [
         "effects": "modifying",
         "output_kind": "data",
     },
+    {
+        "name": "agentgraph.status",
+        "invocation": ["hath0r agentgraph status"],
+        "status": "shipped",
+        "effects": "read_only",
+        "output_kind": "data",
+    },
+    {
+        "name": "agentgraph.query",
+        "invocation": ["hath0r agentgraph query <query>"],
+        "status": "shipped",
+        "effects": "read_only",
+        "output_kind": "data",
+    },
+    {
+        "name": "agentgraph.validate",
+        "invocation": ["hath0r agentgraph validate"],
+        "status": "shipped",
+        "effects": "read_only",
+        "output_kind": "data",
+    },
+    {
+        "name": "agentgraph.sync",
+        "invocation": ["hath0r agentgraph sync"],
+        "status": "shipped",
+        "effects": "modifying",
+        "output_kind": "data",
+    },
+    {
+        "name": "agentgraph.route",
+        "invocation": ["hath0r agentgraph route --role <role>"],
+        "status": "shipped",
+        "effects": "read_only",
+        "output_kind": "data",
+    },
 ]
 
 
