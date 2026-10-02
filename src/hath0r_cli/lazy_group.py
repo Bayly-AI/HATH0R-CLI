@@ -43,6 +43,8 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "validate-change": ("hath0r_cli.commands.validate_cmd", "validate_change_cmd"),
     "vision": ("hath0r_cli.commands.vision", "vision"),
     "code": ("hath0r_cli.commands.code", "code"),
+    "optimize": ("hath0r_cli.commands.optimize", "optimize"),
+    "finops": ("hath0r_cli.commands.finops", "finops"),
 }
 
 
