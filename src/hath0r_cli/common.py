@@ -105,16 +105,19 @@ def _utc_now() -> str:
 
 
 def _duration_ms(ctx: click.Context) -> int:
-    started = ctx.obj.get("started_at", time.perf_counter())
+    obj = ctx.obj or {}
+    started = obj.get("started_at", time.perf_counter())
     return max(0, int((time.perf_counter() - started) * 1000))
 
 
 def _output_mode(ctx: click.Context) -> str:
-    return resolve_output_mode(ctx.obj.get("output", "auto"))
+    obj = ctx.obj or {}
+    return resolve_output_mode(obj.get("output", "auto"))
 
 
 def _quiet(ctx: click.Context) -> bool:
-    return bool(ctx.obj.get("quiet", False))
+    obj = ctx.obj or {}
+    return bool(obj.get("quiet", False))
 
 
 def _build_response(
@@ -142,7 +145,8 @@ def _emit_response(
     *,
     text_renderer=None,
 ) -> None:
-    mode = ctx.obj.get("output", "auto")
+    obj = ctx.obj or {}
+    mode = obj.get("output", "auto")
     emit(response, mode, console, text_renderer=text_renderer)
 
     # Automatic spoken feedback if speak mode is active
@@ -150,7 +154,7 @@ def _emit_response(
         from hath0r_cli.bots.voice_speaker import VoiceSpeakerModeBot
 
         speak_bot = VoiceSpeakerModeBot()
-        if speak_bot.is_enabled() and not bool(ctx.obj.get("quiet", False)):
+        if speak_bot.is_enabled() and not bool(obj.get("quiet", False)):
             cmd = response.command or ""
             skip_speak = cmd.startswith("voice.speak") or cmd.startswith("speak") or cmd.startswith("voice.announce")
             if not skip_speak:
