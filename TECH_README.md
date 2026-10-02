@@ -46,24 +46,58 @@ make wheel
 
 ---
 
-## Command Reference (v0.3)
+## Command Reference (v0.6.0)
 
 | Command | Purpose |
 |---------|---------|
 | `hath0r init` | Autonomous onboarding & alignment of any repository (Python, Node/TS, Go, Rust, polyglot) |
 | `hath0r doctor` | Verify control tower, group root/AGENTS/WARP, member pointers, and KB hub |
+| `hath0r optimize taguchi` | Generate orthogonal design matrices ($L_4..L_{18}$), calculate SNR and quadratic quality loss |
+| `hath0r finops tokenizer-tax` | Audit Unicode script token inflation, serving VRAM parameters, and ViT patch economics |
+| `hath0r vision parse-doc` | Parse structured layouts, diagrams, tables; supports `--pixel-native` continuous patch mode |
+| `hath0r vision ground` | Visual UI element localization; supports `--playwright` DOM-independent action emission |
 | `hath0r memory init` | Initialize local semantic working MemoryGraph (`.hath0r/memory/graph.json`) |
 | `hath0r memory read <topic>` | Query semantic memory space topics (`core_rules`, `trigraph`, etc.) |
 | `hath0r memory update <topic> <content>` | Update working memory space |
 | `hath0r factory list` | List registered declarative automation factories |
 | `hath0r factory run <id>` | Execute autonomous multi-bot workflows (e.g. `repo-onboard`, `git-branch-create`) |
 | `hath0r kb path` | Print canonical group knowledgebase path |
-| `hath0r kb products` | Show suite product catalog |
+| `hath0r kb search --instruction` | Neural reranked hybrid search using SQLite FTS5 BM25 + Qwen3/BGE |
 | `hath0r voice service start\|stop\|status` | Manage background streaming voice synthesis daemon |
+| `hath0r wasm run\|validate\|audit` | Capability-based sandboxed WASM micro-runtime execution |
+| `hath0r clean-repo` | 13-step Clean Repos SOP execution and branch hygiene |
 | `hath0r --version` | Package version |
 | `hath0r planes` | ADR-003 domain status map (shipped/partial/planned) |
 | `hath0r schema` | Bounded surface schema + forbidden legacy roots |
 | `hath0r mcp sources list` | List 1-Nation federal vote-source inventory through MCP |
+
+---
+
+## Technical Specifications & Formulas
+
+### 1. Taguchi Robust Parameter Design (`TaguchiBot`)
+- **Orthogonal Array Reduction:** Evaluates high-dimensional parameter spaces ($L_4, L_8, L_9, L_{12}, L_{18}$) in balanced fractional factorial runs.
+- **Signal-to-Noise Ratio (SNR):**
+  - **Smaller-the-better (Latency, Loss, Memory):** $\eta = -10 \log_{10}\left(\frac{1}{n}\sum_{i=1}^{n} y_i^2\right)$
+  - **Larger-the-better (Throughput, Accuracy):** $\eta = -10 \log_{10}\left(\frac{1}{n}\sum_{i=1}^{n} \frac{1}{y_i^2}\right)$
+  - **Nominal-the-best (Target Alignment):** $\eta = 10 \log_{10}\left(\frac{\mu^2}{\sigma^2}\right)$
+- **Taguchi Quality Loss Function:** $L(y) = k(y - m)^2$ where $m$ is the nominal target and $k$ is the sensitivity constant.
+
+### 2. Tokenizer Tax Auditor (`TokenizerTaxBot`)
+- **Script Token Inflation Factor:** $\tau_{lang} = \frac{\text{Tokens}(text)}{\text{Tokens}_{Latin}(text)}$.
+- **Serving VRAM Memory Overhead:** $P_{vocab} = 2 \cdot V \cdot d_{model}$, consuming $4.19\text{ GB}$ of idle VRAM at $V = 256,000$ and $d_{model} = 4096$ in FP16 precision.
+- **Continuous 2D Patch Budget:** $N_{patches} = \left\lceil\frac{H}{P}\right\rceil \times \left\lceil\frac{W}{P}\right\rceil$, eliminating token dictionary dependencies.
+
+### 3. Pixel-Native 2D Document Understanding & UI Grounding
+- **Spatial Matrix Preservation:** Extracts tabular structures as normalized bounding coordinates without intermediate OCR translation layers.
+- **Playwright Grounding:** Generates DOM-independent coordinates:
+  ```json
+  {
+    "action": "click",
+    "coordinates": {"x": 450.0, "y": 320.0},
+    "description": "Click on 'Submit Button' via visual pixel coordinates"
+  }
+  ```
 
 ---
 
