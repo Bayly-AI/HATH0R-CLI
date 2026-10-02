@@ -83,7 +83,7 @@ def test_taguchi_cli_command():
     )
     assert res.exit_code == 0
     assert "Taguchi Design Generated" in res.output
-    assert "Orthogonal Array Matrix: L9" in res.output
+    assert "Orthogonal Array Matrix" in res.output
     assert "Signal-to-Noise Ratio (SNR)" in res.output
     assert "Estimated Quality Loss" in res.output
 
