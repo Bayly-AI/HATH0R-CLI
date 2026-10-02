@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
 import re
 import time
 from dataclasses import dataclass, field
@@ -114,7 +113,8 @@ class DynamicMCPManager:
         if not self.config_file.is_file():
             return {}
         try:
-            return json.loads(self.config_file.read_text(encoding="utf-8"))
+            val = json.loads(self.config_file.read_text(encoding="utf-8"))
+            return val if isinstance(val, dict) else {}
         except Exception:
             return {}
 

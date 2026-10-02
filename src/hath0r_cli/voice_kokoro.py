@@ -3,17 +3,16 @@
 from __future__ import annotations
 
 import io
-import os
 import shutil
 import subprocess
 import sys
 import tempfile
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from hath0r_cli.bots.pytorch_runtime import detect_optimal_device, is_pytorch_available
+from hath0r_cli.bots.pytorch_runtime import detect_optimal_device
 
 
 @dataclass

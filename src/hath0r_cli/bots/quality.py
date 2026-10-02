@@ -9,7 +9,7 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 VALID_BRANCH_PREFIXES = ("feature", "bugfix", "hotfix", "enhancement", "research", "fix", "chore")
 CANONICAL_BRANCHES = ("development", "testing", "staging", "master")
@@ -685,7 +685,7 @@ class ReleaseBot:
                 checksums_only=checksums_only,
                 dry_run=dry_run,
             )
-            return res
+            return cast(Dict[str, Any], res)
         except Exception as ex:
             return {"success": False, "error": str(ex)}
         finally:

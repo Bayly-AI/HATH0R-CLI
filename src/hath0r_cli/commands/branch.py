@@ -45,8 +45,9 @@ def branch_worktree() -> None:
 def worktree_list(ctx: click.Context) -> None:
     """List all active Git worktrees."""
     from rich.table import Table
-    from hath0r_cli.worktree_manager import WorktreeManager
+
     from hath0r_cli.common import console
+    from hath0r_cli.worktree_manager import WorktreeManager
 
     mgr = WorktreeManager()
     wts = mgr.list_worktrees()
@@ -85,8 +86,8 @@ def worktree_list(ctx: click.Context) -> None:
 @click.pass_context
 def worktree_create(ctx: click.Context, branch: str, task_id: str | None, new_branch: bool) -> None:
     """Create an isolated worktree for background agent execution."""
-    from hath0r_cli.worktree_manager import WorktreeManager
     from hath0r_cli.common import console
+    from hath0r_cli.worktree_manager import WorktreeManager
 
     mgr = WorktreeManager()
     res = mgr.create_worktree(branch=branch, task_id=task_id, create_branch=new_branch)
@@ -115,8 +116,8 @@ def worktree_create(ctx: click.Context, branch: str, task_id: str | None, new_br
 @click.pass_context
 def worktree_remove(ctx: click.Context, target: str, force: bool) -> None:
     """Remove an isolated worktree by path or task slug."""
-    from hath0r_cli.worktree_manager import WorktreeManager
     from hath0r_cli.common import console
+    from hath0r_cli.worktree_manager import WorktreeManager
 
     mgr = WorktreeManager()
     res = mgr.remove_worktree(target=target, force=force)
@@ -141,8 +142,8 @@ def worktree_remove(ctx: click.Context, target: str, force: bool) -> None:
 @click.pass_context
 def worktree_prune(ctx: click.Context) -> None:
     """Prune stale administrative records for deleted worktrees."""
-    from hath0r_cli.worktree_manager import WorktreeManager
     from hath0r_cli.common import console
+    from hath0r_cli.worktree_manager import WorktreeManager
 
     mgr = WorktreeManager()
     res = mgr.prune_worktrees()

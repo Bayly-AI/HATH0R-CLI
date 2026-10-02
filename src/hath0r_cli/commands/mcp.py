@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from typing import Any, cast
 
 import click
 from rich.table import Table
@@ -345,6 +346,7 @@ def mcp_prune(ctx: click.Context, schema_file: str) -> None:
         raise click.BadParameter(f"Failed to parse JSON schema: {exc}")
 
     pruner = SchemaPruner()
+    pruned_data: Any
     if isinstance(raw_data, list):
         pruned_data = [pruner.prune(item) for item in raw_data]
     else:
@@ -552,7 +554,7 @@ def mcp_serve(
 
     try:
         server = create_mcp_server()
-        server.run(transport=transport)
+        server.run(transport=cast(Any, transport))
     except Exception as exc:
         diag = [Diagnostic(code="MCP_SERVER_ERROR", message=str(exc), severity="error")]
         response = _build_response(ctx, command="mcp.serve", state="error", diagnostics=diag)

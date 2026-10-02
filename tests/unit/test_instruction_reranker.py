@@ -3,7 +3,7 @@
 from click.testing import CliRunner
 
 from hath0r_cli.cli import main as cli
-from hath0r_cli.instruction_reranker import InstructionAwareReranker, SUPPORTED_RERANKERS
+from hath0r_cli.instruction_reranker import InstructionAwareReranker
 
 
 def test_reranker_model_list():
@@ -26,6 +26,7 @@ def test_instruction_steering_boost():
 
     # Standard reranking
     unconditional = reranker.rerank(query, candidates, instruction=None)
+    assert len(unconditional) == 2
 
     # Instruction steering for breaking API changes
     steered = reranker.rerank(query, candidates, instruction="Prioritize breaking API contract updates")

@@ -140,10 +140,10 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
 
         bot = TaguchiBot()
         factor_list = factors or ["factor_1", "factor_2"]
-        design = bot.generate_orthogonal_design(factor_list, array_type=array)
+        design = bot.generate_matrix(array_type=array, factors=factor_list)
 
         res: Dict[str, Any] = {
-            "design": design.to_dict(),
+            "design": design,
         }
 
         if snr_values:
@@ -155,13 +155,8 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
             }
 
         if loss_k is not None and target_m is not None and measured_y is not None:
-            loss = bot.calculate_quality_loss(measured_y, target=target_m, loss_k=loss_k)
-            res["quality_loss"] = {
-                "loss_usd": loss,
-                "loss_k": loss_k,
-                "target_m": target_m,
-                "measured_y": measured_y,
-            }
+            loss = bot.calculate_loss(measured_y=measured_y, target_m=target_m, sensitivity_k=loss_k)
+            res["quality_loss"] = loss
 
         return res
 
@@ -182,8 +177,9 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         """
         from hath0r_cli.bots.tokenizer_tax_bot import TokenizerTaxBot
 
-        bot = TokenizerTaxBot(vocab_size=vocab_size, hidden_dim=hidden_dim, precision=precision)
-        return bot.audit_text(text)
+        bot = TokenizerTaxBot()
+        precision_bytes = 2 if precision in ("fp16", "bf16") else 4
+        return bot.audit(text, vocab_size=vocab_size, hidden_dim=hidden_dim, precision_bytes=precision_bytes)
 
     @mcp.tool()
     def hath0r_vision_parse_doc(
@@ -232,7 +228,8 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         cmd = [sys.executable, "-m", "hath0r_cli", "-o", "json", "kb", "search", query, "--limit", str(limit)]
         res = subprocess.run(cmd, capture_output=True, text=True, timeout=30, check=False)
         try:
-            return json.loads(res.stdout)
+            val = json.loads(res.stdout)
+            return val if isinstance(val, dict) else {"result": val}
         except Exception:
             return {"raw_output": res.stdout, "error": res.stderr}
 
