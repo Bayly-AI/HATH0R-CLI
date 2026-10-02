@@ -48,11 +48,17 @@ Whenever the user requests **"clean repo"** or **"clean repos"**, execute the fo
   - Ray-MCP knowledge roots (OneDrive knowledge roots: Author, Career, Documents, Books, Businesses, Cars, Projects).
   - Sync indexed data to `.hath0r/knowledgebase` single source of truth when applicable.
 
-### Step 7: Update Documentation
+### Step 7: Update Documentation & AgentGraph Synchronization
 - Ensure all recent features, API modifications, database schemas, and architectural changes are documented in:
   - `README.md`
   - `AGENTS.md`
   - `docs/` (playbooks, runbooks, architecture specs)
+- Synchronize and validate AgentGraph state:
+  ```bash
+  hath0r agentgraph sync
+  hath0r agentgraph validate
+  ```
+  Verify that 0 cycles and 0 contradictions exist before proceeding to commit.
 
 ### Step 8: Commit Documentation & Knowledge Changes
 - Stage any updated documentation, governance files, or knowledge sync artifacts.

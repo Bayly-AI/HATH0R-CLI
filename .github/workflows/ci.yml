@@ -61,3 +61,8 @@ jobs:
         env:
           HATH0R_FRAMEWORK_ROOT: ${{ github.workspace }}/hath0r-framework
         run: python -m pytest tests/contract/ -q --tb=short
+
+      - name: Validate AgentGraph integrity
+        run: |
+          hath0r agentgraph sync
+          hath0r agentgraph validate
