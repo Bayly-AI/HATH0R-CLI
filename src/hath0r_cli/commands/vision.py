@@ -56,24 +56,32 @@ def vision_inspect(ctx: click.Context, image_path: Path, prompt: str | None, dev
 @click.argument("image_path", type=click.Path(exists=True, path_type=Path))
 @click.option("--prompt", default=None, help="Extraction directives or target sections.")
 @click.option("--device", type=click.Choice(["auto", "mps", "cuda", "cpu"], case_sensitive=False), default=None, help="Compute device for neural acceleration.")
+@click.option("--pixel-native/--standard", default=False, help="Enable pixel-native 2D continuous patch parsing bypassing OCR.")
+@click.option("--patch-size", type=int, default=16, help="Visual patch size in pixels (default 16).")
 @click.pass_context
-def vision_parse_doc(ctx: click.Context, image_path: Path, prompt: str | None, device: str | None) -> None:
+def vision_parse_doc(ctx: click.Context, image_path: Path, prompt: str | None, device: str | None, pixel_native: bool, patch_size: int) -> None:
     """Parse visual documents, architecture diagrams, charts, and structured layouts."""
     from hath0r_cli.bots.vision_bot import VisionBot
 
     bot = VisionBot(cwd=Path.cwd())
-    res = bot.parse_document(image_path=image_path, prompt=prompt, device=device)
+    res = bot.parse_document(image_path=image_path, prompt=prompt, device=device, pixel_native=pixel_native, patch_size=patch_size)
     state = "ok" if res.get("success") else "error"
     response = _build_response(ctx, command="vision.parse_doc", state=state, data=res)
 
     def _text() -> None:
         if res.get("success"):
             dev_str = f" [{res.get('device')}]" if res.get("device") else ""
-            console.print(f"[bold green]✓ Document Layout Parsed[/bold green] ({res.get('provider')}{dev_str})")
+            mode_str = " [bold cyan][Pixel-Native 2D][/bold cyan]" if pixel_native else ""
+            console.print(f"[bold green]✓ Document Layout Parsed[/bold green]{mode_str} ({res.get('provider')}{dev_str})")
             doc = res.get("document_structure", {})
             console.print(f"  [bold]Type:[/] {doc.get('doc_type')}")
             for sec in doc.get("sections", []):
                 console.print(f"    • {sec}")
+            tables = doc.get("tables", [])
+            if tables:
+                console.print(f"  [bold]Extracted 2D Tables:[/] {len(tables)} table(s)")
+                for t in tables:
+                    console.print(f"    - {t.get('table_id')}: {t.get('rows')} rows x {t.get('columns')} columns ({len(t.get('cells', []))} cells)")
             console.print(f"\n{res.get('extracted_text')}")
         else:
             console.print(f"[bold red]✗ Document Parsing Failed:[/] {res.get('error')}")
@@ -87,13 +95,15 @@ def vision_parse_doc(ctx: click.Context, image_path: Path, prompt: str | None, d
 @click.argument("image_path", type=click.Path(exists=True, path_type=Path))
 @click.option("--target", "-t", required=True, help="Description of UI element or region to locate.")
 @click.option("--device", type=click.Choice(["auto", "mps", "cuda", "cpu"], case_sensitive=False), default=None, help="Compute device for neural acceleration.")
+@click.option("--playwright", "-p", is_flag=True, default=False, help="Emit DOM-independent Playwright automation step.")
+@click.option("--action", default="click", help="Playwright action to emit (click, dblclick, hover).")
 @click.pass_context
-def vision_ground(ctx: click.Context, image_path: Path, target: str, device: str | None) -> None:
+def vision_ground(ctx: click.Context, image_path: Path, target: str, device: str | None, playwright: bool, action: str) -> None:
     """Ground a UI element description to coordinate bounding boxes."""
     from hath0r_cli.bots.vision_bot import VisionBot
 
     bot = VisionBot(cwd=Path.cwd())
-    res = bot.ground_element(image_path=image_path, target=target, device=device)
+    res = bot.ground_element(image_path=image_path, target=target, device=device, emit_playwright=playwright, action=action)
     state = "ok" if res.get("success") else "error"
     response = _build_response(ctx, command="vision.ground", state=state, data=res)
 
@@ -106,6 +116,10 @@ def vision_ground(ctx: click.Context, image_path: Path, target: str, device: str
             console.print(f"[bold green]✓ Element Grounded:[/] '{target}'{dev_str}")
             console.print(f"  [bold]Center Coordinates:[/] ({coords.get('x')}, {coords.get('y')}) px")
             console.print(f"  [dim]Normalized Bounding Box:[/] {bbox}")
+            if playwright and "playwright_step" in res:
+                step = res["playwright_step"]
+                console.print(f"  [bold cyan]Playwright Action:[/] {step.get('action')} @ ({step['coordinates']['x']}, {step['coordinates']['y']})")
+                console.print(f"  [dim]Note: DOM-independent step ready for PlaywrightTestRunner[/dim]")
         else:
             console.print(f"[bold red]✗ Grounding Failed:[/] {res.get('error')}")
 

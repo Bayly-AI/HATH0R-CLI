@@ -127,3 +127,68 @@ def test_vision_rerank_command():
     payload = json.loads(res_json.output)
     assert payload["state"] == "ok"
     assert len(payload["data"]["ranked_candidates"]) == 2
+
+
+def test_vision_parse_doc_pixel_native():
+    """Verify hath0r vision parse-doc --pixel-native command."""
+    runner = CliRunner()
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        doc_path = _create_sample_png(Path(tmp_dir) / "balance_sheet_q3.png")
+
+        res = runner.invoke(cli, ["-o", "text", "vision", "parse-doc", str(doc_path), "--pixel-native"])
+        assert res.exit_code == 0
+        assert "Pixel-Native 2D" in res.output
+        assert "Extracted 2D Tables" in res.output
+
+        res_json = runner.invoke(cli, ["-o", "json", "vision", "parse-doc", str(doc_path), "--pixel-native"])
+        assert res_json.exit_code == 0
+        payload = json.loads(res_json.output)
+        assert payload["data"]["document_structure"]["pixel_native"] is True
+        assert len(payload["data"]["document_structure"]["tables"]) > 0
+
+
+def test_vision_ground_playwright():
+    """Verify hath0r vision ground --playwright command."""
+    runner = CliRunner()
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        ui_path = _create_sample_png(Path(tmp_dir) / "sap_checkout.png")
+
+        res = runner.invoke(
+            cli,
+            [
+                "-o",
+                "text",
+                "vision",
+                "ground",
+                str(ui_path),
+                "--target",
+                "Approve PO Button",
+                "--playwright",
+                "--action",
+                "click",
+            ],
+        )
+        assert res.exit_code == 0
+        assert "Playwright Action" in res.output
+        assert "DOM-independent step ready" in res.output
+
+        res_json = runner.invoke(
+            cli,
+            [
+                "-o",
+                "json",
+                "vision",
+                "ground",
+                str(ui_path),
+                "--target",
+                "Approve PO Button",
+                "--playwright",
+            ],
+        )
+        assert res_json.exit_code == 0
+        payload = json.loads(res_json.output)
+        step = payload["data"]["playwright_step"]
+        assert step["action"] == "click"
+        assert "coordinates" in step
+        assert step["coordinates"]["x"] > 0
+

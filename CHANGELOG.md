@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-02
+
+### Added
+
+- **Taguchi Robust Parameter Optimization Engine (`hath0r optimize taguchi`)**:
+  - Implemented `TaguchiBot` with built-in $L_4, L_8, L_9, L_{12}, L_{18}$ orthogonal array design matrix generation.
+  - Added Signal-to-Noise Ratio (SNR) evaluation in decibels for `smaller_is_better`, `larger_is_better`, and `nominal_is_best` criteria.
+  - Added Taguchi Quadratic Quality Loss Function ($L(y) = k(y-m)^2$) to quantify deviation costs.
+  - Exposed via `hath0r optimize taguchi --array L9 -f <factor> --snr <values> --loss-k <k> --target-m <m> --measured-y <y>`.
+
+- **FinOps Multilingual Tokenizer Tax Auditor (`hath0r finops tokenizer-tax`)**:
+  - Implemented `TokenizerTaxBot` analyzing Unicode script distributions across 14 script families (Arabic, Devanagari, CJK, Cyrillic, Latin, etc.).
+  - Computes script token expansion inflation ($\tau_{lang}$), baseline vs actual subword tokens, and incurred token penalties.
+  - Calculates vocabulary serving VRAM overhead ($P_{vocab} = 2 \cdot V \cdot d_{model}$, e.g. 4.19 GB for 256k vocab).
+  - Determines continuous visual patch budgets ($16\times 16$) for pixel-native vision models.
+  - Exposed via `hath0r finops tokenizer-tax <text-or-path> [--vocab-size] [--hidden-dim] [--precision]`.
+
+- **Pixel-Native 2D Document Parsing (`hath0r vision parse-doc --pixel-native`)**:
+  - Added `--pixel-native` flag to `hath0r vision parse-doc` to parse tables and diagrams as continuous 2D visual patches without OCR licensing.
+  - Added 2D spatial table cell matrix preservation (`table_id`, rows, columns, cell bounding boxes).
+
+- **DOM-Independent Playwright UI Grounding (`hath0r vision ground --playwright`)**:
+  - Added `--playwright` and `--action` options to `hath0r vision ground`.
+  - Directly translates natural language element descriptions into Playwright-compliant coordinate steps (`coordinates: {"x": float, "y": float}`) bypassing brittle DOM selector trees.
+
 ## [0.5.1] - 2026-10-01
 
 ### Changed
