@@ -304,6 +304,25 @@ class PRBot:
         if "semver:" not in pr_body.lower():
             pr_body = f"{pr_body}\n\nsemver: {semver}\n"
 
+        # AgentGraph Audit summary injection
+        try:
+            from hath0r_cli.bots.agentgraph_bot import AgentGraphBot
+
+            ag_bot = AgentGraphBot(cwd=self.cwd)
+            ag_val = ag_bot.validate()
+            ag_stat = ag_bot.get_status()
+            if "### AgentGraph Audit Summary" not in pr_body:
+                planes_str = ", ".join(f"{k}: {v}" for k, v in ag_stat.get("status", {}).get("planes", {}).items())
+                pr_body += (
+                    f"\n### AgentGraph Audit Summary\n"
+                    f"- **Status**: {'✓ Valid' if ag_val.get('validation', {}).get('valid') else '✗ Invalid'}\n"
+                    f"- **Entities**: {ag_stat.get('status', {}).get('total_nodes', 0)} nodes across planes ({planes_str})\n"
+                    f"- **Cycles Detected**: {ag_val.get('validation', {}).get('cycles_detected', 0)}\n"
+                    f"- **Contradictions**: {ag_val.get('validation', {}).get('contradictions_detected', 0)}\n"
+                )
+        except Exception:
+            pass
+
         if dry_run:
             return {
                 "success": True,
@@ -311,6 +330,7 @@ class PRBot:
                 "branch": current_branch,
                 "base": base,
                 "title": pr_title,
+                "body": pr_body,
                 "action": f"[DRY-RUN] gh pr create --base {base} --head {current_branch} --title '{pr_title}'",
             }
 
