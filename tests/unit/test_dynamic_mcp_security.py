@@ -1,6 +1,7 @@
 """Unit tests for DynamicMCPManager, MCPSecurityPolicyEngine, and hath0r mcp security commands."""
 
 from pathlib import Path
+
 from click.testing import CliRunner
 
 from hath0r_cli.cli import main as cli

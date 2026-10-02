@@ -124,7 +124,9 @@ class SchemaRepairEngine:
         if self.auto_coerce:
             parsed = self.coerce_payload(parsed, schema)
 
-        return parsed
+        if isinstance(parsed, (dict, list)):
+            return parsed
+        return {}
 
 
 class AssertionGuardrail:

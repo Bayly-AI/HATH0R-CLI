@@ -1,10 +1,11 @@
 """Unit and CLI tests for Taguchi Robust Optimization bot and commands."""
 
 import json
+
 from click.testing import CliRunner
 
-from hath0r_cli.cli import main as cli
 from hath0r_cli.bots.taguchi_bot import TaguchiBot
+from hath0r_cli.cli import main as cli
 
 
 def test_taguchi_bot_matrix_generation():

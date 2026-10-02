@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-10-02
+
+### Fixed
+
+- **Preflight Release Promotion Taxonomy** (#278, #279):
+  - `hath0r preflight run` now accepts `release/<semver>` promotion branches when the branch version aligns with `VERSION`.
+- **MCP Cloud Production Endpoint** (#279):
+  - Updated default Hath0r MCP base URL across CLI server descriptors, connection registries, and documentation to `https://mcp.hath0r-cli.com`.
+- **Typing & Linting Invariants**:
+  - Resolved type annotations and schema repair return validations across cognitive engine modules for strict mypy compliance.
+
 ## [0.7.0] - 2026-10-02
 
 ### Added

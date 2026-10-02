@@ -1,10 +1,11 @@
 """Unit and CLI tests for FinOps Tokenizer Tax bot and commands."""
 
 import json
+
 from click.testing import CliRunner
 
-from hath0r_cli.cli import main as cli
 from hath0r_cli.bots.tokenizer_tax_bot import TokenizerTaxBot
+from hath0r_cli.cli import main as cli
 
 
 def test_tokenizer_tax_bot_script_classification():

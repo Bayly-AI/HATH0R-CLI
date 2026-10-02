@@ -4,13 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import math
-import os
 import re
-import time
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
-
-from hath0r_cli.bots.pytorch_runtime import is_pytorch_available
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -117,7 +113,6 @@ class InstructionAwareReranker:
         if target_model not in SUPPORTED_RERANKERS:
             target_model = "qwen3-reranker"
 
-        start_time = time.time()
         scored: List[Dict[str, Any]] = []
 
         for idx, cand in enumerate(candidates):
