@@ -758,3 +758,196 @@ class AgentGraphBot:
             "health": "healthy" if val["validation"]["valid"] else "degraded",
         }
 
+    def migrate_repo(self, repo_path: Path | str, update_agents_md: bool = True) -> Dict[str, Any]:
+        """Migrate a repository's rules, roles, and docs to the structured AgentGraph format."""
+        target = Path(repo_path).resolve()
+        if not target.is_dir():
+            return {"success": False, "repo": str(target), "error": "Target directory does not exist"}
+
+        # 1. Run sync to build graph
+        self.sync(path=str(target), persist=True)
+
+        # 2. Extract CR-* rules from AGENTS.md / rules.md if not already extracted
+        graph = self.load_graph(str(target))
+        nodes_dict = {n["id"]: n for n in graph.get("nodes", [])}
+        edges = graph.get("edges", [])
+
+        # Look in AGENTS.md and rules.md
+        text_sources = []
+        agents_file = target / "AGENTS.md"
+        if agents_file.is_file():
+            text_sources.append(agents_file.read_text(encoding="utf-8", errors="ignore"))
+        rules_file = target / "rules.md"
+        if rules_file.is_file():
+            text_sources.append(rules_file.read_text(encoding="utf-8", errors="ignore"))
+        for rf in target.glob("docs/rules/*.md"):
+            text_sources.append(rf.read_text(encoding="utf-8", errors="ignore"))
+
+        combined_text = "\n".join(text_sources)
+        cr_matches = set(re.findall(r"\b(CR-[A-Z0-9-]+)\b", combined_text, re.IGNORECASE))
+
+        known_rules = {
+            "CR-CLI-ENTRY-001": (
+                "CLI-First Rule",
+                "CLI-First & Missing Capability Offer: invoke hath0r first, never ad-hoc workarounds.",
+                "workflow",
+            ),
+            "CR-BRANCH-GOV-001": (
+                "Branch Governance",
+                "Branch & Promotion Governance: work PRs target development only, canonical promotion path.",
+                "governance",
+            ),
+            "CR-DOCKER-HATH0R-GROUP-001": (
+                "Docker Group Membership",
+                "Docker group hath0r and network hath0r-net membership mandatory.",
+                "architecture",
+            ),
+            "CR-HATH0R-ROOT-001": (
+                "Hidden Root Rule",
+                "Use only .hath0r/ as hidden project root. Never create legacy .ai/ or .infraOS/.",
+                "governance",
+            ),
+            "CR-HATH0R-INIT-001": (
+                "Hath0r Repo Init Gate",
+                "Follow canonical playbook and runbook before repo initialization.",
+                "workflow",
+            ),
+            "CR-BAI-001": (
+                "BAI Promotion Gate",
+                "Canonical promotion development -> testing -> staging -> master.",
+                "governance",
+            ),
+        }
+
+        rules_added = 0
+        roles = [n["id"] for n in nodes_dict.values() if n.get("type") == "agent_role"]
+        default_role = roles[0] if roles else "role:developer"
+        if default_role not in nodes_dict:
+            nodes_dict[default_role] = {
+                "id": default_role,
+                "plane": "rules",
+                "type": "agent_role",
+                "label": "Developer Agent",
+                "content": f"Default developer role for {target.name}",
+                "properties": {
+                    "role_name": "developer",
+                    "permitted_tools": ["read_file", "search_code", "run_command", "replace_file_content", "write_to_file"],
+                    "forbidden_tools": [],
+                },
+                "is_current": True,
+            }
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+        for cr in sorted(cr_matches):
+            cr_upper = cr.upper()
+            rule_id = f"rule:{cr_upper.lower()}"
+            if rule_id not in nodes_dict:
+                meta = known_rules.get(
+                    cr_upper,
+                    (f"Rule {cr_upper}", f"Governance policy rule {cr_upper}", "governance"),
+                )
+                nodes_dict[rule_id] = {
+                    "id": rule_id,
+                    "plane": "rules",
+                    "type": "rule_policy",
+                    "label": meta[0],
+                    "content": meta[1],
+                    "policy_type": meta[2],
+                    "enforcement_level": "hard_stop",
+                    "is_current": True,
+                    "valid_from": now_iso,
+                    "valid_to": None,
+                    "properties": {"rule_code": cr_upper},
+                }
+                rules_added += 1
+
+                # Link default role to rule via RESTRICTED_BY
+                edges.append(
+                    {
+                        "source": default_role,
+                        "target": rule_id,
+                        "relation": "RESTRICTED_BY",
+                        "valid_from": now_iso,
+                        "valid_to": None,
+                        "is_current": True,
+                    }
+                )
+
+        graph["nodes"] = list(nodes_dict.values())
+        graph["edges"] = edges
+        self.save_graph(graph, str(target))
+
+        # 3. Heal any lingering cycles or orphan edges
+        self.heal(str(target))
+
+        # 4. Update AGENTS.md reference if requested and file exists
+        agents_updated = False
+        if update_agents_md and agents_file.is_file():
+            content = agents_file.read_text(encoding="utf-8")
+            if "agentgraph" not in content.lower():
+                pointer_text = (
+                    "\n## AgentGraph Substrate\n\n"
+                    "This repository is governed by the Hath0r AgentGraph substrate. "
+                    "Dynamic rule retrieval, role RBAC, and policy graphs are stored under `.hath0r/agentgraph/`.\n"
+                    "- Query status: `hath0r agentgraph status`\n"
+                    "- Validate rules: `hath0r agentgraph validate`\n"
+                )
+                agents_file.write_text(content + pointer_text, encoding="utf-8")
+                agents_updated = True
+
+        val = self.validate(str(target))
+        stat = self.get_status(str(target))
+
+        return {
+            "success": val["validation"]["valid"],
+            "repo": target.name,
+            "path": str(target),
+            "rules_migrated": rules_added,
+            "total_nodes": stat["status"]["total_nodes"],
+            "total_edges": stat["status"]["total_edges"],
+            "validation": val["validation"],
+            "agents_md_updated": agents_updated,
+        }
+
+    def migrate_all(self, base_dirs: Optional[List[str]] = None) -> Dict[str, Any]:
+        """Batch migrate all recognized repositories in ~/Development workspaces."""
+        if not base_dirs:
+            dev_root = Path.home() / "Development"
+            candidate_dirs = [
+                dev_root / "OpenSource" / "hath0r-framework",
+                dev_root / "OpenSource" / "hathor-cli",
+                dev_root / "OpenSource" / "hath0r-poc",
+                dev_root / "OpenSource" / "hath0r-mcp",
+                dev_root / "OpenSource" / "hath0r-atc",
+                dev_root / "BAI" / "ATC",
+                dev_root / "BAI" / "MCP",
+                dev_root / "BAI" / "UXP",
+                dev_root / "1-Nation" / "C-MCP",
+                dev_root / "1-Nation" / "ATC",
+                dev_root / "1-Nation" / "MCP",
+                dev_root / "1-Nation" / "UXP",
+                dev_root / "Ray" / "workshop",
+                dev_root / "Ray" / "mcp",
+                dev_root / "Websites" / "Ray Bayly",
+            ]
+        else:
+            candidate_dirs = [Path(d).resolve() for d in base_dirs]
+
+        results = []
+        all_valid = True
+
+        for cdir in candidate_dirs:
+            if cdir.is_dir() and ((cdir / "AGENTS.md").is_file() or (cdir / ".git").is_dir()):
+                m_res = self.migrate_repo(cdir)
+                if not m_res.get("success"):
+                    all_valid = False
+                results.append(m_res)
+
+        return {
+            "success": all_valid,
+            "subcommand": "migrate_all",
+            "migrated_count": len(results),
+            "all_valid": all_valid,
+            "results": results,
+        }
+

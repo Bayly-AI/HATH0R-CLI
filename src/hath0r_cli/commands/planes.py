@@ -212,6 +212,20 @@ _SHIPPED_COMMANDS = [
         "effects": "read_only",
         "output_kind": "data",
     },
+    {
+        "name": "agentgraph.bot",
+        "invocation": ["hath0r agentgraph bot"],
+        "status": "shipped",
+        "effects": "modifying",
+        "output_kind": "data",
+    },
+    {
+        "name": "agentgraph.migrate",
+        "invocation": ["hath0r agentgraph migrate"],
+        "status": "shipped",
+        "effects": "modifying",
+        "output_kind": "data",
+    },
 ]
 
 

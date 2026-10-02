@@ -355,3 +355,51 @@ def agentgraph_bot_cmd(
 
     _emit_response(ctx, response, text_renderer=_text)
 
+
+@agentgraph.command("migrate")
+@click.option("--path", "-p", default=None, help="Specific repository path to migrate.")
+@click.option("--all", "migrate_all_repos", is_flag=True, default=False, help="Migrate all recognized repositories in ~/Development.")
+@click.pass_context
+def agentgraph_migrate(ctx: click.Context, path: Optional[str], migrate_all_repos: bool) -> None:
+    """Migrate markdown rules, AGENTS.md, and governance docs to AgentGraph contract format."""
+    bot = AgentGraphBot()
+
+    if migrate_all_repos or (path is None and not migrate_all_repos and False):
+        data = bot.migrate_all()
+    elif path is not None:
+        data = bot.migrate_repo(repo_path=path)
+    else:
+        # Default to current working directory
+        data = bot.migrate_repo(repo_path=".")
+
+    response = _build_response(
+        ctx,
+        command="agentgraph.migrate",
+        state="ok" if data.get("success", True) else "error",
+        data=data,
+    )
+
+    def _text() -> None:
+        if data.get("subcommand") == "migrate_all":
+            console.print(f"\n[bold green]✓ AgentGraph Batch Migration Completed[/bold green] ({data['migrated_count']} repositories)")
+            for item in data.get("results", []):
+                status_icon = "[green]✓[/green]" if item.get("success") else "[red]✗[/red]"
+                console.print(
+                    f"  {status_icon} [bold]{item.get('repo')}[/bold]: "
+                    f"{item.get('total_nodes', 0)} nodes, {item.get('total_edges', 0)} edges "
+                    f"({item.get('rules_migrated', 0)} rules extracted)"
+                )
+            console.print("")
+        else:
+            status_icon = "[green]✓[/green]" if data.get("success") else "[red]✗[/red]"
+            console.print(f"\n{status_icon} [bold]AgentGraph Migration for {data.get('repo')}[/bold]")
+            console.print(f"  • Path: {data.get('path')}")
+            console.print(f"  • Rules migrated: {data.get('rules_migrated', 0)}")
+            console.print(f"  • Total nodes: {data.get('total_nodes', 0)}")
+            console.print(f"  • Total edges: {data.get('total_edges', 0)}")
+            console.print(f"  • Valid: {data.get('validation', {}).get('valid', False)}")
+            console.print(f"  • AGENTS.md updated: {data.get('agents_md_updated', False)}\n")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
