@@ -3,7 +3,7 @@
 from click.testing import CliRunner
 
 from hath0r_cli.cli import main as cli
-from hath0r_cli.voice_kokoro import KOKORO_VOICES, KokoroTTSEngine
+from hath0r_cli.voice_kokoro import KokoroTTSEngine
 
 
 def test_kokoro_voice_profiles():

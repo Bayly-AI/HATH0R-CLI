@@ -1,14 +1,12 @@
 """Unit tests for PyTorch native acceleration runtime and batch tensor pipelines."""
 
-import pytest
 from click.testing import CliRunner
 
-from hath0r_cli.cli import main as cli
 from hath0r_cli.bots.pytorch_runtime import (
     PyTorchRuntime,
     detect_optimal_device,
-    is_pytorch_available,
 )
+from hath0r_cli.cli import main as cli
 
 
 def test_detect_optimal_device():

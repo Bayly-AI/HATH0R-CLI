@@ -5,11 +5,9 @@ from __future__ import annotations
 import json
 import re
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
-from urllib.error import URLError
 from urllib.request import Request, urlopen
-
 
 SUPPORTED_LOCAL_MODELS: Dict[str, Dict[str, Any]] = {
     "deepseek-r1:7b": {

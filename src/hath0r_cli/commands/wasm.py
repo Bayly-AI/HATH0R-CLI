@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import click
-from rich.table import Table
 
 from hath0r_cli.common import (
     _build_response,

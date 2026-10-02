@@ -31,15 +31,21 @@ def install_claude_desktop_connector(
     hath0r_binary: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Register HATH0R CLI in Claude Desktop config file (~/Library/Application Support/Claude/claude_desktop_config.json)."""
+    import shutil
+
     config_path = get_claude_desktop_config_path()
     config_path.parent.mkdir(parents=True, exist_ok=True)
 
-    binary_path = hath0r_binary or "/usr/local/bin/hath0r"
-    if not Path(binary_path).exists():
-        import shutil
-        found = shutil.which("hath0r")
-        if found:
-            binary_path = found
+    # Explicit paths are honored as-is so operators can register a planned install
+    # location (and unit tests can pin a stable path without requiring the binary).
+    if hath0r_binary:
+        binary_path = hath0r_binary
+    else:
+        binary_path = "/usr/local/bin/hath0r"
+        if not Path(binary_path).exists():
+            found = shutil.which("hath0r")
+            if found:
+                binary_path = found
 
     data: Dict[str, Any] = {}
     if config_path.exists():
@@ -50,6 +56,13 @@ def install_claude_desktop_connector(
 
     if "mcpServers" not in data:
         data["mcpServers"] = {}
+
+    if "hath0r-mcp" not in data["mcpServers"]:
+        npx_bin = "/usr/local/bin/npx" if Path("/usr/local/bin/npx").exists() else (shutil.which("npx") or "npx")
+        data["mcpServers"]["hath0r-mcp"] = {
+            "command": npx_bin,
+            "args": ["-y", "mcp-remote", "https://mcp.hath0r-cli.com/mcp"],
+        }
 
     data["mcpServers"][server_name] = {
         "command": binary_path,
@@ -76,7 +89,7 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
     @mcp.tool()
     def hath0r_cli(command: str) -> str:
         """Run any HATH0R CLI command (e.g. 'doctor', 'optimize taguchi --array L9 -f temp', 'finops tokenizer-tax "hello"').
-        
+
         Args:
             command: The command line arguments to pass to hath0r (without 'hath0r' prefix).
         """
@@ -113,7 +126,7 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         measured_y: Optional[float] = None,
     ) -> Dict[str, Any]:
         """Generate Taguchi orthogonal design array (L4, L8, L9, L12, L18), calculate SNR, and compute Quality Loss.
-        
+
         Args:
             array: Orthogonal array name ('L4', 'L8', 'L9', 'L12', 'L18').
             factors: Names of parameter factors to evaluate.
@@ -127,10 +140,10 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
 
         bot = TaguchiBot()
         factor_list = factors or ["factor_1", "factor_2"]
-        design = bot.generate_orthogonal_design(factor_list, array_type=array)
+        design = bot.generate_matrix(array_type=array, factors=factor_list)
 
         res: Dict[str, Any] = {
-            "design": design.to_dict(),
+            "design": design,
         }
 
         if snr_values:
@@ -142,13 +155,8 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
             }
 
         if loss_k is not None and target_m is not None and measured_y is not None:
-            loss = bot.calculate_quality_loss(measured_y, target=target_m, loss_k=loss_k)
-            res["quality_loss"] = {
-                "loss_usd": loss,
-                "loss_k": loss_k,
-                "target_m": target_m,
-                "measured_y": measured_y,
-            }
+            loss = bot.calculate_loss(measured_y=measured_y, target_m=target_m, sensitivity_k=loss_k)
+            res["quality_loss"] = loss
 
         return res
 
@@ -160,7 +168,7 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         precision: str = "fp16",
     ) -> Dict[str, Any]:
         """Audit token inflation across 14 Unicode scripts, serving VRAM overhead, and ViT continuous patch budgets.
-        
+
         Args:
             text: Input prompt, document text, or file path to evaluate.
             vocab_size: Vocabulary dictionary size (default: 256,000 tokens).
@@ -169,8 +177,9 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         """
         from hath0r_cli.bots.tokenizer_tax_bot import TokenizerTaxBot
 
-        bot = TokenizerTaxBot(vocab_size=vocab_size, hidden_dim=hidden_dim, precision=precision)
-        return bot.audit_text(text)
+        bot = TokenizerTaxBot()
+        precision_bytes = 2 if precision in ("fp16", "bf16") else 4
+        return bot.audit(text, vocab_size=vocab_size, hidden_dim=hidden_dim, precision_bytes=precision_bytes)
 
     @mcp.tool()
     def hath0r_vision_parse_doc(
@@ -178,7 +187,7 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         pixel_native: bool = True,
     ) -> Dict[str, Any]:
         """Parse documents, invoices, and spreadsheets directly into 2D tabular cell matrices without OCR.
-        
+
         Args:
             file_path: Absolute or relative path to the image or document file.
             pixel_native: Use pixel-native visual patch extraction preserving spatial coordinates.
@@ -196,7 +205,7 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         action: str = "click",
     ) -> Dict[str, Any]:
         """Visually ground a natural language target description on an interface screenshot and emit Playwright actions.
-        
+
         Args:
             image_path: Path to the screenshot or UI image.
             target: Natural language description of the element to interact with (e.g. 'Submit PO').
@@ -211,7 +220,7 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
     @mcp.tool()
     def hath0r_kb_search(query: str, limit: int = 5) -> Dict[str, Any]:
         """Search canonical Hath0r knowledgebase, playbooks, architecture decision records, and governance rules.
-        
+
         Args:
             query: Keywords or conceptual query string.
             limit: Maximum number of search results to return (1-20).
@@ -219,7 +228,8 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         cmd = [sys.executable, "-m", "hath0r_cli", "-o", "json", "kb", "search", query, "--limit", str(limit)]
         res = subprocess.run(cmd, capture_output=True, text=True, timeout=30, check=False)
         try:
-            return json.loads(res.stdout)
+            val = json.loads(res.stdout)
+            return val if isinstance(val, dict) else {"result": val}
         except Exception:
             return {"raw_output": res.stdout, "error": res.stderr}
 

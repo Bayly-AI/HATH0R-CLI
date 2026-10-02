@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hath0r-cli"
-version = "0.7.0"
+version = "0.7.1"
 description = "HATH0R CLI — operator and developer control plane for the HATHOR agentic framework."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -24,6 +24,10 @@ dev = [
   "ruff>=0.6",
   "opentelemetry-api>=1.20",
   "opentelemetry-sdk>=1.20",
+  "mcp>=1.0,<2",
+]
+mcp = [
+  "mcp>=1.0,<2",
 ]
 release = ["build>=1.2", "twine>=5.0", "pyinstaller>=6.0"]
 

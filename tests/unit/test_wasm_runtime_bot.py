@@ -1,10 +1,11 @@
 """Unit tests for WasmRuntimeBot and hath0r wasm CLI commands."""
 
 from pathlib import Path
+
 from click.testing import CliRunner
 
-from hath0r_cli.cli import main as cli
 from hath0r_cli.bots.wasm_runtime_bot import WasmCapabilities, WasmRuntimeBot
+from hath0r_cli.cli import main as cli
 
 
 def test_wasm_module_validation(tmp_path: Path):

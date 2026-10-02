@@ -39,7 +39,7 @@ Hath0r orchestrates multiple Model Context Protocol (MCP) servers providing tool
       "priority": 1,
       "enabled": true,
       "transport": "streamable-http",
-      "base_url": "http://127.0.0.1:38083",
+      "base_url": "https://mcp.hath0r-cli.com",
       "mcp_endpoint": "/mcp",
       "health_endpoint": "/health",
       "ready_endpoint": "/ready"

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from typing import Any, cast
 
 import click
 from rich.table import Table
@@ -295,7 +296,7 @@ def mcp_call(ctx: click.Context, server_id: str, tool_name: str, json_args: str)
 @click.pass_context
 def mcp_route(ctx: click.Context, intent: str, top_k: int, threshold: float, prune: bool) -> None:
     """Dynamically route and rank active tools matching task intent to avoid context bloat."""
-    from hath0r_cli.mcp import DEFAULT_MCP_SERVERS, DynamicToolRouter
+    from hath0r_cli.mcp import DynamicToolRouter
 
     # Generate reference tools list
     sample_tools = [
@@ -335,6 +336,7 @@ def mcp_route(ctx: click.Context, intent: str, top_k: int, threshold: float, pru
 def mcp_prune(ctx: click.Context, schema_file: str) -> None:
     """Prune and compress a tool JSON schema to minimize context token footprint."""
     from pathlib import Path
+
     from hath0r_cli.mcp import SchemaPruner
 
     p = Path(schema_file)
@@ -344,6 +346,7 @@ def mcp_prune(ctx: click.Context, schema_file: str) -> None:
         raise click.BadParameter(f"Failed to parse JSON schema: {exc}")
 
     pruner = SchemaPruner()
+    pruned_data: Any
     if isinstance(raw_data, list):
         pruned_data = [pruner.prune(item) for item in raw_data]
     else:
@@ -512,8 +515,8 @@ def mcp_policy_list(ctx: click.Context) -> None:
 )
 @click.option(
     "--binary",
-    type=click.Path(exists=True, dir_okay=False),
-    help="Explicit path to hath0r binary for Claude Desktop connector.",
+    type=click.Path(dir_okay=False),
+    help="Explicit path to hath0r binary for Claude Desktop connector (need not exist yet).",
 )
 @click.pass_context
 def mcp_serve(
@@ -551,7 +554,7 @@ def mcp_serve(
 
     try:
         server = create_mcp_server()
-        server.run(transport=transport)
+        server.run(transport=cast(Any, transport))
     except Exception as exc:
         diag = [Diagnostic(code="MCP_SERVER_ERROR", message=str(exc), severity="error")]
         response = _build_response(ctx, command="mcp.serve", state="error", diagnostics=diag)

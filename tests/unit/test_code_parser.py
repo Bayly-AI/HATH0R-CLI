@@ -1,10 +1,11 @@
 """Unit tests for CodeParser and code CLI commands."""
 
 from pathlib import Path
+
 from click.testing import CliRunner
 
 from hath0r_cli.cli import main as cli
-from hath0r_cli.code_parser import CodeParser, CodeSymbol
+from hath0r_cli.code_parser import CodeParser
 
 
 def test_python_ast_parsing():
