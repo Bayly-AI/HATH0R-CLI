@@ -1,10 +1,11 @@
 """Unit tests for ColPali visual document indexer and kb CLI commands."""
 
 from pathlib import Path
+
 from click.testing import CliRunner
 
 from hath0r_cli.cli import main as cli
-from hath0r_cli.colpali_engine import ColPaliEngine, VisualDocumentPage
+from hath0r_cli.colpali_engine import ColPaliEngine
 
 
 def test_colpali_engine_indexing_and_maxsim(tmp_path: Path):

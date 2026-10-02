@@ -1,19 +1,16 @@
 """Tests for Hath0r CLI release folder structure, previous version archiving, and dual-repo sync."""
 
 import hashlib
-import shutil
 import tempfile
 from pathlib import Path
+
 from click.testing import CliRunner
 
 from hath0r_cli.cli import main as cli
-from hath0r_cli.bots.quality import ReleaseBot
 from scripts.build_release_binaries import (
-    compute_sha256,
     generate_checksums,
     rotate_previous_release,
     sync_to_framework,
-    execute_release_build,
 )
 
 

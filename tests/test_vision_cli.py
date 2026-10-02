@@ -4,6 +4,7 @@ import json
 import struct
 import tempfile
 from pathlib import Path
+
 from click.testing import CliRunner
 
 from hath0r_cli.cli import main as cli

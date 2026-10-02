@@ -278,8 +278,9 @@ def kb_search(
 def kb_rerankers(ctx: click.Context) -> None:
     """List supported instruction-aware neural cross-encoder rerankers."""
     from rich.table import Table
-    from hath0r_cli.instruction_reranker import InstructionAwareReranker
+
     from hath0r_cli.common import console
+    from hath0r_cli.instruction_reranker import InstructionAwareReranker
 
     reranker = InstructionAwareReranker()
     models = reranker.list_models()
@@ -316,8 +317,8 @@ def kb_rerankers(ctx: click.Context) -> None:
 @click.pass_context
 def kb_status(ctx: click.Context) -> None:
     """Display SQLite FTS5 and ColPali knowledgebase index cache statistics."""
-    from hath0r_cli.kb_index import SQLiteIndexStore
     from hath0r_cli.colpali_engine import ColPaliEngine
+    from hath0r_cli.kb_index import SQLiteIndexStore
 
     store = SQLiteIndexStore()
     stats = store.get_stats()

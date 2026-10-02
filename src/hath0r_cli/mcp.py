@@ -28,7 +28,7 @@ DEFAULT_MCP_SERVERS = [
         "priority": 1,
         "product_id": "hath0r-mcp",
         "transport": "streamable-http",
-        "base_url": "http://127.0.0.1:38083",
+        "base_url": "https://mcp.hath0r-cli.com",
         "mcp_endpoint": "/mcp",
         "health_endpoint": "/health",
         "ready_endpoint": "/ready",
