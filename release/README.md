@@ -10,13 +10,15 @@ The Hath0r CLI is the single, definitive tool required to initialize, govern, au
 
 ### Standalone Executable Binaries (Zero Dependencies)
 
-| Platform | Architecture | Binary File |
+Pre-compiled standalone binaries for all supported platforms are published as verifiable assets on [GitHub Releases](https://github.com/Bayly-AI/HATH0R-CLI/releases).
+
+| Platform | Architecture | Release Asset |
 | :--- | :--- | :--- |
-| **macOS** | Apple Silicon (`arm64`) | [`release/hath0r-darwin-arm64`](hath0r-darwin-arm64) |
-| **macOS** | Intel (`x86_64`) | [`release/hath0r-darwin-x86_64`](hath0r-darwin-x86_64) |
-| **Linux** | ARM64 (`aarch64`) | [`release/hath0r-linux-arm64`](hath0r-linux-arm64) |
-| **Linux** | x86_64 (`amd64`) | [`release/hath0r-linux-x86_64`](hath0r-linux-x86_64) |
-| **Windows**| x64 | [`release/hath0r-windows-x64.cmd`](hath0r-windows-x64.cmd) |
+| **macOS** | Apple Silicon (`arm64`) | [hath0r-<ver>-darwin-arm64](https://github.com/Bayly-AI/HATH0R-CLI/releases/latest) |
+| **macOS** | Intel (`x86_64`) | [hath0r-<ver>-darwin-x64](https://github.com/Bayly-AI/HATH0R-CLI/releases/latest) |
+| **Linux** | ARM64 (`aarch64`) | [hath0r-<ver>-linux-arm64](https://github.com/Bayly-AI/HATH0R-CLI/releases/latest) |
+| **Linux** | x86_64 (`amd64`) | [hath0r-<ver>-linux-x64](https://github.com/Bayly-AI/HATH0R-CLI/releases/latest) |
+| **Windows**| x64 | [hath0r-<ver>-windows-x64.zip](https://github.com/Bayly-AI/HATH0R-CLI/releases/latest) |
 
 ### Python Package & Fileset Distributions
 
