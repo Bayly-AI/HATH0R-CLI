@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-02
+
+### Added
+
+- **MCP server and Claude Desktop connector (`hath0r mcp serve`)** (#267):
+  - FastMCP stdio server exposing `hath0r_cli`, `hath0r_doctor`, `hath0r_optimize_taguchi`, `hath0r_finops_tokenizer_tax`, `hath0r_vision_parse_doc`, `hath0r_vision_ground`, and `hath0r_kb_search` tools.
+  - `--transport`, `--install-claude`, and `--install-claude-only` flags to register the connector in Claude Desktop.
+- **Claude plugin package** (#269, #271):
+  - Plugin manifest at `.claude-plugin/plugin.json` with `.mcp.json`, plus a standalone lightweight `plugin/` package.
+  - 1024x1024 listing icon and bundled MCP entrypoint at `scripts/mcp_server.py` resolved via `${CLAUDE_PLUGIN_ROOT}`.
+
+### Changed
+
+- **Bootstrap script relocated** from `bin/hath0r-bootstrap.sh` to `scripts/hath0r-bootstrap.sh`; the top-level `bin/` directory is removed so the plugin installs on Cowork and the Claude apps (#273).
+
+### Fixed
+
+- **Plugin validation file-size limit**: removed 32 MB pre-compiled `release/hath0r-darwin-*` binaries from git tracking; binaries now ship only as GitHub Release assets (#269).
+
 ## [0.6.0] - 2026-10-02
 
 ### Added
