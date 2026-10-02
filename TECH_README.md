@@ -46,7 +46,7 @@ make wheel
 
 ---
 
-## Command Reference (v0.6.0)
+## Command Reference (v0.7.0)
 
 | Command | Purpose |
 |---------|---------|
