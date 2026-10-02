@@ -189,7 +189,7 @@ servers:
     name: Hath0rMCP
     group: hath0r-opensource
     transport: streamable-http
-    base_url: "http://127.0.0.1:38083"
+    base_url: "https://mcp.hath0r-cli.com"
     mcp_endpoint: "/mcp"
     health_endpoint: "/health"
     description: "Hath0r OpenSource Suite MCP knowledge server and tools"

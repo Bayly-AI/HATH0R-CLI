@@ -1,6 +1,5 @@
 """Unit tests for SchemaRepairEngine and AssertionGuardrail."""
 
-import pytest
 from click.testing import CliRunner
 
 from hath0r_cli.cli import main as cli

@@ -5,15 +5,13 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
-import math
 import os
-import re
 import struct
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, cast
 
 import yaml
 
@@ -150,7 +148,7 @@ class VisionBot:
         try:
             with urllib.request.urlopen(req, timeout=8) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-                return data.get("response")
+                return cast(Optional[str], data.get("response"))
         except Exception:
             return None
 

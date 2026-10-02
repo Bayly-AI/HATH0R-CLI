@@ -2,8 +2,8 @@
 
 from click.testing import CliRunner
 
+from hath0r_cli.bots.local_model_bot import LocalModelBot
 from hath0r_cli.cli import main as cli
-from hath0r_cli.bots.local_model_bot import LocalModelBot, SUPPORTED_LOCAL_MODELS
 
 
 def test_cot_splitting():

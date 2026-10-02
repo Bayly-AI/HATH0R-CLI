@@ -1,6 +1,5 @@
 """Unit tests and benchmarks for Hath0r CLI lazy command and telemetry loading."""
 
-import time
 import click
 from click.testing import CliRunner
 
@@ -95,6 +94,6 @@ def test_telemetry_lazy_tracer():
     tracer = get_tracer("test_tracer")
     assert tracer is not None
 
-    with trace_span("test_span", attributes={"test.key": "val"}) as span:
+    with trace_span("test_span", attributes={"test.key": "val"}):
         ctx = get_current_trace_context()
         assert isinstance(ctx, dict)

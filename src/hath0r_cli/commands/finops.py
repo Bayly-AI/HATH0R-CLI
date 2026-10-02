@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import click
 from rich.table import Table
@@ -81,13 +80,13 @@ def finops_tokenizer_tax(
 
         # Vocab VRAM Overhead
         vram = res["vocab_vram_overhead"]
-        console.print(f"\n[bold]Vocabulary Memory Overhead (Serving VRAM):[/bold]")
+        console.print("\n[bold]Vocabulary Memory Overhead (Serving VRAM):[/bold]")
         console.print(f"  • Embedding & Output Head Parameters: [yellow]{vram['vocab_parameters']:,}[/yellow]")
         console.print(f"  • Idle VRAM Overhead:                 [bold red]{vram['vocab_vram_gb']} GB[/bold red] ({vram['precision']})")
 
         # Continuous Patch Budget
         vit = res["vit_patch_budget"]
-        console.print(f"\n[bold]Continuous Visual Patch Budget (Pixel-Native ViT):[/bold]")
+        console.print("\n[bold]Continuous Visual Patch Budget (Pixel-Native ViT):[/bold]")
         console.print(f"  • Patch Resolution:  {vit['patch_size']} ({vit['rendered_page_size']})")
         console.print(f"  • Page Patch Budget: [cyan]{vit['total_continuous_patches']} visual patches[/cyan] (Language-Neutral)")
 

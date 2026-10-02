@@ -413,7 +413,6 @@ class CleanReposWorkflowBot:
                 repo_res["steps"]["6_share_knowledge"] = {"synced": kb_synced}
 
                 # Step 7: Update documentation
-                doc_ok = (repo_path / "AGENTS.md").exists() and (repo_path / "README.md").exists()
                 repo_res["steps"]["7_update_documentation"] = {"agents_md": (repo_path / "AGENTS.md").exists(), "readme_md": (repo_path / "README.md").exists()}
 
                 # Step 8: Commit documentation changes

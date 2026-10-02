@@ -119,7 +119,7 @@ def vision_ground(ctx: click.Context, image_path: Path, target: str, device: str
             if playwright and "playwright_step" in res:
                 step = res["playwright_step"]
                 console.print(f"  [bold cyan]Playwright Action:[/] {step.get('action')} @ ({step['coordinates']['x']}, {step['coordinates']['y']})")
-                console.print(f"  [dim]Note: DOM-independent step ready for PlaywrightTestRunner[/dim]")
+                console.print("  [dim]Note: DOM-independent step ready for PlaywrightTestRunner[/dim]")
         else:
             console.print(f"[bold red]✗ Grounding Failed:[/] {res.get('error')}")
 

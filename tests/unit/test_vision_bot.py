@@ -1,7 +1,5 @@
 """Unit tests for VisionBot multimodal perception and document understanding."""
 
-import base64
-import json
 import struct
 import tempfile
 from pathlib import Path
