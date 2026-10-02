@@ -22,9 +22,8 @@ for path in \
   NOTICE \
   docs/runbook.md \
   docs \
-  bin \
+  scripts \
   lib \
-  dist \
   src \
   tests
 do
