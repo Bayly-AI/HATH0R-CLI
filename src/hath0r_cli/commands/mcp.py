@@ -492,6 +492,73 @@ def mcp_policy_list(ctx: click.Context) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@mcp.command("serve")
+@click.option(
+    "--transport",
+    "-t",
+    type=click.Choice(["stdio", "sse", "streamable-http"]),
+    default="stdio",
+    help="MCP transport protocol (default: stdio).",
+)
+@click.option(
+    "--install-claude",
+    is_flag=True,
+    help="Register hath0r-cli connector into Claude Desktop config and launch server.",
+)
+@click.option(
+    "--install-claude-only",
+    is_flag=True,
+    help="Register hath0r-cli connector into Claude Desktop config and exit.",
+)
+@click.option(
+    "--binary",
+    type=click.Path(exists=True, dir_okay=False),
+    help="Explicit path to hath0r binary for Claude Desktop connector.",
+)
+@click.pass_context
+def mcp_serve(
+    ctx: click.Context,
+    transport: str,
+    install_claude: bool,
+    install_claude_only: bool,
+    binary: str | None,
+) -> None:
+    """Run FastMCP server exposing HATH0R tools to Claude Desktop & external MCP clients."""
+    from hath0r_cli.server.mcp_server import (
+        create_mcp_server,
+        install_claude_desktop_connector,
+    )
+
+    if install_claude or install_claude_only:
+        install_res = install_claude_desktop_connector(hath0r_binary=binary)
+        if install_claude_only:
+            response = _build_response(
+                ctx,
+                command="mcp.serve",
+                state="ok",
+                data=install_res,
+            )
+
+            def _text() -> None:
+                console.print("[bold green]✓ HATH0R CLI Connector Registered with Claude Desktop[/bold green]")
+                console.print(f"  • Config File: [cyan]{install_res['config_path']}[/cyan]")
+                console.print(f"  • Connector Name: [yellow]{install_res['server_name']}[/yellow]")
+                console.print(f"  • Command: {install_res['command']} {' '.join(install_res['args'])}")
+                console.print("\nRestart Claude Desktop to activate the connector.")
+
+            _emit_response(ctx, response, text_renderer=_text)
+            return
+
+    try:
+        server = create_mcp_server()
+        server.run(transport=transport)
+    except Exception as exc:
+        diag = [Diagnostic(code="MCP_SERVER_ERROR", message=str(exc), severity="error")]
+        response = _build_response(ctx, command="mcp.serve", state="error", diagnostics=diag)
+        _emit_response(ctx, response)
+        ctx.exit(1)
+
+
 
 
 # ============================================================================

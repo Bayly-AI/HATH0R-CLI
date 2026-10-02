@@ -15,3 +15,6 @@ venv/
 .hath0r/cache/
 src/hath0r_cli/bin/hath0r-listen
 src/hath0r_cli/bin/*.app
+release/hath0r-*
+release/*.whl
+release/*.tar.gz
