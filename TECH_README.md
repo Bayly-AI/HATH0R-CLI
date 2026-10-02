@@ -46,12 +46,13 @@ make wheel
 
 ---
 
-## Command Reference (v0.7.1)
+## Command Reference (v0.8.0)
 
 | Command | Purpose |
 |---------|---------|
 | `hath0r init` | Autonomous onboarding & alignment of any repository (Python, Node/TS, Go, Rust, polyglot) |
 | `hath0r doctor` | Verify control tower, group root/AGENTS/WARP, member pointers, and KB hub |
+| `hath0r agentgraph` | Dynamic rule retrieval, role RBAC, topological cycle validation, and workspace migration |
 | `hath0r optimize taguchi` | Generate orthogonal design matrices ($L_4..L_{18}$), calculate SNR and quadratic quality loss |
 | `hath0r finops tokenizer-tax` | Audit Unicode script token inflation, serving VRAM parameters, and ViT patch economics |
 | `hath0r vision parse-doc` | Parse structured layouts, diagrams, tables; supports `--pixel-native` continuous patch mode |
