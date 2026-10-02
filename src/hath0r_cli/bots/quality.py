@@ -267,6 +267,37 @@ class PreflightBot:
             "slug": m.group(3),
         }
 
+    def _agentgraph_ok(self) -> Dict[str, Any]:
+        """Validate AgentGraph state, cycle absence, and rule conformity."""
+        try:
+            from hath0r_cli.bots.agentgraph_bot import AgentGraphBot
+
+            bot = AgentGraphBot(cwd=self.cwd)
+            val = bot.validate()
+            is_valid = val.get("validation", {}).get("valid", False)
+            errors = val.get("validation", {}).get("errors", [])
+            cycles = val.get("validation", {}).get("cycles_detected", 0)
+            contradictions = val.get("validation", {}).get("contradictions_detected", 0)
+
+            if not is_valid:
+                err_msg = "; ".join(errors) if errors else "AgentGraph validation failed"
+                return {
+                    "ok": False,
+                    "check": "agentgraph",
+                    "cycles": cycles,
+                    "contradictions": contradictions,
+                    "error": f"AgentGraph invalid: {err_msg}",
+                }
+            return {
+                "ok": True,
+                "check": "agentgraph",
+                "cycles": cycles,
+                "contradictions": contradictions,
+                "message": f"AgentGraph valid (0 cycles, 0 contradictions, {val.get('validation', {}).get('nodes_validated', 0)} nodes checked)",
+            }
+        except Exception as exc:
+            return {"ok": False, "check": "agentgraph", "error": f"AgentGraph check error: {exc}"}
+
     def _run_local_commands(self, commands: List[List[str]]) -> List[Dict[str, Any]]:
         results = []
         for cmd in commands:
@@ -317,6 +348,7 @@ class PreflightBot:
         checks: List[Dict[str, Any]] = []
         checks.append(self._branch_ok())
         checks.append(self._version_ok())
+        checks.append(self._agentgraph_ok())
 
         # Dirty tree warning (not hard fail by default)
         rc, out, _ = run_cmd(["git", "status", "--porcelain"], cwd=self.cwd)

@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.hath0r.dev/hath0r-cli-agentgraph-v1.schema.json",
+  "title": "hath0r.cli.agentgraph/1",
+  "description": "Payload schema contract for hath0r agentgraph CLI commands (status, query, validate, sync, route).",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "subcommand": {
+      "type": "string",
+      "enum": ["status", "query", "validate", "sync", "route", "bot"],
+      "description": "The specific agentgraph subcommand that generated this payload."
+    },
+    "status": {
+      "type": "object",
+      "description": "Graph status and plane statistics.",
+      "properties": {
+        "total_nodes": { "type": "integer" },
+        "total_edges": { "type": "integer" },
+        "planes": { "type": "object" },
+        "edge_types": { "type": "object" }
+      }
+    },
+    "query": {
+      "type": "object",
+      "description": "Query results across graph planes.",
+      "properties": {
+        "query": { "type": "string" },
+        "results_count": { "type": "integer" },
+        "results": { "type": "array" }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "description": "Validation results for rules, cycles, and constraints.",
+      "properties": {
+        "valid": { "type": "boolean" },
+        "errors": { "type": "array", "items": { "type": "string" } },
+        "warnings": { "type": "array", "items": { "type": "string" } },
+        "cycles_detected": { "type": "integer" }
+      }
+    },
+    "sync": {
+      "type": "object",
+      "description": "Graph synchronization results.",
+      "properties": {
+        "synced": { "type": "boolean" },
+        "nodes_indexed": { "type": "integer" },
+        "edges_indexed": { "type": "integer" },
+        "sources_scanned": { "type": "integer" }
+      }
+    },
+    "routing": {
+      "type": "object",
+      "description": "Role authorization and tool RBAC results.",
+      "properties": {
+        "role": { "type": "string" },
+        "authorized_tools": { "type": "array", "items": { "type": "string" } },
+        "forbidden_tools": { "type": "array", "items": { "type": "string" } },
+        "restricted_actions": { "type": "array", "items": { "type": "string" } },
+        "inherited_roles": { "type": "array", "items": { "type": "string" } },
+        "tool_authorized": { "type": ["boolean", "null"] }
+      }
+    }
+  }
+}

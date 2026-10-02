@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Bayly-AI/HATH0R-Agentic-Framework/development/contracts/hath0r-rule-node-v1.schema.json",
+  "title": "Hath0rRuleNode",
+  "description": "Canonical schema contract for AgentGraph RuleNode / rule_policy governance entities.",
+  "type": "object",
+  "required": [
+    "id",
+    "plane",
+    "type",
+    "label"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string",
+      "enum": ["hath0r.rule-node/1", "1.0.0"],
+      "description": "Schema version identifier for RuleNode payloads."
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique identifier for the rule (e.g. rule:cr-cli-entry-001)."
+    },
+    "plane": {
+      "type": "string",
+      "enum": ["rules"],
+      "description": "Always 'rules' for rule policy nodes."
+    },
+    "type": {
+      "type": "string",
+      "enum": ["rule_policy"],
+      "description": "Entity classification type, always 'rule_policy'."
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable rule title."
+    },
+    "content": {
+      "type": "string",
+      "description": "Full text or markdown description of the policy invariant."
+    },
+    "properties": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "priority": {
+          "type": "integer",
+          "enum": [1, 2, 3, 4],
+          "description": "Numeric precedence tier: 1=ROLE_GUIDELINE, 2=SUBSYSTEM_RULE, 3=REPO_STANDARD, 4=ORG_INVARIANT."
+        },
+        "priority_name": {
+          "type": "string",
+          "enum": ["ROLE_GUIDELINE", "SUBSYSTEM_RULE", "REPO_STANDARD", "ORG_INVARIANT"],
+          "description": "Descriptive precedence name."
+        },
+        "target_scope": {
+          "type": "string",
+          "description": "Scope where this rule applies ('root', subsystem name, etc.)."
+        },
+        "restricted_actions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of forbidden actions or tool prefixes."
+        },
+        "allowed_actions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of explicitly permitted actions."
+        },
+        "supersedes_rule_id": {
+          "type": ["string", "null"],
+          "description": "Rule ID that is superseded and obsoleted by this rule."
+        }
+      }
+    },
+    "valid_from": {
+      "type": ["string", "null"],
+      "description": "ISO 8601 validity start."
+    },
+    "valid_to": {
+      "type": ["string", "null"],
+      "description": "ISO 8601 validity end."
+    },
+    "is_current": {
+      "type": "boolean",
+      "description": "Active state flag."
+    },
+    "created_at": {
+      "type": "string",
+      "description": "ISO 8601 creation timestamp."
+    },
+    "updated_at": {
+      "type": "string",
+      "description": "ISO 8601 update timestamp."
+    }
+  }
+}

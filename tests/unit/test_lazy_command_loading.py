@@ -51,6 +51,7 @@ def test_command_registry_contains_expected_commands():
         "serve",
         "validate-change",
         "vision",
+        "agentgraph",
     ]
     for cmd in expected:
         assert cmd in COMMAND_REGISTRY, f"Missing {cmd} in COMMAND_REGISTRY"

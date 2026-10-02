@@ -2,12 +2,12 @@
   <img src="lib/assets/images/hathor-logo-1.png" alt="HATHOR logo" width="280" />
 </p>
 
-# HATH0R CLI (v0.7.1)
+# HATH0R CLI (v0.8.0)
 
 **Autonomous Operator Control Plane & Enterprise Cognitive Engineering Gateway**
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/Release-v0.7.1-green.svg)](https://github.com/Bayly-AI/HATH0R-CLI/releases/tag/v0.7.1)
+[![Release](https://img.shields.io/badge/Release-v0.8.0-green.svg)](https://github.com/Bayly-AI/HATH0R-CLI/releases/tag/v0.8.0)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://python.org)
 
 HATH0R CLI is the globally installed operator interface, runtime execution gateway, and control tower for the Enterprise Agentic Ecosystem. It bridges autonomous agents, developer tooling, security mediation, parameter optimization, FinOps tokenomics, and zero-tribal-memory project governance.
@@ -18,8 +18,9 @@ HATH0R CLI is the globally installed operator interface, runtime execution gatew
 
 ## Executive Scorecard: Strategic & Operational ROI
 
-| Capability | Legacy Approach | HATH0R CLI v0.7.1 | Enterprise Value |
+| Capability | Legacy Approach | HATH0R CLI v0.8.0 | Enterprise Value |
 |---|---|---|---|
+| **Dynamic Policy & Rule Graph** | Static markdown rules & tribal prompt engineering | **AgentGraph Substrate (`hath0r agentgraph`)** | **Zero cyclic dependencies & zero contradictions**; sub-millisecond dynamic rule & role resolution |
 | **Hyperparameter & Agent Tuning** | Full-factorial brute-force grid search | **Taguchi Robust DoE (`hath0r optimize taguchi`)** | **96% reduction** in trial runs; maximizes Signal-to-Noise Ratio (SNR) |
 | **Multilingual AI Inference** | 3–5x token penalty for non-Latin scripts | **FinOps Tokenizer Tax Audit (`hath0r finops tokenizer-tax`)** | Up to **65% inference cost savings**; flags VRAM waste before scaling |
 | **Document Understanding** | Fragile OCR licenses & regex parsers | **Pixel-Native 2D Parsing (`hath0r vision parse-doc --pixel-native`)** | Eliminates OCR runtime costs; preserves 2D cell matrices directly |
