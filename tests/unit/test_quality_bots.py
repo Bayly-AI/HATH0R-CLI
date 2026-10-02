@@ -185,6 +185,63 @@ def test_preflight_branch_check_on_canonical(tmp_path: Path, monkeypatch) -> Non
     assert any(c.get("check") == "branch" and not c.get("ok") for c in res["checks"])
 
 
+def _fake_git(branch: str):
+    def fake_run_cmd(args, cwd=None):
+        if args[:3] == ["git", "branch", "--show-current"]:
+            return 0, branch, ""
+        if args[:2] == ["git", "status"]:
+            return 0, "", ""
+        return 1, "", "unexpected"
+
+    return fake_run_cmd
+
+
+def _branch_check(res):
+    return next(c for c in res["checks"] if c.get("check") == "branch")
+
+
+def test_preflight_accepts_release_branch_matching_version(tmp_path: Path, monkeypatch) -> None:
+    (tmp_path / "VERSION").write_text("0.7.0\n", encoding="utf-8")
+    monkeypatch.setattr("hath0r_cli.bots.quality.run_cmd", _fake_git("release/0.7.0"))
+    res = PreflightBot(cwd=tmp_path).run(skip_tests=True)
+    check = _branch_check(res)
+    assert check["ok"] is True
+    assert check["is_release"] is True
+    assert check["version"] == "0.7.0"
+    assert res["success"] is True
+
+
+def test_preflight_rejects_release_branch_version_mismatch(tmp_path: Path, monkeypatch) -> None:
+    (tmp_path / "VERSION").write_text("0.6.0\n", encoding="utf-8")
+    monkeypatch.setattr("hath0r_cli.bots.quality.run_cmd", _fake_git("release/0.7.0"))
+    res = PreflightBot(cwd=tmp_path).run(skip_tests=True)
+    check = _branch_check(res)
+    assert check["ok"] is False
+    assert "does not match VERSION '0.6.0'" in check["error"]
+    assert res["success"] is False
+
+
+def test_preflight_rejects_untaxonomic_branch(tmp_path: Path, monkeypatch) -> None:
+    (tmp_path / "VERSION").write_text("0.7.0\n", encoding="utf-8")
+    monkeypatch.setattr("hath0r_cli.bots.quality.run_cmd", _fake_git("my-random-branch"))
+    res = PreflightBot(cwd=tmp_path).run(skip_tests=True)
+    check = _branch_check(res)
+    assert check["ok"] is False
+    assert "release/<semver>" in check["error"]
+
+
+def test_preflight_accepts_issue_branch(tmp_path: Path, monkeypatch) -> None:
+    (tmp_path / "VERSION").write_text("0.7.0\n", encoding="utf-8")
+    monkeypatch.setattr(
+        "hath0r_cli.bots.quality.run_cmd", _fake_git("fix/278-preflight-release-branches")
+    )
+    res = PreflightBot(cwd=tmp_path).run(skip_tests=True)
+    check = _branch_check(res)
+    assert check["ok"] is True
+    assert check["issue_number"] == 278
+    assert check["prefix"] == "fix"
+
+
 def test_deploy_test_bot_parse_pytest_output() -> None:
     from hath0r_cli.bots.quality import DeployTestBot
 

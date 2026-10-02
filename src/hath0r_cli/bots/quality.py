@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Optional, Tuple
 VALID_BRANCH_PREFIXES = ("feature", "bugfix", "hotfix", "enhancement", "research", "fix", "chore")
 CANONICAL_BRANCHES = ("development", "testing", "staging", "master")
 BRANCH_REGEX = re.compile(r"^(feature|bugfix|hotfix|enhancement|research|fix|chore)/(\d+)-([a-z0-9-]+)$")
+RELEASE_BRANCH_REGEX = re.compile(r"^release/(\d+\.\d+\.\d+(?:-[a-zA-Z0-9.]+)?)$")
 SEMVER_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9.]+))?$")
 
 
@@ -214,12 +215,46 @@ class PreflightBot:
                 "branch": branch,
                 "error": f"Cannot open work PR from canonical branch '{branch}'",
             }
+        m_release = RELEASE_BRANCH_REGEX.match(branch)
+        if m_release:
+            # Release promotion branch (release/X.Y.Z -> testing -> staging -> master).
+            # Its version must match VERSION so a mislabelled release branch still fails.
+            branch_version = m_release.group(1)
+            version_path = self.cwd / "VERSION"
+            file_version = (
+                version_path.read_text(encoding="utf-8").strip() if version_path.is_file() else None
+            )
+            if file_version != branch_version:
+                return {
+                    "ok": False,
+                    "check": "branch",
+                    "branch": branch,
+                    "is_release": True,
+                    "version": branch_version,
+                    "error": (
+                        f"Release branch '{branch}' does not match VERSION "
+                        f"'{file_version or 'missing'}'"
+                    ),
+                }
+            return {
+                "ok": True,
+                "check": "branch",
+                "branch": branch,
+                "is_release": True,
+                "version": branch_version,
+                "prefix": "release",
+                "message": f"{branch} (release promotion branch)",
+            }
         if not BRANCH_REGEX.match(branch):
             return {
                 "ok": False,
                 "check": "branch",
                 "branch": branch,
-                "error": f"Branch '{branch}' violates feature|bugfix|…/<issue>-slug taxonomy",
+                "error": (
+                    f"Branch '{branch}' violates taxonomy: expected "
+                    "feature|bugfix|hotfix|enhancement|research|fix|chore/<issue>-slug "
+                    "or release/<semver>"
+                ),
             }
         m = BRANCH_REGEX.match(branch)
         assert m is not None
