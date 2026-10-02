@@ -1,6 +1,6 @@
 {
   "name": "hath0r-cli",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "HATH0R CLI operator and cognitive substrate control plane: Taguchi parameter optimization, FinOps multilingual tokenizer-tax auditing, pixel-native 2D document parsing, and Playwright UI element grounding.",
   "icon": ".claude-plugin/icon.png",
   "author": {

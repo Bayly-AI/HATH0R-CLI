@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-02
+
+### Added
+
+- **AgentGraph Substrate & Dynamic Rule Architecture (`hath0r agentgraph`)** (#283, #287):
+  - Added dynamic graph data structures (`GraphNode`, `GraphEdge`, `RuleNode`, `RoleNode`, `AgentGraphSubstrate`) under `src/hath0r_cli/agentgraph/`.
+  - Implemented dynamic rule retrieval with deterministic caching and validation (`has_cycles()`, `detect_contradictions()`).
+  - Implemented CLI surface: `hath0r agentgraph status`, `hath0r agentgraph validate`, `hath0r agentgraph sync`, `hath0r agentgraph rules`, `hath0r agentgraph roles`, and `hath0r agentgraph bot`.
+- **Automated AgentGraph Bot (`AgentGraphBot`)** (#284, #288):
+  - Added automated rule extraction and graph synchronization bot scanning repository markdown rules and code contexts.
+  - Generates serializable graph snapshots at `.hath0r/agentgraph/snapshot.json`.
+- **Workflow & Quality Gate Integrations** (#285, #289):
+  - Integrated AgentGraph validation into clean-repo standard operating procedures, PR verification workflows, and SonarCloud quality gates.
+- **Cross-Repo AgentGraph Migration Plane (`hath0r agentgraph migrate`)** (#286, #290):
+  - Added `migrate_repo()` and `migrate_all()` supporting `--path` and `--all` across development workspaces.
+  - Automatically converts markdown rules to AgentGraph snapshots and updates `AGENTS.md` with AgentGraph substrate pointers.
+
 ## [0.7.1] - 2026-10-02
 
 ### Fixed

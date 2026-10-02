@@ -412,8 +412,23 @@ class CleanReposWorkflowBot:
                 kb_synced = (repo_path / ".hath0r" / "knowledgebase").exists() or (repo_path / "AGENTS.md").exists()
                 repo_res["steps"]["6_share_knowledge"] = {"synced": kb_synced}
 
-                # Step 7: Update documentation
-                repo_res["steps"]["7_update_documentation"] = {"agents_md": (repo_path / "AGENTS.md").exists(), "readme_md": (repo_path / "README.md").exists()}
+                # Step 7: Update documentation & AgentGraph synchronization
+                from hath0r_cli.bots.agentgraph_bot import AgentGraphBot
+
+                ag_bot = AgentGraphBot(cwd=repo_path)
+                ag_sync = ag_bot.sync(persist=True)
+                ag_val = ag_bot.validate()
+                ag_valid = bool(ag_val.get("validation", {}).get("valid", False))
+                repo_res["steps"]["7_update_documentation"] = {
+                    "agents_md": (repo_path / "AGENTS.md").exists(),
+                    "readme_md": (repo_path / "README.md").exists(),
+                    "agentgraph_synced": ag_sync.get("success", False),
+                    "agentgraph_valid": ag_valid,
+                    "agentgraph_nodes": ag_sync.get("sync", {}).get("nodes_indexed", 0),
+                }
+                if not ag_valid:
+                    repo_res["clean"] = False
+                    repo_res["error"] = f"AgentGraph validation failed: {'; '.join(ag_val['validation'].get('errors', []))}"
 
                 # Step 8: Commit documentation changes
                 status_post_docs = subprocess.check_output(
