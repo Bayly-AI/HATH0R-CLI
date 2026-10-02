@@ -285,20 +285,41 @@ def agentgraph_route(
 
 
 @agentgraph.command("bot")
-@click.option("--run", is_flag=True, default=False, help="Run autonomous sync and healing loop.")
+@click.option("--run", is_flag=True, default=False, help="Run autonomous sync, heal, and audit loop.")
 @click.option("--audit", is_flag=True, default=False, help="Execute health and policy audit.")
+@click.option("--heal", is_flag=True, default=False, help="Autonomous healing and orphan node/edge cleanup.")
+@click.option("--cross-repo", is_flag=True, default=False, help="Cross-repository rule alignment and compliance audit.")
 @click.option("--path", "-p", default=".", help="Repository root path.")
 @click.pass_context
-def agentgraph_bot_cmd(ctx: click.Context, run: bool, audit: bool, path: str) -> None:
-    """AgentGraph-bot autonomous management and audit surface."""
+def agentgraph_bot_cmd(
+    ctx: click.Context,
+    run: bool,
+    audit: bool,
+    heal: bool,
+    cross_repo: bool,
+    path: str,
+) -> None:
+    """AgentGraph-bot autonomous management, healing, and cross-repo audit surface."""
     bot = AgentGraphBot()
-    if run:
-        # Run sync followed by audit
+
+    if cross_repo:
+        data = bot.audit_cross_repo()
+    elif heal:
+        data = bot.heal(path=path)
+    elif run:
         sync_res = bot.sync(path=path)
+        heal_res = bot.heal(path=path)
         audit_res = bot.run_bot_audit(path=path)
-        data = {"action": "run", "sync": sync_res["sync"], "audit": audit_res}
+        data = {
+            "success": audit_res.get("success", True),
+            "subcommand": "bot",
+            "action": "run",
+            "sync": sync_res["sync"],
+            "heal": heal_res,
+            "audit": audit_res,
+            "health": audit_res.get("health", "healthy"),
+        }
     else:
-        # Default to audit
         data = bot.run_bot_audit(path=path)
 
     response = _build_response(
@@ -309,10 +330,28 @@ def agentgraph_bot_cmd(ctx: click.Context, run: bool, audit: bool, path: str) ->
     )
 
     def _text() -> None:
-        console.print(f"\n[bold cyan]AgentGraph-bot Report[/bold cyan] (Health: [bold green]{data.get('health', 'ok')}[/bold green])")
-        if "sync" in data:
-            console.print(f"  • Sync: Indexed {data['sync']['nodes_indexed']} nodes, {data['sync']['edges_indexed']} edges.")
-        console.print(f"  • Valid: {data.get('validation', {}).get('valid', True)}")
-        console.print("")
+        sub = data.get("subcommand", "bot")
+        if sub == "cross_repo":
+            console.print(f"\n[bold cyan]AgentGraph Cross-Repository Alignment[/bold cyan] (Score: [bold green]{data['alignment_score']}%[/bold green])")
+            console.print(f"  • Repositories scanned: {', '.join(data['repos_scanned'])}")
+            if data.get("recommendations"):
+                console.print("\n  [yellow]Recommendations:[/yellow]")
+                for r in data["recommendations"]:
+                    console.print(f"    - {r}")
+            console.print("")
+        elif sub == "heal":
+            console.print("\n[bold green]✓ AgentGraph Healing Completed[/bold green]")
+            console.print(f"  • Orphan edges pruned: {data['orphans_pruned']}")
+            console.print(f"  • Cycles broken: {data['cycles_broken']}")
+            console.print(f"  • Remaining active edges: {data['remaining_edges']}\n")
+        else:
+            console.print(f"\n[bold cyan]AgentGraph-bot Report[/bold cyan] (Health: [bold green]{data.get('health', 'ok')}[/bold green])")
+            if "sync" in data:
+                console.print(f"  • Sync: Indexed {data['sync']['nodes_indexed']} nodes, {data['sync']['edges_indexed']} edges.")
+            if "heal" in data:
+                console.print(f"  • Healing: Repaired {data['heal']['total_healed']} issues.")
+            console.print(f"  • Valid: {data.get('validation', {}).get('valid', True)}")
+            console.print("")
 
     _emit_response(ctx, response, text_renderer=_text)
+

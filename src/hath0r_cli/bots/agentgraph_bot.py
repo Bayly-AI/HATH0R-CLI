@@ -219,6 +219,8 @@ class AgentGraphBot:
 
         # 1. Orphan edge detection
         for e in edges:
+            if not e.get("is_current", True):
+                continue
             src = e.get("source")
             tgt = e.get("target")
             rel = e.get("relation", e.get("type", "unknown"))
@@ -232,6 +234,8 @@ class AgentGraphBot:
         # 2. Cycle detection on INHERITS_FROM & SUPERSEDES
         adj_inheritance: Dict[str, List[str]] = defaultdict(list)
         for e in edges:
+            if not e.get("is_current", True):
+                continue
             rel = e.get("relation", e.get("type", ""))
             if rel in ("INHERITS_FROM", "SUPERSEDES"):
                 adj_inheritance[e["source"]].append(e["target"])
@@ -239,7 +243,7 @@ class AgentGraphBot:
         def has_cycle(start_node: str, visited: Set[str], rec_stack: Set[str]) -> bool:
             visited.add(start_node)
             rec_stack.add(start_node)
-            for neighbor in adj_inheritance[start_node]:
+            for neighbor in adj_inheritance.get(start_node, []):
                 if neighbor not in visited:
                     if has_cycle(neighbor, visited, rec_stack):
                         return True
@@ -249,7 +253,7 @@ class AgentGraphBot:
             return False
 
         visited_nodes: Set[str] = set()
-        for node_id in adj_inheritance:
+        for node_id in list(adj_inheritance.keys()):
             if node_id not in visited_nodes:
                 rec_stack: Set[str] = set()
                 if has_cycle(node_id, visited_nodes, rec_stack):
@@ -571,6 +575,176 @@ class AgentGraphBot:
             },
         }
 
+    def heal(self, path: Optional[str] = None, dry_run: bool = False) -> Dict[str, Any]:
+        """Perform autonomous healing: prune orphan edges, break cycles, and reconcile graph."""
+        graph = self.load_graph(path)
+        nodes = {n.get("id"): n for n in graph.get("nodes", [])}
+        edges = graph.get("edges", [])
+
+        orphan_edges: List[Dict[str, Any]] = []
+        valid_edges: List[Dict[str, Any]] = []
+        now_iso = datetime.now(timezone.utc).isoformat()
+
+        # 1. Prune / invalidate orphan edges
+        for e in edges:
+            src = e.get("source")
+            tgt = e.get("target")
+            rel = e.get("relation", e.get("type", "unknown"))
+            if src not in nodes or (tgt not in nodes and rel not in ("AUTHORIZES_TOOL", "RESTRICTED_BY")):
+                orphan_edges.append(e)
+            else:
+                valid_edges.append(e)
+
+        # 2. Break cycles in inheritance / superseding
+        adj: Dict[str, List[int]] = defaultdict(list)
+        for idx, e in enumerate(valid_edges):
+            if e.get("is_current", True) and e.get("relation") in ("INHERITS_FROM", "SUPERSEDES"):
+                adj[e["source"]].append(idx)
+
+        cycle_edges_indices: Set[int] = set()
+
+        def detect_and_mark_cycle(curr: str, visited: Set[str], stack: List[str]) -> bool:
+            visited.add(curr)
+            stack.append(curr)
+            for edge_idx in adj.get(curr, []):
+                e = valid_edges[edge_idx]
+                neighbor = e["target"]
+                if neighbor not in visited:
+                    if detect_and_mark_cycle(neighbor, visited, stack):
+                        return True
+                elif neighbor in stack:
+                    cycle_edges_indices.add(edge_idx)
+                    return True
+            stack.pop()
+            return False
+
+        visited_nodes: Set[str] = set()
+        for nid in list(adj.keys()):
+            if nid not in visited_nodes:
+                detect_and_mark_cycle(nid, visited_nodes, [])
+
+        cycles_broken = len(cycle_edges_indices)
+        for c_idx in cycle_edges_indices:
+            valid_edges[c_idx]["is_current"] = False
+            valid_edges[c_idx]["valid_to"] = now_iso
+            valid_edges[c_idx]["cycle_broken"] = True
+
+        healed_count = len(orphan_edges) + cycles_broken
+        if not dry_run and healed_count > 0:
+            graph["edges"] = valid_edges
+            self.save_graph(graph, path)
+
+        return {
+            "success": True,
+            "subcommand": "heal",
+            "dry_run": dry_run,
+            "orphans_pruned": len(orphan_edges),
+            "cycles_broken": cycles_broken,
+            "total_healed": healed_count,
+            "remaining_edges": len(valid_edges),
+        }
+
+    def audit_cross_repo(self, base_dir: Optional[str] = None) -> Dict[str, Any]:
+        """Perform cross-repository rule alignment and compliance audit."""
+        search_root = Path(base_dir).resolve() if base_dir else self.cwd.parent
+        repos_found: List[str] = []
+        rule_matrix: Dict[str, List[str]] = defaultdict(list)
+        missing_by_repo: Dict[str, List[str]] = defaultdict(list)
+
+        canonical_rules = [
+            "CR-CLI-ENTRY-001",
+            "CR-BRANCH-GOV-001",
+            "CR-DOCKER-HATH0R-GROUP-001",
+            "CR-HATH0R-ROOT-001",
+        ]
+
+        if search_root.is_dir():
+            for child in sorted(search_root.iterdir()):
+                if child.is_dir() and (child / "AGENTS.md").is_file():
+                    repo_name = child.name
+                    repos_found.append(repo_name)
+                    # Scan for canonical rules in AGENTS.md and rules.md
+                    content = (child / "AGENTS.md").read_text(encoding="utf-8", errors="ignore")
+                    rm = child / "rules.md"
+                    if rm.is_file():
+                        content += "\n" + rm.read_text(encoding="utf-8", errors="ignore")
+
+                    for crule in canonical_rules:
+                        if re.search(rf"\b{re.escape(crule)}\b", content, re.IGNORECASE):
+                            rule_matrix[crule].append(repo_name)
+                        else:
+                            missing_by_repo[repo_name].append(crule)
+
+        # Calculate alignment score
+        total_checks = len(repos_found) * len(canonical_rules) if repos_found else 1
+        passed_checks = sum(len(repos) for repos in rule_matrix.values())
+        alignment_score = round((passed_checks / max(1, total_checks)) * 100, 1)
+
+        recommendations = []
+        for repo_name, missing in missing_by_repo.items():
+            if missing:
+                recommendations.append(f"Repository '{repo_name}' is missing canonical rules: {', '.join(missing)}")
+
+        return {
+            "success": True,
+            "subcommand": "cross_repo",
+            "search_root": str(search_root),
+            "repos_scanned": repos_found,
+            "canonical_rules": canonical_rules,
+            "rule_matrix": dict(rule_matrix),
+            "missing_by_repo": dict(missing_by_repo),
+            "alignment_score": alignment_score,
+            "recommendations": recommendations,
+        }
+
+    def invalidate_bitemporal(
+        self,
+        target_id: str,
+        superseding_id: Optional[str] = None,
+        path: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Invalidate an entity or edge bitemporally by setting valid_to and linking SUPERSEDES."""
+        graph = self.load_graph(path)
+        nodes = graph.get("nodes", [])
+        edges = graph.get("edges", [])
+        now_iso = datetime.now(timezone.utc).isoformat()
+
+        found_node = False
+        for n in nodes:
+            if n.get("id") == target_id:
+                n["is_current"] = False
+                n["valid_to"] = now_iso
+                found_node = True
+
+        found_edge = False
+        for e in edges:
+            if e.get("id") == target_id or f"{e.get('source')}->{e.get('target')}" == target_id:
+                e["is_current"] = False
+                e["valid_to"] = now_iso
+                found_edge = True
+
+        if superseding_id and (found_node or found_edge):
+            edges.append(
+                {
+                    "source": superseding_id,
+                    "target": target_id,
+                    "relation": "SUPERSEDES",
+                    "valid_from": now_iso,
+                    "valid_to": None,
+                    "is_current": True,
+                }
+            )
+
+        self.save_graph(graph, path)
+        return {
+            "success": found_node or found_edge,
+            "target_id": target_id,
+            "superseding_id": superseding_id,
+            "found_node": found_node,
+            "found_edge": found_edge,
+            "invalidated_at": now_iso,
+        }
+
     def run_bot_audit(self, path: Optional[str] = None) -> Dict[str, Any]:
         """Perform autonomous health audit and reconciliation."""
         val = self.validate(path)
@@ -583,3 +757,4 @@ class AgentGraphBot:
             "status": stat["status"],
             "health": "healthy" if val["validation"]["valid"] else "degraded",
         }
+
