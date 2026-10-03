@@ -417,7 +417,86 @@ class AgentGraphBot:
                 except Exception:
                     pass
 
-        # 4. Standard canonical base roles if none found
+        # 4. Ingest Knowledge Documentation (docs/, knowledgebase/, READMEs)
+        doc_candidates: List[Path] = []
+        if (root / "docs").is_dir():
+            doc_candidates.extend((root / "docs").rglob("*.md"))
+        if (root / ".hath0r" / "knowledgebase").is_dir():
+            doc_candidates.extend((root / ".hath0r" / "knowledgebase").rglob("*.md"))
+        for top_md in ("README.md", "TECH_README.md", "WARP.md"):
+            p = root / top_md
+            if p.is_file():
+                doc_candidates.append(p)
+
+        seen_doc_paths: Set[str] = {n.get("properties", {}).get("path") for n in nodes if n.get("plane") == "knowledge"}
+        for doc_file in doc_candidates:
+            if any(part.startswith(".") and part != ".hath0r" for part in doc_file.parts):
+                continue
+            if ".git" in doc_file.parts or ".venv" in doc_file.parts or "node_modules" in doc_file.parts:
+                continue
+            rel_path = str(doc_file.relative_to(root))
+            if rel_path in seen_doc_paths:
+                continue
+            seen_doc_paths.add(rel_path)
+            sources_scanned += 1
+            try:
+                text = doc_file.read_text(encoding="utf-8", errors="ignore")
+                clean_id = f"doc:{rel_path.replace('/', '__').replace('.', '_')}"
+                category = doc_file.parent.name if doc_file.parent != root else "root"
+                nodes.append(
+                    {
+                        "id": clean_id,
+                        "plane": "knowledge",
+                        "type": "knowledge_doc",
+                        "label": doc_file.stem.replace("-", " ").replace("_", " ").title(),
+                        "content": text[:1200],
+                        "properties": {
+                            "path": rel_path,
+                            "category": category,
+                            "size_bytes": doc_file.stat().st_size,
+                        },
+                        "is_current": True,
+                    }
+                )
+            except Exception:
+                pass
+
+        # 5. Ingest Local Memory Substrate (.hath0r/memory/graph.json)
+        mem_graph_file = root / ".hath0r" / "memory" / "graph.json"
+        if mem_graph_file.is_file():
+            sources_scanned += 1
+            try:
+                mem_data = json.loads(mem_graph_file.read_text(encoding="utf-8"))
+                for mn in mem_data.get("nodes", []):
+                    m_id = str(mn.get("id") or "")
+                    if not m_id:
+                        continue
+                    if not m_id.startswith("memory:") and not m_id.startswith("concept:"):
+                        m_id = f"memory:{m_id}"
+                    nodes.append(
+                        {
+                            "id": m_id,
+                            "plane": "memory",
+                            "type": mn.get("type", "concept"),
+                            "label": mn.get("label", m_id),
+                            "content": mn.get("content", ""),
+                            "properties": mn.get("properties", {"source": "local_memory"}),
+                            "is_current": True,
+                        }
+                    )
+                for me in mem_data.get("edges", []):
+                    edges.append(
+                        {
+                            "source": me.get("source"),
+                            "target": me.get("target"),
+                            "relation": me.get("relation", "RELATES_TO"),
+                            "is_current": True,
+                        }
+                    )
+            except Exception:
+                pass
+
+        # 6. Standard canonical base roles if none found
         role_ids = {n["id"] for n in nodes if n["plane"] == "rules" and n["type"] == "agent_role"}
         if "role:developer" not in role_ids:
             nodes.append(
@@ -452,7 +531,7 @@ class AgentGraphBot:
                 }
             )
 
-        # Connect default rule governance edges
+        # Connect default rule governance and memory edges
         for n in nodes:
             if n["type"] == "rule_policy":
                 edges.append(
@@ -460,6 +539,15 @@ class AgentGraphBot:
                         "source": n["id"],
                         "target": "role:developer",
                         "relation": "GOVERNS",
+                        "is_current": True,
+                    }
+                )
+            elif n.get("plane") == "memory":
+                edges.append(
+                    {
+                        "source": n["id"],
+                        "target": "role:developer",
+                        "relation": "INFORMS",
                         "is_current": True,
                     }
                 )
@@ -900,11 +988,21 @@ class AgentGraphBot:
         val = self.validate(str(target))
         stat = self.get_status(str(target))
 
+        # Calculate plane migration counts
+        all_nodes = graph.get("nodes", [])
+        knowledge_count = sum(1 for n in all_nodes if n.get("plane") == "knowledge")
+        agents_count = sum(1 for n in all_nodes if n.get("plane") == "rules" and n.get("type") == "agent_role")
+        memory_count = sum(1 for n in all_nodes if n.get("plane") == "memory")
+        total_rules = sum(1 for n in all_nodes if n.get("plane") == "rules" and n.get("type") == "rule_policy")
+
         return {
             "success": val["validation"]["valid"],
             "repo": target.name,
             "path": str(target),
-            "rules_migrated": rules_added,
+            "rules_migrated": rules_added if rules_added > 0 else total_rules,
+            "knowledge_migrated": knowledge_count,
+            "agents_migrated": agents_count,
+            "memory_migrated": memory_count,
             "total_nodes": stat["status"]["total_nodes"],
             "total_edges": stat["status"]["total_edges"],
             "validation": val["validation"],

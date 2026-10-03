@@ -63,6 +63,23 @@ bots:
       - scaffold-tests
       - provision-ci-workflows
 
+  - id: agentgraph-bot
+    name: AgentGraph Bot
+    role: cognitive-substrate-compilation
+    description: Sets up AgentGraph, migrating knowledge, rules, agents, and memory into a unified substrate.
+    capabilities:
+      - setup-agentgraph
+      - migrate-repo
+      - sync
+      - validate
+
+  - id: documentation-bot
+    name: Documentation Bot
+    role: knowledge-and-wiki-sync
+    description: Records post-task knowledge shares and indexes SQLite FTS5 knowledge base.
+    capabilities:
+      - share-knowledge
+
 # Sequential and orchestrated workflows
 workflows:
   - id: repo-onboard
@@ -97,6 +114,12 @@ workflows:
         action: init-context-graph
       - bot: tri-graph-ingest-bot
         action: ingest-memory-graph
+      - bot: agentgraph-bot
+        action: setup-agentgraph
+      - bot: documentation-bot
+        action: share-knowledge
+        args:
+          summary: "Universal repository onboarding: initialized HATHOR framework and migrated AgentGraph cognitive substrate (knowledge, rules, agents, memory)."
 
   - id: repo-rollback
     name: Rollback Onboarding Changes
