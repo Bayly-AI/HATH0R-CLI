@@ -153,19 +153,32 @@ def finops_tokens_record(
 @finops_tokens.command("list")
 @click.option("--user", "-u", default=None, help="Filter by user identifier.")
 @click.option("--model", "-m", default=None, help="Filter by model.")
+@click.option("--agent", "-a", default=None, help="Filter by agent identifier.")
+@click.option("--session", "-s", default=None, help="Filter by session ID.")
+@click.option("--tier", "-t", default=None, help="Filter by tier.")
 @click.option("--limit", "-n", default=20, type=int, help="Maximum number of records to return.")
 @click.pass_context
 def finops_tokens_list(
     ctx: click.Context,
     user: Optional[str],
     model: Optional[str],
+    agent: Optional[str],
+    session: Optional[str],
+    tier: Optional[str],
     limit: int,
 ) -> None:
     """List agent token telemetry records."""
     from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
 
     bot = TokenTelemetryCLIBot(cwd=Path.cwd())
-    records = bot.list_records(user_id=user, model=model, limit=limit)
+    records = bot.list_records(
+        user_id=user,
+        model=model,
+        agent_id=agent,
+        session_id=session,
+        tier=tier,
+        limit=limit,
+    )
 
     response = _build_response(
         ctx,
@@ -206,21 +219,43 @@ def finops_tokens_list(
 
 
 @finops_tokens.command("histogram")
-@click.option("--metric", "-m", type=click.Choice(["prompt_tokens", "prompt_length_chars", "total_tokens", "cost_usd"]), default="prompt_tokens", help="Metric to bin.")
+@click.option(
+    "--metric",
+    "-m",
+    type=click.Choice(["prompt_tokens", "prompt_length_chars", "total_tokens", "cost_usd", "latency_ms"]),
+    default="prompt_tokens",
+    help="Metric to bin.",
+)
 @click.option("--user", "-u", default=None, help="Filter by user identifier.")
+@click.option("--model", "-M", default=None, help="Filter by model.")
+@click.option("--agent", "-a", default=None, help="Filter by agent identifier.")
+@click.option("--session", "-s", default=None, help="Filter by session ID.")
+@click.option("--tier", "-t", default=None, help="Filter by tier.")
 @click.option("--bins", "-b", default=10, type=int, help="Number of histogram bins.")
 @click.pass_context
 def finops_tokens_histogram(
     ctx: click.Context,
     metric: str,
     user: Optional[str],
+    model: Optional[str],
+    agent: Optional[str],
+    session: Optional[str],
+    tier: Optional[str],
     bins: int,
 ) -> None:
     """Build and display a statistical distribution histogram of token telemetry."""
     from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
 
     bot = TokenTelemetryCLIBot(cwd=Path.cwd())
-    data = bot.histogram(metric=metric, user_id=user, bins_count=bins)
+    data = bot.histogram(
+        metric=metric,
+        user_id=user,
+        model=model,
+        agent_id=agent,
+        session_id=session,
+        tier=tier,
+        bins_count=bins,
+    )
 
     response = _build_response(ctx, command="finops.tokens.histogram", state="ok", data=data)
 

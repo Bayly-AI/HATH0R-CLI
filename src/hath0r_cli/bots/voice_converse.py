@@ -398,6 +398,21 @@ class AgentDialogueBot:
 
         self.dialogue_history.append({"user": transcript, "agent": feedback})
 
+        try:
+            from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
+
+            TokenTelemetryCLIBot(cwd=self.cwd).record(
+                prompt=transcript,
+                user_id=os.environ.get("USER", "voice_user"),
+                model="gemini-1.5-flash",
+                tier="standard",
+                completion=feedback,
+                agent_id="voice_dialogue_bot",
+                session_id="voice_session",
+            )
+        except Exception:
+            pass
+
         return {
             "success": state == "ok",
             "intent": intent,
