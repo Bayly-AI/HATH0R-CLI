@@ -7,7 +7,6 @@ and web layout audits for designing websites.
 
 from __future__ import annotations
 
-import json
 import os
 import re
 import shutil
@@ -15,8 +14,7 @@ import urllib.error
 import urllib.request
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-
+from typing import Any, Dict, List, Optional
 
 PAPER_DEFAULT_HTTP_URL = "http://127.0.0.1:29979"
 PAPER_DEFAULT_MCP_ENDPOINT = "/mcp"
@@ -175,7 +173,6 @@ class PaperDesignBot:
         # Parse classes, elements, and headings
         has_nav = "<nav" in html_content.lower() or "nav" in name.lower()
         has_hero = "hero" in name.lower() or "hero" in html_content.lower()
-        has_card = "card" in html_content.lower() or "card" in name.lower()
 
         extracted_headings = re.findall(r"<h[1-6][^>]*>(.*?)</h[1-6]>", html_content, re.IGNORECASE)
         title_text = extracted_headings[0] if extracted_headings else name
