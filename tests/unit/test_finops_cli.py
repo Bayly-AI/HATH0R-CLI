@@ -211,8 +211,8 @@ def test_finops_tokens_cli_commands(tmp_path):
 def test_local_model_bot_and_voice_telemetry_capture(tmp_path):
     """Verify that LocalModelBot and AgentDialogueBot automatically record telemetry."""
     from hath0r_cli.bots.local_model_bot import LocalModelBot
-    from hath0r_cli.bots.voice_converse import AgentDialogueBot
     from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
+    from hath0r_cli.bots.voice_converse import AgentDialogueBot
 
     # 1. LocalModelBot reason and generate_code
     local_bot = LocalModelBot(cwd=tmp_path)
