@@ -220,7 +220,8 @@ def design_audit(ctx: click.Context, input_file: Path) -> None:
     def _text() -> None:
         score = res.get("accessibility_score", 0)
         color = "green" if score >= 80 else ("yellow" if score >= 50 else "red")
-        console.print(f"[bold {color}]Web Layout Audit Score: {score}/100 ({res.get('status').upper()})[/bold {color}]")
+        status_label = str(res.get("status") or "").upper()
+        console.print(f"[bold {color}]Web Layout Audit Score: {score}/100 ({status_label})[/bold {color}]")
         console.print(f"  • Landmarks Detected: {', '.join(res.get('landmarks_detected', [])) or 'None'}")
         findings = res.get("findings", [])
         if findings:
