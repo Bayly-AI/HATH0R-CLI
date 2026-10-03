@@ -39,6 +39,10 @@ class TokenTelemetryCLIBot:
         tier: str = "standard",
         completion: str = "",
         session_id: str = "",
+        agent_id: str = "hath0r-agent",
+        latency_ms: float = 0.0,
+        cached: bool = False,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Record an agent prompt interaction to the telemetry ledger."""
         self._ensure_dir()
@@ -51,13 +55,15 @@ class TokenTelemetryCLIBot:
         tier_key = tier.lower() if tier.lower() in TIER_PRICING else "standard"
         pricing = TIER_PRICING[tier_key]
         cost = (p_tok / 1_000_000.0) * pricing["input"] + (c_tok / 1_000_000.0) * pricing["output"]
+        if cached:
+            cost = 0.0
 
         rec = {
             "id": f"tok_{uuid.uuid4().hex[:12]}",
             "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
             "timestamp_ns": int(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1_000_000_000),
             "user_id": user_id,
-            "agent_id": "hath0r-agent",
+            "agent_id": agent_id,
             "session_id": session_id,
             "prompt_length_chars": p_len,
             "prompt_tokens": p_tok,
@@ -67,9 +73,9 @@ class TokenTelemetryCLIBot:
             "model": model,
             "tier": tier,
             "cost_usd": round(cost, 8),
-            "latency_ms": 0.0,
-            "cached": False,
-            "metadata": {},
+            "latency_ms": round(latency_ms, 2),
+            "cached": cached,
+            "metadata": metadata or {},
         }
 
         with self.ledger_path.open("a", encoding="utf-8") as f:
@@ -81,6 +87,9 @@ class TokenTelemetryCLIBot:
         self,
         user_id: Optional[str] = None,
         model: Optional[str] = None,
+        agent_id: Optional[str] = None,
+        session_id: Optional[str] = None,
+        tier: Optional[str] = None,
         limit: int = 50,
     ) -> List[Dict[str, Any]]:
         """List records from the telemetry ledger."""
@@ -99,6 +108,12 @@ class TokenTelemetryCLIBot:
                         continue
                     if model and data.get("model") != model:
                         continue
+                    if agent_id and data.get("agent_id") != agent_id:
+                        continue
+                    if session_id and data.get("session_id") != session_id:
+                        continue
+                    if tier and data.get("tier") != tier:
+                        continue
                     records.append(data)
                 except Exception:
                     continue
@@ -109,11 +124,22 @@ class TokenTelemetryCLIBot:
         self,
         metric: str = "prompt_tokens",
         user_id: Optional[str] = None,
+        model: Optional[str] = None,
+        agent_id: Optional[str] = None,
+        session_id: Optional[str] = None,
+        tier: Optional[str] = None,
         bins_count: int = 10,
         max_bar_width: int = 25,
     ) -> Dict[str, Any]:
         """Generate statistical histogram of token telemetry records."""
-        records = self.list_records(user_id=user_id, limit=10_000)
+        records = self.list_records(
+            user_id=user_id,
+            model=model,
+            agent_id=agent_id,
+            session_id=session_id,
+            tier=tier,
+            limit=10_000,
+        )
         tot_recs = len(records)
         tot_tok = sum(r.get("total_tokens", 0) for r in records)
         tot_cost = round(sum(r.get("cost_usd", 0.0) for r in records), 6)

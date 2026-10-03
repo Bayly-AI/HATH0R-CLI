@@ -173,3 +173,66 @@ def test_finops_tokens_cli_commands(tmp_path):
         payload = json.loads(res_json.output)
         assert payload["state"] == "ok"
         assert payload["data"]["total_records"] == 1
+
+        # Test filtering options on list and histogram
+        res_list_filter = runner.invoke(
+            cli,
+            [
+                "-o",
+                "json",
+                "finops",
+                "tokens",
+                "list",
+                "--user",
+                "nonexistent_user",
+            ],
+        )
+        assert res_list_filter.exit_code == 0
+        assert json.loads(res_list_filter.output)["data"]["count"] == 0
+
+        res_hist_filter = runner.invoke(
+            cli,
+            [
+                "-o",
+                "json",
+                "finops",
+                "tokens",
+                "histogram",
+                "--user",
+                "raybayly",
+                "--metric",
+                "total_tokens",
+            ],
+        )
+        assert res_hist_filter.exit_code == 0
+        assert json.loads(res_hist_filter.output)["data"]["total_records"] == 1
+
+
+def test_local_model_bot_and_voice_telemetry_capture(tmp_path):
+    """Verify that LocalModelBot and AgentDialogueBot automatically record telemetry."""
+    from hath0r_cli.bots.local_model_bot import LocalModelBot
+    from hath0r_cli.bots.voice_converse import AgentDialogueBot
+    from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
+
+    # 1. LocalModelBot reason and generate_code
+    local_bot = LocalModelBot(cwd=tmp_path)
+    res_reason = local_bot.reason("Analyze security risks", force_offline=True)
+    assert res_reason["success"] is True
+
+    res_code = local_bot.generate_code("Write a parser", force_offline=True)
+    assert res_code["success"] is True
+
+    # 2. AgentDialogueBot reason
+    voice_bot = AgentDialogueBot(cwd=tmp_path)
+    res_voice = voice_bot.reason("Hello Hath0r status", dry_run=True)
+    assert res_voice["success"] is True
+
+    # 3. Check telemetry ledger
+    telemetry = TokenTelemetryCLIBot(cwd=tmp_path)
+    records = telemetry.list_records(limit=10)
+    assert len(records) == 3
+
+    agents = {r.get("agent_id") for r in records}
+    assert "local_deepseek-r1_bot" in agents
+    assert "local_qwen2.5-coder_bot" in agents
+    assert "voice_dialogue_bot" in agents
