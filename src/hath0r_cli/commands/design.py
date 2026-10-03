@@ -167,7 +167,7 @@ def design_to_canvas(
 
     def _text() -> None:
         if res.get("success"):
-            console.print(f"[bold green]✓ Staged Canvas Payload for Paper.design[/bold green]")
+            console.print("[bold green]✓ Staged Canvas Payload for Paper.design[/bold green]")
             console.print(f"  • Artboard: [cyan]{name}[/cyan] ({width}x{height}px)")
             console.print(f"  • Tool:     [magenta]{res['payload']['tool']}[/magenta]")
             console.print(f"  • Connected: {'yes' if res['connected'] else 'no (staged for dispatch)'}")
