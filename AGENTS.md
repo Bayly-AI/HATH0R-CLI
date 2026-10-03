@@ -160,17 +160,22 @@ Canonical flow, human gates, and PR templates:
 ## Hyper Context Pointers
 - **CLI Core Subsystem**: `src/hath0r_cli/AGENTS.md`
 
+
 ## Hyper Context Pointers
 - **Bots Subsystem**: `src/hath0r_cli/bots/AGENTS.md`
+
 
 ## Hyper Context Pointers
 - **Configuration Subsystem**: `cfg/AGENTS.md`
 
+
 ## Hyper Context Pointers
 - **Documentation Hub**: `docs/AGENTS.md`
 
+
 ## Hyper Context Pointers
 - **Test Suite Subsystem**: `tests/AGENTS.md`
+
 
 ## Lexicon & Nomenclature (CRITICAL)
 - Refer to background processes, watchers, and autonomous loops as **bots** or **factories**, not "daemons".
@@ -183,14 +188,19 @@ Canonical flow, human gates, and PR templates:
 ## Hyper Context Pointers
 - **CLI Subsystem**: `src/hath0r_cli/AGENTS.md`
 
+
 ## Hyper Context Pointers
 - **Documentation Subsystem**: `docs/AGENTS.md`
 
+
 ## Hyper Context Pointers
 - **Testing Subsystem**: `tests/AGENTS.md`
+
 
 ## AgentGraph Substrate
 
 This repository is governed by the Hath0r AgentGraph substrate. Dynamic rule retrieval, role RBAC, and policy graphs are stored under `.hath0r/agentgraph/`.
 - Query status: `hath0r agentgraph status`
+- Query rules: `hath0r agentgraph query "<topic>"`
+- Route role: `hath0r agentgraph route --role <role>`
 - Validate rules: `hath0r agentgraph validate`
