@@ -1,0 +1,20 @@
+id: token-check-factory
+name: FinOps Token Check Workflow Factory
+description: Automates FinOps token telemetry auditing, 90-day histogram generation, model breakdown, and Generative UI HTML dashboard artifact rendering.
+version: 1.0.0
+owner: "@somesayray"
+documentation:
+  playbook: docs/governance/playbooks/token-check-playbook.md
+  runbook: docs/governance/runbooks/token-check-runbook.md
+  test_doc: tests/unit/test_token_check_bot.py
+
+steps:
+  - id: parse_ledger
+    bot: TokenTelemetryCLIBot
+    action: list_records
+  - id: compute_histogram
+    bot: TokenTelemetryCLIBot
+    action: histogram
+  - id: render_report
+    bot: TokenCheckWorkflowBot
+    action: run_token_check

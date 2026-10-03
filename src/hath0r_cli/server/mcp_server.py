@@ -382,6 +382,22 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         )
 
     @mcp.tool()
+    def hath0r_finops_token_check(
+        user_id: str = "raybayly",
+        days: int = 90,
+    ) -> Dict[str, Any]:
+        """Execute the complete 'token check' workflow returning 90-day FinOps usage, histogram, and markdown report.
+
+        Args:
+            user_id: Target user profile identifier (default 'raybayly').
+            days: Trailing window in days (default 90).
+        """
+        from hath0r_cli.bots.token_check_bot import TokenCheckWorkflowBot
+
+        bot = TokenCheckWorkflowBot()
+        return bot.run_token_check(user_id=user_id, days=days)
+
+    @mcp.tool()
     def hath0r_agentgraph_status() -> Dict[str, Any]:
         """Inspect unified AgentGraph node, edge, plane distributions, and graph health status."""
         from hath0r_cli.bots.agentgraph_bot import AgentGraphBot
