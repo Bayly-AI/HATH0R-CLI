@@ -297,3 +297,29 @@ def finops_tokens_histogram(
         console.print(table)
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
+@finops_tokens.command("check")
+@click.option("--user", "-u", default="raybayly", help="User profile identifier (default: raybayly).")
+@click.option("--days", "-d", default=90, type=int, help="Trailing period in days (default: 90).")
+@click.option("--artifact-dir", type=click.Path(path_type=Path), default=None, help="Directory to save HTML dashboard artifact.")
+@click.pass_context
+def finops_tokens_check(
+    ctx: click.Context,
+    user: str,
+    days: int,
+    artifact_dir: Optional[Path],
+) -> None:
+    """Execute complete token check workflow returning 90-day FinOps usage, histogram, and HTML artifact."""
+    from hath0r_cli.bots.token_check_bot import TokenCheckWorkflowBot
+
+    bot = TokenCheckWorkflowBot(cwd=Path.cwd())
+    data = bot.run_token_check(user_id=user, days=days, artifact_dir=artifact_dir)
+
+    response = _build_response(ctx, command="finops.tokens.check", state="ok", data=data)
+
+    def _text() -> None:
+        console.print(data.get("markdown_report", ""))
+
+    _emit_response(ctx, response, text_renderer=_text)
+
