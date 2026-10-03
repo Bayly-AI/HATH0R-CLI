@@ -93,3 +93,57 @@ def test_hath0r_init_cli_sync_ci(tmp_path: Path) -> None:
         assert result.exit_code == 0
         assert '"sync_ci":true' in result.output
         assert Path(".github/workflows/enforce-promotion-path.yml").exists()
+
+
+def test_onboarding_init_migrates_agentgraph(tmp_path: Path) -> None:
+    """Verify that hath0r init builds AgentGraph and migrates knowledge, rules, agents, memory."""
+    import json
+
+    runner = CliRunner()
+    with runner.isolated_filesystem(temp_dir=tmp_path):
+        result = runner.invoke(main, ["--output", "json", "init"])
+        assert result.exit_code == 0
+
+        # 1. Verify AgentGraph snapshot exists
+        snapshot_file = Path(".hath0r/agentgraph/snapshot.json")
+        assert snapshot_file.is_file()
+
+        graph = json.loads(snapshot_file.read_text(encoding="utf-8"))
+        nodes = graph.get("nodes", [])
+        edges = graph.get("edges", [])
+
+        # 2. Check Knowledge plane migration
+        knowledge_nodes = [n for n in nodes if n.get("plane") == "knowledge"]
+        assert len(knowledge_nodes) >= 1
+        assert any("agents" in n["id"].lower() for n in knowledge_nodes)
+
+        # 3. Check Rules plane migration
+        rule_nodes = [n for n in nodes if n.get("plane") == "rules" and n.get("type") == "rule_policy"]
+        assert len(rule_nodes) >= 1
+        rule_ids = {n["id"] for n in rule_nodes}
+        assert any("cr-cli-entry-001" in rid for rid in rule_ids)
+
+        # 4. Check Agents plane migration
+        agent_nodes = [n for n in nodes if n.get("plane") == "rules" and n.get("type") == "agent_role"]
+        agent_ids = {n["id"] for n in agent_nodes}
+        assert "role:developer" in agent_ids
+        assert "role:reader" in agent_ids
+
+        # 5. Check Memory plane migration
+        memory_nodes = [n for n in nodes if n.get("plane") == "memory"]
+        assert len(memory_nodes) >= 1
+
+        # 6. Check Edges connection
+        governs_edges = [e for e in edges if e.get("relation") in ("GOVERNS", "RESTRICTED_BY")]
+        assert len(governs_edges) >= 1
+
+        # 7. Check AGENTS.md contains AgentGraph substrate instructions
+        agents_text = Path("AGENTS.md").read_text(encoding="utf-8")
+        assert "## AgentGraph Substrate" in agents_text
+        assert "hath0r agentgraph query" in agents_text
+
+        # 8. Check knowledge sharing artifact created
+        lessons_dir = Path(".hath0r/knowledgebase/lessons-learned")
+        if lessons_dir.is_dir():
+            assert any(lessons_dir.glob("*.md"))
+

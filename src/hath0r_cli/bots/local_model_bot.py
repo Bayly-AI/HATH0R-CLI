@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.request import Request, urlopen
 
@@ -53,6 +55,7 @@ SUPPORTED_LOCAL_MODELS: Dict[str, Dict[str, Any]] = {
 class LocalModelBot:
     """Manages offline agent reasoning, CoT extraction, and code generation."""
 
+    cwd: Path = field(default_factory=Path.cwd)
     ollama_endpoint: str = "http://localhost:11434/api/generate"
     timeout_sec: float = 15.0
 
@@ -112,15 +115,18 @@ class LocalModelBot:
                     data = json.loads(resp.read().decode("utf-8"))
                     raw_response = data.get("response", "")
                     cot, answer = self.split_cot(raw_response)
-                    return {
+                    latency_ms = round((time.time() - start_time) * 1000, 2)
+                    res = {
                         "success": True,
                         "engine": "ollama_live",
                         "model": model,
                         "prompt": prompt,
                         "thinking_trace": cot,
                         "response": answer,
-                        "latency_ms": round((time.time() - start_time) * 1000, 2),
+                        "latency_ms": latency_ms,
                     }
+                    self._record_telemetry(prompt=prompt, model=model, tier="reasoning", completion=answer, latency_ms=latency_ms)
+                    return res
             except Exception:
                 pass
 
@@ -133,7 +139,7 @@ class LocalModelBot:
         )
         mock_response = f"Analysis complete for: {prompt}.\n\n• Verified logic structure and architectural bounds.\n• Safe for execution."
 
-        return {
+        res = {
             "success": True,
             "engine": "local_simulated",
             "model": model,
@@ -142,6 +148,8 @@ class LocalModelBot:
             "response": mock_response,
             "latency_ms": latency_ms,
         }
+        self._record_telemetry(prompt=prompt, model=model, tier="reasoning", completion=mock_response, latency_ms=latency_ms)
+        return res
 
     def generate_code(
         self,
@@ -173,14 +181,17 @@ class LocalModelBot:
                 with urlopen(req, timeout=self.timeout_sec) as resp:
                     data = json.loads(resp.read().decode("utf-8"))
                     raw_response = data.get("response", "")
-                    return {
+                    latency_ms = round((time.time() - start_time) * 1000, 2)
+                    res = {
                         "success": True,
                         "engine": "ollama_live",
                         "model": model,
                         "language": language,
                         "code": raw_response,
-                        "latency_ms": round((time.time() - start_time) * 1000, 2),
+                        "latency_ms": latency_ms,
                     }
+                    self._record_telemetry(prompt=prompt, model=model, tier="standard", completion=raw_response, latency_ms=latency_ms)
+                    return res
             except Exception:
                 pass
 
@@ -192,7 +203,7 @@ class LocalModelBot:
             f'    """Solution for: {prompt}"""\n'
             f'    return {{"status": "ok", "task": "{prompt}"}}\n'
         )
-        return {
+        res = {
             "success": True,
             "engine": "local_simulated",
             "model": model,
@@ -200,3 +211,31 @@ class LocalModelBot:
             "code": mock_code,
             "latency_ms": latency_ms,
         }
+        self._record_telemetry(prompt=prompt, model=model, tier="standard", completion=mock_code, latency_ms=latency_ms)
+        return res
+
+    def _record_telemetry(
+        self,
+        prompt: str,
+        model: str,
+        tier: str,
+        completion: str,
+        latency_ms: float,
+    ) -> None:
+        """Helper to record prompt telemetry to TokenTelemetryCLIBot ledger."""
+        try:
+            from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
+
+            user_id = os.environ.get("USER", "default_user")
+            agent_id = f"local_{model.split(':')[0]}_bot"
+            TokenTelemetryCLIBot(cwd=self.cwd).record(
+                prompt=prompt,
+                user_id=user_id,
+                model=model,
+                tier=tier,
+                completion=completion,
+                agent_id=agent_id,
+                latency_ms=latency_ms,
+            )
+        except Exception:
+            pass

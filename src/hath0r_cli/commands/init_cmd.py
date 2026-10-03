@@ -139,7 +139,9 @@ def init_cmd(
 
         if exec_res.success:
             console.print("\n[bold green]✓ Repository is 100% aligned with HATH0R Agentic Framework.[/bold green]")
+            console.print("  • AgentGraph Substrate: Knowledge, Rules, Agents, and Memory migrated into unified graph.")
             console.print("  • Tri-Graph Substrate: KnowledgeGraph, ContextGraph, MemoryGraph ready.")
+            console.print("  • Knowledge Share: Initialized lesson learned and KB index synced.")
             console.print("  • Governance: AGENTS.md, SemVer, and playbooks active.")
             console.print("  • Run [bold cyan]hath0r doctor[/bold cyan] to verify system health.")
         else:

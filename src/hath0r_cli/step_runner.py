@@ -36,6 +36,7 @@ from hath0r_cli.bots import (
     VoiceSpeakerModeBot,
     VoiceSynthesizerBot,
 )
+from hath0r_cli.bots.agentgraph_bot import AgentGraphBot
 from hath0r_cli.bots.onboarding import (
     DocRefactorBot,
     GovernanceBot,
@@ -158,6 +159,7 @@ class BotRegistry:
             "doc-refactor-bot": DocRefactorBot(cwd=self.cwd),
             "test-harness-bot": TestHarnessBot(cwd=self.cwd),
             "tri-graph-ingest-bot": TriGraphIngestBot(cwd=self.cwd),
+            "agentgraph-bot": AgentGraphBot(cwd=self.cwd),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -272,6 +274,8 @@ class BotRegistry:
                 return self._dispatch_test_harness_bot(bot, action, args, dry_run=dry_run)
             elif bot_id == "tri-graph-ingest-bot":
                 return self._dispatch_tri_graph_ingest_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "agentgraph-bot":
+                return self._dispatch_agentgraph_bot(bot, action, args, dry_run=dry_run)
             else:
                 return StepExecutionResult(
                     bot_id=bot_id,
@@ -2055,6 +2059,10 @@ class BotRegistry:
             res = bot.init_context_graph(dry_run=dry_run)
         elif action == "ingest-memory-graph":
             res = bot.ingest_memory_graph(dry_run=dry_run)
+        elif action in ("setup-agentgraph", "setup"):
+            res = bot.setup_agentgraph(dry_run=dry_run)
+        elif action in ("sync-kb-index", "index-knowledge-base"):
+            res = bot.sync_kb_index(dry_run=dry_run)
         else:
             return StepExecutionResult(
                 bot_id="tri-graph-ingest-bot",
@@ -2066,6 +2074,58 @@ class BotRegistry:
         return StepExecutionResult(
             bot_id="tri-graph-ingest-bot", action=action, success=res.get("success", False), data=res, dry_run=dry_run
         )
+
+    def _dispatch_agentgraph_bot(
+        self, bot: AgentGraphBot, action: str, args: dict[str, Any], *, dry_run: bool = False
+    ) -> StepExecutionResult:
+        if action in ("setup-agentgraph", "migrate-repo", "setup"):
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id="agentgraph-bot",
+                    action=action,
+                    success=True,
+                    data={
+                        "success": True,
+                        "dry_run": True,
+                        "message": "[DRY-RUN] Would setup AgentGraph and migrate knowledge, rules, agents, memory.",
+                    },
+                    dry_run=True,
+                )
+            res = bot.migrate_repo(self.cwd, update_agents_md=args.get("update_agents_md", True))
+            return StepExecutionResult(
+                bot_id="agentgraph-bot",
+                action=action,
+                success=res.get("success", True),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action == "sync":
+            res = bot.sync(path=str(self.cwd), persist=True, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="agentgraph-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action == "validate":
+            res = bot.validate(str(self.cwd))
+            val = res.get("validation", {})
+            return StepExecutionResult(
+                bot_id="agentgraph-bot",
+                action=action,
+                success=val.get("valid", False),
+                data=res,
+                dry_run=dry_run,
+            )
+        else:
+            return StepExecutionResult(
+                bot_id="agentgraph-bot",
+                action=action,
+                success=False,
+                error=f"Unknown action {action} for agentgraph-bot",
+                dry_run=dry_run,
+            )
 
 
 def execute_workflow(
