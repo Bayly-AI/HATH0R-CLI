@@ -179,7 +179,14 @@ class GovernanceBot:
             "## Branch Governance (cr-branch-gov-001)\n\n"
             "- Issue first: create an issue before cutting a branch.\n"
             "- Naming: `feature|bugfix|enhancement|chore/<issue-number>-slug`\n"
-            "- Base PR target: `development`\n"
+            "- Base PR target: `development`\n\n"
+            "## AgentGraph Substrate\n\n"
+            "This repository is governed by the Hath0r AgentGraph substrate. "
+            "Dynamic rule retrieval, role RBAC, and policy graphs are stored under `.hath0r/agentgraph/`.\n"
+            "- Query status: `hath0r agentgraph status`\n"
+            "- Query rules: `hath0r agentgraph query \"<topic>\"`\n"
+            "- Route role: `hath0r agentgraph route --role <role>`\n"
+            "- Validate rules: `hath0r agentgraph validate`\n"
         )
 
         if not dry_run:
@@ -514,3 +521,54 @@ class TriGraphIngestBot:
             "nodes_ingested": len(nodes),
             "message": f"Ingested {len(nodes)} core nodes into MemoryGraph.",
         }
+
+    def setup_agentgraph(self, dry_run: bool = False) -> Dict[str, Any]:
+        """Setup AgentGraph substrate and migrate knowledge, rules, agents, and memory."""
+        from hath0r_cli.bots.agentgraph_bot import AgentGraphBot
+
+        ag_bot = AgentGraphBot(cwd=self.cwd)
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "message": "[DRY-RUN] Would setup AgentGraph and migrate knowledge, rules, agents, and memory.",
+            }
+        res = ag_bot.migrate_repo(self.cwd, update_agents_md=True)
+        return {
+            "success": res.get("success", True),
+            "dry_run": False,
+            "rules_migrated": res.get("rules_migrated", 0),
+            "knowledge_migrated": res.get("knowledge_migrated", 0),
+            "agents_migrated": res.get("agents_migrated", 0),
+            "memory_migrated": res.get("memory_migrated", 0),
+            "total_nodes": res.get("total_nodes", 0),
+            "total_edges": res.get("total_edges", 0),
+            "message": f"Setup AgentGraph with {res.get('total_nodes', 0)} nodes across knowledge, rules, agents, memory.",
+        }
+
+    def sync_kb_index(self, dry_run: bool = False) -> Dict[str, Any]:
+        """Index documentation into local SQLite FTS5 store."""
+        from hath0r_cli.kb_index import SQLiteIndexStore
+
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "message": "[DRY-RUN] Would index repository documentation into SQLite FTS5.",
+            }
+        try:
+            store = SQLiteIndexStore()
+            sync_stats = store.sync_directory(self.cwd)
+            return {
+                "success": True,
+                "dry_run": False,
+                "stats": sync_stats,
+                "message": f"Indexed repository documentation into SQLite FTS5: {sync_stats.get('indexed', 0)} new, {sync_stats.get('updated', 0)} updated.",
+            }
+        except Exception as e:
+            return {
+                "success": True,
+                "warning": str(e),
+                "message": f"KB index sync skipped: {e}",
+            }
+
