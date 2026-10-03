@@ -115,6 +115,7 @@ class LocalModelBot:
                     data = json.loads(resp.read().decode("utf-8"))
                     raw_response = data.get("response", "")
                     cot, answer = self.split_cot(raw_response)
+                    latency_ms = round((time.time() - start_time) * 1000, 2)
                     res = {
                         "success": True,
                         "engine": "ollama_live",
@@ -122,9 +123,9 @@ class LocalModelBot:
                         "prompt": prompt,
                         "thinking_trace": cot,
                         "response": answer,
-                        "latency_ms": round((time.time() - start_time) * 1000, 2),
+                        "latency_ms": latency_ms,
                     }
-                    self._record_telemetry(prompt=prompt, model=model, tier="reasoning", completion=answer, latency_ms=res["latency_ms"])
+                    self._record_telemetry(prompt=prompt, model=model, tier="reasoning", completion=answer, latency_ms=latency_ms)
                     return res
             except Exception:
                 pass
@@ -180,15 +181,16 @@ class LocalModelBot:
                 with urlopen(req, timeout=self.timeout_sec) as resp:
                     data = json.loads(resp.read().decode("utf-8"))
                     raw_response = data.get("response", "")
+                    latency_ms = round((time.time() - start_time) * 1000, 2)
                     res = {
                         "success": True,
                         "engine": "ollama_live",
                         "model": model,
                         "language": language,
                         "code": raw_response,
-                        "latency_ms": round((time.time() - start_time) * 1000, 2),
+                        "latency_ms": latency_ms,
                     }
-                    self._record_telemetry(prompt=prompt, model=model, tier="standard", completion=raw_response, latency_ms=res["latency_ms"])
+                    self._record_telemetry(prompt=prompt, model=model, tier="standard", completion=raw_response, latency_ms=latency_ms)
                     return res
             except Exception:
                 pass
