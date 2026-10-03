@@ -64,6 +64,15 @@ def install_claude_desktop_connector(
             "args": ["-y", "mcp-remote", "https://mcp.hath0r-cli.com/mcp"],
         }
 
+    if "paper-design-mcp" not in data["mcpServers"]:
+        paper_bin = os.path.expanduser("~/.paper/bin/paper")
+        if not Path(paper_bin).exists():
+            paper_bin = shutil.which("paper") or paper_bin
+        data["mcpServers"]["paper-design-mcp"] = {
+            "command": paper_bin,
+            "args": ["mcp"],
+        }
+
     data["mcpServers"][server_name] = {
         "command": binary_path,
         "args": ["mcp", "serve"],
@@ -233,4 +242,31 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         except Exception:
             return {"raw_output": res.stdout, "error": res.stderr}
 
+    @mcp.tool()
+    def hath0r_design_status() -> Dict[str, Any]:
+        """Check status and connectivity of Paper.design MCP integration."""
+        from hath0r_cli.bots.paper_design_bot import PaperDesignBot
+
+        bot = PaperDesignBot()
+        return bot.check_connection().to_dict()
+
+    @mcp.tool()
+    def hath0r_design_to_code(
+        design_content: str,
+        component_name: str = "WebSection",
+        framework: str = "react_tailwind",
+    ) -> Dict[str, Any]:
+        """Synthesize React + Tailwind CSS component code from Paper canvas selection or HTML.
+
+        Args:
+            design_content: HTML layout or raw design content from Paper canvas.
+            component_name: Name of the React component to synthesize.
+            framework: Target UI framework ('react_tailwind' or 'html_css').
+        """
+        from hath0r_cli.bots.paper_design_bot import PaperDesignBot
+
+        bot = PaperDesignBot()
+        return bot.design_to_code(raw_design=design_content, component_name=component_name, framework=framework)
+
     return mcp
+

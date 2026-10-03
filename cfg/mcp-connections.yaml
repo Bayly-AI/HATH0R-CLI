@@ -43,3 +43,22 @@ servers:
     enabled: true
     local_path: "/Users/raybayly/Development/1-Nation/MCP"
     github: "Bayly-AI/1-Nation-MCP"
+
+  - id: paper-design-mcp
+    name: PaperDesignMCP
+    group: design
+    product_id: paper-design-mcp
+    scope: tools
+    priority: 4
+    transport: streamable-http
+    base_url: "http://127.0.0.1:29979"
+    mcp_endpoint: "/mcp"
+    health_endpoint: "/health"
+    ready_endpoint: "/ready"
+    command: "/Users/raybayly/.paper/bin/paper"
+    command_args: ["mcp"]
+    description: "Paper.design MCP server for bi-directional canvas-to-code and website design"
+    enabled: true
+    local_path: "/Users/raybayly/.paper"
+    github: "paper-design/agent-plugins"
+    docs_url: "https://paper.design"

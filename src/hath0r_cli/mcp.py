@@ -71,6 +71,26 @@ DEFAULT_MCP_SERVERS = [
         "local_path": "/Users/raybayly/Development/1-Nation/MCP",
         "github": "Bayly-AI/1-Nation-MCP",
     },
+    {
+        "id": "paper-design-mcp",
+        "name": "PaperDesignMCP",
+        "scope": "tools",
+        "group": "design",
+        "priority": 4,
+        "product_id": "paper-design-mcp",
+        "transport": "streamable-http",
+        "base_url": "http://127.0.0.1:29979",
+        "mcp_endpoint": "/mcp",
+        "health_endpoint": "/health",
+        "ready_endpoint": "/health",
+        "command": os.path.expanduser("~/.paper/bin/paper"),
+        "command_args": ["mcp"],
+        "description": "Paper.design MCP server for bi-directional canvas-to-code and website design",
+        "enabled": True,
+        "local_path": os.path.expanduser("~/.paper"),
+        "github": "paper-design/agent-plugins",
+        "docs_url": "https://paper.design",
+    },
 ]
 
 
@@ -100,7 +120,9 @@ SCOPE_ORDER = {
     "project": 0,
     "group": 1,
     "org": 2,
-    "user": 3,
+    "tools": 3,
+    "design": 3,
+    "user": 4,
 }
 
 

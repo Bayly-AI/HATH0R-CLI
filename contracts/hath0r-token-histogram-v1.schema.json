@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.hath0r.dev/hath0r-token-histogram-v1.schema.json",
+  "title": "hath0r.finops.token_histogram/1",
+  "description": "Schema for Hath0r FinOps Token Distribution Histograms and Spend Analytics.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "metric",
+    "total_records",
+    "total_tokens",
+    "total_cost_usd",
+    "stats",
+    "bins"
+  ],
+  "properties": {
+    "metric": {
+      "type": "string",
+      "enum": ["prompt_tokens", "prompt_length_chars", "total_tokens", "cost_usd"],
+      "description": "The telemetry dimension analyzed in the histogram."
+    },
+    "total_records": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of telemetry records evaluated."
+    },
+    "total_tokens": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Sum of total tokens across evaluated records."
+    },
+    "total_cost_usd": {
+      "type": "number",
+      "minimum": 0.0,
+      "description": "Total cost incurred in USD."
+    },
+    "stats": {
+      "type": "object",
+      "required": ["min", "max", "mean", "median", "p95", "p99", "std_dev"],
+      "properties": {
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "mean": { "type": "number" },
+        "median": { "type": "number" },
+        "p90": { "type": "number" },
+        "p95": { "type": "number" },
+        "p99": { "type": "number" },
+        "std_dev": { "type": "number" }
+      }
+    },
+    "bins": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["bin_index", "bin_start", "bin_end", "count", "percentage"],
+        "properties": {
+          "bin_index": { "type": "integer" },
+          "bin_start": { "type": "number" },
+          "bin_end": { "type": "number" },
+          "count": { "type": "integer" },
+          "percentage": { "type": "number" },
+          "cumulative_percentage": { "type": "number" },
+          "ascii_bar": { "type": "string" }
+        }
+      }
+    },
+    "user_distribution": {
+      "type": "object",
+      "description": "Summary aggregate breakdown by user_id."
+    },
+    "model_distribution": {
+      "type": "object",
+      "description": "Summary aggregate breakdown by model."
+    }
+  }
+}

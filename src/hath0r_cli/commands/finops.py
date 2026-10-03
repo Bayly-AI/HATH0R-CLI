@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Optional
 
 import click
 from rich.table import Table
@@ -96,5 +97,203 @@ def finops_tokenizer_tax(
         console.print(f"  • Subword Token Cost:        ${fo['actual_cost_usd']:.4f}")
         console.print(f"  • Pixel-Native Normalized:   ${fo['baseline_cost_usd']:.4f}")
         console.print(f"  • Potential Cost Reduction:  [bold green]{fo['potential_cost_savings_pct']}%[/bold green]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@finops.group("tokens")
+def finops_tokens() -> None:
+    """Agent prompt token telemetry, FinOps cost ledger, and distribution histograms."""
+
+
+@finops_tokens.command("record")
+@click.option("--prompt", "-p", required=True, help="Prompt text sent to agent.")
+@click.option("--user", "-u", default="default_user", help="User or caller identifier.")
+@click.option("--model", "-m", default="claude-3-5-sonnet", help="Model identifier.")
+@click.option("--tier", "-t", type=click.Choice(["light", "standard", "reasoning"], case_sensitive=False), default="standard", help="Complexity tier.")
+@click.option("--completion", "-c", default="", help="Completion response text.")
+@click.option("--session", "-s", default="", help="Session identifier.")
+@click.pass_context
+def finops_tokens_record(
+    ctx: click.Context,
+    prompt: str,
+    user: str,
+    model: str,
+    tier: str,
+    completion: str,
+    session: str,
+) -> None:
+    """Record agent prompt token telemetry into the FinOps ledger."""
+    from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
+
+    bot = TokenTelemetryCLIBot(cwd=Path.cwd())
+    rec = bot.record(
+        prompt=prompt,
+        user_id=user,
+        model=model,
+        tier=tier,
+        completion=completion,
+        session_id=session,
+    )
+
+    response = _build_response(ctx, command="finops.tokens.record", state="ok", data=rec)
+
+    def _text() -> None:
+        console.print(f"[bold green]✓ Token Telemetry Recorded:[/] [cyan]{rec['id']}[/cyan]")
+        console.print(f"  • User:               [yellow]{rec['user_id']}[/yellow]")
+        console.print(f"  • Prompt Length:      {rec['prompt_length_chars']:,} chars")
+        console.print(f"  • Prompt Tokens:      [magenta]{rec['prompt_tokens']:,}[/magenta]")
+        console.print(f"  • Total Tokens:       [magenta]{rec['total_tokens']:,}[/magenta]")
+        console.print(f"  • Model & Tier:       {rec['model']} ({rec['tier']})")
+        console.print(f"  • Calculated Cost:    [bold green]${rec['cost_usd']:.6f}[/bold green]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@finops_tokens.command("list")
+@click.option("--user", "-u", default=None, help="Filter by user identifier.")
+@click.option("--model", "-m", default=None, help="Filter by model.")
+@click.option("--agent", "-a", default=None, help="Filter by agent identifier.")
+@click.option("--session", "-s", default=None, help="Filter by session ID.")
+@click.option("--tier", "-t", default=None, help="Filter by tier.")
+@click.option("--limit", "-n", default=20, type=int, help="Maximum number of records to return.")
+@click.pass_context
+def finops_tokens_list(
+    ctx: click.Context,
+    user: Optional[str],
+    model: Optional[str],
+    agent: Optional[str],
+    session: Optional[str],
+    tier: Optional[str],
+    limit: int,
+) -> None:
+    """List agent token telemetry records."""
+    from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
+
+    bot = TokenTelemetryCLIBot(cwd=Path.cwd())
+    records = bot.list_records(
+        user_id=user,
+        model=model,
+        agent_id=agent,
+        session_id=session,
+        tier=tier,
+        limit=limit,
+    )
+
+    response = _build_response(
+        ctx,
+        command="finops.tokens.list",
+        state="ok",
+        data={"count": len(records), "records": records},
+    )
+
+    def _text() -> None:
+        if not records:
+            console.print("[yellow]No token telemetry records found.[/yellow]")
+            return
+
+        table = Table(title=f"Token Telemetry Records (Showing {len(records)})")
+        table.add_column("Timestamp", style="dim")
+        table.add_column("User", style="bold yellow")
+        table.add_column("Model", style="cyan")
+        table.add_column("Chars", justify="right")
+        table.add_column("Prompt Tok", justify="right", style="magenta")
+        table.add_column("Total Tok", justify="right", style="bold magenta")
+        table.add_column("Cost USD", justify="right", style="green")
+
+        for r in records:
+            ts = r.get("timestamp", "")[:19].replace("T", " ")
+            table.add_row(
+                ts,
+                r.get("user_id", ""),
+                r.get("model", ""),
+                str(r.get("prompt_length_chars", 0)),
+                str(r.get("prompt_tokens", 0)),
+                str(r.get("total_tokens", 0)),
+                f"${r.get('cost_usd', 0.0):.6f}",
+            )
+
+        console.print(table)
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@finops_tokens.command("histogram")
+@click.option(
+    "--metric",
+    "-m",
+    type=click.Choice(["prompt_tokens", "prompt_length_chars", "total_tokens", "cost_usd", "latency_ms"]),
+    default="prompt_tokens",
+    help="Metric to bin.",
+)
+@click.option("--user", "-u", default=None, help="Filter by user identifier.")
+@click.option("--model", "-M", default=None, help="Filter by model.")
+@click.option("--agent", "-a", default=None, help="Filter by agent identifier.")
+@click.option("--session", "-s", default=None, help="Filter by session ID.")
+@click.option("--tier", "-t", default=None, help="Filter by tier.")
+@click.option("--bins", "-b", default=10, type=int, help="Number of histogram bins.")
+@click.pass_context
+def finops_tokens_histogram(
+    ctx: click.Context,
+    metric: str,
+    user: Optional[str],
+    model: Optional[str],
+    agent: Optional[str],
+    session: Optional[str],
+    tier: Optional[str],
+    bins: int,
+) -> None:
+    """Build and display a statistical distribution histogram of token telemetry."""
+    from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
+
+    bot = TokenTelemetryCLIBot(cwd=Path.cwd())
+    data = bot.histogram(
+        metric=metric,
+        user_id=user,
+        model=model,
+        agent_id=agent,
+        session_id=session,
+        tier=tier,
+        bins_count=bins,
+    )
+
+    response = _build_response(ctx, command="finops.tokens.histogram", state="ok", data=data)
+
+    def _text() -> None:
+        tot = data.get("total_records", 0)
+        if tot == 0:
+            console.print("[yellow]No records found to construct histogram.[/yellow]")
+            return
+
+        st = data.get("stats", {})
+        console.print(f"[bold green]✓ FinOps Token Distribution Histogram[/bold green] (Metric: [cyan]{metric}[/cyan])")
+        console.print(f"  • Total Interactions: [bold]{tot:,}[/bold]")
+        console.print(f"  • Total Tokens:       [bold magenta]{data.get('total_tokens', 0):,}[/bold magenta]")
+        console.print(f"  • Total Spend:        [bold green]${data.get('total_cost_usd', 0.0):.4f}[/bold green]")
+        console.print(
+            f"  • Distribution:       Mean: [cyan]{st.get('mean', 0):.2f}[/cyan] | "
+            f"Median: [cyan]{st.get('median', 0):.2f}[/cyan] | "
+            f"P95: [yellow]{st.get('p95', 0):.2f}[/yellow] | "
+            f"P99: [red]{st.get('p99', 0):.2f}[/red]"
+        )
+
+        table = Table(title=f"Histogram Bins ({metric})")
+        table.add_column("Range", style="bold")
+        table.add_column("Count", justify="right")
+        table.add_column("%", justify="right")
+        table.add_column("Cumulative %", justify="right", style="dim")
+        table.add_column("Distribution", style="cyan")
+
+        for b in data.get("bins", []):
+            rng = f"[{b['bin_start']:.1f} - {b['bin_end']:.1f}]"
+            table.add_row(
+                rng,
+                str(b["count"]),
+                f"{b['percentage']:.1f}%",
+                f"{b['cumulative_percentage']:.1f}%",
+                b["ascii_bar"],
+            )
+
+        console.print(table)
 
     _emit_response(ctx, response, text_renderer=_text)
