@@ -93,3 +93,35 @@ def test_mcp_serve_install_claude_only_cli():
             payload = json.loads(config_path.read_text(encoding="utf-8"))
             assert "hath0r-cli" in payload["mcpServers"]
             assert payload["mcpServers"]["hath0r-cli"]["command"] == binary
+
+
+def test_ported_mcp_tools():
+    """Verify all 22 registered FastMCP tools are present in create_mcp_server()."""
+    server = create_mcp_server()
+    tools = set(server._tool_manager._tools.keys())
+    expected = {
+        "hath0r_cli",
+        "hath0r_doctor",
+        "hath0r_optimize_taguchi",
+        "hath0r_finops_tokenizer_tax",
+        "hath0r_finops_tokens_list",
+        "hath0r_finops_tokens_histogram",
+        "hath0r_agentgraph_status",
+        "hath0r_agentgraph_query",
+        "hath0r_agentgraph_route",
+        "hath0r_voice_speak",
+        "hath0r_voice_listen",
+        "hath0r_ray_search",
+        "hath0r_ray_get_document",
+        "hath0r_session_get",
+        "hath0r_session_set",
+        "hath0r_runbook_list",
+        "hath0r_runbook_get_prompt",
+        "hath0r_vision_parse_doc",
+        "hath0r_vision_ground",
+        "hath0r_kb_search",
+        "hath0r_design_status",
+        "hath0r_design_to_code",
+    }
+    assert expected.issubset(tools)
+
