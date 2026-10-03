@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-03
+
+### Added
+
+- **FinOps Token Telemetry Ingestion & Retrieval Ledger (`hath0r finops tokens`)** (#297, #298):
+  - Added `TokenTelemetryCLIBot` to capture, log, and query prompt and completion token metrics locally (`.hath0r/finops/token_telemetry.jsonl`).
+  - Added `hath0r finops tokens list` with multi-field filtering by user, agent, session, tier, model.
+- **FinOps Statistical Histogram Analytics** (#297, #298, #299, #300):
+  - Added `hath0r finops tokens histogram` to generate terminal visual ASCII histograms, cumulative distributions, and statistical percentiles (p50, p90, p95, p99, mean, std dev) binned by token counts, character lengths, or latency ms.
+  - Added automatic telemetry capture across `LocalModelBot` (reasoning and code generation) and `AgentDialogueBot` (voice converse turns).
+- **AgentGraph Substrate Onboarding & Init Migration** (#301, #302):
+  - Integrated `agentgraph-bot` into repository onboarding workflow factory (`cfg/factories/repo-onboarding-factory.yaml`) and `step_runner.py` dispatch pipeline.
+  - `hath0r init` automates AgentGraph snapshot construction, role RBAC mapping, rules plane migration, and KB synchronization.
+- **Agent Framework AgentGraph Refactor Alignment** (#295, #296):
+  - Aligned CLI AgentGraph bot and substrate queries with framework zero-prompt-tax doctrine (CR-AGENTGRAPH-001).
+
 ## [0.8.0] - 2026-10-02
 
 ### Added

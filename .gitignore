@@ -13,6 +13,7 @@ venv/
 .ruff_cache/
 .hath0r/spool/
 .hath0r/cache/
+.hath0r/finops/
 src/hath0r_cli/bin/hath0r-listen
 src/hath0r_cli/bin/*.app
 release/hath0r-*
