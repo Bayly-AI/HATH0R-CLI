@@ -31,3 +31,11 @@ def test_observe_status_json():
     data = json.loads(result.output)
     assert "otel_enabled" in data
     assert "target_url" in data
+
+
+def test_observe_charts():
+    runner = CliRunner()
+    result = runner.invoke(main, ["observe", "charts"])
+    assert result.exit_code == 0
+    assert "OBSERVATION CHARTS" in result.output or "FinOps Histogram" in result.output
+
