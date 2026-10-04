@@ -76,7 +76,7 @@ def observe_status(endpoint: Optional[str], as_json: bool) -> None:
 @click.option("--json", "as_json", is_flag=True, help="Output evaluation schema in JSON.")
 def observe_evals(dataset: str, as_json: bool) -> None:
     """Inspect registered evaluation criteria for bot pipelines."""
-    eval_info = {
+    eval_info: dict[str, Any] = {
         "dataset": dataset,
         "evaluators": [
             {

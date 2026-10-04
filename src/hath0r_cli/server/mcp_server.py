@@ -344,14 +344,15 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
 
         bot = TokenTelemetryCLIBot()
-        return bot.query(
-            user=user,
-            agent=agent,
+        records = bot.list_records(
+            user_id=user,
+            agent_id=agent,
             session_id=session_id,
             tier=tier,
             model=model,
             limit=limit,
         )
+        return {"records": records}
 
     @mcp.tool()
     def hath0r_finops_tokens_histogram(
@@ -374,10 +375,10 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
 
         bot = TokenTelemetryCLIBot()
         return bot.histogram(
-            bin_field=bin_field,
-            bins=bins,
-            user=user,
-            agent=agent,
+            metric=bin_field,
+            bins_count=bins,
+            user_id=user,
+            agent_id=agent,
             session_id=session_id,
         )
 
@@ -453,7 +454,7 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         from hath0r_cli.bots.voice_converse import VoiceSynthesizerBot
 
         bot = VoiceSynthesizerBot()
-        return bot.speak(text=text, voice=voice)
+        return bot.speak(text=text, voice_name=voice)
 
     @mcp.tool()
     def hath0r_voice_listen(
