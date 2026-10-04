@@ -56,12 +56,17 @@ def cccd_status(ctx: click.Context) -> None:
 
         console.print(drift_table)
 
+        freshness = status_data.get("freshness", {})
+        fresh_status_str = "[bold green]FRESH[/bold green]" if freshness.get("is_fresh") else "[bold yellow]STALE (>24h)[/bold yellow]"
+        age_str = f"{freshness.get('age_hours'):.1f} hours ago" if freshness.get("age_hours") is not None else "Never"
+
         summary_panel = Panel(
+            f"Freshness Status: {fresh_status_str} (Last run: {age_str})\n"
             f"Total Calibration Runs: [bold white]{state.get('total_calibration_runs', 0)}[/bold white]\n"
             f"Last Run Timestamp: [bold white]{state.get('last_run_timestamp') or 'Never'}[/bold white]\n"
             f"Compiled DSPy Signatures: [bold white]{status_data.get('compiled_signatures_count', 0)}[/bold white]",
-            title="CCCD Execution Summary",
-            border_style="bold green",
+            title="CCCD Execution Summary & Entry Gate",
+            border_style="bold green" if freshness.get("is_fresh") else "bold yellow",
         )
         console.print(summary_panel)
 

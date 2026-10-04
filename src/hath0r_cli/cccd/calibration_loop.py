@@ -136,13 +136,69 @@ class CCCDCalibrationLoop:
             "drift_metrics": state["drift_metrics"],
         }
 
+    def check_calibration_freshness(self, max_age_hours: float = 24.0) -> Dict[str, Any]:
+        """Check if CCCD calibration was run within the last max_age_hours (default 24h)."""
+        state = self.load_state()
+        last_ts = state.get("last_run_timestamp")
+
+        if not last_ts:
+            return {
+                "is_fresh": False,
+                "stale": True,
+                "age_hours": None,
+                "last_run_timestamp": None,
+                "max_age_hours": max_age_hours,
+                "message": "CCCD calibration has never been run on this repository. Calibration is required.",
+            }
+
+        try:
+            from datetime import datetime, timezone
+
+            if last_ts.endswith("Z"):
+                dt_last = datetime.fromisoformat(last_ts[:-1]).replace(tzinfo=timezone.utc)
+            else:
+                dt_last = datetime.fromisoformat(last_ts)
+                if dt_last.tzinfo is None:
+                    dt_last = dt_last.replace(tzinfo=timezone.utc)
+
+            dt_now = datetime.now(timezone.utc)
+            age_seconds = (dt_now - dt_last).total_seconds()
+            age_hours = round(max(0.0, age_seconds / 3600.0), 2)
+            stale = age_hours > max_age_hours
+
+            return {
+                "is_fresh": not stale,
+                "stale": stale,
+                "age_hours": age_hours,
+                "last_run_timestamp": last_ts,
+                "max_age_hours": max_age_hours,
+                "message": (
+                    f"CCCD calibration is stale ({age_hours:.1f}h ago > {max_age_hours}h limit)."
+                    if stale
+                    else f"CCCD calibration is fresh ({age_hours:.1f}h ago)."
+                ),
+            }
+        except Exception as err:
+            return {
+                "is_fresh": False,
+                "stale": True,
+                "age_hours": None,
+                "last_run_timestamp": last_ts,
+                "max_age_hours": max_age_hours,
+                "error": str(err),
+                "message": f"Unable to verify calibration freshness timestamp: {err}. Calibration recommended.",
+            }
+
     def get_status(self) -> Dict[str, Any]:
-        """Inspect current calibration status, parameter values, and drift metrics."""
+        """Inspect current calibration status, parameter values, drift metrics, and 24h freshness."""
         state = self.load_state()
         compiled = self.dspy_bridge.list_compiled_signatures()
+        freshness = self.check_calibration_freshness(max_age_hours=24.0)
         return {
             "success": True,
             "state": state,
+            "freshness": freshness,
             "compiled_signatures_count": len(compiled),
             "compiled_signatures": [s.get("signature_name") for s in compiled if "signature_name" in s],
         }
+
