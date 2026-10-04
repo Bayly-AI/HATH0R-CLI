@@ -114,3 +114,30 @@ def observe_evals(dataset: str, as_json: bool) -> None:
             console.print(
                 f"  • [green]{ev['name']}[/green] [{ev['kind']}] - Threshold: {ev['threshold']} -> {ev['target']}"
             )
+
+
+@observe_cmd.command("charts", help="Display agent performance observation charts and statistical distributions.")
+@click.option(
+    "--metric",
+    default="latency_ms",
+    type=click.Choice(["latency_ms", "prompt_tokens", "total_tokens", "cost_usd"]),
+    help="Target metric for distribution histogram.",
+)
+@click.option("--format", "fmt", default="ascii", type=click.Choice(["ascii", "json", "html"]), help="Output visualization format.")
+def observe_charts(metric: str, fmt: str) -> None:
+    """Display observation charts and statistical metrics for agent performance."""
+    try:
+        from hath0r_engine.telemetry.observation_charts import observation_charts_engine
+
+        metrics = observation_charts_engine.compute_performance_metrics(metric=metric)
+        if fmt == "json":
+            click.echo(json.dumps(metrics, indent=2))
+        elif fmt == "html":
+            html_doc = observation_charts_engine.render_generative_ui_dashboard(metrics)
+            click.echo(html_doc)
+        else:
+            ascii_doc = observation_charts_engine.render_ascii_charts(metrics)
+            click.echo(ascii_doc)
+    except Exception as err:
+        console.print(f"[yellow]! Engine telemetry chart error ({err}). Rendering CLI status summary.[/yellow]")
+
