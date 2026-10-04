@@ -50,6 +50,7 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "observe": ("hath0r_cli.commands.observe", "observe_cmd"),
     "phoenix": ("hath0r_cli.commands.phoenix", "phoenix_cmd"),
     "cccd": ("hath0r_cli.commands.cccd", "cccd"),
+    "cicccd": ("hath0r_cli.commands.cicccd", "cicccd"),
 }
 
 
