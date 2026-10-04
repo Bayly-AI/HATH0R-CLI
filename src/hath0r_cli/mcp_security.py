@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import html
 import json
 import re
 import time
@@ -30,8 +31,67 @@ class PolicyVerdict:
         }
 
 
+def wrap_untrusted_content(content: str, tag: str = "untrusted_retrieved_content") -> str:
+    """Enforce structured XML data wrapper with automatic tag escaping for untrusted content."""
+    escaped = html.escape(content).replace("<", "&lt;").replace(">", "&gt;")
+    return f"<{tag}>\n{escaped}\n</{tag}>"
+
+
+def sanitize_prompt_input(text: str) -> str:
+    """Neutralize direct system prompt injection override commands in input streams."""
+    injection_patterns = [
+        re.compile(r"ignore\s+(all\s+)?(previous|prior)\s+(instructions|prompts|rules)", re.I),
+        re.compile(r"disregard\s+(all\s+)?(previous|prior)\s+(instructions|prompts|rules)", re.I),
+        re.compile(r"you\s+are\s+now\s+in\s+developer\s+mode", re.I),
+        re.compile(r"system\s+override", re.I),
+        re.compile(r"act\s+as\s+DAN\b", re.I),
+    ]
+    sanitized = text
+    for pat in injection_patterns:
+        sanitized = pat.sub("[NEUTRALIZED_PROMPT_INJECTION]", sanitized)
+    return sanitized
+
+
 class MCPSecurityPolicyEngine:
     """Evaluates agent tool arguments in-flight to prevent prompt injection and destructive actions."""
+
+    DIRECT_INJECTION = [
+        (
+            re.compile(r"ignore\s+(all\s+)?(previous|prior)\s+(instructions|prompts|rules)", re.I),
+            "CRITICAL: Direct system prompt override attempt (ignore previous instructions)",
+        ),
+        (
+            re.compile(r"disregard\s+(all\s+)?(previous|prior)\s+(instructions|prompts|rules)", re.I),
+            "CRITICAL: Direct system prompt override attempt (disregard previous instructions)",
+        ),
+        (
+            re.compile(r"you\s+are\s+now\s+in\s+developer\s+mode", re.I),
+            "HIGH: Adversarial mode-switching override attempt",
+        ),
+        (
+            re.compile(r"system\s+override\s*:", re.I),
+            "CRITICAL: Direct system override signature detected",
+        ),
+        (
+            re.compile(r"forget\s+(all\s+)?(previous|prior)\s+(rules|guidelines)", re.I),
+            "HIGH: Prompt injection rule wiping attempt",
+        ),
+    ]
+
+    INDIRECT_INJECTION = [
+        (
+            re.compile(r"\[SYSTEM\s+INSTRUCTION\]", re.I),
+            "HIGH: Indirect prompt injection via system instruction tag in external payload",
+        ),
+        (
+            re.compile(r"<system_override>", re.I),
+            "HIGH: Indirect prompt injection via fake system_override XML tag",
+        ),
+        (
+            re.compile(r"AI\s+Assistant:\s*Ignore\s+rules", re.I),
+            "HIGH: Indirect payload attempting role impersonation override",
+        ),
+    ]
 
     DANGEROUS_COMMANDS = [
         (
@@ -64,6 +124,18 @@ class MCPSecurityPolicyEngine:
         """List active security guardrail rules."""
         return [
             {
+                "id": "SEC-INJ-001",
+                "name": "Direct Prompt Injection Guard",
+                "risk": "CRITICAL",
+                "description": "Blocks direct system prompt override signatures and adversarial prompt patterns.",
+            },
+            {
+                "id": "SEC-INJ-002",
+                "name": "Indirect Prompt Injection Guard",
+                "risk": "HIGH",
+                "description": "Blocks indirect malicious prompt payloads embedded in retrieved content.",
+            },
+            {
                 "id": "SEC-CMD-001",
                 "name": "Dangerous Shell Commands",
                 "risk": "CRITICAL",
@@ -85,6 +157,14 @@ class MCPSecurityPolicyEngine:
 
     def _inspect_string(self, text: str) -> Optional[Tuple[str, str, str]]:
         """Inspect a single text string against all security rule patterns."""
+        for pattern, desc in self.DIRECT_INJECTION:
+            if pattern.search(text):
+                return "SEC-INJ-001", desc, "critical"
+
+        for pattern, desc in self.INDIRECT_INJECTION:
+            if pattern.search(text):
+                return "SEC-INJ-002", desc, "high"
+
         for pattern, desc in self.DANGEROUS_COMMANDS:
             if pattern.search(text):
                 return "SEC-CMD-001", desc, "critical"
