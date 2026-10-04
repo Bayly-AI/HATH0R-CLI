@@ -78,7 +78,7 @@ class SecretSanitizer:
 
 
 class MCPSecurityPolicyEngine:
-    """Evaluates agent tool arguments in-flight to prevent prompt injection and destructive actions."""
+    """Evaluates agent tool arguments in-flight to prevent prompt injection, data leakage, and destructive tool misuse."""
 
     DIRECT_INJECTION = [
         (
@@ -125,6 +125,21 @@ class MCPSecurityPolicyEngine:
         ),
     ]
 
+    DESTRUCTIVE_OPERATIONS = [
+        (
+            re.compile(r"git\s+push\s+.*(--force|-f)\b", re.I),
+            "CRITICAL: Unauthorized git force push operation blocked (SEC-TOOL-002)",
+        ),
+        (
+            re.compile(r"git\s+branch\s+(-D|--delete\s+--force)\b", re.I),
+            "HIGH: Unsafe git force branch deletion blocked (SEC-TOOL-002)",
+        ),
+        (
+            re.compile(r"\b(DROP\s+DATABASE|DROP\s+SCHEMA)\b", re.I),
+            "CRITICAL: Destructive database drop schema blocked (SEC-TOOL-002)",
+        ),
+    ]
+
     DANGEROUS_COMMANDS = [
         (
             re.compile(r"rm\s+(-[rfRF]+\s+|--recursive\s+|--force\s+)*(/|/\*|~|\$HOME)", re.I),
@@ -152,6 +167,24 @@ class MCPSecurityPolicyEngine:
         (re.compile(r"\bTRUNCATE\s+TABLE\b", re.I), "HIGH: Destructive SQL truncate operation"),
     ]
 
+    ROLE_PERMISSIONS: Dict[str, List[str]] = {
+        "read_only": ["view_file", "search_code", "list_dir", "read_url_content", "search_web"],
+        "workspace_write": [
+            "view_file",
+            "search_code",
+            "list_dir",
+            "read_url_content",
+            "search_web",
+            "write_to_file",
+            "replace_file_content",
+            "run_command",
+        ],
+        "admin_system": ["*"],
+    }
+
+    def __init__(self, workspace_root: Optional[Path] = None) -> None:
+        self.workspace_root = workspace_root or Path.cwd()
+
     def list_rules(self) -> List[Dict[str, Any]]:
         """List active security guardrail rules."""
         return [
@@ -174,24 +207,63 @@ class MCPSecurityPolicyEngine:
                 "description": "Redacts API tokens, SSH keys, Bearer headers, and connection strings.",
             },
             {
+                "id": "SEC-TOOL-001",
+                "name": "Workspace Boundary Sandbox Guard",
+                "risk": "CRITICAL",
+                "description": "Enforces strict workspace directory isolation for write/delete tools.",
+            },
+            {
+                "id": "SEC-TOOL-002",
+                "name": "Destructive Operation Guard",
+                "risk": "CRITICAL",
+                "description": "Blocks unapproved force pushes, schema drops, and process termination.",
+            },
+            {
                 "id": "SEC-CMD-001",
                 "name": "Dangerous Shell Commands",
                 "risk": "CRITICAL",
                 "description": "Blocks rm -rf /, pipe-to-shell, and fork bombs.",
             },
-            {
-                "id": "SEC-PATH-001",
-                "name": "Path Traversal & Secrets Access",
-                "risk": "CRITICAL",
-                "description": "Blocks ../.. traversal and access to system credentials.",
-            },
-            {
-                "id": "SEC-SQL-001",
-                "name": "Destructive SQL Statements",
-                "risk": "HIGH",
-                "description": "Blocks accidental DROP TABLE/DATABASE queries.",
-            },
         ]
+
+    def validate_workspace_boundary(self, target_path: str) -> bool:
+        """Verify target path is inside workspace boundary (SEC-TOOL-001)."""
+        try:
+            target = Path(target_path).resolve()
+            root = self.workspace_root.resolve()
+            return root == target or root in target.parents
+        except Exception:
+            return False
+
+    def evaluate_tool_permissions(
+        self,
+        role: str,
+        tool_name: str,
+        arguments: Dict[str, Any],
+    ) -> PolicyVerdict:
+        """Evaluate fine-grained tool RBAC profiles and workspace bounds (SEC-TOOL-001 / SEC-TOOL-002)."""
+        allowed_tools = self.ROLE_PERMISSIONS.get(role, self.ROLE_PERMISSIONS["read_only"])
+        if "*" not in allowed_tools and tool_name not in allowed_tools:
+            return PolicyVerdict(
+                allowed=False,
+                risk_level="high",
+                rule_triggered="SEC-TOOL-RBAC",
+                reason=f"Role '{role}' is not authorized to execute tool '{tool_name}'.",
+            )
+
+        # Check workspace boundary for file modification arguments
+        for arg_key in ["TargetFile", "TargetDirectory", "file_path", "target_path", "path"]:
+            if arg_key in arguments:
+                path_val = str(arguments[arg_key])
+                if not self.validate_workspace_boundary(path_val):
+                    return PolicyVerdict(
+                        allowed=False,
+                        risk_level="critical",
+                        rule_triggered="SEC-TOOL-001",
+                        reason=f"Path '{path_val}' escapes workspace boundary '{self.workspace_root}' (SEC-TOOL-001).",
+                    )
+
+        return self.inspect_invocation("default_server", tool_name, arguments)
 
     def _inspect_string(self, text: str) -> Optional[Tuple[str, str, str]]:
         """Inspect a single text string against all security rule patterns."""
@@ -206,6 +278,10 @@ class MCPSecurityPolicyEngine:
         for pattern, desc in self.SECRET_LEAKAGE:
             if pattern.search(text):
                 return "SEC-LEAK-001", desc, "high"
+
+        for pattern, desc in self.DESTRUCTIVE_OPERATIONS:
+            if pattern.search(text):
+                return "SEC-TOOL-002", desc, "critical"
 
         for pattern, desc in self.DANGEROUS_COMMANDS:
             if pattern.search(text):
