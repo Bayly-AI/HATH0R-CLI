@@ -25,10 +25,13 @@ def resolve_output_mode(mode: str, *, stdout: TextIO | None = None) -> str:
 
 def emit_json(response: CliResponse, *, stream: TextIO | None = None) -> None:
     """Write one UTF-8 JSON document plus final newline to stdout (no ANSI)."""
+    from hath0r_cli.mcp_security import SecretSanitizer
+
     out = stream if stream is not None else sys.stdout
     payload = response.to_dict()
-    # ensure_ascii keeps output plain; no Rich/ANSI on this path.
-    out.write(json.dumps(payload, ensure_ascii=True, separators=(",", ":"), sort_keys=False))
+    raw_json = json.dumps(payload, ensure_ascii=True, separators=(",", ":"), sort_keys=False)
+    sanitized_json = SecretSanitizer.sanitize(raw_json)
+    out.write(sanitized_json)
     out.write("\n")
     out.flush()
 

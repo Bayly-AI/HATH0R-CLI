@@ -52,6 +52,31 @@ def sanitize_prompt_input(text: str) -> str:
     return sanitized
 
 
+class SecretSanitizer:
+    """Automated secret redaction filter for logging, transcripts, and CLI output streams (SEC-LEAK-001)."""
+
+    SECRET_PATTERNS = [
+        re.compile(r"sk-[a-zA-Z0-9_\-]{20,}", re.I),
+        re.compile(r"ghp_[a-zA-Z0-9]{36}", re.I),
+        re.compile(r"gho_[a-zA-Z0-9]{36}", re.I),
+        re.compile(r"github_pat_[a-zA-Z0-9_\-]{20,}", re.I),
+        re.compile(r"AKIA[0-9A-Z]{16}", re.I),
+        re.compile(r"Bearer\s+[a-zA-Z0-9\-\._~\+\/]+=*", re.I),
+        re.compile(r"(postgres|postgresql|mysql|mongodb|redis)://[a-zA-Z0-9_\-]+:[^@\s]+@[a-zA-Z0-9_\-\.]+", re.I),
+        re.compile(r"-----BEGIN\s+(RSA|EC|OPENSSH|PRIVATE)\s+KEY-----[\s\S]*?-----END\s+\1\s+KEY-----", re.I),
+    ]
+
+    @classmethod
+    def sanitize(cls, text: str) -> str:
+        """Replace all secret patterns in text with [REDACTED_SECRET]."""
+        if not text:
+            return text
+        sanitized = text
+        for pattern in cls.SECRET_PATTERNS:
+            sanitized = pattern.sub("[REDACTED_SECRET]", sanitized)
+        return sanitized
+
+
 class MCPSecurityPolicyEngine:
     """Evaluates agent tool arguments in-flight to prevent prompt injection and destructive actions."""
 
@@ -90,6 +115,13 @@ class MCPSecurityPolicyEngine:
         (
             re.compile(r"AI\s+Assistant:\s*Ignore\s+rules", re.I),
             "HIGH: Indirect payload attempting role impersonation override",
+        ),
+    ]
+
+    SECRET_LEAKAGE = [
+        (
+            re.compile(r"(sk-[a-zA-Z0-9_\-]{20,}|ghp_[a-zA-Z0-9]{36}|AKIA[0-9A-Z]{16})", re.I),
+            "HIGH: Direct API key / secret credential detected in tool arguments",
         ),
     ]
 
@@ -136,6 +168,12 @@ class MCPSecurityPolicyEngine:
                 "description": "Blocks indirect malicious prompt payloads embedded in retrieved content.",
             },
             {
+                "id": "SEC-LEAK-001",
+                "name": "Secret Redaction Filter",
+                "risk": "HIGH",
+                "description": "Redacts API tokens, SSH keys, Bearer headers, and connection strings.",
+            },
+            {
                 "id": "SEC-CMD-001",
                 "name": "Dangerous Shell Commands",
                 "risk": "CRITICAL",
@@ -164,6 +202,10 @@ class MCPSecurityPolicyEngine:
         for pattern, desc in self.INDIRECT_INJECTION:
             if pattern.search(text):
                 return "SEC-INJ-002", desc, "high"
+
+        for pattern, desc in self.SECRET_LEAKAGE:
+            if pattern.search(text):
+                return "SEC-LEAK-001", desc, "high"
 
         for pattern, desc in self.DANGEROUS_COMMANDS:
             if pattern.search(text):
