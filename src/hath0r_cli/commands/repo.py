@@ -211,7 +211,9 @@ def repo_workflow(ctx: click.Context, target_repo: str | None, all_repos: bool, 
     bot = CleanReposWorkflowBot()
     results = bot.run_clean_repo_workflow(target_repos=repos, auto_commit=not no_commit)
 
-    response = _build_response(ctx, command="repo.workflow", state="ok" if results.get("success") else "degraded", data=results)
+    response = _build_response(
+        ctx, command="repo.workflow", state="ok" if results.get("success") else "degraded", data=results
+    )
 
     def _text() -> None:
         console.print(f"[bold cyan]13-Step Clean Repos Standard Operating Procedure[/bold cyan] ({len(repos)} repo(s))")
@@ -248,4 +250,3 @@ def clean_repos_cmd(ctx: click.Context, target_repo: str | None, all_repos: bool
 def clean_repo_cmd(ctx: click.Context, target_repo: str | None, all_repos: bool, no_commit: bool) -> None:
     """Top-level command to execute the 13-step Clean Repo SOP on current repo."""
     ctx.invoke(repo_workflow, target_repo=target_repo, all_repos=all_repos, no_commit=no_commit)
-

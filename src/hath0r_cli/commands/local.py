@@ -51,7 +51,9 @@ def local_status(ctx: click.Context) -> None:
         console.print(f"  • Metal (Apple Silicon): {'✓ Enabled' if status.has_metal else '✗ Disabled'}")
         console.print(f"  • CUDA (NVIDIA): {'✓ Enabled' if status.has_cuda else '✗ Disabled'}")
         console.print(f"  • MLX Acceleration: {'✓ Available' if status.mlx_available else '✗ Not Available'}")
-        console.print(f"  • Ollama Server: {'✓ Online' if status.ollama_running else '✗ Offline'} ({status.ollama_url})")
+        console.print(
+            f"  • Ollama Server: {'✓ Online' if status.ollama_running else '✗ Offline'} ({status.ollama_url})"
+        )
         if status.installed_models:
             console.print(f"  • Installed Models: {', '.join(status.installed_models)}")
 
@@ -84,8 +86,6 @@ def local_run(ctx: click.Context, prompt: str, model_name: str) -> None:
         console.print(f"Response:\n{res.get('response', '')}")
 
     _emit_response(ctx, response, text_renderer=_text)
-
-
 
 
 @local.command("reason")
@@ -122,7 +122,9 @@ def local_reason(
     )
 
     def _text() -> None:
-        console.print(f"[bold green]✓ Reasoning Complete ({res.get('engine')}, {res.get('latency_ms')}ms):[/bold green]")
+        console.print(
+            f"[bold green]✓ Reasoning Complete ({res.get('engine')}, {res.get('latency_ms')}ms):[/bold green]"
+        )
         if show_cot and res.get("thinking_trace"):
             console.print(
                 Panel(
@@ -176,7 +178,9 @@ def local_code(
     )
 
     def _text() -> None:
-        console.print(f"[bold green]✓ Code Generation Complete ({res.get('engine')}, {res.get('latency_ms')}ms):[/bold green]")
+        console.print(
+            f"[bold green]✓ Code Generation Complete ({res.get('engine')}, {res.get('latency_ms')}ms):[/bold green]"
+        )
         console.print(res.get("code", ""))
 
     _emit_response(ctx, response, text_renderer=_text)
@@ -218,4 +222,3 @@ def local_models(ctx: click.Context) -> None:
 
 
 local_group = local
-

@@ -192,4 +192,3 @@ def test_vision_ground_playwright():
         assert step["action"] == "click"
         assert "coordinates" in step
         assert step["coordinates"]["x"] > 0
-

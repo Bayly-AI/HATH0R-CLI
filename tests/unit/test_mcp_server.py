@@ -124,4 +124,3 @@ def test_ported_mcp_tools():
         "hath0r_design_to_code",
     }
     assert expected.issubset(tools)
-

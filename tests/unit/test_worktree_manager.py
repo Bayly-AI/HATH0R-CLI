@@ -35,7 +35,9 @@ def test_worktree_lifecycle(tmp_path: Path):
     assert len(wts_init) == 1
 
     # Create worktree
-    res_create = mgr.create_worktree(branch="feature-sandbox", task_id="task-999", create_branch=True, base_branch="main")
+    res_create = mgr.create_worktree(
+        branch="feature-sandbox", task_id="task-999", create_branch=True, base_branch="main"
+    )
     assert res_create["success"] is True
     assert Path(res_create["path"]).exists()
 

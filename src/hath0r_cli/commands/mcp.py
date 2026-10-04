@@ -300,11 +300,31 @@ def mcp_route(ctx: click.Context, intent: str, top_k: int, threshold: float, pru
 
     # Generate reference tools list
     sample_tools = [
-        {"name": "git_branch_validate", "description": "Validate git branch naming and promotion path rules.", "parameters": {"type": "object", "properties": {"branch": {"type": "string"}}}},
-        {"name": "gh_pr_create", "description": "Create a GitHub pull request targeting development.", "parameters": {"type": "object", "properties": {"title": {"type": "string"}, "base": {"type": "string"}}}},
-        {"name": "vision_inspect", "description": "Inspect and parse visual diagrams, images, and UI mockups.", "parameters": {"type": "object", "properties": {"image_path": {"type": "string"}}}},
-        {"name": "kb_search", "description": "Search canonical knowledgebase and lessons learned documents.", "parameters": {"type": "object", "properties": {"query": {"type": "string"}}}},
-        {"name": "doctor_diagnose", "description": "Run diagnostic health checks on suite repos and tools.", "parameters": {"type": "object", "properties": {"verbose": {"type": "boolean"}}}},
+        {
+            "name": "git_branch_validate",
+            "description": "Validate git branch naming and promotion path rules.",
+            "parameters": {"type": "object", "properties": {"branch": {"type": "string"}}},
+        },
+        {
+            "name": "gh_pr_create",
+            "description": "Create a GitHub pull request targeting development.",
+            "parameters": {"type": "object", "properties": {"title": {"type": "string"}, "base": {"type": "string"}}},
+        },
+        {
+            "name": "vision_inspect",
+            "description": "Inspect and parse visual diagrams, images, and UI mockups.",
+            "parameters": {"type": "object", "properties": {"image_path": {"type": "string"}}},
+        },
+        {
+            "name": "kb_search",
+            "description": "Search canonical knowledgebase and lessons learned documents.",
+            "parameters": {"type": "object", "properties": {"query": {"type": "string"}}},
+        },
+        {
+            "name": "doctor_diagnose",
+            "description": "Run diagnostic health checks on suite repos and tools.",
+            "parameters": {"type": "object", "properties": {"verbose": {"type": "boolean"}}},
+        },
     ]
 
     router = DynamicToolRouter(sample_tools)
@@ -560,8 +580,6 @@ def mcp_serve(
         response = _build_response(ctx, command="mcp.serve", state="error", diagnostics=diag)
         _emit_response(ctx, response)
         ctx.exit(1)
-
-
 
 
 # ============================================================================

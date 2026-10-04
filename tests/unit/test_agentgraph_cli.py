@@ -81,7 +81,9 @@ def test_agentgraph_validate(runner: CliRunner, tmp_path: Path):
 def test_agentgraph_query(runner: CliRunner, tmp_path: Path):
     """Verify query searches across graph nodes."""
     # Create and sync content
-    (tmp_path / "AGENTS.md").write_text("# Architecture Agents Guide\nContains developer instructions.", encoding="utf-8")
+    (tmp_path / "AGENTS.md").write_text(
+        "# Architecture Agents Guide\nContains developer instructions.", encoding="utf-8"
+    )
     runner.invoke(cli, ["agentgraph", "sync", "--path", str(tmp_path)])
 
     q_res = runner.invoke(cli, ["--output", "json", "agentgraph", "query", "developer", "--path", str(tmp_path)])
@@ -89,7 +91,9 @@ def test_agentgraph_query(runner: CliRunner, tmp_path: Path):
     q_data = json.loads(q_res.output)
     assert q_data["data"]["query"]["results_count"] > 0
     top = q_data["data"]["query"]["results"][0]
-    assert "developer" in top["id"].lower() or "developer" in top["label"].lower() or "developer" in top["snippet"].lower()
+    assert (
+        "developer" in top["id"].lower() or "developer" in top["label"].lower() or "developer" in top["snippet"].lower()
+    )
 
 
 def test_agentgraph_route(runner: CliRunner, tmp_path: Path):
@@ -99,7 +103,18 @@ def test_agentgraph_route(runner: CliRunner, tmp_path: Path):
     # Check reader role
     route_res = runner.invoke(
         cli,
-        ["--output", "json", "agentgraph", "route", "--role", "role:reader", "--tool", "run_command", "--path", str(tmp_path)],
+        [
+            "--output",
+            "json",
+            "agentgraph",
+            "route",
+            "--role",
+            "role:reader",
+            "--tool",
+            "run_command",
+            "--path",
+            str(tmp_path),
+        ],
     )
     assert route_res.exit_code == 0
     route_data = json.loads(route_res.output)
@@ -111,7 +126,18 @@ def test_agentgraph_route(runner: CliRunner, tmp_path: Path):
     # Check developer role
     dev_route = runner.invoke(
         cli,
-        ["--output", "json", "agentgraph", "route", "--role", "role:developer", "--tool", "read_file", "--path", str(tmp_path)],
+        [
+            "--output",
+            "json",
+            "agentgraph",
+            "route",
+            "--role",
+            "role:developer",
+            "--tool",
+            "read_file",
+            "--path",
+            str(tmp_path),
+        ],
     )
     assert dev_route.exit_code == 0
     dev_data = json.loads(dev_route.output)

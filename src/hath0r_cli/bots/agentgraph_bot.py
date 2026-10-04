@@ -258,7 +258,9 @@ class AgentGraphBot:
                 rec_stack: Set[str] = set()
                 if has_cycle(node_id, visited_nodes, rec_stack):
                     cycles_detected += 1
-                    errors.append(f"Cyclic inheritance/superseding dependency detected involving role/rule '{node_id}'.")
+                    errors.append(
+                        f"Cyclic inheritance/superseding dependency detected involving role/rule '{node_id}'."
+                    )
 
         # 3. Contradiction & Constraint Verification
         # For each agent role, check if any restricted action clashes with allowed tools
@@ -366,7 +368,11 @@ class AgentGraphBot:
                 pass
 
         # 2. Ingest Rules & Invariants (rules.md, docs/rules/)
-        rule_files = list(root.glob("**/rules.md")) + list(root.glob("docs/rules/*.md")) + list(root.glob("docs/governance/rules/*.md"))
+        rule_files = (
+            list(root.glob("**/rules.md"))
+            + list(root.glob("docs/rules/*.md"))
+            + list(root.glob("docs/governance/rules/*.md"))
+        )
         for rf in rule_files:
             if ".git" in rf.parts or ".venv" in rf.parts:
                 continue
@@ -919,7 +925,13 @@ class AgentGraphBot:
                 "content": f"Default developer role for {target.name}",
                 "properties": {
                     "role_name": "developer",
-                    "permitted_tools": ["read_file", "search_code", "run_command", "replace_file_content", "write_to_file"],
+                    "permitted_tools": [
+                        "read_file",
+                        "search_code",
+                        "run_command",
+                        "replace_file_content",
+                        "write_to_file",
+                    ],
                     "forbidden_tools": [],
                 },
                 "is_current": True,
@@ -978,7 +990,7 @@ class AgentGraphBot:
                     "This repository is governed by the Hath0r AgentGraph substrate. "
                     "Dynamic rule retrieval, role RBAC, and policy graphs are stored under `.hath0r/agentgraph/`.\n"
                     "- Query status: `hath0r agentgraph status`\n"
-                    "- Query rules: `hath0r agentgraph query \"<topic>\"`\n"
+                    '- Query rules: `hath0r agentgraph query "<topic>"`\n'
                     "- Route role: `hath0r agentgraph route --role <role>`\n"
                     "- Validate rules: `hath0r agentgraph validate`\n"
                 )
@@ -1050,4 +1062,3 @@ class AgentGraphBot:
             "all_valid": all_valid,
             "results": results,
         }
-

@@ -97,8 +97,6 @@ def wasm_info(ctx: click.Context) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
-
-
 @wasm.command("validate")
 @click.argument("module_path", type=click.Path(exists=True))
 @click.pass_context

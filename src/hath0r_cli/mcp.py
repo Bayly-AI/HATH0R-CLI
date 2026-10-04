@@ -609,4 +609,3 @@ class DynamicToolRouter:
         # Name match bonus
         name_bonus = 0.5 if any(token in name for token in intent_tokens) else 0.0
         return round(jaccard + name_bonus, 4)
-

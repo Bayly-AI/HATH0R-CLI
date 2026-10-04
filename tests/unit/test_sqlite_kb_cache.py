@@ -19,10 +19,15 @@ def test_sqlite_index_sync_and_search():
 
         # Create sample markdown documents
         doc1 = docs_dir / "governance_doc.md"
-        doc1.write_text("# Dynamic Tool Routing\nExplains BM25 tool candidate ranking and schema pruning.", encoding="utf-8")
+        doc1.write_text(
+            "# Dynamic Tool Routing\nExplains BM25 tool candidate ranking and schema pruning.", encoding="utf-8"
+        )
 
         doc2 = docs_dir / "pytorch_runtime.md"
-        doc2.write_text("# PyTorch Hardware Runtime\nAccelerates tensor batch matrix multiplication and quantization.", encoding="utf-8")
+        doc2.write_text(
+            "# PyTorch Hardware Runtime\nAccelerates tensor batch matrix multiplication and quantization.",
+            encoding="utf-8",
+        )
 
         store = SQLiteIndexStore(db_path=db_file)
 
@@ -57,7 +62,10 @@ def test_kb_cli_commands():
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
         sample_doc = tmp_path / "test_doc.md"
-        sample_doc.write_text("# Branch Promotion Rules\nCanonical promotion order is local development testing staging master.", encoding="utf-8")
+        sample_doc.write_text(
+            "# Branch Promotion Rules\nCanonical promotion order is local development testing staging master.",
+            encoding="utf-8",
+        )
 
         # Test kb index
         res_index = runner.invoke(cli, ["-o", "text", "kb", "index", "--target-dir", str(tmp_path), "--rebuild"])

@@ -204,15 +204,17 @@ class TokenTelemetryCLIBot:
             model_dist[m]["cost_usd"] = round(model_dist[m]["cost_usd"] + r.get("cost_usd", 0.0), 6)
 
         if v_min == v_max:
-            bins = [{
-                "bin_index": 0,
-                "bin_start": v_min,
-                "bin_end": v_max,
-                "count": tot_recs,
-                "percentage": 100.0,
-                "cumulative_percentage": 100.0,
-                "ascii_bar": "█" * max_bar_width,
-            }]
+            bins = [
+                {
+                    "bin_index": 0,
+                    "bin_start": v_min,
+                    "bin_end": v_max,
+                    "count": tot_recs,
+                    "percentage": 100.0,
+                    "cumulative_percentage": 100.0,
+                    "ascii_bar": "█" * max_bar_width,
+                }
+            ]
         else:
             bin_width = (v_max - v_min) / float(bins_count)
             bin_counts = [0] * bins_count
@@ -231,15 +233,17 @@ class TokenTelemetryCLIBot:
                 c = bin_counts[i]
                 cum += c
                 bar_len = int((c / max_cnt) * max_bar_width) if max_cnt > 0 else 0
-                bins.append({
-                    "bin_index": i,
-                    "bin_start": round(st, 1),
-                    "bin_end": round(en, 1),
-                    "count": c,
-                    "percentage": round((c / tot_recs) * 100.0, 1),
-                    "cumulative_percentage": round((cum / tot_recs) * 100.0, 1),
-                    "ascii_bar": "█" * bar_len,
-                })
+                bins.append(
+                    {
+                        "bin_index": i,
+                        "bin_start": round(st, 1),
+                        "bin_end": round(en, 1),
+                        "count": c,
+                        "percentage": round((c / tot_recs) * 100.0, 1),
+                        "cumulative_percentage": round((cum / tot_recs) * 100.0, 1),
+                        "ascii_bar": "█" * bar_len,
+                    }
+                )
 
         return {
             "metric": metric,

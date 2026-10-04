@@ -130,8 +130,10 @@ def test_supercompress_api_mock(monkeypatch):
     class MockResponse(io.BytesIO):
         def __init__(self, data: bytes):
             super().__init__(data)
+
         def __enter__(self):
             return self
+
         def __exit__(self, *args):
             pass
 
@@ -147,4 +149,3 @@ def test_supercompress_api_mock(monkeypatch):
     assert res["compressed_tokens"] == 60
     assert res["savings_pct"] == 50.0
     assert res["compressed_text"] == "Compressed architecture content."
-

@@ -82,8 +82,12 @@ def release_publish(ctx: click.Context, repo: str | None, skip_github_release: b
 
 
 @release.command("build")
-@click.option("--out", "out_dir", type=click.Path(path_type=Path), default=None, help="Output directory for release artifacts.")
-@click.option("--previous-dir", type=click.Path(path_type=Path), default=None, help="Directory for previous version archives.")
+@click.option(
+    "--out", "out_dir", type=click.Path(path_type=Path), default=None, help="Output directory for release artifacts."
+)
+@click.option(
+    "--previous-dir", type=click.Path(path_type=Path), default=None, help="Directory for previous version archives."
+)
 @click.option("--framework-dir", type=click.Path(path_type=Path), default=None, help="Framework release directory.")
 @click.option("--no-rotate", is_flag=True, default=False, help="Skip rotating existing release artifacts to previous/.")
 @click.option("--no-sync-framework", is_flag=True, default=False, help="Skip syncing release to Framework.")

@@ -221,9 +221,7 @@ class PreflightBot:
             # Its version must match VERSION so a mislabelled release branch still fails.
             branch_version = m_release.group(1)
             version_path = self.cwd / "VERSION"
-            file_version = (
-                version_path.read_text(encoding="utf-8").strip() if version_path.is_file() else None
-            )
+            file_version = version_path.read_text(encoding="utf-8").strip() if version_path.is_file() else None
             if file_version != branch_version:
                 return {
                     "ok": False,
@@ -231,10 +229,7 @@ class PreflightBot:
                     "branch": branch,
                     "is_release": True,
                     "version": branch_version,
-                    "error": (
-                        f"Release branch '{branch}' does not match VERSION "
-                        f"'{file_version or 'missing'}'"
-                    ),
+                    "error": (f"Release branch '{branch}' does not match VERSION '{file_version or 'missing'}'"),
                 }
             return {
                 "ok": True,

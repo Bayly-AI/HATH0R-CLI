@@ -93,7 +93,10 @@ class LocalModelBot:
     ) -> Dict[str, Any]:
         """Execute reasoning query with Chain-of-Thought extraction."""
         start_time = time.time()
-        effective_system = system_prompt or "You are an expert AI reasoning assistant. Think step by step inside <think> tags before answering."
+        effective_system = (
+            system_prompt
+            or "You are an expert AI reasoning assistant. Think step by step inside <think> tags before answering."
+        )
 
         if not force_offline:
             try:
@@ -125,7 +128,9 @@ class LocalModelBot:
                         "response": answer,
                         "latency_ms": latency_ms,
                     }
-                    self._record_telemetry(prompt=prompt, model=model, tier="reasoning", completion=answer, latency_ms=latency_ms)
+                    self._record_telemetry(
+                        prompt=prompt, model=model, tier="reasoning", completion=answer, latency_ms=latency_ms
+                    )
                     return res
             except Exception:
                 pass
@@ -148,7 +153,9 @@ class LocalModelBot:
             "response": mock_response,
             "latency_ms": latency_ms,
         }
-        self._record_telemetry(prompt=prompt, model=model, tier="reasoning", completion=mock_response, latency_ms=latency_ms)
+        self._record_telemetry(
+            prompt=prompt, model=model, tier="reasoning", completion=mock_response, latency_ms=latency_ms
+        )
         return res
 
     def generate_code(
@@ -190,7 +197,9 @@ class LocalModelBot:
                         "code": raw_response,
                         "latency_ms": latency_ms,
                     }
-                    self._record_telemetry(prompt=prompt, model=model, tier="standard", completion=raw_response, latency_ms=latency_ms)
+                    self._record_telemetry(
+                        prompt=prompt, model=model, tier="standard", completion=raw_response, latency_ms=latency_ms
+                    )
                     return res
             except Exception:
                 pass

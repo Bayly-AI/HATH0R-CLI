@@ -94,6 +94,7 @@ def _search_ray_index(query: str, source: Optional[str] = None, limit: int = 5) 
         return {"success": False, "error": "Ray knowledge index file not found.", "results": []}
     import re
     from collections import Counter
+
     try:
         with open(index_path, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -123,14 +124,16 @@ def _search_ray_index(query: str, source: Optional[str] = None, limit: int = 5) 
         for score, doc in scored[:limit]:
             content = doc.get("content", "")
             preview = content[:200] + "..." if len(content) > 200 else content
-            results.append({
-                "doc_id": doc.get("id"),
-                "source": doc.get("source"),
-                "title": doc.get("title"),
-                "relative_path": doc.get("relative_path"),
-                "score": score,
-                "preview": preview,
-            })
+            results.append(
+                {
+                    "doc_id": doc.get("id"),
+                    "source": doc.get("source"),
+                    "title": doc.get("title"),
+                    "relative_path": doc.get("relative_path"),
+                    "score": score,
+                    "preview": preview,
+                }
+            )
         return {"success": True, "count": len(results), "results": results}
     except Exception as exc:
         return {"success": False, "error": str(exc), "results": []}
@@ -235,6 +238,7 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
             command: The command line arguments to pass to hath0r (without 'hath0r' prefix).
         """
         import shlex
+
         args = shlex.split(command)
         cmd = [sys.executable, "-m", "hath0r_cli"] + args
         try:
@@ -344,14 +348,15 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
 
         bot = TokenTelemetryCLIBot()
-        return bot.query(
-            user=user,
-            agent=agent,
+        records = bot.list_records(
+            user_id=user,
+            agent_id=agent,
             session_id=session_id,
             tier=tier,
             model=model,
             limit=limit,
         )
+        return {"records": records}
 
     @mcp.tool()
     def hath0r_finops_tokens_histogram(
@@ -374,10 +379,10 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
 
         bot = TokenTelemetryCLIBot()
         return bot.histogram(
-            bin_field=bin_field,
-            bins=bins,
-            user=user,
-            agent=agent,
+            metric=bin_field,
+            bins_count=bins,
+            user_id=user,
+            agent_id=agent,
             session_id=session_id,
         )
 
@@ -453,7 +458,7 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         from hath0r_cli.bots.voice_converse import VoiceSynthesizerBot
 
         bot = VoiceSynthesizerBot()
-        return bot.speak(text=text, voice=voice)
+        return bot.speak(text=text, voice_name=voice)
 
     @mcp.tool()
     def hath0r_voice_listen(
@@ -622,4 +627,3 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         return bot.design_to_code(raw_design=design_content, component_name=component_name, framework=framework)
 
     return mcp
-

@@ -162,4 +162,3 @@ def worktree_prune(ctx: click.Context) -> None:
             console.print(f"[bold red]✗ Failed to prune worktrees:[/bold red] {res.get('error')}")
 
     _emit_response(ctx, response, text_renderer=_text)
-

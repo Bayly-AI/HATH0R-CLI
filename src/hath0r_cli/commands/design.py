@@ -95,9 +95,17 @@ def design_inspect(ctx: click.Context, mock: Optional[Path]) -> None:
 
 
 @design.command("to-code")
-@click.option("--input-file", "-i", type=click.Path(exists=True, path_type=Path), help="HTML or JSON mockup file to synthesize.")
+@click.option(
+    "--input-file", "-i", type=click.Path(exists=True, path_type=Path), help="HTML or JSON mockup file to synthesize."
+)
 @click.option("--name", "-n", default="WebHero", help="Component name (default: WebHero).")
-@click.option("--framework", "-f", type=click.Choice(["react_tailwind", "html_css"]), default="react_tailwind", help="Target framework.")
+@click.option(
+    "--framework",
+    "-f",
+    type=click.Choice(["react_tailwind", "html_css"]),
+    default="react_tailwind",
+    help="Target framework.",
+)
 @click.option("--output", "-o", type=click.Path(path_type=Path), help="Destination file to write generated code.")
 @click.pass_context
 def design_to_code(
@@ -132,7 +140,9 @@ def design_to_code(
 
     def _text() -> None:
         if res.get("success"):
-            console.print(f"[bold green]✓ Synthesized Component:[/] [cyan]{res['component_name']}[/cyan] ({res['framework']})")
+            console.print(
+                f"[bold green]✓ Synthesized Component:[/] [cyan]{res['component_name']}[/cyan] ({res['framework']})"
+            )
             if "written_to" in res:
                 console.print(f"  • Saved to: [bold]{res['written_to']}[/bold]")
             else:
@@ -145,7 +155,13 @@ def design_to_code(
 
 
 @design.command("to-canvas")
-@click.option("--input-file", "-i", required=True, type=click.Path(exists=True, path_type=Path), help="HTML or React component file to stage for Paper.")
+@click.option(
+    "--input-file",
+    "-i",
+    required=True,
+    type=click.Path(exists=True, path_type=Path),
+    help="HTML or React component file to stage for Paper.",
+)
 @click.option("--name", "-n", default="Web Design Canvas", help="Artboard name in Paper.")
 @click.option("--width", "-w", type=int, default=1440, help="Canvas width in pixels.")
 @click.option("--height", "-h", type=int, default=900, help="Canvas height in pixels.")

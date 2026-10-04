@@ -47,6 +47,8 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "finops": ("hath0r_cli.commands.finops", "finops"),
     "agentgraph": ("hath0r_cli.commands.agentgraph", "agentgraph"),
     "design": ("hath0r_cli.commands.design", "design"),
+    "observe": ("hath0r_cli.commands.observe", "observe_cmd"),
+    "phoenix": ("hath0r_cli.commands.phoenix", "phoenix_cmd"),
 }
 
 

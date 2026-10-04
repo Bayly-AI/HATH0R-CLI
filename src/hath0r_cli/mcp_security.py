@@ -34,8 +34,14 @@ class MCPSecurityPolicyEngine:
     """Evaluates agent tool arguments in-flight to prevent prompt injection and destructive actions."""
 
     DANGEROUS_COMMANDS = [
-        (re.compile(r"rm\s+(-[rfRF]+\s+|--recursive\s+|--force\s+)*(/|/\*|~|\$HOME)", re.I), "CRITICAL: Destructive root/home filesystem deletion"),
-        (re.compile(r"(curl|wget)\s+.*\|\s*(bash|sh|zsh)", re.I), "CRITICAL: Unverified remote script execution via pipe"),
+        (
+            re.compile(r"rm\s+(-[rfRF]+\s+|--recursive\s+|--force\s+)*(/|/\*|~|\$HOME)", re.I),
+            "CRITICAL: Destructive root/home filesystem deletion",
+        ),
+        (
+            re.compile(r"(curl|wget)\s+.*\|\s*(bash|sh|zsh)", re.I),
+            "CRITICAL: Unverified remote script execution via pipe",
+        ),
         (re.compile(r":\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:", re.I), "CRITICAL: Fork bomb denial of service"),
         (re.compile(r"mkfs(\.\w+)?\s+", re.I), "CRITICAL: Filesystem format attempt"),
         (re.compile(r"chmod\s+(-R\s+)?777\s+/", re.I), "HIGH: Global permission escalation"),
@@ -43,7 +49,10 @@ class MCPSecurityPolicyEngine:
 
     PATH_TRAVERSAL = [
         (re.compile(r"(\.\./){2,}", re.I), "HIGH: Directory traversal escape"),
-        (re.compile(r"/(etc/(passwd|shadow)|root/\.ssh|\.aws/credentials|\.credentials)", re.I), "CRITICAL: Sensitive credential / system file access"),
+        (
+            re.compile(r"/(etc/(passwd|shadow)|root/\.ssh|\.aws/credentials|\.credentials)", re.I),
+            "CRITICAL: Sensitive credential / system file access",
+        ),
     ]
 
     SQL_DESTRUCTIVE = [
@@ -54,9 +63,24 @@ class MCPSecurityPolicyEngine:
     def list_rules(self) -> List[Dict[str, Any]]:
         """List active security guardrail rules."""
         return [
-            {"id": "SEC-CMD-001", "name": "Dangerous Shell Commands", "risk": "CRITICAL", "description": "Blocks rm -rf /, pipe-to-shell, and fork bombs."},
-            {"id": "SEC-PATH-001", "name": "Path Traversal & Secrets Access", "risk": "CRITICAL", "description": "Blocks ../.. traversal and access to system credentials."},
-            {"id": "SEC-SQL-001", "name": "Destructive SQL Statements", "risk": "HIGH", "description": "Blocks accidental DROP TABLE/DATABASE queries."},
+            {
+                "id": "SEC-CMD-001",
+                "name": "Dangerous Shell Commands",
+                "risk": "CRITICAL",
+                "description": "Blocks rm -rf /, pipe-to-shell, and fork bombs.",
+            },
+            {
+                "id": "SEC-PATH-001",
+                "name": "Path Traversal & Secrets Access",
+                "risk": "CRITICAL",
+                "description": "Blocks ../.. traversal and access to system credentials.",
+            },
+            {
+                "id": "SEC-SQL-001",
+                "name": "Destructive SQL Statements",
+                "risk": "HIGH",
+                "description": "Blocks accidental DROP TABLE/DATABASE queries.",
+            },
         ]
 
     def _inspect_string(self, text: str) -> Optional[Tuple[str, str, str]]:

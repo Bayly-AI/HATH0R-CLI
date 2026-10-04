@@ -197,16 +197,16 @@ class PaperDesignBot:
                     f"}} = {{}}) => {{\n"
                     f"  return (\n"
                     f"    <header className={{`sticky top-0 z-50 w-full backdrop-blur-md bg-slate-950/80 border-b border-slate-800/80 ${{className}}`}}>\n"
-                    f"      <div className=\"max-w-7xl mx-auto px-6 h-16 flex items-center justify-between\">\n"
-                    f"        <div className=\"flex items-center space-x-3\">\n"
-                    f"          <span className=\"text-lg font-bold tracking-tight text-white\">{{title}}</span>\n"
+                    f'      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">\n'
+                    f'        <div className="flex items-center space-x-3">\n'
+                    f'          <span className="text-lg font-bold tracking-tight text-white">{{title}}</span>\n'
                     f"        </div>\n"
-                    f"        <nav className=\"hidden md:flex items-center space-x-6\">\n"
+                    f'        <nav className="hidden md:flex items-center space-x-6">\n'
                     f"          {{links.map((link) => (\n"
                     f"            <a\n"
                     f"              key={{link.label}}\n"
                     f"              href={{link.href}}\n"
-                    f"              className=\"text-sm text-slate-300 hover:text-white transition-colors duration-150\"\n"
+                    f'              className="text-sm text-slate-300 hover:text-white transition-colors duration-150"\n'
                     f"            >\n"
                     f"              {{link.label}}\n"
                     f"            </a>\n"
@@ -235,24 +235,24 @@ class PaperDesignBot:
                     f"  ctaHref = '#explore',\n"
                     f"}} = {{}}) => {{\n"
                     f"  return (\n"
-                    f"    <section className=\"relative overflow-hidden py-24 sm:py-32 bg-slate-950 text-white\">\n"
-                    f"      <div className=\"max-w-7xl mx-auto px-6 lg:px-8\">\n"
-                    f"        <div className=\"max-w-2xl text-left\">\n"
+                    f'    <section className="relative overflow-hidden py-24 sm:py-32 bg-slate-950 text-white">\n'
+                    f'      <div className="max-w-7xl mx-auto px-6 lg:px-8">\n'
+                    f'        <div className="max-w-2xl text-left">\n'
                     f"          {{badge && (\n"
-                    f"            <div className=\"inline-flex items-center gap-x-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-6\">\n"
+                    f'            <div className="inline-flex items-center gap-x-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-6">\n'
                     f"              {{badge}}\n"
                     f"            </div>\n"
                     f"          )}}\n"
-                    f"          <h1 className=\"text-4xl sm:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight\">\n"
+                    f'          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">\n'
                     f"            {{title}}\n"
                     f"          </h1>\n"
-                    f"          <p className=\"text-lg leading-8 text-slate-300 mb-8\">\n"
+                    f'          <p className="text-lg leading-8 text-slate-300 mb-8">\n'
                     f"            {{description}}\n"
                     f"          </p>\n"
-                    f"          <div className=\"flex items-center gap-x-4\">\n"
+                    f'          <div className="flex items-center gap-x-4">\n'
                     f"            <a\n"
                     f"              href={{ctaHref}}\n"
-                    f"              className=\"rounded-lg bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors\"\n"
+                    f'              className="rounded-lg bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors"\n'
                     f"            >\n"
                     f"              {{ctaText}}\n"
                     f"            </a>\n"
@@ -278,11 +278,11 @@ class PaperDesignBot:
                     f"}} = {{}}) => {{\n"
                     f"  return (\n"
                     f"    <div className={{`p-6 rounded-2xl bg-slate-900/90 border border-slate-800 text-slate-100 shadow-xl ${{className}}`}}>\n"
-                    f"      <h2 className=\"text-xl font-bold tracking-tight text-white mb-2\">{{title}}</h2>\n"
-                    f"      <p className=\"text-sm text-slate-400 mb-4\">{{description}}</p>\n"
-                    f"      <div className=\"pt-4 border-t border-slate-800/80 flex items-center justify-between\">\n"
-                    f"        <span className=\"text-xs font-mono text-indigo-400\">paper.design / Hath0r</span>\n"
-                    f"        <button className=\"px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-md transition-colors\">\n"
+                    f'      <h2 className="text-xl font-bold tracking-tight text-white mb-2">{{title}}</h2>\n'
+                    f'      <p className="text-sm text-slate-400 mb-4">{{description}}</p>\n'
+                    f'      <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between">\n'
+                    f'        <span className="text-xs font-mono text-indigo-400">paper.design / Hath0r</span>\n'
+                    f'        <button className="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-md transition-colors">\n'
                     f"          Action\n"
                     f"        </button>\n"
                     f"      </div>\n"
@@ -292,7 +292,7 @@ class PaperDesignBot:
                 )
         else:
             code = (
-                f"<section class=\"hathor-paper-section\">\n"
+                f'<section class="hathor-paper-section">\n'
                 f"  <h2>{title_text}</h2>\n"
                 f"  <p>Synthesized HTML/CSS component.</p>\n"
                 f"</section>\n"
@@ -319,9 +319,9 @@ class PaperDesignBot:
         if cleaned_html.startswith("export ") or "import React" in cleaned_html:
             # Wrap in preview DOM container
             preview_dom = (
-                f"<div class=\"paper-frame\" style=\"width:{width}px; min-height:{height}px; background:#020617; color:#f8fafc; font-family:sans-serif; padding:32px;\">\n"
+                f'<div class="paper-frame" style="width:{width}px; min-height:{height}px; background:#020617; color:#f8fafc; font-family:sans-serif; padding:32px;">\n'
                 f"  <!-- Rendered from {artboard_name} -->\n"
-                f"  <div class=\"component-preview\">\n"
+                f'  <div class="component-preview">\n'
                 f"    {cleaned_html}\n"
                 f"  </div>\n"
                 f"</div>"
@@ -358,9 +358,7 @@ class PaperDesignBot:
 
         # Build token dictionary
         tokens = {
-            "colors": {
-                f"palette-{i+1}": color for i, color in enumerate(hex_colors)
-            },
+            "colors": {f"palette-{i + 1}": color for i, color in enumerate(hex_colors)},
             "fontFamily": {
                 "sans": ["Inter", "Outfit", "sans-serif"],
                 "mono": ["JetBrains Mono", "monospace"],
@@ -395,22 +393,26 @@ class PaperDesignBot:
         landmarks = ["header", "nav", "main", "footer", "section"]
         found_landmarks = [lm for lm in landmarks if f"<{lm}" in lower_code]
         if not found_landmarks:
-            findings.append({
-                "severity": "warning",
-                "code": "MISSING_SEMANTIC_LANDMARKS",
-                "message": "No semantic landmark tags (<nav>, <main>, <section>, etc.) detected; ensure layout is accessible.",
-            })
+            findings.append(
+                {
+                    "severity": "warning",
+                    "code": "MISSING_SEMANTIC_LANDMARKS",
+                    "message": "No semantic landmark tags (<nav>, <main>, <section>, etc.) detected; ensure layout is accessible.",
+                }
+            )
             score -= 15
 
         # Check img alt tags
         img_tags = re.findall(r"<img[^>]*>", lower_code)
         for img in img_tags:
             if 'alt="' not in img and "alt='" not in img:
-                findings.append({
-                    "severity": "error",
-                    "code": "IMG_MISSING_ALT",
-                    "message": "Image element is missing an alt attribute for screen readers.",
-                })
+                findings.append(
+                    {
+                        "severity": "error",
+                        "code": "IMG_MISSING_ALT",
+                        "message": "Image element is missing an alt attribute for screen readers.",
+                    }
+                )
                 score -= 10
                 break
 
@@ -418,11 +420,13 @@ class PaperDesignBot:
         if "<button" in lower_code and "aria-label" not in lower_code and ">" in lower_code:
             # Check if button is empty
             if re.search(r"<button[^>]*>\s*</button>", lower_code):
-                findings.append({
-                    "severity": "error",
-                    "code": "EMPTY_BUTTON",
-                    "message": "Empty button detected without aria-label or accessible text.",
-                })
+                findings.append(
+                    {
+                        "severity": "error",
+                        "code": "EMPTY_BUTTON",
+                        "message": "Empty button detected without aria-label or accessible text.",
+                    }
+                )
                 score -= 15
 
         return {

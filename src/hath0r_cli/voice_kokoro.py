@@ -90,11 +90,11 @@ class KokoroTTSEngine:
         wav_buf.write(b"WAVE")
         wav_buf.write(b"fmt ")
         wav_buf.write(struct.pack("<I", 16))  # Subchunk1Size
-        wav_buf.write(struct.pack("<H", 1))   # AudioFormat (1=PCM)
-        wav_buf.write(struct.pack("<H", 1))   # NumChannels (1=Mono)
+        wav_buf.write(struct.pack("<H", 1))  # AudioFormat (1=PCM)
+        wav_buf.write(struct.pack("<H", 1))  # NumChannels (1=Mono)
         wav_buf.write(struct.pack("<I", sample_rate))
         wav_buf.write(struct.pack("<I", sample_rate * 2))  # ByteRate
-        wav_buf.write(struct.pack("<H", 2))   # BlockAlign
+        wav_buf.write(struct.pack("<H", 2))  # BlockAlign
         wav_buf.write(struct.pack("<H", 16))  # BitsPerSample
         wav_buf.write(b"data")
         wav_buf.write(struct.pack("<I", len(raw_pcm)))

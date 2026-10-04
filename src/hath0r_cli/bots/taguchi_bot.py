@@ -103,9 +103,11 @@ class TaguchiBot:
         num_runs = len(template)
         max_factors = len(template[0])
 
-        active_factors = factors or [f"Factor_{i+1}" for i in range(min(max_factors, len(factors or template[0])))]
+        active_factors = factors or [f"Factor_{i + 1}" for i in range(min(max_factors, len(factors or template[0])))]
         if len(active_factors) > max_factors:
-            raise ValueError(f"Array {arr} supports at most {max_factors} factors, but {len(active_factors)} were provided.")
+            raise ValueError(
+                f"Array {arr} supports at most {max_factors} factors, but {len(active_factors)} were provided."
+            )
 
         runs: List[Dict[str, Any]] = []
         for run_idx, row in enumerate(template):
@@ -143,7 +145,7 @@ class TaguchiBot:
 
         if crit in ("smaller_is_better", "smaller"):
             # SNR = -10 * log10( (1/n) * sum(y^2) )
-            sum_sq = sum(y ** 2 for y in responses)
+            sum_sq = sum(y**2 for y in responses)
             mean_sq = sum_sq / n
             if mean_sq <= 0:
                 return 100.0
@@ -151,7 +153,7 @@ class TaguchiBot:
 
         elif crit in ("larger_is_better", "larger"):
             # SNR = -10 * log10( (1/n) * sum(1 / y^2) )
-            sum_inv_sq = sum(1.0 / (y ** 2) for y in responses if y != 0)
+            sum_inv_sq = sum(1.0 / (y**2) for y in responses if y != 0)
             mean_inv_sq = sum_inv_sq / n
             if mean_inv_sq <= 0:
                 return 100.0
@@ -165,10 +167,12 @@ class TaguchiBot:
             variance = sum((y - mean) ** 2 for y in responses) / (n - 1)
             if variance <= 1e-12:
                 return 100.0
-            return 10.0 * math.log10((mean ** 2) / variance)
+            return 10.0 * math.log10((mean**2) / variance)
 
         else:
-            raise ValueError(f"Unknown SNR criterion: {criterion}. Choose: nominal_is_best, smaller_is_better, larger_is_better.")
+            raise ValueError(
+                f"Unknown SNR criterion: {criterion}. Choose: nominal_is_best, smaller_is_better, larger_is_better."
+            )
 
     def calculate_loss(
         self,
@@ -178,7 +182,7 @@ class TaguchiBot:
     ) -> Dict[str, Any]:
         """Calculate Taguchi Quality Loss L(y) = k * (y - m)^2."""
         deviation = measured_y - target_m
-        loss = sensitivity_k * (deviation ** 2)
+        loss = sensitivity_k * (deviation**2)
         return {
             "success": True,
             "measured_y": measured_y,

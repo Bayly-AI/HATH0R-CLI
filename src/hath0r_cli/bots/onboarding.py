@@ -184,7 +184,7 @@ class GovernanceBot:
             "This repository is governed by the Hath0r AgentGraph substrate. "
             "Dynamic rule retrieval, role RBAC, and policy graphs are stored under `.hath0r/agentgraph/`.\n"
             "- Query status: `hath0r agentgraph status`\n"
-            "- Query rules: `hath0r agentgraph query \"<topic>\"`\n"
+            '- Query rules: `hath0r agentgraph query "<topic>"`\n'
             "- Route role: `hath0r agentgraph route --role <role>`\n"
             "- Validate rules: `hath0r agentgraph validate`\n"
         )
@@ -571,4 +571,3 @@ class TriGraphIngestBot:
                 "warning": str(e),
                 "message": f"KB index sync skipped: {e}",
             }
-

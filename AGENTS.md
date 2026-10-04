@@ -46,6 +46,11 @@ Group policy: `/Users/raybayly/Development/OpenSource/WARP.md`
    *Example*: "MCP connection missing → create MCP registration in config + re-run original request."
 3. **Session Start Checklist**: Review and follow `docs/governance/checklists/agent-session-start.md` before executing work.
 4. **Procedure & Runbook Requirement**: Require procedure/strategy/playbook/runbook before scaffolding or writing implementation code.
+5. **CR-CLI-FEATURE-STANDARD-001 (Shared Code in CLI & Artifact Hexad — CRITICAL · CANONICAL)**:
+   - **Zero Code Duplication**: Anything that can be used across multiple repositories **MUST live in the CLI (`HATH0R-CLI`)**.
+   - **Complete Feature Package**: When adding any feature that should be a CLI command, you MUST deliver the CLI command (`src/hath0r_cli/commands/`), managing bot(s) (`src/hath0r_cli/bots/`), workflows/scripts, and the Governance Documentation Hexad (Strategy, Procedure, Playbook, Runbook, Workflow, Bot Spec).
+   - **Configuration-Only Member Repos**: Member repositories only contain declarative configuration files (`cfg/`, `otel.json`, factory YAMLs) that configure and bind to the CLI's tools.
+   - Policy: [`docs/governance/cr-cli-feature-standard-001.md`](docs/governance/cr-cli-feature-standard-001.md).
 
 ## Framework hidden root (CRITICAL — cr-hath0r-root-001)
 

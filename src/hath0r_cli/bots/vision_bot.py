@@ -260,7 +260,13 @@ class VisionBot:
         opt_dev = detect_optimal_device(device or "auto")
 
         doc_structure: Dict[str, Any] = {
-            "doc_type": "2d_tabular_document" if pixel_native else ("architecture_diagram" if "diag" in path.name.lower() or "arch" in path.name.lower() else "technical_document"),
+            "doc_type": "2d_tabular_document"
+            if pixel_native
+            else (
+                "architecture_diagram"
+                if "diag" in path.name.lower() or "arch" in path.name.lower()
+                else "technical_document"
+            ),
             "sections": [
                 f"Title: {stem}",
                 "System Overview & Module Boundaries",
@@ -276,15 +282,27 @@ class VisionBot:
 
         if pixel_native:
             doc_structure["sections"].append("2D Spatial Patch Matrix (OCR-Free)")
-            doc_structure["tables"] = [{
-                "table_id": "table_1",
-                "rows": 4,
-                "columns": 3,
-                "cells": [
-                    {"row": r, "col": c, "bbox": [round(r * 0.2, 2), round(c * 0.3, 2), round((r + 1) * 0.2, 2), round((c + 1) * 0.3, 2)]}
-                    for r in range(4) for c in range(3)
-                ]
-            }]
+            doc_structure["tables"] = [
+                {
+                    "table_id": "table_1",
+                    "rows": 4,
+                    "columns": 3,
+                    "cells": [
+                        {
+                            "row": r,
+                            "col": c,
+                            "bbox": [
+                                round(r * 0.2, 2),
+                                round(c * 0.3, 2),
+                                round((r + 1) * 0.2, 2),
+                                round((c + 1) * 0.3, 2),
+                            ],
+                        }
+                        for r in range(4)
+                        for c in range(3)
+                    ],
+                }
+            ]
             doc_structure["pixel_native"] = True
             doc_structure["patch_size"] = patch_size
 

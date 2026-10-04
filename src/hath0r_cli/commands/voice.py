@@ -484,7 +484,6 @@ def voice_list_voices(ctx: click.Context) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
-
 @voice.command("announce")
 @click.argument("message")
 @click.option(
