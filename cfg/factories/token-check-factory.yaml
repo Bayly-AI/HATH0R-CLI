@@ -1,20 +1,42 @@
-id: token-check-factory
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: token-check-factory
+
+factory_id: token-check-factory
 name: FinOps Token Check Workflow Factory
-description: Automates FinOps token telemetry auditing, 90-day histogram generation, model breakdown, and Generative UI HTML dashboard artifact rendering.
 version: 1.0.0
-owner: "@somesayray"
+description: Automates FinOps token telemetry auditing, 90-day histogram generation, model breakdown, and Generative UI HTML dashboard artifact rendering.
+author: "@somesayray"
+category: finops-and-telemetry
+
 documentation:
   playbook: docs/governance/playbooks/token-check-playbook.md
   runbook: docs/governance/runbooks/token-check-runbook.md
   test_doc: tests/unit/test_token_check_bot.py
 
-steps:
-  - id: parse_ledger
-    bot: TokenTelemetryCLIBot
-    action: list_records
-  - id: compute_histogram
-    bot: TokenTelemetryCLIBot
-    action: histogram
-  - id: render_report
-    bot: TokenCheckWorkflowBot
-    action: run_token_check
+bots:
+  - id: token-telemetry-cli-bot
+    name: Token Telemetry CLI Bot
+    role: token-telemetry
+    description: Parses token ledger and computes histogram statistics.
+    capabilities:
+      - list-records
+      - histogram
+  - id: token-check-workflow-bot
+    name: Token Check Workflow Bot
+    role: token-report-generation
+    description: Renders FinOps token audit report and dashboards.
+    capabilities:
+      - run-token-check
+
+workflows:
+  - id: token-check-workflow
+    name: Run Token Check and Histogram
+    description: Runs token ledger inspection and dashboard generation.
+    steps:
+      - bot: token-telemetry-cli-bot
+        action: list-records
+      - bot: token-telemetry-cli-bot
+        action: histogram
+      - bot: token-check-workflow-bot
+        action: run-token-check
