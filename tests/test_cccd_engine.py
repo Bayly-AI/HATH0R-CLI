@@ -85,3 +85,34 @@ def test_cccd_cli_commands(tmp_path: Path, monkeypatch) -> None:
     res_at = runner.invoke(main, ["cccd", "auto-tune", "--interval", "100"])
     assert res_at.exit_code == 0
     assert "Active" in res_at.output or "active_calibration" in res_at.output
+
+
+def test_cccd_freshness_check(tmp_path: Path) -> None:
+    loop = CCCDCalibrationLoop(
+        cwd=tmp_path,
+        state_file=tmp_path / "cccd_state.json",
+        dspy_bridge=DSPyCompilerBridge(compiled_prompts_dir=tmp_path / "compiled"),
+    )
+
+    # Initially missing timestamp -> stale
+    freshness = loop.check_calibration_freshness(max_age_hours=24.0)
+    assert freshness["is_fresh"] is False
+    assert freshness["stale"] is True
+
+    # Run calibration -> fresh
+    loop.run_calibration(iterations=1)
+    freshness_after = loop.check_calibration_freshness(max_age_hours=24.0)
+    assert freshness_after["is_fresh"] is True
+    assert freshness_after["stale"] is False
+    assert freshness_after["age_hours"] is not None and freshness_after["age_hours"] < 1.0
+
+    # Simulate old timestamp (>24h ago)
+    state = loop.load_state()
+    state["last_run_timestamp"] = "2020-01-01T00:00:00Z"
+    loop.save_state(state)
+
+    freshness_stale = loop.check_calibration_freshness(max_age_hours=24.0)
+    assert freshness_stale["is_fresh"] is False
+    assert freshness_stale["stale"] is True
+    assert freshness_stale["age_hours"] > 24.0
+

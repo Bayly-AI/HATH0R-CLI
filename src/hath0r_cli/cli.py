@@ -75,8 +75,35 @@ def main(ctx: click.Context, output: str, quiet: bool, verbose: bool, version: b
         _emit_version(ctx)
         ctx.exit(0)
 
+    if not quiet:
+        _check_cccd_freshness_gate(ctx)
+
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
+
+
+def _check_cccd_freshness_gate(ctx: click.Context) -> None:
+    """Canonical Entry Gate: Verify CCCD calibration age is <= 24 hours."""
+    if ctx.obj.get("quiet") or ctx.invoked_subcommand == "cccd":
+        return
+
+    try:
+        from rich.panel import Panel
+
+        from hath0r_cli.cccd.calibration_loop import CCCDCalibrationLoop
+
+        freshness = CCCDCalibrationLoop().check_calibration_freshness(max_age_hours=24.0)
+        if freshness.get("stale"):
+            age_msg = f"{freshness['age_hours']:.1f} hours ago" if freshness.get("age_hours") is not None else "Never"
+            msg = (
+                f"[bold yellow]⚠️ [CRITICAL ENTRY GATE] CCCD Calibration is Stale (>24h Limit)[/bold yellow]\n\n"
+                f"Last Calibration Run: [bold white]{age_msg}[/bold white]\n"
+                f"Status: Prompt signatures and runtime parameters require re-calibration.\n\n"
+                f"[bold cyan]Offer:[/bold cyan] Run [bold green]hath0r cccd calibrate[/bold green] to re-calibrate parameters."
+            )
+            console.print(Panel(msg, title="CCCD Calibration Entry Gate", border_style="bold yellow"), err=True)
+    except Exception:
+        pass
 
 
 def _emit_version(ctx: click.Context) -> None:

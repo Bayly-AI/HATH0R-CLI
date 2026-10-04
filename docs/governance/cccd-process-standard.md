@@ -59,7 +59,16 @@ hath0r cccd auto-tune --interval 300 --daemon
 
 ---
 
-## 4. Verification & Hard Gates
+## 4. Canonical CLI Entry Gate & Freshness Rule (CR-CCCD-FRESHNESS-001)
+
+1. **24-Hour Freshness Window**: All Hath0r CLI executions check the elapsed time since `last_run_timestamp` in `.hath0r/cccd_state.json`.
+2. **Mandatory Stale Alert**: If `last_run_timestamp` is missing or >24 hours old, the CLI entrypoint outputs a prominent entry gate alert warning the operator that runtime parameters and prompt signatures are stale.
+3. **Calibration Offer**: The alert prominently offers `hath0r cccd calibrate` to perform on-demand parameter and signature re-calibration.
+
+---
+
+## 5. Verification & Hard Gates
 
 1. **Test Coverage**: All CCCD modules and CLI commands must maintain 100% unit test pass rate in `tests/test_cccd_engine.py`.
 2. **State Persistence**: Active calibration state and parameters must be stored deterministically under `.hath0r/cccd_state.json`.
+
