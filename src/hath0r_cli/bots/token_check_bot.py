@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -114,13 +113,13 @@ Your token usage telemetry ledger tracks every agent interaction for user **`{us
 
 | Metric | Value |
 | :--- | :--- |
-| **Minimum** | {stats.get('min', 0)} tokens |
-| **Maximum** | {stats.get('max', 0)} tokens |
-| **Mean (Average)** | {stats.get('mean', 0)} tokens |
-| **Median ($p_{{50}}$)** | {stats.get('median', 0)} tokens |
-| **$p_{{95}}$ Percentile** | {stats.get('p95', 0)} tokens |
-| **$p_{{99}}$ Percentile** | {stats.get('p99', 0)} tokens |
-| **Standard Deviation** | {stats.get('std_dev', 0)} |
+| **Minimum** | {stats.get("min", 0)} tokens |
+| **Maximum** | {stats.get("max", 0)} tokens |
+| **Mean (Average)** | {stats.get("mean", 0)} tokens |
+| **Median ($p_{{50}}$)** | {stats.get("median", 0)} tokens |
+| **$p_{{95}}$ Percentile** | {stats.get("p95", 0)} tokens |
+| **$p_{{99}}$ Percentile** | {stats.get("p99", 0)} tokens |
+| **Standard Deviation** | {stats.get("std_dev", 0)} |
 
 #### ASCII Distribution Histogram
 ```text
@@ -274,8 +273,8 @@ hath0r finops tokens check --user {user_id} --days {days}
 
     <div class="bg-[var(--card,#1e293b)] p-4 rounded-xl border border-[var(--border,#334155)] shadow-sm">
       <div class="text-xs font-medium text-[var(--muted-foreground,#94a3b8)] uppercase tracking-wider">P95 / P99 Token Floor</div>
-      <div class="text-2xl font-bold text-[var(--primary,#38bdf8)] mt-2">{stats.get('p95', 0)} / {stats.get('p99', 0)}</div>
-      <div class="text-xs text-[var(--muted-foreground,#94a3b8)] mt-1">Mean: {stats.get('mean', 0)} • Median: {stats.get('median', 0)}</div>
+      <div class="text-2xl font-bold text-[var(--primary,#38bdf8)] mt-2">{stats.get("p95", 0)} / {stats.get("p99", 0)}</div>
+      <div class="text-xs text-[var(--muted-foreground,#94a3b8)] mt-1">Mean: {stats.get("mean", 0)} • Median: {stats.get("median", 0)}</div>
     </div>
   </div>
 

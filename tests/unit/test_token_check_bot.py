@@ -5,9 +5,9 @@ from pathlib import Path
 
 from click.testing import CliRunner
 
-from hath0r_cli.cli import main as cli
 from hath0r_cli.bots.token_check_bot import TokenCheckWorkflowBot
 from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
+from hath0r_cli.cli import main as cli
 from hath0r_cli.server.mcp_server import create_mcp_server
 
 

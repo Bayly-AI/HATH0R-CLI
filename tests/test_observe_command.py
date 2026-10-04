@@ -1,6 +1,9 @@
 """Unit tests for Hath0r CLI Observe Command Group."""
+
 import json
+
 from click.testing import CliRunner
+
 from hath0r_cli.cli import main
 
 

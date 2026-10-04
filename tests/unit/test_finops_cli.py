@@ -78,7 +78,11 @@ def test_token_telemetry_cli_bot(tmp_path):
     # Record 3 events
     r1 = bot.record(prompt="Short prompt", user_id="alice", tier="light")
     r2 = bot.record(prompt="Medium length prompt for standard task", user_id="alice", tier="standard")
-    r3 = bot.record(prompt="Very long reasoning prompt requiring in-depth mathematical decomposition", user_id="bob", tier="reasoning")
+    r3 = bot.record(
+        prompt="Very long reasoning prompt requiring in-depth mathematical decomposition",
+        user_id="bob",
+        tier="reasoning",
+    )
 
     assert r1["prompt_tokens"] > 0
     assert r2["prompt_tokens"] > r1["prompt_tokens"]

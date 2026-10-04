@@ -40,7 +40,7 @@ def standalone_func(y: str):
 
 def test_typescript_symbol_parsing():
     """Verify TypeScript interface and function extraction."""
-    code = '''export interface UserProfile {
+    code = """export interface UserProfile {
     id: string;
 }
 
@@ -51,7 +51,7 @@ export async function fetchUser(id: string): Promise<UserProfile> {
 export const helper = (val: number) => {
     return val * 2;
 };
-'''
+"""
     parser = CodeParser()
     symbols = parser.extract_symbols(code, language="typescript")
     assert len(symbols) == 3
@@ -64,10 +64,10 @@ export const helper = (val: number) => {
 
 def test_generate_outline():
     """Verify outline skeleton generation."""
-    code = '''class Worker:
+    code = """class Worker:
     def run(self):
         print("heavy work")
-'''
+"""
     parser = CodeParser()
     outline = parser.generate_outline(code, language="python")
     assert "class Worker:" in outline

@@ -107,12 +107,14 @@ class TokenizerTaxBot:
         for script, count in sorted(script_counts.items(), key=lambda x: x[1], reverse=True):
             pct = round((count / total_chars) * 100, 2)
             factor = self.SCRIPT_EXPANSION_FACTORS.get(script, 1.0)
-            script_breakdown.append({
-                "script": script,
-                "character_count": count,
-                "percentage": pct,
-                "expansion_factor": factor,
-            })
+            script_breakdown.append(
+                {
+                    "script": script,
+                    "character_count": count,
+                    "percentage": pct,
+                    "expansion_factor": factor,
+                }
+            )
             if script != "COMMON":
                 weighted_expansion += factor * count
                 counted_chars += count
@@ -141,7 +143,9 @@ class TokenizerTaxBot:
         baseline_cost = round((baseline_tokens / 1_000_000) * cost_per_million_tokens, 4)
         actual_cost = round((expanded_tokens / 1_000_000) * cost_per_million_tokens, 4)
         tax_cost_excess = round(actual_cost - baseline_cost, 4)
-        potential_savings_pct = round(((actual_cost - baseline_cost) / actual_cost) * 100, 1) if actual_cost > 0 else 0.0
+        potential_savings_pct = (
+            round(((actual_cost - baseline_cost) / actual_cost) * 100, 1) if actual_cost > 0 else 0.0
+        )
 
         return {
             "success": True,

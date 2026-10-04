@@ -9,7 +9,7 @@ from hath0r_cli.schema_repair import AssertionGuardrail, SchemaRepairEngine
 def test_markdown_fence_cleaning():
     """Verify markdown code block stripping."""
     engine = SchemaRepairEngine()
-    raw = "```json\n{\"key\": \"value\"}\n```"
+    raw = '```json\n{"key": "value"}\n```'
     assert engine.clean_markdown_fences(raw) == '{"key": "value"}'
 
 

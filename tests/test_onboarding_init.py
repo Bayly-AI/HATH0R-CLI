@@ -146,4 +146,3 @@ def test_onboarding_init_migrates_agentgraph(tmp_path: Path) -> None:
         lessons_dir = Path(".hath0r/knowledgebase/lessons-learned")
         if lessons_dir.is_dir():
             assert any(lessons_dir.glob("*.md"))
-

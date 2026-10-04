@@ -107,7 +107,9 @@ def test_bot_cross_repo_audit(tmp_path: Path):
     # Repo 1: fully compliant
     repo1 = tmp_path / "repo1"
     repo1.mkdir()
-    (repo1 / "AGENTS.md").write_text("CR-CLI-ENTRY-001\nCR-BRANCH-GOV-001\nCR-DOCKER-HATH0R-GROUP-001\nCR-HATH0R-ROOT-001", encoding="utf-8")
+    (repo1 / "AGENTS.md").write_text(
+        "CR-CLI-ENTRY-001\nCR-BRANCH-GOV-001\nCR-DOCKER-HATH0R-GROUP-001\nCR-HATH0R-ROOT-001", encoding="utf-8"
+    )
 
     # Repo 2: missing some rules
     repo2 = tmp_path / "repo2"

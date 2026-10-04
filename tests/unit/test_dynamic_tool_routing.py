@@ -70,7 +70,9 @@ def test_dynamic_tool_router_selection():
 def test_mcp_route_cli():
     """Verify hath0r mcp route CLI execution."""
     runner = CliRunner()
-    res = runner.invoke(cli, ["-o", "text", "mcp", "route", "--intent", "validate git branch and open PR", "--top-k", "2"])
+    res = runner.invoke(
+        cli, ["-o", "text", "mcp", "route", "--intent", "validate git branch and open PR", "--top-k", "2"]
+    )
     assert res.exit_code == 0
     assert "Top" in res.output or "git_branch_validate" in res.output
 

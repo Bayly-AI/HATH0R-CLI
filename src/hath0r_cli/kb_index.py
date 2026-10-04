@@ -115,9 +115,7 @@ class SQLiteIndexStore(KnowledgeIndexStore):
             )
 
             # Check if FTS5 table exists
-            cursor.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name='kb_fts'"
-            )
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='kb_fts'")
             if not cursor.fetchone():
                 try:
                     cursor.execute(

@@ -113,4 +113,3 @@ class WasmRuntimeBot:
             "memory_used_mb": memory_used_mb,
             "capabilities_granted": caps.to_dict(),
         }
-

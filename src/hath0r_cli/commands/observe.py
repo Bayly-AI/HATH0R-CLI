@@ -9,11 +9,13 @@ from __future__ import annotations
 
 import json
 import os
-import urllib.request
 import urllib.error
+import urllib.request
 from typing import Any, Dict, Optional
+
 import click
 from rich.console import Console
+
 from ..telemetry import load_otel_config
 
 console = Console()
@@ -31,7 +33,9 @@ def observe_cmd() -> None:
 def observe_status(endpoint: Optional[str], as_json: bool) -> None:
     """Check connectivity to Arize Phoenix and local OpenTelemetry configuration."""
     cfg = load_otel_config()
-    target_endpoint = endpoint or cfg.otlp_endpoint or os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:6006")
+    target_endpoint = (
+        endpoint or cfg.otlp_endpoint or os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:6006")
+    )
 
     # If port 4318, check root or /v1/traces, or standard Phoenix UI on 6006
     health_url = target_endpoint.replace(":4318", ":6006").rstrip("/")
@@ -52,7 +56,7 @@ def observe_status(endpoint: Optional[str], as_json: bool) -> None:
         req = urllib.request.Request(health_url, headers={"User-Agent": "hath0r-cli/observe"})
         with urllib.request.urlopen(req, timeout=3.0) as resp:
             status_data["http_code"] = resp.status
-            status_data["phoenix_reachable"] = (resp.status == 200)
+            status_data["phoenix_reachable"] = resp.status == 200
     except Exception as exc:
         status_data["error"] = str(exc)
 
@@ -68,7 +72,9 @@ def observe_status(endpoint: Optional[str], as_json: bool) -> None:
     if status_data["phoenix_reachable"]:
         console.print("  [bold green]✓ Arize Phoenix is reachable and active.[/bold green]")
     else:
-        console.print(f"  [yellow]! Arize Phoenix at {health_url} is unreachable (Error: {status_data.get('error', 'Unknown')})[/yellow]")
+        console.print(
+            f"  [yellow]! Arize Phoenix at {health_url} is unreachable (Error: {status_data.get('error', 'Unknown')})[/yellow]"
+        )
 
 
 @observe_cmd.command("evals", help="Inspect automated LLM-as-a-judge evaluation benchmarks.")
@@ -105,4 +111,6 @@ def observe_evals(dataset: str, as_json: bool) -> None:
     else:
         console.print(f"[bold cyan]HATH0R Registered Evaluations ({dataset}):[/bold cyan]")
         for ev in eval_info["evaluators"]:
-            console.print(f"  • [green]{ev['name']}[/green] [{ev['kind']}] - Threshold: {ev['threshold']} -> {ev['target']}")
+            console.print(
+                f"  • [green]{ev['name']}[/green] [{ev['kind']}] - Threshold: {ev['threshold']} -> {ev['target']}"
+            )

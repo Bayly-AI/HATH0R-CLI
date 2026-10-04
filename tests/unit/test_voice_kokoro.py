@@ -31,7 +31,9 @@ def test_kokoro_synthesis_wav():
 def test_voice_speak_cli_kokoro_dry_run():
     """Verify hath0r voice speak --engine kokoro."""
     runner = CliRunner()
-    res = runner.invoke(cli, ["voice", "speak", "--dry-run", "--engine", "kokoro", "--voice", "am_adam", "Testing voice."])
+    res = runner.invoke(
+        cli, ["voice", "speak", "--dry-run", "--engine", "kokoro", "--voice", "am_adam", "Testing voice."]
+    )
     assert res.exit_code == 0
     assert "am_adam" in res.output or "Testing voice." in res.output
 

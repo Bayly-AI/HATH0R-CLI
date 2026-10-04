@@ -1,6 +1,9 @@
 """Tests for hath0r phoenix command suite."""
+
 import json
+
 from click.testing import CliRunner
+
 from hath0r_cli.cli import main
 
 

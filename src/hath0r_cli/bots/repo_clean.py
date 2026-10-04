@@ -334,7 +334,9 @@ class CleanReposWorkflowBot:
 
     cwd: Path = field(default_factory=Path.cwd)
 
-    def run_clean_repo_workflow(self, target_repos: List[Path] | None = None, auto_commit: bool = True) -> Dict[str, Any]:
+    def run_clean_repo_workflow(
+        self, target_repos: List[Path] | None = None, auto_commit: bool = True
+    ) -> Dict[str, Any]:
         """Execute the full 13-step clean repository lifecycle."""
         import subprocess
 
@@ -354,9 +356,11 @@ class CleanReposWorkflowBot:
 
             try:
                 # Step 2: Ensure changes committed
-                status_out = subprocess.check_output(
-                    ["git", "status", "--porcelain"], cwd=repo_path, stderr=subprocess.DEVNULL
-                ).decode().strip()
+                status_out = (
+                    subprocess.check_output(["git", "status", "--porcelain"], cwd=repo_path, stderr=subprocess.DEVNULL)
+                    .decode()
+                    .strip()
+                )
                 uncommitted = bool(status_out)
                 if uncommitted and auto_commit:
                     subprocess.run(["git", "add", "-A"], cwd=repo_path, check=False)
@@ -402,6 +406,7 @@ class CleanReposWorkflowBot:
                         ["gh", "pr", "list", "--json", "number,title,state"], cwd=repo_path, stderr=subprocess.DEVNULL
                     ).decode()
                     import json
+
                     prs = json.loads(pr_out)
                     pr_count = len(prs)
                 except Exception:
@@ -428,21 +433,33 @@ class CleanReposWorkflowBot:
                 }
                 if not ag_valid:
                     repo_res["clean"] = False
-                    repo_res["error"] = f"AgentGraph validation failed: {'; '.join(ag_val['validation'].get('errors', []))}"
+                    repo_res["error"] = (
+                        f"AgentGraph validation failed: {'; '.join(ag_val['validation'].get('errors', []))}"
+                    )
 
                 # Step 8: Commit documentation changes
-                status_post_docs = subprocess.check_output(
-                    ["git", "status", "--porcelain"], cwd=repo_path, stderr=subprocess.DEVNULL
-                ).decode().strip()
+                status_post_docs = (
+                    subprocess.check_output(["git", "status", "--porcelain"], cwd=repo_path, stderr=subprocess.DEVNULL)
+                    .decode()
+                    .strip()
+                )
                 if status_post_docs and auto_commit:
                     subprocess.run(["git", "add", "-A"], cwd=repo_path, check=False)
-                    subprocess.run(["git", "commit", "-m", "docs: update documentation and knowledge sync"], cwd=repo_path, check=False)
+                    subprocess.run(
+                        ["git", "commit", "-m", "docs: update documentation and knowledge sync"],
+                        cwd=repo_path,
+                        check=False,
+                    )
                 repo_res["steps"]["8_commit_docs"] = {"committed": bool(status_post_docs)}
 
                 # Step 9 & 10: Ensure PR'd & Monitor
-                branch_out = subprocess.check_output(
-                    ["git", "branch", "--show-current"], cwd=repo_path, stderr=subprocess.DEVNULL
-                ).decode().strip()
+                branch_out = (
+                    subprocess.check_output(
+                        ["git", "branch", "--show-current"], cwd=repo_path, stderr=subprocess.DEVNULL
+                    )
+                    .decode()
+                    .strip()
+                )
                 repo_res["steps"]["9_10_pr_status"] = {"current_branch": branch_out, "open_prs": pr_count}
 
                 # Step 11: Delete merged feature branches
@@ -471,4 +488,3 @@ class CleanReposWorkflowBot:
             "repos": results_by_repo,
             "lifecycle_steps": 13,
         }
-

@@ -94,6 +94,7 @@ def _search_ray_index(query: str, source: Optional[str] = None, limit: int = 5) 
         return {"success": False, "error": "Ray knowledge index file not found.", "results": []}
     import re
     from collections import Counter
+
     try:
         with open(index_path, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -123,14 +124,16 @@ def _search_ray_index(query: str, source: Optional[str] = None, limit: int = 5) 
         for score, doc in scored[:limit]:
             content = doc.get("content", "")
             preview = content[:200] + "..." if len(content) > 200 else content
-            results.append({
-                "doc_id": doc.get("id"),
-                "source": doc.get("source"),
-                "title": doc.get("title"),
-                "relative_path": doc.get("relative_path"),
-                "score": score,
-                "preview": preview,
-            })
+            results.append(
+                {
+                    "doc_id": doc.get("id"),
+                    "source": doc.get("source"),
+                    "title": doc.get("title"),
+                    "relative_path": doc.get("relative_path"),
+                    "score": score,
+                    "preview": preview,
+                }
+            )
         return {"success": True, "count": len(results), "results": results}
     except Exception as exc:
         return {"success": False, "error": str(exc), "results": []}
@@ -235,6 +238,7 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
             command: The command line arguments to pass to hath0r (without 'hath0r' prefix).
         """
         import shlex
+
         args = shlex.split(command)
         cmd = [sys.executable, "-m", "hath0r_cli"] + args
         try:
@@ -623,4 +627,3 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         return bot.design_to_code(raw_design=design_content, component_name=component_name, framework=framework)
 
     return mcp
-

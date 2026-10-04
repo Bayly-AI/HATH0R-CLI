@@ -163,9 +163,13 @@ def context_query(
 @context.command("compress")
 @click.option("--query", "-q", required=True, help="Active user query or instruction string.")
 @click.option("--context", "-c", "context_text", default=None, help="Inline context string to compress.")
-@click.option("--file", "-f", "file_path", default=None, type=click.Path(exists=True), help="Path to document file to compress.")
+@click.option(
+    "--file", "-f", "file_path", default=None, type=click.Path(exists=True), help="Path to document file to compress."
+)
 @click.option("--threshold", "-t", default=0.5, type=float, help="Relevance score compression threshold (0.0 - 1.0).")
-@click.option("--local", "force_local", is_flag=True, default=False, help="Force local deterministic compression without network.")
+@click.option(
+    "--local", "force_local", is_flag=True, default=False, help="Force local deterministic compression without network."
+)
 @click.pass_context
 def context_compress(
     ctx: click.Context,
@@ -206,15 +210,18 @@ def context_compress(
     )
 
     def _text() -> None:
-        console.print(f"[bold green]✓ Context Compressed via {res.get('engine')}[/bold green] ({res.get('latency_ms', 0)}ms):")
+        console.print(
+            f"[bold green]✓ Context Compressed via {res.get('engine')}[/bold green] ({res.get('latency_ms', 0)}ms):"
+        )
         console.print(f"  • Original Tokens: [bold]{res.get('original_tokens')}[/bold]")
         console.print(f"  • Compressed Tokens: [bold cyan]{res.get('compressed_tokens')}[/bold cyan]")
         console.print(f"  • Token Savings: [bold green]{res.get('savings_pct')}%[/bold green]")
         ver = res.get("verifier", {})
         if ver:
-            console.print(f"  • Verifier: Quality={ver.get('quality_score')}, EntityRecall={ver.get('entity_recall')}, KeywordRecall={ver.get('keyword_recall')}")
+            console.print(
+                f"  • Verifier: Quality={ver.get('quality_score')}, EntityRecall={ver.get('entity_recall')}, KeywordRecall={ver.get('keyword_recall')}"
+            )
         console.print("\n[bold]Compressed Text Output:[/bold]")
         console.print(res.get("compressed_text", ""))
 
     _emit_response(ctx, response, text_renderer=_text)
-

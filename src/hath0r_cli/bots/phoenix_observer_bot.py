@@ -7,11 +7,11 @@ and aggregates evaluation metrics across suite products.
 
 from __future__ import annotations
 
-import json
-import urllib.request
 import urllib.error
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+import urllib.request
+from dataclasses import dataclass
+from typing import Any, Dict, Optional
+
 from ..telemetry import load_otel_config
 
 
@@ -42,7 +42,7 @@ class PhoenixObserverBot:
             req = urllib.request.Request(health_url, headers={"User-Agent": "hath0r-cli/observer-bot"})
             with urllib.request.urlopen(req, timeout=3.0) as resp:
                 status["http_status"] = resp.status
-                status["healthy"] = (resp.status == 200)
+                status["healthy"] = resp.status == 200
         except Exception as exc:
             status["error"] = str(exc)
 

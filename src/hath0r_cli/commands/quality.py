@@ -45,11 +45,24 @@ def quality_check(ctx: click.Context, pr_number: int, repo: str | None, dry_run:
 
 
 @quality.command("repair")
-@click.option("--input-file", "-f", type=click.Path(exists=True, path_type=Path), default=None, help="JSON/YAML file containing malformed payload.")
+@click.option(
+    "--input-file",
+    "-f",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help="JSON/YAML file containing malformed payload.",
+)
 @click.option("--raw-string", "-s", default=None, help="Raw payload string to repair directly.")
-@click.option("--schema-file", type=click.Path(exists=True, path_type=Path), default=None, help="Optional JSON schema for coercion.")
+@click.option(
+    "--schema-file",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help="Optional JSON schema for coercion.",
+)
 @click.pass_context
-def quality_repair(ctx: click.Context, input_file: Path | None, raw_string: str | None, schema_file: Path | None) -> None:
+def quality_repair(
+    ctx: click.Context, input_file: Path | None, raw_string: str | None, schema_file: Path | None
+) -> None:
     """Repair and sanitize malformed JSON payload using deterministic schema repair rules."""
     from hath0r_cli.schema_repair import SchemaRepairEngine
 
@@ -91,4 +104,3 @@ def quality_repair(ctx: click.Context, input_file: Path | None, raw_string: str 
         )
         _emit_response(ctx, response)
         ctx.exit(1)
-

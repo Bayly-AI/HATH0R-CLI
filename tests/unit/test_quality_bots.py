@@ -232,9 +232,7 @@ def test_preflight_rejects_untaxonomic_branch(tmp_path: Path, monkeypatch) -> No
 
 def test_preflight_accepts_issue_branch(tmp_path: Path, monkeypatch) -> None:
     (tmp_path / "VERSION").write_text("0.7.0\n", encoding="utf-8")
-    monkeypatch.setattr(
-        "hath0r_cli.bots.quality.run_cmd", _fake_git("fix/278-preflight-release-branches")
-    )
+    monkeypatch.setattr("hath0r_cli.bots.quality.run_cmd", _fake_git("fix/278-preflight-release-branches"))
     res = PreflightBot(cwd=tmp_path).run(skip_tests=True)
     check = _branch_check(res)
     assert check["ok"] is True

@@ -1,0 +1,58 @@
+name: Publish HATH0R VS Code Plugin to Marketplace
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build VS Code Extension & VSIX Package
+        run: |
+          python3 scripts/build_vscode_plugin.py
+
+      - name: Install @vscode/vsce & ovsx CLI
+        run: npm install -g @vscode/vsce ovsx
+
+      - name: Publish to Visual Studio Marketplace
+        working-directory: ./release/vscode/plugin/extension
+        run: |
+          if [ -n "${{ secrets.VSCE_PAT }}" ]; then
+            vsce publish -p "${{ secrets.VSCE_PAT }}" --packagePath "../hath0r-vscode-0.9.0.vsix"
+          else
+            echo "VSCE_PAT secret not configured. Skipping VS Code Marketplace upload."
+          fi
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Publish to Open VSX Registry
+        working-directory: ./release/vscode/plugin/extension
+        run: |
+          if [ -n "${{ secrets.OVSX_PAT }}" ]; then
+            ovsx publish "../hath0r-vscode-0.9.0.vsix" -p "${{ secrets.OVSX_PAT }}"
+          else
+            echo "OVSX_PAT secret not configured. Skipping Open VSX Registry upload."
+          fi
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+
+      - name: Upload VSIX Release Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hath0r-vscode-vsix
+          path: release/vscode/plugin/hath0r-vscode-0.9.0.vsix

@@ -8,17 +8,16 @@ and evaluating AI agents with Arize Phoenix open-source observability.
 from __future__ import annotations
 
 import json
-import os
 import subprocess
-import urllib.request
-import urllib.error
 import webbrowser
-from typing import Any, Dict, Optional
+from typing import Optional
+
 import click
 from rich.console import Console
 from rich.table import Table
-from ..telemetry import load_otel_config
+
 from ..bots.phoenix_observer_bot import phoenix_observer_bot
+from ..telemetry import load_otel_config
 
 console = Console()
 
@@ -54,7 +53,7 @@ def phoenix_status(endpoint: Optional[str], as_json: bool) -> None:
         click.echo(json.dumps(payload, indent=2))
         return
 
-    console.print(f"[bold cyan]Arize Phoenix Observability Status:[/bold cyan]")
+    console.print("[bold cyan]Arize Phoenix Observability Status:[/bold cyan]")
     console.print(f"  • Service Name:    {cfg.service_name}")
     console.print(f"  • Environment:     {cfg.deployment_environment}")
     console.print(f"  • OTLP Target:     {cfg.otlp_endpoint or 'http://1NPHOENIX:4318'}")
@@ -63,8 +62,12 @@ def phoenix_status(endpoint: Optional[str], as_json: bool) -> None:
     if res["healthy"]:
         console.print("  [bold green]✓ Phoenix Server is ACTIVE and responding (HTTP 200).[/bold green]")
     else:
-        console.print(f"  [yellow]! Phoenix Server at {res['target_url']} is OFFLINE (Error: {res['error'] or 'Unreachable'})[/yellow]")
-        console.print("    [dim]To start Phoenix locally: 'hath0r phoenix up' or 'docker compose -p 1-nation up -d 1n-phoenix'[/dim]")
+        console.print(
+            f"  [yellow]! Phoenix Server at {res['target_url']} is OFFLINE (Error: {res['error'] or 'Unreachable'})[/yellow]"
+        )
+        console.print(
+            "    [dim]To start Phoenix locally: 'hath0r phoenix up' or 'docker compose -p 1-nation up -d 1n-phoenix'[/dim]"
+        )
 
 
 @phoenix_cmd.command("up", help="Start the Arize Phoenix container locally.")
@@ -72,7 +75,11 @@ def phoenix_status(endpoint: Optional[str], as_json: bool) -> None:
 def phoenix_up(detach: bool) -> None:
     """Launch the 1NPHOENIX container using Docker."""
     console.print("[cyan]Starting 1NPHOENIX container via Docker...[/cyan]")
-    cmd = ["docker", "compose", "-p", "1-nation", "up", "-d", "1n-phoenix"] if detach else ["docker", "compose", "-p", "1-nation", "up", "1n-phoenix"]
+    cmd = (
+        ["docker", "compose", "-p", "1-nation", "up", "-d", "1n-phoenix"]
+        if detach
+        else ["docker", "compose", "-p", "1-nation", "up", "1n-phoenix"]
+    )
     try:
         subprocess.run(cmd, check=True)
         console.print("[bold green]✓ 1NPHOENIX started successfully.[/bold green]")

@@ -24,8 +24,15 @@ def finops() -> None:
 @click.argument("target", type=str)
 @click.option("--vocab-size", type=int, default=256_000, help="Model vocabulary size (default 256,000).")
 @click.option("--hidden-dim", type=int, default=4096, help="Model hidden dimension d_model (default 4096).")
-@click.option("--precision", type=click.Choice(["fp16", "fp32"], case_sensitive=False), default="fp16", help="Precision format (default fp16).")
-@click.option("--cost-per-million", type=float, default=5.0, help="API inference cost per 1M tokens in USD (default $5.00).")
+@click.option(
+    "--precision",
+    type=click.Choice(["fp16", "fp32"], case_sensitive=False),
+    default="fp16",
+    help="Precision format (default fp16).",
+)
+@click.option(
+    "--cost-per-million", type=float, default=5.0, help="API inference cost per 1M tokens in USD (default $5.00)."
+)
 @click.option("--patch-size", type=int, default=16, help="Continuous visual patch size P (default 16).")
 @click.pass_context
 def finops_tokenizer_tax(
@@ -68,7 +75,9 @@ def finops_tokenizer_tax(
         table.add_column("Token Inflation Factor", justify="right", style="cyan")
 
         for s in res["script_breakdown"]:
-            table.add_row(s["script"], str(s["character_count"]), f"{s['percentage']}%", f"{s['expansion_factor']:.2f}x")
+            table.add_row(
+                s["script"], str(s["character_count"]), f"{s['percentage']}%", f"{s['expansion_factor']:.2f}x"
+            )
 
         console.print(table)
 
@@ -83,13 +92,17 @@ def finops_tokenizer_tax(
         vram = res["vocab_vram_overhead"]
         console.print("\n[bold]Vocabulary Memory Overhead (Serving VRAM):[/bold]")
         console.print(f"  • Embedding & Output Head Parameters: [yellow]{vram['vocab_parameters']:,}[/yellow]")
-        console.print(f"  • Idle VRAM Overhead:                 [bold red]{vram['vocab_vram_gb']} GB[/bold red] ({vram['precision']})")
+        console.print(
+            f"  • Idle VRAM Overhead:                 [bold red]{vram['vocab_vram_gb']} GB[/bold red] ({vram['precision']})"
+        )
 
         # Continuous Patch Budget
         vit = res["vit_patch_budget"]
         console.print("\n[bold]Continuous Visual Patch Budget (Pixel-Native ViT):[/bold]")
         console.print(f"  • Patch Resolution:  {vit['patch_size']} ({vit['rendered_page_size']})")
-        console.print(f"  • Page Patch Budget: [cyan]{vit['total_continuous_patches']} visual patches[/cyan] (Language-Neutral)")
+        console.print(
+            f"  • Page Patch Budget: [cyan]{vit['total_continuous_patches']} visual patches[/cyan] (Language-Neutral)"
+        )
 
         # FinOps Economics
         fo = res["finops_impact"]
@@ -110,7 +123,13 @@ def finops_tokens() -> None:
 @click.option("--prompt", "-p", required=True, help="Prompt text sent to agent.")
 @click.option("--user", "-u", default="default_user", help="User or caller identifier.")
 @click.option("--model", "-m", default="claude-3-5-sonnet", help="Model identifier.")
-@click.option("--tier", "-t", type=click.Choice(["light", "standard", "reasoning"], case_sensitive=False), default="standard", help="Complexity tier.")
+@click.option(
+    "--tier",
+    "-t",
+    type=click.Choice(["light", "standard", "reasoning"], case_sensitive=False),
+    default="standard",
+    help="Complexity tier.",
+)
 @click.option("--completion", "-c", default="", help="Completion response text.")
 @click.option("--session", "-s", default="", help="Session identifier.")
 @click.pass_context
@@ -302,7 +321,9 @@ def finops_tokens_histogram(
 @finops_tokens.command("check")
 @click.option("--user", "-u", default="raybayly", help="User profile identifier (default: raybayly).")
 @click.option("--days", "-d", default=90, type=int, help="Trailing period in days (default: 90).")
-@click.option("--artifact-dir", type=click.Path(path_type=Path), default=None, help="Directory to save HTML dashboard artifact.")
+@click.option(
+    "--artifact-dir", type=click.Path(path_type=Path), default=None, help="Directory to save HTML dashboard artifact."
+)
 @click.pass_context
 def finops_tokens_check(
     ctx: click.Context,
@@ -322,4 +343,3 @@ def finops_tokens_check(
         console.print(data.get("markdown_report", ""))
 
     _emit_response(ctx, response, text_renderer=_text)
-

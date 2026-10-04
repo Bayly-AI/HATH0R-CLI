@@ -185,7 +185,9 @@ class PyTorchRuntime:
 
                 # 2. Build 2D batch tensor [N, D] for all candidates in one allocation
                 cand_vecs = [
-                    self.compute_multimodal_embedding(cand.encode("utf-8"), dim=dim, device=target_device, precision=prec)
+                    self.compute_multimodal_embedding(
+                        cand.encode("utf-8"), dim=dim, device=target_device, precision=prec
+                    )
                     for cand in candidates
                 ]
                 c_batch = torch.tensor(cand_vecs, dtype=dtype, device=dev)

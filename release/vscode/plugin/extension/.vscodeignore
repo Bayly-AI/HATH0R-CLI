@@ -1,0 +1,6 @@
+.vscode/**
+.vscode-test/**
+test/**
+.hath0r/**
+**/*.map
+.DS_Store

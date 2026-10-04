@@ -21,11 +21,28 @@ def optimize() -> None:
 
 
 @optimize.command("taguchi")
-@click.option("--array", "-a", type=click.Choice(["L4", "L8", "L9", "L12", "L18"], case_sensitive=False), default="L9", help="Orthogonal array type (default L9).")
+@click.option(
+    "--array",
+    "-a",
+    type=click.Choice(["L4", "L8", "L9", "L12", "L18"], case_sensitive=False),
+    default="L9",
+    help="Orthogonal array type (default L9).",
+)
 @click.option("--factors", "-f", multiple=True, help="Names of parameters/factors (e.g. -f temp -f top_p).")
-@click.option("--snr", default=None, help="Comma-separated measured response values for SNR calculation (e.g. '120.5,118.2,125.0').")
-@click.option("--criterion", type=click.Choice(["smaller", "larger", "nominal"], case_sensitive=False), default="smaller", help="SNR criterion (smaller_is_better, larger_is_better, nominal_is_best).")
-@click.option("--loss-k", type=float, default=None, help="Sensitivity factor k for Taguchi Quality Loss L(y) = k * (y - m)^2.")
+@click.option(
+    "--snr",
+    default=None,
+    help="Comma-separated measured response values for SNR calculation (e.g. '120.5,118.2,125.0').",
+)
+@click.option(
+    "--criterion",
+    type=click.Choice(["smaller", "larger", "nominal"], case_sensitive=False),
+    default="smaller",
+    help="SNR criterion (smaller_is_better, larger_is_better, nominal_is_best).",
+)
+@click.option(
+    "--loss-k", type=float, default=None, help="Sensitivity factor k for Taguchi Quality Loss L(y) = k * (y - m)^2."
+)
 @click.option("--target-m", type=float, default=None, help="Nominal target value m for Quality Loss.")
 @click.option("--measured-y", type=float, default=None, help="Observed output value y for Quality Loss.")
 @click.pass_context
@@ -72,7 +89,9 @@ def optimize_taguchi(
     response = _build_response(ctx, command="optimize.taguchi", state="ok", data=matrix_res)
 
     def _text() -> None:
-        console.print(f"[bold green]✓ Taguchi Design Generated[/bold green] (Array: [bold cyan]{matrix_res['array_type']}[/bold cyan], Runs: {matrix_res['total_runs']})")
+        console.print(
+            f"[bold green]✓ Taguchi Design Generated[/bold green] (Array: [bold cyan]{matrix_res['array_type']}[/bold cyan], Runs: {matrix_res['total_runs']})"
+        )
         table = Table(title=f"Orthogonal Array Matrix: {matrix_res['array_type']}")
         table.add_column("Run ID", style="bold")
         for f in matrix_res["factors"]:
@@ -86,10 +105,14 @@ def optimize_taguchi(
 
         if "snr_calculation" in matrix_res:
             calc = matrix_res["snr_calculation"]
-            console.print(f"\n[bold]Signal-to-Noise Ratio (SNR):[/bold] [cyan]{calc['snr_db']} dB[/cyan] (Criterion: {calc['criterion']})")
+            console.print(
+                f"\n[bold]Signal-to-Noise Ratio (SNR):[/bold] [cyan]{calc['snr_db']} dB[/cyan] (Criterion: {calc['criterion']})"
+            )
 
         if "quality_loss" in matrix_res:
             ql = matrix_res["quality_loss"]
-            console.print(f"[bold]Estimated Quality Loss:[/] [yellow]${ql['estimated_loss']}[/yellow] (Deviation: {ql['deviation']} from target {ql['target_m']})")
+            console.print(
+                f"[bold]Estimated Quality Loss:[/] [yellow]${ql['estimated_loss']}[/yellow] (Deviation: {ql['deviation']} from target {ql['target_m']})"
+            )
 
     _emit_response(ctx, response, text_renderer=_text)

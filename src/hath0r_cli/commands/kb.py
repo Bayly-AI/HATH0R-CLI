@@ -137,7 +137,9 @@ def kb_products(ctx: click.Context) -> None:
 @kb.command("index")
 @click.option("--target-dir", "-d", default=None, help="Target documentation directory to index (defaults to KB path).")
 @click.option("--rebuild", is_flag=True, default=False, help="Force complete rebuild of SQLite index.")
-@click.option("--vision", is_flag=True, default=False, help="Index visual documents and diagrams using ColPali late interaction.")
+@click.option(
+    "--vision", is_flag=True, default=False, help="Index visual documents and diagrams using ColPali late interaction."
+)
 @click.pass_context
 def kb_index(ctx: click.Context, target_dir: str | None, rebuild: bool, vision: bool) -> None:
     """Index or incrementally synchronize documentation into SQLite FTS5 and ColPali visual index."""
@@ -201,7 +203,9 @@ def kb_index(ctx: click.Context, target_dir: str | None, rebuild: bool, vision: 
     default=None,
     help="Cross-encoder reranker model architecture.",
 )
-@click.option("--vision", is_flag=True, default=False, help="Search visual documents and diagrams via ColPali late interaction.")
+@click.option(
+    "--vision", is_flag=True, default=False, help="Search visual documents and diagrams via ColPali late interaction."
+)
 @click.pass_context
 def kb_search(
     ctx: click.Context,
@@ -340,7 +344,6 @@ def kb_status(ctx: click.Context) -> None:
                 click.echo(f"    - {cat}: {count}")
 
     _emit_response(ctx, response, text_renderer=_text)
-
 
 
 # --- ADR-003 surface discovery (F5) -----------------------------------------

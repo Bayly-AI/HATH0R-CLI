@@ -39,11 +39,15 @@ def agentgraph_status(ctx: click.Context, path: str) -> None:
 
     def _text() -> None:
         stat = res["status"]
-        console.print(f"\n[bold cyan]AgentGraph Topology Status[/bold cyan] (Graph ID: [green]{res['graph_id']}[/green])")
+        console.print(
+            f"\n[bold cyan]AgentGraph Topology Status[/bold cyan] (Graph ID: [green]{res['graph_id']}[/green])"
+        )
         if res.get("snapshot_path"):
             console.print(f"  [dim]Snapshot: {res['snapshot_path']}[/dim]\n")
         else:
-            console.print("  [dim yellow]No saved snapshot file found on disk. Run 'hath0r agentgraph sync' to initialize.[/dim yellow]\n")
+            console.print(
+                "  [dim yellow]No saved snapshot file found on disk. Run 'hath0r agentgraph sync' to initialize.[/dim yellow]\n"
+            )
 
         # Planes Table
         p_table = Table(title="Cognitive Planes Breakdown", show_header=True, header_style="bold magenta")
@@ -89,7 +93,9 @@ def agentgraph_status(ctx: click.Context, path: str) -> None:
     default=None,
     help="Filter search to specific graph plane.",
 )
-@click.option("--all", "include_inactive", is_flag=True, default=False, help="Include bitemporally inactive/deprecated nodes.")
+@click.option(
+    "--all", "include_inactive", is_flag=True, default=False, help="Include bitemporally inactive/deprecated nodes."
+)
 @click.option("--path", "-p", default=".", help="Repository root path.")
 @click.pass_context
 def agentgraph_query(
@@ -120,7 +126,9 @@ def agentgraph_query(
     def _text() -> None:
         qdata = res["query"]
         results = qdata["results"]
-        console.print(f"\n[bold cyan]AgentGraph Search Results[/bold cyan] for '[bold yellow]{query_str}[/bold yellow]':")
+        console.print(
+            f"\n[bold cyan]AgentGraph Search Results[/bold cyan] for '[bold yellow]{query_str}[/bold yellow]':"
+        )
 
         if not results:
             console.print("  [dim yellow]No matching nodes found across graph planes.[/dim yellow]\n")
@@ -181,10 +189,7 @@ def agentgraph_validate(ctx: click.Context, path: str, strict: bool) -> None:
                     console.print(f"    - {w}")
             console.print("")
         else:
-            console.print(
-                f"\n[bold red]✗ AgentGraph Validation FAILED[/bold red] "
-                f"({len(v['errors'])} errors detected)"
-            )
+            console.print(f"\n[bold red]✗ AgentGraph Validation FAILED[/bold red] ({len(v['errors'])} errors detected)")
             for err in v["errors"]:
                 console.print(f"  [red]• {err}[/red]")
             console.print("")
@@ -253,7 +258,9 @@ def agentgraph_route(
         found = r.get("role_found", False)
 
         status_text = "[green]Active[/green]" if found else "[yellow]Synthesized / Default[/yellow]"
-        console.print(f"\n[bold cyan]AgentGraph Role RBAC Routing[/bold cyan] for [bold yellow]{role_label}[/bold yellow] ({status_text}):")
+        console.print(
+            f"\n[bold cyan]AgentGraph Role RBAC Routing[/bold cyan] for [bold yellow]{role_label}[/bold yellow] ({status_text}):"
+        )
 
         if r.get("inherited_roles"):
             console.print(f"  [dim]Inherits From:[/dim] {', '.join(r['inherited_roles'])}")
@@ -332,7 +339,9 @@ def agentgraph_bot_cmd(
     def _text() -> None:
         sub = data.get("subcommand", "bot")
         if sub == "cross_repo":
-            console.print(f"\n[bold cyan]AgentGraph Cross-Repository Alignment[/bold cyan] (Score: [bold green]{data['alignment_score']}%[/bold green])")
+            console.print(
+                f"\n[bold cyan]AgentGraph Cross-Repository Alignment[/bold cyan] (Score: [bold green]{data['alignment_score']}%[/bold green])"
+            )
             console.print(f"  • Repositories scanned: {', '.join(data['repos_scanned'])}")
             if data.get("recommendations"):
                 console.print("\n  [yellow]Recommendations:[/yellow]")
@@ -345,9 +354,13 @@ def agentgraph_bot_cmd(
             console.print(f"  • Cycles broken: {data['cycles_broken']}")
             console.print(f"  • Remaining active edges: {data['remaining_edges']}\n")
         else:
-            console.print(f"\n[bold cyan]AgentGraph-bot Report[/bold cyan] (Health: [bold green]{data.get('health', 'ok')}[/bold green])")
+            console.print(
+                f"\n[bold cyan]AgentGraph-bot Report[/bold cyan] (Health: [bold green]{data.get('health', 'ok')}[/bold green])"
+            )
             if "sync" in data:
-                console.print(f"  • Sync: Indexed {data['sync']['nodes_indexed']} nodes, {data['sync']['edges_indexed']} edges.")
+                console.print(
+                    f"  • Sync: Indexed {data['sync']['nodes_indexed']} nodes, {data['sync']['edges_indexed']} edges."
+                )
             if "heal" in data:
                 console.print(f"  • Healing: Repaired {data['heal']['total_healed']} issues.")
             console.print(f"  • Valid: {data.get('validation', {}).get('valid', True)}")
@@ -358,7 +371,13 @@ def agentgraph_bot_cmd(
 
 @agentgraph.command("migrate")
 @click.option("--path", "-p", default=None, help="Specific repository path to migrate.")
-@click.option("--all", "migrate_all_repos", is_flag=True, default=False, help="Migrate all recognized repositories in ~/Development.")
+@click.option(
+    "--all",
+    "migrate_all_repos",
+    is_flag=True,
+    default=False,
+    help="Migrate all recognized repositories in ~/Development.",
+)
 @click.pass_context
 def agentgraph_migrate(ctx: click.Context, path: Optional[str], migrate_all_repos: bool) -> None:
     """Migrate markdown rules, AGENTS.md, and governance docs to AgentGraph contract format."""
@@ -381,7 +400,9 @@ def agentgraph_migrate(ctx: click.Context, path: Optional[str], migrate_all_repo
 
     def _text() -> None:
         if data.get("subcommand") == "migrate_all":
-            console.print(f"\n[bold green]✓ AgentGraph Batch Migration Completed[/bold green] ({data['migrated_count']} repositories)")
+            console.print(
+                f"\n[bold green]✓ AgentGraph Batch Migration Completed[/bold green] ({data['migrated_count']} repositories)"
+            )
             for item in data.get("results", []):
                 status_icon = "[green]✓[/green]" if item.get("success") else "[red]✗[/red]"
                 console.print(
@@ -401,5 +422,3 @@ def agentgraph_migrate(ctx: click.Context, path: Optional[str], migrate_all_repo
             console.print(f"  • AGENTS.md updated: {data.get('agents_md_updated', False)}\n")
 
     _emit_response(ctx, response, text_renderer=_text)
-
-

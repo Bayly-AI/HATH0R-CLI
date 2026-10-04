@@ -23,7 +23,12 @@ def vision() -> None:
 @vision.command("inspect")
 @click.argument("image_path", type=click.Path(exists=True, path_type=Path))
 @click.option("--prompt", default=None, help="Custom inspection prompt or question.")
-@click.option("--device", type=click.Choice(["auto", "mps", "cuda", "cpu"], case_sensitive=False), default=None, help="Compute device for neural acceleration.")
+@click.option(
+    "--device",
+    type=click.Choice(["auto", "mps", "cuda", "cpu"], case_sensitive=False),
+    default=None,
+    help="Compute device for neural acceleration.",
+)
 @click.pass_context
 def vision_inspect(ctx: click.Context, image_path: Path, prompt: str | None, device: str | None) -> None:
     """Inspect an image or screenshot using Vision Transformers."""
@@ -37,9 +42,13 @@ def vision_inspect(ctx: click.Context, image_path: Path, prompt: str | None, dev
     def _text() -> None:
         if res.get("success"):
             dev_str = f" [{res.get('device')}]" if res.get("device") else ""
-            console.print(f"[bold green]✓ Vision Inspection Completed[/bold green] ({res.get('provider')}/{res.get('model')}{dev_str})")
+            console.print(
+                f"[bold green]✓ Vision Inspection Completed[/bold green] ({res.get('provider')}/{res.get('model')}{dev_str})"
+            )
             meta = res.get("image_metadata", {})
-            console.print(f"  [dim]File:[/] {res.get('image_path')} ({meta.get('width')}x{meta.get('height')} {meta.get('format')})")
+            console.print(
+                f"  [dim]File:[/] {res.get('image_path')} ({meta.get('width')}x{meta.get('height')} {meta.get('format')})"
+            )
             console.print(f"  [bold]Summary:[/] {res.get('description')}")
             objs = res.get("detected_objects", [])
             if objs:
@@ -55,16 +64,27 @@ def vision_inspect(ctx: click.Context, image_path: Path, prompt: str | None, dev
 @vision.command("parse-doc")
 @click.argument("image_path", type=click.Path(exists=True, path_type=Path))
 @click.option("--prompt", default=None, help="Extraction directives or target sections.")
-@click.option("--device", type=click.Choice(["auto", "mps", "cuda", "cpu"], case_sensitive=False), default=None, help="Compute device for neural acceleration.")
-@click.option("--pixel-native/--standard", default=False, help="Enable pixel-native 2D continuous patch parsing bypassing OCR.")
+@click.option(
+    "--device",
+    type=click.Choice(["auto", "mps", "cuda", "cpu"], case_sensitive=False),
+    default=None,
+    help="Compute device for neural acceleration.",
+)
+@click.option(
+    "--pixel-native/--standard", default=False, help="Enable pixel-native 2D continuous patch parsing bypassing OCR."
+)
 @click.option("--patch-size", type=int, default=16, help="Visual patch size in pixels (default 16).")
 @click.pass_context
-def vision_parse_doc(ctx: click.Context, image_path: Path, prompt: str | None, device: str | None, pixel_native: bool, patch_size: int) -> None:
+def vision_parse_doc(
+    ctx: click.Context, image_path: Path, prompt: str | None, device: str | None, pixel_native: bool, patch_size: int
+) -> None:
     """Parse visual documents, architecture diagrams, charts, and structured layouts."""
     from hath0r_cli.bots.vision_bot import VisionBot
 
     bot = VisionBot(cwd=Path.cwd())
-    res = bot.parse_document(image_path=image_path, prompt=prompt, device=device, pixel_native=pixel_native, patch_size=patch_size)
+    res = bot.parse_document(
+        image_path=image_path, prompt=prompt, device=device, pixel_native=pixel_native, patch_size=patch_size
+    )
     state = "ok" if res.get("success") else "error"
     response = _build_response(ctx, command="vision.parse_doc", state=state, data=res)
 
@@ -72,7 +92,9 @@ def vision_parse_doc(ctx: click.Context, image_path: Path, prompt: str | None, d
         if res.get("success"):
             dev_str = f" [{res.get('device')}]" if res.get("device") else ""
             mode_str = " [bold cyan][Pixel-Native 2D][/bold cyan]" if pixel_native else ""
-            console.print(f"[bold green]✓ Document Layout Parsed[/bold green]{mode_str} ({res.get('provider')}{dev_str})")
+            console.print(
+                f"[bold green]✓ Document Layout Parsed[/bold green]{mode_str} ({res.get('provider')}{dev_str})"
+            )
             doc = res.get("document_structure", {})
             console.print(f"  [bold]Type:[/] {doc.get('doc_type')}")
             for sec in doc.get("sections", []):
@@ -81,7 +103,9 @@ def vision_parse_doc(ctx: click.Context, image_path: Path, prompt: str | None, d
             if tables:
                 console.print(f"  [bold]Extracted 2D Tables:[/] {len(tables)} table(s)")
                 for t in tables:
-                    console.print(f"    - {t.get('table_id')}: {t.get('rows')} rows x {t.get('columns')} columns ({len(t.get('cells', []))} cells)")
+                    console.print(
+                        f"    - {t.get('table_id')}: {t.get('rows')} rows x {t.get('columns')} columns ({len(t.get('cells', []))} cells)"
+                    )
             console.print(f"\n{res.get('extracted_text')}")
         else:
             console.print(f"[bold red]✗ Document Parsing Failed:[/] {res.get('error')}")
@@ -94,16 +118,27 @@ def vision_parse_doc(ctx: click.Context, image_path: Path, prompt: str | None, d
 @vision.command("ground")
 @click.argument("image_path", type=click.Path(exists=True, path_type=Path))
 @click.option("--target", "-t", required=True, help="Description of UI element or region to locate.")
-@click.option("--device", type=click.Choice(["auto", "mps", "cuda", "cpu"], case_sensitive=False), default=None, help="Compute device for neural acceleration.")
-@click.option("--playwright", "-p", is_flag=True, default=False, help="Emit DOM-independent Playwright automation step.")
+@click.option(
+    "--device",
+    type=click.Choice(["auto", "mps", "cuda", "cpu"], case_sensitive=False),
+    default=None,
+    help="Compute device for neural acceleration.",
+)
+@click.option(
+    "--playwright", "-p", is_flag=True, default=False, help="Emit DOM-independent Playwright automation step."
+)
 @click.option("--action", default="click", help="Playwright action to emit (click, dblclick, hover).")
 @click.pass_context
-def vision_ground(ctx: click.Context, image_path: Path, target: str, device: str | None, playwright: bool, action: str) -> None:
+def vision_ground(
+    ctx: click.Context, image_path: Path, target: str, device: str | None, playwright: bool, action: str
+) -> None:
     """Ground a UI element description to coordinate bounding boxes."""
     from hath0r_cli.bots.vision_bot import VisionBot
 
     bot = VisionBot(cwd=Path.cwd())
-    res = bot.ground_element(image_path=image_path, target=target, device=device, emit_playwright=playwright, action=action)
+    res = bot.ground_element(
+        image_path=image_path, target=target, device=device, emit_playwright=playwright, action=action
+    )
     state = "ok" if res.get("success") else "error"
     response = _build_response(ctx, command="vision.ground", state=state, data=res)
 
@@ -118,7 +153,9 @@ def vision_ground(ctx: click.Context, image_path: Path, target: str, device: str
             console.print(f"  [dim]Normalized Bounding Box:[/] {bbox}")
             if playwright and "playwright_step" in res:
                 step = res["playwright_step"]
-                console.print(f"  [bold cyan]Playwright Action:[/] {step.get('action')} @ ({step['coordinates']['x']}, {step['coordinates']['y']})")
+                console.print(
+                    f"  [bold cyan]Playwright Action:[/] {step.get('action')} @ ({step['coordinates']['x']}, {step['coordinates']['y']})"
+                )
                 console.print("  [dim]Note: DOM-independent step ready for PlaywrightTestRunner[/dim]")
         else:
             console.print(f"[bold red]✗ Grounding Failed:[/] {res.get('error')}")
@@ -130,8 +167,18 @@ def vision_ground(ctx: click.Context, image_path: Path, target: str, device: str
 
 @vision.command("embed")
 @click.argument("image_path", type=click.Path(exists=True, path_type=Path))
-@click.option("--device", type=click.Choice(["auto", "mps", "cuda", "cpu"], case_sensitive=False), default=None, help="Compute device for neural acceleration.")
-@click.option("--precision", type=click.Choice(["fp32", "fp16", "int8"], case_sensitive=False), default="fp32", help="Tensor computation precision mode.")
+@click.option(
+    "--device",
+    type=click.Choice(["auto", "mps", "cuda", "cpu"], case_sensitive=False),
+    default=None,
+    help="Compute device for neural acceleration.",
+)
+@click.option(
+    "--precision",
+    type=click.Choice(["fp32", "fp16", "int8"], case_sensitive=False),
+    default="fp32",
+    help="Tensor computation precision mode.",
+)
 @click.pass_context
 def vision_embed(ctx: click.Context, image_path: Path, device: str | None, precision: str) -> None:
     """Extract multimodal cross-modal vector embedding for an image."""
@@ -147,7 +194,9 @@ def vision_embed(ctx: click.Context, image_path: Path, device: str | None, preci
         if res.get("success"):
             emb = res.get("embedding", [])
             dev_str = f" [{res.get('device')}/{precision}]" if res.get("device") else f" [{precision}]"
-            console.print(f"[bold green]✓ Multimodal Embedding Generated[/bold green] ({len(emb)} dimensions, model: {res.get('model')}{dev_str})")
+            console.print(
+                f"[bold green]✓ Multimodal Embedding Generated[/bold green] ({len(emb)} dimensions, model: {res.get('model')}{dev_str})"
+            )
             console.print(f"  [dim]Vector snippet:[/] [{', '.join(str(x) for x in emb[:5])}, ...]")
         else:
             console.print(f"[bold red]✗ Embedding Failed:[/] {res.get('error')}")
@@ -159,11 +208,30 @@ def vision_embed(ctx: click.Context, image_path: Path, device: str | None, preci
 
 @vision.command("rerank")
 @click.option("--query", "-q", required=True, help="Query string for semantic reranking.")
-@click.option("--candidate", "-c", "candidates", multiple=True, required=True, help="Candidate passages/entities to rank (specify multiple times).")
-@click.option("--device", type=click.Choice(["auto", "mps", "cuda", "cpu"], case_sensitive=False), default=None, help="Compute device for neural acceleration.")
-@click.option("--precision", type=click.Choice(["fp32", "fp16", "int8"], case_sensitive=False), default="fp32", help="Tensor computation precision mode.")
+@click.option(
+    "--candidate",
+    "-c",
+    "candidates",
+    multiple=True,
+    required=True,
+    help="Candidate passages/entities to rank (specify multiple times).",
+)
+@click.option(
+    "--device",
+    type=click.Choice(["auto", "mps", "cuda", "cpu"], case_sensitive=False),
+    default=None,
+    help="Compute device for neural acceleration.",
+)
+@click.option(
+    "--precision",
+    type=click.Choice(["fp32", "fp16", "int8"], case_sensitive=False),
+    default="fp32",
+    help="Tensor computation precision mode.",
+)
 @click.pass_context
-def vision_rerank(ctx: click.Context, query: str, candidates: Tuple[str, ...], device: str | None, precision: str) -> None:
+def vision_rerank(
+    ctx: click.Context, query: str, candidates: Tuple[str, ...], device: str | None, precision: str
+) -> None:
     """Score and rank candidate passages against a query using neural cross-encoders."""
     from hath0r_cli.bots.pytorch_runtime import PyTorchRuntime
 
@@ -211,7 +279,11 @@ def vision_doctor(ctx: click.Context) -> None:
         table.add_column("Details")
 
         cfg_status = "ok" if res.get("config_present") else "default"
-        table.add_row("Vision Config", f"[{'green' if cfg_status=='ok' else 'yellow'}]{cfg_status}[/]", str(res.get("config_path")))
+        table.add_row(
+            "Vision Config",
+            f"[{'green' if cfg_status == 'ok' else 'yellow'}]{cfg_status}[/]",
+            str(res.get("config_path")),
+        )
 
         torch_diag = res.get("pytorch", {})
         if torch_diag.get("available"):
@@ -226,7 +298,11 @@ def vision_doctor(ctx: click.Context) -> None:
 
         ollama = res.get("local_ollama", {})
         o_status = "online" if ollama.get("online") else "offline"
-        table.add_row("Local Ollama ViT", f"[{'green' if o_status=='online' else 'dim'}]{o_status}[/]", f"{ollama.get('host')} (models: {len(ollama.get('available_models', []))})")
+        table.add_row(
+            "Local Ollama ViT",
+            f"[{'green' if o_status == 'online' else 'dim'}]{o_status}[/]",
+            f"{ollama.get('host')} (models: {len(ollama.get('available_models', []))})",
+        )
 
         creds = res.get("remote_credentials_configured", {})
         cred_str = ", ".join([f"{k}:{'✓' if v else '✗'}" for k, v in creds.items()])
