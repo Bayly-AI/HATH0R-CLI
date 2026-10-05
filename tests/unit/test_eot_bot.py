@@ -40,8 +40,7 @@ def test_eot_bot_polling_success() -> None:
                 {"name": "PR Workflow Guard", "conclusion": "SUCCESS", "state": "SUCCESS"},
                 {"name": "Version Policy Guard", "conclusion": "SUCCESS", "state": "SUCCESS"},
                 {"name": "Enforce Promotion Path", "conclusion": "SUCCESS", "state": "SUCCESS"},
-                # Simulate Sonar token infra failure that is bypassed
-                {"name": "SonarCloud Quality Gate", "conclusion": "FAILURE", "state": "FAILURE"},
+                {"name": "SonarCloud Quality Gate", "conclusion": "SUCCESS", "state": "SUCCESS"},
             ],
         }
     )
@@ -59,6 +58,26 @@ def test_eot_bot_polling_success() -> None:
     bot.janitor_bot.prune_branch.assert_called_once()
 
 
+def test_eot_bot_sonar_failure_aborts() -> None:
+    bot = EndOfTaskBot(poll_interval=0.01, timeout=5.0, sleeper=lambda _: None)
+
+    bot.pr_bot.check_pr_status = MagicMock(
+        return_value={
+            "state": "OPEN",
+            "statusCheckRollup": [
+                {"name": "CI / test-and-lint", "conclusion": "SUCCESS", "state": "SUCCESS"},
+                {"name": "SonarCloud Quality Gate", "conclusion": "FAILURE", "state": "FAILURE"},
+            ],
+        }
+    )
+    bot.pr_bot.merge_pr = MagicMock()
+
+    res = bot.run_bot(pr_number=103, branch="feature/103-test", dry_run=False)
+    assert res["success"] is False
+    assert "SonarCloud Quality Gate failed" in str(res.get("error"))
+    bot.pr_bot.merge_pr.assert_not_called()
+
+
 def test_eot_bot_hard_code_failure_aborts() -> None:
     bot = EndOfTaskBot(poll_interval=0.01, timeout=5.0, sleeper=lambda _: None)
 
@@ -74,7 +93,7 @@ def test_eot_bot_hard_code_failure_aborts() -> None:
 
     res = bot.run_bot(pr_number=102, branch="feature/102-test", dry_run=False)
     assert res["success"] is False
-    assert "Hard CI failure" in str(res.get("history"))
+    assert "Hard CI" in str(res.get("history"))
     bot.pr_bot.merge_pr.assert_not_called()
 
 

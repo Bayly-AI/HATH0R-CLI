@@ -179,6 +179,112 @@ class QualityGateBot:
         evaluation["head"] = pr.get("headRefName")
         return evaluation
 
+    def check_sonar(
+        self,
+        project_key: Optional[str] = None,
+        *,
+        organization: str = "bayly-ai",
+    ) -> Dict[str, Any]:
+        """Query SonarCloud API for real-time Quality Gate status and blocking issues."""
+        import base64
+        import os
+        import urllib.error
+        import urllib.parse
+        import urllib.request
+
+        key = project_key
+        if not key:
+            prop_file = self.cwd / "sonar-project.properties"
+            if prop_file.is_file():
+                for line in prop_file.read_text(encoding="utf-8").splitlines():
+                    if line.startswith("sonar.projectKey="):
+                        key = line.split("=", 1)[1].strip()
+                    elif line.startswith("sonar.organization="):
+                        organization = line.split("=", 1)[1].strip()
+
+        if not key:
+            key = f"{organization}_{self.cwd.name}"
+
+        token = os.environ.get("SONAR_TOKEN")
+        if not token:
+            cred_file = Path("/Users/raybayly/Development/.credentials/sonarcloud/.env")
+            if cred_file.is_file():
+                for line in cred_file.read_text(encoding="utf-8").splitlines():
+                    if line.startswith("SONAR_TOKEN_2="):
+                        token = line.split("=", 1)[1].strip().strip("\"'")
+                        break
+                    elif line.startswith("SONAR_TOKEN=") and not token:
+                        token = line.split("=", 1)[1].strip().strip("\"'")
+
+        if not token:
+            return {
+                "success": False,
+                "project_key": key,
+                "error": "SONAR_TOKEN not found in environment or credentials store.",
+            }
+
+        auth_header = "Basic " + base64.b64encode(f"{token}:".encode()).decode()
+
+        status_url = f"https://sonarcloud.io/api/qualitygates/project_status?projectKey={urllib.parse.quote(key)}"
+        req = urllib.request.Request(status_url, headers={"Authorization": auth_header})
+        try:
+            with urllib.request.urlopen(req) as resp:
+                data = json.loads(resp.read().decode())
+                project_status = data.get("projectStatus", {})
+        except urllib.error.HTTPError as exc:
+            return {
+                "success": False,
+                "project_key": key,
+                "error": f"SonarCloud API error ({exc.code}): {exc.read().decode()}",
+            }
+        except Exception as exc:
+            return {
+                "success": False,
+                "project_key": key,
+                "error": f"SonarCloud API request failed: {exc}",
+            }
+
+        gate_status = project_status.get("status")
+        conditions = project_status.get("conditions", [])
+        failing_conditions = [c for c in conditions if c.get("status") == "ERROR"]
+
+        issues = []
+        if gate_status != "OK":
+            issues_url = f"https://sonarcloud.io/api/issues/search?componentKeys={urllib.parse.quote(key)}&resolved=false&ps=50"
+            req2 = urllib.request.Request(issues_url, headers={"Authorization": auth_header})
+            try:
+                with urllib.request.urlopen(req2) as resp2:
+                    issues_data = json.loads(resp2.read().decode())
+                    for iss in issues_data.get("issues", []):
+                        issues.append({
+                            "severity": iss.get("severity"),
+                            "type": iss.get("type"),
+                            "rule": iss.get("rule"),
+                            "component": iss.get("component"),
+                            "line": iss.get("line"),
+                            "message": iss.get("message"),
+                        })
+            except Exception:
+                pass
+
+        passed = gate_status == "OK"
+        return {
+            "success": passed,
+            "passed": passed,
+            "project_key": key,
+            "organization": organization,
+            "status": gate_status,
+            "conditions": conditions,
+            "failing_conditions": failing_conditions,
+            "issues_count": len(issues),
+            "blocking_issues": issues,
+            "message": (
+                f"SonarCloud Quality Gate PASSED for '{key}'."
+                if passed
+                else f"SonarCloud Quality Gate FAILED (status: {gate_status}) for '{key}'. Fix {len(failing_conditions)} failing condition(s) and {len(issues)} issue(s) before proceeding."
+            ),
+        }
+
     def report_json(self, evaluation: Dict[str, Any]) -> str:
         return json.dumps(evaluation, indent=2, sort_keys=True)
 
@@ -403,6 +509,36 @@ class PreflightBot:
         except Exception as exc:
             return {"ok": False, "check": "agentgraph", "error": f"AgentGraph check error: {exc}"}
 
+    def _sonar_config_ok(self) -> Dict[str, Any]:
+        """Validate presence of sonar-project.properties and SonarCloud workflow."""
+        prop_file = self.cwd / "sonar-project.properties"
+        wf_file = self.cwd / ".github" / "workflows" / "sonarcloud-quality-gate.yml"
+
+        errors = []
+        if not prop_file.is_file():
+            errors.append("sonar-project.properties missing at repo root")
+        else:
+            text = prop_file.read_text(encoding="utf-8")
+            if "sonar.projectKey=" not in text:
+                errors.append("sonar-project.properties missing sonar.projectKey")
+            if "sonar.organization=" not in text:
+                errors.append("sonar-project.properties missing sonar.organization")
+
+        if not wf_file.is_file():
+            errors.append(".github/workflows/sonarcloud-quality-gate.yml missing")
+
+        if errors:
+            return {
+                "ok": False,
+                "check": "sonar_config",
+                "error": "; ".join(errors),
+            }
+        return {
+            "ok": True,
+            "check": "sonar_config",
+            "message": "SonarCloud properties and quality gate workflow present",
+        }
+
     def _run_local_commands(self, commands: List[List[str]]) -> List[Dict[str, Any]]:
         results = []
         for cmd in commands:
@@ -454,6 +590,7 @@ class PreflightBot:
         checks.append(self._branch_ok())
         checks.append(self._version_ok())
         checks.append(self._agentgraph_ok())
+        checks.append(self._sonar_config_ok())
 
         # Dirty tree warning (not hard fail by default)
         rc, out, _ = run_cmd(["git", "status", "--porcelain"], cwd=self.cwd)

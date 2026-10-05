@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [Unreleased]
+
+### Added
+
+- **Upgrade Bot & automated upgrade/install (`hath0r upgrade`)**:
+  - `UpgradeBot`, `UpgradeVerifierBot`, `UpgradeAnnouncerBot` (`src/hath0r_cli/bots/upgrade_bot.py`, stdlib-only).
+  - `hath0r upgrade check | run | verify | rollback | status | schedule` with JSON envelopes and exit codes 0/1/6.
+  - Detects source / pip / pipx / binary installs; SHA-256 verification of release assets (GitHub digest or `.sha256` sidecar) is mandatory.
+  - Post-install verification in a fresh subprocess: version, command-import scan, doctor regression vs. pre-upgrade baseline, factory validation, optional full unit tests.
+  - Automatic snapshot + rollback (re-verified) when install or verification fails; announcements via console, `~/.hath0r/upgrade/` report/history, voice queue, and de-duplicated GitHub issues (`--file-issue`).
+  - `cfg/factories/upgrade-factory.yaml` (workflows `upgrade-check`, nightly `upgrade-and-verify`, `verify-install`) and launchd/cron schedule generator.
+  - `scripts/install_hath0r.py` verified first-time installer that hands off to `hath0r upgrade verify`.
+  - Docs: GUIDE-049 plus strategy, procedure, playbook, runbook, checklist and bot spec.
+
 ## [0.9.5] - 2026-10-05
 
 ### Quality & Governance Compliance (SonarCloud Cognitive Complexity & Safe URL Probes)
