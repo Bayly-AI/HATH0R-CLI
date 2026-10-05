@@ -259,6 +259,16 @@ class MCPSecurityPolicyEngine:
                         reason=f"Path '{path_val}' escapes workspace boundary '{self.workspace_root}' (SEC-TOOL-001).",
                     )
 
+        if tool_name in ("run_command", "bash", "execute_command"):
+            cmd = str(arguments.get("CommandLine", arguments.get("cmd", "")))
+            if re.search(r"\b(DROP\s+DATABASE|DROP\s+SCHEMA)\b", cmd, re.I):
+                return PolicyVerdict(
+                    allowed=False,
+                    risk_level="critical",
+                    rule_triggered="SEC-TOOL-002",
+                    reason="Destructive database drop schema blocked (SEC-TOOL-002)",
+                )
+
         return self.inspect_invocation("default_server", tool_name, arguments)
 
     def _inspect_string(self, text: str) -> Optional[Tuple[str, str, str]]:
