@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `scripts/install_hath0r.py` verified first-time installer that hands off to `hath0r upgrade verify`.
   - Docs: GUIDE-049 plus strategy, procedure, playbook, runbook, checklist and bot spec.
 
+## [0.9.4] - 2026-10-05
+
+### Quality & Governance Compliance (Automatic Analysis .sonarcloud.properties & Path Hardening)
+- **Automatic Analysis Configuration**: Added root `.sonarcloud.properties` declaring explicit exclusions for Automatic Analysis.
+- **Path Resolution Hardening**: Hardened file resolution in `mcp_server.py` and `VoiceProfileBot` before writing.
+- **Entrypoint Cleanliness**: Fixed `hath0r-entry.py` to call `main()` without returning to `SystemExit`.
+
 ## [0.9.3] - 2026-10-05
 
 ### Quality & Governance Compliance (Overall Code Straight A Ratings)

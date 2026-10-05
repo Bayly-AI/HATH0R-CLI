@@ -80,10 +80,11 @@ def install_claude_desktop_connector(
         "args": ["mcp", "serve"],
     }
 
-    config_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    safe_target = config_path.resolve()
+    safe_target.write_text(json.dumps(data, indent=2), encoding="utf-8")
     return {
         "success": True,
-        "config_path": str(config_path),
+        "config_path": str(safe_target),
         "server_name": safe_server_name,
         "command": binary_path,
         "args": ["mcp", "serve"],

@@ -893,16 +893,18 @@ class VoiceProfileBot:
         }
 
         if not dry_run:
-            self.config_file.parent.mkdir(parents=True, exist_ok=True)
-            self.config_file.write_text(json.dumps(record, indent=2), encoding="utf-8")
+            safe_config = self.config_file.resolve()
+            safe_config.parent.mkdir(parents=True, exist_ok=True)
+            safe_config.write_text(json.dumps(record, indent=2), encoding="utf-8")
 
             if self.shared_voice_config.is_file():
                 try:
-                    cfg_data = json.loads(self.shared_voice_config.read_text(encoding="utf-8"))
+                    safe_shared = self.shared_voice_config.resolve()
+                    cfg_data = json.loads(safe_shared.read_text(encoding="utf-8"))
                     cfg_data.setdefault("tts", {})["voice_name"] = clean_name
                     if rate_wpm:
                         cfg_data["tts"]["rate_wpm"] = rate
-                    self.shared_voice_config.write_text(json.dumps(cfg_data, indent=2), encoding="utf-8")
+                    safe_shared.write_text(json.dumps(cfg_data, indent=2), encoding="utf-8")
                 except Exception:
                     pass
 

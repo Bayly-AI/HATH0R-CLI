@@ -50,8 +50,8 @@ class PhoenixObserverBot:
 
         for candidate in candidates:
             url = candidate
-            if not url.startswith("http"):
-                url = f"http://{url}"
+            if not (url.startswith("http://") or url.startswith("https://")):
+                url = f"http://{url}" if (url.startswith("localhost") or url.startswith("127.0.0.1")) else f"https://{url}"
             # Ensure trailing slash for root / UI routes
             if not url.endswith("/") and not any(url.endswith(ext) for ext in [".ico", ".json", "/traces", "/metrics"]):
                 url = f"{url}/"
