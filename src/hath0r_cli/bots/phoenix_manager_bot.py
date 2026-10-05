@@ -168,7 +168,8 @@ class PhoenixManagerBot:
         cmd = ["docker", "exec", container, "/usr/bin/python3.13", "-c", query_py]
         try:
             res = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            return json.loads(res.stdout.strip())
+            val = json.loads(res.stdout.strip())
+            return val if isinstance(val, list) else []
         except Exception:
             # Fallback list if container is stopped or empty
             return [
@@ -205,7 +206,8 @@ class PhoenixManagerBot:
         cmd = ["docker", "exec", container, "/usr/bin/python3.13", "-c", query_py]
         try:
             res = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            return json.loads(res.stdout.strip())
+            val = json.loads(res.stdout.strip())
+            return val if isinstance(val, dict) else {"total_spans": 0, "total_tokens": 0, "total_cost_usd": 0.0, "status": "offline"}
         except Exception:
             return {"total_spans": 0, "total_tokens": 0, "total_cost_usd": 0.0, "status": "offline"}
 
