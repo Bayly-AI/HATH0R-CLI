@@ -419,17 +419,24 @@ class CleanReposWorkflowBot:
 
                 # Step 7: Update documentation & AgentGraph synchronization
                 from hath0r_cli.bots.agentgraph_bot import AgentGraphBot
+                from hath0r_cli.bots.churn_manager_bot import churn_manager_bot
 
                 ag_bot = AgentGraphBot(cwd=repo_path)
                 ag_sync = ag_bot.sync(persist=True)
                 ag_val = ag_bot.validate()
                 ag_valid = bool(ag_val.get("validation", {}).get("valid", False))
+                try:
+                    churn_summary = churn_manager_bot.analyze(repo_path, days=30).get("summary", {})
+                except Exception:
+                    churn_summary = {}
+
                 repo_res["steps"]["7_update_documentation"] = {
                     "agents_md": (repo_path / "AGENTS.md").exists(),
                     "readme_md": (repo_path / "README.md").exists(),
                     "agentgraph_synced": ag_sync.get("success", False),
                     "agentgraph_valid": ag_valid,
                     "agentgraph_nodes": ag_sync.get("sync", {}).get("nodes_indexed", 0),
+                    "churn_summary": churn_summary,
                 }
                 if not ag_valid:
                     repo_res["clean"] = False
