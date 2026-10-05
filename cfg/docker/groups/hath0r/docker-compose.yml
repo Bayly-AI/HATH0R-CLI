@@ -147,9 +147,39 @@ services:
       com.hath0r.component: uxp
       com.hath0r.role: experience
 
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    container_name: HATH0R-Phoenix
+    restart: unless-stopped
+    ports:
+      - "${HATH0R_PHOENIX_HOST_PORT:-36006}:6006"
+      - "${HATH0R_PHOENIX_GRPC_PORT:-34317}:4317"
+      - "${HATH0R_PHOENIX_HTTP_PORT:-34318}:4318"
+    environment:
+      PHOENIX_PORT: 6006
+      PHOENIX_GRPC_PORT: 4317
+      PHOENIX_WORKING_DIR: /data
+    volumes:
+      - hath0r_phoenix_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:6006/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      hath0r-net:
+        aliases: [HATH0R-Phoenix, phoenix, hath0r-phoenix]
+    labels:
+      com.hath0r.group: hath0r-opensource
+      com.hath0r.component: phoenix
+      com.hath0r.role: observability
+
 volumes:
   hath0r_redis_data:
     name: hath0r_redis_data
+  hath0r_phoenix_data:
+    name: hath0r_phoenix_data
 
 networks:
   hath0r-net:

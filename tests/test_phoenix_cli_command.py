@@ -33,3 +33,21 @@ def test_phoenix_evals_json():
     data = json.loads(res.output)
     assert "evaluators" in data
     assert len(data["evaluators"]) >= 4
+
+
+def test_phoenix_projects_json():
+    runner = CliRunner()
+    res = runner.invoke(main, ["phoenix", "projects", "--json", "--group", "1-nation"])
+    assert res.exit_code == 0
+    data = json.loads(res.output)
+    assert isinstance(data, list)
+
+
+def test_phoenix_costs_json():
+    runner = CliRunner()
+    res = runner.invoke(main, ["phoenix", "costs", "--json", "--group", "1-nation"])
+    assert res.exit_code == 0
+    data = json.loads(res.output)
+    assert "total_spans" in data
+    assert "total_cost_usd" in data
+
