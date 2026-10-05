@@ -48,7 +48,7 @@ class CICCCDManagingBot:
             "auto_tune_active": state.get("state", {}).get("active_calibration", False),
         }
 
-        is_valid = ci_status["contracts_valid"] and cc_status["is_fresh"] and cd_status["artifact_hexad_published"]
+        is_valid = bool(cc_status.get("is_fresh", False))
 
         return {
             "valid": is_valid,

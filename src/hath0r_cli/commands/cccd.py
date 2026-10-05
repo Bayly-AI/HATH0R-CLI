@@ -42,7 +42,6 @@ def cccd_status(ctx: click.Context) -> None:
         params_table.add_column("Calibrated Value", style="green")
 
         for k, v in state.get("current_parameters", {}).items():
-            params_table.add_column if False else None
             params_table.add_row(str(k), str(v))
 
         console.print(params_table)

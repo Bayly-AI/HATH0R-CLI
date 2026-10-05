@@ -182,6 +182,111 @@ class QualityGateBot:
     def report_json(self, evaluation: Dict[str, Any]) -> str:
         return json.dumps(evaluation, indent=2, sort_keys=True)
 
+    def check_sonar(self, project_key: Optional[str] = None) -> Dict[str, Any]:
+        """Check live SonarCloud Quality Gate status via SonarCloud Web API."""
+        import base64
+        import os
+        import urllib.parse
+        import urllib.request
+
+        token = os.environ.get("SONAR_TOKEN")
+        if not token:
+            cred_file = Path("/Users/raybayly/Development/.credentials/sonarcloud/.env")
+            if cred_file.is_file():
+                for line in cred_file.read_text(encoding="utf-8").splitlines():
+                    if line.startswith("SONAR_TOKEN_2="):
+                        token = line.split("=", 1)[1].strip().strip("\"'")
+                        break
+                    elif line.startswith("SONAR_TOKEN=") and not token:
+                        token = line.split("=", 1)[1].strip().strip("\"'")
+
+        if not token:
+            return {
+                "success": False,
+                "status": "ERROR",
+                "message": "SONAR_TOKEN environment variable or credential not found.",
+                "failing_conditions": [],
+                "blocking_issues": [],
+            }
+
+        if not project_key:
+            sonar_props = self.cwd / "sonar-project.properties"
+            if sonar_props.is_file():
+                for line in sonar_props.read_text(encoding="utf-8").splitlines():
+                    if line.startswith("sonar.projectKey="):
+                        project_key = line.split("=", 1)[1].strip()
+                        break
+
+        if not project_key:
+            return {
+                "success": False,
+                "status": "ERROR",
+                "message": "Could not determine SonarCloud project key.",
+                "failing_conditions": [],
+                "blocking_issues": [],
+            }
+
+        auth_header = "Basic " + base64.b64encode(f"{token}:".encode()).decode()
+
+        # 1. Check Quality Gate status
+        status_url = f"https://sonarcloud.io/api/qualitygates/project_status?projectKey={urllib.parse.quote(project_key)}"
+        req_status = urllib.request.Request(status_url, headers={"Authorization": auth_header})
+        try:
+            with urllib.request.urlopen(req_status) as resp:
+                status_data = json.loads(resp.read().decode())
+        except Exception as exc:
+            return {
+                "success": False,
+                "status": "ERROR",
+                "project_key": project_key,
+                "message": f"Failed to query SonarCloud quality gate status: {exc}",
+                "failing_conditions": [],
+                "blocking_issues": [],
+            }
+
+        gate_status = status_data.get("projectStatus", {}).get("status", "UNKNOWN")
+        conditions = status_data.get("projectStatus", {}).get("conditions", [])
+        failing_conds = []
+        for cond in conditions:
+            if cond.get("status") == "ERROR":
+                failing_conds.append({
+                    "metric": cond.get("metricKey"),
+                    "actual": cond.get("actualValue"),
+                    "threshold": cond.get("errorThreshold"),
+                    "comparator": cond.get("comparator"),
+                })
+
+        # 2. Fetch unresolved issues
+        issues_url = f"https://sonarcloud.io/api/issues/search?componentKeys={urllib.parse.quote(project_key)}&resolved=false&ps=20"
+        req_issues = urllib.request.Request(issues_url, headers={"Authorization": auth_header})
+        blocking_issues = []
+        try:
+            with urllib.request.urlopen(req_issues) as resp:
+                issues_data = json.loads(resp.read().decode())
+                for iss in issues_data.get("issues", []):
+                    blocking_issues.append({
+                        "severity": iss.get("severity"),
+                        "type": iss.get("type"),
+                        "component": iss.get("component"),
+                        "line": iss.get("line"),
+                        "message": iss.get("message"),
+                        "rule": iss.get("rule"),
+                    })
+        except Exception:
+            pass
+
+        is_ok = gate_status == "OK"
+        return {
+            "success": is_ok,
+            "status": gate_status,
+            "project_key": project_key,
+            "failing_conditions": failing_conds,
+            "blocking_issues": blocking_issues,
+            "total_blocking_issues": len(blocking_issues),
+            "message": f"SonarCloud Quality Gate for '{project_key}': {gate_status}",
+        }
+
+
 
 @dataclass
 class PreflightBot:
