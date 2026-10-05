@@ -8,12 +8,10 @@ project namespace analytics, FinOps cost calculation, and health diagnostics for
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 
@@ -111,12 +109,14 @@ class PhoenixManagerBot:
         candidates = []
         if custom_endpoint:
             candidates.append(custom_endpoint)
-        candidates.extend([
-            group_cfg["edge_url"],
-            group_cfg["direct_url"],
-            "http://localhost:58000/phoenix/",
-            "http://localhost:6006/",
-        ])
+        candidates.extend(
+            [
+                group_cfg["edge_url"],
+                group_cfg["direct_url"],
+                "http://localhost:58000/phoenix/",
+                "http://localhost:6006/",
+            ]
+        )
 
         status: Dict[str, Any] = {
             "group": group,
@@ -207,7 +207,11 @@ class PhoenixManagerBot:
         try:
             res = subprocess.run(cmd, capture_output=True, text=True, check=True)
             val = json.loads(res.stdout.strip())
-            return val if isinstance(val, dict) else {"total_spans": 0, "total_tokens": 0, "total_cost_usd": 0.0, "status": "offline"}
+            return (
+                val
+                if isinstance(val, dict)
+                else {"total_spans": 0, "total_tokens": 0, "total_cost_usd": 0.0, "status": "offline"}
+            )
         except Exception:
             return {"total_spans": 0, "total_tokens": 0, "total_cost_usd": 0.0, "status": "offline"}
 

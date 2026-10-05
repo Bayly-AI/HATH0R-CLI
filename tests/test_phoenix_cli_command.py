@@ -50,4 +50,3 @@ def test_phoenix_costs_json():
     data = json.loads(res.output)
     assert "total_spans" in data
     assert "total_cost_usd" in data
-

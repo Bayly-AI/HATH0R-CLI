@@ -31,8 +31,8 @@ def install_claude_desktop_connector(
     hath0r_binary: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Register HATH0R CLI in Claude Desktop config file (~/Library/Application Support/Claude/claude_desktop_config.json)."""
-    import shutil
     import re
+    import shutil
 
     safe_server_name = re.sub(r"[^a-zA-Z0-9_\-]", "", server_name) or "hath0r-cli"
     config_path = get_claude_desktop_config_path().resolve()

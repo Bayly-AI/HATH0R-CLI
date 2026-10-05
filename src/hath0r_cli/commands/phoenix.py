@@ -44,7 +44,12 @@ def phoenix_status(group: str, endpoint: Optional[str], as_json: bool) -> None:
             "service": cfg.service_name,
             "environment": cfg.deployment_environment,
             "active_url": res["active_url"],
-            "target_url": res["active_url"] or (res.get("candidates", ["http://localhost:58000/phoenix/"])[0] if "candidates" in res else "http://localhost:58000/phoenix/"),
+            "target_url": res["active_url"]
+            or (
+                res.get("candidates", ["http://localhost:58000/phoenix/"])[0]
+                if "candidates" in res
+                else "http://localhost:58000/phoenix/"
+            ),
             "healthy": res["healthy"],
             "http_status": res["http_status"],
             "otlp_endpoint": cfg.otlp_endpoint or "http://1NPHOENIX:4318",
@@ -63,12 +68,8 @@ def phoenix_status(group: str, endpoint: Optional[str], as_json: bool) -> None:
     if res["healthy"]:
         console.print("  [bold green]✓ Phoenix Server is ACTIVE and responding (HTTP 200).[/bold green]")
     else:
-        console.print(
-            f"  [yellow]! Phoenix Server is OFFLINE (Error: {res['error'] or 'Unreachable'})[/yellow]"
-        )
-        console.print(
-            f"    [dim]To start Phoenix locally: 'hath0r phoenix up --group {group}'[/dim]"
-        )
+        console.print(f"  [yellow]! Phoenix Server is OFFLINE (Error: {res['error'] or 'Unreachable'})[/yellow]")
+        console.print(f"    [dim]To start Phoenix locally: 'hath0r phoenix up --group {group}'[/dim]")
 
 
 @phoenix_cmd.command("up", help="Start the Arize Phoenix container locally.")
@@ -98,7 +99,9 @@ def phoenix_down(group: str) -> None:
 
 
 @phoenix_cmd.command("projects", help="List registered Phoenix projects and span distributions.")
-@click.option("--group", default="1-nation", type=click.Choice(["hath0r", "1-nation", "bai"]), help="Docker group name.")
+@click.option(
+    "--group", default="1-nation", type=click.Choice(["hath0r", "1-nation", "bai"]), help="Docker group name."
+)
 @click.option("--json", "as_json", is_flag=True, help="Output as JSON.")
 def phoenix_projects(group: str, as_json: bool) -> None:
     """Display Phoenix projects and span telemetry."""
@@ -119,7 +122,9 @@ def phoenix_projects(group: str, as_json: bool) -> None:
 
 
 @phoenix_cmd.command("costs", help="Show FinOps token usage and computed LLM costs.")
-@click.option("--group", default="1-nation", type=click.Choice(["hath0r", "1-nation", "bai"]), help="Docker group name.")
+@click.option(
+    "--group", default="1-nation", type=click.Choice(["hath0r", "1-nation", "bai"]), help="Docker group name."
+)
 @click.option("--json", "as_json", is_flag=True, help="Output as JSON.")
 def phoenix_costs(group: str, as_json: bool) -> None:
     """Display FinOps token count and USD cost totals."""
@@ -136,7 +141,9 @@ def phoenix_costs(group: str, as_json: bool) -> None:
 
 
 @phoenix_cmd.command("ui", help="Open the Arize Phoenix Web UI in browser.")
-@click.option("--group", default="1-nation", type=click.Choice(["hath0r", "1-nation", "bai"]), help="Docker group name.")
+@click.option(
+    "--group", default="1-nation", type=click.Choice(["hath0r", "1-nation", "bai"]), help="Docker group name."
+)
 @click.option("--edge/--direct", default=True, help="Use Edge proxy or direct port.")
 def phoenix_ui(group: str, edge: bool) -> None:
     """Open Phoenix UI in the default web browser."""
