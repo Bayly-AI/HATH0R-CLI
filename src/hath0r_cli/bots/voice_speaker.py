@@ -762,11 +762,13 @@ class VoiceProfileBot:
 
     @property
     def config_file(self) -> Path:
-        return self.cwd / ".hath0r" / "voice_profile.json"
+        resolved = (self.cwd.resolve() / ".hath0r" / "voice_profile.json").resolve()
+        return resolved
 
     @property
     def shared_voice_config(self) -> Path:
-        return self.cwd / "cfg" / "voice.json"
+        resolved = (self.cwd.resolve() / "cfg" / "voice.json").resolve()
+        return resolved
 
     def get_active_profile(self) -> Dict[str, Any]:
         """Retrieve current active voice profile name and speech rate."""

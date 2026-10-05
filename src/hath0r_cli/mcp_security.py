@@ -138,11 +138,11 @@ class MCPSecurityPolicyEngine:
 
     DANGEROUS_COMMANDS = [
         (
-            re.compile(r"rm\s+(-[rfRF]+\s+|--recursive\s+|--force\s+)*(/|/\*|~|\$HOME)", re.I),
+            re.compile(r"rm\s+-(?:[rf]+\s+|--recursive\s+|--force\s+)*(?:/|/\*|~|\$HOME)", re.I),
             "CRITICAL: Destructive root/home filesystem deletion",
         ),
         (
-            re.compile(r"(curl|wget)\s+.*\|\s*(bash|sh|zsh)", re.I),
+            re.compile(r"(?:curl|wget)\s+[^|]+\|\s*(?:bash|sh|zsh)", re.I),
             "CRITICAL: Unverified remote script execution via pipe",
         ),
         (re.compile(r":\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:", re.I), "CRITICAL: Fork bomb denial of service"),
@@ -333,23 +333,25 @@ class DynamicMCPManager:
     """Manages dynamic runtime mounting and registration of MCP servers."""
 
     def __init__(self, config_file: Optional[Path] = None) -> None:
-        self.config_file = config_file or Path(".hath0r/dynamic_mcp.json")
+        self.config_file = (config_file or Path(".hath0r/dynamic_mcp.json")).resolve()
         self.policy_engine = MCPSecurityPolicyEngine()
 
     def _load_registry(self) -> Dict[str, Any]:
         """Load persisted dynamic server records."""
-        if not self.config_file.is_file():
+        safe_file = self.config_file.resolve()
+        if not safe_file.is_file():
             return {}
         try:
-            val = json.loads(self.config_file.read_text(encoding="utf-8"))
+            val = json.loads(safe_file.read_text(encoding="utf-8"))
             return val if isinstance(val, dict) else {}
         except Exception:
             return {}
 
     def _save_registry(self, data: Dict[str, Any]) -> None:
         """Persist dynamic server records."""
-        self.config_file.parent.mkdir(parents=True, exist_ok=True)
-        self.config_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        safe_file = self.config_file.resolve()
+        safe_file.parent.mkdir(parents=True, exist_ok=True)
+        safe_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
     def connect_server(
         self,

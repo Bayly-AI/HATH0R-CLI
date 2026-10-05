@@ -19,6 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `scripts/install_hath0r.py` verified first-time installer that hands off to `hath0r upgrade verify`.
   - Docs: GUIDE-049 plus strategy, procedure, playbook, runbook, checklist and bot spec.
 
+## [0.9.2] - 2026-10-05
+
+### Quality & Governance Compliance (Straight A Ratings)
+- **Undefined Bot Cleanup**: Removed undefined bot entries from `__all__` in `src/hath0r_cli/bots/__init__.py`.
+- **Telemetry Cryptographic Security**: Replaced pseudorandom number generators with `secrets.token_hex` for distributed trace and span IDs.
+- **Path Traversal Hardening**: Hardened path resolution and config writing in `mcp_server.py`, `mcp_security.py`, and `voice_speaker.py`.
+- **Security Hashing Modernization**: Upgraded neural UI spatial grounding hash calculation to standard SHA-256 in `pytorch_runtime.py`.
+- **Workflow Parameter Safety**: Assigned inputs to environment variables in promotion gates workflow to prevent script injection.
+
 ## [0.9.1] - 2026-10-05
 
 ### Fixed

@@ -230,7 +230,7 @@ class PyTorchRuntime:
     ) -> Dict[str, Any]:
         """Perform neural spatial bounding box prediction for a UI target."""
         target_device = device or self.active_device
-        h_val = int(hashlib.md5(target.lower().encode("utf-8")).hexdigest(), 16)
+        h_val = int(hashlib.sha256(target.lower().encode("utf-8")).hexdigest(), 16)
 
         ymin = round((h_val % 40) / 100.0 + 0.1, 3)
         xmin = round(((h_val >> 8) % 40) / 100.0 + 0.1, 3)

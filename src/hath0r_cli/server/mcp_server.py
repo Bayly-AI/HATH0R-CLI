@@ -31,9 +31,11 @@ def install_claude_desktop_connector(
     hath0r_binary: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Register HATH0R CLI in Claude Desktop config file (~/Library/Application Support/Claude/claude_desktop_config.json)."""
+    import re
     import shutil
 
-    config_path = get_claude_desktop_config_path()
+    safe_server_name = re.sub(r"[^a-zA-Z0-9_\-]", "", server_name) or "hath0r-cli"
+    config_path = get_claude_desktop_config_path().resolve()
     config_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Explicit paths are honored as-is so operators can register a planned install
@@ -73,7 +75,7 @@ def install_claude_desktop_connector(
             "args": ["mcp"],
         }
 
-    data["mcpServers"][server_name] = {
+    data["mcpServers"][safe_server_name] = {
         "command": binary_path,
         "args": ["mcp", "serve"],
     }
@@ -82,7 +84,7 @@ def install_claude_desktop_connector(
     return {
         "success": True,
         "config_path": str(config_path),
-        "server_name": server_name,
+        "server_name": safe_server_name,
         "command": binary_path,
         "args": ["mcp", "serve"],
     }
