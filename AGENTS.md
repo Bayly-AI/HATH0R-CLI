@@ -51,6 +51,10 @@ Group policy: `/Users/raybayly/Development/OpenSource/WARP.md`
    - **Complete Feature Package**: When adding any feature that should be a CLI command, you MUST deliver the CLI command (`src/hath0r_cli/commands/`), managing bot(s) (`src/hath0r_cli/bots/`), workflows/scripts, and the Governance Documentation Hexad (Strategy, Procedure, Playbook, Runbook, Workflow, Bot Spec).
    - **Configuration-Only Member Repos**: Member repositories only contain declarative configuration files (`cfg/`, `otel.json`, factory YAMLs) that configure and bind to the CLI's tools.
    - Policy: [`docs/governance/cr-cli-feature-standard-001.md`](docs/governance/cr-cli-feature-standard-001.md).
+6. **CR-CLI-TECH-DEBT-001 (Self-Admitted Technical Debt Issue Hand-off — CRITICAL · CANONICAL)**:
+   - **Zero Hidden Tech Debt**: Whenever an agent identifies, admits to, or introduces **self-admitted technical debt** (e.g. `TODO`s, `FIXME`s, temporary workarounds, incomplete refactors, skipped test cases, or fallback stubs), the agent MUST immediately hand that technical debt off to the **Issue Bot** (`hath0r issue create` or `gh issue create`) to create structured GitHub issues.
+   - **Mandatory User Disclosure**: The agent MUST explicitly present the newly created issue(s) with clickable markdown links (`https://github.com/.../issues/...`) in its final response to the user, highlighting the scope and open items.
+   - **Enforcement & Audit**: Leaving self-admitted technical debt in conversation responses or codebase comments without creating corresponding tracking issues violates canonical governance.
 
 ## Framework hidden root (CRITICAL — cr-hath0r-root-001)
 
