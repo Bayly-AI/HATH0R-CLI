@@ -6,7 +6,6 @@ import collections
 import datetime
 import json
 import logging
-import os
 import shutil
 import subprocess
 from pathlib import Path

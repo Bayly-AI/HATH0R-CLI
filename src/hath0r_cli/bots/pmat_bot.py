@@ -6,9 +6,8 @@ AST complexity analysis, and multi-dimensional reporting across suite worktrees.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from hath0r_engine.analysis.pmat_stats_engine import pmat_stats_engine
 
