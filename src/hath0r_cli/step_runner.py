@@ -47,6 +47,7 @@ from hath0r_cli.bots.onboarding import (
 from hath0r_cli.bots.political_data_mining import ComplianceBot, DataMinerBot
 from hath0r_cli.bots.postgres_validation import DataAuditorBot, ReportingBot
 from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
+from hath0r_cli.bots.upgrade_bot import UpgradeAnnouncerBot, UpgradeBot, UpgradeVerifierBot
 from hath0r_cli.factory_manager import FactoryManagerBot
 from hath0r_cli.telemetry import get_current_trace_context, trace_span
 
@@ -160,6 +161,9 @@ class BotRegistry:
             "test-harness-bot": TestHarnessBot(cwd=self.cwd),
             "tri-graph-ingest-bot": TriGraphIngestBot(cwd=self.cwd),
             "agentgraph-bot": AgentGraphBot(cwd=self.cwd),
+            "upgrade-bot": UpgradeBot(cwd=self.cwd),
+            "upgrade-verifier-bot": UpgradeVerifierBot(cwd=self.cwd),
+            "upgrade-announcer-bot": UpgradeAnnouncerBot(cwd=self.cwd),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -276,6 +280,8 @@ class BotRegistry:
                 return self._dispatch_tri_graph_ingest_bot(bot, action, args, dry_run=dry_run)
             elif bot_id == "agentgraph-bot":
                 return self._dispatch_agentgraph_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id in ("upgrade-bot", "upgrade-verifier-bot", "upgrade-announcer-bot"):
+                return self._dispatch_upgrade_bots(bot_id, bot, action, args, dry_run=dry_run, context=ctx)
             else:
                 return StepExecutionResult(
                     bot_id=bot_id,
@@ -2126,6 +2132,104 @@ class BotRegistry:
                 error=f"Unknown action {action} for agentgraph-bot",
                 dry_run=dry_run,
             )
+
+    def _dispatch_upgrade_bots(
+        self,
+        bot_id: str,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool = False,
+        context: dict[str, Any] | None = None,
+    ) -> StepExecutionResult:
+        """Dispatch upgrade-bot / upgrade-verifier-bot / upgrade-announcer-bot actions.
+
+        The upgrade report is shared through ``context["upgrade_report"]`` so the announcer
+        step can broadcast the outcome even when the upgrade step failed (on_failure: continue).
+        """
+        ctx = context if context is not None else {}
+
+        def result(success: bool, data: Any, error: str | None = None) -> StepExecutionResult:
+            return StepExecutionResult(
+                bot_id=bot_id, action=action, success=success, data=data, error=error, dry_run=dry_run
+            )
+
+        if bot_id == "upgrade-bot":
+            if args.get("repo"):
+                bot.repo = str(args["repo"])
+            if action in ("check", "check-release"):
+                res = bot.check(version=args.get("version"))
+                ctx["upgrade_check"] = res
+                return result(bool(res.get("success")), res, res.get("error"))
+            if action in ("run", "upgrade"):
+                report = bot.run(
+                    version=args.get("version"),
+                    force=bool(args.get("force", False)),
+                    dry_run=dry_run,
+                    test_level=str(args.get("test_level", "smoke")),
+                    auto_rollback=bool(args.get("auto_rollback", True)),
+                )
+                ctx["upgrade_report"] = report
+                return result(bool(report.get("success")), report, (report.get("failure") or {}).get("message"))
+            if action == "status":
+                res = bot.status(limit=int(args.get("limit", 10)))
+                return result(True, res)
+            if action == "rollback":
+                snap = bot.last_snapshot()
+                if not snap:
+                    return result(False, None, "No snapshot recorded.")
+                if dry_run:
+                    return result(True, {"dry_run": True, "snapshot": snap})
+                res = bot.rollback(snap)
+                return result(bool(res.get("success")), res, res.get("error"))
+        elif bot_id == "upgrade-verifier-bot":
+            if action in ("verify", "verify-install"):
+                install = UpgradeBot(cwd=self.cwd).detect_install()
+                expect = args.get("expect_version") or install.version
+                if dry_run:
+                    return result(True, {"dry_run": True, "action": f"[DRY-RUN] Would verify hath0r {expect}"})
+                res = bot.verify(
+                    expect,
+                    level=str(args.get("test_level", "smoke")),
+                    command=bot.command_for(install),
+                    repo_root=install.repo_root or None,
+                )
+                if not res["passed"]:
+                    ctx.setdefault(
+                        "upgrade_report",
+                        {
+                            "run_id": "factory-verify",
+                            "outcome": "failed",
+                            "success": False,
+                            "install": install.to_dict(),
+                            "from_version": install.version,
+                            "to_version": expect,
+                            "verification": res,
+                            "failure": {"stage": "verify", "code": "VERIFICATION_FAILED", "message": res["summary"],
+                                        "hint": "Reinstall the release or run `hath0r upgrade rollback`."},
+                            "message": f"Install verification failed: {res['summary']}",
+                        },
+                    )
+                return result(bool(res["passed"]), res, None if res["passed"] else res["summary"])
+        elif bot_id == "upgrade-announcer-bot":
+            if action in ("announce", "announce-result"):
+                if args.get("repo"):
+                    bot.repo = str(args["repo"])
+                report = ctx.get("upgrade_report")
+                if not report:
+                    return result(True, {"message": "Nothing to announce (no upgrade report in context)."})
+                if report.get("outcome") in ("up-to-date", "dry-run"):
+                    return result(True, {"message": report.get("message"), "outcome": report.get("outcome")})
+                res = bot.announce(
+                    report,
+                    file_issue=bool(args.get("file_issue", False)),
+                    speak=bool(args.get("speak", True)),
+                    dry_run=dry_run,
+                )
+                # Announcing succeeded, but the step reports the upgrade outcome so the workflow fails visibly.
+                return result(bool(res.get("success")), res, None if res.get("success") else res.get("message"))
+        return result(False, None, f"Unknown action '{action}' for {bot_id}.")
 
 
 def execute_workflow(

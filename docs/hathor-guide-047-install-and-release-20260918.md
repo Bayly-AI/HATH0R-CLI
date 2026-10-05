@@ -24,6 +24,10 @@ PyPI/pipx, GitHub Release binaries, fileset tarball, and the npm thin client.
 
 ## Tier 0 install methods
 
+> **Automated upgrades:** once installed, keep the CLI current with `hath0r upgrade run`
+> (verify + auto-rollback + announce). First-time verified install: `python3 scripts/install_hath0r.py`.
+> See [GUIDE-049](hathor-guide-049-automated-upgrade-install-20261005.md).
+
 ### 1. pip / pipx (recommended operators)
 
 ```sh

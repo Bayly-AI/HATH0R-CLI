@@ -34,6 +34,7 @@ Applies to:
 | quality-release-factory | strategies/quality-release-strategy.md | procedures/quality-release-procedure.md | (quality-bots.md) | runbooks/quality-release-runbook.md | checklists/quality-bots.md | tests/unit/test_quality_bots.py |
 | repo-clean-factory | strategies/repo-clean-strategy.md | procedures/repo-clean-procedure.md | playbooks/repo-clean-playbook.md | runbooks/repo-clean-runbook.md | checklists/repo-clean.md | tests/unit/test_repo_clean.py |
 | mcp-doc-publish | strategies/mcp-doc-publish-strategy.md | procedures (via playbook) | playbooks/mcp-doc-publish-playbook.md | runbooks/mcp-doc-publish-runbook.md | checklists/mcp-doc-publish-checklist.md | docs/governance/mcp-doc-publish.md |
+| upgrade-factory | strategies/upgrade-strategy.md | procedures/upgrade-procedure.md | playbooks/upgrade-playbook.md | runbooks/upgrade-runbook.md | checklists/upgrade.md | tests/unit/test_upgrade_bot.py |
 
 Gap fill: any row missing a file MUST add it before claiming the workflow “production ready”.
 
