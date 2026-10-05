@@ -1247,6 +1247,7 @@ from hath0r_cli.bots.churn_manager_bot import (  # noqa: E402
     churn_manager_bot,
     hotspot_refactor_bot,
 )
+from hath0r_cli.bots.mesh_manager_bot import MeshManagerBot, mesh_manager_bot  # noqa: E402
 from hath0r_cli.bots.paper_design_bot import PaperDesignBot  # noqa: E402
 from hath0r_cli.bots.pmat_bot import PmatBot, pmat_bot  # noqa: E402
 from hath0r_cli.bots.supercompress_bot import SuperCompressBot  # noqa: E402
@@ -1255,6 +1256,8 @@ __all__ = [
     "PostgresBot",
     "ApiBot",
     "PaperDesignBot",
+    "MeshManagerBot",
+    "mesh_manager_bot",
     "PmatBot",
     "pmat_bot",
     "ActiveTabReaderBot",

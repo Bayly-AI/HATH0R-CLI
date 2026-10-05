@@ -1,0 +1,23 @@
+{
+  "federation_name": "hath0r-opensource-mesh",
+  "local_node": {
+    "agent_id": "agent-cli-control-tower",
+    "endpoint": "http://localhost:8000/gain"
+  },
+  "peers": [
+    {
+      "peer_id": "peer-poc",
+      "endpoint": "http://localhost:8001/gain",
+      "capabilities": ["pmat", "agentgraph"]
+    },
+    {
+      "peer_id": "peer-framework",
+      "endpoint": "http://localhost:8002/gain",
+      "capabilities": ["cognitive-substrate", "cicccd"]
+    }
+  ],
+  "security": {
+    "hmac_algorithm": "sha256",
+    "ttl_seconds_default": 300
+  }
+}
