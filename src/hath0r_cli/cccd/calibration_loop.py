@@ -6,7 +6,7 @@ import json
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from hath0r_cli.cccd.dspy_bridge import DSPyCompilerBridge
 from hath0r_cli.cccd.taguchi_optimizer import TaguchiLossOptimizer
@@ -46,7 +46,8 @@ class CCCDCalibrationLoop:
                 "history": [],
             }
         with open(self.state_file, "r", encoding="utf-8") as f:
-            return json.load(f)
+            data = json.load(f)
+            return cast(Dict[str, Any], data) if isinstance(data, dict) else {}
 
     def save_state(self, state: Dict[str, Any]) -> None:
         """Save CCCD engine state to .hath0r/cccd_state.json."""

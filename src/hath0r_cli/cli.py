@@ -101,7 +101,7 @@ def _check_cccd_freshness_gate(ctx: click.Context) -> None:
                 f"Status: Prompt signatures and runtime parameters require re-calibration.\n\n"
                 f"[bold cyan]Offer:[/bold cyan] Run [bold green]hath0r cccd calibrate[/bold green] to re-calibrate parameters."
             )
-            console.print(Panel(msg, title="CCCD Calibration Entry Gate", border_style="bold yellow"), err=True)
+            console.print(Panel(msg, title="CCCD Calibration Entry Gate", border_style="bold yellow"))
     except Exception:
         pass
 
