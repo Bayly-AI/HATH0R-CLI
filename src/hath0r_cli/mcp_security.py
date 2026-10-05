@@ -138,11 +138,11 @@ class MCPSecurityPolicyEngine:
 
     DANGEROUS_COMMANDS = [
         (
-            re.compile(r"rm\s+-(?:[rf]+\s+|--recursive\s+|--force\s+)*(?:/|/\*|~|\$HOME)", re.I),
+            re.compile(r"rm\s+-[rf]*\s+(?:/|/\*|~|\$HOME)", re.I),
             "CRITICAL: Destructive root/home filesystem deletion",
         ),
         (
-            re.compile(r"(?:curl|wget)\s+[^|]+\|\s*(?:bash|sh|zsh)", re.I),
+            re.compile(r"(?:curl|wget)\s+[^|\r\n]+\|\s*(?:bash|sh|zsh)", re.I),
             "CRITICAL: Unverified remote script execution via pipe",
         ),
         (re.compile(r":\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:", re.I), "CRITICAL: Fork bomb denial of service"),
