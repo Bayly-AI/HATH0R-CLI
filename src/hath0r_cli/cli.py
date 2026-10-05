@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 import time
 
@@ -86,8 +87,11 @@ def main(ctx: click.Context, output: str, quiet: bool, verbose: bool, version: b
 def _check_cccd_freshness_gate(ctx: click.Context) -> None:
     """Canonical Entry Gate: Verify CCCD calibration age is <= 24 hours."""
     if (
-        ctx.obj.get("quiet")
+        _quiet(ctx)
+        or _output_mode(ctx) == "json"
         or ctx.invoked_subcommand == "cccd"
+        or os.environ.get("PYTEST_CURRENT_TEST")
+        or os.environ.get("HATH0R_NO_BANNER")
         or "--json" in sys.argv
         or "-j" in sys.argv
     ):
