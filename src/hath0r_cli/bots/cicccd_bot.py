@@ -67,7 +67,9 @@ class CICCCDManagingBot:
             "calibration_id": result.get("calibration_id"),
             "updated_parameters": result.get("updated_parameters", {}),
             "timestamp": result.get("timestamp"),
-            "message": "Continuous Calibration completed successfully." if result.get("success") else "Calibration failed.",
+            "message": "Continuous Calibration completed successfully."
+            if result.get("success")
+            else "Calibration failed.",
         }
 
     def status(self) -> Dict[str, Any]:

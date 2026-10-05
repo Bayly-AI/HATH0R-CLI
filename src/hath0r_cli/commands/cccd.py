@@ -35,7 +35,9 @@ def cccd_status(ctx: click.Context) -> None:
 
     def _text() -> None:
         state = status_data["state"]
-        console.print("\n[bold cyan]⚡ HATH0R Continuous Calibration & Continuous Development (CCCD) Status[/bold cyan]\n")
+        console.print(
+            "\n[bold cyan]⚡ HATH0R Continuous Calibration & Continuous Development (CCCD) Status[/bold cyan]\n"
+        )
 
         params_table = Table(title="Calibrated Runtime Parameters", show_header=True, header_style="bold magenta")
         params_table.add_column("Parameter", style="cyan")
@@ -56,7 +58,9 @@ def cccd_status(ctx: click.Context) -> None:
         console.print(drift_table)
 
         freshness = status_data.get("freshness", {})
-        fresh_status_str = "[bold green]FRESH[/bold green]" if freshness.get("is_fresh") else "[bold yellow]STALE (>24h)[/bold yellow]"
+        fresh_status_str = (
+            "[bold green]FRESH[/bold green]" if freshness.get("is_fresh") else "[bold yellow]STALE (>24h)[/bold yellow]"
+        )
         age_str = f"{freshness.get('age_hours'):.1f} hours ago" if freshness.get("age_hours") is not None else "Never"
 
         summary_panel = Panel(

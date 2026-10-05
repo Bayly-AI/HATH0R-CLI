@@ -43,4 +43,3 @@ def test_observe_charts():
         or "Rendering CLI" in result.output
         or "telemetry chart error" in result.output
     )
-

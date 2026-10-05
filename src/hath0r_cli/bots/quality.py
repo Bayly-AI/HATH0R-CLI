@@ -229,7 +229,9 @@ class QualityGateBot:
         auth_header = "Basic " + base64.b64encode(f"{token}:".encode()).decode()
 
         # 1. Check Quality Gate status
-        status_url = f"https://sonarcloud.io/api/qualitygates/project_status?projectKey={urllib.parse.quote(project_key)}"
+        status_url = (
+            f"https://sonarcloud.io/api/qualitygates/project_status?projectKey={urllib.parse.quote(project_key)}"
+        )
         req_status = urllib.request.Request(status_url, headers={"Authorization": auth_header})
         try:
             with urllib.request.urlopen(req_status) as resp:
@@ -249,12 +251,14 @@ class QualityGateBot:
         failing_conds = []
         for cond in conditions:
             if cond.get("status") == "ERROR":
-                failing_conds.append({
-                    "metric": cond.get("metricKey"),
-                    "actual": cond.get("actualValue"),
-                    "threshold": cond.get("errorThreshold"),
-                    "comparator": cond.get("comparator"),
-                })
+                failing_conds.append(
+                    {
+                        "metric": cond.get("metricKey"),
+                        "actual": cond.get("actualValue"),
+                        "threshold": cond.get("errorThreshold"),
+                        "comparator": cond.get("comparator"),
+                    }
+                )
 
         # 2. Fetch unresolved issues
         issues_url = f"https://sonarcloud.io/api/issues/search?componentKeys={urllib.parse.quote(project_key)}&resolved=false&ps=20"
@@ -264,14 +268,16 @@ class QualityGateBot:
             with urllib.request.urlopen(req_issues) as resp:
                 issues_data = json.loads(resp.read().decode())
                 for iss in issues_data.get("issues", []):
-                    blocking_issues.append({
-                        "severity": iss.get("severity"),
-                        "type": iss.get("type"),
-                        "component": iss.get("component"),
-                        "line": iss.get("line"),
-                        "message": iss.get("message"),
-                        "rule": iss.get("rule"),
-                    })
+                    blocking_issues.append(
+                        {
+                            "severity": iss.get("severity"),
+                            "type": iss.get("type"),
+                            "component": iss.get("component"),
+                            "line": iss.get("line"),
+                            "message": iss.get("message"),
+                            "rule": iss.get("rule"),
+                        }
+                    )
         except Exception:
             pass
 
@@ -285,7 +291,6 @@ class QualityGateBot:
             "total_blocking_issues": len(blocking_issues),
             "message": f"SonarCloud Quality Gate for '{project_key}': {gate_status}",
         }
-
 
 
 @dataclass

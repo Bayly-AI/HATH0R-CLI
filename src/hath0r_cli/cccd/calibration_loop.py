@@ -202,4 +202,3 @@ class CCCDCalibrationLoop:
             "compiled_signatures_count": len(compiled),
             "compiled_signatures": [s.get("signature_name") for s in compiled if "signature_name" in s],
         }
-

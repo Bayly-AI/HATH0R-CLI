@@ -12,9 +12,7 @@ from typing import Any, Dict, List, Optional, cast
 class DSPyCompilerBridge:
     """Bridge for DSPy BootstrapFewShot & Teleprompter prompt optimization pipelines."""
 
-    compiled_prompts_dir: Path = field(
-        default_factory=lambda: Path.cwd() / ".hath0r" / "cccd" / "compiled_prompts"
-    )
+    compiled_prompts_dir: Path = field(default_factory=lambda: Path.cwd() / ".hath0r" / "cccd" / "compiled_prompts")
 
     def __post_init__(self) -> None:
         self.compiled_prompts_dir.mkdir(parents=True, exist_ok=True)
@@ -30,6 +28,7 @@ class DSPyCompilerBridge:
         """Programmatically compile DSPy prompt signatures and few-shot exemplars."""
         try:
             import dspy  # type: ignore # noqa: F401
+
             dspy_available = True
         except ImportError:
             dspy_available = False

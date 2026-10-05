@@ -11,7 +11,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 
 def compute_sha256(filepath: Path) -> str:
@@ -84,7 +84,8 @@ def rotate_previous_release(
 
     # Collect existing candidate files in root release/
     artifacts = [
-        item for item in release_dir.iterdir()
+        item
+        for item in release_dir.iterdir()
         if item.is_file() and item.name not in ("README.md", ".DS_Store", ".gitkeep")
     ]
     if not artifacts:
@@ -262,11 +263,15 @@ def execute_release_build(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Hath0r CLI release builder and rotator")
-    parser.add_argument("--cli-root", type=Path, default=Path(__file__).resolve().parents[1], help="Root directory of HATH0R-CLI")
+    parser.add_argument(
+        "--cli-root", type=Path, default=Path(__file__).resolve().parents[1], help="Root directory of HATH0R-CLI"
+    )
     parser.add_argument("--out-dir", type=Path, default=None, help="Output directory for release artifacts")
     parser.add_argument("--previous-dir", type=Path, default=None, help="Directory for previous version archives")
     parser.add_argument("--framework-dir", type=Path, default=None, help="Target Framework release directory")
-    parser.add_argument("--no-rotate", action="store_true", help="Skip rotating existing release artifacts to previous/")
+    parser.add_argument(
+        "--no-rotate", action="store_true", help="Skip rotating existing release artifacts to previous/"
+    )
     parser.add_argument("--no-sync-framework", action="store_true", help="Skip synchronizing artifacts to Framework")
     parser.add_argument("--checksums-only", action="store_true", help="Recalculate checksums only")
     parser.add_argument("--dry-run", action="store_true", help="Simulate execution without modifying files")

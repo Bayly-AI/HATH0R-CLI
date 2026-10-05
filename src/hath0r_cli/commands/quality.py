@@ -129,13 +129,16 @@ def quality_sonar(ctx: click.Context, project_key: str | None) -> None:
             if res.get("failing_conditions"):
                 click.echo("Failing Quality Gate Conditions:")
                 for c in res["failing_conditions"]:
-                    click.echo(f"  - {c.get('metric')}: actual {c.get('actual')} (threshold {c.get('comparator')} {c.get('threshold')})")
+                    click.echo(
+                        f"  - {c.get('metric')}: actual {c.get('actual')} (threshold {c.get('comparator')} {c.get('threshold')})"
+                    )
             if res.get("blocking_issues"):
                 click.echo(f"\nTop Unresolved Issues ({res.get('total_blocking_issues')} total):")
                 for iss in res["blocking_issues"][:10]:
-                    click.echo(f"  [{iss.get('severity')}] {iss.get('component')}:{iss.get('line')} - {iss.get('message')} ({iss.get('rule')})")
+                    click.echo(
+                        f"  [{iss.get('severity')}] {iss.get('component')}:{iss.get('line')} - {iss.get('message')} ({iss.get('rule')})"
+                    )
 
     _emit_response(ctx, response, text_renderer=_text)
     if not res.get("success"):
         ctx.exit(1)
-

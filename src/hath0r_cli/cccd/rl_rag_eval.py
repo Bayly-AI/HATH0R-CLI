@@ -76,7 +76,9 @@ class RLRAGBenchmarkHarness:
             )
             rl_results.append(rl_reward)
 
-        mean_static_reward = sum(r["total_reward"] for r in static_results) / len(static_results) if static_results else 0.0
+        mean_static_reward = (
+            sum(r["total_reward"] for r in static_results) / len(static_results) if static_results else 0.0
+        )
         mean_rl_reward = sum(r["total_reward"] for r in rl_results) / len(rl_results) if rl_results else 0.0
 
         return {
