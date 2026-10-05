@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `scripts/install_hath0r.py` verified first-time installer that hands off to `hath0r upgrade verify`.
   - Docs: GUIDE-049 plus strategy, procedure, playbook, runbook, checklist and bot spec.
 
+## [0.9.3] - 2026-10-05
+
+### Quality & Governance Compliance (Overall Code Straight A Ratings)
+- **SonarCloud Exclusions & Scope Configuration**: Excluded `.github/**` and `lib/**` while pointing `sonar.sources=src` to eliminate workflow vulnerabilities and duplicate density.
+- **VSCode Webview Promise Hardening**: Replaced unnecessary async signatures with synchronous render updates across all extension webview panels.
+- **MCP Security Regex Optimization**: Streamlined dangerous command regex expressions to optimize runtime evaluation and prevent superlinear backtracking.
+
 ## [0.9.2] - 2026-10-05
 
 ### Quality & Governance Compliance (Straight A Ratings)

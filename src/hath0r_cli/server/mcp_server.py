@@ -181,6 +181,8 @@ def _set_session_memory(key: str, value: Any, ttl_seconds: Optional[int] = None)
         except Exception:
             data = {}
     data[key] = value
+    if ttl_seconds is not None:
+        data[f"{key}__ttl"] = ttl_seconds
     try:
         with open(p, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
