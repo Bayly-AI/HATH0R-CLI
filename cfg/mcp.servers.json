@@ -70,6 +70,24 @@
       "local_path": "/Users/raybayly/.paper",
       "github": "paper-design/agent-plugins",
       "docs_url": "https://paper.design"
+    },
+    {
+      "id": "pmat-mcp",
+      "name": "PMATMCP",
+      "scope": "tools",
+      "group": "analysis",
+      "priority": 5,
+      "enabled": true,
+      "transport": "stdio",
+      "command": "pmat",
+      "command_args": [
+        "mcp"
+      ],
+      "description": "PMAT code churn, architectural hotspot, and AST complexity MCP server",
+      "local_path": "/Users/raybayly/Development/OpenSource/HATH0R-CLI",
+      "github": "Bayly-AI/HATH0R-CLI",
+      "docs_url": "https://github.com/Bayly-AI/HATH0R-CLI"
     }
   ]
 }
+
