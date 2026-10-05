@@ -24,27 +24,50 @@ class PhoenixObserverBot:
     def check_health(self) -> Dict[str, Any]:
         """Check availability of Arize Phoenix collector and UI endpoints."""
         cfg = load_otel_config()
-        endpoint = self.custom_endpoint or cfg.otlp_endpoint or "http://localhost:6006"
-        health_url = endpoint.replace(":4318", ":6006").rstrip("/")
-        if not health_url.startswith("http"):
-            health_url = f"http://{health_url}"
+        candidates = []
+        if self.custom_endpoint:
+            candidates.append(self.custom_endpoint)
+        if cfg.otlp_endpoint:
+            candidates.append(cfg.otlp_endpoint)
+
+        # Canonical Edge & direct candidates
+        candidates.extend(
+            [
+                "http://localhost:58000/phoenix/",
+                "http://localhost/phoenix/",
+                "http://localhost:6006/",
+            ]
+        )
 
         status: Dict[str, Any] = {
             "service": cfg.service_name,
             "environment": cfg.deployment_environment,
-            "target_url": health_url,
+            "target_url": candidates[0] if candidates else "http://localhost:58000/phoenix/",
             "healthy": False,
             "http_status": None,
             "error": None,
         }
 
-        try:
-            req = urllib.request.Request(health_url, headers={"User-Agent": "hath0r-cli/observer-bot"})
-            with urllib.request.urlopen(req, timeout=3.0) as resp:
-                status["http_status"] = resp.status
-                status["healthy"] = resp.status == 200
-        except Exception as exc:
-            status["error"] = str(exc)
+        for candidate in candidates:
+            url = candidate
+            if not url.startswith("http"):
+                url = f"http://{url}"
+            # Ensure trailing slash for root / UI routes
+            if not url.endswith("/") and not any(url.endswith(ext) for ext in [".ico", ".json", "/traces", "/metrics"]):
+                url = f"{url}/"
+
+            try:
+                req = urllib.request.Request(url, headers={"User-Agent": "hath0r-cli/observer-bot"})
+                with urllib.request.urlopen(req, timeout=2.0) as resp:
+                    if resp.status == 200:
+                        status["target_url"] = url
+                        status["http_status"] = resp.status
+                        status["healthy"] = True
+                        status["error"] = None
+                        return status
+            except Exception as exc:
+                if status["error"] is None:
+                    status["error"] = str(exc)
 
         return status
 

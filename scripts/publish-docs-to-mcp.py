@@ -187,7 +187,11 @@ def materialize_group(group_id: str, group: dict[str, Any], cfg: dict[str, Any],
 def maybe_kb_sync(mcp_path: Path, dry_run: bool) -> dict[str, Any]:
     if dry_run:
         return {"ran": False, "reason": "dry-run"}
-    for cmd in (["hath0r", "kb", "index"], ["kb", "sync", "local"], [sys.executable, "-m", "knowledgebase", "sync", "local"]):
+    for cmd in (
+        ["hath0r", "kb", "index"],
+        ["kb", "sync", "local"],
+        [sys.executable, "-m", "knowledgebase", "sync", "local"],
+    ):
         try:
             p = subprocess.run(cmd, cwd=str(mcp_path), capture_output=True, text=True, timeout=120)
             return {

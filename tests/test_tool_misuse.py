@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from hath0r_cli.mcp_security import MCPSecurityPolicyEngine
 
 

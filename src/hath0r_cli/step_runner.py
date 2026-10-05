@@ -2206,8 +2206,12 @@ class BotRegistry:
                             "from_version": install.version,
                             "to_version": expect,
                             "verification": res,
-                            "failure": {"stage": "verify", "code": "VERIFICATION_FAILED", "message": res["summary"],
-                                        "hint": "Reinstall the release or run `hath0r upgrade rollback`."},
+                            "failure": {
+                                "stage": "verify",
+                                "code": "VERIFICATION_FAILED",
+                                "message": res["summary"],
+                                "hint": "Reinstall the release or run `hath0r upgrade rollback`.",
+                            },
                             "message": f"Install verification failed: {res['summary']}",
                         },
                     )

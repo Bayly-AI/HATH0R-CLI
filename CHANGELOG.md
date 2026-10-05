@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `scripts/install_hath0r.py` verified first-time installer that hands off to `hath0r upgrade verify`.
   - Docs: GUIDE-049 plus strategy, procedure, playbook, runbook, checklist and bot spec.
 
+## [0.9.1] - 2026-10-05
+
+### Fixed
+
+- Quality gate hardening and SonarCloud code findings remediation.
+- MCP security policy rule trigger alignment and regex optimizations.
+
 ## [0.9.0] - 2026-10-03
 
 ### Added

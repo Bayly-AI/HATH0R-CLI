@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import sys
 import time
 
 import click
@@ -84,10 +86,19 @@ def main(ctx: click.Context, output: str, quiet: bool, verbose: bool, version: b
 
 def _check_cccd_freshness_gate(ctx: click.Context) -> None:
     """Canonical Entry Gate: Verify CCCD calibration age is <= 24 hours."""
-    if ctx.obj.get("quiet") or ctx.invoked_subcommand == "cccd":
+    if (
+        _quiet(ctx)
+        or _output_mode(ctx) == "json"
+        or ctx.invoked_subcommand == "cccd"
+        or os.environ.get("PYTEST_CURRENT_TEST")
+        or os.environ.get("HATH0R_NO_BANNER")
+        or "--json" in sys.argv
+        or "-j" in sys.argv
+    ):
         return
 
     try:
+        from rich.console import Console
         from rich.panel import Panel
 
         from hath0r_cli.cccd.calibration_loop import CCCDCalibrationLoop
@@ -101,7 +112,8 @@ def _check_cccd_freshness_gate(ctx: click.Context) -> None:
                 f"Status: Prompt signatures and runtime parameters require re-calibration.\n\n"
                 f"[bold cyan]Offer:[/bold cyan] Run [bold green]hath0r cccd calibrate[/bold green] to re-calibrate parameters."
             )
-            console.print(Panel(msg, title="CCCD Calibration Entry Gate", border_style="bold yellow"), err=True)
+            err_console = Console(stderr=True)
+            err_console.print(Panel(msg, title="CCCD Calibration Entry Gate", border_style="bold yellow"))
     except Exception:
         pass
 

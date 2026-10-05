@@ -5,16 +5,14 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 
 @dataclass
 class DSPyCompilerBridge:
     """Bridge for DSPy BootstrapFewShot & Teleprompter prompt optimization pipelines."""
 
-    compiled_prompts_dir: Path = field(
-        default_factory=lambda: Path.cwd() / ".hath0r" / "cccd" / "compiled_prompts"
-    )
+    compiled_prompts_dir: Path = field(default_factory=lambda: Path.cwd() / ".hath0r" / "cccd" / "compiled_prompts")
 
     def __post_init__(self) -> None:
         self.compiled_prompts_dir.mkdir(parents=True, exist_ok=True)
@@ -30,6 +28,7 @@ class DSPyCompilerBridge:
         """Programmatically compile DSPy prompt signatures and few-shot exemplars."""
         try:
             import dspy  # type: ignore # noqa: F401
+
             dspy_available = True
         except ImportError:
             dspy_available = False
@@ -68,7 +67,8 @@ class DSPyCompilerBridge:
         if not artifact_file.exists():
             return None
         with open(artifact_file, "r", encoding="utf-8") as f:
-            return json.load(f)
+            data = json.load(f)
+            return cast(Dict[str, Any], data) if isinstance(data, dict) else None
 
     def list_compiled_signatures(self) -> List[Dict[str, Any]]:
         """List all compiled prompt signatures in local cache."""

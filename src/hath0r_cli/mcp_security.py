@@ -56,13 +56,13 @@ class SecretSanitizer:
     """Automated secret redaction filter for logging, transcripts, and CLI output streams (SEC-LEAK-001)."""
 
     SECRET_PATTERNS = [
-        re.compile(r"sk-[a-zA-Z0-9_\-]{20,}", re.I),
-        re.compile(r"ghp_[a-zA-Z0-9]{36}", re.I),
-        re.compile(r"gho_[a-zA-Z0-9]{36}", re.I),
-        re.compile(r"github_pat_[a-zA-Z0-9_\-]{20,}", re.I),
-        re.compile(r"AKIA[0-9A-Z]{16}", re.I),
-        re.compile(r"Bearer\s+[a-zA-Z0-9\-\._~\+\/]+=*", re.I),
-        re.compile(r"(postgres|postgresql|mysql|mongodb|redis)://[a-zA-Z0-9_\-]+:[^@\s]+@[a-zA-Z0-9_\-\.]+", re.I),
+        re.compile(r"sk-[a-z0-9_\-]{20,}", re.I),
+        re.compile(r"ghp_[a-z0-9]{36}", re.I),
+        re.compile(r"gho_[a-z0-9]{36}", re.I),
+        re.compile(r"github_pat_[a-z0-9_\-]{20,}", re.I),
+        re.compile(r"AKIA[0-9A-Z]{16}"),
+        re.compile(r"Bearer\s+[a-z0-9\-\._~\+\/]+=*", re.I),
+        re.compile(r"(postgres|postgresql|mysql|mongodb|redis)://[a-z0-9_\-]+:[^@\s]+@[a-z0-9_\-\.]+", re.I),
         re.compile(r"-----BEGIN\s+(RSA|EC|OPENSSH|PRIVATE)\s+KEY-----[\s\S]*?-----END\s+\1\s+KEY-----", re.I),
     ]
 
@@ -120,7 +120,7 @@ class MCPSecurityPolicyEngine:
 
     SECRET_LEAKAGE = [
         (
-            re.compile(r"(sk-[a-zA-Z0-9_\-]{20,}|ghp_[a-zA-Z0-9]{36}|AKIA[0-9A-Z]{16})", re.I),
+            re.compile(r"(sk-[a-z0-9_\-]{20,}|ghp_[a-z0-9]{36}|AKIA[0-9A-Z]{16})", re.I),
             "HIGH: Direct API key / secret credential detected in tool arguments",
         ),
     ]
@@ -133,10 +133,6 @@ class MCPSecurityPolicyEngine:
         (
             re.compile(r"git\s+branch\s+(-D|--delete\s+--force)\b", re.I),
             "HIGH: Unsafe git force branch deletion blocked (SEC-TOOL-002)",
-        ),
-        (
-            re.compile(r"\b(DROP\s+DATABASE|DROP\s+SCHEMA)\b", re.I),
-            "CRITICAL: Destructive database drop schema blocked (SEC-TOOL-002)",
         ),
     ]
 
@@ -262,6 +258,16 @@ class MCPSecurityPolicyEngine:
                         rule_triggered="SEC-TOOL-001",
                         reason=f"Path '{path_val}' escapes workspace boundary '{self.workspace_root}' (SEC-TOOL-001).",
                     )
+
+        if tool_name in ("run_command", "bash", "execute_command"):
+            cmd = str(arguments.get("CommandLine", arguments.get("cmd", "")))
+            if re.search(r"\b(DROP\s+DATABASE|DROP\s+SCHEMA)\b", cmd, re.I):
+                return PolicyVerdict(
+                    allowed=False,
+                    risk_level="critical",
+                    rule_triggered="SEC-TOOL-002",
+                    reason="Destructive database drop schema blocked (SEC-TOOL-002)",
+                )
 
         return self.inspect_invocation("default_server", tool_name, arguments)
 

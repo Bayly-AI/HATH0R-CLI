@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List
 
 from hath0r_cli.bots.taguchi_bot import TaguchiBot
 
@@ -46,13 +45,15 @@ class TaguchiLossOptimizer:
             snr_per_run.append(snr)
             loss_per_run.append(loss_data["estimated_loss"])
 
-            run_results.append({
-                "run_id": run["run_id"],
-                "parameters": {k: v for k, v in run.items() if k != "run_id"},
-                "responses": responses,
-                "snr_db": round(snr, 4),
-                "quality_loss": loss_data["estimated_loss"],
-            })
+            run_results.append(
+                {
+                    "run_id": run["run_id"],
+                    "parameters": {k: v for k, v in run.items() if k != "run_id"},
+                    "responses": responses,
+                    "snr_db": round(snr, 4),
+                    "quality_loss": loss_data["estimated_loss"],
+                }
+            )
 
         # Find best parameter combination based on max S/N ratio and min Quality Loss
         best_run_idx = max(range(len(snr_per_run)), key=lambda i: snr_per_run[i])
@@ -66,11 +67,11 @@ class TaguchiLossOptimizer:
                 val = res["parameters"].get(factor)
                 if val is not None:
                     level_snrs.setdefault(val, []).append(res["snr_db"])
-            
+
             # Find level with highest mean SNR
             best_level = max(
                 level_snrs.keys(),
-                key=lambda lvl: sum(level_snrs[lvl]) / len(level_snrs[lvl])
+                key=lambda lvl: sum(level_snrs[lvl]) / len(level_snrs[lvl]),
             )
             optimal_levels[factor] = best_level
 
