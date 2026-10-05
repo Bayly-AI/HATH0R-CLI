@@ -80,10 +80,10 @@ def install_claude_desktop_connector(
         "args": ["mcp", "serve"],
     }
 
-    home_dir = os.path.realpath(os.path.expanduser("~"))
+    parent_dir = os.path.realpath(str(config_path.parent))
     target_path = os.path.realpath(str(config_path))
-    if not (target_path.startswith(home_dir + os.sep) or target_path == home_dir):
-        raise ValueError("Config path escapes user home directory")
+    if not (target_path.startswith(parent_dir + os.sep) or target_path == parent_dir):
+        raise ValueError("Config path escapes target directory")
     with open(target_path, "w", encoding="utf-8") as f:
         f.write(json.dumps(data, indent=2))
     return {
