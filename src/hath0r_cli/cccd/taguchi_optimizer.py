@@ -69,10 +69,11 @@ class TaguchiLossOptimizer:
                     level_snrs.setdefault(val, []).append(res["snr_db"])
 
             # Find level with highest mean SNR
-            best_level = max(
-                level_snrs.keys(),
-                key=lambda lvl: sum(level_snrs[lvl]) / len(level_snrs[lvl]),
-            )
+            def _calc_mean_snr(lvl: Any) -> float:
+                snrs = level_snrs[lvl]
+                return sum(snrs) / len(snrs)
+
+            best_level = max(level_snrs.keys(), key=_calc_mean_snr)
             optimal_levels[factor] = best_level
 
         return {
