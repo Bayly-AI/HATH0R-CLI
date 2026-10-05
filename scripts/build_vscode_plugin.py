@@ -5,7 +5,6 @@ import json
 import os
 import shutil
 import subprocess
-import sys
 import xml.etree.ElementTree as ET
 import xml.sax.saxutils as saxutils
 import zipfile
@@ -29,7 +28,9 @@ def generate_vsix_manifest(pkg_json: dict) -> str:
     name = saxutils.escape(pkg_json.get("name", "hath0r-vscode"))
     version = saxutils.escape(pkg_json.get("version", "0.9.0"))
     publisher = saxutils.escape(pkg_json.get("publisher", "BaylyAI"))
-    display_name = saxutils.escape(pkg_json.get("displayName", "Hath0r - Enterprise Autonomous AI Agent Orchestration and Control Plane"))
+    display_name = saxutils.escape(
+        pkg_json.get("displayName", "Hath0r - Enterprise Autonomous AI Agent Orchestration and Control Plane")
+    )
     description = saxutils.escape(pkg_json.get("description", ""))
     license_file = "extension/LICENSE"
     readme_file = "extension/README.md"
@@ -92,7 +93,7 @@ def generate_content_types() -> str:
 
 
 def build_vscode_package():
-    print(f"[Hath0r VSCode Build] Staging VS Code plugin files...")
+    print("[Hath0r VSCode Build] Staging VS Code plugin files...")
     staging_dir = RELEASE_VSCODE_DIR / "extension"
     staging_dir.mkdir(parents=True, exist_ok=True)
 

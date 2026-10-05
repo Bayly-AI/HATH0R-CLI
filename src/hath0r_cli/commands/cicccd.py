@@ -35,7 +35,9 @@ def cicccd_status(ctx: click.Context) -> None:
 
     def _text() -> None:
         state = status_data["state"]
-        console.print("\n[bold cyan]⚡ HATH0R Continuous Integration, Calibration & Development (CICCCD) Status[/bold cyan]\n")
+        console.print(
+            "\n[bold cyan]⚡ HATH0R Continuous Integration, Calibration & Development (CICCCD) Status[/bold cyan]\n"
+        )
 
         params_table = Table(title="Calibrated Runtime Parameters", show_header=True, header_style="bold magenta")
         params_table.add_column("Parameter", style="cyan")
@@ -56,7 +58,9 @@ def cicccd_status(ctx: click.Context) -> None:
         console.print(drift_table)
 
         freshness = status_data.get("freshness", {})
-        fresh_status_str = "[bold green]FRESH[/bold green]" if freshness.get("is_fresh") else "[bold yellow]STALE (>24h)[/bold yellow]"
+        fresh_status_str = (
+            "[bold green]FRESH[/bold green]" if freshness.get("is_fresh") else "[bold yellow]STALE (>24h)[/bold yellow]"
+        )
         age_str = f"{freshness.get('age_hours'):.1f} hours ago" if freshness.get("age_hours") is not None else "Never"
 
         summary_panel = Panel(
@@ -90,14 +94,18 @@ def cicccd_validate(ctx: click.Context, repo: str | None) -> None:
     def _text() -> None:
         console.print("\n[bold cyan]🔍 HATH0R CICCCD Multi-Stage Validation[/bold cyan]\n")
         console.print(f"Target Repo: [bold white]{res['repo']}[/bold white]")
-        console.print(f"Overall Status: {'[bold green]VALID[/bold green]' if res['valid'] else '[bold yellow]REQUIRES RE-CALIBRATION[/bold yellow]'}\n")
+        console.print(
+            f"Overall Status: {'[bold green]VALID[/bold green]' if res['valid'] else '[bold yellow]REQUIRES RE-CALIBRATION[/bold yellow]'}\n"
+        )
 
         console.print("[bold green]Continuous Integration (CI):[/bold green]")
         console.print(f"  • Schema Contracts: [green]{res['ci']['contracts_valid']}[/green]")
         console.print(f"  • AgentGraph Policy: [green]{res['ci']['agentgraph_valid']}[/green]")
 
         console.print("\n[bold yellow]Continuous Calibration (CC):[/bold yellow]")
-        console.print(f"  • Calibration Freshness: {'[green]Fresh[/green]' if res['cc']['is_fresh'] else '[yellow]Stale (>24h)[/yellow]'}")
+        console.print(
+            f"  • Calibration Freshness: {'[green]Fresh[/green]' if res['cc']['is_fresh'] else '[yellow]Stale (>24h)[/yellow]'}"
+        )
         console.print(f"  • Calibration Age: {res['cc']['age_hours']:.1f} hours")
 
         console.print("\n[bold magenta]Continuous Development (CD):[/bold magenta]")

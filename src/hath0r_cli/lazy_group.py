@@ -52,6 +52,9 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "cccd": ("hath0r_cli.commands.cccd", "cccd"),
     "cicccd": ("hath0r_cli.commands.cicccd", "cicccd"),
     "upgrade": ("hath0r_cli.commands.upgrade", "upgrade"),
+    "churn": ("hath0r_cli.commands.churn", "churn"),
+    "pmat": ("hath0r_cli.commands.pmat", "pmat_cmd"),
+    "mesh": ("hath0r_cli.commands.mesh", "mesh_cmd"),
 }
 
 

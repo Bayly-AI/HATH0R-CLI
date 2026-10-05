@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any, Dict
 
 import click
 
@@ -139,4 +140,38 @@ def quality_repair(
             data={"repaired": False, "error": str(exc)},
         )
         _emit_response(ctx, response)
+        ctx.exit(1)
+
+
+def _render_sonar_text(res: Dict[str, Any]) -> None:
+    if res.get("success"):
+        click.echo(f"✓ SonarCloud Quality Gate PASSED ({res.get('status')}) for '{res.get('project_key')}'")
+        return
+
+    click.echo(
+        f"✗ SonarCloud Quality Gate FAILED (status: {res.get('status')}) for '{res.get('project_key')}'. "
+        f"Fix {len(res.get('failing_conditions', []))} failing condition(s) and {res.get('total_blocking_issues', 0)} issue(s) before proceeding.\n"
+    )
+    for c in res.get("failing_conditions", []):
+        click.echo(f"  - {c.get('metric')}: actual {c.get('actual')} (threshold {c.get('comparator')} {c.get('threshold')})")
+    if res.get("blocking_issues"):
+        click.echo(f"\nTop Unresolved Issues ({res.get('total_blocking_issues')} total):")
+        for iss in res["blocking_issues"][:10]:
+            click.echo(f"  [{iss.get('severity')}] {iss.get('component')}:{iss.get('line')} - {iss.get('message')} ({iss.get('rule')})")
+
+
+@quality.command("sonar")
+@click.option("--project-key", default=None, help="SonarCloud project key (defaults to sonar-project.properties).")
+@click.pass_context
+def quality_sonar(ctx: click.Context, project_key: str | None) -> None:
+    """Check live SonarCloud Quality Gate status via SonarCloud Web API."""
+    from hath0r_cli.bots.quality import QualityGateBot
+
+    bot = QualityGateBot(cwd=Path.cwd())
+    res = bot.check_sonar(project_key=project_key)
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="quality.sonar", state=state, data=res)
+
+    _emit_response(ctx, response, text_renderer=lambda: _render_sonar_text(res))
+    if not res.get("success"):
         ctx.exit(1)

@@ -31,9 +31,11 @@ def install_claude_desktop_connector(
     hath0r_binary: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Register HATH0R CLI in Claude Desktop config file (~/Library/Application Support/Claude/claude_desktop_config.json)."""
+    import re
     import shutil
 
-    config_path = get_claude_desktop_config_path()
+    safe_server_name = re.sub(r"[^a-zA-Z0-9_\-]", "", server_name) or "hath0r-cli"
+    config_path = get_claude_desktop_config_path().resolve()
     config_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Explicit paths are honored as-is so operators can register a planned install
@@ -73,16 +75,21 @@ def install_claude_desktop_connector(
             "args": ["mcp"],
         }
 
-    data["mcpServers"][server_name] = {
+    data["mcpServers"][safe_server_name] = {
         "command": binary_path,
         "args": ["mcp", "serve"],
     }
 
-    config_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    parent_dir = os.path.realpath(str(config_path.parent))
+    target_path = os.path.realpath(str(config_path))
+    if not (target_path.startswith(parent_dir + os.sep) or target_path == parent_dir):
+        raise ValueError("Config path escapes target directory")
+    with open(target_path, "w", encoding="utf-8") as f:
+        f.write(json.dumps(data, indent=2))
     return {
         "success": True,
-        "config_path": str(config_path),
-        "server_name": server_name,
+        "config_path": target_path,
+        "server_name": safe_server_name,
         "command": binary_path,
         "args": ["mcp", "serve"],
     }
@@ -179,6 +186,8 @@ def _set_session_memory(key: str, value: Any, ttl_seconds: Optional[int] = None)
         except Exception:
             data = {}
     data[key] = value
+    if ttl_seconds is not None:
+        data[f"{key}__ttl"] = ttl_seconds
     try:
         with open(p, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)

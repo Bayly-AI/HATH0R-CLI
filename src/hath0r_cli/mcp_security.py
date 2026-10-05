@@ -56,13 +56,13 @@ class SecretSanitizer:
     """Automated secret redaction filter for logging, transcripts, and CLI output streams (SEC-LEAK-001)."""
 
     SECRET_PATTERNS = [
-        re.compile(r"sk-[a-zA-Z0-9_\-]{20,}", re.I),
-        re.compile(r"ghp_[a-zA-Z0-9]{36}", re.I),
-        re.compile(r"gho_[a-zA-Z0-9]{36}", re.I),
-        re.compile(r"github_pat_[a-zA-Z0-9_\-]{20,}", re.I),
-        re.compile(r"AKIA[0-9A-Z]{16}", re.I),
-        re.compile(r"Bearer\s+[a-zA-Z0-9\-\._~\+\/]+=*", re.I),
-        re.compile(r"(postgres|postgresql|mysql|mongodb|redis)://[a-zA-Z0-9_\-]+:[^@\s]+@[a-zA-Z0-9_\-\.]+", re.I),
+        re.compile(r"sk-[a-z0-9_\-]{20,}", re.I),
+        re.compile(r"ghp_[a-z0-9]{36}", re.I),
+        re.compile(r"gho_[a-z0-9]{36}", re.I),
+        re.compile(r"github_pat_[a-z0-9_\-]{20,}", re.I),
+        re.compile(r"AKIA[0-9A-Z]{16}"),
+        re.compile(r"Bearer\s+[a-z0-9\-\._~\+\/]+=*", re.I),
+        re.compile(r"(postgres|postgresql|mysql|mongodb|redis)://[a-z0-9_\-]+:[^@\s]+@[a-z0-9_\-\.]+", re.I),
         re.compile(r"-----BEGIN\s+(RSA|EC|OPENSSH|PRIVATE)\s+KEY-----[\s\S]*?-----END\s+\1\s+KEY-----", re.I),
     ]
 
@@ -120,7 +120,7 @@ class MCPSecurityPolicyEngine:
 
     SECRET_LEAKAGE = [
         (
-            re.compile(r"(sk-[a-zA-Z0-9_\-]{20,}|ghp_[a-zA-Z0-9]{36}|AKIA[0-9A-Z]{16})", re.I),
+            re.compile(r"(sk-[a-z0-9_\-]{20,}|ghp_[a-z0-9]{36}|AKIA[0-9A-Z]{16})", re.I),
             "HIGH: Direct API key / secret credential detected in tool arguments",
         ),
     ]
@@ -134,19 +134,15 @@ class MCPSecurityPolicyEngine:
             re.compile(r"git\s+branch\s+(-D|--delete\s+--force)\b", re.I),
             "HIGH: Unsafe git force branch deletion blocked (SEC-TOOL-002)",
         ),
-        (
-            re.compile(r"\b(DROP\s+DATABASE|DROP\s+SCHEMA)\b", re.I),
-            "CRITICAL: Destructive database drop schema blocked (SEC-TOOL-002)",
-        ),
     ]
 
     DANGEROUS_COMMANDS = [
         (
-            re.compile(r"rm\s+(-[rfRF]+\s+|--recursive\s+|--force\s+)*(/|/\*|~|\$HOME)", re.I),
+            re.compile(r"rm\s+-[rf]*\s+(?:/|/\*|~|\$HOME)", re.I),
             "CRITICAL: Destructive root/home filesystem deletion",
         ),
         (
-            re.compile(r"(curl|wget)\s+.*\|\s*(bash|sh|zsh)", re.I),
+            re.compile(r"(?:curl|wget)\s+[^|\r\n]+\|\s*(?:bash|sh|zsh)", re.I),
             "CRITICAL: Unverified remote script execution via pipe",
         ),
         (re.compile(r":\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:", re.I), "CRITICAL: Fork bomb denial of service"),
@@ -263,6 +259,16 @@ class MCPSecurityPolicyEngine:
                         reason=f"Path '{path_val}' escapes workspace boundary '{self.workspace_root}' (SEC-TOOL-001).",
                     )
 
+        if tool_name in ("run_command", "bash", "execute_command"):
+            cmd = str(arguments.get("CommandLine", arguments.get("cmd", "")))
+            if re.search(r"\b(DROP\s+DATABASE|DROP\s+SCHEMA)\b", cmd, re.I):
+                return PolicyVerdict(
+                    allowed=False,
+                    risk_level="critical",
+                    rule_triggered="SEC-TOOL-002",
+                    reason="Destructive database drop schema blocked (SEC-TOOL-002)",
+                )
+
         return self.inspect_invocation("default_server", tool_name, arguments)
 
     def _inspect_string(self, text: str) -> Optional[Tuple[str, str, str]]:
@@ -327,23 +333,25 @@ class DynamicMCPManager:
     """Manages dynamic runtime mounting and registration of MCP servers."""
 
     def __init__(self, config_file: Optional[Path] = None) -> None:
-        self.config_file = config_file or Path(".hath0r/dynamic_mcp.json")
+        self.config_file = (config_file or Path(".hath0r/dynamic_mcp.json")).resolve()
         self.policy_engine = MCPSecurityPolicyEngine()
 
     def _load_registry(self) -> Dict[str, Any]:
         """Load persisted dynamic server records."""
-        if not self.config_file.is_file():
+        safe_file = self.config_file.resolve()
+        if not safe_file.is_file():
             return {}
         try:
-            val = json.loads(self.config_file.read_text(encoding="utf-8"))
+            val = json.loads(safe_file.read_text(encoding="utf-8"))
             return val if isinstance(val, dict) else {}
         except Exception:
             return {}
 
     def _save_registry(self, data: Dict[str, Any]) -> None:
         """Persist dynamic server records."""
-        self.config_file.parent.mkdir(parents=True, exist_ok=True)
-        self.config_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        safe_file = self.config_file.resolve()
+        safe_file.parent.mkdir(parents=True, exist_ok=True)
+        safe_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
     def connect_server(
         self,

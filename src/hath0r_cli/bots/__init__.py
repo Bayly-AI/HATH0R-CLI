@@ -1241,35 +1241,45 @@ class ApiBot:
 
 
 from hath0r_cli.bots.change_validation import ChangeValidationBot  # noqa: E402
+from hath0r_cli.bots.churn_manager_bot import (  # noqa: E402
+    ChurnManagerBot,
+    HotspotRefactorBot,
+    churn_manager_bot,
+    hotspot_refactor_bot,
+)
+from hath0r_cli.bots.mesh_manager_bot import MeshManagerBot, mesh_manager_bot  # noqa: E402
 from hath0r_cli.bots.paper_design_bot import PaperDesignBot  # noqa: E402
+from hath0r_cli.bots.pmat_bot import PmatBot, pmat_bot  # noqa: E402
 from hath0r_cli.bots.supercompress_bot import SuperCompressBot  # noqa: E402
 
 __all__ = [
     "PostgresBot",
     "ApiBot",
     "PaperDesignBot",
+    "MeshManagerBot",
+    "mesh_manager_bot",
+    "PmatBot",
+    "pmat_bot",
     "ActiveTabReaderBot",
     "AgentDialogueBot",
     "BranchBot",
     "BranchGuardBot",
     "ChangeValidationBot",
+    "ChurnManagerBot",
+    "HotspotRefactorBot",
+    "churn_manager_bot",
+    "hotspot_refactor_bot",
     "ConfigOrganizerBot",
-    "DeployTestBot",
     "DockerBot",
-    "DockerMonitorBot",
     "DocumentationBot",
     "EndOfTaskBot",
-    "FactoryManagerBot",
     "GitJanitorBot",
     "IssueGuardBot",
     "IssueManagerBot",
     "KnowledgeOrganizerBot",
     "LocalNeuralVoiceEngine",
     "PRBot",
-    "PreflightBot",
     "ProactiveSpeakerBot",
-    "QualityGateBot",
-    "ReleaseBot",
     "RepoHygieneBot",
     "SpeechListenerBot",
     "SpokenNotificationServiceBot",
@@ -1286,3 +1296,4 @@ __all__ = [
     "filter_speech_text",
     "interpret_response_for_speech",
 ]
+

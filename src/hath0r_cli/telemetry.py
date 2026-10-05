@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import os
-import random
+import secrets
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -73,11 +73,11 @@ _FALLBACK_CONTEXT_STACK: list[dict[str, str]] = []
 
 
 def _generate_trace_id() -> str:
-    return format(random.getrandbits(128), "032x")
+    return secrets.token_hex(16)
 
 
 def _generate_span_id() -> str:
-    return format(random.getrandbits(64), "016x")
+    return secrets.token_hex(8)
 
 
 def load_otel_config(config_path: Path | None = None) -> OTelConfig:

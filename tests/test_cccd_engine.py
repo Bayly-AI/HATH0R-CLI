@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
+
 from click.testing import CliRunner
 
-from hath0r_cli.cli import main
 from hath0r_cli.cccd import CCCDCalibrationLoop, DSPyCompilerBridge, TaguchiLossOptimizer
+from hath0r_cli.cli import main
 
 
 def test_taguchi_loss_optimizer(tmp_path: Path) -> None:
@@ -115,4 +115,3 @@ def test_cccd_freshness_check(tmp_path: Path) -> None:
     assert freshness_stale["is_fresh"] is False
     assert freshness_stale["stale"] is True
     assert freshness_stale["age_hours"] > 24.0
-

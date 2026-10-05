@@ -34,7 +34,7 @@ export class Hath0rWebviewPanel {
     Hath0rWebviewPanel.currentPanel = new Hath0rWebviewPanel(panel, client);
   }
 
-  public async update() {
+  public update(): void {
     this.panel.webview.html = this.getHtmlForWebview();
   }
 

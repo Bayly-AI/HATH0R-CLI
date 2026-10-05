@@ -8,14 +8,12 @@ LLM-as-a-judge scores, and check Phoenix health status.
 from __future__ import annotations
 
 import json
-import os
-import urllib.error
-import urllib.request
 from typing import Any, Dict, Optional
 
 import click
 from rich.console import Console
 
+from ..bots.phoenix_observer_bot import phoenix_observer_bot
 from ..telemetry import load_otel_config
 
 console = Console()
@@ -32,33 +30,23 @@ def observe_cmd() -> None:
 @click.option("--json", "as_json", is_flag=True, help="Output status in JSON format.")
 def observe_status(endpoint: Optional[str], as_json: bool) -> None:
     """Check connectivity to Arize Phoenix and local OpenTelemetry configuration."""
-    cfg = load_otel_config()
-    target_endpoint = (
-        endpoint or cfg.otlp_endpoint or os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:6006")
-    )
+    bot = phoenix_observer_bot
+    if endpoint:
+        bot.custom_endpoint = endpoint
 
-    # If port 4318, check root or /v1/traces, or standard Phoenix UI on 6006
-    health_url = target_endpoint.replace(":4318", ":6006").rstrip("/")
-    if not health_url.startswith("http"):
-        health_url = f"http://{health_url}"
+    res = bot.check_health()
+    cfg = load_otel_config()
 
     status_data: Dict[str, Any] = {
         "service": cfg.service_name,
         "environment": cfg.deployment_environment,
         "otel_enabled": cfg.enabled,
         "otlp_endpoint": cfg.otlp_endpoint or "http://1NPHOENIX:4318",
-        "target_url": health_url,
-        "phoenix_reachable": False,
-        "http_code": None,
+        "target_url": res["target_url"],
+        "phoenix_reachable": res["healthy"],
+        "http_code": res["http_status"],
+        "error": res["error"],
     }
-
-    try:
-        req = urllib.request.Request(health_url, headers={"User-Agent": "hath0r-cli/observe"})
-        with urllib.request.urlopen(req, timeout=3.0) as resp:
-            status_data["http_code"] = resp.status
-            status_data["phoenix_reachable"] = resp.status == 200
-    except Exception as exc:
-        status_data["error"] = str(exc)
 
     if as_json:
         click.echo(json.dumps(status_data, indent=2))
@@ -67,13 +55,13 @@ def observe_status(endpoint: Optional[str], as_json: bool) -> None:
     console.print(f"[bold cyan]HATH0R Observability Status for [{cfg.service_name}]:[/bold cyan]")
     console.print(f"  • Environment: {cfg.deployment_environment}")
     console.print(f"  • OTLP Target: {status_data['otlp_endpoint']}")
-    console.print(f"  • Phoenix UI URL: {health_url}")
+    console.print(f"  • Phoenix UI URL: {res['target_url']}")
 
     if status_data["phoenix_reachable"]:
-        console.print("  [bold green]✓ Arize Phoenix is reachable and active.[/bold green]")
+        console.print("  [bold green]✓ Arize Phoenix is reachable and active (HTTP 200).[/bold green]")
     else:
         console.print(
-            f"  [yellow]! Arize Phoenix at {health_url} is unreachable (Error: {status_data.get('error', 'Unknown')})[/yellow]"
+            f"  [yellow]! Arize Phoenix at {res['target_url']} is unreachable (Error: {status_data.get('error', 'Unknown')})[/yellow]"
         )
 
 
@@ -123,7 +111,13 @@ def observe_evals(dataset: str, as_json: bool) -> None:
     type=click.Choice(["latency_ms", "prompt_tokens", "total_tokens", "cost_usd"]),
     help="Target metric for distribution histogram.",
 )
-@click.option("--format", "fmt", default="ascii", type=click.Choice(["ascii", "json", "html"]), help="Output visualization format.")
+@click.option(
+    "--format",
+    "fmt",
+    default="ascii",
+    type=click.Choice(["ascii", "json", "html"]),
+    help="Output visualization format.",
+)
 def observe_charts(metric: str, fmt: str) -> None:
     """Display observation charts and statistical metrics for agent performance."""
     try:
@@ -140,4 +134,3 @@ def observe_charts(metric: str, fmt: str) -> None:
             click.echo(ascii_doc)
     except Exception as err:
         console.print(f"[yellow]! Engine telemetry chart error ({err}). Rendering CLI status summary.[/yellow]")
-
