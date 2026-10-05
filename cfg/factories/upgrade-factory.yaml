@@ -1,0 +1,96 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: upgrade-factory
+
+factory_id: upgrade-factory
+name: CLI Upgrade, Install Verification & Announcement Factory
+version: 1.0.0
+description: >
+  Autonomous factory that keeps the hath0r CLI current. Detects the install method
+  (source checkout, pip, pipx, standalone binary), checks GitHub Releases, downloads and
+  SHA-256-verifies the release artifact, snapshots the current install, upgrades, runs the
+  post-install test suite, rolls back automatically on failure, and announces the outcome —
+  opening (or updating) a GitHub issue describing what must be fixed when an upgrade fails.
+author: "@somesayray"
+category: cli-lifecycle
+
+documentation:
+  strategy: docs/governance/strategies/upgrade-strategy.md
+  procedure: docs/governance/procedures/upgrade-procedure.md
+  playbook: docs/governance/playbooks/upgrade-playbook.md
+  runbook: docs/governance/runbooks/upgrade-runbook.md
+  checklist: docs/governance/checklists/upgrade.md
+  bot_spec: docs/governance/bot-specs/upgrade-bot-spec.md
+  guide: docs/hathor-guide-049-automated-upgrade-install-20261005.md
+  test_doc: tests/unit/test_upgrade_bot.py
+
+bots:
+  - id: upgrade-bot
+    name: Upgrade Bot
+    role: upgrade-orchestration
+    description: Detects install method, checks releases, verifies checksums, installs, snapshots and rolls back.
+    capabilities:
+      - check
+      - run
+      - status
+      - rollback
+  - id: upgrade-verifier-bot
+    name: Upgrade Verifier Bot
+    role: install-verification
+    description: Runs version, command-import, doctor-regression, factory and (optionally) unit-test checks.
+    capabilities:
+      - verify
+  - id: upgrade-announcer-bot
+    name: Upgrade Announcer Bot
+    role: outcome-announcement
+    description: Broadcasts the outcome (console, report, voice queue) and files de-duplicated GitHub issues on failure.
+    capabilities:
+      - announce
+
+workflows:
+  # ── 1. Read-only release check ───────────────────────────────────────────
+  - id: upgrade-check
+    name: Check for a newer CLI release
+    description: Compare the installed CLI with the latest GitHub release. Changes nothing.
+    steps:
+      - bot: upgrade-bot
+        action: check
+        on_failure: abort
+
+  # ── 2. Nightly upgrade + verify + announce ───────────────────────────────
+  - id: upgrade-and-verify
+    name: Upgrade, verify, roll back on failure, announce
+    description: >
+      Full unattended upgrade. The run step uses on_failure=continue so the announcer always
+      executes; the announcer step then fails the workflow when the upgrade did not pass.
+    schedule: "17 4 * * *"   # nightly 04:17 local (off-peak, off the hour)
+    steps:
+      - bot: upgrade-bot
+        action: run
+        on_failure: continue
+        args:
+          test_level: smoke
+          auto_rollback: true
+      - bot: upgrade-announcer-bot
+        action: announce
+        on_failure: abort
+        args:
+          file_issue: true
+          speak: true
+
+  # ── 3. Verify an existing / freshly bootstrapped install ─────────────────
+  - id: verify-install
+    name: Verify the installed CLI and announce failures
+    description: Used after scripts/install_hath0r.py or a manual install.
+    steps:
+      - bot: upgrade-verifier-bot
+        action: verify
+        on_failure: continue
+        args:
+          test_level: smoke
+      - bot: upgrade-announcer-bot
+        action: announce
+        on_failure: abort
+        args:
+          file_issue: true
+          speak: true
