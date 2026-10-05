@@ -893,18 +893,26 @@ class VoiceProfileBot:
         }
 
         if not dry_run:
-            safe_config = self.config_file.resolve()
-            safe_config.parent.mkdir(parents=True, exist_ok=True)
-            safe_config.write_text(json.dumps(record, indent=2), encoding="utf-8")
+            base_dir = os.path.realpath(str(self.cwd))
+            safe_config = os.path.realpath(str(self.config_file))
+            if not (safe_config.startswith(base_dir + os.sep) or safe_config == base_dir):
+                raise ValueError("Voice config path escapes repository root")
+            os.makedirs(os.path.dirname(safe_config), exist_ok=True)
+            with open(safe_config, "w", encoding="utf-8") as f:
+                f.write(json.dumps(record, indent=2))
 
             if self.shared_voice_config.is_file():
                 try:
-                    safe_shared = self.shared_voice_config.resolve()
-                    cfg_data = json.loads(safe_shared.read_text(encoding="utf-8"))
+                    safe_shared = os.path.realpath(str(self.shared_voice_config))
+                    if not (safe_shared.startswith(base_dir + os.sep) or safe_shared == base_dir):
+                        raise ValueError("Shared voice config path escapes repository root")
+                    with open(safe_shared, "r", encoding="utf-8") as rf:
+                        cfg_data = json.loads(rf.read())
                     cfg_data.setdefault("tts", {})["voice_name"] = clean_name
                     if rate_wpm:
                         cfg_data["tts"]["rate_wpm"] = rate
-                    safe_shared.write_text(json.dumps(cfg_data, indent=2), encoding="utf-8")
+                    with open(safe_shared, "w", encoding="utf-8") as wf:
+                        wf.write(json.dumps(cfg_data, indent=2))
                 except Exception:
                     pass
 
