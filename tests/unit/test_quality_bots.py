@@ -185,6 +185,16 @@ def test_preflight_branch_check_on_canonical(tmp_path: Path, monkeypatch) -> Non
     assert any(c.get("check") == "branch" and not c.get("ok") for c in res["checks"])
 
 
+def _setup_sonar(tmp_path: Path) -> None:
+    (tmp_path / "sonar-project.properties").write_text(
+        "sonar.projectKey=Bayly-AI_Test\nsonar.organization=bayly-ai\n",
+        encoding="utf-8",
+    )
+    wf_dir = tmp_path / ".github" / "workflows"
+    wf_dir.mkdir(parents=True, exist_ok=True)
+    (wf_dir / "sonarcloud-quality-gate.yml").write_text("name: SonarCloud Quality Gate\n", encoding="utf-8")
+
+
 def _fake_git(branch: str):
     def fake_run_cmd(args, cwd=None):
         if args[:3] == ["git", "branch", "--show-current"]:
@@ -200,8 +210,19 @@ def _branch_check(res):
     return next(c for c in res["checks"] if c.get("check") == "branch")
 
 
+def test_preflight_sonar_config_missing(tmp_path: Path, monkeypatch) -> None:
+    (tmp_path / "VERSION").write_text("0.7.0\n", encoding="utf-8")
+    monkeypatch.setattr("hath0r_cli.bots.quality.run_cmd", _fake_git("fix/278-preflight-sonar"))
+    res = PreflightBot(cwd=tmp_path).run(skip_tests=True)
+    sonar_check = next(c for c in res["checks"] if c.get("check") == "sonar_config")
+    assert sonar_check["ok"] is False
+    assert "sonar-project.properties missing" in sonar_check["error"]
+    assert res["success"] is False
+
+
 def test_preflight_accepts_release_branch_matching_version(tmp_path: Path, monkeypatch) -> None:
     (tmp_path / "VERSION").write_text("0.7.0\n", encoding="utf-8")
+    _setup_sonar(tmp_path)
     monkeypatch.setattr("hath0r_cli.bots.quality.run_cmd", _fake_git("release/0.7.0"))
     res = PreflightBot(cwd=tmp_path).run(skip_tests=True)
     check = _branch_check(res)
@@ -213,6 +234,7 @@ def test_preflight_accepts_release_branch_matching_version(tmp_path: Path, monke
 
 def test_preflight_rejects_release_branch_version_mismatch(tmp_path: Path, monkeypatch) -> None:
     (tmp_path / "VERSION").write_text("0.6.0\n", encoding="utf-8")
+    _setup_sonar(tmp_path)
     monkeypatch.setattr("hath0r_cli.bots.quality.run_cmd", _fake_git("release/0.7.0"))
     res = PreflightBot(cwd=tmp_path).run(skip_tests=True)
     check = _branch_check(res)
@@ -223,6 +245,7 @@ def test_preflight_rejects_release_branch_version_mismatch(tmp_path: Path, monke
 
 def test_preflight_rejects_untaxonomic_branch(tmp_path: Path, monkeypatch) -> None:
     (tmp_path / "VERSION").write_text("0.7.0\n", encoding="utf-8")
+    _setup_sonar(tmp_path)
     monkeypatch.setattr("hath0r_cli.bots.quality.run_cmd", _fake_git("my-random-branch"))
     res = PreflightBot(cwd=tmp_path).run(skip_tests=True)
     check = _branch_check(res)
@@ -232,12 +255,14 @@ def test_preflight_rejects_untaxonomic_branch(tmp_path: Path, monkeypatch) -> No
 
 def test_preflight_accepts_issue_branch(tmp_path: Path, monkeypatch) -> None:
     (tmp_path / "VERSION").write_text("0.7.0\n", encoding="utf-8")
+    _setup_sonar(tmp_path)
     monkeypatch.setattr("hath0r_cli.bots.quality.run_cmd", _fake_git("fix/278-preflight-release-branches"))
     res = PreflightBot(cwd=tmp_path).run(skip_tests=True)
     check = _branch_check(res)
     assert check["ok"] is True
     assert check["issue_number"] == 278
     assert check["prefix"] == "fix"
+    assert res["success"] is True
 
 
 def test_deploy_test_bot_parse_pytest_output() -> None:
@@ -308,3 +333,79 @@ def test_cli_deploy_pre_dry_run() -> None:
     data = json.loads(res.stdout)
     assert data["state"] == "ok"
     assert data["data"]["dry_run"] is True
+
+
+def test_quality_gate_check_sonar_mocked(tmp_path: Path, monkeypatch) -> None:
+    bot = QualityGateBot(cwd=tmp_path)
+    (tmp_path / "sonar-project.properties").write_text(
+        "sonar.projectKey=Bayly-AI_Test\nsonar.organization=bayly-ai\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("SONAR_TOKEN", "mock_token")
+
+    class FakeResponse:
+        def __init__(self, data: dict):
+            self.data = json.dumps(data).encode("utf-8")
+
+        def read(self):
+            return self.data
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            pass
+
+    import urllib.request
+
+    def fake_urlopen(req):
+        url = req.full_url if hasattr(req, "full_url") else str(req)
+        if "project_status" in url:
+            return FakeResponse({"projectStatus": {"status": "OK", "conditions": []}})
+        return FakeResponse({"issues": []})
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    res = bot.check_sonar()
+    assert res["success"] is True
+    assert res["status"] == "OK"
+    assert "PASSED" in res["message"]
+
+
+def test_cli_quality_sonar_mocked(tmp_path: Path, monkeypatch) -> None:
+    runner = CliRunner(mix_stderr=False)
+    monkeypatch.setenv("SONAR_TOKEN", "mock_token")
+
+    class FakeResponse:
+        def __init__(self, data: dict):
+            self.data = json.dumps(data).encode("utf-8")
+
+        def read(self):
+            return self.data
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            pass
+
+    import urllib.request
+
+    def fake_urlopen(req):
+        url = req.full_url if hasattr(req, "full_url") else str(req)
+        if "project_status" in url:
+            return FakeResponse({
+                "projectStatus": {
+                    "status": "ERROR",
+                    "conditions": [{"status": "ERROR", "metricKey": "new_security_rating", "actualValue": "5", "errorThreshold": "1", "comparator": "GT"}],
+                }
+            })
+        return FakeResponse({"issues": [{"severity": "BLOCKER", "component": "src/foo.py", "line": 10, "message": "SQL Injection", "rule": "python:S3649"}]})
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    res = runner.invoke(cli.main, ["--output", "json", "quality", "sonar", "--project-key", "Bayly-AI_Test"])
+    assert res.exit_code == 1
+    data = json.loads(res.stdout)
+    assert data["state"] == "error"
+    assert data["data"]["status"] == "ERROR"
+    assert len(data["data"]["blocking_issues"]) == 1
+

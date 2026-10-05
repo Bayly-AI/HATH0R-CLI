@@ -226,27 +226,30 @@ class EndOfTaskBot:
                 or c.get("state") in ("PENDING", "EXPECTED")
             ]
 
-            # Separate non-bypassable code checks vs bypassable infra checks (SonarCloud missing secret)
-            code_failing = [name for name in failing if "sonar" not in str(name).lower()]
-
-            if code_failing:
-                # Hard code/lint failure — abort loop immediately
+            if failing:
+                # Hard CI/Quality Gate failure (SonarCloud, promotion path, tests) — abort immediately
+                sonar_failing = [name for name in failing if "sonar" in str(name).lower()]
+                error_msg = f"Hard CI/Quality Gate failure detected in checks: {failing}"
+                if sonar_failing:
+                    error_msg += f". SonarCloud Quality Gate failed ({sonar_failing}). Fix issues and re-run quality gates."
                 history.append(
                     {
                         "phase": "poll_checks",
-                        "error": f"Hard CI failure detected in checks: {code_failing}",
+                        "error": error_msg,
                         "failing": failing,
+                        "sonar_failing": sonar_failing,
                     }
                 )
                 return {
                     "success": False,
                     "phase": "poll_checks",
-                    "error": f"Checks failed on code validation: {code_failing}",
+                    "error": error_msg,
                     "pr_number": current_pr,
+                    "failing": failing,
                     "history": history,
                 }
 
-            # If all code checks finished and none are pending
+            # If all checks finished, none are pending, and none failed
             if len(pending) == 0 and len(rollup) > 0:
                 checks_passed = True
                 history.append(
@@ -254,7 +257,6 @@ class EndOfTaskBot:
                         "phase": "poll_checks",
                         "status": "passed",
                         "total_checks": len(rollup),
-                        "infra_bypassed": [f for f in failing if "sonar" in str(f).lower()],
                     }
                 )
                 break

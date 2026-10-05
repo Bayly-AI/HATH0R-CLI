@@ -44,6 +44,42 @@ def quality_check(ctx: click.Context, pr_number: int, repo: str | None, dry_run:
         ctx.exit(1)
 
 
+@quality.command("sonar")
+@click.option("--project-key", default=None, help="SonarCloud project key (defaults to sonar-project.properties).")
+@click.option("--organization", default="bayly-ai", help="SonarCloud organization key.")
+@click.pass_context
+def quality_sonar(ctx: click.Context, project_key: str | None, organization: str) -> None:
+    """Inspect real-time SonarCloud Quality Gate status and list blocking issues."""
+    from hath0r_cli.bots.quality import QualityGateBot
+
+    bot = QualityGateBot(cwd=Path.cwd())
+    res = bot.check_sonar(project_key=project_key, organization=organization)
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="quality.sonar", state=state, data=res)
+
+    def _text() -> None:
+        if res.get("success"):
+            click.echo(f"✓ {res.get('message')}")
+        else:
+            click.echo(f"✗ {res.get('message')}")
+            if res.get("failing_conditions"):
+                click.echo("\nFailing Quality Gate Conditions:")
+                for cond in res["failing_conditions"]:
+                    metric = cond.get("metricKey", "")
+                    actual = cond.get("actualValue", "")
+                    thresh = cond.get("errorThreshold", "")
+                    op = cond.get("comparator", "")
+                    click.echo(f"  - {metric}: actual {actual} (threshold {op} {thresh})")
+            if res.get("blocking_issues"):
+                click.echo(f"\nTop Unresolved Issues ({len(res['blocking_issues'])} total):")
+                for iss in res["blocking_issues"][:10]:
+                    click.echo(f"  [{iss.get('severity')}] {iss.get('component')}:{iss.get('line')} - {iss.get('message')} ({iss.get('rule')})")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
 @quality.command("repair")
 @click.option(
     "--input-file",

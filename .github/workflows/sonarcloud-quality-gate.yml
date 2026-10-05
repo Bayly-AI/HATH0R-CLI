@@ -1,8 +1,6 @@
 # PR Quality Gates — SonarCloud hard stop (canonical thresholds only)
-# Ticket: PR quality gates — SonarCloud hard stop
-# Policy: SonarCloud Quality Gate is the ONLY threshold source. Do NOT add
-# local coverage/rating minimums in sonar-project.properties that diverge
-# from the org SonarCloud Quality Gate. Failed gate = hard stop (merge blocked).
+# Policy: SonarCloud Quality Gate is the ONLY threshold source.
+# Failed gate = hard stop (merge blocked).
 name: SonarCloud Quality Gate
 
 "on":
@@ -26,7 +24,6 @@ jobs:
     name: SonarCloud Quality Gate
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Fail closed when token missing on PRs so gate is never silently skipped
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,7 +38,6 @@ jobs:
           if [ -z "${SONAR_TOKEN:-}" ]; then
             echo "::error::SONAR_TOKEN secret is not configured on this repository."
             echo "Add a SonarCloud token (secret SONAR_TOKEN) and optional vars.SONAR_ORGANIZATION."
-            echo "See docs/governance/playbooks/sonarcloud-quality-gate-playbook.md"
             exit 1
           fi
           echo "SONAR_TOKEN present (value not logged)."
@@ -57,7 +53,6 @@ jobs:
             ORG="bayly-ai"
             echo "::warning::vars.SONAR_ORGANIZATION unset; defaulting to '$ORG'. Override via repo/org Actions variable."
           fi
-          # Default projectKey matches common SonarCloud GitHub binding: <org>_<repo>
           REPO_NAME="${GITHUB_REPOSITORY##*/}"
           KEY="${ORG}_${REPO_NAME}"
           if [ -f sonar-project.properties ]; then

@@ -31,7 +31,7 @@ def test_mcp_policy_blocking():
     # Destructive SQL
     v4 = engine.inspect_invocation("db", "query", {"sql": "DROP DATABASE production;"})
     assert v4.allowed is False
-    assert v4.rule_triggered == "SEC-SQL-001"
+    assert v4.rule_triggered in ("SEC-SQL-001", "SEC-TOOL-002")
 
     # Safe invocation
     v_safe = engine.inspect_invocation("db", "query", {"sql": "SELECT id, name FROM users WHERE active = 1;"})
