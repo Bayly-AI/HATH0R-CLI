@@ -8,11 +8,35 @@ and aggregates evaluation metrics across suite products.
 from __future__ import annotations
 
 import urllib.error
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from ..telemetry import load_otel_config
+
+
+def _normalize_endpoint_url(candidate: str) -> str:
+    """Normalize endpoint candidate into a qualified URL."""
+    url = candidate
+    if not url.startswith(("http://", "https://")):
+        scheme = "http" if url.startswith(("localhost", "127.0.0.1")) else "https"
+        url = f"{scheme}://{url}"
+    if not url.endswith("/") and not any(url.endswith(ext) for ext in [".ico", ".json", "/traces", "/metrics"]):
+        url = f"{url}/"
+    return url
+
+
+def _probe_endpoint(url: str) -> Tuple[bool, Optional[int], Optional[str]]:
+    """Probe endpoint returning (healthy, status_code, error_message)."""
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "hath0r-cli/observer-bot"})
+        with urllib.request.urlopen(req, timeout=2.0) as resp:
+            if resp.status == 200:
+                return True, resp.status, None
+            return False, resp.status, None
+    except Exception as exc:
+        return False, None, str(exc)
 
 
 @dataclass
@@ -21,53 +45,47 @@ class PhoenixObserverBot:
 
     custom_endpoint: Optional[str] = None
 
+    def _collect_candidates(self, otlp_endpoint: Optional[str]) -> List[str]:
+        candidates: List[str] = []
+        if self.custom_endpoint:
+            candidates.append(self.custom_endpoint)
+        if otlp_endpoint:
+            candidates.append(otlp_endpoint)
+        candidates.extend(
+            [
+                "http://127.0.0.1:58000/phoenix/",
+                "http://127.0.0.1/phoenix/",
+                "http://127.0.0.1:6006/",
+            ]
+        )
+        return candidates
+
     def check_health(self) -> Dict[str, Any]:
         """Check availability of Arize Phoenix collector and UI endpoints."""
         cfg = load_otel_config()
-        candidates = []
-        if self.custom_endpoint:
-            candidates.append(self.custom_endpoint)
-        if cfg.otlp_endpoint:
-            candidates.append(cfg.otlp_endpoint)
+        candidates = self._collect_candidates(cfg.otlp_endpoint)
 
-        # Canonical Edge & direct candidates
-        candidates.extend(
-            [
-                "http://localhost:58000/phoenix/",
-                "http://localhost/phoenix/",
-                "http://localhost:6006/",
-            ]
-        )
-
+        default_target = _normalize_endpoint_url(candidates[0]) if candidates else "http://127.0.0.1:58000/phoenix/"
         status: Dict[str, Any] = {
             "service": cfg.service_name,
             "environment": cfg.deployment_environment,
-            "target_url": candidates[0] if candidates else "http://localhost:58000/phoenix/",
+            "target_url": default_target,
             "healthy": False,
             "http_status": None,
             "error": None,
         }
 
         for candidate in candidates:
-            url = candidate
-            if not url.startswith(("http://", "https://")):
-                url = f"http://{url}" if url.startswith(("localhost", "127.0.0.1")) else f"https://{url}"
-            # Ensure trailing slash for root / UI routes
-            if not url.endswith("/") and not any(url.endswith(ext) for ext in [".ico", ".json", "/traces", "/metrics"]):
-                url = f"{url}/"
-
-            try:
-                req = urllib.request.Request(url, headers={"User-Agent": "hath0r-cli/observer-bot"})
-                with urllib.request.urlopen(req, timeout=2.0) as resp:
-                    if resp.status == 200:
-                        status["target_url"] = url
-                        status["http_status"] = resp.status
-                        status["healthy"] = True
-                        status["error"] = None
-                        return status
-            except Exception as exc:
-                if status["error"] is None:
-                    status["error"] = str(exc)
+            url = _normalize_endpoint_url(candidate)
+            healthy, code, err = _probe_endpoint(url)
+            if healthy:
+                status["target_url"] = url
+                status["http_status"] = code
+                status["healthy"] = True
+                status["error"] = None
+                return status
+            if status["error"] is None and err:
+                status["error"] = err
 
         return status
 
