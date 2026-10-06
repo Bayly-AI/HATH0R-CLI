@@ -55,6 +55,8 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "churn": ("hath0r_cli.commands.churn", "churn"),
     "pmat": ("hath0r_cli.commands.pmat", "pmat_cmd"),
     "mesh": ("hath0r_cli.commands.mesh", "mesh_cmd"),
+    "agent": ("hath0r_cli.commands.agent", "agent_cmd"),
+    "evals": ("hath0r_cli.commands.evals", "evals_cmd"),
 }
 
 

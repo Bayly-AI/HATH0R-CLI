@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional, cast
 
 from hath0r_cli.cccd.dspy_bridge import DSPyCompilerBridge
 from hath0r_cli.cccd.taguchi_optimizer import TaguchiLossOptimizer
+from hath0r_cli.cccd.l2ws_predictor import l2ws_predictor
 
 
 @dataclass
@@ -62,6 +63,11 @@ class CCCDCalibrationLoop:
     ) -> Dict[str, Any]:
         """Execute on-demand continuous calibration against dataset using Taguchi OATS and DSPy compiler."""
         state = self.load_state()
+
+        # Load Princeton L2WS Warm-Start parameters
+        warmstart = l2ws_predictor.predict_warmstart(signature_name)
+        if warmstart.get("warmstart_parameters"):
+            state["current_parameters"].update(warmstart["warmstart_parameters"])
 
         sample_dataset = dataset or [
             {"input": "Search codebase for vector index", "expected_output": "kb_index.py"},
@@ -126,6 +132,7 @@ class CCCDCalibrationLoop:
         }
         state["history"].append(calibration_entry)
         self.save_state(state)
+        l2ws_predictor.save_warmstart(signature_name, optimal_params, taguchi_res["mean_quality_loss"])
 
         return {
             "success": True,

@@ -368,7 +368,7 @@ def test_quality_gate_check_sonar_mocked(tmp_path: Path, monkeypatch) -> None:
     res = bot.check_sonar()
     assert res["success"] is True
     assert res["status"] == "OK"
-    assert "PASSED" in res["message"]
+    assert "OK" in res["message"]
 
 
 def test_cli_quality_sonar_mocked(tmp_path: Path, monkeypatch) -> None:

@@ -225,3 +225,31 @@ def context_compress(
         console.print(res.get("compressed_text", ""))
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
+@context.command("pack")
+@click.option("--cag", is_flag=True, default=True, help="Pack full workspace context for Context-Augmented Generation.")
+@click.option("--path", "-p", default=".", help="Workspace root path.")
+@click.pass_context
+def context_pack(ctx: click.Context, cag: bool, path: str) -> None:
+    """Aggregate full workspace source files, AGENTS.md, and AgentGraph into a CAG context envelope."""
+    from hath0r_cli.bots.cag_engine import cag_engine
+    from pathlib import Path
+    res = cag_engine.pack_context(Path(path))
+
+    response = _build_response(
+        ctx,
+        command="context.pack",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        console.print("\n[bold green]✓ Context-Augmented Generation (CAG) Envelope Packed[/bold green]")
+        console.print(f"Workspace: [bold cyan]{res['workspace_name']}[/bold cyan]")
+        console.print(f"Total Files Packed: [bold white]{res['total_files']}[/bold white]")
+        console.print(f"Estimated Tokens: [bold white]{res['estimated_tokens']}[/bold white]")
+        console.print(f"Prompt Caching: [bold green]Ephemeral Anchored ({res['prompt_caching']['provider']})[/bold green]")
+        console.print(f"KV Pre-Warm Hash: [bold yellow]{res['context_hash']}[/bold yellow]")
+
+    _emit_response(ctx, response, text_renderer=_text)

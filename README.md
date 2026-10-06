@@ -30,16 +30,31 @@ HATH0R CLI is the globally installed operator interface, runtime execution gatew
 
 ---
 
-## 🌟 Feature Overview
+- 🤖 **Agentic Substrate & KV Pre-Warming (`hath0r agent`):** Execute zero-token KV pre-warming gates, run topological multi-agent DAG execution trees, and serialize state via HAHP envelopes.
+- 🕸️ **W3C OWL Reasoning & SPARQL Engine (`hath0r agentgraph`, `hath0r kb sparql`):** Export policy graphs to W3C Turtle RDF (`.ttl`), perform Description Logic OWL reasoner conflict validation, and query ontologies via SPARQL.
+- ⚡ **Context-Augmented Generation & Smart Router (`hath0r context`, `hath0r kb smart-query`):** Full-context workspace prompt caching (CAG) for 100% recall and dynamic hybrid routing between CAG and RAG.
+- 🛡️ **FinOps Token Tree Circuit Breaker (`hath0r finops budget`):** Enforce tree-level token ($0.25 / 50k token) budget caps on subagent recursion loops.
+- 🎯 **Adversarial Evals & Antagonistic Review (`hath0r evals`, `hath0r pr review`):** Multi-agent consensus evaluator gates, Red-Team vs Blue-Team stress testing, and adversarial diff review with automated tech debt extraction.
 
-- 🚀 **Universal Repository Onboarding (`hath0r init`):** Turn ANY repository (Python, Node/TypeScript, Go, Rust, polyglot) into a compliant Hath0r-enabled project.
-- 📐 **Taguchi Robust Parameter Optimization (`hath0r optimize taguchi`):** Generate orthogonal array design matrices ($L_4, L_8, L_9, L_{12}, L_{18}$), calculate Signal-to-Noise Ratios, and quantify quality loss ($L(y) = k(y-m)^2$).
-- 💰 **Multilingual FinOps Tokenizer Tax Auditor (`hath0r finops tokenizer-tax`):** Audit subword token inflation across 14 Unicode script families, compute serving VRAM overhead ($P_{vocab} = 2 \cdot V \cdot d_{model}$), and benchmark continuous patch budgets.
-- 👁️ **Pixel-Native 2D Document Understanding (`hath0r vision parse-doc`):** Parse complex layouts, spreadsheets, balance sheets, and technical diagrams directly from visual patches without OCR licensing.
-- 🎭 **DOM-Independent Playwright Grounding (`hath0r vision ground --playwright`):** Locate interactive UI controls by visual appearance and generate Playwright-compliant automation steps.
-- 🛡️ **Zero-Trust Tool Execution (JEV Guard):** Cryptographically mediates mutating agent actions against security policies before execution.
-- 🧠 **Tri-Graph Cognitive Substrate:** Native integration with KnowledgeGraph (code lineage), ContextGraph (agent topologies), and MemoryGraph (temporal entities).
-- 🎙️ **Streaming Voice Interface & Daemon:** Low-latency conversational agents with Kokoro-82M sub-50ms synthesis and background daemon execution.
+---
+
+## 🌐 Ecosystem Synergy: Hath0r CLI & Hath0r MCP Server
+
+`HATH0R-CLI` and **`Hath0r-MCP`** (`Ray-MCP`) are engineered as a paired, high-performance agentic cognitive suite. While `HATH0R-CLI` acts as the command-line control plane and local developer gateway, `Hath0r-MCP` exposes Model Context Protocol semantic search tools, session memory management, and external knowledge ingestion endpoints.
+
+### Flexible MCP Hosting Models
+
+Users and enterprise operators can deploy `Hath0r-MCP` in two supported modes:
+
+1. **Enterprise AWS-Hosted Edge Endpoint (Managed)**:
+   - Connect directly to the production AWS CloudFront edge deployment (`pad.raybayly.net`).
+   - Zero infrastructure setup required; ideal for desktop IDE integration (VS Code, Cursor, Antigravity) and remote agent tools.
+   - Command: `hath0r mcp check --endpoint https://pad.raybayly.net/mcp/`
+
+2. **Self-Hosted Local / Private Cloud (Autonomous)**:
+   - Host your own isolated MCP server by cloning the [`somesayray/Ray-AI`](https://github.com/somesayray/Ray-AI) repository.
+   - Run locally inside the `Ray-MCP` container group on Docker network `ray-net` (port `28083`).
+   - Command: `hath0r docker up` or `docker compose up -d Ray-MCP`
 
 ---
 
@@ -53,27 +68,49 @@ hath0r --version
 hath0r doctor
 ```
 
-### 1. Optimize Agent Parameters with Taguchi Design of Experiments
+### 1. Execute Princeton KV Cache Pre-Warming & Multi-Agent DAG Execution
 ```sh
-# Generate L9 orthogonal array and calculate Signal-to-Noise Ratio (SNR)
-hath0r optimize taguchi --array L9 -f temperature -f top_p -f retrieval_k \
-  --snr 120.5,118.2,125.0 --criterion smaller
+# Pre-warm prompt cache anchors to eliminate prefill latency spikes
+hath0r agent prewarm --model claude-3-7-sonnet
+
+# Execute topological multi-agent execution tree
+hath0r agent dag --plan workflow_dag.json
 ```
 
-### 2. Audit Tokenizer Tax and Serving VRAM Overhead
+### 2. Export W3C Turtle RDF Ontology & Run Description Logic Reasoning
 ```sh
-# Audit token inflation and VRAM cost for multilingual enterprise queries
-hath0r finops tokenizer-tax "Enterprise audit across English and العربية" --vocab-size 256000
+# Export AgentGraph topology to W3C Turtle syntax
+hath0r agentgraph export --format turtle
+
+# Validate policy graph using Description Logic OWL reasoner
+hath0r agentgraph validate --owl
+
+# Execute SPARQL graph query over AgentGraph ontology
+hath0r kb sparql "SELECT ?s ?label WHERE { ?s rdfs:label ?label }"
 ```
 
-### 3. Parse Financial & Architecture Documents Without OCR
+### 3. Pack Context-Augmented Generation (CAG) & Route Queries Dynamically
 ```sh
-hath0r vision parse-doc docs/invoices/q3_balance_sheet.png --pixel-native
+# Pack 100% full-context workspace files into prompt-cached CAG envelope
+hath0r context pack --cag
+
+# Route query dynamically between CAG (workspace) and RAG (documents)
+hath0r kb smart-query "What rules govern CLI commands?"
 ```
 
-### 4. Locate UI Elements & Emit Playwright Action Steps
+### 4. Enforce Token Budget Circuit Breakers & Adversarial Evals
 ```sh
-hath0r vision ground screenshot.png --target "Approve Purchase Order" --playwright --action click
+# Inspect subagent tree token & USD budget consumption
+hath0r finops budget check --tree-id default_tree
+
+# Evaluate multi-agent consensus gate across peer node outputs
+hath0r evals consensus --threshold 0.70
+
+# Run Antagonistic adversarial code review on git diffs
+hath0r pr review --antagonistic
+
+# Execute Red-Team vs Blue-Team adversarial stress testing
+hath0r evals redteam --component agent_subsystem
 ```
 
 ---
@@ -84,6 +121,13 @@ hath0r vision ground screenshot.png --target "Approve Purchase Order" --playwrig
 |---|---|
 | `hath0r init` | Autonomous onboarding & alignment of any repository (Python, Node, Go, Rust) |
 | `hath0r doctor` | Verify control tower, group root/AGENTS/WARP, member pointers, and KB hub |
+| `hath0r agent prewarm\|dag\|hahp\|status` | Subagent KV pre-warming, topological DAG runner, and HAHP handoff serialization |
+| `hath0r agentgraph export\|validate` | W3C Turtle RDF (`.ttl`) exporter and Description Logic OWL reasoner policy validator |
+| `hath0r kb sparql\|smart-query` | W3C SPARQL graph query engine and Hybrid CAG + RAG knowledge query router |
+| `hath0r context pack --cag` | Pack full-context workspace files into prompt-cached CAG context envelopes |
+| `hath0r finops budget check` | Subagent execution tree token & USD budget inspection and circuit breaker gate |
+| `hath0r evals consensus\|redteam` | Multi-agent GAIN mesh consensus evaluator gate and Red-Team adversarial stress tester |
+| `hath0r pr review --antagonistic` | Antagonistic diff review for swallowed exceptions & auto-created tech debt issues |
 | `hath0r optimize taguchi` | Generate orthogonal design matrices ($L_4..L_{18}$), calculate SNR and quadratic quality loss |
 | `hath0r finops tokenizer-tax` | Audit Unicode script token inflation, serving VRAM parameters, and ViT patch economics |
 | `hath0r vision parse-doc` | Parse structured layouts, diagrams, tables; supports `--pixel-native` continuous patch mode |

@@ -426,6 +426,58 @@ _ADR003_PLANES = [
     },
 ]
 
+@kb.command("sparql")
+@click.argument("query_str")
+@click.pass_context
+def kb_sparql(ctx: click.Context, query_str: str) -> None:
+    """Execute W3C SPARQL graph query over AgentGraph OWL ontology."""
+    from hath0r_cli.bots.sparql_engine import sparql_engine
+    res = sparql_engine.query(query_str)
+
+    response = _build_response(
+        ctx,
+        command="kb.sparql",
+        state="ok" if res.get("status") == "success" else "error",
+        data=res,
+    )
+
+    def _text() -> None:
+        if res.get("status") == "success":
+            if res.get("query_type") == "ASK":
+                click.echo(f"SPARQL ASK Result: {res.get('boolean_result')}")
+            else:
+                click.echo(f"\nSPARQL Query Results ({res.get('result_count')} matches):")
+                for r in res.get("results", []):
+                    click.echo(f"  • {r}")
+        else:
+            click.echo(f"SPARQL Error: {res.get('message')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@kb.command("smart-query")
+@click.argument("query_text")
+@click.pass_context
+def kb_smart_query(ctx: click.Context, query_text: str) -> None:
+    """Hybrid CAG + RAG Knowledge Query Router."""
+    from hath0r_cli.bots.cag_rag_router import cag_rag_router
+    res = cag_rag_router.route_query(query_text)
+
+    response = _build_response(
+        ctx,
+        command="kb.smart-query",
+        state="ok",
+        data=res,
+    )
+
+    def _text() -> None:
+        click.echo(f"\n[Hybrid Router Decision]: {res['route']} ({res['engine']})")
+        click.echo(f"Query: '{query_text}'")
+        click.echo(f"Recall Rate: {res['recall_rate']} | Cached: {res.get('prompt_cached')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
 _SHIPPED_COMMANDS = [
     {
         "name": "version",

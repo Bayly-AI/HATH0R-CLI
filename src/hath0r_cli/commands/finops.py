@@ -343,3 +343,30 @@ def finops_tokens_check(
         console.print(data.get("markdown_report", ""))
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
+@finops.group("budget")
+def finops_budget() -> None:
+    """Subagent token and USD tree budget circuit breaker commands."""
+    pass
+
+
+@finops_budget.command("check")
+@click.option("--tree-id", default="default_tree", help="Subagent tree identifier.")
+@click.pass_context
+def finops_budget_check(ctx: click.Context, tree_id: str) -> None:
+    """Inspect token and cost budget consumption for subagent execution trees."""
+    from hath0r_cli.bots.token_tree_budget import token_tree_budget_guard
+    res = token_tree_budget_guard.check_budget(tree_id)
+
+    response = _build_response(ctx, command="finops.budget.check", state="ok", data=res)
+
+    def _text() -> None:
+        console.print(f"\n[bold cyan]FinOps Subagent Tree Budget Status ({tree_id})[/bold cyan]")
+        console.print(f"Status: [bold green]{res['status']}[/bold green]")
+        console.print(f"Tokens Used: [bold white]{res['total_tokens']}[/bold white] / {res['max_tokens_budget']} cap")
+        console.print(f"USD Used: [bold white]${res['estimated_usd']:.4f}[/bold white] / ${res['max_usd_budget']:.2f} cap")
+        console.print(f"Remaining Tokens: [bold green]{res['remaining_tokens']}[/bold green]")
+        console.print(f"Remaining USD: [bold green]${res['remaining_usd']:.4f}[/bold green]\n")
+
+    _emit_response(ctx, response, text_renderer=_text)

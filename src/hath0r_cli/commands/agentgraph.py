@@ -160,11 +160,19 @@ def agentgraph_query(
 @agentgraph.command("validate")
 @click.option("--path", "-p", default=".", help="Repository root path.")
 @click.option("--strict", is_flag=True, default=False, help="Fail if any warnings or unlinked references exist.")
+@click.option("--owl", is_flag=True, default=False, help="Execute Description Logic OWL reasoner consistency checks.")
 @click.pass_context
-def agentgraph_validate(ctx: click.Context, path: str, strict: bool) -> None:
+def agentgraph_validate(ctx: click.Context, path: str, strict: bool, owl: bool) -> None:
     """Perform deterministic rule constraint, cycle, and contradiction validation."""
     bot = AgentGraphBot()
     res = bot.validate(path=path, strict=strict)
+
+    if owl:
+        from hath0r_cli.bots.agentgraph_owl import agentgraph_owl_reasoner
+        owl_res = agentgraph_owl_reasoner.validate_ontology_consistency()
+        res["owl_reasoner"] = owl_res
+        res["validation"]["valid"] = res["validation"]["valid"] and owl_res["is_valid"]
+
     is_valid = res["validation"]["valid"]
 
     response = _build_response(
@@ -181,6 +189,8 @@ def agentgraph_validate(ctx: click.Context, path: str, strict: bool) -> None:
                 f"\n[bold green]✓ AgentGraph Validation PASSED[/bold green] "
                 f"({v['nodes_validated']} nodes, {v['edges_validated']} edges checked)"
             )
+            if owl:
+                console.print("  • [bold cyan]Description Logic OWL Reasoner:[/bold cyan] Consistency Verified (0 contradictions).")
             console.print("  • Zero cyclic dependencies detected.")
             console.print("  • Zero role/rule contradictions found.")
             if v.get("warnings"):
@@ -192,6 +202,9 @@ def agentgraph_validate(ctx: click.Context, path: str, strict: bool) -> None:
             console.print(f"\n[bold red]✗ AgentGraph Validation FAILED[/bold red] ({len(v['errors'])} errors detected)")
             for err in v["errors"]:
                 console.print(f"  [red]• {err}[/red]")
+            if owl and "owl_reasoner" in res and res["owl_reasoner"].get("conflicts"):
+                for c in res["owl_reasoner"]["conflicts"]:
+                    console.print(f"  [bold red]• OWL Contradiction:[/bold red] {c['message']}")
             console.print("")
 
     _emit_response(ctx, response, text_renderer=_text)
@@ -206,6 +219,11 @@ def agentgraph_sync(ctx: click.Context, path: str, persist: bool, dry_run: bool)
     """Ingest local repository rules, docs, and contracts into the AgentGraph."""
     bot = AgentGraphBot()
     res = bot.sync(path=path, persist=persist, dry_run=dry_run)
+
+    if persist and not dry_run:
+        from hath0r_cli.bots.agentgraph_owl import agentgraph_owl_exporter
+        ttl_path = agentgraph_owl_exporter.sync_to_file()
+        res["snapshot_ttl_file"] = str(ttl_path)
 
     response = _build_response(
         ctx,
@@ -222,8 +240,37 @@ def agentgraph_sync(ctx: click.Context, path: str, persist: bool, dry_run: bool)
         console.print(f"  • Indexed nodes: [bold]{s['nodes_indexed']}[/bold]")
         console.print(f"  • Ingested relational edges: [bold]{s['edges_indexed']}[/bold]")
         if res.get("snapshot_file"):
-            console.print(f"  • Snapshot saved: [cyan]{res['snapshot_file']}[/cyan]")
+            console.print(f"  • Snapshot JSON saved: [cyan]{res['snapshot_file']}[/cyan]")
+        if res.get("snapshot_ttl_file"):
+            console.print(f"  • Snapshot OWL/RDF Turtle saved: [magenta]{res['snapshot_ttl_file']}[/magenta]")
         console.print("")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@agentgraph.command("export")
+@click.option("--format", "-f", "fmt", type=click.Choice(["turtle", "owl-xml", "json"]), default="turtle", help="Export format.")
+@click.pass_context
+def agentgraph_export(ctx: click.Context, fmt: str) -> None:
+    """Export AgentGraph topology to W3C-compliant OWL/RDF Turtle or JSON."""
+    from hath0r_cli.bots.agentgraph_owl import agentgraph_owl_exporter
+
+    if fmt == "json":
+        bot = AgentGraphBot()
+        data = bot.get_status().get("status", {})
+        content = json.dumps(data, indent=2)
+    else:
+        content = agentgraph_owl_exporter.export_ttl(output_format=fmt)
+
+    response = _build_response(
+        ctx,
+        command="agentgraph.export",
+        state="ok",
+        data={"format": fmt, "content": content},
+    )
+
+    def _text() -> None:
+        click.echo(content)
 
     _emit_response(ctx, response, text_renderer=_text)
 
