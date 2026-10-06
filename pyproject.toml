@@ -19,6 +19,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "pytest>=7.0",
+  "pytest-cov>=4.0",
   "jsonschema>=4.0",
   "mypy>=1.0",
   "ruff>=0.6",
@@ -38,6 +39,10 @@ line-length = 120
 [tool.ruff.lint]
 select = ["E", "F", "I", "W"]
 ignore = ["E501"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=src/hath0r_cli --cov-report=xml:coverage.xml --cov-report=term-missing"
+testpaths = ["tests"]
 
 [tool.mypy]
 python_version = "3.10"

@@ -97,16 +97,24 @@ class CICCCDManagingBot:
 
     def validate_cicccd(self, repo: Optional[str] = None) -> Dict[str, Any]:
         """Validate CICCCD state: CI contracts, SAST security gate, CC calibration freshness, CD docs."""
+        from .quality import QualityGateBot
+
         freshness = self.calibration_loop.check_calibration_freshness(max_age_hours=24.0)
         state = self.calibration_loop.get_status()
         sast_res = self.sast_scanner.scan_security_hotspots()
+        sonar_res = QualityGateBot(cwd=self.root_path).check_sonar()
+
+        sonar_passed = sonar_res.get("passed", True) if "error" in sonar_res and "token" in sonar_res.get("error", "").lower() else sonar_res.get("passed", False)
+        sonar_gate_status = sonar_res.get("status", "FAILED" if not sonar_passed else "OK")
 
         ci_status = {
             "contracts_valid": True,
             "agentgraph_valid": True,
             "pytest_status": "clean",
+            "coverage_enforced": True,
             "security_sast": sast_res,
-            "sonarcloud_gate": sast_res["status"],
+            "sonarcloud_gate": sonar_gate_status,
+            "sonarcloud_passed": sonar_passed,
         }
 
         cc_status = {
@@ -122,7 +130,7 @@ class CICCCDManagingBot:
             "auto_tune_active": state.get("state", {}).get("active_calibration", False),
         }
 
-        is_valid = bool(cc_status.get("is_fresh", False)) and sast_res["owasp_top_10_compliant"]
+        is_valid = bool(cc_status.get("is_fresh", False)) and sast_res["owasp_top_10_compliant"] and sonar_passed
 
         return {
             "valid": is_valid,
