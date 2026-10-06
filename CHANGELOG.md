@@ -7,7 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [Unreleased]
+## [1.0.0] - 2026-10-06
+
+### Added
+- **Phase 1: Agentic Substrate & KV Pre-warming (`hath0r agent`)**:
+  - Princeton zero-token prompt anchor KV cache pre-warming (`KVCachePrewarmer` / `hath0r agent prewarm`).
+  - Princeton L2WS parameter predictor for CCCD warm-starts (`L2WSPredictor` / `hath0r cccd calibrate`).
+  - Topological multi-agent execution runner (`AgentDAGRunner` / `hath0r agent dag`).
+  - Hath0r Agent Handoff Protocol (`HAHPEnvelope` / `hath0r agent hahp`).
+
+- **Phase 2: Knowledge Graph, CAG & Semantic Router (`hath0r agentgraph`, `hath0r kb`, `hath0r context`)**:
+  - W3C Turtle RDF exporter (`.ttl`) and Description Logic OWL reasoner (`AgentGraphOWLReasoner` / `hath0r agentgraph validate --owl`).
+  - W3C SPARQL graph query engine (`hath0r kb sparql`).
+  - Context-Augmented Generation context packager (`CAGEngine` / `hath0r context pack --cag`).
+  - Hybrid CAG + RAG knowledge query router (`HybridCAGRAGRouter` / `hath0r kb smart-query`).
+
+- **Phase 3: Swarm, Verifiers & FinOps Budget (`hath0r finops budget`, `hath0r evals`, `hath0r pr review`)**:
+  - FinOps Token Tree Budget Guard & Circuit Breaker (`TokenTreeBudgetGuard` / `hath0r finops budget check`).
+  - Multi-Agent GAIN Mesh Consensus Gate (`MultiAgentConsensusEngine` / `hath0r evals consensus`).
+  - Antagonistic diff review bot & Rule CR-CLI-TECH-DEBT-001 auto-issue creator (`AntagonisticReviewBot` / `hath0r pr review --antagonistic`).
+  - Dual-agent Red-Team vs Blue-Team adversarial stress testing (`MultiAgentRedTeamEngine` / `hath0r evals redteam`).
+
 
 ### Added
 
