@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-import json
 import time
-from typing import Any, Dict, List, Optional
 from collections import defaultdict, deque
+from typing import Any, Dict, List, Tuple
 
+from .hahp_protocol import HAHPEnvelope, hahp_manager
 from .kv_prewarmer import kv_prewarmer
-from .hahp_protocol import hahp_manager, HAHPEnvelope
 
 
 class AgentDAGRunner:
@@ -86,7 +85,7 @@ class AgentDAGRunner:
             for node_id in current_batch:
                 node = nodes[node_id]
                 execution_order.append(node_id)
-                
+
                 # Gather inputs from dependencies
                 dep_outputs = {dep: node_outputs[dep] for dep in node.get("depends_on", []) if dep in node_outputs}
 

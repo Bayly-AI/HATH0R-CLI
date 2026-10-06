@@ -3,13 +3,10 @@
 from __future__ import annotations
 
 import json
-import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
-import rdflib
-from rdflib import Graph, Literal, Namespace, RDF, RDFS, OWL, URIRef
-from rdflib.namespace import XSD
+from rdflib import OWL, RDF, RDFS, Graph, Literal, Namespace, URIRef
 
 HATH0R_NS = Namespace("http://hath0r.dev/ontology/v1#")
 
@@ -117,7 +114,7 @@ class AgentGraphOWLReasoner:
     def validate_ontology_consistency(self) -> Dict[str, Any]:
         """Execute automated Description Logic reasoning checks against active AgentGraph ontology."""
         g = self.exporter.build_rdf_graph()
-        
+
         conflicts = []
         warnings = []
 

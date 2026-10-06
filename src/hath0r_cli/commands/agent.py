@@ -3,16 +3,15 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+
 import click
-from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from hath0r_cli.common import _build_response, _emit_response, console
-from hath0r_cli.bots.kv_prewarmer import kv_prewarmer
-from hath0r_cli.bots.hahp_protocol import hahp_manager
 from hath0r_cli.bots.agent_dag_runner import agent_dag_runner
+from hath0r_cli.bots.hahp_protocol import hahp_manager
+from hath0r_cli.bots.kv_prewarmer import kv_prewarmer
+from hath0r_cli.common import _build_response, _emit_response, console
 
 
 @click.group("agent", help="Hath0r Agentic Subsystem, KV Pre-Warming, HAHP, and DAG Orchestration.")
@@ -30,7 +29,7 @@ def agent_cmd(ctx: click.Context) -> None:
 def agent_prewarm(ctx: click.Context, prompt: str) -> None:
     """Prewarm KV cache for shared subagent context."""
     res = kv_prewarmer.prewarm_context(shared_prompt=prompt, system_prompt="hath0r_canonical_agent")
-    
+
     response = _build_response(
         ctx,
         command="agent prewarm",

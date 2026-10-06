@@ -31,7 +31,9 @@ class VoiceAudioRecorder: NSObject, AVAudioRecorderDelegate {
             recorder?.isMeteringEnabled = true
             recorder?.record(forDuration: maxDuration)
         } catch {
-            FileHandle.standardError.write("Audio recorder init error: \(error)\n".data(using: .utf8)!)
+            if let errData = "Audio recorder init error: \(error)\n".data(using: .utf8) {
+                FileHandle.standardError.write(errData)
+            }
             return
         }
 
@@ -71,23 +73,35 @@ class VoiceAudioRecorder: NSObject, AVAudioRecorderDelegate {
         if let rec = recorder, rec.isRecording {
             rec.stop()
         }
-        FileHandle.standardOutput.write("RECORD_COMPLETE:\(outputFile.path)\n".data(using: .utf8)!)
+        if let outData = "RECORD_COMPLETE:\(outputFile.path)\n".data(using: .utf8) {
+            FileHandle.standardOutput.write(outData)
+        }
     }
 }
 
 let args = CommandLine.arguments
 var duration: TimeInterval = 7.0
-var outPath = "/tmp/hath0r_voice_input.m4a"
+
+let tempDir = FileManager.default.temporaryDirectory
+var fileURL = tempDir.appendingPathComponent("hath0r_voice_input_\(UUID().uuidString).m4a")
 
 if args.count > 1, let d = Double(args[1]) {
     duration = d
 }
 if args.count > 2 {
-    outPath = args[2]
+    let customPath = args[2]
+    fileURL = URL(fileURLWithPath: customPath)
 }
 
-let fileURL = URL(fileURLWithPath: outPath)
-try? FileManager.default.removeItem(at: fileURL)
+if FileManager.default.fileExists(atPath: fileURL.path) {
+    do {
+        try FileManager.default.removeItem(at: fileURL)
+    } catch {
+        if let errData = "Warning: Could not remove existing file at \(fileURL.path): \(error)\n".data(using: .utf8) {
+            FileHandle.standardError.write(errData)
+        }
+    }
+}
 
 let voiceRecorder = VoiceAudioRecorder(outputFile: fileURL, maxDuration: duration)
 voiceRecorder.record()

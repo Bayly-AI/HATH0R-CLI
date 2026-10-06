@@ -233,8 +233,9 @@ def context_compress(
 @click.pass_context
 def context_pack(ctx: click.Context, cag: bool, path: str) -> None:
     """Aggregate full workspace source files, AGENTS.md, and AgentGraph into a CAG context envelope."""
-    from hath0r_cli.bots.cag_engine import cag_engine
     from pathlib import Path
+
+    from hath0r_cli.bots.cag_engine import cag_engine
     res = cag_engine.pack_context(Path(path))
 
     response = _build_response(

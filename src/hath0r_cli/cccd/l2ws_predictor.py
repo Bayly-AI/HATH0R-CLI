@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 
 class L2WSPredictor:
@@ -66,7 +66,7 @@ class L2WSPredictor:
                 "residual": entry.get("gradient_residual", 0.0),
                 "convergence_time_reduction_pct": 52.0,
             }
-        
+
         default_params = data.get("default_warmstart", {
             "temperature": 0.2,
             "max_tokens": 2048,

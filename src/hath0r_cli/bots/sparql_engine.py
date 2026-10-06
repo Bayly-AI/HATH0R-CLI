@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
+
 from .agentgraph_owl import agentgraph_owl_exporter
 
 
@@ -29,7 +29,7 @@ class SPARQLEngine:
                         "query_type": "ASK",
                         "boolean_result": row,
                     }
-                
+
                 row_dict = {}
                 if vars_list:
                     for v in vars_list:

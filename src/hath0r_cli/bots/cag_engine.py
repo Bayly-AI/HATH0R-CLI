@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import os
-import json
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
+
 from .kv_prewarmer import kv_prewarmer
 
 

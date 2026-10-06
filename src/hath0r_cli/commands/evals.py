@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import click
-from hath0r_cli.common import _build_response, _emit_response, console
+
 from hath0r_cli.bots.multiagent_consensus import multiagent_consensus_engine
 from hath0r_cli.bots.redteam_engine import multiagent_redteam_engine
+from hath0r_cli.common import _build_response, _emit_response, console
 
 
 @click.group("evals")
@@ -30,7 +31,7 @@ def evals_consensus(ctx: click.Context, threshold: float) -> None:
     response = _build_response(ctx, command="evals.consensus", state="ok", data=res)
 
     def _text() -> None:
-        console.print(f"\n[bold cyan]Multi-Agent Consensus Evaluation Gate[/bold cyan]")
+        console.print("\n[bold cyan]Multi-Agent Consensus Evaluation Gate[/bold cyan]")
         console.print(f"Consensus Score: [bold green]{res['consensus_score']}[/bold green] (Threshold: {threshold})")
         console.print(f"Evaluator Gate: {'[bold green]PASSED[/bold green]' if res['passed_gate'] else '[bold red]FAILED[/bold red]'}")
         console.print(f"Agreed Agents: {res['agreed_agent_count']} / {res['total_agents']}")
@@ -50,7 +51,7 @@ def evals_redteam(ctx: click.Context, component: str) -> None:
     response = _build_response(ctx, command="evals.redteam", state="ok", data=res)
 
     def _text() -> None:
-        console.print(f"\n[bold green]✓ Multi-Agent Red-Team Adversarial Verification Completed[/bold green]")
+        console.print("\n[bold green]✓ Multi-Agent Red-Team Adversarial Verification Completed[/bold green]")
         console.print(f"Target Component: [bold cyan]{res['component_under_test']}[/bold cyan]")
         console.print(f"Survival Gate: [bold green]{res['survival_gate']}[/bold green]")
         console.print(f"Attack Vectors Survived: [bold white]{res['attack_vectors_count']}[/bold white]")

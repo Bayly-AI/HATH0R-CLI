@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import click
+
 from hath0r_cli.common import (
     _build_response,
     _emit_response,

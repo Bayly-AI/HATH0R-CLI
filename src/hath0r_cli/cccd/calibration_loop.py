@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, cast
 
 from hath0r_cli.cccd.dspy_bridge import DSPyCompilerBridge
-from hath0r_cli.cccd.taguchi_optimizer import TaguchiLossOptimizer
 from hath0r_cli.cccd.l2ws_predictor import l2ws_predictor
+from hath0r_cli.cccd.taguchi_optimizer import TaguchiLossOptimizer
 
 
 @dataclass
