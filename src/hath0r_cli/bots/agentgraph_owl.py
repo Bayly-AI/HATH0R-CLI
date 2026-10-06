@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 
 from rdflib import OWL, RDF, RDFS, Graph, Literal, Namespace, URIRef
 
-HATH0R_NS = Namespace("http://hath0r.dev/ontology/v1#")
+HATH0R_NS = Namespace("https://hath0r.dev/ontology/v1#")
 
 
 class AgentGraphOWLExporter:
@@ -19,29 +19,56 @@ class AgentGraphOWLExporter:
         self.snapshot_json = self.root_path / ".hath0r" / "agentgraph" / "snapshot.json"
         self.snapshot_ttl = self.root_path / ".hath0r" / "agentgraph" / "snapshot.ttl"
 
-    def build_rdf_graph(self, snapshot_data: Optional[Dict[str, Any]] = None) -> Graph:
-        """Build RDF/OWL Graph from AgentGraph snapshot data."""
-        g = Graph()
+    def _init_rdf_ontology(self, g: Graph) -> None:
         g.bind("hath0r", HATH0R_NS)
         g.bind("owl", OWL)
         g.bind("rdfs", RDFS)
 
-        # Ontology header
         ontology_uri = URIRef(HATH0R_NS)
         g.add((ontology_uri, RDF.type, OWL.Ontology))
         g.add((ontology_uri, RDFS.label, Literal("Hath0r AgentGraph Policy Ontology")))
 
-        # Define OWL Classes
         g.add((HATH0R_NS.Plane, RDF.type, OWL.Class))
         g.add((HATH0R_NS.Rule, RDF.type, OWL.Class))
         g.add((HATH0R_NS.AgentRole, RDF.type, OWL.Class))
 
-        # Define OWL Properties
         g.add((HATH0R_NS.governs, RDF.type, OWL.ObjectProperty))
         g.add((HATH0R_NS.informs, RDF.type, OWL.ObjectProperty))
         g.add((HATH0R_NS.definesRole, RDF.type, OWL.ObjectProperty))
 
-        # Load snapshot if available
+    def _add_rdf_nodes(self, g: Graph, nodes: list) -> None:
+        for node in nodes:
+            node_uri = HATH0R_NS[node["id"]]
+            node_type = node.get("type", "rule")
+            if node_type == "rule":
+                g.add((node_uri, RDF.type, HATH0R_NS.Rule))
+            elif node_type in ["agent_role", "role"]:
+                g.add((node_uri, RDF.type, HATH0R_NS.AgentRole))
+            else:
+                g.add((node_uri, RDF.type, HATH0R_NS.Plane))
+
+            g.add((node_uri, RDFS.label, Literal(node.get("label", node["id"]))))
+            if "plane" in node:
+                g.add((node_uri, HATH0R_NS.inPlane, Literal(node["plane"])))
+
+    def _add_rdf_edges(self, g: Graph, edges: list) -> None:
+        for edge in edges:
+            src_uri = HATH0R_NS[edge["source"]]
+            target_uri = HATH0R_NS[edge["target"]]
+            rel = edge.get("relation", "governs").lower()
+
+            if rel == "governs":
+                g.add((src_uri, HATH0R_NS.governs, target_uri))
+            elif rel == "informs":
+                g.add((src_uri, HATH0R_NS.informs, target_uri))
+            elif rel == "defines_role":
+                g.add((src_uri, HATH0R_NS.definesRole, target_uri))
+
+    def build_rdf_graph(self, snapshot_data: Optional[Dict[str, Any]] = None) -> Graph:
+        """Build RDF/OWL Graph from AgentGraph snapshot data."""
+        g = Graph()
+        self._init_rdf_ontology(g)
+
         if snapshot_data is None and self.snapshot_json.exists():
             try:
                 with open(self.snapshot_json, "r", encoding="utf-8") as f:
@@ -60,34 +87,8 @@ class AgentGraphOWLExporter:
             {"source": "rule-002", "target": "role-forge", "relation": "informs"},
         ])
 
-        # Add Nodes
-        for node in nodes:
-            node_uri = HATH0R_NS[node["id"]]
-            node_type = node.get("type", "rule")
-            if node_type == "rule":
-                g.add((node_uri, RDF.type, HATH0R_NS.Rule))
-            elif node_type in ["agent_role", "role"]:
-                g.add((node_uri, RDF.type, HATH0R_NS.AgentRole))
-            else:
-                g.add((node_uri, RDF.type, HATH0R_NS.Plane))
-
-            g.add((node_uri, RDFS.label, Literal(node.get("label", node["id"]))))
-            if "plane" in node:
-                g.add((node_uri, HATH0R_NS.inPlane, Literal(node["plane"])))
-
-        # Add Edges
-        for edge in edges:
-            src_uri = HATH0R_NS[edge["source"]]
-            target_uri = HATH0R_NS[edge["target"]]
-            rel = edge.get("relation", "governs").lower()
-
-            if rel == "governs":
-                g.add((src_uri, HATH0R_NS.governs, target_uri))
-            elif rel == "informs":
-                g.add((src_uri, HATH0R_NS.informs, target_uri))
-            elif rel == "defines_role":
-                g.add((src_uri, HATH0R_NS.definesRole, target_uri))
-
+        self._add_rdf_nodes(g, nodes)
+        self._add_rdf_edges(g, edges)
         return g
 
     def export_ttl(self, output_format: str = "turtle") -> str:

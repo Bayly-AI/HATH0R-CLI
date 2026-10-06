@@ -34,7 +34,7 @@ class AntagonisticReviewBot:
         added_text = "\n".join([line[1:].strip() for line in lines if line.startswith("+")])
 
         # Check swallowed exceptions across single or multi-line blocks
-        if re.search(r"except\s*(?:Exception|BaseException)?\s*:[\s\n]*pass\b", added_text):
+        if re.search(r"except\s*(?:Exception|BaseException)?\s*:\s*pass\b", added_text):
             flaws.append({
                 "type": "SwallowedException",
                 "severity": "critical",
@@ -47,10 +47,10 @@ class AntagonisticReviewBot:
                 continue
 
             # Check self-admitted tech debt (CR-CLI-TECH-DEBT-001)
-            tech_match = re.search(r"\b(TODO|FIXME|HACK|XXX|STUB)\b:?\s*(.*)", line, re.IGNORECASE)
+            tech_match = re.search(r"\b(TODO|FIXME|HACK|XXX|STUB)\b:?\s*(\S.*)?", line)
             if tech_match:
                 marker = tech_match.group(1).upper()
-                desc = tech_match.group(2).strip() or "Self-admitted technical debt in diff"
+                desc = (tech_match.group(2) or "").strip() or "Self-admitted technical debt in diff"
                 tech_debts.append({
                     "marker": marker,
                     "description": desc,

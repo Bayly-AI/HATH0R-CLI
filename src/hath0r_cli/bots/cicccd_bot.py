@@ -23,53 +23,55 @@ class SecuritySASTScanner:
 
     def __init__(self, root_dir: Path) -> None:
         self.root_dir = root_dir
+        self.secret_pattern = re.compile(
+            r"(?i)(api_?key|secret_?key|auth_?token|password)\s*=\s*['\"][A-Za-z0-9._-]{12,}['\"]"
+        )
+        self.unsafe_cmd_pattern = re.compile(r"subprocess\.(Popen|call|run|check_output)\([^)]*shell\s*=\s*True")
+        self.eval_pattern = re.compile(r"\b(eval|exec)\s*\(")
+
+    def _scan_python_file(self, fp: Path, findings: List[Dict[str, Any]]) -> None:
+        try:
+            lines = fp.read_text(encoding="utf-8", errors="ignore").splitlines()
+            for idx, line in enumerate(lines, 1):
+                line_lower = line.lower()
+                if self.secret_pattern.search(line) and not ("example" in line_lower or "test" in line_lower):
+                    findings.append({
+                        "file": str(fp.relative_to(self.root_dir)),
+                        "line": idx,
+                        "rule": "SonarCloud:S2068",
+                        "severity": "CRITICAL",
+                        "description": "Hardcoded credential detected",
+                    })
+                if self.unsafe_cmd_pattern.search(line):
+                    findings.append({
+                        "file": str(fp.relative_to(self.root_dir)),
+                        "line": idx,
+                        "rule": "SonarCloud:S4721",
+                        "severity": "HIGH",
+                        "description": "Unsafe subprocess execution with shell=True",
+                    })
+                if self.eval_pattern.search(line) and "ast.literal_eval" not in line:
+                    findings.append({
+                        "file": str(fp.relative_to(self.root_dir)),
+                        "line": idx,
+                        "rule": "SonarCloud:S1523",
+                        "severity": "HIGH",
+                        "description": "Dynamic code execution via eval/exec",
+                    })
+        except Exception:
+            pass
 
     def scan_security_hotspots(self) -> Dict[str, Any]:
         """Perform local static security analysis matching SonarCloud OWASP Top 10 rules."""
         findings: List[Dict[str, Any]] = []
-
-        secret_pattern = re.compile(
-            r"(?i)(api[_-]?key|secret[_-]?key|auth[_-]?token|password)\s*=\s*['\"](?![$\s\{])[A-Za-z0-9_\-\.]{12,}['\"]"
-        )
-        unsafe_cmd_pattern = re.compile(r"subprocess\.(Popen|call|run|check_output)\([^)]*shell\s*=\s*True")
-        eval_pattern = re.compile(r"\b(eval|exec)\s*\(")
-
         src_dir = self.root_dir / "src"
+
         if src_dir.exists():
             for walk_root, dirs, files in os.walk(src_dir):
                 dirs[:] = [d for d in dirs if d not in [".git", "__pycache__", ".venv", "node_modules"]]
                 for file in files:
                     if file.endswith(".py"):
-                        fp = Path(walk_root) / file
-                        try:
-                            lines = fp.read_text(encoding="utf-8", errors="ignore").splitlines()
-                            for idx, line in enumerate(lines, 1):
-                                if secret_pattern.search(line) and not ("example" in line.lower() or "test" in line.lower()):
-                                    findings.append({
-                                        "file": str(fp.relative_to(self.root_dir)),
-                                        "line": idx,
-                                        "rule": "SonarCloud:S2068",
-                                        "severity": "CRITICAL",
-                                        "description": "Hardcoded credential detected",
-                                    })
-                                if unsafe_cmd_pattern.search(line):
-                                    findings.append({
-                                        "file": str(fp.relative_to(self.root_dir)),
-                                        "line": idx,
-                                        "rule": "SonarCloud:S4721",
-                                        "severity": "HIGH",
-                                        "description": "Unsafe subprocess execution with shell=True",
-                                    })
-                                if eval_pattern.search(line) and "ast.literal_eval" not in line:
-                                    findings.append({
-                                        "file": str(fp.relative_to(self.root_dir)),
-                                        "line": idx,
-                                        "rule": "SonarCloud:S1523",
-                                        "severity": "HIGH",
-                                        "description": "Dynamic code execution via eval/exec",
-                                    })
-                        except Exception:
-                            pass
+                        self._scan_python_file(Path(walk_root) / file, findings)
 
         sonar_props = self.root_dir / "sonar-project.properties"
         sonar_configured = sonar_props.exists()

@@ -11,7 +11,8 @@ class SPARQLEngine:
     """SPARQL Graph Query Engine over AgentGraph OWL Ontology."""
 
     def __init__(self) -> None:
-        pass
+        """Initialize SPARQL Query Engine with default RDF graph context."""
+        # Stateless SPARQL query executor over AgentGraph OWL exporter graph
 
     def query(self, sparql_query_str: str) -> Dict[str, Any]:
         """Execute SPARQL query string against AgentGraph RDF Graph."""

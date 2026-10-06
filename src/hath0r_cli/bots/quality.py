@@ -279,7 +279,7 @@ class QualityGateBot:
             "issues_count": len(issues),
             "blocking_issues": issues,
             "message": (
-                f"SonarCloud Quality Gate PASSED for '{key}'."
+                f"SonarCloud Quality Gate PASSED (status: OK) for '{key}'."
                 if passed
                 else f"SonarCloud Quality Gate FAILED (status: {gate_status}) for '{key}'. Fix {len(failing_conditions)} failing condition(s) and {len(issues)} issue(s) before proceeding."
             ),

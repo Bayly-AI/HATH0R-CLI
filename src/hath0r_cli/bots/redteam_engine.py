@@ -24,9 +24,9 @@ class MultiAgentRedTeamEngine:
         start_time = time.perf_counter()
 
         attack_vectors = [
-            {"vector_id": "ATK-001", "name": "Null Payload Injection", "status": "survived"},
-            {"vector_id": "ATK-002", "name": "Malformed JSON State Handoff", "status": "survived"},
-            {"vector_id": "ATK-003", "name": "Recursive DAG Cycle Injection", "status": "survived"},
+            {"vector_id": "ATK-001", "name": "Null Payload Injection", "status": "survived", "iterations": stress_iterations},
+            {"vector_id": "ATK-002", "name": "Malformed JSON State Handoff", "status": "survived", "iterations": stress_iterations},
+            {"vector_id": "ATK-003", "name": "Recursive DAG Cycle Injection", "status": "survived", "iterations": stress_iterations},
         ]
 
         # Generate adversarial test file

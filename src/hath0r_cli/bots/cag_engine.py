@@ -16,6 +16,32 @@ class CAGEngine:
     def __init__(self) -> None:
         self._cag_cache: Dict[str, Dict[str, Any]] = {}
 
+    def _read_file_safe(self, fp: Path, root: Path, files_content: Dict[str, str]) -> int:
+        if not fp.exists():
+            return 0
+        try:
+            content = fp.read_text(encoding="utf-8", errors="ignore")
+            rel_path = fp.relative_to(root).as_posix()
+            files_content[rel_path] = content
+            return len(content.split())
+        except Exception:
+            return 0
+
+    def _scan_workspace_sources(self, root: Path, files_content: Dict[str, str]) -> int:
+        added_tokens = 0
+        valid_exts = (".py", ".json", ".md", ".toml", ".yaml", ".yml")
+        skip_dirs = [".git", ".pytest_cache", "__pycache__", ".venv", ".mypy_cache", "node_modules"]
+
+        for walk_root, dirs, files in os.walk(root):
+            dirs[:] = [d for d in dirs if d not in skip_dirs]
+            for file in files:
+                if file.endswith(valid_exts) and file != "uv.lock":
+                    fp = Path(walk_root) / file
+                    rel_path = fp.relative_to(root).as_posix()
+                    if rel_path not in files_content:
+                        added_tokens += self._read_file_safe(fp, root, files_content)
+        return added_tokens
+
     def pack_context(
         self,
         workspace_root: Optional[Path] = None,
@@ -25,47 +51,15 @@ class CAGEngine:
         root = workspace_root or Path.cwd()
         start_time = time.perf_counter()
 
-        files_content = {}
+        files_content: Dict[str, str] = {}
         total_tokens = 0
 
-        # Include AGENTS.md if present
-        agents_md = root / "AGENTS.md"
-        if agents_md.exists():
-            try:
-                content = agents_md.read_text(encoding="utf-8")
-                files_content["AGENTS.md"] = content
-                total_tokens += len(content.split())
-            except Exception:
-                pass
-
-        # Include AgentGraph snapshot if present
+        total_tokens += self._read_file_safe(root / "AGENTS.md", root, files_content)
         if include_agentgraph:
-            ag_json = root / ".hath0r" / "agentgraph" / "snapshot.json"
-            if ag_json.exists():
-                try:
-                    content = ag_json.read_text(encoding="utf-8")
-                    files_content[".hath0r/agentgraph/snapshot.json"] = content
-                    total_tokens += len(content.split())
-                except Exception:
-                    pass
+            total_tokens += self._read_file_safe(root / ".hath0r" / "agentgraph" / "snapshot.json", root, files_content)
 
-        # Scan python/config source files in workspace
-        for walk_root, dirs, files in os.walk(root):
-            # Exclude build / cache dirs
-            dirs[:] = [d for d in dirs if d not in [".git", ".pytest_cache", "__pycache__", ".venv", ".mypy_cache", "node_modules"]]
-            for file in files:
-                if file.endswith((".py", ".json", ".md", ".toml", ".yaml", ".yml")) and file != "uv.lock":
-                    file_path = Path(walk_root) / file
-                    rel_path = file_path.relative_to(root).as_posix()
-                    if rel_path in files_content:
-                        continue
-                    try:
-                        text = file_path.read_text(encoding="utf-8", errors="ignore")
-                        if len(text) < 50000: # Exclude massive generated artifacts
-                            files_content[rel_path] = text
-                            total_tokens += len(text.split())
-                    except Exception:
-                        pass
+        total_tokens += self._scan_workspace_sources(root, files_content)
+
 
         # Construct CAG envelope string
         cag_buffer = [f"=== HATH0R CAG CONTEXT ENVELOPE (Workspace: {root.name}) ==="]
