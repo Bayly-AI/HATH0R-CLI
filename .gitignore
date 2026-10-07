@@ -15,6 +15,7 @@ venv/
 .hath0r/cache/
 .hath0r/finops/
 .hath0r/*.json
+.hath0r/*.jsonl
 .hath0r/cccd/
 src/hath0r_cli/bin/hath0r-listen
 src/hath0r_cli/bin/*.app

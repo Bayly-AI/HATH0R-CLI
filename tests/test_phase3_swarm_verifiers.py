@@ -64,6 +64,16 @@ def test_antagonistic_review_bot(tmp_path):
     assert res["tech_debts_count"] >= 1
 
 
+def test_antagonistic_review_bot_ignores_regex_definitions(tmp_path):
+    bot = AntagonisticReviewBot(root_path=tmp_path)
+    diff_sample = """
++ tech_match = re.search(r"\\b(TODO|FIXME|HACK|XXX|STUB)\\b:?\\s*(\\S.*)?", line)
+"""
+    res = bot.review_diff(diff_content=diff_sample)
+    assert res["passed_gate"] is True
+    assert res["tech_debts_count"] == 0
+
+
 def test_multiagent_redteam_engine(tmp_path):
     engine = MultiAgentRedTeamEngine(workspace_root=tmp_path)
     res = engine.run_redteam_verification("test_module")
