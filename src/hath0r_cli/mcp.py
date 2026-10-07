@@ -308,11 +308,50 @@ def check_mcp_connection(server: dict[str, Any], timeout: float = 2.5) -> McpCon
     ready_ep = server.get("ready_endpoint", health_ep)
     mcp_ep = server.get("mcp_endpoint", "/mcp")
 
+    start = time.perf_counter()
+
+    if transport == "stdio" or not base_url:
+        import shutil
+
+        cmd = server.get("command", "")
+        binary = shutil.which(cmd) if cmd else None
+        if binary or (cmd and Path(cmd).exists()):
+            latency = int((time.perf_counter() - start) * 1000)
+            return McpConnectionStatus(
+                server_id=server_id,
+                name=name,
+                group=group,
+                base_url=base_url,
+                transport=transport,
+                state="connected",
+                latency_ms=latency,
+                health_status="healthy",
+                ready=True,
+                tools_count=1,
+                tools=[cmd or name],
+                message=f"stdio command binary '{cmd}' verified",
+            )
+        else:
+            latency = int((time.perf_counter() - start) * 1000)
+            return McpConnectionStatus(
+                server_id=server_id,
+                name=name,
+                group=group,
+                base_url=base_url,
+                transport=transport,
+                state="unreachable",
+                latency_ms=latency,
+                health_status="unreachable",
+                ready=False,
+                tools_count=0,
+                tools=[],
+                message=f"stdio command binary '{cmd}' not found",
+                error=f"Command '{cmd}' not found in PATH or filesystem",
+            )
+
     health_url = f"{base_url}{health_ep}"
     ready_url = f"{base_url}{ready_ep}"
     mcp_url = f"{base_url}{mcp_ep}"
-
-    start = time.perf_counter()
 
     # 1. Health check
     h_code, h_data, h_err = _http_get(health_url, timeout=timeout)
