@@ -46,6 +46,10 @@ class AntagonisticReviewBot:
             if not line.startswith("+"):
                 continue
 
+            # Ignore regex pattern definitions or self-referential review bot patterns
+            if "re.search" in line or "re.compile" in line or "r\"\\b(" in line:
+                continue
+
             # Check self-admitted tech debt (CR-CLI-TECH-DEBT-001)
             tech_match = re.search(r"\b(TODO|FIXME|HACK|XXX|STUB)\b:?\s*(\S.*)?", line)
             if tech_match:
