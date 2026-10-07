@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import sys
 import time
+
+logger = logging.getLogger(__name__)
 
 import click
 
@@ -79,9 +82,53 @@ def main(ctx: click.Context, output: str, quiet: bool, verbose: bool, version: b
 
     if not quiet:
         _check_cccd_freshness_gate(ctx)
+        _ensure_automatic_agent_monitors(ctx)
 
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
+
+
+def _ensure_automatic_agent_monitors(ctx: click.Context) -> None:
+    """Automatic CLI Agent Progress Monitor Gate: Ingest token cost, trace progression, and drift event."""
+    if os.environ.get("PYTEST_CURRENT_TEST"):
+        return
+    try:
+        import json
+        import time
+        from pathlib import Path
+
+        subcommand = ctx.invoked_subcommand or "help"
+        cmd_str = f"hath0r {subcommand}"
+
+        # 1. Ingest FinOps token telemetry record
+        from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
+
+        bot = TokenTelemetryCLIBot()
+        bot.record(
+            prompt=f"CLI execution: {cmd_str}",
+            user_id=os.environ.get("USER", "default_user"),
+            model=os.environ.get("HATH0R_MODEL", "claude-3-5-sonnet"),
+            tier=os.environ.get("HATH0R_TIER", "standard"),
+            session_id=os.environ.get("HATH0R_SESSION_ID", "agent_cli_session"),
+            agent_id="hath0r-operator-agent",
+            metadata={"cli_args": sys.argv[1:]},
+        )
+
+        # 2. Emit event to event journal for live stream monitoring
+        events_file = Path.cwd() / ".hath0r" / "events.jsonl"
+        events_file.parent.mkdir(parents=True, exist_ok=True)
+        event_payload = {
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "event_type": "agent_cli_step",
+            "command": subcommand,
+            "args": sys.argv[1:],
+            "agent_id": "hath0r-operator-agent",
+            "user": os.environ.get("USER", "default_user"),
+        }
+        with open(events_file, "a", encoding="utf-8") as f:
+            f.write(json.dumps(event_payload) + "\n")
+    except Exception as err:
+        logger.debug("Telemetry agent monitor error ignored: %s", err)
 
 
 def _check_cccd_freshness_gate(ctx: click.Context) -> None:

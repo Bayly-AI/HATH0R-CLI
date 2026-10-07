@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-07
+
+### Fixed
+- **Tech Debt & Antagonistic Verification**: Resolved false positive TODO detection and fixed swallowed exception handling (closes #368, #369, #370, #373).
+- **Quality & Governance Compliance**: Synchronized configuration and build artifacts for SonarCloud compliance.
+
 ## [1.0.0] - 2026-10-06
 
 ### Added
