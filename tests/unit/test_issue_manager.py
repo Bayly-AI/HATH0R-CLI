@@ -13,7 +13,8 @@ from hath0r_cli.bots.issue_manager import (
 from hath0r_cli.step_runner import BotRegistry
 
 
-def test_resolve_baylyai_repos_default():
+def test_resolve_baylyai_repos_default(monkeypatch):
+    monkeypatch.setattr("hath0r_cli.bots.issue_manager.run_cmd", lambda cmd: (1, "", ""))
     repos = resolve_baylyai_repos(None)
     assert len(repos) >= 16
     assert "Bayly-AI/HATH0R-CLI" in repos
