@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-07
+
+### Added
+- **FastMCP Server Tools Expansion**: Registered 8 new MCP tools on FastMCP server (`hath0r_upgrade`, `hath0r_clean_repos`, `hath0r_contracts_validate`, `hath0r_pr_review_antagonistic`, `hath0r_kb_smart_query`, `hath0r_finops_budget_check`, `hath0r_evals_redteam`, `hath0r_issue_list`).
+- **Canonical MCP Documentation Sync**: Published 522 group documentation files to canonical MCP knowledgebases.
+
+### Fixed
+- **stdio Transport Health Checks**: Resolved missing `base_url` probe failure on stdio transport MCP servers (closes #378, #380).
+
 ## [1.0.1] - 2026-10-07
 
 ### Fixed
