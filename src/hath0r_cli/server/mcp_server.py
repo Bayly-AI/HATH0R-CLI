@@ -635,4 +635,140 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         bot = PaperDesignBot()
         return bot.design_to_code(raw_design=design_content, component_name=component_name, framework=framework)
 
+    @mcp.tool()
+    def hath0r_upgrade(
+        action: str = "check",
+        target_version: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Check, run, verify, or rollback Hath0r CLI installation and dependencies.
+
+        Args:
+            action: Upgrade action ('check', 'run', 'verify', 'rollback', 'status').
+            target_version: Optional specific version string to upgrade or verify.
+        """
+        from hath0r_cli.bots.upgrade_bot import UpgradeBot
+
+        bot = UpgradeBot()
+        if action == "check":
+            return bot.check()
+        elif action == "run":
+            return bot.run(version=target_version)
+        elif action == "rollback":
+            return bot.rollback()
+        else:
+            return bot.status()
+
+    @mcp.tool()
+    def hath0r_clean_repos(
+        repo_path: Optional[str] = None,
+        dry_run: bool = True,
+    ) -> Dict[str, Any]:
+        """Execute the 13-step Clean Repos SOP hygiene and artifact audit across suite repos.
+
+        Args:
+            repo_path: Target repository path (defaults to current working directory or group root).
+            dry_run: If True, inspect and report hygiene status without making filesystem changes.
+        """
+        from hath0r_cli.bots.repo_clean import CleanReposWorkflowBot
+
+        target = Path(repo_path) if repo_path else Path.cwd()
+        bot = CleanReposWorkflowBot(repo_root=target)
+        return bot.run_clean_repo_workflow(dry_run=dry_run)
+
+    @mcp.tool()
+    def hath0r_contracts_validate(
+        contracts_dir: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Validate JSON schema contracts, protocol definitions, and schema backward compatibility.
+
+        Args:
+            contracts_dir: Path to directory containing JSON schema contracts.
+        """
+        from hath0r_cli.bots.contracts_bot import ContractsBot
+
+        target = Path(contracts_dir) if contracts_dir else None
+        bot = ContractsBot(contracts_dir=target)
+        return bot.validate_contracts()
+
+    @mcp.tool()
+    def hath0r_pr_review_antagonistic(
+        pr_number: int,
+        repo: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Run Antagonistic Review Bot on a GitHub pull request to detect edge cases, tech debt, and safety issues.
+
+        Args:
+            pr_number: Pull request ID number to analyze.
+            repo: Target repository ('owner/repo'). Defaults to current repository.
+        """
+        from hath0r_cli.bots.antagonistic_review import AntagonisticReviewBot
+
+        bot = AntagonisticReviewBot(repo=repo)
+        return bot.review_diff(pr_number=pr_number)
+
+    @mcp.tool()
+    def hath0r_kb_smart_query(
+        query: str,
+        top_k: int = 5,
+    ) -> Dict[str, Any]:
+        """Execute hybrid CAG + RAG smart query routing across context packs and knowledgebase nodes.
+
+        Args:
+            query: Keywords, question, or conceptual search query.
+            top_k: Maximum number of matched context fragments to return.
+        """
+        from hath0r_cli.bots.cag_rag_router import HybridCAGRAGRouter
+
+        router = HybridCAGRAGRouter()
+        return router.route_query(query_str=query, top_k=top_k)
+
+    @mcp.tool()
+    def hath0r_finops_budget_check(
+        prompt: str,
+        session_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Evaluate prompt against Token Tree Budget Guard and FinOps circuit breaker before LLM execution.
+
+        Args:
+            prompt: Text prompt string to evaluate against token budget rules.
+            session_id: Optional active session identifier.
+        """
+        from hath0r_cli.bots.token_tree_budget import TokenTreeBudgetGuard
+
+        guard = TokenTreeBudgetGuard()
+        return guard.check_budget(prompt=prompt, session_id=session_id)
+
+    @mcp.tool()
+    def hath0r_evals_redteam(
+        scenario: str,
+        rounds: int = 3,
+    ) -> Dict[str, Any]:
+        """Conduct dual-agent Red-Team vs Blue-Team adversarial stress testing and security evaluations.
+
+        Args:
+            scenario: Stress test attack scenario or security vector description.
+            rounds: Number of adversarial simulation rounds (default: 3).
+        """
+        from hath0r_cli.bots.redteam_engine import MultiAgentRedTeamEngine
+
+        engine = MultiAgentRedTeamEngine()
+        return engine.run_redteam_verification(scenario=scenario, rounds=rounds)
+
+    @mcp.tool()
+    def hath0r_issue_list(
+        repo: Optional[str] = None,
+        state: str = "open",
+    ) -> Dict[str, Any]:
+        """List and validate GitHub repository issues against CR-BRANCH-GOV-001 governance policies.
+
+        Args:
+            repo: Target repository ('owner/repo'). Defaults to suite repos.
+            state: Issue state ('open', 'closed', 'all').
+        """
+        from hath0r_cli.bots.issue_manager import IssueManagerBot
+
+        bot = IssueManagerBot()
+        return bot.list_issues(repo=repo, state=state)
+
     return mcp
+
