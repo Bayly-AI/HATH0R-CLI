@@ -2,3 +2,7 @@
 
 HTTP 404/410 means missing. HTTP 403/429 and network failures are unverified, never evidence of absence. Respect Retry-After: a 429/503 is retried up to 4 times with Retry-After or exponential backoff, and every worker on that host slows down. The host circuit opens on the first 403, or once the host's throttle score (incremented per 429/503, decremented per success) reaches 12; after that the host is not requested again in this run. Retry unavailable hosts in a later run; do not bypass their controls. Every profile receives a terminal outcome, and the report exposes source errors. Rollback uses old_photo_url from the immutable run report. Do not overwrite concurrent edits.
 
+
+
+## Non-portrait filtering and Wikidata fallback
+Lead images are rejected only when a whole word in the Commons filename names a non-portrait subject (tombstone, grave, cemetery, signature, coat of arms, map, house, cartoon, ...). Source credits such as "from find-a-grave", surnames (Graves, Gravely) and "engraved portrait" are not rejections. When the lead image is missing or rejected, the Wikidata P18 image of the article's own `wikibase_item` is considered: it must pass the same filter and contain the subject's surname, and it is stored as `needs_review`, never auto-published, because P18 can depict a place, an event or another person. A lead image that is only a non-portrait asset, with no usable P18, is a conclusive `not_found`. Reverting a published picture: restore `old_photo_url`, clear `photo_verified_at`, and record `photo_provenance.status = rejected_on_review`.
