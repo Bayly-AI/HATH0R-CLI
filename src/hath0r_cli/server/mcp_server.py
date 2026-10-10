@@ -164,35 +164,31 @@ def _get_ray_document(doc_id: str) -> Dict[str, Any]:
 
 
 def _get_session_memory(key: str) -> Dict[str, Any]:
-    p = Path.cwd() / ".hath0r" / "cache" / "session_memory.json"
-    if p.is_file():
-        try:
-            with open(p, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            return {"key": key, "value": data.get(key), "exists": key in data}
-        except Exception as exc:
-            return {"key": key, "value": None, "error": str(exc)}
-    return {"key": key, "value": None, "exists": False}
+    from hath0r_cli.session_store import SessionStoreError, get_session_store
+
+    try:
+        store = get_session_store()
+        exists = store.exists(key)
+        value = store.get(key) if exists else None
+        return {"key": key, "value": value, "exists": exists, "backend": store.describe()}
+    except SessionStoreError as exc:
+        return {"key": key, "value": None, "exists": False, "error": str(exc)}
 
 
 def _set_session_memory(key: str, value: Any, ttl_seconds: Optional[int] = None) -> Dict[str, Any]:
-    p = Path.cwd() / ".hath0r" / "cache" / "session_memory.json"
-    p.parent.mkdir(parents=True, exist_ok=True)
-    data = {}
-    if p.is_file():
-        try:
-            with open(p, "r", encoding="utf-8") as f:
-                data = json.load(f)
-        except Exception:
-            data = {}
-    data[key] = value
-    if ttl_seconds is not None:
-        data[f"{key}__ttl"] = ttl_seconds
+    from hath0r_cli.session_store import SessionStoreError, get_session_store
+
     try:
-        with open(p, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-        return {"success": True, "key": key, "value": value}
-    except Exception as exc:
+        store = get_session_store()
+        written = store.set(key, value, ttl_seconds=ttl_seconds)
+        return {
+            "success": True,
+            "key": key,
+            "value": value,
+            "expires_at": written.get("expires_at"),
+            "backend": store.describe(),
+        }
+    except (SessionStoreError, ValueError) as exc:
         return {"success": False, "key": key, "error": str(exc)}
 
 
