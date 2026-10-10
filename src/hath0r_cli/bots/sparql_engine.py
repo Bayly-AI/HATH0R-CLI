@@ -31,7 +31,7 @@ class SPARQLEngine:
                         "boolean_result": row,
                     }
 
-                row_dict = {}
+                row_dict: Dict[str, Any] = {}
                 if vars_list:
                     for v in vars_list:
                         val = getattr(row, v, None)

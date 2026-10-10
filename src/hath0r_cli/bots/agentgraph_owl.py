@@ -4,11 +4,18 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
+from urllib.parse import quote
 
 from rdflib import OWL, RDF, RDFS, Graph, Literal, Namespace, URIRef
+from rdflib.query import ResultRow
 
 HATH0R_NS = Namespace("https://hath0r.dev/ontology/v1#")
+
+
+def _node_iri(node_id: str) -> URIRef:
+    """Percent-encode AgentGraph node ids so they form valid IRIs (ids may contain spaces, &, `, etc.)."""
+    return HATH0R_NS[quote(str(node_id), safe="-_.~:")]
 
 
 class AgentGraphOWLExporter:
@@ -38,7 +45,7 @@ class AgentGraphOWLExporter:
 
     def _add_rdf_nodes(self, g: Graph, nodes: list) -> None:
         for node in nodes:
-            node_uri = HATH0R_NS[node["id"]]
+            node_uri = _node_iri(node["id"])
             node_type = node.get("type", "rule")
             if node_type == "rule":
                 g.add((node_uri, RDF.type, HATH0R_NS.Rule))
@@ -53,8 +60,8 @@ class AgentGraphOWLExporter:
 
     def _add_rdf_edges(self, g: Graph, edges: list) -> None:
         for edge in edges:
-            src_uri = HATH0R_NS[edge["source"]]
-            target_uri = HATH0R_NS[edge["target"]]
+            src_uri = _node_iri(edge["source"])
+            target_uri = _node_iri(edge["target"])
             rel = edge.get("relation", "governs").lower()
 
             if rel == "governs":
@@ -121,13 +128,13 @@ class AgentGraphOWLReasoner:
 
         # 1. Check cyclic governance (A governs B AND B governs A)
         cycle_query = """
-            PREFIX hath0r: <http://hath0r.dev/ontology/v1#>
+            PREFIX hath0r: <https://hath0r.dev/ontology/v1#>
             SELECT ?a ?b WHERE {
                 ?a hath0r:governs ?b .
                 ?b hath0r:governs ?a .
             }
         """
-        cycles = list(g.query(cycle_query))
+        cycles = [cast(ResultRow, r) for r in g.query(cycle_query)]
         for row in cycles:
             conflicts.append({
                 "type": "CyclicGovernanceContradiction",
@@ -138,7 +145,7 @@ class AgentGraphOWLReasoner:
 
         # 2. Check orphan rules (rules not governing or informing any entity)
         orphan_query = """
-            PREFIX hath0r: <http://hath0r.dev/ontology/v1#>
+            PREFIX hath0r: <https://hath0r.dev/ontology/v1#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?r ?label WHERE {
                 ?r a hath0r:Rule .
@@ -147,7 +154,7 @@ class AgentGraphOWLReasoner:
                 FILTER NOT EXISTS { ?r hath0r:informs ?y }
             }
         """
-        orphans = list(g.query(orphan_query))
+        orphans = [cast(ResultRow, r) for r in g.query(orphan_query)]
         for row in orphans:
             warnings.append({
                 "type": "OrphanPolicyWarning",

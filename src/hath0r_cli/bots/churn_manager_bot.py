@@ -66,7 +66,8 @@ class ChurnManagerBot:
         # Try hath0r_engine PmatAdapter first if available
         try:
             from hath0r_engine.analysis.pmat_adapter import pmat_adapter
-            return pmat_adapter.analyze_churn(target_path, days=days)
+            churn: Dict[str, Any] = pmat_adapter.analyze_churn(target_path, days=days)
+            return churn
         except ImportError:
             pass
 
@@ -240,7 +241,8 @@ class ChurnManagerBot:
     ) -> List[Dict[str, Any]]:
         """Return top N hotspot files."""
         report = self.analyze(repo_path, days=days)
-        return report.get("hotspots", [])[:limit]
+        hotspots: List[Dict[str, Any]] = report.get("hotspots", [])[:limit]
+        return hotspots
 
     def pr_risk(
         self,
@@ -251,7 +253,8 @@ class ChurnManagerBot:
         target_path = Path(repo_path).resolve() if repo_path else Path.cwd().resolve()
         try:
             from hath0r_engine.analysis.pmat_adapter import pmat_adapter
-            return pmat_adapter.evaluate_pr_risk(target_path, base_branch=base_branch)
+            risk: Dict[str, Any] = pmat_adapter.evaluate_pr_risk(target_path, base_branch=base_branch)
+            return risk
         except ImportError:
             pass
 
@@ -318,7 +321,8 @@ class ChurnManagerBot:
         try:
             from hath0r_engine.ui.churn_heatmap import ChurnHeatmapComponent
             comp = ChurnHeatmapComponent(report_data=report)
-            return comp.render_html()
+            html: str = comp.render_html()
+            return html
         except ImportError:
             pass
 

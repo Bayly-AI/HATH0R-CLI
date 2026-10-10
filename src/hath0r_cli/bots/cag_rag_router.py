@@ -52,11 +52,8 @@ class HybridCAGRAGRouter:
             }
         else:
             # Fallback / RAG retrieval
-            try:
-                from .local_model_bot import local_model_bot
-                rag_out = local_model_bot.search_kb(query)
-            except Exception:
-                rag_out = {"matches": [], "count": 0}
+            # RAG retrieval backend is not wired up yet (LocalModelBot has no KB search).
+            rag_out: Dict[str, Any] = {"matches": [], "count": 0}
 
             elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
             result = {
