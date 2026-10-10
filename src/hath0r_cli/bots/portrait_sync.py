@@ -39,7 +39,13 @@ def allowed_url(url: str) -> bool:
         and (
             host.endswith(".gov")
             or host
-            in ("en.wikipedia.org", "upload.wikimedia.org", "commons.wikimedia.org", "raw.githubusercontent.com")
+            in (
+                "en.wikipedia.org",
+                "upload.wikimedia.org",
+                "thumb.wikimedia.org",
+                "commons.wikimedia.org",
+                "raw.githubusercontent.com",
+            )
         )
     )
 
@@ -92,7 +98,12 @@ class Fetcher:
             now = time.monotonic()
             start = max(now, self.next_request.get(host, now))
             base = max(
-                self.interval, 1.0 if host == "en.wikipedia.org" else 0.3 if host == "upload.wikimedia.org" else 0
+                self.interval,
+                1.0
+                if host == "en.wikipedia.org"
+                else 0.3
+                if host in ("upload.wikimedia.org", "thumb.wikimedia.org")
+                else 0,
             )
             self.next_request[host] = start + base * (1 + min(self.throttles[host], 8))
         self.sleep(max(0, start - time.monotonic()))
