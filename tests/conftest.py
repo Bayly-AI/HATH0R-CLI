@@ -144,3 +144,12 @@ def hermetic_group_root(mock_group_root: Path, monkeypatch: pytest.MonkeyPatch) 
     """Pin group-root discovery to a tmp group so tests never depend on the developer's checkout layout."""
     monkeypatch.setenv("HATH0R_GROUP_ROOT", str(mock_group_root))
     return mock_group_root
+
+
+@pytest.fixture(autouse=True)
+def _isolated_session_store(tmp_path_factory: pytest.TempPathFactory, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Never let tests write to the developer's real group session store (HAHP / L2WS / MCP session tools)."""
+    path = tmp_path_factory.mktemp("session") / "session_memory.json"
+    monkeypatch.setenv("HATH0R_SESSION_PATH", str(path))
+    monkeypatch.delenv("HATH0R_SESSION_BACKEND", raising=False)
+    return path
