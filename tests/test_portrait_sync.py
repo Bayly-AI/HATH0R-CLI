@@ -77,6 +77,7 @@ class PortraitTests(unittest.TestCase):
         ]:
             self.assertFalse(allowed_url(u))
         self.assertTrue(allowed_url("https://www.whitehouse.gov/a.jpg"))
+        self.assertTrue(allowed_url("https://thumb.wikimedia.org/wikipedia/commons/thumb/a.jpg/960px-a.jpg"))
 
     def test_apply_only_verified_and_optimistic(self):
         r = {
