@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-10
+
+### Added
+- **RAG retrieval for `kb smart-query`** (#394, PR #398). RAG-routed queries now return ranked matches from the knowledgebase SQLite FTS5 index (BM25 + rerank).
+  - `--limit` option and match output in text mode.
+  - `no_index` / `empty_index` reported with a `hath0r kb index` hint (JSON `state: degraded`).
+  - The `hath0r_kb_smart_query` MCP tool passes `top_k` through.
+- **Session store** (#395, PR #399). New `hath0r_cli.session_store`, shared by HAHP handoffs (`hahp:<id>`), L2WS warm-starts (`l2ws:<task>`) and the `hath0r_session_get`/`set` MCP tools.
+  - Local backend (default): a file-locked JSON file at `<group>/.hath0r/cache/session_memory.json` with enforced TTLs.
+  - Optional Redis backend via `HATH0R_SESSION_BACKEND=redis` and the new `redis` extra.
+  - HAHP reports the real backend, and returns `status: error` when the store is unavailable.
+- **Review-gated Wikidata portrait fallback** (#402). When a biography's lead image is missing or not a portrait, the Wikidata P18 image of the same article's item is considered; it must contain the subject's surname and is stored as `needs_review`, never auto-published.
+
+### Fixed
+- **Portrait sync rejected valid portraits.** `thumb.wikimedia.org` thumbnails were blocked by the source allowlist (#401), and the non-portrait filter matched substrings, so "grave" rejected surnames (Graves, Gravely), "engraved portrait" and find-a-grave portrait photos (#402). The filter now matches whole filename words.
+- **MCP tools raise `TypeError` when called.** 7 of the 8 FastMCP tools added in 1.1.0 passed argument names the bots don't accept: `hath0r_upgrade` (rollback/verify), `hath0r_clean_repos`, `hath0r_contracts_validate`, `hath0r_pr_review_antagonistic`, `hath0r_kb_smart_query`, `hath0r_finops_budget_check`, `hath0r_evals_redteam`. They now use the real signatures:
+  - `clean_repos` with `dry_run=True` no longer touches the repo.
+  - `pr_review_antagonistic` reviews the actual PR diff.
+- **`hath0r agentgraph sync` crashed** on node ids containing `&`, `(` and backticks; ids are now percent-encoded into valid IRIs.
+- **The OWL reasoner never matched anything.** Its SPARQL prefix used `http://` while the graph uses `https://`, so the cycle and orphan-rule checks never ran.
+- **The churn doctor used a hard-coded path** (`/Users/raybayly/...`) for the MCP config; it now uses `resolve_mcp_config_path`.
+- **The red-team engine regenerated a test file that failed lint.**
+
+### Changed
+- `rdflib` is now a declared runtime dependency (used by `hath0r agentgraph`).
+- CI installs the framework; `test-and-lint` passes for the first time (mypy and ruff clean).
+- The KB CLI tests no longer overwrite the developer's real group knowledgebase index (`kb index --rebuild` ran against the default index).
+
 ## [1.2.0] - 2026-10-10
 
 ### Added
