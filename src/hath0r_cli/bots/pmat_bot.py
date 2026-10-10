@@ -38,7 +38,8 @@ class PmatBot:
     def get_stats(self, repo_path: Optional[str] = None, window_days: int = 30) -> Dict[str, Any]:
         """Generate multi-dimensional PMAT stats report."""
         target = Path(repo_path) if repo_path else self.cwd
-        return pmat_stats_engine.generate_multi_dimensional_report(repo_path=target, days=window_days)
+        report: Dict[str, Any] = pmat_stats_engine.generate_multi_dimensional_report(repo_path=target, days=window_days)
+        return report
 
     def analyze_churn(self, repo_path: Optional[str] = None, window_days: int = 30) -> Dict[str, Any]:
         """Extract code churn subset report."""

@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import json
+import logging
 import time
 from pathlib import Path
 from typing import Any, Dict, Optional
+
+logger = logging.getLogger(__name__)
 
 
 class L2WSPredictor:
@@ -30,7 +33,8 @@ class L2WSPredictor:
             }
         try:
             with open(self.storage_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+                data: Dict[str, Any] = json.load(f)
+                return data
         except Exception:
             return {"version": "1.0.0", "default_warmstart": {}, "task_models": {}}
 
@@ -44,15 +48,16 @@ class L2WSPredictor:
         }
         data["default_warmstart"].update(parameters)
 
-        # Sync to Redis / SESSION memory if available
-        try:
-            from hath0r_cli.bots.memory_manager import memory_manager
-            memory_manager.set_session_memory(f"l2ws:{task_key}", parameters)
-        except Exception:
-            pass
-
         with open(self.storage_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
+
+        # Share with other agents/processes via the session store (the JSON file stays the source of truth).
+        from hath0r_cli.session_store import SessionStoreError, get_session_store
+
+        try:
+            get_session_store().set(f"l2ws:{task_key}", parameters)
+        except SessionStoreError as exc:
+            logger.warning("L2WS warm-start %s not synced to session store: %s", task_key, exc)
 
     def predict_warmstart(self, task_key: str = "default_agent_signature") -> Dict[str, Any]:
         """Predict optimal warm initial parameter vector for task/model."""

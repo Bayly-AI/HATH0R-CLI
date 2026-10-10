@@ -31,8 +31,10 @@ def test_colpali_engine_indexing_and_maxsim(tmp_path: Path):
     assert results[0]["score"] > -1.0
 
 
-def test_colpali_cli_commands(tmp_path: Path):
+def test_colpali_cli_commands(tmp_path: Path, monkeypatch):
     """Verify hath0r kb index --vision and hath0r kb search --vision."""
+    # Isolated cwd: keep the SQLite and ColPali indexes out of the developer's real group/repo cache.
+    monkeypatch.chdir(tmp_path)
     kb_dir = tmp_path / "kb"
     kb_dir.mkdir(parents=True)
     img_file = kb_dir / "system_flow.png"

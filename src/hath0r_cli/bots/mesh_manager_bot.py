@@ -61,7 +61,10 @@ class MeshManagerBot:
 
     def route_query(self, peer_id: str, topic_query: str) -> Dict[str, Any]:
         """Route cross-workspace AgentGraph query through GAIN mesh."""
-        return self.router.route_agentgraph_query(peer_id=peer_id, topic_query=topic_query, agent_graph=agent_graph_engine)
+        result: Dict[str, Any] = self.router.route_agentgraph_query(
+            peer_id=peer_id, topic_query=topic_query, agent_graph=agent_graph_engine
+        )
+        return result
 
     def handle_conversational_intent(self, intent_text: str) -> Dict[str, Any]:
         """Route conversational mesh management queries."""
