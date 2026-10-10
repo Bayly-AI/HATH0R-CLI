@@ -30,7 +30,8 @@ class L2WSPredictor:
             }
         try:
             with open(self.storage_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+                data: Dict[str, Any] = json.load(f)
+                return data
         except Exception:
             return {"version": "1.0.0", "default_warmstart": {}, "task_models": {}}
 
@@ -44,12 +45,7 @@ class L2WSPredictor:
         }
         data["default_warmstart"].update(parameters)
 
-        # Sync to Redis / SESSION memory if available
-        try:
-            from hath0r_cli.bots.memory_manager import memory_manager
-            memory_manager.set_session_memory(f"l2ws:{task_key}", parameters)
-        except Exception:
-            pass
+        # Session-memory sync is not implemented yet: MemoryManagerBot has no session store API.
 
         with open(self.storage_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)

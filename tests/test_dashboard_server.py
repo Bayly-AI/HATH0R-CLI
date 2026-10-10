@@ -3,10 +3,13 @@
 import json
 import urllib.request
 
+import pytest
 from click.testing import CliRunner
 
 from hath0r_cli.cli import main
 from hath0r_cli.server.dashboard_server import HathorDashboardServer
+
+pytestmark = pytest.mark.usefixtures("hermetic_group_root")
 
 
 def test_dashboard_server_status_payload():

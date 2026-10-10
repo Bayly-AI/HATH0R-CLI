@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from .cag_engine import cag_engine
 
@@ -51,12 +51,10 @@ class HybridCAGRAGRouter:
                 "routing_elapsed_ms": elapsed_ms,
             }
         else:
-            # Fallback / RAG retrieval
-            try:
-                from .local_model_bot import local_model_bot
-                rag_out = local_model_bot.search_kb(query)
-            except Exception:
-                rag_out = {"matches": [], "count": 0}
+            # Fallback / RAG retrieval.
+            # The RAG retrieval backend is not wired up yet (LocalModelBot has no KB search),
+            # so this route returns no matches rather than pretending to search.
+            matches: List[Dict[str, Any]] = []
 
             elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
             result = {
@@ -66,7 +64,9 @@ class HybridCAGRAGRouter:
                 "query": query,
                 "recall_rate": "chunk_top_k",
                 "prompt_cached": False,
-                "matches_count": len(rag_out.get("matches", [])) if isinstance(rag_out, dict) else 0,
+                "matches": matches,
+                "matches_count": len(matches),
+                "rag_backend": None,
                 "routing_elapsed_ms": elapsed_ms,
             }
 

@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import json
 from click.testing import CliRunner
-from hath0r_cli.cli import main
+
 from hath0r_cli.bots.agentgraph_owl import AgentGraphOWLExporter, AgentGraphOWLReasoner
-from hath0r_cli.bots.sparql_engine import SPARQLEngine
 from hath0r_cli.bots.cag_engine import CAGEngine
 from hath0r_cli.bots.cag_rag_router import HybridCAGRAGRouter
+from hath0r_cli.bots.sparql_engine import SPARQLEngine
+from hath0r_cli.cli import main
 
 
 def test_agentgraph_owl_exporter():

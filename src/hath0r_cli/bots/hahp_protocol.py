@@ -62,20 +62,15 @@ class HAHPProtocolManager:
         return HAHPEnvelope(**data)
 
     def sync_to_session_store(self, envelope: HAHPEnvelope) -> Dict[str, Any]:
-        """Synchronize envelope state to Redis (SESSION) and DynamoDB (DATA)."""
-        try:
-            from .memory_manager import memory_manager
-            memory_manager.set_session_memory(
-                key=f"hahp:{envelope.handoff_id}",
-                value=envelope.model_dump()
-            )
-        except Exception:
-            pass
+        """Synchronize envelope state to the session store.
 
+        No session backend (Redis/DynamoDB) is wired up yet, so envelopes are kept in the
+        in-process journal only; the response says so rather than reporting a remote sync.
+        """
         return {
-            "status": "synced",
+            "status": "journaled_only",
             "handoff_id": envelope.handoff_id,
-            "session_backend": "redis_and_dynamodb",
+            "session_backend": None,
             "timestamp": time.time(),
         }
 

@@ -1,7 +1,6 @@
 """Unit tests for PmatBot."""
 
-from pathlib import Path
-from hath0r_cli.bots.pmat_bot import PmatBot, pmat_bot
+from hath0r_cli.bots.pmat_bot import PmatBot
 
 
 def test_pmat_bot_doctor():

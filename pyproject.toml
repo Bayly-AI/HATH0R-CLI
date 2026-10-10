@@ -15,6 +15,7 @@ dependencies = [
   "rich>=13.0",
   "pyyaml>=6.0",
   "Pillow>=10.4.0",
+  "rdflib>=7.0",
 ]
 
 [project.optional-dependencies]
@@ -27,6 +28,8 @@ dev = [
   "opentelemetry-api>=1.20",
   "opentelemetry-sdk>=1.20",
   "mcp>=1.0,<2",
+  # hath0r-engine (framework) imports structlog without declaring it
+  "structlog>=24.0",
 ]
 mcp = [
   "mcp>=1.0,<2",

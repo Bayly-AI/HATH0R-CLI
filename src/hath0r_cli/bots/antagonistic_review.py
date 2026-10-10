@@ -66,7 +66,7 @@ class AntagonisticReviewBot:
         created_issues = []
         for td in tech_debts:
             try:
-                title = f"tech-debt: resolve {td['marker']} in codebase - {td['description'][:60]}"
+                title = f"tech-debt: resolve {td['marker']} in codebase - {str(td['description'])[:60]}"
                 body = (
                     f"### Self-Admitted Technical Debt (CR-CLI-TECH-DEBT-001)\n\n"
                     f"**Marker**: `{td['marker']}`\n"

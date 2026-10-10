@@ -1,6 +1,7 @@
 """Unit tests for hath0r churn CLI command group."""
 
 from pathlib import Path
+
 from click.testing import CliRunner
 
 from hath0r_cli.cli import main

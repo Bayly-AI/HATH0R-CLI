@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import pytest
 from click.testing import CliRunner
-from hath0r_cli.cli import main
-from hath0r_cli.bots.token_tree_budget import TokenTreeBudgetGuard, TokenBudgetExceeded
-from hath0r_cli.bots.multiagent_consensus import MultiAgentConsensusEngine
+
 from hath0r_cli.bots.antagonistic_review import AntagonisticReviewBot
+from hath0r_cli.bots.multiagent_consensus import MultiAgentConsensusEngine
 from hath0r_cli.bots.redteam_engine import MultiAgentRedTeamEngine
+from hath0r_cli.bots.token_tree_budget import TokenBudgetExceeded, TokenTreeBudgetGuard
+from hath0r_cli.cli import main
 
 
 def test_token_tree_budget_guard():
