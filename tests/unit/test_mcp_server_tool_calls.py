@@ -67,12 +67,12 @@ def test_pr_review_reports_fetch_failure() -> None:
     assert res["success"] is False
 
 
-def test_kb_smart_query_truncates_matches() -> None:
+def test_kb_smart_query_passes_top_k() -> None:
     with patch("hath0r_cli.bots.cag_rag_router.HybridCAGRAGRouter") as router_cls:
-        router_cls.return_value.route_query.return_value = {"matches": list(range(10))}
+        router_cls.return_value.route_query.return_value = {"matches": [1, 2, 3]}
         res = _tool("hath0r_kb_smart_query")(query="q", top_k=3)
-    router_cls.return_value.route_query.assert_called_once_with("q")
-    assert res["matches"] == [0, 1, 2]
+    router_cls.return_value.route_query.assert_called_once_with("q", top_k=3)
+    assert res["matches"] == [1, 2, 3]
 
 
 def test_finops_budget_check_estimates_prompt() -> None:

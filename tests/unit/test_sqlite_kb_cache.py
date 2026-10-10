@@ -56,28 +56,39 @@ def test_sqlite_index_sync_and_search():
         assert status["total_documents"] == 2
 
 
-def test_kb_cli_commands():
-    """Verify kb index, search, and status CLI subcommands."""
+def test_kb_cli_commands(tmp_path, monkeypatch):
+    """Verify kb index, search, and status CLI subcommands.
+
+    Runs from an isolated cwd so the default index (<group root>/.hath0r/cache/kb_index.sqlite)
+    resolves inside tmp_path; otherwise `kb index --rebuild` would overwrite the developer's
+    real group knowledgebase index when the suite runs from inside the group checkout.
+    """
+    monkeypatch.chdir(tmp_path)
     runner = CliRunner()
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
-        sample_doc = tmp_path / "test_doc.md"
-        sample_doc.write_text(
-            "# Branch Promotion Rules\nCanonical promotion order is local development testing staging master.",
-            encoding="utf-8",
-        )
+    sample_doc = tmp_path / "test_doc.md"
+    sample_doc.write_text(
+        "# Branch Promotion Rules\nCanonical promotion order is local development testing staging master.",
+        encoding="utf-8",
+    )
 
-        # Test kb index
-        res_index = runner.invoke(cli, ["-o", "text", "kb", "index", "--target-dir", str(tmp_path), "--rebuild"])
-        assert res_index.exit_code == 0
-        assert "SQLite FTS5 Index Synchronized" in res_index.output
+    # Test kb index
+    res_index = runner.invoke(cli, ["-o", "text", "kb", "index", "--target-dir", str(tmp_path), "--rebuild"])
+    assert res_index.exit_code == 0
+    assert "SQLite FTS5 Index Synchronized" in res_index.output
 
-        # Test kb search
-        res_search = runner.invoke(cli, ["-o", "text", "kb", "search", "--query", "Branch Promotion", "--limit", "2"])
-        assert res_search.exit_code == 0
-        assert "results for" in res_search.output
+    # Test kb search
+    res_search = runner.invoke(cli, ["-o", "text", "kb", "search", "--query", "Branch Promotion", "--limit", "2"])
+    assert res_search.exit_code == 0
+    assert "results for" in res_search.output
 
-        # Test kb status
-        res_status = runner.invoke(cli, ["-o", "text", "kb", "status"])
-        assert res_status.exit_code == 0
-        assert "KnowledgeBase Cache Status" in res_status.output
+    # Test kb status
+    res_status = runner.invoke(cli, ["-o", "text", "kb", "status"])
+    assert res_status.exit_code == 0
+    assert "KnowledgeBase Cache Status" in res_status.output
+
+
+def test_kb_cli_commands_do_not_touch_group_index(tmp_path, monkeypatch):
+    """Regression: the isolated cwd keeps the index inside tmp_path."""
+    monkeypatch.chdir(tmp_path)
+    store = SQLiteIndexStore()
+    assert store.db_path.resolve().is_relative_to(tmp_path.resolve())
