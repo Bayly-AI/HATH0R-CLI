@@ -33,9 +33,12 @@ class ChurnManagerBot:
         status_mode = "native_binary" if pmat_native else "git_log_substrate"
 
         # Check MCP registration
-        mcp_cfg_path = Path("/Users/raybayly/Development/OpenSource/HATH0R-CLI/cfg/mcp.servers.json")
+        from hath0r_cli.common import _discover_group_root
+        from hath0r_cli.mcp import resolve_mcp_config_path
+
+        mcp_cfg_path = resolve_mcp_config_path(_discover_group_root())
         mcp_registered = False
-        if mcp_cfg_path.exists():
+        if mcp_cfg_path is not None and mcp_cfg_path.suffix == ".json":
             try:
                 with open(mcp_cfg_path, "r", encoding="utf-8") as f:
                     cfg_data = json.load(f)

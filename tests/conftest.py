@@ -137,3 +137,10 @@ def mock_kb(tmp_path: Path) -> Path:
 @pytest.fixture
 def mock_catalog(mock_kb: Path) -> Path:
     return mock_kb / "catalogs" / "suite-products.yaml"
+
+
+@pytest.fixture
+def hermetic_group_root(mock_group_root: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Pin group-root discovery to a tmp group so tests never depend on the developer's checkout layout."""
+    monkeypatch.setenv("HATH0R_GROUP_ROOT", str(mock_group_root))
+    return mock_group_root
