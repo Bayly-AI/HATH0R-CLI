@@ -7,8 +7,6 @@ import os
 import sys
 import time
 
-logger = logging.getLogger(__name__)
-
 import click
 
 from hath0r_cli import __version__
@@ -31,6 +29,8 @@ from hath0r_cli.common import (
 )
 from hath0r_cli.lazy_group import Hath0rLazyGroup
 from hath0r_cli.output import OUTPUT_CHOICES
+
+logger = logging.getLogger(__name__)
 
 
 def _resolve_target_repos(*args, **kwargs):

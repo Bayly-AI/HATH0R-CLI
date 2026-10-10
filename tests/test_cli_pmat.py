@@ -1,6 +1,7 @@
 """Unit tests for hath0r pmat CLI command group."""
 
 from click.testing import CliRunner
+
 from hath0r_cli.cli import main
 
 

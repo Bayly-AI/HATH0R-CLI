@@ -25,15 +25,12 @@ jobs:
       - name: Checkout CLI
         uses: actions/checkout@v4
 
-      - name: Checkout Framework contracts (schemas)
+      - name: Checkout Framework (hath0r_engine + contracts)
         uses: actions/checkout@v4
         with:
           repository: Bayly-AI/HATH0R-Agentic-Framework
+          ref: development
           path: hath0r-framework
-          sparse-checkout: |
-            lib/schemas
-            lib/contracts
-          sparse-checkout-cone-mode: true
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -44,6 +41,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]" pytest-cov
+          pip install -e ./hath0r-framework
           pip install mypy ruff
 
       - name: Pytest with Coverage

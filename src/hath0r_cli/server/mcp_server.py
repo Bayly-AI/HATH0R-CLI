@@ -164,35 +164,31 @@ def _get_ray_document(doc_id: str) -> Dict[str, Any]:
 
 
 def _get_session_memory(key: str) -> Dict[str, Any]:
-    p = Path.cwd() / ".hath0r" / "cache" / "session_memory.json"
-    if p.is_file():
-        try:
-            with open(p, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            return {"key": key, "value": data.get(key), "exists": key in data}
-        except Exception as exc:
-            return {"key": key, "value": None, "error": str(exc)}
-    return {"key": key, "value": None, "exists": False}
+    from hath0r_cli.session_store import SessionStoreError, get_session_store
+
+    try:
+        store = get_session_store()
+        exists = store.exists(key)
+        value = store.get(key) if exists else None
+        return {"key": key, "value": value, "exists": exists, "backend": store.describe()}
+    except SessionStoreError as exc:
+        return {"key": key, "value": None, "exists": False, "error": str(exc)}
 
 
 def _set_session_memory(key: str, value: Any, ttl_seconds: Optional[int] = None) -> Dict[str, Any]:
-    p = Path.cwd() / ".hath0r" / "cache" / "session_memory.json"
-    p.parent.mkdir(parents=True, exist_ok=True)
-    data = {}
-    if p.is_file():
-        try:
-            with open(p, "r", encoding="utf-8") as f:
-                data = json.load(f)
-        except Exception:
-            data = {}
-    data[key] = value
-    if ttl_seconds is not None:
-        data[f"{key}__ttl"] = ttl_seconds
+    from hath0r_cli.session_store import SessionStoreError, get_session_store
+
     try:
-        with open(p, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-        return {"success": True, "key": key, "value": value}
-    except Exception as exc:
+        store = get_session_store()
+        written = store.set(key, value, ttl_seconds=ttl_seconds)
+        return {
+            "success": True,
+            "key": key,
+            "value": value,
+            "expires_at": written.get("expires_at"),
+            "backend": store.describe(),
+        }
+    except (SessionStoreError, ValueError) as exc:
         return {"success": False, "key": key, "error": str(exc)}
 
 
@@ -643,18 +639,35 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         """Check, run, verify, or rollback Hath0r CLI installation and dependencies.
 
         Args:
-            action: Upgrade action ('check', 'run', 'verify', 'rollback', 'status').
+            action: Upgrade action ('check', 'run', 'verify', 'status'). 'rollback' is automatic during 'run'.
             target_version: Optional specific version string to upgrade or verify.
         """
         from hath0r_cli.bots.upgrade_bot import UpgradeBot
 
         bot = UpgradeBot()
         if action == "check":
-            return bot.check()
+            return bot.check(version=target_version)
         elif action == "run":
             return bot.run(version=target_version)
+        elif action == "verify":
+            from hath0r_cli.bots.upgrade_bot import UpgradeVerifierBot
+
+            install = bot.detect_install()
+            verifier = UpgradeVerifierBot(cwd=Path.cwd())
+            result: Dict[str, Any] = verifier.verify(
+                target_version or install.version,
+                command=verifier.command_for(install),
+                repo_root=install.repo_root or None,
+            )
+            return {"install": install.to_dict(), "verification": result, "passed": result["passed"]}
         elif action == "rollback":
-            return bot.rollback()
+            return {
+                "success": False,
+                "error": (
+                    "Standalone rollback is not supported: 'run' snapshots the install and rolls back "
+                    "automatically when verification fails."
+                ),
+            }
         else:
             return bot.status()
 
@@ -672,8 +685,16 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         from hath0r_cli.bots.repo_clean import CleanReposWorkflowBot
 
         target = Path(repo_path) if repo_path else Path.cwd()
-        bot = CleanReposWorkflowBot(repo_root=target)
-        return bot.run_clean_repo_workflow(dry_run=dry_run)
+        if dry_run:
+            # The SOP prunes artifacts and may commit; dry-run reports intent without touching the repo.
+            return {
+                "success": True,
+                "dry_run": True,
+                "repo": str(target),
+                "message": "Dry run: no changes made. Re-run with dry_run=False to execute the 13-step Clean Repos SOP.",
+            }
+        bot = CleanReposWorkflowBot(cwd=target)
+        return bot.run_clean_repo_workflow(target_repos=[target], auto_commit=False)
 
     @mcp.tool()
     def hath0r_contracts_validate(
@@ -687,8 +708,8 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         from hath0r_cli.bots.contracts_bot import ContractsBot
 
         target = Path(contracts_dir) if contracts_dir else None
-        bot = ContractsBot(contracts_dir=target)
-        return bot.validate_contracts()
+        bot = ContractsBot()
+        return bot.validate_contracts(target_dir=target)
 
     @mcp.tool()
     def hath0r_pr_review_antagonistic(
@@ -701,10 +722,19 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
             pr_number: Pull request ID number to analyze.
             repo: Target repository ('owner/repo'). Defaults to current repository.
         """
+        import subprocess
+
         from hath0r_cli.bots.antagonistic_review import AntagonisticReviewBot
 
-        bot = AntagonisticReviewBot(repo=repo)
-        return bot.review_diff(pr_number=pr_number)
+        cmd = ["gh", "pr", "diff", str(pr_number)]
+        if repo:
+            cmd += ["-R", repo]
+        try:
+            diff = subprocess.check_output(cmd, stderr=subprocess.PIPE, timeout=60).decode("utf-8", errors="ignore")
+        except (OSError, subprocess.SubprocessError) as exc:
+            return {"success": False, "pr_number": pr_number, "error": f"Could not fetch PR diff: {exc}"}
+        bot = AntagonisticReviewBot()
+        return bot.review_diff(diff_content=diff)
 
     @mcp.tool()
     def hath0r_kb_smart_query(
@@ -720,7 +750,7 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         from hath0r_cli.bots.cag_rag_router import HybridCAGRAGRouter
 
         router = HybridCAGRAGRouter()
-        return router.route_query(query_str=query, top_k=top_k)
+        return router.route_query(query, top_k=top_k)
 
     @mcp.tool()
     def hath0r_finops_budget_check(
@@ -733,10 +763,14 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
             prompt: Text prompt string to evaluate against token budget rules.
             session_id: Optional active session identifier.
         """
-        from hath0r_cli.bots.token_tree_budget import TokenTreeBudgetGuard
+        from hath0r_cli.bots.token_tree_budget import token_tree_budget_guard
 
-        guard = TokenTreeBudgetGuard()
-        return guard.check_budget(prompt=prompt, session_id=session_id)
+        # Rough pre-flight estimate (~4 chars/token); nothing is recorded against the budget.
+        estimated_tokens = max(1, -(-len(prompt) // 4))
+        status = token_tree_budget_guard.check_budget(session_id or "default_tree")
+        status["prompt_tokens_estimate"] = estimated_tokens
+        status["within_budget"] = estimated_tokens <= status["remaining_tokens"]
+        return status
 
     @mcp.tool()
     def hath0r_evals_redteam(
@@ -752,7 +786,7 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         from hath0r_cli.bots.redteam_engine import MultiAgentRedTeamEngine
 
         engine = MultiAgentRedTeamEngine()
-        return engine.run_redteam_verification(scenario=scenario, rounds=rounds)
+        return engine.run_redteam_verification(component_name=scenario, stress_iterations=rounds)
 
     @mcp.tool()
     def hath0r_issue_list(

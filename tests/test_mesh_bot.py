@@ -1,6 +1,6 @@
 """Unit tests for MeshManagerBot."""
 
-from hath0r_cli.bots.mesh_manager_bot import MeshManagerBot, mesh_manager_bot
+from hath0r_cli.bots.mesh_manager_bot import MeshManagerBot
 
 
 def test_mesh_bot_status():
