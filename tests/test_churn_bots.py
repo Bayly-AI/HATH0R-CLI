@@ -1,6 +1,5 @@
 """Unit tests for ChurnManagerBot and HotspotRefactorBot."""
 
-from pathlib import Path
 from hath0r_cli.bots.churn_manager_bot import ChurnManagerBot, HotspotRefactorBot
 
 

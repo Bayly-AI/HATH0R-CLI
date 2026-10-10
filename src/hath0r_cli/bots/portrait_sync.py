@@ -39,7 +39,14 @@ def allowed_url(url: str) -> bool:
         and (
             host.endswith(".gov")
             or host
-            in ("en.wikipedia.org", "upload.wikimedia.org", "commons.wikimedia.org", "raw.githubusercontent.com")
+            in (
+                "en.wikipedia.org",
+                "www.wikidata.org",
+                "upload.wikimedia.org",
+                "thumb.wikimedia.org",
+                "commons.wikimedia.org",
+                "raw.githubusercontent.com",
+            )
         )
     )
 
@@ -92,7 +99,12 @@ class Fetcher:
             now = time.monotonic()
             start = max(now, self.next_request.get(host, now))
             base = max(
-                self.interval, 1.0 if host == "en.wikipedia.org" else 0.3 if host == "upload.wikimedia.org" else 0
+                self.interval,
+                1.0
+                if host == "en.wikipedia.org"
+                else 0.3
+                if host in ("upload.wikimedia.org", "thumb.wikimedia.org")
+                else 0,
             )
             self.next_request[host] = start + base * (1 + min(self.throttles[host], 8))
         self.sleep(max(0, start - time.monotonic()))
@@ -179,6 +191,71 @@ def load_crosswalk(fetcher, urls):
                     "birthday": str(person.get("bio", {}).get("birthday", "")),
                 }
     return result
+
+
+# Source credits are not subject matter: "from find-a-grave" portraits are photos of the person.
+_SOURCE_CREDITS = re.compile(r"(?:by|from)?[ _-]*find[ _-]*a[ _-]*grave", re.I)
+_NON_PORTRAIT_TOKENS = frozenset(
+    {
+        "signature",
+        "autograph",
+        "tomb",
+        "tombstone",
+        "gravestone",
+        "grave",
+        "headstone",
+        "cemetery",
+        "monument",
+        "memorial",
+        "plaque",
+        "marker",
+        "logo",
+        "map",
+        "flag",
+        "seal",
+        "house",
+        "building",
+        "buildings",
+        "habs",
+        "church",
+        "brawl",
+        "cartoon",
+        "caricature",
+        "survey",
+    }
+)
+
+
+def non_portrait_filename(name: str) -> bool:
+    """True when a Commons filename describes something other than the person.
+
+    Matches whole words so surnames (Graves, Gravely) and "engraved portrait" are not rejected.
+    """
+    text = _SOURCE_CREDITS.sub(" ", (name or "").lower())
+    if "coat_of_arms" in text.replace(" ", "_") or "arms_of" in text.replace(" ", "_"):
+        return True
+    tokens = set(re.split(r"[^a-z0-9]+", text))
+    return bool(tokens & _NON_PORTRAIT_TOKENS)
+
+
+_NAME_SUFFIXES = frozenset({"jr", "sr", "ii", "iii", "iv", "v"})
+
+
+def surname_in_filename(display_name: str, filename: str) -> bool:
+    """Wikidata P18 can depict a place, event or another person; require the subject's surname."""
+    import unicodedata
+
+    def fold(text):
+        return "".join(c for c in unicodedata.normalize("NFKD", (text or "").lower()) if c.isalnum() or c == " ")
+
+    words = [w for w in fold(display_name.replace(".", " ").replace(",", " ")).split() if w not in _NAME_SUFFIXES]
+    return bool(words) and len(words[-1]) >= 2 and words[-1] in fold(filename).replace(" ", "")
+
+
+def commons_file_url(filename: str, width: int = 600) -> str:
+    return (
+        "https://commons.wikimedia.org/wiki/Special:FilePath/" + quote(filename.replace(" ", "_")) + f"?width={width}"
+    )
 
 
 class PortraitSyncBot:
@@ -335,58 +412,78 @@ ROLLBACK;
             else:
                 pending.append((row, title, result))
 
-        def image_result(item, metadata):
+        def try_image(result, url, page_url, source):
+            data, final, mime = fetcher.get(url)
+            info = verify_image(data)
+            if not mime.lower().startswith("image/"):
+                raise ValueError("Non-image Content-Type")
+            result.update(
+                status="verified", source=source, source_page=page_url, photo_url=final, content_type=mime, **info
+            )
+            return result
+
+        def image_result(item, metadata, wikidata_images):
             row, title, result = item
             page_url = "https://en.wikipedia.org/wiki/" + quote(title.replace(" ", "_"), safe="()_")
             image = metadata.get("thumbnail", {}).get("source")
-            filename = metadata.get("pageimage", "").lower()
-            unsuitable = any(
-                token in filename
-                for token in (
-                    "signature",
-                    "coat_of_arms",
-                    "flag_of",
-                    "map_of",
-                    "seal_of",
-                    "tomb",
-                    "grave",
-                    "cemetery",
-                    "logo",
-                )
-            )
-            if not image or unsuitable:
-                status = "no_portrait" if not image else "non_portrait_asset"
+            if not image:
+                status = "no_portrait"
+            elif non_portrait_filename(metadata.get("pageimage", "")):
+                status = "non_portrait_asset"
             else:
                 try:
-                    data, final, mime = fetcher.get(image)
-                    info = verify_image(data)
-                    if not mime.lower().startswith("image/"):
-                        raise ValueError("Non-image Content-Type")
-                    result.update(
-                        status="verified",
-                        source="wikipedia",
-                        source_page=page_url,
-                        photo_url=final,
-                        content_type=mime,
-                        **info,
-                    )
-                    return result
+                    return try_image(result, image, page_url, "wikipedia")
                 except SourceError as exc:
                     status = exc.status
                 except (ValueError, OSError, SyntaxError):
                     status = "invalid_image"
             result["attempts"].append({"url": page_url, "status": status})
-            # A valid biography with no image is conclusive only if government checks were conclusive too.
+            # Fallback: Wikidata P18 ("image" of the subject) of the item linked from this same article.
+            qid = metadata.get("pageprops", {}).get("wikibase_item")
+            filename = wikidata_images.get(qid) if qid else None
+            if filename:
+                entity_url = f"https://www.wikidata.org/wiki/{qid}"
+                if non_portrait_filename(filename):
+                    result["attempts"].append({"url": entity_url, "status": "non_portrait_asset"})
+                elif not surname_in_filename(row.get("display_name", ""), filename):
+                    result["attempts"].append({"url": entity_url, "status": "identity_unconfirmed"})
+                else:
+                    try:
+                        candidate = try_image(result, commons_file_url(filename), entity_url, "wikidata")
+                        candidate["wikipedia_page"] = page_url
+                        # P18 subject is not guaranteed to be a portrait of this person: hold for human review.
+                        candidate["status"] = "needs_review"
+                        return candidate
+                    except SourceError as exc:
+                        result["attempts"].append({"url": entity_url, "status": exc.status})
+                    except (ValueError, OSError, SyntaxError):
+                        result["attempts"].append({"url": entity_url, "status": "invalid_image"})
+            # Conclusive only when every source answered definitively (missing or not a portrait).
+            conclusive = ("http_404", "http_410", "no_portrait", "no_matched_portrait", "non_portrait_asset")
             result["status"] = (
-                "not_found"
-                if status == "no_portrait"
-                and all(
-                    a["status"] in ("http_404", "http_410", "no_portrait", "no_matched_portrait")
-                    for a in result["attempts"]
-                )
-                else "unverified"
+                "not_found" if all(a["status"] in conclusive for a in result["attempts"]) else "unverified"
             )
             return result
+
+        def wikidata_p18(qids):
+            if not qids:
+                return {}
+            url = "https://www.wikidata.org/w/api.php?" + urlencode(
+                {"action": "wbgetentities", "format": "json", "props": "claims", "ids": "|".join(qids)}
+            )
+            try:
+                data, _, _ = fetcher.get(url)
+                entities = json.loads(data).get("entities", {})
+            except (SourceError, ValueError):
+                return {}
+            images = {}
+            for qid, entity in entities.items():
+                for claim in entity.get("claims", {}).get("P18", []):
+                    value = claim.get("mainsnak", {}).get("datavalue", {}).get("value")
+                    if isinstance(value, str) and claim.get("rank") != "deprecated":
+                        images[qid] = value
+                        break
+            return images
 
         for offset in range(0, len(pending), 50):
             batch = pending[offset : offset + 50]
@@ -395,8 +492,9 @@ ROLLBACK;
                 {
                     "action": "query",
                     "format": "json",
-                    "prop": "pageimages",
+                    "prop": "pageimages|pageprops",
                     "piprop": "thumbnail|name",
+                    "ppprop": "wikibase_item",
                     "pithumbsize": 600,
                     "redirects": 1,
                     "titles": "|".join(titles),
@@ -418,8 +516,14 @@ ROLLBACK;
                             break
                         canonical = names[canonical]
                     metadata[title] = pages.get(canonical, {})
+                needs_fallback = [
+                    m.get("pageprops", {}).get("wikibase_item")
+                    for m in metadata.values()
+                    if not m.get("thumbnail") or non_portrait_filename(m.get("pageimage", ""))
+                ]
+                p18 = wikidata_p18(sorted({q for q in needs_fallback if q}))
                 with ThreadPoolExecutor(max_workers=4) as pool:
-                    jobs = [pool.submit(image_result, item, metadata[item[1]]) for item in batch]
+                    jobs = [pool.submit(image_result, item, metadata[item[1]], p18) for item in batch]
                     completed = [job.result() for job in jobs]
             except (SourceError, ValueError, KeyError, TypeError) as exc:
                 status = exc.status if isinstance(exc, SourceError) else "invalid_metadata"

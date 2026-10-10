@@ -77,6 +77,7 @@ class PortraitTests(unittest.TestCase):
         ]:
             self.assertFalse(allowed_url(u))
         self.assertTrue(allowed_url("https://www.whitehouse.gov/a.jpg"))
+        self.assertTrue(allowed_url("https://thumb.wikimedia.org/wikipedia/commons/thumb/a.jpg/960px-a.jpg"))
 
     def test_apply_only_verified_and_optimistic(self):
         r = {
@@ -160,3 +161,104 @@ class FetcherTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FilenameClassifierTests(unittest.TestCase):
+    def test_surnames_and_engravings_are_portraits(self):
+        from hath0r_cli.bots.portrait_sync import non_portrait_filename
+
+        for name in [
+            "William_J._Graves.jpg",
+            "Joseph_J._Gravely_(Missouri_Congressman).jpg",
+            "LISLE,_Marcus_C_(BEP_engraved_portrait).jpg",
+            "Moses_Hoagland_from_findagrave.jpg",
+            "Charles_D._Martin_from_find-a-grave.jpg",
+            "Timothy_C._Day_by_Find_a_Grave.jpg",
+        ]:
+            self.assertFalse(non_portrait_filename(name), name)
+
+    def test_non_portrait_assets_are_rejected(self):
+        from hath0r_cli.bots.portrait_sync import non_portrait_filename
+
+        for name in [
+            "Adamson_Tannehill_tombstone.jpg",
+            "Ebenezer_Jackson,_Jr._Gravestone.jpg",
+            "James_Gillespie's_grave.jpg",
+            "Coat_of_Arms_of_John_Allen.svg",
+            "John_Smilie_Signature.jpg",
+            "Westview_Cemetery_-_Albert_G._Watkins_(cropped).jpg",
+            "A_map_of_the_Tennassee_state.jpg",
+            "Historic_American_Buildings_Survey_W._N._Mann_House.jpg",
+        ]:
+            self.assertTrue(non_portrait_filename(name), name)
+
+
+class WikidataFallbackTests(unittest.TestCase):
+    def test_p18_used_when_lead_image_is_a_tombstone(self):
+        import json as _json
+
+        bot = PortraitSyncBot()
+        row = {"id": "r1", "bioguide_id": "L000290", "wikipedia_id": "Joseph Lewis Jr.", "display_name": "Joseph Lewis"}
+        result = {"id": "r1", "status": "pending_wikipedia", "attempts": [{"status": "http_404"}]}
+        page = {
+            "title": "Joseph Lewis Jr.",
+            "pageimage": "Jos._Lewis'_Gravestone.jpg",
+            "thumbnail": {"source": "https://upload.wikimedia.org/g.jpg"},
+            "pageprops": {"wikibase_item": "Q1"},
+        }
+        query = _json.dumps({"query": {"pages": {"1": page}}}).encode()
+        entities = _json.dumps(
+            {
+                "entities": {
+                    "Q1": {
+                        "claims": {
+                            "P18": [
+                                {"rank": "normal", "mainsnak": {"datavalue": {"value": "Joseph C. Lewis II, 1805.jpg"}}}
+                            ]
+                        }
+                    }
+                }
+            }
+        ).encode()
+        f = Mock()
+        f.get.side_effect = [
+            (query, "https://en.wikipedia.org/w/api.php", "application/json"),
+            (entities, "https://www.wikidata.org/w/api.php", "application/json"),
+            (picture(), "https://upload.wikimedia.org/p.jpg", "image/jpeg"),
+        ]
+        out = bot.wikipedia_batch([row], {"r1": result}, {}, {}, f, io.StringIO())
+        self.assertEqual(out[0]["status"], "needs_review")
+        self.assertEqual(out[0]["source"], "wikidata")
+        self.assertIn("commons.wikimedia.org/wiki/Special:FilePath/", f.get.call_args_list[2].args[0])
+
+    def test_tombstone_without_p18_is_conclusive_not_found(self):
+        import json as _json
+
+        bot = PortraitSyncBot()
+        row = {"id": "r1", "bioguide_id": "T000036", "wikipedia_id": "Adamson Tannehill", "display_name": "A T"}
+        result = {"id": "r1", "status": "pending_wikipedia", "attempts": [{"status": "http_404"}]}
+        page = {
+            "title": "Adamson Tannehill",
+            "pageimage": "Adamson_Tannehill_tombstone.jpg",
+            "thumbnail": {"source": "https://upload.wikimedia.org/t.jpg"},
+            "pageprops": {"wikibase_item": "Q2"},
+        }
+        f = Mock()
+        f.get.side_effect = [
+            (_json.dumps({"query": {"pages": {"1": page}}}).encode(), "u", "application/json"),
+            (_json.dumps({"entities": {"Q2": {"claims": {}}}}).encode(), "u", "application/json"),
+        ]
+        out = bot.wikipedia_batch([row], {"r1": result}, {}, {}, f, io.StringIO())
+        self.assertEqual(out[0]["status"], "not_found")
+
+
+class SurnameGuardTests(unittest.TestCase):
+    def test_surname_required_for_wikidata_images(self):
+        from hath0r_cli.bots.portrait_sync import surname_in_filename
+
+        self.assertTrue(surname_in_filename("Charles Naylor", "CharlesNaylor.jpg"))
+        self.assertTrue(surname_in_filename("Joseph Lewis Jr.", "Joseph C. Lewis II, 1805.jpg"))
+        self.assertTrue(surname_in_filename("Myer Strouse", "MyerStrouse.jpg"))
+        self.assertFalse(surname_in_filename("Jonathan Hunt", "BrattleboroFall.jpg"))
+        self.assertFalse(surname_in_filename("Wiley Thompson", "Osceola, chief of the Seminoles (1899).jpg"))
+        self.assertFalse(surname_in_filename("William Ashley", "Beckwourth_buffalo02.jpg"))

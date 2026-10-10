@@ -1,11 +1,14 @@
 """Unit tests for HathorTUIApp and tui CLI command."""
 
+import pytest
 from click.testing import CliRunner
 from rich.layout import Layout
 from rich.panel import Panel
 
 from hath0r_cli.cli import main
 from hath0r_cli.ui.tui_app import HathorTUIApp
+
+pytestmark = pytest.mark.usefixtures("hermetic_group_root")
 
 
 def test_tui_panels_generation():
