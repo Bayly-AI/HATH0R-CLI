@@ -30,7 +30,7 @@ def factory_list(ctx: click.Context) -> None:
     import yaml
 
     cli_repo_root = _cli_repo_root()
-    group_root = _discover_group_root() or cli_repo_root
+    group_root = Path.cwd() if (Path.cwd() / "cfg/factories").is_dir() else (_discover_group_root() or cli_repo_root)
     factories_dir = group_root / "cfg" / "factories"
     if not factories_dir.is_dir():
         factories_dir = cli_repo_root / "cfg" / "factories"
@@ -83,7 +83,7 @@ def factory_info(ctx: click.Context, factory_id: str) -> None:
     import yaml
 
     cli_repo_root = _cli_repo_root()
-    group_root = _discover_group_root() or cli_repo_root
+    group_root = Path.cwd() if (Path.cwd() / "cfg/factories").is_dir() else (_discover_group_root() or cli_repo_root)
     factories_dir = group_root / "cfg" / "factories"
     if not factories_dir.is_dir():
         factories_dir = cli_repo_root / "cfg" / "factories"
@@ -145,7 +145,7 @@ def factory_validate(ctx: click.Context, factory_id: str | None) -> None:
     """Validate factory configurations against schema contracts and bot integrity."""
     from hath0r_cli.factory_validation import validate_all_factories, validate_factory_file
 
-    group_root = _discover_group_root()
+    group_root = Path.cwd() if (Path.cwd() / "cfg/factories").is_dir() else _discover_group_root()
     all_results = validate_all_factories(group_root)
 
     if factory_id:
@@ -272,7 +272,7 @@ def factory_run(ctx: click.Context, factory_id: str, workflow_id: str | None, re
     from hath0r_cli.step_runner import BotRegistry, execute_workflow, spool_telemetry_event
 
     cli_repo_root = _cli_repo_root()
-    group_root = _discover_group_root() or cli_repo_root
+    group_root = Path.cwd() if (Path.cwd() / "cfg/factories").is_dir() else (_discover_group_root() or cli_repo_root)
     factories_dir = group_root / "cfg" / "factories"
     if not factories_dir.is_dir():
         factories_dir = cli_repo_root / "cfg" / "factories"
@@ -329,7 +329,7 @@ def factory_run(ctx: click.Context, factory_id: str, workflow_id: str | None, re
         workflows = target_wfs
 
     run_id = f"run_{uuid.uuid4().hex[:12]}"
-    registry = BotRegistry(cwd=cli_repo_root)
+    registry = BotRegistry(cwd=group_root)
 
     wf_results = []
     diagnostics = []
