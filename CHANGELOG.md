@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-10
+
+### Added
+- **Verified Biography Portraits (`hath0r portraits sync`)**: New `PortraitSyncBot` mines government-first biography portraits with byte-level image verification (Pillow decode, size/dimension checks), SHA-256 and source provenance, checkpoint/resume, and opt-in `--apply` with optimistic old-URL checks (closes #384).
+- **Data-miner `sync-portraits` action**: Factories can run portrait sync through the bot registry.
+- **Portrait governance docs**: strategy, procedure, playbook, runbook, workflow and bot specification under `docs/governance/portraits/`.
+
+### Changed
+- **Factory root resolution**: `hath0r factory` commands prefer a cwd-local `cfg/factories` and execute bots from the resolved group root.
+- **Dependencies**: Added `Pillow>=10.4.0`.
+
+### Fixed
+- **Package version drift**: `pyproject.toml` version was left at 1.0.0 through the 1.0.1/1.1.0 releases; now aligned with `VERSION`.
+
 ## [1.1.0] - 2026-10-07
 
 ### Added
