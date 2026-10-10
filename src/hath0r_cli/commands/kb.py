@@ -457,16 +457,20 @@ def kb_sparql(ctx: click.Context, query_str: str) -> None:
 
 @kb.command("smart-query")
 @click.argument("query_text")
+@click.option("--limit", "-n", default=5, show_default=True, type=click.IntRange(1, 50), help="Max RAG matches.")
 @click.pass_context
-def kb_smart_query(ctx: click.Context, query_text: str) -> None:
+def kb_smart_query(ctx: click.Context, query_text: str, limit: int) -> None:
     """Hybrid CAG + RAG Knowledge Query Router."""
     from hath0r_cli.bots.cag_rag_router import cag_rag_router
-    res = cag_rag_router.route_query(query_text)
+
+    res = cag_rag_router.route_query(query_text, top_k=limit)
+    status = res.get("status")
+    state = "ok" if status == "success" else ("error" if status == "error" else "degraded")
 
     response = _build_response(
         ctx,
         command="kb.smart-query",
-        state="ok",
+        state=state,
         data=res,
     )
 
@@ -474,6 +478,20 @@ def kb_smart_query(ctx: click.Context, query_text: str) -> None:
         click.echo(f"\n[Hybrid Router Decision]: {res['route']} ({res['engine']})")
         click.echo(f"Query: '{query_text}'")
         click.echo(f"Recall Rate: {res['recall_rate']} | Cached: {res.get('prompt_cached')}")
+        if res["route"] != "RAG":
+            return
+        if res.get("message"):
+            click.echo(res["message"])
+            return
+        matches = res.get("matches") or []
+        if not matches:
+            click.echo("No knowledgebase matches.")
+            return
+        click.echo(f"Matches ({len(matches)}):")
+        for i, m in enumerate(matches, start=1):
+            click.echo(f"  {i}. {m['title']} — {m['path']} (score: {m['score']:.4f})")
+            if m.get("snippet"):
+                click.echo(f"     {m['snippet']}")
 
     _emit_response(ctx, response, text_renderer=_text)
 

@@ -754,11 +754,7 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         from hath0r_cli.bots.cag_rag_router import HybridCAGRAGRouter
 
         router = HybridCAGRAGRouter()
-        result = router.route_query(query)
-        matches = result.get("matches")
-        if isinstance(matches, list):
-            result["matches"] = matches[:top_k]
-        return result
+        return router.route_query(query, top_k=top_k)
 
     @mcp.tool()
     def hath0r_finops_budget_check(
