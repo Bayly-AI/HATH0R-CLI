@@ -14,6 +14,7 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "planes": ("hath0r_cli.commands.planes", "planes"),
     "schema": ("hath0r_cli.commands.planes", "schema"),
     "mcp": ("hath0r_cli.commands.mcp", "mcp"),
+    "portraits": ("hath0r_cli.commands.portraits", "portraits"),
     "factory": ("hath0r_cli.commands.factory", "factory"),
     "branch": ("hath0r_cli.commands.branch", "branch"),
     "pr": ("hath0r_cli.commands.pr", "pr"),

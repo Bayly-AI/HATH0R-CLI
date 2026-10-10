@@ -1907,7 +1907,10 @@ class BotRegistry:
     def _dispatch_data_miner_bot(
         self, bot: DataMinerBot, action: str, args: dict[str, Any], *, dry_run: bool = False
     ) -> StepExecutionResult:
-        if action == "mine-political-data":
+        if action == "sync-portraits":
+            from hath0r_cli.bots.portrait_sync import PortraitSyncBot
+            res = PortraitSyncBot(cwd=self.cwd).sync(dry_run=dry_run, **args)
+        elif action == "mine-political-data":
             res = bot.mine_political_data(**args)
         elif action == "gather-historic-data":
             res = bot.gather_historic_data(**args)
