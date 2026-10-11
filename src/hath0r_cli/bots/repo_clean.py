@@ -64,6 +64,17 @@ ALLOWED_ROOT_FILES: Set[str] = {
     # Coverage outputs
     ".coverage",
     "coverage.xml",
+    # IaC & Deployment
+    "fargate-profile.yaml",
+    # Toolchain configs & standard OSS docs
+    ".sonarcloud.properties",
+    ".mcp.json",
+    "setup.py",
+    "setup.cfg",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "CODE_OF_CONDUCT.md",
+    "README.TECHNICAL.md",
     # OS files
     ".DS_Store",
 }
@@ -103,6 +114,11 @@ ROOT_ESSENTIAL_CONFIGS: Set[str] = {
     "pyproject.toml",
     "pytest.ini",
     "sonar-project.properties",
+    ".sonarcloud.properties",
+    "fargate-profile.yaml",
+    ".mcp.json",
+    "setup.py",
+    "setup.cfg",
     "MANIFEST.json",
     "package.json",
     "package-lock.json",
