@@ -52,7 +52,8 @@ SUITE_SIBLINGS: Dict[str, Dict[str, Any]] = {
         "is_python": False,
         "bootstrap_cmd": ["./bin/hath0r-bootstrap.sh"],
         "has_container": True,
-        "container_name": "hath0r-nginx",
+        "container_name": "Hath0r-Edge",
+        "legacy_container_name": "hath0r-nginx",
         "compose_file": "deploy/docker/docker-compose.yml",
         "default_image": "nginx:1.27-alpine",
         "build_cmd": ["docker", "compose", "-f", "deploy/docker/docker-compose.yml", "up", "-d", "redis", "nginx", "phoenix", "mlflow"],
@@ -69,7 +70,8 @@ SUITE_SIBLINGS: Dict[str, Dict[str, Any]] = {
         "is_python": True,
         "bootstrap_cmd": [sys.executable, "-m", "pip", "install", "-e", "."],
         "has_container": True,
-        "container_name": "hath0r-mcp",
+        "container_name": "Hath0r-MCP",
+        "legacy_container_name": "hath0r-mcp",
         "compose_file": "docker-compose.yml",
         "default_image": "hath0r/mcp:local",
         "build_cmd": ["docker", "compose", "up", "-d", "--build", "--wait", "hath0r-mcp"],
@@ -501,6 +503,16 @@ class SiblingManagerBot:
                 container_name,
             ]
         )
+        if irc != 0 and spec.get("legacy_container_name"):
+            irc, iout, _ = self.runner(
+                [
+                    "docker",
+                    "inspect",
+                    "-f",
+                    "health={{if .State.Health}}{{.State.Health.Status}}{{else}}n/a{{end}} status={{.State.Status}}",
+                    str(spec["legacy_container_name"]),
+                ]
+            )
         status_str = iout.strip() if irc == 0 else "running"
 
         return {

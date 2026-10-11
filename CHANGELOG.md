@@ -19,6 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `install_container` to `SiblingManagerBot` supporting remote container URL pulling/tagging or local git repository build/compose fallback.
   - Added `--container`, `--image-url`, and `--prompt/--no-prompt` options to `hath0r mcp install`, `hath0r atc install`, and `hath0r repo install`.
   - Added dedicated `hath0r mcp container` and `hath0r atc container` commands with dry-run and JSON support.
+- **Canonical container naming alignment** (#418):
+  - Updated container names and network aliases across Docker compose templates and sibling management:
+    - Arize Phoenix: `Hath0r-phoenix`
+    - Edge NGINX: `Hath0r-Edge`
+    - Relational data: `Hath0r-Data`
+    - Session cache (Redis): `Hath0r-Sessions`
+    - FastMCP engine: `Hath0r-MCP`
+  - Updated `PhoenixManagerBot` and `SiblingManagerBot` with legacy container inspection fallbacks.
+  - Updated `cfg/docker/groups/hath0r/docker-compose.yml` and NGINX reverse proxy configuration.
 
 ## [1.3.0] - 2026-10-10
 
