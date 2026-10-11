@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
   "graph_id": "agentgraph-hathor-cli",
-  "timestamp": "2026-10-11T12:12:21.801551+00:00",
+  "timestamp": "2026-10-11T18:30:15.209971+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -1194,6 +1194,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__procedures__elt-pipeline-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Elt Pipeline Procedure",
+      "content": "# Procedure: Embedded ELT Pipeline Execution Procedure\n\n> Artifact: **Procedure** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Identity: `elt-pipeline-procedure`  \n> Suite: `HATH0R-CLI` Control Tower  \n> Issue Reference: Bayly-AI/HATH0R-CLI#430, Bayly-AI/HATH0R-CLI#431  \n> Date: 2026-10-11\n\n## 1. Scope & Purpose\n\nThis standard operating procedure defines the required steps for executing raw ingestion and downstream index synchronization across the Hath0r suite using the `hath0r elt` command surface.\n\n---\n\n## 2. Ingestion & Staging (Extract & Load)\n\n### Step 1: Extract Documentation\nStage raw markdown files into the local SQLite staging store without schema parsing:\n```bash\nhath0r elt extract --source docs/ --type docs --glob \"**/*.md\"\n```\n\n### Step 2: Extract External MCP Data\nExtract and stage samples from declared MCP data sources:\n```bash\nhath0r elt extract --source mcp://1-nation-mcp/federal_votes --type mcp\n```\n\n### Step 3: Extract Repository History & Churn\nStage recent git commits and churn statistics:\n```bash\nhath0r elt extract --source git --type git --commits 50\n```\n\n---\n\n## 3. Projection Synchronization (Transform)\n\n### Step 4: Synchronize Downstrea",
+      "properties": {
+        "path": "docs/governance/procedures/elt-pipeline-procedure.md",
+        "category": "procedures",
+        "size_bytes": 1902
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__procedures__mlflow-management-procedure_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1385,6 +1398,19 @@
         "path": "docs/governance/strategies/sqlite-fts5-kb-cache-strategy.md",
         "category": "strategies",
         "size_bytes": 4351
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__strategies__embedded-elt-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Embedded Elt Strategy",
+      "content": "# Strategy: Embedded ELT Pipeline Architecture Strategy\n\n> Artifact: **Strategy** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Identity: `embedded-elt-strategy`  \n> Suite: `HATH0R-CLI` Control Tower  \n> Issue Reference: Bayly-AI/HATH0R-CLI#428, Bayly-AI/HATH0R-CLI#429, Bayly-AI/HATH0R-CLI#430, Bayly-AI/HATH0R-CLI#431  \n> Date: 2026-10-11\n\n## 1. Executive Summary\n\nThe **Embedded ELT (Extract, Load, Transform)** Subsystem establishes a decoupled, non-destructive data ingestion and projection architecture within the Hath0r CLI and cognitive agentic substrate.\n\nTraditional ETL approaches transform and parse data upfront before discarding raw source texts, forcing expensive external re-extractions whenever embedding models, tokenizer vocabularies, or chunking strategies evolve. Embedded ELT resolves this by staging raw, unmodified source payloads (markdown documentation, MCP feeds, git history, telemetry spans) into a high-speed local SQLite cache, followed by independent, asynchronous projection transformations into downstream indices (FTS5, ColPali, AgentGraph, and FinOps telemetry).\n\n```\n┌────────────────────────────────────────────────────────┐\n│               ",
+      "properties": {
+        "path": "docs/governance/strategies/embedded-elt-strategy.md",
+        "category": "strategies",
+        "size_bytes": 3534
       },
       "is_current": true
     },
@@ -2429,6 +2455,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__elt-runtime-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Elt Runtime Runbook",
+      "content": "# Runbook: Embedded ELT Runtime Operations and Maintenance\n\n> Artifact: **Runbook** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Identity: `elt-runtime-runbook`  \n> Suite: `HATH0R-CLI` Control Tower  \n> Issue Reference: Bayly-AI/HATH0R-CLI#431  \n> Date: 2026-10-11\n\n## 1. System Overview\n\nThe Embedded ELT runtime manages the lifecycle of staged raw payloads and asynchronous downstream projections. It provides zero-infrastructure data lake capabilities directly within the Hath0r CLI workspace.\n\n---\n\n## 2. Daily & Scheduled Maintenance\n\n### Daily Synchronization Cadence\nInclude in automated CI/CD and developer workstation startup:\n```bash\n# Ingest updated documentation\nhath0r elt extract --source docs/ --type docs\n\n# Incrementally project to FTS5 and ColPali\nhath0r elt transform --projection all\n```\n\n### Weekly Retention Pruning\nEnsure historical staging records are pruned to maintain storage efficiency:\n```bash\nhath0r elt prune --retention 60\n```\n\n---\n\n## 3. SLA & Metrics Targets\n\n| Metric | Target | Warning Threshold | Critical Alert |\n| :--- | :--- | :--- | :--- |\n| **Ingestion Throughput** | > 200 docs/sec | < 50 docs/sec | Failure / Timeout |\n| **FTS5 Projec",
+      "properties": {
+        "path": "docs/governance/runbooks/elt-runtime-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 1733
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__openfeature-ops-runbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2611,6 +2650,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__workflows__embedded-elt-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Embedded Elt Workflow",
+      "content": "# Workflow: Embedded ELT Ingestion and Projection Workflow\n\n> Artifact: **Workflow** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Identity: `embedded-elt-workflow`  \n> Suite: `HATH0R-CLI` Control Tower  \n> Issue Reference: Bayly-AI/HATH0R-CLI#431  \n> Date: 2026-10-11\n\n## 1. Overview\n\nThe Embedded ELT Workflow orchestrates the continuous ingestion of documentation, MCP feeds, git history, and telemetry traces, followed by decoupled projection synchronization.\n\n---\n\n## 2. Declarative Definition\n\nThe pipeline is declared in [`cfg/workflows/embedded-elt-workflow.yaml`](file:///Users/raybayly/Development/OpenSource/HATH0R-CLI/cfg/workflows/embedded-elt-workflow.yaml):\n\n```yaml\nversion: \"1.0\"\nname: \"embedded-elt-sync\"\ndescription: \"Non-destructive raw ingestion and downstream index projection\"\ntriggers:\n  - on: \"git.push\"\n  - on: \"schedule.cron\"\n    cron: \"0 */4 * * *\"\nsteps:\n  - id: \"extract-docs\"\n    command: \"hath0r elt extract --source docs/ --type docs\"\n  - id: \"extract-git\"\n    command: \"hath0r elt extract --source git --type git --commits 25\"\n  - id: \"transform-projections\"\n    command: \"hath0r elt transform --projection all\"\n  - id: \"verify-status\"\n    comma",
+      "properties": {
+        "path": "docs/governance/workflows/embedded-elt-workflow.md",
+        "category": "workflows",
+        "size_bytes": 1229
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__workflows__mlflow-continuous-calibration-workflow_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2659,6 +2711,19 @@
         "path": "docs/governance/bot-specs/tlp-bots-spec.md",
         "category": "bot-specs",
         "size_bytes": 2873
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__embedded-elt-bots-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Embedded Elt Bots Spec",
+      "content": "# Bot Specification: Embedded ELT Managing Bots\n\n> Artifact: **Bot Specification** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Identity: `embedded-elt-bots-spec`  \n> Suite: `HATH0R-CLI` Control Tower  \n> Issue Reference: Bayly-AI/HATH0R-CLI#428, Bayly-AI/HATH0R-CLI#429, Bayly-AI/HATH0R-CLI#431  \n> Date: 2026-10-11\n\n## 1. Bots Overview\n\nThe Embedded ELT subsystem is governed by two complementary managing bots:\n1. `EmbeddedELTBot` (`src/hath0r_cli/bots/embedded_elt_bot.py`): Ingestion, adapter orchestration, and raw staging management.\n2. `TransformationPipelineBot` (`src/hath0r_cli/bots/transformation_pipeline_bot.py`): Projection lifecycle, dirty queue tracking, and downstream index synchronization.\n\n---\n\n## 2. Bot Specifications\n\n### `EmbeddedELTBot`\n- **Role**: Source Ingestion & Raw Staging Authority\n- **Inputs**: File system paths, MCP server endpoints, git commit objects, OTel traces.\n- **Invariants**:\n  - Never mutates or truncates source payloads at ingestion time.\n  - Generates immutable SHA-256 content hashes for idempotency and deduplication.\n  - Persists provenance metadata (`source_uri`, `source_type`, `mtime`, `ingested_at`).\n\n### `Transformation",
+      "properties": {
+        "path": "docs/governance/bot-specs/embedded-elt-bots-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 1822
       },
       "is_current": true
     },
@@ -2932,6 +2997,19 @@
         "path": "docs/governance/playbooks/end-of-task-daemon-playbook.md",
         "category": "playbooks",
         "size_bytes": 1472
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__elt-troubleshooting-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Elt Troubleshooting Playbook",
+      "content": "# Playbook: Embedded ELT Troubleshooting and Diagnostics\n\n> Artifact: **Playbook** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Identity: `elt-troubleshooting-playbook`  \n> Suite: `HATH0R-CLI` Control Tower  \n> Issue Reference: Bayly-AI/HATH0R-CLI#431  \n> Date: 2026-10-11\n\n## 1. Diagnostic Decision Tree\n\n```\n[Issue Encountered]\n   ├── Dirty / Out-of-Sync Projections ──► Pattern 1: Force Re-Projection\n   ├── SQLite Database Locked (WAL)   ──► Pattern 2: Clear WAL Lock & Checkpoint\n   ├── Bloated Cache Database Size    ──► Pattern 3: Execute Prune & Vacuum\n   └── Corrupted Raw Payloads         ──► Pattern 4: Purge Staging Store & Re-Extract\n```\n\n---\n\n## 2. Remediation Patterns\n\n### Pattern 1: Out-of-Sync Projections\n- **Symptom**: `hath0r elt status` shows non-zero counts under `Pending / Dirty Queue`, or search results in `hath0r kb search` omit newly added documentation.\n- **Remediation**:\n  ```bash\n  hath0r elt transform --projection all --rebuild\n  hath0r elt status\n  ```\n\n### Pattern 2: SQLite WAL Lock Contention\n- **Symptom**: `OperationalError: database is locked`.\n- **Root Cause**: Unclosed reader process or crash leaving uncheckpointed WAL log.\n- **Reme",
+      "properties": {
+        "path": "docs/governance/playbooks/elt-troubleshooting-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 2049
       },
       "is_current": true
     },
@@ -3574,6 +3652,6 @@
   ],
   "metadata": {
     "repo_root": "/Users/raybayly/Development/OpenSource/hathor-cli",
-    "synced_sources": 267
+    "synced_sources": 273
   }
 }
