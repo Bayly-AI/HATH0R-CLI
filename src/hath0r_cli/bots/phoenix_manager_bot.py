@@ -23,7 +23,7 @@ class PhoenixManagerBot:
         "hath0r": {
             "compose_file": "cfg/docker/groups/hath0r/docker-compose.yml",
             "service": "phoenix",
-            "container": "HATH0R-Phoenix",
+            "container": "Hath0r-phoenix",
             "edge_url": "http://localhost:38000/phoenix/",
             "direct_url": "http://localhost:36006",
         },
