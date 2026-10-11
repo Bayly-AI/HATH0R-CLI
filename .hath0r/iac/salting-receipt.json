@@ -1,0 +1,20 @@
+{
+  "schema_version": "hath0r.iac.salting/1",
+  "image_name": "hathor-cli",
+  "mutable_tag": "711387127111.dkr.ecr.us-east-1.amazonaws.com/hathor-cli:latest",
+  "pinned_digest": "sha256:cbe00e393ffe267457470754de7266dc064afd8bac69d34e52df0c73884b39b2",
+  "pinned_ref": "711387127111.dkr.ecr.us-east-1.amazonaws.com/hathor-cli@sha256:cbe00e393ffe267457470754de7266dc064afd8bac69d34e52df0c73884b39b2",
+  "timestamp": "2026-10-11T15:47:18Z",
+  "attestation": {
+    "builder": "hath0r-cicccdct-runner",
+    "predicate_type": "https://slsa.dev/provenance/v1",
+    "signature_provider": "cosign",
+    "verified": true,
+    "rekor_bundle_logged": true
+  },
+  "secret_salting": {
+    "provider": "aws_secrets_manager",
+    "path": "/hath0r/secrets/hathor-cli",
+    "injected_at_runtime": true
+  }
+}
