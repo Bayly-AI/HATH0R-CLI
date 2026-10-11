@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 import click
 from rich.table import Table
 
-from hath0r_cli.bots.task_level_planner_bot import TaskExecutionDAG, TaskStatus, task_level_planner
+from hath0r_cli.bots.task_level_planner_bot import TaskExecutionDAG, task_level_planner
 from hath0r_cli.bots.temporal_logic_planner_bot import temporal_logic_planner
 from hath0r_cli.bots.thread_parallelism_bot import thread_parallelism
 from hath0r_cli.common import (
@@ -207,7 +207,7 @@ def tlp_verify(
     )
 
     def _text() -> None:
-        console.print(f"\n[bold cyan]Temporal Logic Planning (TLP) Verification Report[/bold cyan]")
+        console.print("\n[bold cyan]Temporal Logic Planning (TLP) Verification Report[/bold cyan]")
         console.print("=" * 70)
         console.print(f"Overall Status: [{'green' if report['valid'] else 'red'}]{'VERIFIED (Compliant)' if report['valid'] else 'VIOLATION DETECTED'}[/]")
         console.print(f"Trace Length: {report['trace_length']} steps: [dim]{' -> '.join(trace)}[/dim]\n")

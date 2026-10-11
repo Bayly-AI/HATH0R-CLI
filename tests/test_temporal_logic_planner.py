@@ -5,8 +5,6 @@ from __future__ import annotations
 import pytest
 
 from hath0r_cli.bots.temporal_logic_planner_bot import (
-    DeterministicFiniteAutomaton,
-    DFAState,
     TemporalLogicPlannerBot,
 )
 
