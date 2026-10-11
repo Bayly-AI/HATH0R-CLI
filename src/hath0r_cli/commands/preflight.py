@@ -19,14 +19,15 @@ def preflight() -> None:
 
 @preflight.command("run")
 @click.option("--skip-tests", is_flag=True, default=False, help="Only check branch + VERSION.")
+@click.option("--predictive", is_flag=True, default=False, help="Use AST GNN to run high-risk predictive test selection.")
 @click.option("--dry-run", is_flag=True, default=False)
 @click.pass_context
-def preflight_run(ctx: click.Context, skip_tests: bool, dry_run: bool) -> None:
+def preflight_run(ctx: click.Context, skip_tests: bool, predictive: bool, dry_run: bool) -> None:
     """Block PR open until branch taxonomy, VERSION, and local gates pass."""
     from hath0r_cli.bots.quality import PreflightBot
 
     bot = PreflightBot(cwd=Path.cwd())
-    res = bot.run(skip_tests=skip_tests, dry_run=dry_run)
+    res = bot.run(skip_tests=skip_tests, dry_run=dry_run, predictive=predictive)
     state = "ok" if res.get("success") else "error"
     response = _build_response(ctx, command="preflight.run", state=state, dry_run=dry_run, data=res)
 

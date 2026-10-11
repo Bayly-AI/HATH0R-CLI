@@ -460,6 +460,7 @@ class PreflightBot:
         *,
         skip_tests: bool = False,
         dry_run: bool = False,
+        predictive: bool = False,
         extra_commands: Optional[List[List[str]]] = None,
     ) -> Dict[str, Any]:
         cfg = _repo_cfg(self.cwd)
@@ -496,6 +497,41 @@ class PreflightBot:
             }
         )
 
+        predictive_report: Optional[Dict[str, Any]] = None
+        if predictive:
+            try:
+                from hath0r_engine.analysis.ast_gnn import ast_gnn_engine
+
+                _, diff_out, _ = run_cmd(["git", "diff", "--name-only", "HEAD~1"], cwd=self.cwd)
+                changed = [f.strip() for f in diff_out.splitlines() if f.strip().endswith(".py")]
+                if not changed:
+                    _, st_out, _ = run_cmd(["git", "status", "--porcelain"], cwd=self.cwd)
+                    changed = [line[3:].strip() for line in st_out.splitlines() if line[3:].strip().endswith(".py")]
+
+                nodes, edges = ast_gnn_engine.build_graph_from_directory(self.cwd, changed_files=changed)
+                gnn_rep = ast_gnn_engine.predict_test_selection(nodes, edges, changed_files=changed)
+                predictive_report = {
+                    "total_tests": gnn_rep.total_tests_discovered,
+                    "selected_tests": gnn_rep.selected_tests_count,
+                    "reduction_pct": gnn_rep.test_reduction_percentage,
+                    "latency_ms": gnn_rep.gnn_inference_latency_ms,
+                    "high_risk_tests": [t["name"] for t in gnn_rep.high_risk_tests],
+                }
+                checks.append(
+                    {
+                        "ok": True,
+                        "check": "predictive_test_selection",
+                        "reduction_pct": gnn_rep.test_reduction_percentage,
+                        "selected_tests": gnn_rep.selected_tests_count,
+                        "message": (
+                            f"AST GNN selected {gnn_rep.selected_tests_count}/{gnn_rep.total_tests_discovered} "
+                            f"tests ({gnn_rep.test_reduction_percentage}% reduction in CI tax, {gnn_rep.gnn_inference_latency_ms}ms)"
+                        ),
+                    }
+                )
+            except Exception as exc:
+                checks.append({"ok": True, "check": "predictive_test_selection", "warning": str(exc)})
+
         cmd_results: List[Dict[str, Any]] = []
         if not skip_tests:
             commands = extra_commands
@@ -523,6 +559,7 @@ class PreflightBot:
             "passed": success,
             "checks": checks,
             "command_results": cmd_results,
+            "predictive_report": predictive_report,
             "message": "Preflight passed — safe to open PR." if success else "Preflight failed — fix gates before PR.",
         }
 

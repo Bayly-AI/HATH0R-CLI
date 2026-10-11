@@ -5,6 +5,16 @@ All notable changes to **HATH0R CLI** (`hath0r-cli`) are documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-10-11
+
+### Added
+- **Hybrid Cognitive Substrate Neural Network Algorithms** (#451):
+  - **Dense Bi-Encoder Embeddings & Semantic Prompt Cache** (#452): 384-dimensional dense semantic embedding projections with cosine similarity cache hits and token tax savings.
+  - **Lightweight Neural Intent Classifier** (#453): Sub-2ms intent router over `CAG`, `RAG`, and `CLI_ACTION` query spaces in `HybridCAGRAGRouter`.
+  - **GAIN Telemetry Reconstruction** (#454): Generative Adversarial Imputation Networks generator and discriminator MLPs for sparse OpenInference telemetry.
+  - **AST Graph Neural Network for Predictive Test Selection** (#455): 2-layer Graph Convolutional Network (GCN) over codebase call graphs and test mappings via `hath0r preflight run --predictive`.
+  - **Deep Telemetry Autoencoder** (#456): Unsupervised bottleneck autoencoder for multivariate anomaly detection and prompt-tax explosion diagnosis via `hath0r observe anomalies`.
+
 ## [1.4.0] - 2026-10-11
 
 ### Added
