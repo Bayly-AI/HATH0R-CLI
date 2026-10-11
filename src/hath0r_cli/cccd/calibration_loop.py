@@ -23,6 +23,8 @@ class CCCDCalibrationLoop:
     dspy_bridge: DSPyCompilerBridge = field(default_factory=DSPyCompilerBridge)
 
     def __post_init__(self) -> None:
+        if self.cwd != Path.cwd() and self.state_file == Path.cwd() / ".hath0r" / "cccd_state.json":
+            self.state_file = self.cwd / ".hath0r" / "cccd_state.json"
         self.state_file.parent.mkdir(parents=True, exist_ok=True)
 
     def load_state(self) -> Dict[str, Any]:
