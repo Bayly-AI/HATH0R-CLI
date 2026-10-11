@@ -895,5 +895,75 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
             stage=target_stage,
         )
 
+    # --------------------------------------------------------------------------
+    # Infrastructure as Code (IaC) & Container Salting Tools
+    # --------------------------------------------------------------------------
+    @mcp.tool()
+    def hath0r_iac_audit(path: str = ".", sweep: bool = False) -> Dict[str, Any]:
+        """Audit workspace or repository tree for Container Hardening, Salting, and AWS EKS Fargate compliance.
+
+        Args:
+            path: Target workspace path or root directory to sweep.
+            sweep: Set True to recursively audit all repositories in path.
+        """
+        from hath0r_cli.bots.iac_bot import IaCManagingBot
+        bot = IaCManagingBot(workspace=Path(path))
+        return bot.audit_workspace(path=Path(path), sweep=sweep)
+
+    @mcp.tool()
+    def hath0r_iac_init(
+        path: str = ".",
+        tech_stack: Optional[str] = None,
+        app_name: Optional[str] = None,
+        force: bool = False,
+    ) -> Dict[str, Any]:
+        """Scaffold hardened multi-stage Dockerfile, container salting, and AWS EKS Fargate manifests.
+
+        Args:
+            path: Target workspace directory to initialize.
+            tech_stack: Optional stack override ('python', 'node', 'go', 'static').
+            app_name: Optional application name.
+            force: Overwrite existing IaC manifests if True.
+        """
+        from hath0r_cli.bots.iac_bot import IaCManagingBot
+        bot = IaCManagingBot(workspace=Path(path))
+        return bot.init_iac(path=Path(path), tech_stack=tech_stack, app_name=app_name, overwrite=force)
+
+    @mcp.tool()
+    def hath0r_iac_validate(path: str = ".") -> Dict[str, Any]:
+        """Validate repository against CR-IAC-001 (Container Security, Salting, and EKS Fargate readiness).
+
+        Args:
+            path: Target workspace directory to validate.
+        """
+        from hath0r_cli.bots.iac_bot import IaCManagingBot
+        bot = IaCManagingBot(workspace=Path(path))
+        return bot.validate_iac(path=Path(path))
+
+    @mcp.tool()
+    def hath0r_iac_salt(image: str, workspace: str = ".") -> Dict[str, Any]:
+        """Cryptographically salt container image, generate SHA-256 digest pin, and emit SLSA provenance receipt.
+
+        Args:
+            image: Image reference name or tag to salt.
+            workspace: Workspace directory where receipt will be saved.
+        """
+        from hath0r_cli.bots.iac_bot import IaCManagingBot
+        bot = IaCManagingBot(workspace=Path(workspace))
+        return bot.salt_container(image=image, workspace=Path(workspace))
+
+    @mcp.tool()
+    def hath0r_iac_render(path: str = ".", environment: str = "development") -> Dict[str, Any]:
+        """Render parameterized Kubernetes manifests targeting canonical environment.
+
+        Args:
+            path: Workspace containing k8s/ directory.
+            environment: Canonical environment ('development', 'testing', 'staging', 'master').
+        """
+        from hath0r_cli.bots.iac_bot import IaCManagingBot
+        bot = IaCManagingBot(workspace=Path(path))
+        return bot.render_manifests(path=Path(path), environment=environment)
+
     return mcp
+
 
