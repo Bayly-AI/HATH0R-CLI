@@ -30,8 +30,8 @@ def mlflow_cmd() -> None:
 @mlflow_cmd.command("status", help="Check MLflow tracking server and UI availability.")
 @click.option(
     "--group",
-    default="1-nation",
-    type=click.Choice(["1-nation", "hath0r", "bai"]),
+    default="hath0r",
+    type=click.Choice(["hath0r", "1-nation", "bai"]),
     help="Docker group name.",
 )
 @click.option("--endpoint", default=None, help="Custom MLflow HTTP/API endpoint.")
@@ -48,7 +48,7 @@ def mlflow_status(group: str, endpoint: Optional[str], as_json: bool) -> None:
             "service": cfg.service_name,
             "environment": cfg.deployment_environment,
             "active_url": res["active_url"],
-            "target_url": res["active_url"] or f"http://localhost:58000/mlflow/",
+            "target_url": res["active_url"] or f"http://localhost:38000/mlflow/",
             "healthy": res["healthy"],
             "http_status": res["http_status"],
             "error": res["error"],
@@ -72,8 +72,8 @@ def mlflow_status(group: str, endpoint: Optional[str], as_json: bool) -> None:
 @mlflow_cmd.command("up", help="Start the MLflow tracking container locally.")
 @click.option(
     "--group",
-    default="1-nation",
-    type=click.Choice(["1-nation", "hath0r", "bai"]),
+    default="hath0r",
+    type=click.Choice(["hath0r", "1-nation", "bai"]),
     help="Docker group name.",
 )
 @click.option("--detach/--no-detach", default=True, help="Run in background mode.")
@@ -91,8 +91,8 @@ def mlflow_up(group: str, detach: bool) -> None:
 @mlflow_cmd.command("down", help="Stop the MLflow tracking container.")
 @click.option(
     "--group",
-    default="1-nation",
-    type=click.Choice(["1-nation", "hath0r", "bai"]),
+    default="hath0r",
+    type=click.Choice(["hath0r", "1-nation", "bai"]),
     help="Docker group name.",
 )
 def mlflow_down(group: str) -> None:
@@ -108,14 +108,14 @@ def mlflow_down(group: str) -> None:
 @mlflow_cmd.command("ui", help="Open the MLflow Web UI in default browser.")
 @click.option(
     "--group",
-    default="1-nation",
-    type=click.Choice(["1-nation", "hath0r", "bai"]),
+    default="hath0r",
+    type=click.Choice(["hath0r", "1-nation", "bai"]),
     help="Docker group name.",
 )
 @click.option("--edge/--direct", default=True, help="Use Edge proxy or direct port.")
 def mlflow_ui(group: str, edge: bool) -> None:
     """Open MLflow UI in the default web browser."""
-    group_cfg = mlflow_manager_bot.GROUP_COMPOSE_MAP.get(group, mlflow_manager_bot.GROUP_COMPOSE_MAP["1-nation"])
+    group_cfg = mlflow_manager_bot.GROUP_COMPOSE_MAP.get(group, mlflow_manager_bot.GROUP_COMPOSE_MAP["hath0r"])
     url = group_cfg["edge_url"] if edge else group_cfg["direct_url"]
     console.print(f"[cyan]Opening MLflow UI for group '{group}': {url}[/cyan]")
     webbrowser.open(url)
@@ -124,8 +124,8 @@ def mlflow_ui(group: str, edge: bool) -> None:
 @mlflow_cmd.command("experiments", help="List registered MLflow experiments.")
 @click.option(
     "--group",
-    default="1-nation",
-    type=click.Choice(["1-nation", "hath0r", "bai"]),
+    default="hath0r",
+    type=click.Choice(["hath0r", "1-nation", "bai"]),
     help="Docker group name.",
 )
 @click.option("--endpoint", default=None, help="Custom MLflow HTTP endpoint.")
@@ -159,8 +159,8 @@ def mlflow_experiments(group: str, endpoint: Optional[str], as_json: bool) -> No
 @click.option("--experiment-id", "-e", default="0", help="MLflow Experiment ID.")
 @click.option(
     "--group",
-    default="1-nation",
-    type=click.Choice(["1-nation", "hath0r", "bai"]),
+    default="hath0r",
+    type=click.Choice(["hath0r", "1-nation", "bai"]),
     help="Docker group name.",
 )
 @click.option("--endpoint", default=None, help="Custom MLflow HTTP endpoint.")
@@ -198,8 +198,8 @@ def mlflow_runs(experiment_id: str, group: str, endpoint: Optional[str], as_json
 @click.option("--metric", "-m", "metrics", multiple=True, help="Metric in key=value format.")
 @click.option(
     "--group",
-    default="1-nation",
-    type=click.Choice(["1-nation", "hath0r", "bai"]),
+    default="hath0r",
+    type=click.Choice(["hath0r", "1-nation", "bai"]),
     help="Docker group name.",
 )
 def mlflow_log(

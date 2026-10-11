@@ -15,17 +15,17 @@
 ## 2. Capabilities & Interface
 
 ### Core Methods
-- `start_mlflow(group: str = "1-nation", detach: bool = True) -> Dict[str, Any]`
+- `start_mlflow(group: str = "hath0r", detach: bool = True) -> Dict[str, Any]`
   - Launches container and verifies port availability.
-- `stop_mlflow(group: str = "1-nation") -> Dict[str, Any]`
+- `stop_mlflow(group: str = "hath0r") -> Dict[str, Any]`
   - Stops container cleanly.
-- `check_status(group: str = "1-nation", custom_endpoint: Optional[str] = None) -> Dict[str, Any]`
-  - Probes edge and direct health endpoints (`http://localhost:58000/mlflow/`, etc.).
-- `get_experiments(group: str = "1-nation", custom_endpoint: Optional[str] = None) -> List[Dict[str, Any]]`
+- `check_status(group: str = "hath0r", custom_endpoint: Optional[str] = None) -> Dict[str, Any]`
+  - Probes edge and direct health endpoints (`http://localhost:38000/mlflow/`, etc.).
+- `get_experiments(group: str = "hath0r", custom_endpoint: Optional[str] = None) -> List[Dict[str, Any]]`
   - Queries registered MLflow experiments via REST API.
-- `get_runs(experiment_id: str, group: str = "1-nation", custom_endpoint: Optional[str] = None) -> List[Dict[str, Any]]`
+- `get_runs(experiment_id: str, group: str = "hath0r", custom_endpoint: Optional[str] = None) -> List[Dict[str, Any]]`
   - Queries active and completed runs for the designated experiment.
-- `log_run(experiment_name: str, run_name: str, params: Dict[str, Any], metrics: Dict[str, float], tags: Optional[Dict[str, str]] = None, group: str = "1-nation") -> Optional[str]`
+- `log_run(experiment_name: str, run_name: str, params: Dict[str, Any], metrics: Dict[str, float], tags: Optional[Dict[str, str]] = None, group: str = "hath0r") -> Optional[str]`
   - Creates a new run, logs parameters and metrics, and marks status as `FINISHED`.
 
 ---

@@ -20,10 +20,10 @@ def test_mlflow_manager_bot_status_mocked():
         mock_resp.__enter__.return_value = mock_resp
         mock_urlopen.return_value = mock_resp
 
-        status = bot.check_status(group="1-nation")
+        status = bot.check_status(group="hath0r")
         assert status["healthy"] is True
-        assert status["group"] == "1-nation"
-        assert status["container"] == "1NMLFLOW"
+        assert status["group"] == "hath0r"
+        assert status["container"] == "HATH0R-MLflow"
 
 
 def test_mlflow_manager_bot_get_experiments_mocked():
@@ -35,7 +35,7 @@ def test_mlflow_manager_bot_get_experiments_mocked():
         ]
     }
     with patch.object(bot, "_request", return_value=mock_payload):
-        exps = bot.get_experiments(group="1-nation")
+        exps = bot.get_experiments(group="hath0r")
         assert len(exps) == 2
         assert exps[0]["name"] == "Default"
         assert exps[1]["name"] == "cccd-calibration"
@@ -58,22 +58,22 @@ def test_mlflow_manager_bot_log_run_mocked():
             run_name="unit_test_run",
             params={"temperature": 0.2},
             metrics={"loss": 0.05},
-            group="1-nation",
+            group="hath0r",
         )
         assert run_id == "mock_run_12345"
 
 
 def test_mlflow_cli_status():
     runner = CliRunner()
-    result = runner.invoke(main, ["mlflow", "status", "--group", "1-nation"])
+    result = runner.invoke(main, ["mlflow", "status"])
     assert result.exit_code == 0
     assert "MLflow Experiment Tracking Status" in result.output
 
-    json_res = runner.invoke(main, ["mlflow", "status", "--group", "1-nation", "--json"])
+    json_res = runner.invoke(main, ["mlflow", "status", "--json"])
     assert json_res.exit_code == 0
     parsed = json.loads(json_res.output)
-    assert parsed["group"] == "1-nation"
-    assert parsed["container"] == "1NMLFLOW"
+    assert parsed["group"] == "hath0r"
+    assert parsed["container"] == "HATH0R-MLflow"
 
 
 def test_mlflow_cli_experiments():
@@ -85,11 +85,11 @@ def test_mlflow_cli_experiments():
             {"experiment_id": "1", "name": "cccd-calibration", "artifact_location": "/data/artifacts/1", "lifecycle_stage": "active"}
         ],
     ):
-        result = runner.invoke(main, ["mlflow", "experiments", "--group", "1-nation"])
+        result = runner.invoke(main, ["mlflow", "experiments"])
         assert result.exit_code == 0
         assert "cccd-calibration" in result.output
 
-        json_res = runner.invoke(main, ["mlflow", "experiments", "--group", "1-nation", "--json"])
+        json_res = runner.invoke(main, ["mlflow", "experiments", "--json"])
         assert json_res.exit_code == 0
         parsed = json.loads(json_res.output)
         assert len(parsed) == 1
@@ -109,11 +109,11 @@ def test_mlflow_cli_runs():
         }
     ]
     with patch.object(mlflow_manager_bot, "get_runs", return_value=mock_runs):
-        result = runner.invoke(main, ["mlflow", "runs", "-e", "1", "--group", "1-nation"])
+        result = runner.invoke(main, ["mlflow", "runs", "-e", "1"])
         assert result.exit_code == 0
         assert "test_run_1" in result.output
 
-        json_res = runner.invoke(main, ["mlflow", "runs", "-e", "1", "--group", "1-nation", "--json"])
+        json_res = runner.invoke(main, ["mlflow", "runs", "-e", "1", "--json"])
         assert json_res.exit_code == 0
         parsed = json.loads(json_res.output)
         assert len(parsed) == 1
@@ -136,8 +136,6 @@ def test_mlflow_cli_log():
                 "temperature=0.3",
                 "-m",
                 "mean_snr_db=25.0",
-                "--group",
-                "1-nation",
             ],
         )
         assert result.exit_code == 0

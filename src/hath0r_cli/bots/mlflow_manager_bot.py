@@ -13,7 +13,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 
@@ -21,7 +21,18 @@ from typing import Any, Dict, List, Optional
 class MLflowManagerBot:
     """Manages MLflow lifecycle, multi-group deployments, and experiment tracking."""
 
+    _cached_api_urls: Dict[str, str] = field(default_factory=dict)
+
     GROUP_COMPOSE_MAP = {
+        "hath0r": {
+            "compose_file": "cfg/docker/groups/hath0r/docker-compose.yml",
+            "project": "hath0r-opensource",
+            "service": "mlflow",
+            "container": "HATH0R-MLflow",
+            "edge_url": "http://localhost:38000/mlflow/",
+            "api_url": "http://localhost:38000/mlflow/ajax-api/2.0/mlflow",
+            "direct_url": "http://localhost:5000/mlflow/",
+        },
         "1-nation": {
             "compose_file": "/Users/raybayly/Development/1-Nation/ATC/deploy/docker/docker-compose.yml",
             "project": "1-nation",
@@ -30,14 +41,6 @@ class MLflowManagerBot:
             "edge_url": "http://localhost:58000/mlflow/",
             "api_url": "http://localhost:58000/mlflow/ajax-api/2.0/mlflow",
             "direct_url": "http://localhost:5000/mlflow/",
-        },
-        "hath0r": {
-            "compose_file": "cfg/docker/groups/hath0r/docker-compose.yml",
-            "service": "mlflow",
-            "container": "HATH0R-MLflow",
-            "edge_url": "http://localhost:38000/mlflow/",
-            "api_url": "http://localhost:38000/mlflow/ajax-api/2.0/mlflow",
-            "direct_url": "http://localhost:35000/mlflow/",
         },
         "bai": {
             "compose_file": "cfg/docker/groups/bai/docker-compose.yml",
@@ -49,9 +52,9 @@ class MLflowManagerBot:
         },
     }
 
-    def start_mlflow(self, group: str = "1-nation", detach: bool = True) -> Dict[str, Any]:
+    def start_mlflow(self, group: str = "hath0r", detach: bool = True) -> Dict[str, Any]:
         """Start the MLflow container for the target group."""
-        group_cfg = self.GROUP_COMPOSE_MAP.get(group, self.GROUP_COMPOSE_MAP["1-nation"])
+        group_cfg = self.GROUP_COMPOSE_MAP.get(group, self.GROUP_COMPOSE_MAP["hath0r"])
         compose_file = group_cfg["compose_file"]
         service = group_cfg["service"]
 
@@ -81,9 +84,9 @@ class MLflowManagerBot:
                 "error": exc.stderr.strip() or str(exc),
             }
 
-    def stop_mlflow(self, group: str = "1-nation") -> Dict[str, Any]:
+    def stop_mlflow(self, group: str = "hath0r") -> Dict[str, Any]:
         """Stop the MLflow container for the target group."""
-        group_cfg = self.GROUP_COMPOSE_MAP.get(group, self.GROUP_COMPOSE_MAP["1-nation"])
+        group_cfg = self.GROUP_COMPOSE_MAP.get(group, self.GROUP_COMPOSE_MAP["hath0r"])
         compose_file = group_cfg["compose_file"]
         service = group_cfg["service"]
 
@@ -108,9 +111,9 @@ class MLflowManagerBot:
                 "error": exc.stderr.strip() or str(exc),
             }
 
-    def check_status(self, group: str = "1-nation", custom_endpoint: Optional[str] = None) -> Dict[str, Any]:
+    def check_status(self, group: str = "hath0r", custom_endpoint: Optional[str] = None) -> Dict[str, Any]:
         """Check status of MLflow container and UI / API endpoints."""
-        group_cfg = self.GROUP_COMPOSE_MAP.get(group, self.GROUP_COMPOSE_MAP["1-nation"])
+        group_cfg = self.GROUP_COMPOSE_MAP.get(group, self.GROUP_COMPOSE_MAP["hath0r"])
         candidates = []
         if custom_endpoint:
             candidates.append(custom_endpoint)
@@ -118,6 +121,8 @@ class MLflowManagerBot:
             [
                 group_cfg["edge_url"],
                 group_cfg["direct_url"],
+                "http://localhost:38000/mlflow/",
+                "http://localhost:35000/mlflow/",
                 "http://localhost:58000/mlflow/",
                 "http://localhost:5000/mlflow/",
             ]
@@ -149,13 +154,21 @@ class MLflowManagerBot:
 
         return status
 
-    def _get_api_url(self, group: str = "1-nation", custom_endpoint: Optional[str] = None) -> str:
+    def _get_api_url(self, group: str = "hath0r", custom_endpoint: Optional[str] = None) -> str:
         if custom_endpoint:
             endpoint = custom_endpoint.rstrip("/")
             if endpoint.endswith("/ajax-api/2.0/mlflow") or endpoint.endswith("/api/2.0/mlflow"):
                 return endpoint
             return f"{endpoint}/ajax-api/2.0/mlflow"
-        group_cfg = self.GROUP_COMPOSE_MAP.get(group, self.GROUP_COMPOSE_MAP["1-nation"])
+        if group in self._cached_api_urls:
+            return self._cached_api_urls[group]
+        group_cfg = self.GROUP_COMPOSE_MAP.get(group, self.GROUP_COMPOSE_MAP["hath0r"])
+        st = self.check_status(group=group)
+        if st["healthy"] and st["active_url"]:
+            base = st["active_url"].rstrip("/")
+            api_url = f"{base}/ajax-api/2.0/mlflow"
+            self._cached_api_urls[group] = api_url
+            return api_url
         return group_cfg["api_url"]
 
     def _request(
@@ -163,7 +176,7 @@ class MLflowManagerBot:
         method: str,
         path: str,
         data: Optional[Dict[str, Any]] = None,
-        group: str = "1-nation",
+        group: str = "hath0r",
         custom_endpoint: Optional[str] = None,
     ) -> Dict[str, Any]:
         api_base = self._get_api_url(group=group, custom_endpoint=custom_endpoint)
@@ -179,7 +192,7 @@ class MLflowManagerBot:
             content = resp.read().decode("utf-8")
             return json.loads(content) if content else {}
 
-    def get_experiments(self, group: str = "1-nation", custom_endpoint: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_experiments(self, group: str = "hath0r", custom_endpoint: Optional[str] = None) -> List[Dict[str, Any]]:
         """Query registered experiments from MLflow."""
         try:
             res = self._request("GET", "/experiments/search?max_results=50", group=group, custom_endpoint=custom_endpoint)
@@ -190,7 +203,7 @@ class MLflowManagerBot:
     def get_or_create_experiment(
         self,
         name: str,
-        group: str = "1-nation",
+        group: str = "hath0r",
         custom_endpoint: Optional[str] = None,
     ) -> Optional[str]:
         """Get or create an experiment by name, returning its experiment_id."""
@@ -219,7 +232,7 @@ class MLflowManagerBot:
     def get_runs(
         self,
         experiment_id: str,
-        group: str = "1-nation",
+        group: str = "hath0r",
         custom_endpoint: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """Query runs for a specific experiment ID."""
@@ -242,7 +255,7 @@ class MLflowManagerBot:
         params: Dict[str, Any],
         metrics: Dict[str, float],
         tags: Optional[Dict[str, str]] = None,
-        group: str = "1-nation",
+        group: str = "hath0r",
         custom_endpoint: Optional[str] = None,
     ) -> Optional[str]:
         """Create an experiment run, log parameters and metrics, and mark it finished."""

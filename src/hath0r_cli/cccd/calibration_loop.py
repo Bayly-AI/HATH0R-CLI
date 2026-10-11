@@ -191,7 +191,7 @@ class CCCDCalibrationLoop:
                 params=params,
                 metrics=metrics,
                 tags=tags,
-                group="1-nation",
+                group="hath0r",
             )
         except Exception:
             return None
