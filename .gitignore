@@ -17,6 +17,8 @@ venv/
 .hath0r/*.json
 .hath0r/*.jsonl
 .hath0r/cccd/
+.hath0r/training_artifacts/
+.hath0r/training_datasets/
 src/hath0r_cli/bin/hath0r-listen
 src/hath0r_cli/bin/*.app
 release/hath0r-*

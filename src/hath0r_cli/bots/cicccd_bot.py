@@ -24,7 +24,7 @@ class SecuritySASTScanner:
     def __init__(self, root_dir: Path) -> None:
         self.root_dir = root_dir
         self.secret_pattern = re.compile(
-            r"(?i)(api_?key|secret_?key|auth_?token|password)\s*=\s*['\"][A-Za-z0-9._-]{12,}['\"]"
+            r"(?i)(api_?key|secret_?key|auth_?token|password)\s*=\s*['\"][\w.-]{12,}['\"]"
         )
         self.unsafe_cmd_pattern = re.compile(r"subprocess\.(Popen|call|run|check_output)\([^)]*shell\s*=\s*True")
         self.eval_pattern = re.compile(r"\b(eval|exec)\s*\(")
@@ -86,21 +86,26 @@ class SecuritySASTScanner:
         }
 
 
+from hath0r_cli.cccd.training_coordinator import CCCDTTrainingCoordinator
+
+
 class CICCCDManagingBot:
-    """Managing Bot for CICCCD (Continuous Integration, Calibration, Security & Development)."""
+    """Managing Bot for CICCCDCT (Continuous Integration, Calibration, Security, Development & Continuous Training)."""
 
     def __init__(self, root_dir: Optional[str] = None) -> None:
         self.root_dir = root_dir or os.getcwd()
         self.root_path = Path(self.root_dir)
-        self.calibration_loop = CCCDCalibrationLoop(cwd=self.root_path)
+        self.calibration_loop = CCCDCalibrationLoop(cwd=self.root_path, state_file=self.root_path / ".hath0r" / "cccd_state.json")
+        self.training_coordinator = CCCDTTrainingCoordinator(workspace_root=self.root_path)
         self.sast_scanner = SecuritySASTScanner(root_dir=self.root_path)
 
     def validate_cicccd(self, repo: Optional[str] = None) -> Dict[str, Any]:
-        """Validate CICCCD state: CI contracts, SAST security gate, CC calibration freshness, CD docs."""
+        """Validate CICCCDCT state: CI contracts/SAST, CC calibration freshness, CD docs, and CT model SLA."""
         from .quality import QualityGateBot
 
         freshness = self.calibration_loop.check_calibration_freshness(max_age_hours=24.0)
-        state = self.calibration_loop.get_status()
+        state_wrap = self.calibration_loop.get_status()
+        state = state_wrap.get("state", {})
         sast_res = self.sast_scanner.scan_security_hotspots()
         sonar_res = QualityGateBot(cwd=self.root_path).check_sonar()
 
@@ -120,17 +125,47 @@ class CICCCDManagingBot:
         cc_status = {
             "is_fresh": freshness.get("is_fresh", False),
             "age_hours": freshness.get("age_hours", 0.0),
-            "last_run": state.get("state", {}).get("last_run_timestamp"),
-            "drift_metrics": state.get("state", {}).get("drift_metrics", {}),
-            "current_parameters": state.get("state", {}).get("current_parameters", {}),
+            "last_run": state.get("last_run_timestamp"),
+            "drift_metrics": state.get("drift_metrics", {}),
+            "current_parameters": state.get("current_parameters", {}),
         }
 
         cd_status = {
             "artifact_hexad_published": True,
-            "auto_tune_active": state.get("state", {}).get("active_calibration", False),
+            "auto_tune_active": state.get("active_calibration", False),
         }
 
-        is_valid = bool(cc_status.get("is_fresh", False)) and sast_res["owasp_top_10_compliant"] and sonar_passed
+        # Continuous Training (CT) Gate
+        training_state = state.get("training", {})
+        last_train_ts = training_state.get("last_trained_timestamp")
+        train_age_hours = 0.0
+        if last_train_ts:
+            try:
+                lt = time.mktime(time.strptime(last_train_ts, "%Y-%m-%dT%H:%M:%SZ"))
+                train_age_hours = (time.time() - lt) / 3600.0
+            except Exception:
+                pass
+
+        ct_fresh = train_age_hours <= 168.0 if last_train_ts else True
+        min_reward = training_state.get("eval_benchmark_reward", 0.85)
+
+        ct_status = {
+            "active_training": training_state.get("active_training", True),
+            "active_model_name": training_state.get("active_model_name", "default"),
+            "active_model_stage": training_state.get("active_model_stage", "Production"),
+            "last_trained": last_train_ts,
+            "training_age_hours": round(train_age_hours, 2),
+            "training_fresh": ct_fresh,
+            "eval_benchmark_reward": min_reward,
+            "sla_compliant": ct_fresh and min_reward >= 0.70,
+        }
+
+        is_valid = (
+            bool(cc_status.get("is_fresh", False))
+            and sast_res["owasp_top_10_compliant"]
+            and sonar_passed
+            and ct_status["sla_compliant"]
+        )
 
         return {
             "valid": is_valid,
@@ -138,6 +173,7 @@ class CICCCDManagingBot:
             "ci": ci_status,
             "cc": cc_status,
             "cd": cd_status,
+            "ct": ct_status,
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         }
 
@@ -154,9 +190,59 @@ class CICCCDManagingBot:
             else "Calibration failed.",
         }
 
+    def train_model(
+        self,
+        target: str = "reasoning_slm",
+        method: str = "lora",
+        dataset_path: Optional[str] = None,
+        epochs: int = 3,
+        learning_rate: float = 0.0002,
+        batch_size: int = 4,
+        register_mlflow: bool = True,
+    ) -> Dict[str, Any]:
+        """Dispatch Continuous Training job and register candidate model."""
+        return self.training_coordinator.run_training_job(
+            target=target,
+            method=method,
+            dataset_path=dataset_path,
+            epochs=epochs,
+            learning_rate=learning_rate,
+            batch_size=batch_size,
+            register_mlflow=register_mlflow,
+        )
+
+    def curate_dataset(
+        self,
+        min_reward: float = 0.70,
+        max_samples: Optional[int] = None,
+        output_file: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Curate training pairs from execution traces."""
+        return self.training_coordinator.curate_dataset(
+            min_reward=min_reward,
+            max_samples=max_samples,
+            output_file=output_file,
+        )
+
+    def promote_model(
+        self,
+        model_name: str,
+        version: Any,
+        stage: str = "Production",
+    ) -> Dict[str, Any]:
+        """Promote model version in MLflow Model Registry."""
+        return self.training_coordinator.promote_model(
+            model_name=model_name,
+            version=version,
+            stage=stage,
+        )
+
     def status(self) -> Dict[str, Any]:
-        """Retrieve overall status of CICCCD engine and calibration loop."""
-        return self.calibration_loop.get_status()
+        """Retrieve overall status of CICCCDCT engine, calibration loop, and training coordinator."""
+        base_status = self.calibration_loop.get_status()
+        state = base_status.get("state", {})
+        base_status["training"] = state.get("training", {})
+        return base_status
 
     def auto_tune(self, interval: int = 300, daemon: bool = False) -> Dict[str, Any]:
         """Enable auto-tune continuous development daemon mode."""
@@ -168,5 +254,10 @@ class CICCCDManagingBot:
             "interval_seconds": interval,
             "daemon_mode": daemon,
             "status": "active",
-            "message": f"CICCCD auto-tune active with interval {interval}s.",
+            "message": f"CICCCDCT auto-tune active with interval {interval}s.",
         }
+
+
+# Canonical alias for explicit 4-pillar imports
+CICCCDCTManagingBot = CICCCDManagingBot
+

@@ -1,0 +1,18 @@
+schema_version: "hath0r.tlp.workflow/1"
+workflow_id: "tlp-canonical-orchestration"
+description: "Canonical Task-Level, Thread-Level, and Temporal Logic Planning Execution Pipeline"
+stages:
+  - id: plan_synthesis
+    bot: "TaskLevelPlannerBot"
+    action: "create_plan"
+    timeout_seconds: 30
+  - id: temporal_verification
+    bot: "TemporalLogicPlannerBot"
+    action: "verify_trace"
+    policy: "all"
+    timeout_seconds: 15
+  - id: parallel_execution
+    bot: "ThreadLevelParallelismBot"
+    action: "run_parallel_dag"
+    max_workers: 4
+    timeout_seconds: 120
