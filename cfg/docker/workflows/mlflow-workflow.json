@@ -1,0 +1,43 @@
+{
+  "apiVersion": "hath0r.docker.workflow/v1",
+  "kind": "DockerWorkflow",
+  "metadata": {
+    "id": "mlflow-workflow",
+    "name": "MLflow Experiment Tracking and Model Registry Workflow",
+    "group": "hath0r-opensource",
+    "product": "HATH0R-CLI",
+    "description": "Lifecycle orchestration and health verification for HATH0R-MLflow tracking container (issue #412)."
+  },
+  "spec": {
+    "factory": "docker-factory",
+    "compose": {
+      "file": "cfg/docker/groups/hath0r/docker-compose.yml",
+      "project": "hath0r-opensource"
+    },
+    "services": [
+      "mlflow"
+    ],
+    "steps": [
+      {
+        "op": "validate",
+        "on_failure": "abort"
+      },
+      {
+        "op": "up",
+        "params": {
+          "detach": true
+        },
+        "on_failure": "abort"
+      },
+      {
+        "op": "healthcheck",
+        "params": {
+          "service": "mlflow",
+          "retries": 5,
+          "interval_s": 5
+        },
+        "on_failure": "warn"
+      }
+    ]
+  }
+}
