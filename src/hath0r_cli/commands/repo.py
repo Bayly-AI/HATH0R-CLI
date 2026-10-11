@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -250,3 +251,180 @@ def clean_repos_cmd(ctx: click.Context, target_repo: str | None, all_repos: bool
 def clean_repo_cmd(ctx: click.Context, target_repo: str | None, all_repos: bool, no_commit: bool) -> None:
     """Top-level command to execute the 13-step Clean Repo SOP on current repo."""
     ctx.invoke(repo_workflow, target_repo=target_repo, all_repos=all_repos, no_commit=no_commit)
+
+
+@repo.command("siblings")
+@click.option("--check-remote", is_flag=True, default=False, help="Query GitHub for latest remote tags.")
+@click.pass_context
+def repo_siblings(ctx: click.Context, check_remote: bool) -> None:
+    """Inspect suite sibling repositories, installation locations, and versions."""
+    from rich.table import Table
+
+    from hath0r_cli.bots.sibling_bot import SiblingManagerBot
+
+    bot = SiblingManagerBot()
+    report = bot.scan_siblings(check_remote=check_remote)
+    state = "ok" if report.get("all_canonical_present") else "degraded"
+
+    response = _build_response(ctx, command="repo.siblings", state=state, data=report)
+
+    def _text() -> None:
+        table = Table(title="HATH0R Suite Siblings")
+        table.add_column("Product", style="bold cyan")
+        table.add_column("Status")
+        table.add_column("Local Version")
+        if check_remote:
+            table.add_column("Remote Latest")
+        table.add_column("Path")
+
+        for pid, p in report.get("products", {}).items():
+            status = (
+                "[green]Installed[/green]"
+                if p.get("present")
+                else (
+                    "[red]Missing (Canonical)[/red]"
+                    if p.get("canonical")
+                    else "[dim]Optional (Missing)[/dim]"
+                )
+            )
+            row = [
+                p.get("name", pid),
+                status,
+                p.get("local_version") or "-",
+            ]
+            if check_remote:
+                row.append(p.get("remote_version") or "-")
+            row.append(p.get("path") or "-")
+            table.add_row(*row)
+
+        console.print(table)
+        if not report.get("all_canonical_present"):
+            console.print("\n[bold yellow]Some canonical siblings are missing.[/bold yellow]")
+            console.print(
+                "Run [bold green]hath0r repo ensure[/bold green] to download and install missing siblings."
+            )
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@repo.command("install")
+@click.argument("product", required=True)
+@click.option("--version", "tag_or_version", default=None, help="Specific tag or version to download.")
+@click.option("--container", is_flag=True, default=False, help="Install and start as Docker container.")
+@click.option("--image-url", default=None, help="Remote container image URL (if not supplied, falls back to local git build).")
+@click.option("--prompt/--no-prompt", "interactive_prompt", default=True, help="Prompt operator for container image URL.")
+@click.pass_context
+def repo_install(
+    ctx: click.Context,
+    product: str,
+    tag_or_version: str | None,
+    container: bool,
+    image_url: str | None,
+    interactive_prompt: bool,
+) -> None:
+    """Download and install a suite sibling repository (e.g. hath0r-atc, hath0r-mcp)."""
+    from hath0r_cli.bots.sibling_bot import SiblingManagerBot
+    from hath0r_cli.envelope import Diagnostic
+
+    bot = SiblingManagerBot()
+    res = bot.download_and_install(product, version=tag_or_version)
+
+    state = "ok" if res.get("success") else "error"
+    diagnostics = []
+    if not res.get("success"):
+        diagnostics.append(
+            Diagnostic(
+                code="REPO_INSTALL_FAILED",
+                message=str(res.get("error", f"Failed to install {product}")),
+                severity="error",
+                remediation="Verify repository name, network connectivity, or GitHub credentials.",
+                provenance={"component": "hath0r-cli", "operation": "repo.install"},
+            )
+        )
+        response = _build_response(ctx, command="repo.install", state=state, data=res, diagnostics=diagnostics)
+        _emit_response(ctx, response)
+        ctx.exit(1)
+
+    # Optional container deployment
+    if container:
+        final_url = image_url
+        if not final_url and interactive_prompt and sys.stdin.isatty():
+            console.print("\n[bold cyan]Container Image Configuration[/bold cyan]")
+            entered = click.prompt(
+                "Container registry URL (press Enter to install locally from latest git version)",
+                default="",
+                show_default=False,
+            )
+            if entered.strip():
+                final_url = entered.strip()
+
+        c_res = bot.install_container(product, container_url=final_url)
+        res["container"] = c_res
+        if not c_res.get("success"):
+            diagnostics.append(
+                Diagnostic(
+                    code="REPO_CONTAINER_FAILED",
+                    message=str(c_res.get("error", f"Container deployment failed for {product}.")),
+                    severity="error",
+                    remediation="Check Docker daemon or local compose configuration.",
+                    provenance={"component": "hath0r-cli", "operation": "repo.install"},
+                )
+            )
+            state = "error"
+
+    response = _build_response(ctx, command="repo.install", state=state, data=res, diagnostics=diagnostics)
+
+    def _text() -> None:
+        if res.get("success"):
+            action = "Already installed" if res.get("already_installed") else "Successfully installed"
+            console.print(f"[bold green]✓ {action}:[/bold green] {res.get('name')} at {res.get('path')}")
+            if res.get("version"):
+                console.print(f"  Version: [bold cyan]{res.get('version')}[/bold cyan]")
+            if res.get("installed_deps"):
+                console.print("  [bold green]✓ Project dependencies installed.[/bold green]")
+            if "container" in res:
+                c = res["container"]
+                if c.get("success"):
+                    src = "remote URL" if c.get("source") == "remote_url" else "local git version"
+                    console.print(f"  [bold green]✓ Container deployed from {src}:[/bold green] {c.get('container_name')}")
+                else:
+                    console.print(f"  [bold red]✗ Container deployment failed:[/bold red] {c.get('error')}")
+        else:
+            console.print(f"[bold red]✗ Installation failed:[/bold red] {res.get('error')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if state != "ok":
+        ctx.exit(1)
+
+
+@repo.command("ensure")
+@click.option("--dry-run", is_flag=True, default=False, help="Simulate checking without downloading.")
+@click.pass_context
+def repo_ensure(ctx: click.Context, dry_run: bool) -> None:
+    """Ensure all canonical suite sibling repositories (ATC, MCP) are present and installed."""
+    from hath0r_cli.bots.sibling_bot import SiblingManagerBot
+
+    bot = SiblingManagerBot()
+    res = bot.ensure_siblings(dry_run=dry_run)
+    state = "ok" if res.get("success") else "error"
+
+    response = _build_response(ctx, command="repo.ensure", state=state, data=res)
+
+    def _text() -> None:
+        console.print(f"[bold cyan]Ensure Suite Siblings[/bold cyan] (Dry Run: {dry_run})")
+        console.print("-" * 50)
+        for r in res.get("results", []):
+            name = r.get("name") or r.get("product_id")
+            if r.get("action") == "already_present":
+                console.print(f"  [green]✓[/green] [bold]{name}[/bold]: already installed ({r.get('path')})")
+            elif r.get("action") == "would_install":
+                console.print(f"  [yellow]?[/yellow] [bold]{name}[/bold]: would install from {r.get('repo')}")
+            elif r.get("success"):
+                console.print(f"  [green]✓[/green] [bold]{name}[/bold]: installed ({r.get('path')})")
+            else:
+                console.print(f"  [red]✗[/red] [bold]{name}[/bold]: failed — {r.get('error')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+

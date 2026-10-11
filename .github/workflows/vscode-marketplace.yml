@@ -4,6 +4,11 @@ on:
   release:
     types: [created]
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "packages/vscode-extension/**"
+      - "scripts/build_vscode_plugin.py"
+      - ".github/workflows/vscode-marketplace.yml"
 
 jobs:
   publish:
@@ -16,43 +21,52 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22.x'
+          cache: npm
+          cache-dependency-path: packages/vscode-extension/package-lock.json
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Build VS Code Extension & VSIX Package
-        run: |
-          python3 scripts/build_vscode_plugin.py
+      # The extension's CLI bridge test shells out to `python3 -m src.hath0r_cli.cli`.
+      - name: Install HATH0R CLI
+        run: python -m pip install -e .
+
+      # Compiles TypeScript to dist/, runs the extension tests, packages with vsce
+      # (fails if dist/extension.js is missing) and exports vsix_name / vsix_path.
+      - name: Build, test and package VS Code extension
+        id: build
+        run: python3 scripts/build_vscode_plugin.py
 
       - name: Install @vscode/vsce & ovsx CLI
+        if: github.event_name != 'pull_request'
         run: npm install -g @vscode/vsce ovsx
 
       - name: Publish to Visual Studio Marketplace
-        working-directory: ./release/vscode/plugin/extension
+        if: github.event_name != 'pull_request'
         run: |
-          if [ -n "${{ secrets.VSCE_PAT }}" ]; then
-            vsce publish -p "${{ secrets.VSCE_PAT }}" --packagePath "../hath0r-vscode-0.9.0.vsix"
+          if [ -n "$VSCE_PAT" ]; then
+            vsce publish -p "$VSCE_PAT" --packagePath "${{ steps.build.outputs.vsix_path }}"
           else
-            echo "VSCE_PAT secret not configured. Skipping VS Code Marketplace upload."
+            echo "::warning title=VS Code Marketplace::VSCE_PAT secret not configured; ${{ steps.build.outputs.vsix_name }} was built but not published."
           fi
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
       - name: Publish to Open VSX Registry
-        working-directory: ./release/vscode/plugin/extension
+        if: github.event_name != 'pull_request'
         run: |
-          if [ -n "${{ secrets.OVSX_PAT }}" ]; then
-            ovsx publish "../hath0r-vscode-0.9.0.vsix" -p "${{ secrets.OVSX_PAT }}"
+          if [ -n "$OVSX_PAT" ]; then
+            ovsx publish "${{ steps.build.outputs.vsix_path }}" -p "$OVSX_PAT"
           else
-            echo "OVSX_PAT secret not configured. Skipping Open VSX Registry upload."
+            echo "::warning title=Open VSX::OVSX_PAT secret not configured; ${{ steps.build.outputs.vsix_name }} was built but not published."
           fi
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
 
-      - name: Upload VSIX Release Artifact
+      - name: Upload VSIX Artifact
         uses: actions/upload-artifact@v4
         with:
           name: hath0r-vscode-vsix
-          path: release/vscode/plugin/hath0r-vscode-0.9.0.vsix
+          path: ${{ steps.build.outputs.vsix_path }}

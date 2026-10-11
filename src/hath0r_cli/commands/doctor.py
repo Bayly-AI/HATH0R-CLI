@@ -39,12 +39,32 @@ from hath0r_cli.envelope import Diagnostic
     default=False,
     help="Include Vision Transformer backend and configuration checks.",
 )
+@click.option(
+    "--install-missing",
+    "install_missing",
+    is_flag=True,
+    default=False,
+    help="Automatically download and install any missing suite sibling repositories.",
+)
 @click.pass_context
-def doctor(ctx: click.Context, check_mcp: bool, check_factories: bool, check_vision: bool) -> None:
+def doctor(
+    ctx: click.Context,
+    check_mcp: bool,
+    check_factories: bool,
+    check_vision: bool,
+    install_missing: bool,
+) -> None:
     """Check group paths, control tower, member repos, and KB hub presence."""
     root = _group_root()
     kb = _kb_path()
     verbose = bool(ctx.obj.get("verbose", False))
+
+    if install_missing:
+        from hath0r_cli.bots.sibling_bot import SiblingManagerBot
+
+        bot = SiblingManagerBot(group_root=root)
+        bot.ensure_siblings(group_root=root)
+
     result = run_checks(
         root,
         kb,
