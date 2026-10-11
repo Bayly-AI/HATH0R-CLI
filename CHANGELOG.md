@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `hath0r mcp install` subcommand.
   - Added `--install-missing` flag to `hath0r doctor` to automatically download and bootstrap missing siblings.
   - Updated `cfg/products.yaml` to include canonical product definitions for `hath0r-atc` and `hath0r-mcp`.
+- **Container image URL prompting and local git build fallback** (#416):
+  - Added `install_container` to `SiblingManagerBot` supporting remote container URL pulling/tagging or local git repository build/compose fallback.
+  - Added `--container`, `--image-url`, and `--prompt/--no-prompt` options to `hath0r mcp install`, `hath0r atc install`, and `hath0r repo install`.
+  - Added dedicated `hath0r mcp container` and `hath0r atc container` commands with dry-run and JSON support.
 
 ## [1.3.0] - 2026-10-10
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -309,8 +310,18 @@ def repo_siblings(ctx: click.Context, check_remote: bool) -> None:
 @repo.command("install")
 @click.argument("product", required=True)
 @click.option("--version", "tag_or_version", default=None, help="Specific tag or version to download.")
+@click.option("--container", is_flag=True, default=False, help="Install and start as Docker container.")
+@click.option("--image-url", default=None, help="Remote container image URL (if not supplied, falls back to local git build).")
+@click.option("--prompt/--no-prompt", "interactive_prompt", default=True, help="Prompt operator for container image URL.")
 @click.pass_context
-def repo_install(ctx: click.Context, product: str, tag_or_version: str | None) -> None:
+def repo_install(
+    ctx: click.Context,
+    product: str,
+    tag_or_version: str | None,
+    container: bool,
+    image_url: str | None,
+    interactive_prompt: bool,
+) -> None:
     """Download and install a suite sibling repository (e.g. hath0r-atc, hath0r-mcp)."""
     from hath0r_cli.bots.sibling_bot import SiblingManagerBot
     from hath0r_cli.envelope import Diagnostic
@@ -330,6 +341,36 @@ def repo_install(ctx: click.Context, product: str, tag_or_version: str | None) -
                 provenance={"component": "hath0r-cli", "operation": "repo.install"},
             )
         )
+        response = _build_response(ctx, command="repo.install", state=state, data=res, diagnostics=diagnostics)
+        _emit_response(ctx, response)
+        ctx.exit(1)
+
+    # Optional container deployment
+    if container:
+        final_url = image_url
+        if not final_url and interactive_prompt and sys.stdin.isatty():
+            console.print("\n[bold cyan]Container Image Configuration[/bold cyan]")
+            entered = click.prompt(
+                "Container registry URL (press Enter to install locally from latest git version)",
+                default="",
+                show_default=False,
+            )
+            if entered.strip():
+                final_url = entered.strip()
+
+        c_res = bot.install_container(product, container_url=final_url)
+        res["container"] = c_res
+        if not c_res.get("success"):
+            diagnostics.append(
+                Diagnostic(
+                    code="REPO_CONTAINER_FAILED",
+                    message=str(c_res.get("error", f"Container deployment failed for {product}.")),
+                    severity="error",
+                    remediation="Check Docker daemon or local compose configuration.",
+                    provenance={"component": "hath0r-cli", "operation": "repo.install"},
+                )
+            )
+            state = "error"
 
     response = _build_response(ctx, command="repo.install", state=state, data=res, diagnostics=diagnostics)
 
@@ -341,11 +382,18 @@ def repo_install(ctx: click.Context, product: str, tag_or_version: str | None) -
                 console.print(f"  Version: [bold cyan]{res.get('version')}[/bold cyan]")
             if res.get("installed_deps"):
                 console.print("  [bold green]✓ Project dependencies installed.[/bold green]")
+            if "container" in res:
+                c = res["container"]
+                if c.get("success"):
+                    src = "remote URL" if c.get("source") == "remote_url" else "local git version"
+                    console.print(f"  [bold green]✓ Container deployed from {src}:[/bold green] {c.get('container_name')}")
+                else:
+                    console.print(f"  [bold red]✗ Container deployment failed:[/bold red] {c.get('error')}")
         else:
             console.print(f"[bold red]✗ Installation failed:[/bold red] {res.get('error')}")
 
     _emit_response(ctx, response, text_renderer=_text)
-    if not res.get("success"):
+    if state != "ok":
         ctx.exit(1)
 
 

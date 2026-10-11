@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
-
-import pytest
+from typing import Dict, List, Tuple
 
 from hath0r_cli.bots.sibling_bot import SUITE_SIBLINGS, SiblingManagerBot
 
@@ -152,3 +150,66 @@ def test_ensure_siblings(tmp_path: Path) -> None:
     mcp_res = next(r for r in dry2["results"] if r["product_id"] == "hath0r-mcp")
     assert atc_res["action"] == "already_present"
     assert mcp_res["action"] == "would_install"
+
+
+def test_install_container_dry_run(tmp_path: Path) -> None:
+    bot = SiblingManagerBot(group_root=tmp_path)
+    # Dry run with no container URL -> local git build fallback
+    res_local = bot.install_container("hath0r-mcp", container_url=None, dry_run=True)
+    assert res_local["success"]
+    assert res_local["source"] == "local_git_build"
+    assert res_local["dry_run"]
+
+    # Dry run with remote container URL
+    res_remote = bot.install_container("hath0r-mcp", container_url="ghcr.io/bayly-ai/hath0r-mcp:v1.0.1", dry_run=True)
+    assert res_remote["success"]
+    assert res_remote["source"] == "remote_url"
+    assert res_remote["container_url"] == "ghcr.io/bayly-ai/hath0r-mcp:v1.0.1"
+
+
+def test_install_container_remote_url(tmp_path: Path) -> None:
+    calls: List[Tuple[List[str], Path | None]] = []
+
+    def mock_runner(cmd: List[str], cwd: Path | None = None, timeout: int = 120) -> Tuple[int, str, str]:
+        calls.append((cmd, cwd))
+        return 0, "mock docker success", ""
+
+    # Pre-create sibling folder
+    mcp_dir = tmp_path / "hath0r-mcp"
+    mcp_dir.mkdir()
+
+    bot = SiblingManagerBot(group_root=tmp_path, runner=mock_runner)
+    res = bot.install_container("hath0r-mcp", container_url="066949051380.dkr.ecr.us-east-2.amazonaws.com/hath0r/mcp:1.0.1")
+    assert res["success"]
+    assert res["source"] == "remote_url"
+    assert res["container_url"] == "066949051380.dkr.ecr.us-east-2.amazonaws.com/hath0r/mcp:1.0.1"
+
+    # Verifies docker pull was called
+    assert any(c[0][:2] == ["docker", "pull"] for c in calls)
+    # Verifies docker tag was called
+    assert any(c[0][:2] == ["docker", "tag"] for c in calls)
+
+
+def test_install_container_local_git_fallback(tmp_path: Path) -> None:
+    calls: List[Tuple[List[str], Path | None]] = []
+
+    def mock_runner(cmd: List[str], cwd: Path | None = None, timeout: int = 120) -> Tuple[int, str, str]:
+        calls.append((cmd, cwd))
+        if cmd[0] == "docker" and cmd[1] == "inspect":
+            return 0, "health=healthy status=running", ""
+        return 0, "mock build output", ""
+
+    # Pre-create sibling folder
+    mcp_dir = tmp_path / "hath0r-mcp"
+    mcp_dir.mkdir()
+
+    bot = SiblingManagerBot(group_root=tmp_path, runner=mock_runner)
+    # No container URL supplied -> fallback to local git build
+    res = bot.install_container("hath0r-mcp", container_url="")
+    assert res["success"]
+    assert res["source"] == "local_git_build"
+    assert res["status"] == "health=healthy status=running"
+
+    # Verifies docker compose build/up was called
+    assert any("compose" in c[0] and "up" in c[0] for c in calls)
+
