@@ -175,11 +175,46 @@ services:
       com.hath0r.component: phoenix
       com.hath0r.role: observability
 
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    container_name: HATH0R-MLflow
+    restart: unless-stopped
+    ports:
+      - "${HATH0R_MLFLOW_HOST_PORT:-35000}:5000"
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri sqlite:////data/mlflow.db
+      --default-artifact-root /data/artifacts
+      --allowed-hosts "*"
+      --cors-allowed-origins "*"
+      --static-prefix /mlflow
+    environment:
+      MLFLOW_PORT: 5000
+    volumes:
+      - hath0r_mlflow_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:5000/mlflow/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      hath0r-net:
+        aliases: [HATH0R-MLflow, mlflow, hath0r-mlflow]
+    labels:
+      com.hath0r.group: hath0r-opensource
+      com.hath0r.component: mlflow
+      com.hath0r.role: experiment-tracking
+
 volumes:
   hath0r_redis_data:
     name: hath0r_redis_data
   hath0r_phoenix_data:
     name: hath0r_phoenix_data
+  hath0r_mlflow_data:
+    name: hath0r_mlflow_data
 
 networks:
   hath0r-net:
