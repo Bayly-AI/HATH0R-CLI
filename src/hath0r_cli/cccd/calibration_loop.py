@@ -130,6 +130,18 @@ class CCCDCalibrationLoop:
             "mean_snr_db": taguchi_res["mean_snr_db"],
             "quality_loss": taguchi_res["mean_quality_loss"],
         }
+        # 3. Log to MLflow experiment tracking if available
+        mlflow_run_id = self._log_to_mlflow(
+            signature_name=signature_name,
+            iterations=iterations,
+            optimal_params=optimal_params,
+            taguchi_res=taguchi_res,
+            drift_metrics=state["drift_metrics"],
+            calibration_run=state["total_calibration_runs"],
+        )
+        if mlflow_run_id:
+            calibration_entry["mlflow_run_id"] = mlflow_run_id
+
         state["history"].append(calibration_entry)
         self.save_state(state)
         l2ws_predictor.save_warmstart(signature_name, optimal_params, taguchi_res["mean_quality_loss"])
@@ -142,7 +154,47 @@ class CCCDCalibrationLoop:
             "taguchi_optimization": taguchi_res,
             "updated_parameters": state["current_parameters"],
             "drift_metrics": state["drift_metrics"],
+            "mlflow_run_id": mlflow_run_id,
         }
+
+    def _log_to_mlflow(
+        self,
+        signature_name: str,
+        iterations: int,
+        optimal_params: Dict[str, Any],
+        taguchi_res: Dict[str, Any],
+        drift_metrics: Dict[str, Any],
+        calibration_run: int,
+    ) -> Optional[str]:
+        """Optionally record CCCD calibration metrics, Taguchi parameters, and S/N ratios to MLflow."""
+        try:
+            from hath0r_cli.bots.mlflow_manager_bot import mlflow_manager_bot
+
+            params = {
+                "signature_name": signature_name,
+                "iterations": str(iterations),
+                **{k: str(v) for k, v in optimal_params.items()},
+            }
+            metrics = {
+                "mean_snr_db": float(taguchi_res.get("mean_snr_db", 0.0)),
+                "quality_loss": float(taguchi_res.get("mean_quality_loss", 0.0)),
+                "accuracy_drift": float(drift_metrics.get("accuracy_drift", 0.0)),
+                "latency_drift_ms": float(drift_metrics.get("latency_drift_ms", 0.0)),
+            }
+            tags = {
+                "engine": "cccd",
+                "calibration_run": str(calibration_run),
+            }
+            return mlflow_manager_bot.log_run(
+                experiment_name="cccd-calibration",
+                run_name=f"calibration_run_{calibration_run}",
+                params=params,
+                metrics=metrics,
+                tags=tags,
+                group="1-nation",
+            )
+        except Exception:
+            return None
 
     def check_calibration_freshness(self, max_age_hours: float = 24.0) -> Dict[str, Any]:
         """Check if CCCD calibration was run within the last max_age_hours (default 24h)."""

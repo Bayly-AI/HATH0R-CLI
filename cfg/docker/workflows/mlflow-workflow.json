@@ -1,0 +1,43 @@
+{
+  "apiVersion": "hath0r.docker.workflow/v1",
+  "kind": "DockerWorkflow",
+  "metadata": {
+    "id": "mlflow-workflow",
+    "name": "MLflow Experiment Tracking and Model Registry Workflow",
+    "group": "1-nation",
+    "product": "HATH0R-CLI",
+    "description": "Lifecycle orchestration and health verification for 1NMLFLOW tracking container (issue #412)."
+  },
+  "spec": {
+    "factory": "docker-factory",
+    "compose": {
+      "file": "/Users/raybayly/Development/1-Nation/ATC/deploy/docker/docker-compose.yml",
+      "project": "1-nation"
+    },
+    "services": [
+      "1n-mlflow"
+    ],
+    "steps": [
+      {
+        "op": "validate",
+        "on_failure": "abort"
+      },
+      {
+        "op": "up",
+        "params": {
+          "detach": true
+        },
+        "on_failure": "abort"
+      },
+      {
+        "op": "healthcheck",
+        "params": {
+          "service": "1n-mlflow",
+          "retries": 5,
+          "interval_s": 5
+        },
+        "on_failure": "warn"
+      }
+    ]
+  }
+}
