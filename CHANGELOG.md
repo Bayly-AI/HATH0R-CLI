@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GAIN Telemetry Reconstruction** (#454): Generative Adversarial Imputation Networks generator and discriminator MLPs for sparse OpenInference telemetry.
   - **AST Graph Neural Network for Predictive Test Selection** (#455): 2-layer Graph Convolutional Network (GCN) over codebase call graphs and test mappings via `hath0r preflight run --predictive`.
   - **Deep Telemetry Autoencoder** (#456): Unsupervised bottleneck autoencoder for multivariate anomaly detection and prompt-tax explosion diagnosis via `hath0r observe anomalies`.
+- **Apache Airflow Integration** (#458): Added `Hath0rCliOperator` with fallback BaseOperator shim, `Hath0rHook`, Airflow provider metadata (`apache-airflow-providers-hath0r`), and enterprise pipeline reference DAG.
+- **Infrastructure as Code (IaC) & AWS EKS Fargate Standards** (#447): Added `hath0r iac` command group (`audit`, `init`, `validate`, `salt`, `render`), multi-stage Dockerfile scaffolding, and container salting.
 
 ## [1.4.0] - 2026-10-11
 
