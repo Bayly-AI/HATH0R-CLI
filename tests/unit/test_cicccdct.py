@@ -91,12 +91,21 @@ def test_cicccdct_cli_commands(temp_workspace: Path, monkeypatch) -> None:
     # Test status
     result = runner.invoke(main, ["-o", "text", "cicccdct", "status"])
     assert result.exit_code == 0
-    assert "HATH0R Continuous Integration, Calibration, Deployment & Continuous Training" in result.output
+    assert "CIC³DCT / CIC{qubed}DCT" in result.output
+
+    # Test cic3dct and cicqubedct aliases
+    res_alias1 = runner.invoke(main, ["-o", "text", "cic3dct", "status"])
+    assert res_alias1.exit_code == 0
+    assert "CIC³DCT / CIC{qubed}DCT" in res_alias1.output
+
+    res_alias2 = runner.invoke(main, ["-o", "text", "cicqubedct", "status"])
+    assert res_alias2.exit_code == 0
+    assert "CIC³DCT / CIC{qubed}DCT" in res_alias2.output
 
     # Test validate
     result = runner.invoke(main, ["-o", "text", "cicccdct", "validate"])
     assert result.exit_code == 0
-    assert "Closed-Loop 4-Pillar Validation" in result.output
+    assert "CIC³DCT Closed-Loop 4-Pillar Validation" in result.output
     assert "Continuous Training (CT):" in result.output
 
     # Test dataset curate

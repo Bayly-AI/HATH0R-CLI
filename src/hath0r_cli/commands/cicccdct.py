@@ -17,7 +17,7 @@ from hath0r_cli.common import _build_response, _emit_response, console
 @click.group(name="cicccdct", invoke_without_command=True)
 @click.pass_context
 def cicccdct(ctx: click.Context) -> None:
-    """Continuous Integration, Calibration, Deployment & Continuous Training (CICCCDCT) control plane."""
+    """Continuous Integration, Calibration, Deployment & Continuous Training (CIC³DCT / CIC{qubed}DCT) control plane."""
     ctx.ensure_object(dict)
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
@@ -26,7 +26,7 @@ def cicccdct(ctx: click.Context) -> None:
 @cicccdct.command(name="status")
 @click.pass_context
 def cicccdct_status(ctx: click.Context) -> None:
-    """Inspect 4-pillar CICCCDCT metrics: CI checks, CC parameters, CD state, and CT model lineage."""
+    """Inspect 4-pillar CIC³DCT metrics: CI checks, CC parameters, CD state, and CT model lineage."""
     bot = CICCCDCTManagingBot()
     status_data = bot.status()
 
@@ -40,7 +40,7 @@ def cicccdct_status(ctx: click.Context) -> None:
     def _text() -> None:
         state = status_data.get("state", {})
         console.print(
-            "\n[bold cyan]⚡ HATH0R Continuous Integration, Calibration, Deployment & Continuous Training (CICCCDCT)[/bold cyan]\n"
+            "\n[bold cyan]⚡ HATH0R Continuous Integration, Calibration, Deployment & Continuous Training (CIC³DCT / CIC{qubed}DCT)[/bold cyan]\n"
         )
 
         # CC Parameters Table
@@ -86,7 +86,7 @@ def cicccdct_status(ctx: click.Context) -> None:
             f"Total Calibration Runs: [bold white]{state.get('total_calibration_runs', 0)}[/bold white]\n"
             f"Total Training Runs: [bold white]{training.get('total_training_runs', 0)}[/bold white]\n"
             f"Active Model Checkpoint: [bold cyan]{training.get('active_model_name')}:{training.get('active_model_version')}[/bold cyan]",
-            title="CICCCDCT Governance Overview & Entry Gate",
+            title="CIC³DCT Governance Overview & Entry Gate",
             border_style="bold green",
         )
         console.print(summary_panel)
@@ -95,10 +95,10 @@ def cicccdct_status(ctx: click.Context) -> None:
 
 
 @cicccdct.command(name="validate")
-@click.option("--repo", type=str, default=None, help="Target repository to validate CICCCDCT state for.")
+@click.option("--repo", type=str, default=None, help="Target repository to validate CIC³DCT state for.")
 @click.pass_context
 def cicccdct_validate(ctx: click.Context, repo: Optional[str]) -> None:
-    """Validate 4-pillar CICCCDCT state across CI contracts/SAST, CC freshness, CD docs, and CT model SLA."""
+    """Validate 4-pillar CIC³DCT state across CI contracts/SAST, CC freshness, CD docs, and CT model SLA."""
     bot = CICCCDCTManagingBot()
     res = bot.validate_cicccd(repo=repo)
 
@@ -110,7 +110,7 @@ def cicccdct_validate(ctx: click.Context, repo: Optional[str]) -> None:
     )
 
     def _text() -> None:
-        console.print("\n[bold cyan]🔍 HATH0R CICCCDCT Closed-Loop 4-Pillar Validation[/bold cyan]\n")
+        console.print("\n[bold cyan]🔍 HATH0R CIC³DCT Closed-Loop 4-Pillar Validation[/bold cyan]\n")
         console.print(f"Target Repo: [bold white]{res['repo']}[/bold white]")
         console.print(
             f"Overall Status: {'[bold green]VALID (READY FOR PROMOTION)[/bold green]' if res['valid'] else '[bold yellow]REQUIRES ACTION[/bold yellow]'}\n"
@@ -194,7 +194,7 @@ def cicccdct_autotune(ctx: click.Context, interval: int, daemon: bool) -> None:
                 f"Check Interval: [bold cyan]{interval} seconds[/bold cyan]\n"
                 f"Daemon Mode: [bold yellow]{daemon}[/bold yellow]\n"
                 f"Status: Monitoring OTLP spans and drift thresholds for automated continuous training and tuning.",
-                title="CICCCDCT Auto-Tune Control Plane",
+                title="CIC³DCT Auto-Tune Control Plane",
                 border_style="bold cyan",
             )
         )
