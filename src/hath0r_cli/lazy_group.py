@@ -52,6 +52,9 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "phoenix": ("hath0r_cli.commands.phoenix", "phoenix_cmd"),
     "cccd": ("hath0r_cli.commands.cccd", "cccd"),
     "cicccd": ("hath0r_cli.commands.cicccd", "cicccd"),
+    "cicccdct": ("hath0r_cli.commands.cicccdct", "cicccdct"),
+    "cic3dct": ("hath0r_cli.commands.cicccdct", "cicccdct"),
+    "cicqubedct": ("hath0r_cli.commands.cicccdct", "cicccdct"),
     "upgrade": ("hath0r_cli.commands.upgrade", "upgrade"),
     "churn": ("hath0r_cli.commands.churn", "churn"),
     "pmat": ("hath0r_cli.commands.pmat", "pmat_cmd"),
@@ -60,6 +63,10 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "evals": ("hath0r_cli.commands.evals", "evals_cmd"),
     "mlflow": ("hath0r_cli.commands.mlflow", "mlflow_cmd"),
     "atc": ("hath0r_cli.commands.atc", "atc"),
+    "tlp": ("hath0r_cli.commands.tlp", "tlp"),
+    "elt": ("hath0r_cli.commands.elt", "elt"),
+    "iac": ("hath0r_cli.commands.iac", "iac"),
+    "infra": ("hath0r_cli.commands.iac", "iac"),
 }
 
 

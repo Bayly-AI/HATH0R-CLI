@@ -89,3 +89,26 @@ def test_phase2_cli_commands():
 
     res_cag_pack = runner.invoke(main, ["--output", "json", "context", "pack", "--cag"])
     assert res_cag_pack.exit_code == 0
+
+
+def test_neural_intent_classifier():
+    from hath0r_cli.bots.cag_rag_router import NeuralIntentClassifier
+
+    classifier = NeuralIntentClassifier()
+
+    # Query 1: Source code / AST -> CAG
+    c1 = classifier.classify("Where is the AST complexity calculation implemented in python?")
+    assert c1.intent == "CAG"
+    assert c1.inference_latency_ms < 5.0
+    assert c1.confidence > 0.3
+
+    # Query 2: Archival PDF / OneDrive -> RAG
+    c2 = classifier.classify("Find old career history PDF documents and resume files from OneDrive")
+    assert c2.intent == "RAG"
+    assert c2.inference_latency_ms < 5.0
+
+    # Query 3: CLI command execution -> CLI_ACTION
+    c3 = classifier.classify("hath0r preflight run and doctor validate container iac")
+    assert c3.intent == "CLI_ACTION"
+    assert c3.inference_latency_ms < 5.0
+

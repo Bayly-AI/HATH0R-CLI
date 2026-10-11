@@ -43,3 +43,15 @@ def test_observe_charts():
         or "Rendering CLI" in result.output
         or "telemetry chart error" in result.output
     )
+
+
+def test_observe_anomalies_json():
+    runner = CliRunner()
+    result = runner.invoke(main, ["observe", "anomalies", "--json"])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert data["total_spans_analyzed"] >= 10
+    assert data["anomalies_detected"] >= 1
+    assert "baseline_threshold" in data
+    assert any(rec["root_cause"] in ("PROMPT_TAX_EXPLOSION", "FINOPS_BUDGET_SPIKE", "LATENCY_STALL") for rec in data["anomalous_records"])
+

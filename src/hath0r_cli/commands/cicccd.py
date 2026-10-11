@@ -110,7 +110,14 @@ def cicccd_validate(ctx: click.Context, repo: str | None) -> None:
 
         console.print("\n[bold magenta]Continuous Development (CD):[/bold magenta]")
         console.print(f"  • Artifact Hexad Docs: [green]{res['cd']['artifact_hexad_published']}[/green]")
-        console.print(f"  • Auto-Tune Active: [cyan]{res['cd']['auto_tune_active']}[/cyan]\n")
+        console.print(f"  • Auto-Tune Active: [cyan]{res['cd']['auto_tune_active']}[/cyan]")
+
+        if "ct" in res:
+            console.print("\n[bold blue]Continuous Training (CT):[/bold blue]")
+            ct = res["ct"]
+            console.print(f"  • Active Model: [cyan]{ct.get('active_model_name')}[/cyan] (Stage: [green]{ct.get('active_model_stage')}[/green])")
+            console.print(f"  • Training Freshness SLA: {'[green]Compliant (<=168h)[/green]' if ct.get('training_fresh') else '[yellow]SLA Breached (>168h)[/yellow]'}")
+            console.print(f"  • Benchmark Reward: [bold green]{ct.get('eval_benchmark_reward')}[/bold green]\n")
 
     _emit_response(ctx, response, text_renderer=_text)
 
@@ -174,3 +181,11 @@ def cicccd_autotune(ctx: click.Context, interval: int, daemon: bool) -> None:
         )
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
+# Mount Continuous Training subgroups directly onto cicccd
+from hath0r_cli.commands.cicccdct import dataset_group, model_group, train_group
+
+cicccd.add_command(train_group, name="train")
+cicccd.add_command(dataset_group, name="dataset")
+cicccd.add_command(model_group, name="model")

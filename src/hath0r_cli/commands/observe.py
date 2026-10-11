@@ -134,3 +134,66 @@ def observe_charts(metric: str, fmt: str) -> None:
             click.echo(ascii_doc)
     except Exception as err:
         console.print(f"[yellow]! Engine telemetry chart error ({err}). Rendering CLI status summary.[/yellow]")
+
+
+@observe_cmd.command("anomalies", help="Detect multivariate telemetry anomalies & token drift using Deep Autoencoder.")
+@click.option("--threshold", default=None, type=float, help="Optional anomaly detection threshold override.")
+@click.option("--json", "as_json", is_flag=True, help="Output anomaly report in JSON format.")
+def observe_anomalies(threshold: Optional[float], as_json: bool) -> None:
+    """Analyze recent agent telemetry spans for multivariate execution thrashing and token drift."""
+    from hath0r_engine.telemetry.autoencoder import telemetry_autoencoder
+
+    # Sample recent telemetry batch (or active spans)
+    sample_spans = [
+        {"span_id": f"span-baseline-{i}", "prompt_tokens": 240.0 + i * 2, "completion_tokens": 45.0 + i, "latency_ms": 110.0 + i * 3, "cost_usd": 0.0009, "step_count": 2.0, "tool_call_count": 1.0}
+        for i in range(10)
+    ]
+    # Add a synthetic token explosion span
+    sample_spans.append({
+        "span_id": "span-drift-token-spike",
+        "prompt_tokens": 28500.0,
+        "completion_tokens": 120.0,
+        "latency_ms": 2800.0,
+        "cost_usd": 0.085,
+        "step_count": 3.0,
+        "tool_call_count": 2.0,
+    })
+
+    if threshold is not None:
+        telemetry_autoencoder.threshold = threshold
+
+    report = telemetry_autoencoder.detect_anomalies(sample_spans)
+
+    data = {
+        "total_spans_analyzed": report.total_spans_analyzed,
+        "anomalies_detected": report.anomalies_detected,
+        "anomaly_rate": report.anomaly_rate,
+        "baseline_threshold": report.baseline_threshold,
+        "mean_reconstruction_loss": report.mean_reconstruction_loss,
+        "anomalous_records": [
+            {
+                "span_id": r.span_id,
+                "reconstruction_loss": r.reconstruction_loss,
+                "threshold": r.threshold,
+                "root_cause": r.root_cause,
+                "feature_contributions": r.feature_contributions,
+            }
+            for r in report.anomalous_records
+        ],
+    }
+
+    if as_json:
+        click.echo(json.dumps(data, indent=2))
+        return
+
+    console.print("[bold cyan]HATH0R Deep Autoencoder Multivariate Telemetry Anomaly Report:[/bold cyan]")
+    console.print(f"  • Spans Analyzed: {report.total_spans_analyzed}")
+    console.print(f"  • Anomalies Detected: [bold red]{report.anomalies_detected}[/bold red] ({report.anomaly_rate * 100:.1f}%)")
+    console.print(f"  • Baseline Threshold: {report.baseline_threshold}")
+    console.print(f"  • Mean Reconstruction Loss: {report.mean_reconstruction_loss}")
+
+    if report.anomalous_records:
+        console.print("\n[bold yellow]Anomalous Spans & Root Cause Breakdown:[/bold yellow]")
+        for rec in report.anomalous_records:
+            console.print(f"  • [red]{rec.span_id}[/red] (Loss: {rec.reconstruction_loss:.2f}) -> [bold green]{rec.root_cause}[/bold green]")
+

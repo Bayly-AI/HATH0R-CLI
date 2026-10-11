@@ -1,0 +1,16 @@
+version: "1.0"
+name: "embedded-elt-sync"
+description: "Non-destructive raw ingestion and downstream index projection"
+triggers:
+  - on: "git.push"
+  - on: "schedule.cron"
+    cron: "0 */4 * * *"
+steps:
+  - id: "extract-docs"
+    command: "hath0r elt extract --source docs/ --type docs"
+  - id: "extract-git"
+    command: "hath0r elt extract --source git --type git --commits 25"
+  - id: "transform-projections"
+    command: "hath0r elt transform --projection all"
+  - id: "verify-status"
+    command: "hath0r elt status"
