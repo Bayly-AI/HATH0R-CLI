@@ -48,7 +48,7 @@ def mlflow_status(group: str, endpoint: Optional[str], as_json: bool) -> None:
             "service": cfg.service_name,
             "environment": cfg.deployment_environment,
             "active_url": res["active_url"],
-            "target_url": res["active_url"] or f"http://localhost:38000/mlflow/",
+            "target_url": res["active_url"] or "http://localhost:38000/mlflow/",
             "healthy": res["healthy"],
             "http_status": res["http_status"],
             "error": res["error"],
