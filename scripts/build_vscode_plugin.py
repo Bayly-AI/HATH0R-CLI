@@ -13,7 +13,17 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent
 VSCODE_PKG_DIR = ROOT_DIR / "packages" / "vscode-extension"
 RELEASE_VSCODE_DIR = ROOT_DIR / "release" / "vscode" / "plugin"
-VSIX_NAME = "hath0r-vscode-0.9.0.vsix"
+
+
+def vsix_name() -> str:
+    """VSIX file name derived from the extension manifest (never hard-coded)."""
+    pkg = json.loads((VSCODE_PKG_DIR / "package.json").read_text(encoding="utf-8"))
+    return f"{pkg['name']}-{pkg['version']}.vsix"
+
+
+def npm(*args: str) -> None:
+    """Run an npm command in the extension package; fail the build on error."""
+    subprocess.run(["npm", *args], cwd=VSCODE_PKG_DIR, check=True)
 
 
 def clean_release_dir():
@@ -123,51 +133,39 @@ def build_vscode_package():
         if (ROOT_DIR / doc_file).exists():
             shutil.copy2(ROOT_DIR / doc_file, rel_docs_dir / doc_file)
 
-    vsix_target = RELEASE_VSCODE_DIR / VSIX_NAME
-    manifest_content = generate_vsix_manifest(pkg_json)
-    content_types_content = generate_content_types()
+    vsix_target = RELEASE_VSCODE_DIR / vsix_name()
+    (RELEASE_VSCODE_DIR / "extension.vsixmanifest").write_text(generate_vsix_manifest(pkg_json), encoding="utf-8")
+    (RELEASE_VSCODE_DIR / "[Content_Types].xml").write_text(generate_content_types(), encoding="utf-8")
 
-    (RELEASE_VSCODE_DIR / "extension.vsixmanifest").write_text(manifest_content, encoding="utf-8")
-    (RELEASE_VSCODE_DIR / "[Content_Types].xml").write_text(content_types_content, encoding="utf-8")
-
-    vsce_packaged = False
-    try:
-        print("[Hath0r VSCode Build] Packaging extension with @vscode/vsce...")
-        cmd = ["npx", "--yes", "@vscode/vsce", "package", "--no-dependencies", "--out", str(vsix_target)]
-        res = subprocess.run(cmd, cwd=VSCODE_PKG_DIR, capture_output=True, text=True)
-        if res.returncode == 0 and vsix_target.exists():
-            vsce_packaged = True
-            print(f"[Hath0r VSCode Build] Created official marketplace VSIX via vsce: {vsix_target.name}")
-        else:
-            print(f"[Hath0r VSCode Build] vsce note: {res.stderr.strip() or res.stdout.strip()}")
-    except Exception as e:
-        print(f"[Hath0r VSCode Build] vsce fallback: {e}")
-
-    if not vsce_packaged:
-        print(f"[Hath0r VSCode Build] Building standard marketplace package {vsix_target.name}...")
-        with zipfile.ZipFile(vsix_target, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-            zf.writestr("[Content_Types].xml", content_types_content)
-            zf.writestr("extension.vsixmanifest", manifest_content)
-            for root, _, files in os.walk(staging_dir):
-                for file in files:
-                    full_path = Path(root) / file
-                    rel_path = full_path.relative_to(RELEASE_VSCODE_DIR)
-                    zf.write(full_path, arcname=str(rel_path))
-
+    # vsce runs `vscode:prepublish` (tsc) and validates that `main` (dist/extension.js) exists.
+    # A failed package is a failed build: never ship a hand-rolled VSIX without the compiled entrypoint.
+    print("[Hath0r VSCode Build] Packaging extension with @vscode/vsce...")
+    cmd = ["npx", "--yes", "@vscode/vsce", "package", "--no-dependencies", "--out", str(vsix_target)]
+    res = subprocess.run(cmd, cwd=VSCODE_PKG_DIR, capture_output=True, text=True)
+    if res.returncode != 0 or not vsix_target.exists():
+        raise SystemExit(f"[Hath0r VSCode Build] vsce package failed:\n{res.stderr.strip() or res.stdout.strip()}")
+    with zipfile.ZipFile(vsix_target) as zf:
+        if "extension/dist/extension.js" not in zf.namelist():
+            raise SystemExit("[Hath0r VSCode Build] VSIX is missing extension/dist/extension.js")
+    print(f"[Hath0r VSCode Build] Created marketplace VSIX via vsce: {vsix_target.name}")
+    github_output = os.environ.get("GITHUB_OUTPUT")
+    if github_output:
+        with open(github_output, "a", encoding="utf-8") as fh:
+            fh.write(f"vsix_name={vsix_target.name}\nvsix_path={vsix_target}\n")
     print(f"[Hath0r VSCode Build] Successfully finalized VSIX package: {vsix_target}")
 
 
 def run_vscode_tests():
-    print("[Hath0r VSCode Build] Running extension test suite...")
-    test_file = VSCODE_PKG_DIR / "test" / "extension.test.js"
-    cmd = ["node", "--test", str(test_file)]
-    subprocess.run(cmd, cwd=ROOT_DIR, check=True)
+    """Install pinned dev dependencies, compile TypeScript to dist/, and run the extension tests."""
+    print("[Hath0r VSCode Build] Installing dependencies, compiling and testing...")
+    npm("ci", "--no-audit", "--no-fund")
+    npm("test")
 
 
 def main():
     clean_release_dir()
-    build_vscode_package()
     run_vscode_tests()
+    build_vscode_package()
 
     print(f"\n[Hath0r VSCode Build Success] Artifacts created in {RELEASE_VSCODE_DIR}:")
     for f in sorted(RELEASE_VSCODE_DIR.rglob("*")):
