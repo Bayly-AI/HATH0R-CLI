@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Suite sibling repository manager** (#414): Auto-detection, downloading, and installation of suite sibling repositories (`hath0r-atc` and `hath0r-mcp`).
+  - Added `SiblingManagerBot` (`src/hath0r_cli/bots/sibling_bot.py`) for scanning sibling presence, inspecting local and remote versions, cloning missing repositories, and bootstrapping dependencies.
+  - Added `hath0r repo siblings`, `hath0r repo install <product>`, and `hath0r repo ensure` commands.
+  - Added `hath0r atc` command group with `status` and `install` subcommands.
+  - Added `hath0r mcp install` subcommand.
+  - Added `--install-missing` flag to `hath0r doctor` to automatically download and bootstrap missing siblings.
+  - Updated `cfg/products.yaml` to include canonical product definitions for `hath0r-atc` and `hath0r-mcp`.
+
 ## [1.3.0] - 2026-10-10
 
 ### Added

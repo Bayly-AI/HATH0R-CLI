@@ -169,19 +169,38 @@ def run_checks(
     if not framework_path.is_dir() and (root / "hath0r-framework").is_dir():
         framework_path = root / "hath0r-framework"
 
+    atc_path = root / "hath0r-atc"
+    if not atc_path.is_dir() and (root / "HATH0R-ATC").is_dir():
+        atc_path = root / "HATH0R-ATC"
+
+    mcp_path = root / "hath0r-mcp"
+    if not mcp_path.is_dir() and (root / "HATH0R-MCP").is_dir():
+        mcp_path = root / "HATH0R-MCP"
+
+    tower_products_data = _load_yaml(tower_cfg / "products.yaml")
+    canonical_flags = _product_canonical_flags(tower_products_data)
+
     members = {
         "framework": framework_path,
         "cli": tower,
-        "poc": root / "hath0r-poc",
     }
-    # Map short member names → catalog product_id for optional/required policy.
     member_product_ids = {
         "framework": "hath0r-framework",
         "cli": "hath0r-cli",
-        "poc": "hath0r-poc",
     }
-    tower_products_data = _load_yaml(tower_cfg / "products.yaml")
-    canonical_flags = _product_canonical_flags(tower_products_data)
+
+    if "hath0r-atc" in canonical_flags or atc_path.is_dir():
+        members["atc"] = atc_path
+        member_product_ids["atc"] = "hath0r-atc"
+
+    if "hath0r-mcp" in canonical_flags or mcp_path.is_dir():
+        members["mcp"] = mcp_path
+        member_product_ids["mcp"] = "hath0r-mcp"
+
+    if "hath0r-poc" in canonical_flags or (root / "hath0r-poc").is_dir():
+        members["poc"] = root / "hath0r-poc"
+        member_product_ids["poc"] = "hath0r-poc"
+
     checks: list[DoctorCheck] = []
 
     _add(
@@ -360,11 +379,18 @@ def run_checks(
         member_suite = path / "cfg" / "suite.yaml"
         if member_kt.is_file() or member_suite.is_file():
             ok_pointer = True
-            if member_kt.is_file():
-                ok_pointer = ok_pointer and _file_contains(member_kt, expected_tower)
-                ok_pointer = ok_pointer and _file_contains(member_kt, "is_control_tower: false")
-            if member_suite.is_file():
-                ok_pointer = ok_pointer and _file_contains(member_suite, expected_tower)
+            if name == "atc":
+                # ATC is the infrastructure control tower; verify it references operator CLI
+                if member_kt.is_file():
+                    ok_pointer = ok_pointer and _file_contains(member_kt, "operator_cli: hath0r") and (
+                        _file_contains(member_kt, expected_tower) or _file_contains(member_kt, "hathor-cli")
+                    )
+            else:
+                if member_kt.is_file():
+                    ok_pointer = ok_pointer and _file_contains(member_kt, expected_tower)
+                    ok_pointer = ok_pointer and _file_contains(member_kt, "is_control_tower: false")
+                if member_suite.is_file():
+                    ok_pointer = ok_pointer and _file_contains(member_suite, expected_tower)
             _add(
                 checks,
                 check_id=f"member-tower-pointer-{name}",
@@ -500,12 +526,16 @@ def diagnostics_for(result: DoctorResult) -> list[dict[str, Any]]:
             code = "KNOWLEDGEBASE_NOT_FOUND"
         elif c.id in {"suite-catalog", "catalog-tower-path", "catalog-drift"}:
             code = "PRODUCT_CATALOG_INVALID" if c.state == "error" else "PRODUCT_CATALOG_NOT_FOUND"
+        remediation = "Verify the OpenSource group layout and run hath0r doctor --verbose."
+        if c.id.startswith("member-"):
+            member_name = c.id[len("member-"):]
+            remediation = f"Run 'hath0r repo install {member_name}' or 'hath0r doctor --install-missing' to download and install."
         out.append(
             {
                 "code": code,
                 "message": c.message,
                 "severity": "error",
-                "remediation": "Verify the OpenSource group layout and run hath0r doctor --verbose.",
+                "remediation": remediation,
                 "provenance": {"component": "hath0r-cli", "operation": "doctor"},
                 "details": {"check_id": c.id},
             }
