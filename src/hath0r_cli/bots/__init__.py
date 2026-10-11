@@ -1250,9 +1250,17 @@ from hath0r_cli.bots.churn_manager_bot import (  # noqa: E402
 from hath0r_cli.bots.mesh_manager_bot import MeshManagerBot, mesh_manager_bot  # noqa: E402
 from hath0r_cli.bots.paper_design_bot import PaperDesignBot  # noqa: E402
 from hath0r_cli.bots.pmat_bot import PmatBot, pmat_bot  # noqa: E402
-from hath0r_cli.bots.supercompress_bot import SuperCompressBot  # noqa: E402
+from hath0r_cli.bots.task_level_planner_bot import TaskLevelPlannerBot, task_level_planner  # noqa: E402
+from hath0r_cli.bots.temporal_logic_planner_bot import TemporalLogicPlannerBot, temporal_logic_planner  # noqa: E402
+from hath0r_cli.bots.thread_parallelism_bot import ThreadLevelParallelismBot, thread_parallelism  # noqa: E402
 
 __all__ = [
+    "TaskLevelPlannerBot",
+    "task_level_planner",
+    "ThreadLevelParallelismBot",
+    "thread_parallelism",
+    "TemporalLogicPlannerBot",
+    "temporal_logic_planner",
     "PostgresBot",
     "ApiBot",
     "PaperDesignBot",
