@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
   "graph_id": "agentgraph-hathor-cli",
-  "timestamp": "2026-10-11T11:41:47.031099+00:00",
+  "timestamp": "2026-10-11T11:59:36.650549+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -1285,6 +1285,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__procedures__tlp-execution-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Tlp Execution Procedure",
+      "content": "# Procedure: TLP Execution Procedure\n\n> Artifact: **Procedure** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Identity: `tlp-execution-procedure`  \n> Suite: `HATH0R-CLI` Control Tower  \n> Issue Reference: Bayly-AI/HATH0R-CLI#426  \n> Date: 2026-10-11\n\n## 1. Overview\n\nThis standard operating procedure defines the required steps for decomposing, concurrently executing, and formally verifying tasks using the Hath0r CLI TLP subsystem.\n\n---\n\n## 2. Step-by-Step Procedure\n\n### Step 1: Goal Synthesis & DAG Planning\nRun `hath0r tlp plan` to synthesize a Directed Acyclic Graph:\n```bash\nhath0r tlp plan --goal \"<macro-objective>\" --format text\n```\n- To serialize the plan to disk for durable pipeline execution:\n```bash\nhath0r tlp plan --goal \"<macro-objective>\" --output-file /path/to/dag.json\n```\n\n### Step 2: Policy & Invariant Pre-Verification\nVerify the generated plan trajectory conforms to organizational temporal logic constraints:\n```bash\nhath0r tlp verify --plan /path/to/dag.json --policy all\n```\nEnsure all policies report `✓ Compliant`. If any policy reports `✗ Violates Policy`, do not execute the plan.\n\n### Step 3: Concurrent Thread-Level Execution\nDispatch the task g",
+      "properties": {
+        "path": "docs/governance/procedures/tlp-execution-procedure.md",
+        "category": "procedures",
+        "size_bytes": 1595
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__procedures__mcp-doc-publish-procedure_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1398,6 +1411,19 @@
         "path": "docs/governance/strategies/mlflow-mlops-strategy.md",
         "category": "strategies",
         "size_bytes": 2426
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__strategies__tlp-orchestration-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Tlp Orchestration Strategy",
+      "content": "# Strategy: TLP Tri-Paradigm Orchestration Strategy\n\n> Artifact: **Strategy** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Identity: `tlp-orchestration-strategy`  \n> Suite: `HATH0R-CLI` Control Tower  \n> Issue Reference: Bayly-AI/HATH0R-CLI#426  \n> Date: 2026-10-11\n\n## 1. Executive Summary\n\nThe **TLP Tri-Paradigm Architecture** integrates three distinct engineering disciplines into a unified cognitive execution lifecycle:\n1. **Task-Level Planning (TLP)**: Decomposes long-horizon objectives into dependency-aware Directed Acyclic Graphs (DAGs) with dynamic replanning upon execution anomalies.\n2. **Thread-Level Parallelism (TLP)**: Dispatches independent task nodes concurrently across isolated context scratchpads with barrier synchronization (`fanout`/`fanin`) and token accounting.\n3. **Temporal Logic Planning (TLP)**: Formally verifies execution trajectories against Linear Temporal Logic (LTL) specifications and Deterministic Finite Automata (DFA) state machines before side-effecting operations.\n\n```\n┌────────────────────────────────────────────────────────┐\n│                   Hath0r User Goal                     │\n└──────────────────────────┬──────────────────",
+      "properties": {
+        "path": "docs/governance/strategies/tlp-orchestration-strategy.md",
+        "category": "strategies",
+        "size_bytes": 3369
       },
       "is_current": true
     },
@@ -2273,6 +2299,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__tlp-runtime-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Tlp Runtime Runbook",
+      "content": "# Runbook: TLP Runtime & FinOps Operations\n\n> Artifact: **Runbook** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Identity: `tlp-runtime-runbook`  \n> Suite: `HATH0R-CLI` Control Tower  \n> Issue Reference: Bayly-AI/HATH0R-CLI#426  \n> Date: 2026-10-11\n\n## 1. Operational Scope\n\nThis runbook covers operational maintenance, worker pool sizing, token budgeting, and FinOps metrics tracking for the TLP execution runtime.\n\n---\n\n## 2. Standard Operations\n\n### Worker Pool Configuration\nDefault worker pool concurrency is set to 4. For high-throughput CI environments:\n```bash\n# High concurrency pool for multi-package testing\nhath0r tlp run --plan dag.json --parallel --max-workers 8\n```\n\n### Token Tree Budgeting\nEach worker thread allocates an isolated `ThreadContext` with a default `token_budget` of 25,000 tokens. Total cost across threads is tracked at `$0.002` per 1k tokens.\n\n### Health & Preflight Inspection\nPrior to large parallel runs, verify local system readiness:\n```bash\nhath0r doctor --verbose\nhath0r tlp --help\n```\n",
+      "properties": {
+        "path": "docs/governance/runbooks/tlp-runtime-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 1049
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__openobservation-ops-runbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2585,6 +2624,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__workflows__tlp-orchestration-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Tlp Orchestration Workflow",
+      "content": "# Workflow: TLP Tri-Paradigm Orchestration Workflow\n\n> Artifact: **Workflow** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Identity: `tlp-orchestration-workflow`  \n> Suite: `HATH0R-CLI` Control Tower  \n> Issue Reference: Bayly-AI/HATH0R-CLI#426  \n> Date: 2026-10-11\n\n## 1. Workflow Architecture\n\nThe TLP Orchestration Workflow executes the canonical 4-stage lifecycle:\n1. **Decomposition**: `TaskLevelPlannerBot.create_plan()` generates a multi-tier DAG.\n2. **Formal Verification**: `TemporalLogicPlannerBot.verify_trace()` validates policy invariants against automata.\n3. **Parallel Dispatch**: `ThreadLevelParallelismBot.run_parallel_dag()` dispatches tier-by-tier concurrently.\n4. **Telemetry & Consolidation**: Summarizes runtime latency, tokens consumed, and state changes.\n\n---\n\n## 2. Declarative Schema\n\nThe workflow binds to `cfg/workflows/tlp-dag-workflow.yaml`:\n```yaml\nschema_version: \"hath0r.tlp.workflow/1\"\nworkflow_id: \"tlp-canonical-orchestration\"\ndescription: \"Canonical Task-Level, Thread-Level, and Temporal Logic Planning Execution Pipeline\"\nstages:\n  - id: plan_synthesis\n    bot: TaskLevelPlannerBot\n    action: create_plan\n  - id: temporal_verification\n   ",
+      "properties": {
+        "path": "docs/governance/workflows/tlp-orchestration-workflow.md",
+        "category": "workflows",
+        "size_bytes": 1351
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__bot-specs__phoenix-manager-bot-spec_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2594,6 +2646,19 @@
         "path": "docs/governance/bot-specs/phoenix-manager-bot-spec.md",
         "category": "bot-specs",
         "size_bytes": 1772
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__tlp-bots-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Tlp Bots Spec",
+      "content": "# Bot Specification: TLP Subsystem Bots\n\n> Artifact: **Bot Specification** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Identity: `tlp-bots-spec`  \n> Suite: `HATH0R-CLI` Control Tower  \n> Issue Reference: Bayly-AI/HATH0R-CLI#426  \n> Date: 2026-10-11\n\n## 1. Overview\n\nThis specification details the architecture, public methods, and responsibilities of the three TLP bots residing in `src/hath0r_cli/bots/`:\n1. `TaskLevelPlannerBot` (`task_level_planner_bot.py`)\n2. `ThreadLevelParallelismBot` (`thread_parallelism_bot.py`)\n3. `TemporalLogicPlannerBot` (`temporal_logic_planner_bot.py`)\n\n---\n\n## 2. Bot Interfaces\n\n### `TaskLevelPlannerBot`\n- **Role**: Decomposes natural language objectives into structured Task DAGs and handles dynamic replanning.\n- **Key Methods**:\n  - `create_plan(goal: str, context: Optional[Dict[str, Any]] = None) -> TaskExecutionDAG`: Heuristically decomposes goals into archetypes.\n  - `topological_sort(dag: TaskExecutionDAG) -> List[List[str]]`: Computes execution tiers.\n  - `detect_cycles(dag: TaskExecutionDAG) -> Tuple[bool, List[str]]`: Detects cyclic graph loops using Kahn's algorithm.\n  - `replan_on_failure(dag: TaskExecutionDAG, failed_node",
+      "properties": {
+        "path": "docs/governance/bot-specs/tlp-bots-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 2873
       },
       "is_current": true
     },
@@ -3053,6 +3118,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__playbooks__tlp-troubleshooting-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Tlp Troubleshooting Playbook",
+      "content": "# Playbook: TLP Troubleshooting & Anomaly Diagnostics\n\n> Artifact: **Playbook** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Identity: `tlp-troubleshooting-playbook`  \n> Suite: `HATH0R-CLI` Control Tower  \n> Issue Reference: Bayly-AI/HATH0R-CLI#426  \n> Date: 2026-10-11\n\n## 1. Purpose\n\nThis playbook provides actionable recovery steps for common failures encountered during Task DAG synthesis, thread execution, and temporal automata verification.\n\n---\n\n## 2. Common Scenarios & Resolutions\n\n### Scenario A: Cyclic Dependency in Task DAG\n- **Symptom**: `ValueError: Cannot sort cyclic DAG; unresolved nodes: ['A', 'B']`\n- **Cause**: Node A depends on Node B, and Node B depends on Node A.\n- **Resolution**:\n  1. Inspect the exported Mermaid graph: `hath0r tlp plan --goal \"...\" --format mermaid`.\n  2. Locate circular arrow loops.\n  3. Decompose the shared dependency into an intermediate prerequisite node.\n\n### Scenario B: Temporal DFA Violation (`S_TRAP`)\n- **Symptom**: `Transitioned into rejecting trap state 'S_TRAP' on symbol 'staging'`\n- **Cause**: The execution attempted to skip a mandatory intermediate environment (violating `CR-BAI-001` or `CR-HATH0R-INIT-001`).\n- ",
+      "properties": {
+        "path": "docs/governance/playbooks/tlp-troubleshooting-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 1755
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__playbooks__token-check-playbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3496,6 +3574,6 @@
   ],
   "metadata": {
     "repo_root": "/Users/raybayly/Development/OpenSource/hathor-cli",
-    "synced_sources": 261
+    "synced_sources": 267
   }
 }

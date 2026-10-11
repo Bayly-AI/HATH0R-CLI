@@ -89,6 +89,18 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Readme" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:_hath0r__knowledgebase__hathor-guide-050-phase1-agent-substrate-20261005_md> a hath0r:Plane ;
+    rdfs:label "Hathor Guide 050 Phase1 Agent Substrate 20261005" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:_hath0r__knowledgebase__hathor-guide-051-phase2-knowledge-cag-router-20261005_md> a hath0r:Plane ;
+    rdfs:label "Hathor Guide 051 Phase2 Knowledge Cag Router 20261005" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:_hath0r__knowledgebase__hathor-guide-052-phase3-swarm-verifiers-budget-20261005_md> a hath0r:Plane ;
+    rdfs:label "Hathor Guide 052 Phase3 Swarm Verifiers Budget 20261005" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:agents-bots> a hath0r:Plane ;
     rdfs:label "AGENTS.md (bots)" ;
     hath0r:inPlane "knowledge" .
@@ -109,8 +121,14 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "AGENTS.md (hath0r_cli)" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:agents-knowledgebase> a hath0r:Plane ;
+    rdfs:label "AGENTS.md (knowledgebase)" ;
+    hath0r:definesRole <https://hath0r.dev/ontology/v1#role:control_tower_%26_forge_%28%60is_control_tower:_true%60%29> ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:agents-root> a hath0r:Plane ;
     rdfs:label "AGENTS.md (root)" ;
+    hath0r:definesRole <https://hath0r.dev/ontology/v1#role:control_tower_%26_forge_%28%60is_control_tower:_true%60%29> ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:agents-templates> a hath0r:Plane ;
@@ -149,6 +167,26 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Suite Standards" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__cicccd-bot-spec_md> a hath0r:Plane ;
+    rdfs:label "Cicccd Bot Spec" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__mlflow-manager-bot-spec_md> a hath0r:Plane ;
+    rdfs:label "Mlflow Manager Bot Spec" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__phoenix-manager-bot-spec_md> a hath0r:Plane ;
+    rdfs:label "Phoenix Manager Bot Spec" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__tlp-bots-spec_md> a hath0r:Plane ;
+    rdfs:label "Tlp Bots Spec" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__upgrade-bot-spec_md> a hath0r:Plane ;
+    rdfs:label "Upgrade Bot Spec" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__branch-rules_md> a hath0r:Plane ;
     rdfs:label "Branch Rules" ;
     hath0r:inPlane "knowledge" .
@@ -163,6 +201,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__checklist-cli-update_md> a hath0r:Plane ;
     rdfs:label "Checklist Cli Update" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__cicccd_md> a hath0r:Plane ;
+    rdfs:label "Cicccd" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__coding-checklist_md> a hath0r:Plane ;
@@ -265,6 +307,10 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Update Cli Checklist" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__upgrade_md> a hath0r:Plane ;
+    rdfs:label "Upgrade" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__voice-command-group-checklist_md> a hath0r:Plane ;
     rdfs:label "Voice Command Group Checklist" ;
     hath0r:inPlane "knowledge" .
@@ -311,6 +357,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__opentelemetry-standards_md> a hath0r:Plane ;
     rdfs:label "Opentelemetry Standards" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__cicccd-playbook_md> a hath0r:Plane ;
+    rdfs:label "Cicccd Playbook" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__colpali-vision-kb-playbook_md> a hath0r:Plane ;
@@ -373,6 +423,10 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Memory Space Playbook" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__mlflow-experiment-tracking-playbook_md> a hath0r:Plane ;
+    rdfs:label "Mlflow Experiment Tracking Playbook" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__openfeature-setup-playbook_md> a hath0r:Plane ;
     rdfs:label "Openfeature Setup Playbook" ;
     hath0r:inPlane "knowledge" .
@@ -387,6 +441,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__opentelemetry-tracing-playbook_md> a hath0r:Plane ;
     rdfs:label "Opentelemetry Tracing Playbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__phoenix-telemetry-playbook_md> a hath0r:Plane ;
+    rdfs:label "Phoenix Telemetry Playbook" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__playbook-cli-update_md> a hath0r:Plane ;
@@ -445,6 +503,10 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Task Lifecycle Playbook" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__tlp-troubleshooting-playbook_md> a hath0r:Plane ;
+    rdfs:label "Tlp Troubleshooting Playbook" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__token-check-playbook_md> a hath0r:Plane ;
     rdfs:label "Token Check Playbook" ;
     hath0r:inPlane "knowledge" .
@@ -455,6 +517,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__update-cli-playbook_md> a hath0r:Plane ;
     rdfs:label "Update Cli Playbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__upgrade-playbook_md> a hath0r:Plane ;
+    rdfs:label "Upgrade Playbook" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__vision-transformers-cli-playbook_md> a hath0r:Plane ;
@@ -473,8 +539,40 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Wasm Micro Runtime Playbook" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__portraits__README_md> a hath0r:Plane ;
+    rdfs:label "Readme" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__portraits__bot-specification_md> a hath0r:Plane ;
+    rdfs:label "Bot Specification" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__portraits__playbook_md> a hath0r:Plane ;
+    rdfs:label "Playbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__portraits__procedure_md> a hath0r:Plane ;
+    rdfs:label "Procedure" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__portraits__runbook_md> a hath0r:Plane ;
+    rdfs:label "Runbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__portraits__strategy_md> a hath0r:Plane ;
+    rdfs:label "Strategy" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__portraits__workflow_md> a hath0r:Plane ;
+    rdfs:label "Workflow" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__pr-workflow_md> a hath0r:Plane ;
     rdfs:label "Pr Workflow" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__cicccd-procedure_md> a hath0r:Plane ;
+    rdfs:label "Cicccd Procedure" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__coding-procedure_md> a hath0r:Plane ;
@@ -505,8 +603,16 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Memory Space Procedure" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__mlflow-management-procedure_md> a hath0r:Plane ;
+    rdfs:label "Mlflow Management Procedure" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__opentelemetry-tracing-procedure_md> a hath0r:Plane ;
     rdfs:label "Opentelemetry Tracing Procedure" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__phoenix-deployment-procedure_md> a hath0r:Plane ;
+    rdfs:label "Phoenix Deployment Procedure" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__procedure-cli-update_md> a hath0r:Plane ;
@@ -529,12 +635,20 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Task Start Procedure" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__tlp-execution-procedure_md> a hath0r:Plane ;
+    rdfs:label "Tlp Execution Procedure" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__troubleshooting-procedure_md> a hath0r:Plane ;
     rdfs:label "Troubleshooting Procedure" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__update-cli-procedure_md> a hath0r:Plane ;
     rdfs:label "Update Cli Procedure" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__upgrade-procedure_md> a hath0r:Plane ;
+    rdfs:label "Upgrade Procedure" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__voice-command-group-procedure_md> a hath0r:Plane ;
@@ -551,6 +665,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__quality-bots_md> a hath0r:Plane ;
     rdfs:label "Quality Bots" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__cicccd-runbook_md> a hath0r:Plane ;
+    rdfs:label "Cicccd Runbook" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__coding-runbook_md> a hath0r:Plane ;
@@ -581,6 +699,10 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Memory Space Runbook" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__mlflow-service-runbook_md> a hath0r:Plane ;
+    rdfs:label "Mlflow Service Runbook" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__openfeature-ops-runbook_md> a hath0r:Plane ;
     rdfs:label "Openfeature Ops Runbook" ;
     hath0r:inPlane "knowledge" .
@@ -595,6 +717,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__opentelemetry-tracing-runbook_md> a hath0r:Plane ;
     rdfs:label "Opentelemetry Tracing Runbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__phoenix-lifecycle-runbook_md> a hath0r:Plane ;
+    rdfs:label "Phoenix Lifecycle Runbook" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__pr-lifecycle-runbook_md> a hath0r:Plane ;
@@ -617,6 +743,10 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Task Lifecycle Runbook" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__tlp-runtime-runbook_md> a hath0r:Plane ;
+    rdfs:label "Tlp Runtime Runbook" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__token-check-runbook_md> a hath0r:Plane ;
     rdfs:label "Token Check Runbook" ;
     hath0r:inPlane "knowledge" .
@@ -627,6 +757,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__update-cli-runbook_md> a hath0r:Plane ;
     rdfs:label "Update Cli Runbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__upgrade-runbook_md> a hath0r:Plane ;
+    rdfs:label "Upgrade Runbook" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__voice-command-group-runbook_md> a hath0r:Plane ;
@@ -643,6 +777,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__sonarcloud-quality-gates_md> a hath0r:Plane ;
     rdfs:label "Sonarcloud Quality Gates" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__cicccd-strategy_md> a hath0r:Plane ;
+    rdfs:label "Cicccd Strategy" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__coding-strategy_md> a hath0r:Plane ;
@@ -705,8 +843,16 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Memory Space Strategy" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__mlflow-mlops-strategy_md> a hath0r:Plane ;
+    rdfs:label "Mlflow Mlops Strategy" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__opentelemetry-tracing-strategy_md> a hath0r:Plane ;
     rdfs:label "Opentelemetry Tracing Strategy" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__phoenix-telemetry-strategy_md> a hath0r:Plane ;
+    rdfs:label "Phoenix Telemetry Strategy" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__pr-lifecycle-strategy_md> a hath0r:Plane ;
@@ -753,6 +899,10 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Task Lifecycle Strategy" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__tlp-orchestration-strategy_md> a hath0r:Plane ;
+    rdfs:label "Tlp Orchestration Strategy" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__tree-sitter-ast-parser-strategy_md> a hath0r:Plane ;
     rdfs:label "Tree Sitter Ast Parser Strategy" ;
     hath0r:inPlane "knowledge" .
@@ -763,6 +913,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__update-cli-strategy_md> a hath0r:Plane ;
     rdfs:label "Update Cli Strategy" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__upgrade-strategy_md> a hath0r:Plane ;
+    rdfs:label "Upgrade Strategy" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__vision-transformers-cli-strategy_md> a hath0r:Plane ;
@@ -783,6 +937,18 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__workflow-documentation-standard_md> a hath0r:Plane ;
     rdfs:label "Workflow Documentation Standard" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__mlflow-continuous-calibration-workflow_md> a hath0r:Plane ;
+    rdfs:label "Mlflow Continuous Calibration Workflow" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__phoenix-telemetry-workflow_md> a hath0r:Plane ;
+    rdfs:label "Phoenix Telemetry Workflow" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__tlp-orchestration-workflow_md> a hath0r:Plane ;
+    rdfs:label "Tlp Orchestration Workflow" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__hathor-arch-004-cli-control-tower-integration-20260916_md> a hath0r:Plane ;
@@ -815,6 +981,22 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-048-paper-design-mcp-integration-20261003_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 048 Paper Design Mcp Integration 20261003" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-049-automated-upgrade-install-20261005_md> a hath0r:Plane ;
+    rdfs:label "Hathor Guide 049 Automated Upgrade Install 20261005" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-050-phase1-agent-substrate-20261005_md> a hath0r:Plane ;
+    rdfs:label "Hathor Guide 050 Phase1 Agent Substrate 20261005" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-051-phase2-knowledge-cag-router-20261005_md> a hath0r:Plane ;
+    rdfs:label "Hathor Guide 051 Phase2 Knowledge Cag Router 20261005" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-052-phase3-swarm-verifiers-budget-20261005_md> a hath0r:Plane ;
+    rdfs:label "Hathor Guide 052 Phase3 Swarm Verifiers Budget 20261005" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__hathor-playbook-001-repo-init-setup-20260919_md> a hath0r:Plane ;
@@ -884,6 +1066,10 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#role:developer> a hath0r:AgentRole ;
     rdfs:label "Developer Agent" ;
+    hath0r:inPlane "rules" .
+
+<https://hath0r.dev/ontology/v1#role:control_tower_%26_forge_%28%60is_control_tower:_true%60%29> a hath0r:AgentRole ;
+    rdfs:label "Control Tower & Forge (`is_control_tower: true`)" ;
     hath0r:inPlane "rules" .
 
 hath0r:AgentRole a owl:Class .
