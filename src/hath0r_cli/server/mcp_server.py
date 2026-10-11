@@ -804,5 +804,96 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         bot = IssueManagerBot()
         return bot.list_issues(repo=repo, state=state)
 
+    @mcp.tool()
+    def hath0r_cicccdct_status() -> Dict[str, Any]:
+        """Inspect 4-pillar CICCCDCT metrics: CI status, CC parameters, CD state, and CT model lineage."""
+        from hath0r_cli.bots.cicccd_bot import CICCCDCTManagingBot
+
+        bot = CICCCDCTManagingBot()
+        return bot.status()
+
+    @mcp.tool()
+    def hath0r_cicccdct_validate(repo: Optional[str] = None) -> Dict[str, Any]:
+        """Validate 4-pillar CICCCDCT state across CI contracts/SAST, CC freshness, CD docs, and CT model SLA."""
+        from hath0r_cli.bots.cicccd_bot import CICCCDCTManagingBot
+
+        bot = CICCCDCTManagingBot()
+        return bot.validate_cicccd(repo=repo)
+
+    @mcp.tool()
+    def hath0r_cicccdct_train(
+        target: str = "reasoning_slm",
+        method: str = "lora",
+        dataset_path: Optional[str] = None,
+        epochs: int = 3,
+        lr: float = 0.0002,
+        batch_size: int = 4,
+    ) -> Dict[str, Any]:
+        """Execute Continuous Training (CT) job, evaluate candidate model, and log to MLflow.
+
+        Args:
+            target: Target architecture or prompt module (default: 'reasoning_slm').
+            method: Training method ('lora', 'qlora', 'dspy_mipro', 'dspy_fewshot').
+            dataset_path: Optional path to JSONL training dataset.
+            epochs: Training epochs count (default: 3).
+            lr: Learning rate (default: 0.0002).
+            batch_size: Batch size (default: 4).
+        """
+        from hath0r_cli.bots.cicccd_bot import CICCCDCTManagingBot
+
+        bot = CICCCDCTManagingBot()
+        return bot.train_model(
+            target=target,
+            method=method,
+            dataset_path=dataset_path,
+            epochs=epochs,
+            learning_rate=lr,
+            batch_size=batch_size,
+        )
+
+    @mcp.tool()
+    def hath0r_cicccdct_curate_dataset(
+        min_reward: float = 0.70,
+        max_samples: Optional[int] = None,
+        output_file: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Curate high-reward exemplar pairs from agent execution traces into a JSONL training set.
+
+        Args:
+            min_reward: Minimum execution trace reward threshold (default: 0.70).
+            max_samples: Optional maximum number of exemplars to curate.
+            output_file: Optional target destination file path.
+        """
+        from hath0r_cli.bots.cicccd_bot import CICCCDCTManagingBot
+
+        bot = CICCCDCTManagingBot()
+        return bot.curate_dataset(
+            min_reward=min_reward,
+            max_samples=max_samples,
+            output_file=output_file,
+        )
+
+    @mcp.tool()
+    def hath0r_model_registry_promote(
+        model_name: str,
+        version: int,
+        target_stage: str,
+    ) -> Dict[str, Any]:
+        """Promote model version in MLflow Model Registry across promotion stages ('None', 'Staging', 'Production').
+
+        Args:
+            model_name: Model identifier name in MLflow.
+            version: Model version number.
+            target_stage: Stage to transition to ('None', 'Staging', 'Production').
+        """
+        from hath0r_cli.bots.cicccd_bot import CICCCDCTManagingBot
+
+        bot = CICCCDCTManagingBot()
+        return bot.promote_model(
+            model_name=model_name,
+            version=version,
+            stage=target_stage,
+        )
+
     return mcp
 
