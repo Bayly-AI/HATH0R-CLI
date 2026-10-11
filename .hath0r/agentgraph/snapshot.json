@@ -1,17 +1,34 @@
 {
   "schema_version": "hath0r.agentgraph/1",
   "graph_id": "agentgraph-hathor-cli",
-  "timestamp": "2026-10-04T20:21:16.828283+00:00",
+  "timestamp": "2026-10-11T11:41:47.031099+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
       "plane": "knowledge",
       "type": "knowledge_doc",
       "label": "AGENTS.md (root)",
-      "content": "# AGENTS.md — HATH0R CLI (OpenSource Control Tower)\n\n> Role: **OpenSource Project control tower + operator/developer CLI (`hath0r`)** · group `hath0r-opensource`  \n> Updated: 2026-09-23\n\n## Group membership (CRITICAL)\n\n| Field | Value |\n|-------|-------|\n| Group | `hath0r-opensource` |\n| Project | **OpenSource Project** |\n| Group root | `/Users/raybayly/Development/OpenSource` |\n| **Control tower** | **this repo** (`HATH0R-CLI`) |\n| This product | `HATH0R-CLI` |\n| GitHub | `Bayly-AI/HATH0R-CLI` |\n| Local path | `/Users/raybayly/Development/OpenSource/HATH0R-CLI` |\n| Canonical KB | `/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase` |\n| Operator CLI | `hath0r` |\n| KB mode | stub → group hub |\n| Tower flag | `is_control_tower: true` |\n\n### Canonical siblings (OpenSource Project members)\n\nEvery git repo under the group root is part of the OpenSource Project. Current canonical set:\n\n- **Control tower / CLI**: `/Users/raybayly/Development/OpenSource/HATH0R-CLI` → `Bayly-AI/HATH0R",
+      "content": "# AGENTS.md — Ray Workshop (Forge Command Center & Control Tower)\n\n> **Canonical Forge Command Center and Control Tower** for the **Ray Suite** (`ray-group`).\n> Roles: **Forge Controller** · **Infrastructure** · **Central Group Controller** · **Knowledge Hub**.\n\n| Field | Value |\n|---|---|\n| Product | **Ray Workshop** |\n| Product ID | `ray-workshop` |\n| Role | Control Tower & Forge (`is_control_tower: true`) |\n| Container Name | `Ray-Workshop` |\n| GitHub | **[somesayray/Ray-AI](https://github.com/somesayray/Ray-AI)** |\n| Local Path | `/Users/raybayly/Development/Ray/workshop` |\n| Group | `ray-group` / **Ray Suite** |\n| Docker Group | **`ray`** |\n| Docker Network | **`ray-net`** |\n| Shared Edge / State | `EDGE` (port 28000) / `SESSION` (Redis port 6379) |\n| Production Domain | **`pad.raybayly.net`** (AWS CloudFront / Edge) |\n| Members Root | `/Users/raybayly/Development/Ray` |\n\n---\n\n## CR-CLI-FEATURE-STANDARD-001 (Shared Code in CLI & Artifact Hexad — CRITICAL · CANONICAL)\n- **Zero Code",
       "properties": {
         "path": "AGENTS.md",
         "subsystem": "root"
+      },
+      "is_current": true
+    },
+    {
+      "id": "role:control_tower_&_forge_(`is_control_tower:_true`)",
+      "plane": "rules",
+      "type": "agent_role",
+      "label": "Control Tower & Forge (`is_control_tower: true`)",
+      "content": "Agent role Control Tower & Forge (`is_control_tower: true`) defined in AGENTS.md",
+      "properties": {
+        "role_name": "Control Tower & Forge (`is_control_tower: true`)",
+        "subsystem": "root",
+        "permitted_tools": [
+          "read_file",
+          "search_code"
+        ],
+        "forbidden_tools": []
       },
       "is_current": true
     },
@@ -84,6 +101,35 @@
       "properties": {
         "path": "cfg/group/AGENTS.md",
         "subsystem": "group"
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:agents-knowledgebase",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "AGENTS.md (knowledgebase)",
+      "content": "# AGENTS.md — Ray Workshop (Forge Command Center & Control Tower)\n\n> **Canonical Forge Command Center and Control Tower** for the **Ray Suite** (`ray-group`).\n> Roles: **Forge Controller** · **Infrastructure** · **Central Group Controller** · **Knowledge Hub**.\n\n| Field | Value |\n|---|---|\n| Product | **Ray Workshop** |\n| Product ID | `ray-workshop` |\n| Role | Control Tower & Forge (`is_control_tower: true`) |\n| Container Name | `Ray-Workshop` |\n| GitHub | **[somesayray/Ray-AI](https://github.com/somesayray/Ray-AI)** |\n| Local Path | `/Users/raybayly/Development/Ray/workshop` |\n| Group | `ray-group` / **Ray Suite** |\n| Docker Group | **`ray`** |\n| Docker Network | **`ray-net`** |\n| Shared Edge / State | `EDGE` (port 28000) / `SESSION` (Redis port 6379) |\n| Production Domain | **`pad.raybayly.net`** (AWS CloudFront / Edge) |\n| Members Root | `/Users/raybayly/Development/Ray` |\n\n---\n\n## CR-CLI-FEATURE-STANDARD-001 (Shared Code in CLI & Artifact Hexad — CRITICAL · CANONICAL)\n- **Zero Code",
+      "properties": {
+        "path": ".hath0r/knowledgebase/AGENTS.md",
+        "subsystem": "knowledgebase"
+      },
+      "is_current": true
+    },
+    {
+      "id": "role:control_tower_&_forge_(`is_control_tower:_true`)",
+      "plane": "rules",
+      "type": "agent_role",
+      "label": "Control Tower & Forge (`is_control_tower: true`)",
+      "content": "Agent role Control Tower & Forge (`is_control_tower: true`) defined in AGENTS.md",
+      "properties": {
+        "role_name": "Control Tower & Forge (`is_control_tower: true`)",
+        "subsystem": "knowledgebase",
+        "permitted_tools": [
+          "read_file",
+          "search_code"
+        ],
+        "forbidden_tools": []
       },
       "is_current": true
     },
@@ -168,7 +214,7 @@
       "plane": "rules",
       "type": "rule_policy",
       "label": "Rule rules",
-      "content": "# CLI Core Subsystem - Local Rules\n\n> Specific rules and constraints for the CLI Core Subsystem module.\n\n## Constraints\n- \n",
+      "content": "# CLI Core Subsystem - Local Rules\n\n> Specific rules and constraints for the CLI Core Subsystem module.\n\n## Constraints\n- **CR-CLI-TECH-DEBT-001**: Zero Hidden Tech Debt. Any self-admitted technical debt (TODOs, FIXMEs, workarounds) MUST be handed to the Issue Bot (`hath0r issue create` / `gh issue create`) and explicitly presented to the user with clickable links.\n",
       "properties": {
         "path": "src/hath0r_cli/rules.md",
         "priority": 3,
@@ -398,11 +444,11 @@
       "plane": "knowledge",
       "type": "knowledge_doc",
       "label": "Hathor Guide 047 Install And Release 20260918",
-      "content": "---\nid: HATHOR-GUIDE-047\ntitle: Install and release matrix (HATH0R CLI)\ndate: 2026-09-18\nstatus: implemented\n---\n\n# Install and release matrix\n\nThis guide covers **Tier 0** distribution for OpenSource HATHOR (issue #30):\nPyPI/pipx, GitHub Release binaries, fileset tarball, and the npm thin client.\n\n## Version matrix\n\n| Surface | Identity | Current |\n|---------|----------|---------|\n| Python package | `hath0r-cli` | `0.2.0` |\n| Binary | `hath0r` | same as package |\n| Fileset | `hath0r-fileset-<ver>.tar.gz` | same as package |\n| npm client | `@bayly-ai/hath0r` | `0.2.0` |\n| Envelope | `hath0r.cli.response/1` | major lock |\n\n`VERSION`, `pyproject.toml`, and npm `package.json` must stay in lockstep for a release train.\n\n## Tier 0 install methods\n\n### 1. pip / pipx (recommended operators)\n\n```sh\npython3 -m pip install hath0r-cli\n# or isolated:\npipx install hath0r-cli\nhath0r --version\nhath0r doctor\n```\n\nEditable monorepo install (developers):\n\n```sh\ncd HATH0R-CLI\npython3 -m pip install -e \".[dev]\"\n```\n\n### 2. Standalone binary (GitHub Releases)\n\n1. Download `hath0r-<ver>-<platform>` and `.sha256` from the release.\n2. Verify checksum (`shasum -a 256 -c …`).\n3. `chmod +x` and place on `PAT",
+      "content": "---\nid: HATHOR-GUIDE-047\ntitle: Install and release matrix (HATH0R CLI)\ndate: 2026-09-18\nstatus: implemented\n---\n\n# Install and release matrix\n\nThis guide covers **Tier 0** distribution for OpenSource HATHOR (issue #30):\nPyPI/pipx, GitHub Release binaries, fileset tarball, and the npm thin client.\n\n## Version matrix\n\n| Surface | Identity | Current |\n|---------|----------|---------|\n| Python package | `hath0r-cli` | `0.2.0` |\n| Binary | `hath0r` | same as package |\n| Fileset | `hath0r-fileset-<ver>.tar.gz` | same as package |\n| npm client | `@bayly-ai/hath0r` | `0.2.0` |\n| Envelope | `hath0r.cli.response/1` | major lock |\n\n`VERSION`, `pyproject.toml`, and npm `package.json` must stay in lockstep for a release train.\n\n## Tier 0 install methods\n\n> **Automated upgrades:** once installed, keep the CLI current with `hath0r upgrade run`\n> (verify + auto-rollback + announce). First-time verified install: `python3 scripts/install_hath0r.py`.\n> See [GUIDE-049](hathor-guide-049-automated-upgrade-install-20261005.md).\n\n### 1. pip / pipx (recommended operators)\n\n```sh\npython3 -m pip install hath0r-cli\n# or isolated:\npipx install hath0r-cli\nhath0r --version\nhath0r doctor\n```\n\nEditable monorepo i",
       "properties": {
         "path": "docs/hathor-guide-047-install-and-release-20260918.md",
         "category": "docs",
-        "size_bytes": 4399
+        "size_bytes": 4669
       },
       "is_current": true
     },
@@ -429,6 +475,32 @@
         "path": "docs/canonical.md",
         "category": "docs",
         "size_bytes": 115
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__hathor-guide-052-phase3-swarm-verifiers-budget-20261005_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Hathor Guide 052 Phase3 Swarm Verifiers Budget 20261005",
+      "content": "# HATH0R-GUIDE-052: Phase 3 Autonomous Swarm, Verifiers & FinOps Budget Foundations\n\n## Overview\nThis document serves as the canonical technical guide for **Phase 3: Autonomous Swarm, Verifiers & FinOps Budget Foundations** in `HATH0R-CLI` and the Ray Suite.\n\nPhase 3 delivers four foundational autonomous governance and evaluation capabilities:\n1. **FinOps Token Tree Budget Guard & Circuit Breaker** (`TokenTreeBudgetGuard` / `hath0r finops budget check`)\n2. **Multi-Agent Consensus Engine & Evaluator Gate** (`MultiAgentConsensusEngine` / `hath0r evals consensus`)\n3. **Antagonistic Review Bot & Tech Debt Enforcement** (`AntagonisticReviewBot` / `hath0r pr review --antagonistic`)\n4. **Multi-Agent Red-Team / Blue-Team Verification Engine** (`MultiAgentRedTeamEngine` / `hath0r evals redteam`)\n\n---\n\n## Strategy & Architecture\n- **Tree-Level Token Budget Circuit Breaker**: Enforces token and USD spending caps on nested subagent execution trees (`max_tokens_budget: 50,000`, `max_usd_budget: $0.25`), raising `TokenBudgetExceeded` exceptions to halt runaway subagent loops automatically.\n- **GAIN Peer Consensus Gate**: Evaluates majority-vote agreement across peer subagents; automatically trig",
+      "properties": {
+        "path": "docs/hathor-guide-052-phase3-swarm-verifiers-budget-20261005.md",
+        "category": "docs",
+        "size_bytes": 2493
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__hathor-guide-050-phase1-agent-substrate-20261005_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Hathor Guide 050 Phase1 Agent Substrate 20261005",
+      "content": "# HATH0R-GUIDE-050: Phase 1 Agentic Substrate & Protocol Foundations\n\n## Overview\nThis document serves as the canonical technical guide for **Phase 1: Agentic Substrate & Protocol Foundations** in `HATH0R-CLI` and the Ray Suite.\n\nPhase 1 delivers four foundational agentic capabilities:\n1. **Princeton KV Cache Pre-Warming Engine** (`KVCachePrewarmer` / `hath0r agent prewarm`)\n2. **Princeton L2WS Warm-Start Calibration** (`L2WSPredictor` / `hath0r cccd calibrate`)\n3. **Structured Hath0r Agent Handoff Protocol (HAHP)** (`HAHPProtocolManager` / `hath0r agent hahp`)\n4. **Multi-Agent Directed Acyclic Graph (DAG) Execution & Dependency Runner** (`AgentDAGRunner` / `hath0r agent dag`)\n\n---\n\n## Strategy & Architecture\n- **Zero-Token Prefill Warming**: Shared system prompts and OneDrive knowledge context are pre-warmed via zero-token ping anchors prior to subagent fan-out, reducing concurrent prefill spikes by >= 40%.\n- **Learning to Warm-Start (L2WS)**: Historical parameter vectors and loss residuals are stored in Redis (`SESSION`) and DynamoDB (`DATA`), allowing CCCD calibration loops to warm-start optimization iterations and accelerate convergence.\n- **HAHP Envelope Serialization**: Inter",
+      "properties": {
+        "path": "docs/hathor-guide-050-phase1-agent-substrate-20261005.md",
+        "category": "docs",
+        "size_bytes": 2274
       },
       "is_current": true
     },
@@ -520,6 +592,19 @@
         "path": "docs/jev-rollout.md",
         "category": "docs",
         "size_bytes": 1873
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__hathor-guide-049-automated-upgrade-install-20261005_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Hathor Guide 049 Automated Upgrade Install 20261005",
+      "content": "---\nid: HATHOR-GUIDE-049\ntitle: Automated upgrade & install (Upgrade Bot)\ndate: 2026-10-05\nstatus: implemented\nsupersedes: none\nrelated: HATHOR-GUIDE-047 (install and release matrix)\n---\n\n# Automated upgrade & install\n\nThe **Upgrade Bot** keeps the `hath0r` CLI current without an operator watching. It installs a\nnew release, **tests the result**, **rolls back automatically** if the tests fail, and\n**announces** what happened — including a GitHub issue describing what must be fixed when an\nupgrade does not pass.\n\n```text\ndetect ─► check ─► preflight ─► baseline ─► snapshot ─► install ─► verify ─┬─► announce (upgraded)\n                                                                          └─► rollback ─► re-verify ─► announce (issue)\n```\n\n## Quick start\n\n```sh\nhath0r upgrade check                 # what's installed, how, and is there a newer release?\nhath0r upgrade run --dry-run         # show the plan, change nothing\nhath0r upgrade run                   # upgrade + smoke tests + auto-rollback + announce\nhath0r upgrade run --tests full      # also run tests/unit (source checkouts)\nhath0r upgrade run --file-issue      # on failure, open/update a GitHub issue\nhath0r upgrade status  ",
+      "properties": {
+        "path": "docs/hathor-guide-049-automated-upgrade-install-20261005.md",
+        "category": "docs",
+        "size_bytes": 7909
       },
       "is_current": true
     },
@@ -624,6 +709,19 @@
         "path": "docs/hathor-guide-046-troubleshooting-20260916.md",
         "category": "docs",
         "size_bytes": 6733
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__hathor-guide-051-phase2-knowledge-cag-router-20261005_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Hathor Guide 051 Phase2 Knowledge Cag Router 20261005",
+      "content": "# HATH0R-GUIDE-051: Phase 2 Knowledge Graph, CAG & Semantic Router Foundations\n\n## Overview\nThis document serves as the canonical technical guide for **Phase 2: Knowledge Graph, CAG & Semantic Router Foundations** in `HATH0R-CLI` and the Ray Suite.\n\nPhase 2 delivers five foundational knowledge and semantic router capabilities:\n1. **W3C OWL/RDF Turtle Exporter** (`AgentGraphOWLExporter` / `hath0r agentgraph export --format turtle`)\n2. **Description Logic OWL Reasoner** (`AgentGraphOWLReasoner` / `hath0r agentgraph validate --owl`)\n3. **SPARQL Graph Query Engine** (`SPARQLEngine` / `hath0r kb sparql`)\n4. **Context-Augmented Generation (CAG) Engine** (`CAGEngine` / `hath0r context pack --cag`)\n5. **Hybrid CAG + RAG Knowledge Query Router** (`HybridCAGRAGRouter` / `hath0r kb smart-query`)\n\n---\n\n## Strategy & Architecture\n- **Semantic OWL/RDF Ontology**: Maps AgentGraph planes (`rules`, `knowledge`, `context`, `memory`) and relations (`governs`, `informs`, `defines_role`) into an RDF graph using `http://hath0r.dev/ontology/v1#`.\n- **Automated Description Logic Reasoning**: Uses RDFLib SPARQL graph reasoning to prove formal semantic consistency, detecting policy contradictions and cyclic",
+      "properties": {
+        "path": "docs/hathor-guide-051-phase2-knowledge-cag-router-20261005.md",
+        "category": "docs",
+        "size_bytes": 2491
       },
       "is_current": true
     },
@@ -753,7 +851,7 @@
       "properties": {
         "path": "docs/governance/workflow-documentation-standard.md",
         "category": "governance",
-        "size_bytes": 3284
+        "size_bytes": 3490
       },
       "is_current": true
     },
@@ -896,7 +994,7 @@
       "properties": {
         "path": "docs/governance/cccd-process-standard.md",
         "category": "governance",
-        "size_bytes": 3113
+        "size_bytes": 3689
       },
       "is_current": true
     },
@@ -1005,6 +1103,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__procedures__phoenix-deployment-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Phoenix Deployment Procedure",
+      "content": "# Arize Phoenix Multi-Group Deployment Procedure\n\n> Artifact: **Procedure** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Suite: `hath0r-opensource` / `bayly-ai` / `1-nation`  \n> Date: 2026-10-05\n\n## 1. Purpose & Scope\n\nThis procedure outlines the exact steps to provision, configure, and verify the Arize Phoenix observability container across all Docker group meshes (`hath0r`, `1-nation`, and `bai`).\n\n---\n\n## 2. Prerequisites & Port Allocation\n\n| Group | Edge Container | Edge Host Port | Phoenix Container | Phoenix Direct Port | gRPC Port | HTTP Port |\n| :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n| **Hath0r** | `HATH0R-NGINX` | `38000` | `HATH0R-Phoenix` | `36006` | `34317` | `34318` |\n| **1-Nation** | `1NEDGE` | `58000` / `80` | `1NPHOENIX` | `6006` | `4317` | `4318` |\n| **BaylyAI** | `BAI-NGINX` | `48000` | `BAI-Phoenix` | `46006` | `44317` | `44318` |\n\n---\n\n## 3. Deployment Procedure\n\n### Step 1: Update Group Docker Compose\nAdd the `phoenix` service block to the target group's `docker-compose.yml`:\n```yaml\n  phoenix:\n    image: arizephoenix/phoenix:latest\n    container_name: HATH0R-Phoenix\n    restart: unless-stopped\n    ports:\n      - \"${HATH0R_PHOENI",
+      "properties": {
+        "path": "docs/governance/procedures/phoenix-deployment-procedure.md",
+        "category": "procedures",
+        "size_bytes": 2763
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__procedures__opentelemetry-tracing-procedure_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1079,6 +1190,19 @@
         "path": "docs/governance/procedures/coding-procedure.md",
         "category": "procedures",
         "size_bytes": 687
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__procedures__mlflow-management-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Mlflow Management Procedure",
+      "content": "# MLflow Management Procedure\n\n> Artifact: **Procedure** · Suite: `hath0r-opensource` / `bayly-ai` / `1-nation`  \n> Canonical Standard: `CR-CLI-FEATURE-STANDARD-001`, `CR-CICCCD-001`  \n> Issue Reference: Bayly-AI/HATH0R-CLI#412  \n> Date: 2026-10-11\n\n## 1. Purpose\n\nDefines the standard procedure for managing MLflow tracking server lifecycle, monitoring server health, querying experiments, and executing calibration logging.\n\n---\n\n## 2. Server Lifecycle Management\n\n### Starting the Tracking Server\n1. Check existing server state:\n   ```bash\n   hath0r mlflow status --group 1-nation\n   ```\n2. If inactive, launch the container:\n   ```bash\n   hath0r mlflow up --group 1-nation\n   ```\n3. Verify readiness via Edge:\n   ```bash\n   curl -I http://localhost:58000/mlflow/\n   ```\n\n### Stopping the Tracking Server\n1. Verify no active calibration runs are in progress.\n2. Stop the container cleanly:\n   ```bash\n   hath0r mlflow down --group 1-nation\n   ```\n\n---\n\n## 3. Experiment and Run Inspection\n\n1. List all active experiments:\n   ```bash\n   hath0r mlflow experiments --group 1-nation\n   ```\n2. List runs within an experiment ID:\n   ```bash\n   hath0r mlflow runs -e 1 --group 1-nation\n   ```\n3. Open the",
+      "properties": {
+        "path": "docs/governance/procedures/mlflow-management-procedure.md",
+        "category": "procedures",
+        "size_bytes": 1543
       },
       "is_current": true
     },
@@ -1200,6 +1324,32 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__procedures__upgrade-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Upgrade Procedure",
+      "content": "# Procedure: Automated CLI Upgrade\n\n> Document Type: **Procedure** (`cr-workflow-doc-001`) · Product: **HATH0R-CLI** · Factory: `upgrade-factory`\n> Updated: 2026-10-05\n\nNormative order of operations executed by `UpgradeBot.run()` (`hath0r upgrade run`). Each stage\nrecords `{stage, status}` in the run report; a failure stops the pipeline at that stage.\n\n| # | Stage | Action | Fails with |\n|---|-------|--------|------------|\n| 1 | detect | Determine install method, version, interpreter, repo root/branch/SHA (source) or binary path. | — |\n| 2 | check | Read the latest (or `--version`) GitHub release; compare SemVer. Equal/older and no `--force` → **stop: up-to-date**. | `RELEASE_FEED_UNAVAILABLE`, `DOWNGRADE_REFUSED` |\n| 3 | lock | Create `~/.hath0r/upgrade/upgrade.lock` (reclaim if the owning PID is dead). Skipped for `--dry-run`. | `UPGRADE_IN_PROGRESS` |\n| 4 | preflight | source: clean tree + canonical branch. pip/pipx: wheel asset exists (+ `pipx` on PATH). binary: platform asset exists + install dir writable. | `SOURCE_TREE_DIRTY`, `SOURCE_BRANCH_NOT_CANONICAL`, `ASSET_MISSING`, `PIPX_MISSING`, `BINARY_NOT_WRITABLE` |\n| — | dry-run | With `--dry-run`, report the plan and **stop**",
+      "properties": {
+        "path": "docs/governance/procedures/upgrade-procedure.md",
+        "category": "procedures",
+        "size_bytes": 2973
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__procedures__cicccd-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Cicccd Procedure",
+      "content": "# CICCCD Procedure\n\n> Product: **HATH0R Control Tower** · Subsystem: **Governance & Calibration Engine**  \n> Status: **Active Standard** · Updated: 2026-10-04\n\n---\n\n## Normative Execution Procedure\n\n### Step 1: Pre-Execution Entry Gate Verification\nBefore starting any development or PR build, verify the local and group CICCCD calibration freshness:\n\n```bash\nhath0r cicccd validate\n```\n\nIf calibration age exceeds 24 hours, re-calibration is required before PR submission.\n\n---\n\n### Step 2: Triggering Continuous Calibration (CC)\n\nRun on-demand calibration to optimize runtime prompt signatures and model parameters:\n\n```bash\nhath0r cicccd calibrate --iterations 3 --signature default_agent_signature\n```\n\nThis procedure performs:\n1. Benchmark evaluation against stored datasets.\n2. Signal-to-Noise Ratio (SNR) loss evaluation via Taguchi Methods.\n3. DSPy signature compilation and parameter updates in `.hath0r/cccd_state.json`.\n\n---\n\n### Step 3: Enabling Background Auto-Tuning (CD)\n\nTo enable continuous background prompt optimization and telemetry drift detection:\n\n```bash\nhath0r cicccd auto-tune --interval 300\n```\n\n---\n\n### Step 4: Multi-Repo Artifact Hexad Audit\n\nValidate that all member re",
+      "properties": {
+        "path": "docs/governance/procedures/cicccd-procedure.md",
+        "category": "procedures",
+        "size_bytes": 1287
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__strategies__lazy-command-loading-strategy_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1235,6 +1385,19 @@
         "path": "docs/governance/strategies/schema-self-repair-loops-strategy.md",
         "category": "strategies",
         "size_bytes": 4101
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__strategies__mlflow-mlops-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Mlflow Mlops Strategy",
+      "content": "# MLflow MLOps & Experiment Tracking Strategy\n\n> Artifact: **Strategy** · Suite: `hath0r-opensource` / `bayly-ai` / `1-nation`  \n> Canonical Standard: `CR-SUBSTRATE-001`, `CR-CICCCD-001`, `CR-CLI-FEATURE-STANDARD-001`  \n> Issue Reference: Bayly-AI/HATH0R-CLI#412  \n> Date: 2026-10-11\n\n## 1. Executive Summary\n\nThis strategy establishes MLflow as the canonical open-source MLOps experiment tracking, model/prompt registry, and continuous calibration metrics store across the Hath0r and 1-Nation ecosystem. While Arize Phoenix serves real-time runtime span tracing and LLM evaluations, MLflow specializes in:\n1. **Hyperparameter & Calibration Sweeps**: Taguchi array iterations, S/N ratios, and quality loss metrics logged during CCCD execution.\n2. **Compiled Prompt Signatures**: Versioned DSPy compiled prompt signatures, few-shot exemplars, and telemetry state snapshots.\n3. **Model & Tool Artifact Registry**: Registered ML/LLM models, embedding weights, and fine-tuning artifacts.\n\n---\n\n## 2. Architectural Topology\n\n```mermaid\nflowchart TD\n    subgraph Clients[\"Hath0r Clients & Calibration Engines\"]\n        CLI[\"HATH0R CLI (mlflow commands)\"]\n        CCCD[\"CCCD Continuous Calibration Loop\"]\n  ",
+      "properties": {
+        "path": "docs/governance/strategies/mlflow-mlops-strategy.md",
+        "category": "strategies",
+        "size_bytes": 2426
       },
       "is_current": true
     },
@@ -1499,6 +1662,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__strategies__cicccd-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Cicccd Strategy",
+      "content": "# CICCCD Strategy\n\n> Product: **HATH0R Control Tower** · Subsystem: **Governance & Calibration Engine**  \n> Status: **Active Standard** · Updated: 2026-10-04\n\n---\n\n## 1. Overview & Vision\n\n**CICCCD** stands for **Continuous Integration, Continuous Calibration, Continuous Development**. It evolves standard software engineering CI/CD for agentic AI architectures by embedding continuous calibration loops into the operational control plane.\n\nIn traditional software, Continuous Integration (CI) and Continuous Deployment (CD) ensure code correctness and delivery. In agentic frameworks, software behavior is dictated not only by procedural code, but also by system prompts, LLM model parameters, dynamic AgentGraph routing topologies, and DSPy compiled signatures.\n\nCICCCD establishes a closed-loop control plane that continuously monitors runtime telemetry, measures parameter drift, calibrates prompts and hyperparameters, and enforces zero-tax quality gates.\n\n---\n\n## 2. Core Pillars\n\n```mermaid\nflowchart TD\n    subgraph CI[\"Continuous Integration\"]\n        CI1[\"Schema Contracts Validation\"]\n        CI2[\"AgentGraph Policy Gate\"]\n        CI3[\"Unit & Integration Testing\"]\n    end\n\n    subgraph C",
+      "properties": {
+        "path": "docs/governance/strategies/cicccd-strategy.md",
+        "category": "strategies",
+        "size_bytes": 2835
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__strategies__strategy-cli-update_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1551,6 +1727,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__strategies__upgrade-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Upgrade Strategy",
+      "content": "# Strategy: Automated CLI Upgrade & Install Verification\n\n> Document Type: **Strategy** (`cr-workflow-doc-001`) · Product: **HATH0R-CLI** · Factory: `upgrade-factory`\n> Status: **Active** · Updated: 2026-10-05\n\n## 1. Problem\n\nThe CLI ships frequently (v0.6.0 → v0.9.0 in two days). Operators upgrade by hand, inconsistently,\nand nothing proves a new version works on *their* machine before they depend on it. A broken\nupgrade is discovered mid-task, and the previous working version is gone.\n\n## 2. Goals\n\n1. **Hands-off upgrades** across every supported install method (source, pip, pipx, binary).\n2. **Proof, not hope**: every install is followed by a test suite run against the installed CLI.\n3. **Safe failure**: an upgrade that fails tests is rolled back and the rollback is re-verified.\n4. **Actionable announcements**: a failure produces a message that says *what broke and how to\n   fix it*, and (unattended) a de-duplicated GitHub issue that the team can work.\n5. **Supply-chain hygiene**: only checksum-verified release artifacts are installed (GUIDE-047 trust rules).\n\n## 3. Non-goals\n\n- Publishing releases (owned by `release-bot` / `release.yml`).\n- Upgrading member repositories' config",
+      "properties": {
+        "path": "docs/governance/strategies/upgrade-strategy.md",
+        "category": "strategies",
+        "size_bytes": 3413
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__strategies__voice-converse-strategy_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1599,6 +1788,19 @@
         "path": "docs/governance/strategies/local-reasoning-adapters-strategy.md",
         "category": "strategies",
         "size_bytes": 3202
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__strategies__phoenix-telemetry-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Phoenix Telemetry Strategy",
+      "content": "# Arize Phoenix Distributed Telemetry Strategy\n\n> Artifact: **Strategy** · Suite: `hath0r-opensource` / `bayly-ai` / `1-nation`  \n> Canonical Standard: `CR-SUBSTRATE-001`, `CR-CICCCD-001`, `CR-CLI-FEATURE-STANDARD-001`  \n> Date: 2026-10-05\n\n## 1. Executive Summary\n\nThis strategy establishes Arize Phoenix as the unified open-source AI observability, agent tracing, FinOps token-cost accounting, and LLM evaluation platform across all three suites:\n1. **Hath0r OpenSource** (`hath0r-framework`, `hathor-cli`, `hath0r-atc`, `hath0r-mcp`)\n2. **BaylyAI (BAI)** (`BAI/ATC`, `BAI/MCP`, `BAI/UXP`)\n3. **1-Nation** (`1-Nation/ATC`, `1-Nation/MCP`, `1-Nation/C-MCP`, `1-Nation/UXP`, `1-Nation/ADMIN`)\n\nAll telemetry adheres strictly to **OpenInference** and **OpenTelemetry (OTel)** semantic conventions over HTTP Protobuf (`v1/traces`).\n\n---\n\n## 2. Architecture & Ingress Topology\n\n```mermaid\nflowchart TD\n    subgraph Clients[\"Clients & Applications\"]\n        CLI[\"HATH0R CLI (Observer/Manager Bots)\"]\n        H0_ENG[\"Hath0r Cognitive Engine (Gateway/Guardrails)\"]\n        MCP_MEM[\"MCP Servers (Knowledgebase/Tools)\"]\n        UXP_MEM[\"Frontend Portals (UXP/Admin)\"]\n    end\n\n    subgraph Edge[\"Shared Edge ",
+      "properties": {
+        "path": "docs/governance/strategies/phoenix-telemetry-strategy.md",
+        "category": "strategies",
+        "size_bytes": 3250
       },
       "is_current": true
     },
@@ -1954,6 +2156,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__checklists__upgrade_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Upgrade",
+      "content": "# Checklist: Upgrade Bot\n\n> Document Type: **Checklist** (`cr-workflow-doc-001`) · Factory: `upgrade-factory` · Updated: 2026-10-05\n\n## Before enabling on a machine\n\n- [ ] `hath0r upgrade check` succeeds and shows the expected install method\n- [ ] `hath0r upgrade verify` passes on the current version (establishes a healthy baseline)\n- [ ] `gh auth status` is logged in (only needed for `--file-issue`)\n- [ ] Source checkouts: on `development`/`master`, clean tree\n- [ ] `hath0r upgrade run --dry-run` shows the intended plan\n\n## Before shipping a CLI release (release owner)\n\n- [ ] Release has a `hath0r_cli-<ver>-py3-none-any.whl` asset\n- [ ] Every installable asset has a GitHub digest or a `.sha256` sidecar\n- [ ] Binary matrix covers the platforms of enrolled machines\n- [ ] `hath0r upgrade run --version <ver> --force --tests full` passes on a source checkout\n\n## Changes to the Upgrade Bot itself\n\n- [ ] `pytest -q tests/unit/test_upgrade_bot.py` passes\n- [ ] `hath0r factory validate` passes for `upgrade-factory`\n- [ ] New failure codes have an actionable `hint` and a row in the playbook\n- [ ] New checks documented in GUIDE-049 and the bot spec\n- [ ] Live verification on a real install: ",
+      "properties": {
+        "path": "docs/governance/checklists/upgrade.md",
+        "category": "checklists",
+        "size_bytes": 1478
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__checklists__end-of-task-daemon_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1976,6 +2191,19 @@
         "path": "docs/governance/checklists/quality-bots.md",
         "category": "checklists",
         "size_bytes": 664
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__checklists__cicccd_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Cicccd",
+      "content": "# CICCCD Checklist\n\n> Product: **HATH0R Control Tower** · Subsystem: **Governance & Calibration Engine**  \n> Status: **Active Checklist** · Updated: 2026-10-04\n\n---\n\n## Pre-Merge & Pre-PR Gate Checklist\n\n- [ ] `hath0r cicccd validate` returns `Overall Status: VALID`.\n- [ ] Schema contracts verified (`hath0r contracts validate`).\n- [ ] AgentGraph policy valid (`hath0r agentgraph validate`).\n- [ ] Calibration freshness age is $\\le 24.0\\text{ hours}$.\n- [ ] DSPy compiled signatures updated in `.hath0r/cccd/compiled_prompts/`.\n- [ ] Artifact Hexad documentation verified (Strategy, Procedure, Playbook, Runbook, Checklist, Bot Spec).\n- [ ] Pytest test suite passing (`pytest tests/unit/test_cicccd.py`).\n",
+      "properties": {
+        "path": "docs/governance/checklists/cicccd.md",
+        "category": "checklists",
+        "size_bytes": 708
       },
       "is_current": true
     },
@@ -2149,6 +2377,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__phoenix-lifecycle-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Phoenix Lifecycle Runbook",
+      "content": "# Arize Phoenix Lifecycle & Incident Response Runbook\n\n> Artifact: **Runbook** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Suite: `hath0r-opensource` / `bayly-ai` / `1-nation`  \n> Date: 2026-10-05\n\n## 1. System Overview\n\nArize Phoenix runs as a lightweight, persistent container with an embedded SQLite database (`/data/phoenix.db`) on dedicated volumes:\n- `hath0r_phoenix_data` (Hath0r)\n- `1n_phoenix_data` (1-Nation)\n- `bai_phoenix_data` (BaylyAI)\n\n---\n\n## 2. Emergency Operations\n\n### Scenario A: Phoenix Container Crashed / Unhealthy\n1. **Check Container Logs**:\n   ```bash\n   docker logs --tail 100 HATH0R-Phoenix\n   ```\n2. **Restart via CLI**:\n   ```bash\n   hath0r phoenix down --group hath0r\n   hath0r phoenix up --group hath0r\n   ```\n3. **Verify Edge Reverse Proxy**:\n   ```bash\n   curl -I http://localhost:38000/phoenix/\n   ```\n\n---\n\n## 3. Maintenance & Persistence\n\n### SQLite Database Backup\n```bash\ndocker exec HATH0R-Phoenix sqlite3 /data/phoenix.db \".backup '/data/phoenix_backup_$(date +%Y%m%d).db'\"\n```\n\n### Database Pruning (Older than 30 Days)\n```bash\ndocker exec HATH0R-Phoenix /usr/bin/python3.13 -c \"\nimport sqlite3\ncon = sqlite3.connect('/data/phoenix.db'",
+      "properties": {
+        "path": "docs/governance/runbooks/phoenix-lifecycle-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 1574
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__openfeature-ops-runbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2158,6 +2399,19 @@
         "path": "docs/governance/runbooks/openfeature-ops-runbook.md",
         "category": "runbooks",
         "size_bytes": 169
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__runbooks__cicccd-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Cicccd Runbook",
+      "content": "# CICCCD Runbook\n\n> Product: **HATH0R Control Tower** · Subsystem: **Governance & Calibration Engine**  \n> Status: **Active Runbook** · Updated: 2026-10-04\n\n---\n\n## Operations & Incident Resolution\n\n### Incident: Calibration File Corrupted or Missing\n\n**Diagnostics**: `.hath0r/cccd_state.json` is missing or contains invalid JSON.\n\n**Recovery Steps**:\n1. Reset calibration state:\n   ```bash\n   rm -f .hath0r/cccd_state.json\n   ```\n2. Re-trigger full calibration:\n   ```bash\n   hath0r cicccd calibrate --iterations 3\n   ```\n3. Verify restored state:\n   ```bash\n   hath0r cicccd status\n   ```\n\n---\n\n### Incident: Auto-Tune Daemon Deadlock / Memory Leak\n\n**Diagnostics**: Background calibration process hanging or exceeding CPU limits.\n\n**Recovery Steps**:\n1. Check active processes and status:\n   ```bash\n   hath0r cicccd status\n   ```\n2. Disable auto-tune daemon mode:\n   ```bash\n   hath0r cicccd auto-tune --no-daemon\n   ```\n",
+      "properties": {
+        "path": "docs/governance/runbooks/cicccd-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 928
       },
       "is_current": true
     },
@@ -2227,6 +2481,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__upgrade-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Upgrade Runbook",
+      "content": "# Runbook: CLI Upgrade Operations\n\n> Document Type: **Runbook** (`cr-workflow-doc-001`) · Product: **HATH0R-CLI** · Factory: `upgrade-factory`\n> Updated: 2026-10-05\n\n## 1. Routine\n\n```bash\nhath0r upgrade check                     # daily glance / before starting work\nhath0r upgrade run --dry-run             # see exactly what would happen\nhath0r upgrade run                       # upgrade + verify + auto-rollback + announce\nhath0r upgrade status                    # outcome of the last run + history\n```\n\nAfter any manual install or environment change: `hath0r upgrade verify` (add `--tests full` on a\nsource checkout).\n\n## 2. Enrol a machine in nightly upgrades\n\n```bash\ngh auth status                           # issue filing needs an authenticated gh\nhath0r upgrade schedule --write\nlaunchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.baylyai.hath0r.upgrade.plist\n```\n\nVerify enrolment: `launchctl print gui/$(id -u)/com.baylyai.hath0r.upgrade | head`.\nLogs: `~/.hath0r/upgrade/scheduled.log`. Disable: `launchctl bootout gui/$(id -u)/com.baylyai.hath0r.upgrade`.\nLinux: use the crontab line printed by `hath0r upgrade schedule`.\n\n## 3. Factory execution\n\n```bash\nhath0r factory valid",
+      "properties": {
+        "path": "docs/governance/runbooks/upgrade-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 2425
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__update-cli-runbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2253,6 +2520,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__mlflow-service-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Mlflow Service Runbook",
+      "content": "# Runbook: MLflow Service Operations & Diagnostics\n\n> Artifact: **Runbook** · Suite: `hath0r-opensource` / `bayly-ai` / `1-nation`  \n> Canonical Standard: `CR-CLI-FEATURE-STANDARD-001`, `CR-CICCCD-001`  \n> Issue Reference: Bayly-AI/HATH0R-CLI#412  \n> Date: 2026-10-11\n\n## 1. Service Specifications (Hath0r OpenSource Default)\n\n- **Container Name**: `HATH0R-MLflow` (service `mlflow` in `hath0r-opensource`)\n- **Docker Group**: `hath0r` (`hath0r-opensource`)\n- **Network**: `hath0r-net`\n- **Internal Port**: `5000`\n- **Edge URL**: `http://localhost:38000/mlflow/`\n- **Direct Port Exposed to Host**: None (routed via `HATH0R-NGINX`)\n- **Persistent Volume**: `hath0r_mlflow_data` mounted at `/data`\n\n### Multi-Group Topology Matrix\n\n| Group | Container | Compose File | Edge Proxy Port | Edge URL |\n|---|---|---|---|---|\n| `hath0r` (default) | `HATH0R-MLflow` | `cfg/docker/groups/hath0r/docker-compose.yml` | `38000` | `http://localhost:38000/mlflow/` |\n| `1-nation` | `1NMLFLOW` | `deploy/docker/docker-compose.yml` | `58000` | `http://localhost:58000/mlflow/` |\n| `bai` | `BAI-MLflow` | `cfg/docker/groups/bai/docker-compose.yml` | `48000` | `http://localhost:48000/mlflow/` |\n\n---\n\n## 2. Troubleshoo",
+      "properties": {
+        "path": "docs/governance/runbooks/mlflow-service-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 1891
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__troubleshooting-runbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2275,6 +2555,84 @@
         "path": "docs/governance/runbooks/memory-space-runbook.md",
         "category": "runbooks",
         "size_bytes": 235
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__workflows__phoenix-telemetry-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Phoenix Telemetry Workflow",
+      "content": "# Arize Phoenix Telemetry Workflow Specification\n\n> Artifact: **Workflow** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Suite: `hath0r-opensource` / `bayly-ai` / `1-nation`  \n> Date: 2026-10-05\n\n## 1. Workflow Summary\n\nThe Phoenix Telemetry Workflow coordinates continuous calibration (`CR-CICCCD-001`), live agent tracing, and evaluation feedback loops.\n\n```mermaid\nsequenceDiagram\n    autonumber\n    actor Developer as Developer / CI\n    participant CLI as HATH0R CLI\n    participant Engine as Hath0r Cognitive Engine\n    participant Proxy as Nginx Edge Proxy\n    participant Phoenix as Arize Phoenix\n\n    Developer->>CLI: hath0r cicccd calibrate\n    CLI->>Engine: Run evaluation test suite\n    Engine->>Proxy: POST /v1/traces (Eval metrics & benchmarks)\n    Proxy->>Phoenix: Ingest OTLP Spans\n    Phoenix-->>Proxy: 200 OK (Indexed in SQLite)\n    CLI->>Phoenix: Query eval thresholds & drift\n    Phoenix-->>CLI: Return calibration report\n    CLI-->>Developer: Output pass/fail Quality Gate\n```\n\n---\n\n## 2. Pipeline Integration Points\n\n1. **Pre-Commit / Local Testing**:\n   - `pytest tests/unit/test_phoenix_observability.py`\n   - Validates that tracer provider successfully ge",
+      "properties": {
+        "path": "docs/governance/workflows/phoenix-telemetry-workflow.md",
+        "category": "workflows",
+        "size_bytes": 1642
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__workflows__mlflow-continuous-calibration-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Mlflow Continuous Calibration Workflow",
+      "content": "# Workflow: MLflow Continuous Calibration & MLOps Pipeline\n\n> Artifact: **Workflow** · Suite: `hath0r-opensource` / `bayly-ai` / `1-nation`  \n> Canonical Standard: `CR-CLI-FEATURE-STANDARD-001`, `CR-CICCCD-001`  \n> Issue Reference: Bayly-AI/HATH0R-CLI#412  \n> Date: 2026-10-11\n\n## 1. Overview\n\nThis workflow links Continuous Calibration (CC) triggers to MLflow experiment tracking.\n\n```mermaid\nsequenceDiagram\n    autonumber\n    participant Agent as Operator / CCCD Bot\n    participant CCCD as Calibration Loop\n    participant Taguchi as Taguchi Optimizer\n    participant MLflow as MLflow Manager Bot\n    participant 1NMLFLOW as 1NMLFLOW Container\n\n    Agent->>CCCD: run_calibration(signature, iterations)\n    CCCD->>Taguchi: optimize_parameters(factors, levels)\n    Taguchi-->>CCCD: optimal_parameters, mean_snr_db, quality_loss\n    CCCD->>MLflow: log_run(experiment=\"cccd-calibration\", params, metrics)\n    MLflow->>1NMLFLOW: POST /ajax-api/2.0/mlflow/runs/create\n    MLflow->>1NMLFLOW: POST /ajax-api/2.0/mlflow/runs/log-parameter\n    MLflow->>1NMLFLOW: POST /ajax-api/2.0/mlflow/runs/log-metric\n    MLflow->>1NMLFLOW: POST /ajax-api/2.0/mlflow/runs/update (FINISHED)\n    MLflow-->>CCCD: return ru",
+      "properties": {
+        "path": "docs/governance/workflows/mlflow-continuous-calibration-workflow.md",
+        "category": "workflows",
+        "size_bytes": 1675
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__phoenix-manager-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Phoenix Manager Bot Spec",
+      "content": "# Bot Specification: PhoenixManagerBot\n\n> Artifact: **Bot Specification** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Identity: `phoenix_manager_bot`  \n> Suite: `HATH0R-CLI` Control Tower  \n> Date: 2026-10-05\n\n## 1. Role & Identity\n\n`PhoenixManagerBot` is an autonomous control-tower bot responsible for orchestrating, diagnosing, and reporting telemetry analytics across Arize Phoenix instances for all suite Docker meshes (`hath0r`, `1-nation`, `bai`).\n\n---\n\n## 2. Capabilities & Interface\n\n### Core Methods\n- `start_phoenix(group: str = \"hath0r\", detach: bool = True) -> Dict[str, Any]`\n  - Launches container and verifies port availability.\n- `stop_phoenix(group: str = \"hath0r\") -> Dict[str, Any]`\n  - Stops container cleanly.\n- `check_status(group: str = \"hath0r\", custom_endpoint: Optional[str] = None) -> Dict[str, Any]`\n  - Probes edge and direct health endpoints (`http://localhost:38000/phoenix/`, `http://localhost:58000/phoenix/`, etc.).\n- `get_projects(group: str = \"1-nation\") -> List[Dict[str, Any]]`\n  - Queries active OpenInference projects and span distributions directly from SQLite `/data/phoenix.db`.\n- `get_cost_summary(group: str = \"1-nation\") -> Dict[s",
+      "properties": {
+        "path": "docs/governance/bot-specs/phoenix-manager-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 1772
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__mlflow-manager-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Mlflow Manager Bot Spec",
+      "content": "# Bot Specification: MLflowManagerBot\n\n> Artifact: **Bot Specification** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Identity: `mlflow_manager_bot`  \n> Suite: `HATH0R-CLI` Control Tower  \n> Issue Reference: Bayly-AI/HATH0R-CLI#412  \n> Date: 2026-10-11\n\n## 1. Role & Identity\n\n`MLflowManagerBot` is an autonomous control-tower bot responsible for orchestrating, diagnosing, and reporting experiment tracking and continuous calibration telemetry across MLflow instances for all suite Docker meshes (`1-nation`, `hath0r`, `bai`).\n\n---\n\n## 2. Capabilities & Interface\n\n### Core Methods\n- `start_mlflow(group: str = \"hath0r\", detach: bool = True) -> Dict[str, Any]`\n  - Launches container and verifies port availability.\n- `stop_mlflow(group: str = \"hath0r\") -> Dict[str, Any]`\n  - Stops container cleanly.\n- `check_status(group: str = \"hath0r\", custom_endpoint: Optional[str] = None) -> Dict[str, Any]`\n  - Probes edge and direct health endpoints (`http://localhost:38000/mlflow/`, etc.).\n- `get_experiments(group: str = \"hath0r\", custom_endpoint: Optional[str] = None) -> List[Dict[str, Any]]`\n  - Queries registered MLflow experiments via REST API.\n- `get_runs(experiment_id: str",
+      "properties": {
+        "path": "docs/governance/bot-specs/mlflow-manager-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 2230
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__upgrade-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Upgrade Bot Spec",
+      "content": "# Upgrade Bot Spec\n\n> Product: **HATH0R Control Tower** · Subsystem: **Bot Specification**\n> Status: **Active Spec** · Updated: 2026-10-05\n\n## Bot identity\n\n| Factory bot id | Class | Module |\n|----------------|-------|--------|\n| `upgrade-bot` | `UpgradeBot` | `src/hath0r_cli/bots/upgrade_bot.py` |\n| `upgrade-verifier-bot` | `UpgradeVerifierBot` | same |\n| `upgrade-announcer-bot` | `UpgradeAnnouncerBot` | same |\n\n- **CLI binding:** `hath0r upgrade` (`src/hath0r_cli/commands/upgrade.py`)\n- **Factory:** `cfg/factories/upgrade-factory.yaml`\n- **Dependencies:** Python stdlib only (voice queue + `gh` used opportunistically)\n\n## Subcommands & methods\n\n| CLI subcommand | Method | Factory action |\n|----------------|--------|----------------|\n| `hath0r upgrade check [--version]` | `UpgradeBot.check(version)` | `upgrade-bot: check` |\n| `hath0r upgrade run [--version --force --tests --no-rollback --file-issue --no-speak --dry-run]` | `UpgradeBot.run(...)` + `UpgradeAnnouncerBot.announce(...)` | `upgrade-bot: run` → `upgrade-announcer-bot: announce` |\n| `hath0r upgrade verify [--tests --expect-version --announce --file-issue]` | `UpgradeVerifierBot.verify(...)` | `upgrade-verifier-bot: verify",
+      "properties": {
+        "path": "docs/governance/bot-specs/upgrade-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 3076
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__cicccd-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Cicccd Bot Spec",
+      "content": "# CICCCD Bot Spec\n\n> Product: **HATH0R Control Tower** · Subsystem: **Bot Specification**  \n> Status: **Active Spec** · Updated: 2026-10-04\n\n---\n\n## Specification: CICCCD Managing Bot\n\n### Bot Identity\n- **Class**: `CICCCDManagingBot` (`src/hath0r_cli/bots/cicccd_bot.py`)\n- **CLI Binding**: `hath0r cicccd`\n- **Role**: Continuous Integration, Calibration, and Development orchestrator across HATH0R OpenSource group products.\n\n### Subcommands & Methods\n\n| CLI Subcommand | Method Name | Description |\n| :--- | :--- | :--- |\n| `hath0r cicccd status` | `bot.status()` | Retrieve calibration state, drift metrics, and DSPy compiled signatures summary. |\n| `hath0r cicccd validate` | `bot.validate_cicccd(repo)` | Perform multi-stage validation across CI schema contracts, CC freshness, and CD hexad docs. |\n| `hath0r cicccd calibrate` | `bot.calibrate(iterations, signature)` | Execute Taguchi Loss optimization and DSPy prompt compilation loop. |\n| `hath0r cicccd auto-tune` | `bot.auto_tune(interval, daemon)` | Enable continuous background monitoring and automated parameter adaptation. |\n\n### Artifact Hexad Reference\n\n- **Strategy**: `docs/governance/strategies/cicccd-strategy.md`\n- **Procedure**",
+      "properties": {
+        "path": "docs/governance/bot-specs/cicccd-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 1495
       },
       "is_current": true
     },
@@ -2526,6 +2884,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__playbooks__mlflow-experiment-tracking-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Mlflow Experiment Tracking Playbook",
+      "content": "# Playbook: MLflow Experiment Tracking & Calibration Auditing\n\n> Artifact: **Playbook** · Suite: `hath0r-opensource` / `bayly-ai` / `1-nation`  \n> Canonical Standard: `CR-CLI-FEATURE-STANDARD-001`, `CR-CICCCD-001`  \n> Issue Reference: Bayly-AI/HATH0R-CLI#412  \n> Date: 2026-10-11\n\n## 1. Scenario: CCCD Calibration Drift Detection & Sweep Audit\n\nWhen CCCD telemetry reports prompt degradation or parameter drift:\n1. **Verify Tracking Status**:\n   ```bash\n   hath0r mlflow status --group 1-nation\n   ```\n2. **Execute On-Demand Calibration**:\n   ```bash\n   hath0r cccd calibrate --iterations 5 --signature statutory_summarizer_signature\n   ```\n3. **Audit Generated Runs in MLflow**:\n   ```bash\n   hath0r mlflow runs -e 1 --group 1-nation\n   ```\n4. **Compare Optimal Hyperparameters**:\n   Inspect the latest run to verify S/N ratio improvement and Taguchi loss reduction relative to baseline runs.\n\n---\n\n## 2. Scenario: Storage Maintenance & Database Vacuuming\n\nOver time, SQLite database `/data/mlflow.db` and `/data/artifacts/` accumulate run histories.\n1. Inspect volume usage:\n   ```bash\n   docker exec 1NMLFLOW du -sh /data/mlflow.db /data/artifacts\n   ```\n2. Vacuum database:\n   ```bash\n   docker e",
+      "properties": {
+        "path": "docs/governance/playbooks/mlflow-experiment-tracking-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 1324
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__playbooks__voice-converse-playbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2548,6 +2919,19 @@
         "path": "docs/governance/playbooks/docker-group-playbook.md",
         "category": "playbooks",
         "size_bytes": 405
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__upgrade-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Upgrade Playbook",
+      "content": "# Playbook: Upgrade Failure Triage\n\n> Document Type: **Playbook** (`cr-workflow-doc-001`) · Product: **HATH0R-CLI** · Factory: `upgrade-factory`\n> Updated: 2026-10-05\n\nStart with: `hath0r upgrade status -o json` (or the GitHub issue the bot opened). The `failure.code`\nselects the play below. `outcome` tells you the state of the machine:\n\n- `rolled-back` → the previous version is installed **and passed re-verification**. No urgency for the operator; fix the release.\n- `rollback-failed` → **critical**. The install may be broken. Go to §5 first.\n- `failed` with no rollback → preflight/check failure; nothing was changed.\n\n## 1. Release / feed problems\n\n| Code | Meaning | Play |\n|------|---------|------|\n| `RELEASE_FEED_UNAVAILABLE` | GitHub API unreachable or rate-limited, `gh` fallback failed | `gh auth status`; set `GITHUB_TOKEN`; retry. Persisting → check network/proxy. |\n| `ASSET_MISSING` | Release lacks a wheel or a binary for this platform | Check the release's assets; re-run `release.yml`. Binary users on an unbuilt platform: switch to pipx. |\n| `CHECKSUM_MISSING` | No digest and no `.sha256` sidecar | Release pipeline defect — re-publish with sidecars. **Never** bypass. |\n| `CH",
+      "properties": {
+        "path": "docs/governance/playbooks/upgrade-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 4171
       },
       "is_current": true
     },
@@ -2578,6 +2962,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__playbooks__cicccd-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Cicccd Playbook",
+      "content": "# CICCCD Playbook\n\n> Product: **HATH0R Control Tower** · Subsystem: **Governance & Calibration Engine**  \n> Status: **Active Playbook** · Updated: 2026-10-04\n\n---\n\n## Practical How-To & Decision Matrix\n\n### Scenario 1: Entry Gate Warning - Calibration Stale (>24h)\n\n**Symptom**: CLI outputs `⚠️ [CRITICAL ENTRY GATE] CCCD Calibration is Stale (>24h Limit)`.\n\n**Action**:\n1. Run `hath0r cicccd calibrate`.\n2. Inspect updated parameters using `hath0r cicccd status`.\n3. Verify `is_fresh` is `True`.\n\n---\n\n### Scenario 2: Parameter Drift Detected\n\n**Symptom**: `hath0r cicccd status` shows negative accuracy drift or elevated latency drift.\n\n**Action**:\n1. Run calibration with increased iterations:\n   ```bash\n   hath0r cicccd calibrate --iterations 5 --signature default_agent_signature\n   ```\n2. Enable auto-tune monitoring:\n   ```bash\n   hath0r cicccd auto-tune --interval 120\n   ```\n",
+      "properties": {
+        "path": "docs/governance/playbooks/cicccd-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 891
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__playbooks__openfeature-setup-playbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2600,6 +2997,19 @@
         "path": "docs/governance/playbooks/dynamic-mcp-security-policy-playbook.md",
         "category": "playbooks",
         "size_bytes": 877
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__phoenix-telemetry-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Phoenix Telemetry Playbook",
+      "content": "# Arize Phoenix Telemetry Operational Playbook\n\n> Artifact: **Playbook** · Member of **Artifact Hexad** (`CR-CLI-FEATURE-STANDARD-001`)  \n> Suite: `hath0r-opensource` / `bayly-ai` / `1-nation`  \n> Date: 2026-10-05\n\n## 1. Overview & Triggers\n\nThis operational playbook provides step-by-step guidance for diagnosing and resolving common observability issues:\n- **Play 1**: Spans not appearing in Arize Phoenix UI\n- **Play 2**: HTTP 415 Unsupported Media Type during trace ingestion\n- **Play 3**: FinOps Token or Cost Spikes\n- **Play 4**: Missing Project Names / Spans Routed to \"default\"\n\n---\n\n## 2. Plays\n\n### Play 1: Spans Not Appearing in UI\n1. **Check Phoenix Server Health**:\n   ```bash\n   hath0r phoenix status --group <target-group>\n   ```\n2. **Verify Client Tracer Initialization**:\n   Ensure `init_phoenix_provider()` or `OTLPSpanExporter` was executed during application startup.\n3. **Verify Host Port Fallback**:\n   If executing outside Docker, confirm endpoint resolves to `http://localhost:58000/phoenix/v1/traces` or `http://localhost:38000/phoenix/v1/traces` rather than container DNS names (`1NPHOENIX`).\n4. **Inspect SQLite Database**:\n   ```bash\n   docker exec HATH0R-Phoenix /usr/bin",
+      "properties": {
+        "path": "docs/governance/playbooks/phoenix-telemetry-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 2582
       },
       "is_current": true
     },
@@ -2799,6 +3209,97 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__portraits__runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Runbook",
+      "content": "# Runbook — verified biography portraits\n\nHTTP 404/410 means missing. HTTP 403/429 and network failures are unverified, never evidence of absence. Respect Retry-After: a 429/503 is retried up to 4 times with Retry-After or exponential backoff, and every worker on that host slows down. The host circuit opens on the first 403, or once the host's throttle score (incremented per 429/503, decremented per success) reaches 12; after that the host is not requested again in this run. Retry unavailable hosts in a later run; do not bypass their controls. Every profile receives a terminal outcome, and the report exposes source errors. Rollback uses old_photo_url from the immutable run report. Do not overwrite concurrent edits.\n\n\n\n## Non-portrait filtering and Wikidata fallback\nLead images are rejected only when a whole word in the Commons filename names a non-portrait subject (tombstone, grave, cemetery, signature, coat of arms, map, house, cartoon, ...). Source credits such as \"from find-a-grave\", surnames (Graves, Gravely) and \"engraved portrait\" are not rejections. When the lead image is missing or rejected, the Wikidata P18 image of the article's own `wikibase_item` is considered: it must ",
+      "properties": {
+        "path": "docs/governance/portraits/runbook.md",
+        "category": "portraits",
+        "size_bytes": 1615
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__portraits__workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Workflow",
+      "content": "# Workflow — verified biography portraits\n\nSync-Sources -> portrait bot -> government candidates -> identity-linked Wikipedia fallback -> decode -> provenance report -> verified-only database update -> edge API and browser checks.\n\n",
+      "properties": {
+        "path": "docs/governance/portraits/workflow.md",
+        "category": "portraits",
+        "size_bytes": 234
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__portraits__bot-specification_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Bot Specification",
+      "content": "# Bot specification — verified biography portraits\n\nPortraitSyncBot accepts a declarative config, supports bounded concurrency, dry run, resume, per-host pacing and circuit breakers. The adapter uses read-only Docker/psql export and parameter-safe COPY staging for updates; image retrieval is limited to public government and Wikimedia hosts with redirect validation. Exit status distinguishes infrastructure errors from fully processed but unresolved profiles. It never reports 100% picture coverage unless every profile is verified.\n\n",
+      "properties": {
+        "path": "docs/governance/portraits/bot-specification.md",
+        "category": "portraits",
+        "size_bytes": 538
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__portraits__README_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Readme",
+      "content": "# Verified biography portraits\n\nIssue: Bayly-AI/HATH0R-CLI#384; consumer: Bayly-AI/1-Nation-ATC#133.\n\n## Strategy\nResolve all current and historical identities using Bioguide IDs and curated executive mappings. Prefer government biography portraits; only fall back to the identity-linked Wikipedia biography when government candidates are unavailable. A populated URL is not verification.\n\n## Procedure\nRead profiles without changing identity data. Resolve government candidates, fetch image bytes with bounded requests, decode raster data and reject small/non-image payloads. Resolve Wikipedia only via a stored or crosswalk-linked title, never fuzzy name search. Record source page, final URL, SHA-256, dimensions, check time and failures. Apply only verified results with optimistic old-URL checks. Preserve prior data and record unresolved cases.\n\n## Playbook\nRun `hath0r portraits sync --config cfg/portraits.yaml` to mine and checkpoint without database writes. Review the JSONL report. Add `--apply` to write verified results; add `--resume` to reuse a completed checkpoint in the same run directory. Dry-run factory execution performs no requests or writes. Revalidate in a fresh run director",
+      "properties": {
+        "path": "docs/governance/portraits/README.md",
+        "category": "portraits",
+        "size_bytes": 2619
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__portraits__playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Playbook",
+      "content": "# Playbook — verified biography portraits\n\nRun `hath0r portraits sync --config cfg/portraits.yaml` to mine and checkpoint without database writes. Review the JSONL report. Add `--apply` to write verified results; add `--resume` to reuse a completed checkpoint in the same run directory. Dry-run factory execution performs no requests or writes. Revalidate in a fresh run directory on later syncs.\n\n",
+      "properties": {
+        "path": "docs/governance/portraits/playbook.md",
+        "category": "portraits",
+        "size_bytes": 400
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__portraits__strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Strategy",
+      "content": "# Strategy — verified biography portraits\n\nResolve all current and historical identities using Bioguide IDs and curated executive mappings. Prefer government biography portraits; only fall back to the identity-linked Wikipedia biography when government candidates are unavailable. A populated URL is not verification.\n\n",
+      "properties": {
+        "path": "docs/governance/portraits/strategy.md",
+        "category": "portraits",
+        "size_bytes": 321
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__portraits__procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Procedure",
+      "content": "# Procedure — verified biography portraits\n\nRead profiles without changing identity data. Resolve government candidates, fetch image bytes with bounded requests, decode raster data and reject small/non-image payloads. Resolve Wikipedia only via a stored or crosswalk-linked title, never fuzzy name search. Record source page, final URL, SHA-256, dimensions, check time and failures. Apply only verified results with optimistic old-URL checks. Preserve prior data and record unresolved cases.\n\n",
+      "properties": {
+        "path": "docs/governance/portraits/procedure.md",
+        "category": "portraits",
+        "size_bytes": 495
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__reports__compliance-audit-report-hathor-cli_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2825,15 +3326,54 @@
       "is_current": true
     },
     {
+      "id": "doc:_hath0r__knowledgebase__hathor-guide-052-phase3-swarm-verifiers-budget-20261005_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Hathor Guide 052 Phase3 Swarm Verifiers Budget 20261005",
+      "content": "# HATH0R-GUIDE-052: Phase 3 Autonomous Swarm, Verifiers & FinOps Budget Foundations\n\n## Overview\nThis document serves as the canonical technical guide for **Phase 3: Autonomous Swarm, Verifiers & FinOps Budget Foundations** in `HATH0R-CLI` and the Ray Suite.\n\nPhase 3 delivers four foundational autonomous governance and evaluation capabilities:\n1. **FinOps Token Tree Budget Guard & Circuit Breaker** (`TokenTreeBudgetGuard` / `hath0r finops budget check`)\n2. **Multi-Agent Consensus Engine & Evaluator Gate** (`MultiAgentConsensusEngine` / `hath0r evals consensus`)\n3. **Antagonistic Review Bot & Tech Debt Enforcement** (`AntagonisticReviewBot` / `hath0r pr review --antagonistic`)\n4. **Multi-Agent Red-Team / Blue-Team Verification Engine** (`MultiAgentRedTeamEngine` / `hath0r evals redteam`)\n\n---\n\n## Strategy & Architecture\n- **Tree-Level Token Budget Circuit Breaker**: Enforces token and USD spending caps on nested subagent execution trees (`max_tokens_budget: 50,000`, `max_usd_budget: $0.25`), raising `TokenBudgetExceeded` exceptions to halt runaway subagent loops automatically.\n- **GAIN Peer Consensus Gate**: Evaluates majority-vote agreement across peer subagents; automatically trig",
+      "properties": {
+        "path": ".hath0r/knowledgebase/hathor-guide-052-phase3-swarm-verifiers-budget-20261005.md",
+        "category": "knowledgebase",
+        "size_bytes": 2493
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:_hath0r__knowledgebase__hathor-guide-050-phase1-agent-substrate-20261005_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Hathor Guide 050 Phase1 Agent Substrate 20261005",
+      "content": "# HATH0R-GUIDE-050: Phase 1 Agentic Substrate & Protocol Foundations\n\n## Overview\nThis document serves as the canonical technical guide for **Phase 1: Agentic Substrate & Protocol Foundations** in `HATH0R-CLI` and the Ray Suite.\n\nPhase 1 delivers four foundational agentic capabilities:\n1. **Princeton KV Cache Pre-Warming Engine** (`KVCachePrewarmer` / `hath0r agent prewarm`)\n2. **Princeton L2WS Warm-Start Calibration** (`L2WSPredictor` / `hath0r cccd calibrate`)\n3. **Structured Hath0r Agent Handoff Protocol (HAHP)** (`HAHPProtocolManager` / `hath0r agent hahp`)\n4. **Multi-Agent Directed Acyclic Graph (DAG) Execution & Dependency Runner** (`AgentDAGRunner` / `hath0r agent dag`)\n\n---\n\n## Strategy & Architecture\n- **Zero-Token Prefill Warming**: Shared system prompts and OneDrive knowledge context are pre-warmed via zero-token ping anchors prior to subagent fan-out, reducing concurrent prefill spikes by >= 40%.\n- **Learning to Warm-Start (L2WS)**: Historical parameter vectors and loss residuals are stored in Redis (`SESSION`) and DynamoDB (`DATA`), allowing CCCD calibration loops to warm-start optimization iterations and accelerate convergence.\n- **HAHP Envelope Serialization**: Inter",
+      "properties": {
+        "path": ".hath0r/knowledgebase/hathor-guide-050-phase1-agent-substrate-20261005.md",
+        "category": "knowledgebase",
+        "size_bytes": 2274
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:_hath0r__knowledgebase__README_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
       "label": "Readme",
-      "content": "# Local Knowledgebase moved (cr-kb-tower-001)\n\nThis repository is the **control tower** of group `hath0r-opensource` (OpenSource Project).\n\nThe **canonical local knowledgebase** still lives in the OpenSource group hub (not duplicated here):\n\n```\n/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase\n```\n\n| Field | Value |\n|-------|-------|\n| Group | `hath0r-opensource` |\n| Project | OpenSource Project |\n| Group root | `/Users/raybayly/Development/OpenSource` |\n| Control tower | this repo (`HATH0R-CLI`) |\n| Canonical KB | `/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase` |\n| This product | `HATH0R-CLI` |\n| Mode | `stub` (tower configs in `cfg/`; KB content in hub) |\n| Operator CLI | `hath0r` |\n| Framework root | `.hath0r/` |\n| Rule | `cr-kb-tower-001` |\n\n## Do\n\n1. Read/write durable group knowledge in the group hub KB.\n2. Keep this directory as a pointer only.\n3. Use **HATH0R CLI** (`hath0r`) and tower `cfg/*` for suite orientation.\n4. Treat Framework `docs/` as canonical OpenSource documentation content.\n\n## Do not\n\n1. Maintain a second full local KB here.\n2. Point OpenSource work at private internal suite knowledgebases as canonical.\n3. Create or use legacy root",
+      "content": "<p align=\"center\">\n  <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" />\n</p>\n\n# HATH0R CLI (v0.8.0)\n\n**Autonomous Operator Control Plane & Enterprise Cognitive Engineering Gateway**\n\n[![VS Code Marketplace](https://img.shields.io/badge/VS%20Marketplace-Hath0r-blue.svg)](https://marketplace.visualstudio.com/items?itemName=BaylyAI.hath0r-vscode)\n[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)\n[![Release](https://img.shields.io/badge/Release-v0.9.0-green.svg)](https://github.com/Bayly-AI/HATH0R-CLI/releases/tag/v0.9.0)\n[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://python.org)\n\nHATH0R CLI is the globally installed operator interface, runtime execution gateway, and control tower for the Enterprise Agentic Ecosystem. It bridges autonomous agents, developer tooling, security mediation, parameter optimization, FinOps tokenomics, and zero-tribal-memory project governance.\n\n> **Technical Reference:** See [TECH_README.md](TECH_README.md) for in-depth architecture, subsystem maps, and developer specifications.\n\n---\n\n## Executive Scorecard: Strategic & Operational ROI\n\n| Capability | Legacy Approach | HAT",
       "properties": {
         "path": ".hath0r/knowledgebase/README.md",
         "category": "knowledgebase",
-        "size_bytes": 1275
+        "size_bytes": 9293
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:_hath0r__knowledgebase__hathor-guide-051-phase2-knowledge-cag-router-20261005_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Hathor Guide 051 Phase2 Knowledge Cag Router 20261005",
+      "content": "# HATH0R-GUIDE-051: Phase 2 Knowledge Graph, CAG & Semantic Router Foundations\n\n## Overview\nThis document serves as the canonical technical guide for **Phase 2: Knowledge Graph, CAG & Semantic Router Foundations** in `HATH0R-CLI` and the Ray Suite.\n\nPhase 2 delivers five foundational knowledge and semantic router capabilities:\n1. **W3C OWL/RDF Turtle Exporter** (`AgentGraphOWLExporter` / `hath0r agentgraph export --format turtle`)\n2. **Description Logic OWL Reasoner** (`AgentGraphOWLReasoner` / `hath0r agentgraph validate --owl`)\n3. **SPARQL Graph Query Engine** (`SPARQLEngine` / `hath0r kb sparql`)\n4. **Context-Augmented Generation (CAG) Engine** (`CAGEngine` / `hath0r context pack --cag`)\n5. **Hybrid CAG + RAG Knowledge Query Router** (`HybridCAGRAGRouter` / `hath0r kb smart-query`)\n\n---\n\n## Strategy & Architecture\n- **Semantic OWL/RDF Ontology**: Maps AgentGraph planes (`rules`, `knowledge`, `context`, `memory`) and relations (`governs`, `informs`, `defines_role`) into an RDF graph using `http://hath0r.dev/ontology/v1#`.\n- **Automated Description Logic Reasoning**: Uses RDFLib SPARQL graph reasoning to prove formal semantic consistency, detecting policy contradictions and cyclic",
+      "properties": {
+        "path": ".hath0r/knowledgebase/hathor-guide-051-phase2-knowledge-cag-router-20261005.md",
+        "category": "knowledgebase",
+        "size_bytes": 2491
       },
       "is_current": true
     },
@@ -2846,7 +3386,7 @@
       "properties": {
         "path": "README.md",
         "category": "root",
-        "size_bytes": 7117
+        "size_bytes": 9293
       },
       "is_current": true
     },
@@ -2906,6 +3446,18 @@
   ],
   "edges": [
     {
+      "source": "doc:agents-root",
+      "target": "role:control_tower_&_forge_(`is_control_tower:_true`)",
+      "relation": "defines_role",
+      "is_current": true
+    },
+    {
+      "source": "doc:agents-knowledgebase",
+      "target": "role:control_tower_&_forge_(`is_control_tower:_true`)",
+      "relation": "defines_role",
+      "is_current": true
+    },
+    {
       "source": "rule:rules",
       "target": "role:developer",
       "relation": "GOVERNS",
@@ -2944,6 +3496,6 @@
   ],
   "metadata": {
     "repo_root": "/Users/raybayly/Development/OpenSource/hathor-cli",
-    "synced_sources": 222
+    "synced_sources": 261
   }
 }
