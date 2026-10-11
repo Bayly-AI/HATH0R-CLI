@@ -14,7 +14,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 
 @dataclass
@@ -196,7 +196,7 @@ class MLflowManagerBot:
         """Query registered experiments from MLflow."""
         try:
             res = self._request("GET", "/experiments/search?max_results=50", group=group, custom_endpoint=custom_endpoint)
-            return res.get("experiments", [])
+            return cast(List[Dict[str, Any]], res.get("experiments", []))
         except Exception:
             return []
 
@@ -212,7 +212,7 @@ class MLflowManagerBot:
             quoted = urllib.parse.quote(name)
             res = self._request("GET", f"/experiments/get-by-name?experiment_name={quoted}", group=group, custom_endpoint=custom_endpoint)
             if "experiment" in res and "experiment_id" in res["experiment"]:
-                return res["experiment"]["experiment_id"]
+                return cast(str, res["experiment"]["experiment_id"])
         except Exception:
             pass
 
@@ -225,7 +225,8 @@ class MLflowManagerBot:
                 group=group,
                 custom_endpoint=custom_endpoint,
             )
-            return res.get("experiment_id")
+            exp_id = res.get("experiment_id")
+            return cast(str, exp_id) if exp_id is not None else None
         except Exception:
             return None
 
@@ -244,7 +245,7 @@ class MLflowManagerBot:
                 group=group,
                 custom_endpoint=custom_endpoint,
             )
-            return res.get("runs", [])
+            return cast(List[Dict[str, Any]], res.get("runs", []))
         except Exception:
             return []
 
@@ -313,7 +314,7 @@ class MLflowManagerBot:
                 custom_endpoint=custom_endpoint,
             )
 
-            return run_id
+            return cast(str, run_id)
         except Exception:
             return None
 
