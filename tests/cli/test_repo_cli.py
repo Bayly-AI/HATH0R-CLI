@@ -57,3 +57,46 @@ def test_cli_repo_audit_all_repos(tmp_path: Path, monkeypatch):
     data = json.loads(res.output)
     assert data["command"] == "repo.audit"
     assert data["data"]["repo_count"] == 2
+
+
+def test_cli_repo_siblings(tmp_path: Path, monkeypatch):
+    runner = CliRunner()
+    monkeypatch.setenv("HATH0R_GROUP_ROOT", str(tmp_path))
+
+    res = runner.invoke(main, ["--output", "json", "repo", "siblings"])
+    assert res.exit_code == 0
+    data = json.loads(res.output)
+    assert data["command"] == "repo.siblings"
+    assert "products" in data["data"]
+    assert "hath0r-atc" in data["data"]["products"]
+    assert "hath0r-mcp" in data["data"]["products"]
+
+
+def test_cli_repo_ensure_dry_run(tmp_path: Path, monkeypatch):
+    runner = CliRunner()
+    monkeypatch.setenv("HATH0R_GROUP_ROOT", str(tmp_path))
+
+    res = runner.invoke(main, ["--output", "json", "repo", "ensure", "--dry-run"])
+    assert res.exit_code == 0
+    data = json.loads(res.output)
+    assert data["command"] == "repo.ensure"
+    assert data["data"]["success"] is True
+    assert data["data"]["dry_run"] is True
+
+
+def test_cli_repo_install_mock(tmp_path: Path, monkeypatch):
+    runner = CliRunner()
+    monkeypatch.setenv("HATH0R_GROUP_ROOT", str(tmp_path))
+
+    # Pre-create directory so it acts as already installed
+    atc_dir = tmp_path / "hath0r-atc"
+    atc_dir.mkdir()
+    (atc_dir / "VERSION").write_text("0.2.2\n", encoding="utf-8")
+
+    res = runner.invoke(main, ["--output", "json", "repo", "install", "hath0r-atc"])
+    assert res.exit_code == 0
+    data = json.loads(res.output)
+    assert data["command"] == "repo.install"
+    assert data["data"]["success"] is True
+    assert data["data"]["already_installed"] is True
+

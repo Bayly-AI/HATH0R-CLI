@@ -582,6 +582,48 @@ def mcp_serve(
         ctx.exit(1)
 
 
+@mcp.command("install")
+@click.option("--version", "tag_or_version", default=None, help="Specific version or tag to download.")
+@click.pass_context
+def mcp_install(ctx: click.Context, tag_or_version: str | None) -> None:
+    """Download the latest version of HATH0R MCP and install as a sibling of CLI."""
+    from hath0r_cli.bots.sibling_bot import SiblingManagerBot
+
+    bot = SiblingManagerBot()
+    res = bot.download_and_install("hath0r-mcp", version=tag_or_version)
+
+    state = "ok" if res.get("success") else "error"
+    diagnostics: list[Diagnostic] = []
+    if not res.get("success"):
+        diagnostics.append(
+            Diagnostic(
+                code="MCP_INSTALL_FAILED",
+                message=str(res.get("error", "Failed to download and install HATH0R MCP.")),
+                severity="error",
+                remediation="Check internet connection, GitHub credentials, or run git clone manually.",
+                provenance={"component": "hath0r-cli", "operation": "mcp.install"},
+            )
+        )
+
+    response = _build_response(ctx, command="mcp.install", state=state, data=res, diagnostics=diagnostics)
+
+    def _text() -> None:
+        if res.get("success"):
+            action = "Already installed" if res.get("already_installed") else "Successfully installed"
+            console.print(f"[bold green]✓ {action}:[/bold green] {res.get('name')} at {res.get('path')}")
+            if res.get("version"):
+                console.print(f"  Version: [bold cyan]{res.get('version')}[/bold cyan]")
+            if res.get("installed_deps"):
+                console.print("  [bold green]✓ Python editable package installed successfully.[/bold green]")
+        else:
+            console.print(f"[bold red]✗ Installation failed:[/bold red] {res.get('error')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
+
 # ============================================================================
 # Factory & Bot Suite Commands
 # ============================================================================

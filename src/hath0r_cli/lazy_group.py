@@ -59,6 +59,7 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "agent": ("hath0r_cli.commands.agent", "agent_cmd"),
     "evals": ("hath0r_cli.commands.evals", "evals_cmd"),
     "mlflow": ("hath0r_cli.commands.mlflow", "mlflow_cmd"),
+    "atc": ("hath0r_cli.commands.atc", "atc"),
 }
 
 

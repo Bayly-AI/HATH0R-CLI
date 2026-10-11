@@ -43,6 +43,30 @@ products:
     kb_mode: stub
     notes: Owns OpenSource documentation corpus. Framework inner workings under .hath0r/.
 
+  - product_id: hath0r-atc
+    product_name: HATH0R ATC
+    role: control-tower-infrastructure
+    canonical: true
+    is_control_tower: false
+    local_path: /Users/raybayly/Development/OpenSource/hath0r-atc
+    github: Bayly-AI/HATH0R-ATC
+    remote: https://github.com/Bayly-AI/HATH0R-ATC.git
+    kb_mode: stub
+    notes: >
+      OpenSource Project control tower for infrastructure, observation, and Docker-group membership.
+
+  - product_id: hath0r-mcp
+    product_name: HATH0R MCP
+    role: mcp-knowledge-server
+    canonical: true
+    is_control_tower: false
+    local_path: /Users/raybayly/Development/OpenSource/hath0r-mcp
+    github: Bayly-AI/HATH0R-MCP
+    remote: https://github.com/Bayly-AI/HATH0R-MCP.git
+    kb_mode: stub
+    notes: >
+      Standalone Model Context Protocol knowledge engine and tools server.
+
   - product_id: hath0r-poc
     product_name: HATHOR POC
     role: integration-test-bed
