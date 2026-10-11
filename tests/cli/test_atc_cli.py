@@ -69,3 +69,46 @@ def test_cli_mcp_install_already_installed(tmp_path: Path, monkeypatch):
     assert data["command"] == "mcp.install"
     assert data["state"] == "ok"
     assert data["data"]["already_installed"] is True
+
+
+def test_cli_mcp_container_dry_run(tmp_path: Path, monkeypatch):
+    runner = CliRunner()
+    monkeypatch.setenv("HATH0R_GROUP_ROOT", str(tmp_path))
+
+    res = runner.invoke(main, ["--output", "json", "mcp", "container", "--dry-run", "--no-prompt"])
+    assert res.exit_code == 0
+    data = json.loads(res.output)
+    assert data["command"] == "mcp.container"
+    assert data["state"] == "ok"
+    assert data["data"]["dry_run"] is True
+    assert data["data"]["source"] == "local_git_build"
+
+
+def test_cli_atc_container_dry_run(tmp_path: Path, monkeypatch):
+    runner = CliRunner()
+    monkeypatch.setenv("HATH0R_GROUP_ROOT", str(tmp_path))
+
+    res = runner.invoke(main, ["--output", "json", "atc", "container", "--dry-run", "--no-prompt"])
+    assert res.exit_code == 0
+    data = json.loads(res.output)
+    assert data["command"] == "atc.container"
+    assert data["state"] == "ok"
+    assert data["data"]["dry_run"] is True
+    assert data["data"]["source"] == "local_git_build"
+
+
+def test_cli_mcp_container_with_remote_url(tmp_path: Path, monkeypatch):
+    runner = CliRunner()
+    monkeypatch.setenv("HATH0R_GROUP_ROOT", str(tmp_path))
+
+    res = runner.invoke(
+        main,
+        ["--output", "json", "mcp", "container", "--image-url", "ghcr.io/bayly-ai/hath0r-mcp:v1.0.1", "--dry-run"],
+    )
+    assert res.exit_code == 0
+    data = json.loads(res.output)
+    assert data["command"] == "mcp.container"
+    assert data["state"] == "ok"
+    assert data["data"]["source"] == "remote_url"
+    assert data["data"]["container_url"] == "ghcr.io/bayly-ai/hath0r-mcp:v1.0.1"
+
