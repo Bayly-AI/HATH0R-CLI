@@ -61,6 +61,7 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "mlflow": ("hath0r_cli.commands.mlflow", "mlflow_cmd"),
     "atc": ("hath0r_cli.commands.atc", "atc"),
     "tlp": ("hath0r_cli.commands.tlp", "tlp"),
+    "elt": ("hath0r_cli.commands.elt", "elt"),
 }
 
 
