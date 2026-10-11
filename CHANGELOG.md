@@ -5,7 +5,7 @@ All notable changes to **HATH0R CLI** (`hath0r-cli`) are documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.4.0] - 2026-10-11
 
 ### Added
 - **Suite sibling repository manager** (#414): Auto-detection, downloading, and installation of suite sibling repositories (`hath0r-atc` and `hath0r-mcp`).
