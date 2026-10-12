@@ -5,6 +5,19 @@ All notable changes to **HATH0R CLI** (`hath0r-cli`) are documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-10-12
+
+### Added
+- **Orient Workflow & Cognitive Repository Orientation** (#463):
+  - Added `hath0r orient` CLI command providing deterministic repository architecture and governance discovery with Rich TUI scorecard, panel summaries, and GitHub Flavored Markdown fallback.
+  - Implemented 6-stage orientation protocol: AgentGraph governance & rules, README architecture mission, application code AST scanning, agent performance metrics & PMAT hotspots, and Continuous Calibration (CCCD) hyperparameter tuning.
+  - Added unit test suite in `tests/test_orient.py`.
+
+### Changed
+- **Canonical Framework Residency for OrientBot** (#465):
+  - Refactored `src/hath0r_cli/bots/orient_bot.py` and `hath0r orient` command to delegate canonically to `hath0r_engine.bots.orient_bot.OrientBot` residing in Hath0r Framework.
+  - Enabled cross-repo orientation across any arbitrary target repository workspace via `--repo <path>`.
+
 ## [1.5.0] - 2026-10-11
 
 ### Added
