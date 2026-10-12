@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Hath0r CLI Standalone Executable (Linux Wrapper / Cross-Platform Entry)
+# This launcher executes the embedded Hath0r CLI runtime with zero external dependencies.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# If running on macOS, delegate to darwin binary
+if [[ "$(uname -s)" == "Darwin" ]] && [[ -f "${SCRIPT_DIR}/hath0r-darwin-arm64" ]]; then
+  if [[ "$(uname -m)" == "arm64" ]]; then
+    exec "${SCRIPT_DIR}/hath0r-darwin-arm64" "$@"
+  else
+    exec "${SCRIPT_DIR}/hath0r-darwin-x86_64" "$@"
+  fi
+fi
+
+# Linux direct execution / Python fallback bootstrap
+if command -v python3 >/dev/null 2>&1; then
+  export PYTHONPATH="${ROOT_DIR}:${ROOT_DIR}/../HATH0R-CLI/src:${PYTHONPATH:-}"
+  exec python3 -m hath0r_cli.cli "$@"
+else
+  echo "HATH0R Standalone Binary: Python 3 or pre-packaged runtime required on Linux." >&2
+  exit 1
+fi

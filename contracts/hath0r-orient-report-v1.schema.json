@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hath0r.bayly.ai/contracts/hath0r-orient-report-v1.schema.json",
+  "title": "Hath0r Repository Orientation Report Schema",
+  "description": "Defines schema contract for unified repository orientation aggregating AgentGraph governance, README overview, Code scan, Agent Metrics, and CCCD Calibration.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "timestamp",
+    "bot_id",
+    "repository",
+    "agentgraph",
+    "readme",
+    "code_scan",
+    "metrics",
+    "calibration",
+    "verdict"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "hath0r.orient.report/1"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "bot_id": {
+      "type": "string",
+      "const": "orient-bot"
+    },
+    "repository": {
+      "type": "object",
+      "required": ["name", "path"],
+      "properties": {
+        "name": { "type": "string" },
+        "path": { "type": "string" }
+      }
+    },
+    "agentgraph": {
+      "type": "object",
+      "required": ["agents", "rules", "topology"],
+      "properties": {
+        "agents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "label"],
+            "properties": {
+              "id": { "type": "string" },
+              "label": { "type": "string" },
+              "permitted_tools": { "type": "array", "items": { "type": "string" } },
+              "forbidden_tools": { "type": "array", "items": { "type": "string" } },
+              "inherited_roles": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "label"],
+            "properties": {
+              "id": { "type": "string" },
+              "label": { "type": "string" },
+              "priority": { "type": "integer" },
+              "restricted_actions": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "topology": {
+          "type": "object",
+          "required": ["total_nodes", "total_edges", "planes"],
+          "properties": {
+            "total_nodes": { "type": "integer", "minimum": 0 },
+            "total_edges": { "type": "integer", "minimum": 0 },
+            "planes": { "type": "object" }
+          }
+        }
+      }
+    },
+    "readme": {
+      "type": "object",
+      "required": ["found", "title", "summary"],
+      "properties": {
+        "found": { "type": "boolean" },
+        "path": { "type": "string" },
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "components": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "code_scan": {
+      "type": "object",
+      "required": ["primary_languages", "subsystems", "symbol_count", "summary"],
+      "properties": {
+        "primary_languages": { "type": "object" },
+        "subsystems": { "type": "array", "items": { "type": "string" } },
+        "symbol_count": { "type": "integer", "minimum": 0 },
+        "key_symbols": { "type": "array" },
+        "summary": { "type": "string" }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "required": ["summary", "observability", "pmat"],
+      "properties": {
+        "summary": { "type": "object" },
+        "observability": { "type": "object" },
+        "pmat": { "type": "object" },
+        "histogram": { "type": "object" }
+      }
+    },
+    "calibration": {
+      "type": "object",
+      "required": ["fresh", "parameters"],
+      "properties": {
+        "calibration_id": { "type": ["string", "integer", "null"] },
+        "timestamp": { "type": ["string", "null"] },
+        "fresh": { "type": "boolean" },
+        "signature": { "type": "string" },
+        "parameters": {
+          "type": "object",
+          "required": ["temperature", "max_tokens", "top_p", "retry_count", "guardrail_threshold"],
+          "properties": {
+            "temperature": { "type": "number" },
+            "max_tokens": { "type": "integer" },
+            "top_p": { "type": "number" },
+            "retry_count": { "type": "integer" },
+            "guardrail_threshold": { "type": "number" }
+          }
+        }
+      }
+    },
+    "verdict": {
+      "type": "object",
+      "required": ["status", "findings_summary", "recommendations"],
+      "properties": {
+        "status": { "type": "string", "enum": ["ORIENTED", "NEEDS_ATTENTION"] },
+        "findings_summary": { "type": "string" },
+        "recommendations": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "additionalProperties": true
+}
