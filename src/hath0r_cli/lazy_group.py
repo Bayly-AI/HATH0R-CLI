@@ -67,6 +67,7 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "elt": ("hath0r_cli.commands.elt", "elt"),
     "iac": ("hath0r_cli.commands.iac", "iac"),
     "infra": ("hath0r_cli.commands.iac", "iac"),
+    "orient": ("hath0r_cli.commands.orient", "orient_cmd"),
 }
 
 
