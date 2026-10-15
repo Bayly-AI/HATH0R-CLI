@@ -51,5 +51,8 @@ COPY --chown=hath0r:hath0r . /app
 # Switch to non-root user
 USER 10001:10001
 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD ["hath0r", "--version"]
+
 ENTRYPOINT ["hath0r"]
 CMD ["--help"]
