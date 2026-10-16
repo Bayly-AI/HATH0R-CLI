@@ -11,9 +11,9 @@ Autonomous agents lose institutional context across sessions when task learnings
 
 ## 2. Architectural Pillars
 
-1. **Universal Repository Memory Space (`.hath0r/memory/` & `.hath0r/memory/sessions/`)**:
-   - Every repository in `/Users/raybayly/Development` maintains `.hath0r/memory/graph.json`, `.hath0r/memory/sessions/current.json`, `.hath0r/memory/sessions/latest.json`, `.hath0r/memory/core_rules.md`, and `.hath0r/memory/architecture.md`.
-   - Repository initialization (`hath0r init`), orientation (`hath0r orient`), task startup (`hath0r task start`), cleanup (`hath0r repo clean`), and suite-wide audits (`hath0r memory ensure-all`) guarantee zero uninitialized repositories.
+1. **Universal Repository Memory Space & Un-Ignored Graph Folders (`.hath0r/memory/`, `.hath0r/agentgraph/`, `.hath0r/state/cache/`, `.hath0r/state/context/`)**:
+   - Every repository in `/Users/raybayly/Development` maintains `.hath0r/memory/graph.json`, `.hath0r/memory/sessions/current.json`, `.hath0r/memory/sessions/latest.json`, `.hath0r/memory/hashes.json`, `.hath0r/memory/core_rules.md`, and `.hath0r/memory/architecture.md`, and explicitly un-ignores all graph folders in `.gitignore` (`!.hath0r/memory/**`, `!.hath0r/agentgraph/**`, `!.hath0r/graphs/**`, `!.hath0r/state/cache/**`, `!.hath0r/state/context/**`).
+   - Repository initialization (`hath0r init`), orientation (`hath0r orient`), task startup (`hath0r task start`), cleanup (`hath0r repo clean`), and suite-wide audits (`hath0r memory ensure-all`) guarantee zero uninitialized or git-ignored graph directories.
 
 2. **True Micro Memory Session Read/Write Lifecycle (`hath0r memory session`)**:
    - **Session Read (`start` / `read`)**: Recalls the prior micro-session (`latest.json`) and top-ranked active nodes from `graph.json` into a compact (<2KB) capsule (`current.json`), incrementing `read_count` and linking `session:<session_id>` via a `PRECEDES` edge.

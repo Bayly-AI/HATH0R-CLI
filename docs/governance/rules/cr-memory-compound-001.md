@@ -6,7 +6,7 @@
 
 ---
 
-## 1. Universal `.hath0r/memory`, `.hath0r/memory/sessions` & `.hath0r/memory/hashes.json` Repository Invariant
+## 1. Universal `.hath0r/memory`, `.hath0r/memory/sessions`, `.hath0r/memory/hashes.json` & Un-Ignored Graph Folders Invariant
 
 1. Every active project repository in `/Users/raybayly/Development` **MUST** maintain an initialized `.hath0r/memory/` directory containing:
    - `.hath0r/memory/graph.json`: The canonical serialized `MemoryGraph` (`schema_version: "1.0.0"`), storing typed semantic, episodic, and session nodes (`rule`, `concept`, `decision`, `fact`, `episode`, `topic`, `insight`, `session`), relational edges (`ENFORCES`, `REQUIRES`, `DERIVES_FROM`, `SUPERSEDES`, `RELATES_TO`, `RESOLVES`, `PRECEDES`), monotonic `revision` counter, and canonical `content_hash` (`sha256:<64-hex>`).
@@ -17,8 +17,17 @@
    - `.hath0r/memory/hashes.json`: The cryptographic **File Hash & Integrity Manifest** (`schema_version: "hath0r.memory_hashes/1"`), recording SHA-256 digests (`sha256:...`), byte sizes, and monotonic revisions for every file in `.hath0r/memory/` (`graph.json`, `core_rules.md`, `architecture.md`, `sessions/current.json`, `sessions/latest.json`) plus all repository `source_files` referenced by `MemoryGraph` nodes.
    - `.hath0r/memory/core_rules.md`: Canonical local rule summary.
    - `.hath0r/memory/architecture.md`: Repository architectural orientation summary.
-2. During repository onboarding (`hath0r init`), orientation (`hath0r orient`), task startup (`hath0r task start`), or repository hygiene (`hath0r repo clean` / `clean-repos`), `MemoryManagerBot` **MUST** verify and initialize `.hath0r/memory/graph.json`, `.hath0r/memory/sessions/current.json`, and `.hath0r/memory/hashes.json`.
-3. Suite-wide compliance is audited and enforced via `hath0r memory ensure-all` and `hath0r memory hash --check`.
+2. **Graph Folders MUST NEVER Be Git-Ignored**:
+   - Every repository's `.gitignore` **MUST** ensure that all cognitive graph folders are tracked in version control and **NEVER** ignored by Git:
+     - `.hath0r/memory/` and `.hath0r/memory/sessions/` (`MemoryGraph`, micro sessions, and `hashes.json`)
+     - `.hath0r/agentgraph/` (`AgentGraph` unified `snapshot.json`)
+     - `.hath0r/graphs/` (Auxiliary graph definitions)
+     - `.hath0r/state/cache/` (`KnowledgeGraph` compiled `knowledge.json`)
+     - `.hath0r/state/context/` (`ContextGraph` `session_init.json`)
+     - `lib/graph/`, `lib/context/`, `lib/memory/` (Engine graph library directories where present)
+   - Broad ignore rules such as `.hath0r/`, `.hath0r/state/`, or unnegated `.hath0r/*.json` are automatically sanitized and accompanied by explicit `!` un-ignore directives (`!.hath0r/memory/**`, `!.hath0r/agentgraph/**`, `!.hath0r/graphs/**`, `!.hath0r/state/cache/**`, `!.hath0r/state/context/**`) by `MemoryManagerBot` and `RepoLayoutBot`.
+3. During repository onboarding (`hath0r init`), orientation (`hath0r orient`), task startup (`hath0r task start`), or repository hygiene (`hath0r repo clean` / `clean-repos`), `MemoryManagerBot` **MUST** verify and initialize `.hath0r/memory/graph.json`, `.hath0r/memory/sessions/current.json`, `.hath0r/memory/hashes.json`, and `.gitignore` graph un-ignore rules.
+4. Suite-wide compliance is audited and enforced via `hath0r memory ensure-all`, `hath0r memory hash --check`, and `hath0r memory verify` (which verifies `graphs_not_ignored: True` via `git check-ignore`).
 
 ---
 

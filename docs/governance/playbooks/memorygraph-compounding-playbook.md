@@ -70,16 +70,16 @@ hath0r memory session end --summary "Merged and verified micro memory session li
 hath0r memory verify
 ```
 
-### Recipe C: Auditing & Synchronizing Cryptographic File Hashes (`hashes.json`)
+### Recipe C: Auditing & Synchronizing Cryptographic File Hashes (`hashes.json`) & Git Graph Tracking
 ```bash
-# Audit all .hath0r/memory/ files and referenced repo source_files for staleness or conflicts
+# Audit all .hath0r/memory/ files, referenced repo source_files, and verify zero graph folders are gitignored
 hath0r memory hash --check
 
-# Re-hash and synchronize .hath0r/memory/hashes.json after legitimate file updates
+# Re-hash and synchronize .hath0r/memory/hashes.json (also sanitizes .gitignore so graph folders are never ignored)
 hath0r memory hash --sync --track-file "src/hath0r_engine/memory/memory_graph.py"
 ```
 
-### Recipe D: Provisioning `.hath0r/memory`, `.hath0r/memory/sessions` & `.hath0r/memory/hashes.json` Across All Repositories
+### Recipe D: Provisioning `.hath0r/memory`, `.hath0r/memory/sessions`, `.hath0r/memory/hashes.json` & Un-Ignoring Graph Folders Across All Repositories
 ```bash
 hath0r memory ensure-all --root /Users/raybayly/Development
 ```

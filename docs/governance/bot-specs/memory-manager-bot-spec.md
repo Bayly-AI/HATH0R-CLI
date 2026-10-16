@@ -13,7 +13,7 @@
 
 | Action | Method | Description |
 |--------|--------|-------------|
-| `init` / `initialize-memory` | `initialize_memory(dry_run=False)` | Provisions `.hath0r/memory/core_rules.md`, `architecture.md`, `graph.json`, and `.hath0r/memory/sessions/current.json` & `latest.json`. |
+| `init` / `initialize-memory` | `initialize_memory(dry_run=False)` | Provisions `.hath0r/memory/core_rules.md`, `architecture.md`, `graph.json`, `.hath0r/memory/sessions/current.json` & `latest.json`, `.hath0r/memory/hashes.json`, and ensures `.gitignore` never ignores graph folders. |
 | `session-start` | `session_start(focus=None, session_id=None, top_k=5)` | Starts a new micro-session in `.hath0r/memory/sessions/current.json`, recalls prior `latest.json` and top `graph.json` nodes (`read_count >= 1`), and links via `PRECEDES` edge. |
 | `session-read` | `session_read(focus=None, top_k=5)` | Reads the active micro-session capsule (<2KB) from `.hath0r/memory/sessions/current.json` (auto-starting if absent) and increments `read_count`. |
 | `session-write` | `session_write(summary, kind="observation", tags=None, focus=None, next_steps=None, node_id=None)` | Appends a compact micro-entry to `.hath0r/memory/sessions/current.json`, increments `write_count`, enforces <2KB capsule bound, and syncs session node to `graph.json`. |
@@ -24,8 +24,8 @@
 | `search` / `search-memory` | `search_memory(query, node_type, tag, depth, relation)` | Searches `.hath0r/memory/graph.json` and traverses semantic relations up to `depth`. |
 | `compound` / `add-node` | `compound_memory(...)` | Adds/updates a structured `MemoryNode` and relational `MemoryEdge`s in `.hath0r/memory/graph.json`, records a micro-session write, runs `ReflectionEngine` consolidation, and syncs `.hath0r/agentgraph/snapshot.json`. |
 | `reflect` / `consolidate` | `reflect_memory(dry_run=False)` | Runs sleep-cycle consolidation across episodic/decision clusters to synthesize `insight` nodes. |
-| `hash` / `hash-files` | `sync_file_hashes(track_files=None, dry_run=False)` | Computes canonical `SHA-256` digests and revisions for all `.hath0r/memory/*` files and referenced `source_files`, persisting `.hath0r/memory/hashes.json`. |
-| `verify-hashes` | `verify_file_hashes()` | Verifies that all `.hath0r/memory/*` files and node-referenced `source_files` match their recorded SHA-256 digests with zero conflicts or stale files. |
-| `verify` / `verify-gate` | `verify_compounded(require_compounded=True, require_session=True, require_hashes=True)` | Verifies `.hath0r/memory/graph.json` contains compounded task knowledge, `.hath0r/memory/sessions/` has `read_count >= 1` and `write_count >= 1`, AND `.hath0r/memory/hashes.json` confirms all files are up-to-date and conflict-free. |
-| `ensure-all` | `ensure_all_repos(root_dir, dry_run=False)` | Discovers all git repositories under `root_dir`, ensures `.hath0r/memory/graph.json`, `.hath0r/memory/sessions/`, and `.hath0r/memory/hashes.json` are initialized, hashed, and synced with AgentGraph. |
+| `hash` / `hash-files` | `sync_file_hashes(track_files=None, dry_run=False)` | Sanitizes `.gitignore` so graph folders are never ignored, computes canonical `SHA-256` digests and revisions for all `.hath0r/memory/*` files and referenced `source_files`, persisting `.hath0r/memory/hashes.json`. |
+| `verify-hashes` | `verify_file_hashes()` | Verifies that all `.hath0r/memory/*` files and node-referenced `source_files` match their recorded SHA-256 digests with zero conflicts or stale files, and verifies zero graph folders are gitignored. |
+| `verify` / `verify-gate` | `verify_compounded(require_compounded=True, require_session=True, require_hashes=True)` | Verifies `.hath0r/memory/graph.json` contains compounded task knowledge, `.hath0r/memory/sessions/` has `read_count >= 1` and `write_count >= 1`, `.hath0r/memory/hashes.json` confirms all files are up-to-date and conflict-free, AND `graphs_not_ignored: True`. |
+| `ensure-all` | `ensure_all_repos(root_dir, dry_run=False)` | Discovers all git repositories under `root_dir`, sanitizes `.gitignore` to un-ignore all graph folders, and ensures `.hath0r/memory/graph.json`, `.hath0r/memory/sessions/`, and `.hath0r/memory/hashes.json` are initialized, hashed, and synced with AgentGraph. |
 

@@ -50,12 +50,13 @@
 
 ---
 
-## CR-MEMORY-COMPOUND-001 (Mandatory `.hath0r/memory` Repository Presence, Micro Memory Sessions, SHA-256 File Hashing & Pre-Announcement MemoryGraph Compounding — CANONICAL)
+## CR-MEMORY-COMPOUND-001 (Mandatory `.hath0r/memory` Repository Presence, Micro Memory Sessions, SHA-256 File Hashing, Un-Ignored Graph Folders & Pre-Announcement MemoryGraph Compounding — CANONICAL)
 - **Universal `.hath0r/memory`, `.hath0r/memory/sessions` & `.hath0r/memory/hashes.json` Folder**: Every repository across `/Users/raybayly/Development` MUST maintain `.hath0r/memory/graph.json`, `.hath0r/memory/sessions/current.json`, `.hath0r/memory/sessions/latest.json`, `.hath0r/memory/hashes.json`, `core_rules.md`, and `architecture.md` (`hath0r memory init` / `hath0r memory ensure-all`).
+- **Graph Folders Never Git-Ignored**: Repository `.gitignore` files MUST NEVER ignore `.hath0r/memory/`, `.hath0r/memory/sessions/`, `.hath0r/agentgraph/`, `.hath0r/graphs/`, `.hath0r/state/cache/`, or `.hath0r/state/context/`. Any `.hath0r/*` or `.hath0r/state/*` wildcard ignore rules MUST include explicit `!` negation rules (`!.hath0r/memory/**`, `!.hath0r/agentgraph/**`, `!.hath0r/graphs/**`, `!.hath0r/state/cache/**`, `!.hath0r/state/context/**`).
 - **True Micro Memory Session Read & Write**: Every session MUST read and write a compact (<2KB) micro memory session (`hath0r memory session start|read`, `hath0r memory session write`, `hath0r memory session end`) linked via `PRECEDES` edges in `.hath0r/memory/graph.json`.
 - **Cryptographic SHA-256 File Hashing & CAS Conflict Prevention (`hath0r memory hash`)**: Every file in `.hath0r/memory/` and every repository `source_files` path referenced on a `MemoryNode` MUST be tracked with canonical `SHA-256` digests and monotonic `revision` counters in `.hath0r/memory/hashes.json`. Concurrent writes use optimistic Compare-And-Swap (`expected_hash` / `base_hash`) with deterministic set-union auto-merging for non-conflicting additions and atomic file replacement (`os.replace`).
 - **Pre-Announcement Memory Compounding**: Every task MUST compound structured knowledge (`episode`, `decision`, `fact`, `insight`, `concept`, or `rule`) into `.hath0r/memory/graph.json` prior to announcing complete (`hath0r memory compound` + `hath0r memory verify`).
-- **Hard Gate & Immediate AgentGraph Sync**: `TaskAnnouncerBot.announce_complete`, `EndOfTaskBot`, and `CleanReposWorkflowBot` enforce `MemoryManagerBot.verify_compounded()` (`read_count >= 1`, `write_count >= 1`, `compounded_nodes_count >= 1`, and `hashes_verified: True`) before announcing complete and synchronize `.hath0r/agentgraph/snapshot.json` on every memory mutation.
+- **Hard Gate & Immediate AgentGraph Sync**: `TaskAnnouncerBot.announce_complete`, `EndOfTaskBot`, and `CleanReposWorkflowBot` enforce `MemoryManagerBot.verify_compounded()` (`read_count >= 1`, `write_count >= 1`, `compounded_nodes_count >= 1`, `hashes_verified: True`, and `graphs_not_ignored: True`) before announcing complete and synchronize `.hath0r/agentgraph/snapshot.json` on every memory mutation.
 
 ---
 
