@@ -34,6 +34,8 @@ ALLOWED_ROOT_FILES: Set[str] = {
     ".gitmodules",
     ".dockerignore",
     ".editorconfig",
+    ".env",
+    ".env.local",
     ".env.example",
     # Containers & Dependencies
     "Dockerfile",
