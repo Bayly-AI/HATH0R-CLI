@@ -70,7 +70,17 @@ hath0r memory session end --summary "Merged and verified micro memory session li
 hath0r memory verify
 ```
 
-### Recipe C: Provisioning `.hath0r/memory` & `.hath0r/memory/sessions` Across All Repositories
+### Recipe C: Auditing & Synchronizing Cryptographic File Hashes (`hashes.json`)
+```bash
+# Audit all .hath0r/memory/ files and referenced repo source_files for staleness or conflicts
+hath0r memory hash --check
+
+# Re-hash and synchronize .hath0r/memory/hashes.json after legitimate file updates
+hath0r memory hash --sync --track-file "src/hath0r_engine/memory/memory_graph.py"
+```
+
+### Recipe D: Provisioning `.hath0r/memory`, `.hath0r/memory/sessions` & `.hath0r/memory/hashes.json` Across All Repositories
 ```bash
 hath0r memory ensure-all --root /Users/raybayly/Development
 ```
+

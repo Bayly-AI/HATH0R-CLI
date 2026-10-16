@@ -229,3 +229,119 @@ def test_memory_cli_session_subcommands(tmp_path: Path) -> None:
         )
         assert res_end.exit_code == 0
 
+
+def test_file_hashing_source_staleness_and_cas_conflict(tmp_path: Path) -> None:
+    src_file = tmp_path / "src" / "service.py"
+    src_file.parent.mkdir(parents=True)
+    src_file.write_text("def handle():\n    return 1\n", encoding="utf-8")
+
+    bot = MemoryManagerBot(cwd=tmp_path)
+    bot.initialize_memory()
+
+    # Compound knowledge referencing src/service.py
+    comp = bot.compound_memory(
+        node_id="episode:hash-test",
+        label="Hash Test Episode",
+        content="Verified source_files SHA-256 tracking.",
+        source_files=["src/service.py"],
+        sync_agentgraph=False,
+    )
+    assert comp["success"] is True
+    assert (tmp_path / ".hath0r" / "memory" / "hashes.json").is_file()
+
+    # Hashes and pre-announcement gate verify cleanly
+    h_ok = bot.verify_file_hashes()
+    assert h_ok["verified"] is True
+    ver_ok = bot.verify_compounded()
+    assert ver_ok["compounded"] is True
+    assert ver_ok["hashes_verified"] is True
+
+    # Mutate src/service.py on disk -> verify_file_hashes & verify_compounded detect stale source file
+    src_file.write_text("def handle():\n    return 2\n", encoding="utf-8")
+    h_stale = bot.verify_file_hashes()
+    assert h_stale["verified"] is False
+    assert len(h_stale["stale_source_files"]) == 1
+    assert h_stale["stale_source_files"][0]["file"] == "src/service.py"
+    ver_stale = bot.verify_compounded()
+    assert ver_stale["compounded"] is False
+    assert ver_stale["hashes_verified"] is False
+
+    # Sync file hashes with refresh_source_files=True -> restores valid state
+    bot.sync_file_hashes(refresh_source_files=True)
+    assert bot.verify_file_hashes()["verified"] is True
+    assert bot.verify_compounded()["compounded"] is True
+
+    # Concurrent non-conflicting additions from two bot instances auto-merge cleanly
+    bot_a = MemoryManagerBot(cwd=tmp_path)
+    bot_b = MemoryManagerBot(cwd=tmp_path)
+    bot_a._load_graph()
+    bot_b._load_graph()
+
+    res_a = bot_a.compound_memory(
+        node_id="fact:concurrent-a",
+        node_type="fact",
+        label="Concurrent Fact A",
+        content="Added by bot A.",
+        sync_agentgraph=False,
+    )
+    res_b = bot_b.compound_memory(
+        node_id="fact:concurrent-b",
+        node_type="fact",
+        label="Concurrent Fact B",
+        content="Added by bot B.",
+        sync_agentgraph=False,
+    )
+    assert res_a["success"] is True
+    assert res_b["success"] is True
+    merged_ids = {n["id"] for n in bot._load_graph()["nodes"]}
+    assert "fact:concurrent-a" in merged_ids
+    assert "fact:concurrent-b" in merged_ids
+
+    # Explicit stale expected_hash fails with HASH_CONFLICT
+    bad_cas = bot.compound_memory(
+        node_id="fact:bad-cas",
+        node_type="fact",
+        label="Bad CAS",
+        content="Should fail CAS check.",
+        expected_hash="sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        sync_agentgraph=False,
+    )
+    assert bad_cas["success"] is False
+    assert bad_cas.get("error_code") == "HASH_CONFLICT"
+
+
+def test_memory_cli_hash_subcommand(tmp_path: Path) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem(temp_dir=tmp_path):
+        Path("README.md").write_text("# Test Repo\n", encoding="utf-8")
+        runner.invoke(main, ["memory", "init"])
+        res_comp = runner.invoke(
+            main,
+            [
+                "memory",
+                "compound",
+                "--label",
+                "Hash CLI Test",
+                "--content",
+                "Testing hath0r memory hash CLI.",
+                "--source-file",
+                "README.md",
+                "--no-sync",
+            ],
+        )
+        assert res_comp.exit_code == 0
+
+        res_check = runner.invoke(main, ["memory", "hash", "--check"])
+        assert res_check.exit_code == 0
+
+        # Modify README.md -> hash --check fails
+        Path("README.md").write_text("# Test Repo Updated\n", encoding="utf-8")
+        res_check_fail = runner.invoke(main, ["memory", "hash", "--check"])
+        assert res_check_fail.exit_code != 0
+
+        # Sync hashes -> hash --check passes again
+        res_sync = runner.invoke(main, ["memory", "hash", "--sync"])
+        assert res_sync.exit_code == 0
+        res_check_ok = runner.invoke(main, ["memory", "hash", "--check"])
+        assert res_check_ok.exit_code == 0
+

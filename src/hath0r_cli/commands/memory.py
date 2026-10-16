@@ -130,6 +130,13 @@ def memory_update(ctx: click.Context, topic: str, content: str, dry_run: bool) -
     help="Relational edge type.",
 )
 @click.option("--supersedes", default=None, help="Existing node ID bitemporally superseded by this node.")
+@click.option(
+    "--source-file",
+    "source_files_tuple",
+    multiple=True,
+    help="Repository source file(s) referenced by this node to track SHA-256 staleness.",
+)
+@click.option("--expected-hash", default=None, help="Expected current graph.json content_hash for optimistic CAS.")
 @click.option("--no-sync", is_flag=True, help="Skip immediate AgentGraph synchronization.")
 @click.option("--dry-run", is_flag=True, help="Simulate compounding without writing to disk.")
 @click.pass_context
@@ -144,6 +151,8 @@ def memory_compound(
     relates_to: str,
     relation: str,
     supersedes: str | None,
+    source_files_tuple: tuple[str, ...],
+    expected_hash: str | None,
     no_sync: bool,
     dry_run: bool,
 ) -> None:
@@ -152,6 +161,7 @@ def memory_compound(
 
     tag_list = [t.strip() for t in tags.split(",") if t.strip()] if tags else []
     target_list = [t.strip() for t in relates_to.split(",") if t.strip()] if relates_to else []
+    source_files = list(source_files_tuple) if source_files_tuple else None
 
     bot = MemoryManagerBot()
     res = bot.compound_memory(
@@ -164,6 +174,8 @@ def memory_compound(
         relates_to=target_list,
         relation=relation,
         supersedes=supersedes,
+        source_files=source_files,
+        expected_hash=expected_hash,
         sync_agentgraph=not no_sync,
         dry_run=dry_run,
     )
@@ -181,6 +193,7 @@ def memory_compound(
             node = res.get("node", {})
             console.print(f"[green]✓ {res.get('message')}[/green]")
             console.print(f"  • Node ID: [bold cyan]{node.get('id')}[/bold cyan] ({node.get('type')})")
+            console.print(f"  • Content Hash: {res.get('content_hash')}")
             console.print(f"  • Edges Added: {len(res.get('edges_added', []))}")
             insights = res.get("reflection", {}).get("insights_generated", 0)
             console.print(f"  • Synthesized Insights: {insights}")
@@ -189,6 +202,8 @@ def memory_compound(
             console.print(f"[red]✗ {res.get('error')}[/red]")
 
     _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
 
 
 @memory.command("reflect")
@@ -224,13 +239,21 @@ def memory_reflect(ctx: click.Context, threshold: int, max_insights: int, dry_ru
 @click.option("--since", default=None, help="Verify knowledge compounded at or after ISO timestamp.")
 @click.option("--task", "task_id", default=None, help="Verify knowledge compounded for a specific task/issue.")
 @click.option("--no-session", is_flag=True, help="Skip micro memory session read/write check.")
+@click.option("--no-hashes", is_flag=True, help="Skip SHA-256 file hash verification check.")
 @click.pass_context
-def memory_verify(ctx: click.Context, since: str | None, task_id: str | None, no_session: bool) -> None:
-    """Verify CR-MEMORY-COMPOUND-001 pre-announcement gate on .hath0r/memory/graph.json and micro session."""
+def memory_verify(
+    ctx: click.Context, since: str | None, task_id: str | None, no_session: bool, no_hashes: bool
+) -> None:
+    """Verify CR-MEMORY-COMPOUND-001 pre-announcement gate on .hath0r/memory/graph.json, micro session, and SHA-256 hashes."""
     from hath0r_cli.bots.memory_manager import MemoryManagerBot
 
     bot = MemoryManagerBot()
-    res = bot.verify_compounded(since=since, task_id=task_id, require_session=not no_session)
+    res = bot.verify_compounded(
+        since=since,
+        task_id=task_id,
+        require_session=not no_session,
+        require_hashes=not no_hashes,
+    )
     ok = bool(res.get("compounded"))
 
     response = _build_response(
@@ -244,13 +267,18 @@ def memory_verify(ctx: click.Context, since: str | None, task_id: str | None, no
         if ok:
             latest = res.get("latest_node") or {}
             sess = res.get("session") or {}
-            console.print("[bold green]✓ MemoryGraph & Micro Session Pre-Announcement Gate PASSED (CR-MEMORY-COMPOUND-001)[/bold green]")
+            hstat = res.get("hash_status") or {}
+            console.print("[bold green]✓ MemoryGraph, Micro Session & SHA-256 Hash Gate PASSED (CR-MEMORY-COMPOUND-001)[/bold green]")
             console.print(
                 f"  • Total Nodes: {res.get('total_nodes')} | Compounded Nodes: {res.get('compounded_nodes_count')} | Edges: {res.get('total_edges')}"
             )
             console.print(
                 f"  • Micro Session: [cyan]{sess.get('session_id')}[/cyan] "
                 f"(reads={sess.get('read_count', 0)}, writes={sess.get('write_count', 0)}, {sess.get('byte_size', 0)}B / 2048B)"
+            )
+            console.print(
+                f"  • SHA-256 Hashes Verified: [green]{res.get('hashes_verified')}[/green] "
+                f"(rev={hstat.get('revision', 0)}, files={hstat.get('tracked_files_count', 0)}, sources={hstat.get('source_files_count', 0)})"
             )
             console.print(f"  • Latest Compounded Node: [cyan]{latest.get('id')}[/cyan] — {latest.get('label')}")
         else:
@@ -261,13 +289,86 @@ def memory_verify(ctx: click.Context, since: str | None, task_id: str | None, no
         ctx.exit(1)
 
 
+@memory.command("hash")
+@click.option("--check", "check_only", is_flag=True, help="Verify SHA-256 file hashes without modifying hashes.json.")
+@click.option("--sync", "sync_manifest", is_flag=True, help="Compute and write updated SHA-256 digests to .hath0r/memory/hashes.json.")
+@click.option(
+    "--track-file",
+    "track_files_tuple",
+    multiple=True,
+    help="Additional repository source file(s) to record in .hath0r/memory/hashes.json.",
+)
+@click.option("--dry-run", is_flag=True, help="Simulate hash sync without writing to disk.")
+@click.pass_context
+def memory_hash(
+    ctx: click.Context,
+    check_only: bool,
+    sync_manifest: bool,
+    track_files_tuple: tuple[str, ...],
+    dry_run: bool,
+) -> None:
+    """Verify or synchronize SHA-256 file hashes in .hath0r/memory/hashes.json."""
+    from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+    bot = MemoryManagerBot()
+    track_list = list(track_files_tuple) if track_files_tuple else None
+
+    if sync_manifest or track_list:
+        sync_res = bot.sync_file_hashes(
+            track_files=track_list,
+            refresh_source_files=True,
+            dry_run=dry_run,
+        )
+        ver_res = bot.verify_file_hashes() if not dry_run else {"verified": True}
+        data = {**sync_res, "verification": ver_res}
+        ok = bool(sync_res.get("success") and ver_res.get("verified", True))
+    else:
+        data = bot.verify_file_hashes()
+        ok = bool(data.get("verified"))
+
+    response = _build_response(
+        ctx,
+        command="memory.hash",
+        state="ok" if ok else "error",
+        data=data,
+        dry_run=dry_run,
+    )
+
+    def _text() -> None:
+        if sync_manifest or track_list:
+            console.print(
+                f"[bold green]✓ Synchronized .hath0r/memory/hashes.json "
+                f"(rev={data.get('revision')}, files={data.get('tracked_files_count')}, sources={data.get('source_files_count')})[/bold green]"
+            )
+            return
+        if ok:
+            console.print(
+                f"[bold green]✓ SHA-256 Memory File Hashes Verified "
+                f"(rev={data.get('revision')}, files={data.get('tracked_files_count')}, sources={data.get('source_files_count')})[/bold green]"
+            )
+        else:
+            console.print(f"[bold red]✗ {data.get('error')}[/bold red]")
+            for mf in data.get("mismatched_files", []):
+                console.print(f"  • Mismatch: {mf}")
+            for ms in data.get("missing_files", []):
+                console.print(f"  • Missing: {ms}")
+            for sf in data.get("stale_source_files", []):
+                console.print(f"  • Stale Source File: {sf}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if check_only and not ok:
+        ctx.exit(1)
+    elif not (sync_manifest or track_list) and not ok:
+        ctx.exit(1)
+
+
 @memory.command("ensure-all")
 @click.option("--root", "root_dir", default=None, help="Workspace root directory to scan for repositories.")
 @click.option("--no-sync", is_flag=True, help="Skip AgentGraph synchronization across repositories.")
 @click.option("--dry-run", is_flag=True, help="Simulate provisioning without writing to disk.")
 @click.pass_context
 def memory_ensure_all(ctx: click.Context, root_dir: str | None, no_sync: bool, dry_run: bool) -> None:
-    """Provision and verify .hath0r/memory/graph.json and micro sessions across all active repositories."""
+    """Provision and verify .hath0r/memory/graph.json, micro sessions, and SHA-256 hashes across all active repositories."""
     from hath0r_cli.bots.memory_manager import MemoryManagerBot
 
     bot = MemoryManagerBot()
@@ -282,10 +383,11 @@ def memory_ensure_all(ctx: click.Context, root_dir: str | None, no_sync: bool, d
     )
 
     def _text() -> None:
-        table = Table(title=f"MemoryGraph & Micro Session Provisioning Across {res.get('repos_count', 0)} Repositories")
+        table = Table(title=f"MemoryGraph, Micro Session & SHA-256 Hash Provisioning Across {res.get('repos_count', 0)} Repositories")
         table.add_column("Repository", style="bold")
         table.add_column("Compounded", justify="center")
         table.add_column("Session R/W", justify="center")
+        table.add_column("Hashes", justify="center")
         table.add_column("Nodes", justify="right")
         table.add_column("Edges", justify="right")
         table.add_column("AgentGraph Synced", justify="center")
@@ -294,11 +396,13 @@ def memory_ensure_all(ctx: click.Context, root_dir: str | None, no_sync: bool, d
             comp = "[green]✓[/green]" if r.get("compounded") else "[red]✗[/red]"
             rw_ok = r.get("session_read_verified") and r.get("session_write_verified")
             rw_str = "[green]✓[/green]" if rw_ok else "[red]✗[/red]"
+            h_str = "[green]✓[/green]" if r.get("hashes_verified") else "[red]✗[/red]"
             ag = "[green]✓[/green]" if r.get("agentgraph_synced") else "[yellow]-[/yellow]"
             table.add_row(
                 str(r.get("repo")),
                 comp,
                 rw_str,
+                h_str,
                 str(r.get("total_nodes", 0)),
                 str(r.get("total_edges", 0)),
                 ag,
@@ -535,6 +639,7 @@ def memory_session_read(
 @click.option("--focus", "-f", default=None, help="Update active session focus.")
 @click.option("--next-step", "next_steps_tuple", multiple=True, help="Next step action item(s).")
 @click.option("--node-id", default=None, help="Optional compounded MemoryGraph node ID to link.")
+@click.option("--expected-hash", default=None, help="Expected current session content_hash for optimistic CAS.")
 @click.option("--dry-run", is_flag=True, help="Simulate micro-session write without writing to disk.")
 @click.pass_context
 def memory_session_write(
@@ -547,6 +652,7 @@ def memory_session_write(
     focus: str | None,
     next_steps_tuple: tuple[str, ...],
     node_id: str | None,
+    expected_hash: str | None,
     dry_run: bool,
 ) -> None:
     """Write a compact micro-memory entry into .hath0r/memory/sessions/current.json (<2KB)."""
@@ -567,6 +673,7 @@ def memory_session_write(
         focus=focus,
         next_steps=next_steps,
         node_id=node_id,
+        expected_hash=expected_hash,
         dry_run=dry_run,
     )
 
@@ -579,9 +686,14 @@ def memory_session_write(
     )
 
     def _text() -> None:
-        console.print(f"[bold green]✓ {res.get('message')}[/bold green]")
+        if res.get("success"):
+            console.print(f"[bold green]✓ {res.get('message')}[/bold green]")
+        else:
+            console.print(f"[bold red]✗ {res.get('error')}[/bold red]")
 
     _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
 
 
 @memory_session.command("end")
@@ -644,6 +756,7 @@ def memory_session_status(ctx: click.Context) -> None:
         color = "green" if ok else "yellow"
         console.print(f"[bold {color}]Micro Memory Session Status ({res.get('status')})[/bold {color}]")
         console.print(f"  • Session ID: [cyan]{res.get('session_id')}[/cyan] (Prior: {res.get('prior_session_id') or 'none'})")
+        console.print(f"  • Revision: {res.get('revision', 0)} | Hash: {res.get('content_hash')}")
         console.print(f"  • Read Count: {res.get('read_count')} (Verified: {res.get('read_verified')})")
         console.print(f"  • Write Count: {res.get('write_count')} (Verified: {res.get('write_verified')})")
         console.print(f"  • Capsule Size: {res.get('byte_size')}B / {res.get('max_bytes')}B (Within Budget: {res.get('within_budget')})")

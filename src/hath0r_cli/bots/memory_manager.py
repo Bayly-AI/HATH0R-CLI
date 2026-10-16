@@ -2,13 +2,33 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 import re
 import uuid
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
+
+
+class MemoryHashConflictError(RuntimeError):
+    """Raised when an optimistic Compare-And-Swap (CAS) SHA-256 check fails with an unmergeable conflict."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        expected_hash: Optional[str] = None,
+        actual_hash: Optional[str] = None,
+        conflicting_ids: Optional[List[str]] = None,
+    ) -> None:
+        super().__init__(message)
+        self.expected_hash = expected_hash
+        self.actual_hash = actual_hash
+        self.conflicting_ids = conflicting_ids or []
+        self.error_code = "HASH_CONFLICT"
 
 
 class MemoryManagerBot:
@@ -46,13 +66,115 @@ class MemoryManagerBot:
         self.sessions_dir = self.memory_dir / "sessions"
         self.memory_dir.mkdir(parents=True, exist_ok=True)
         self.sessions_dir.mkdir(parents=True, exist_ok=True)
+        self._last_read_graph_hash: Optional[str] = None
+        self._last_read_node_digests: Dict[str, str] = {}
+        self._last_read_session_hash: Optional[str] = None
 
     @staticmethod
-    def _default_seed_graph() -> Dict[str, Any]:
+    def _compute_sha256_bytes(data: bytes) -> str:
+        """Return canonical 'sha256:<64-hex>' digest for raw bytes."""
+        return f"sha256:{hashlib.sha256(data).hexdigest()}"
+
+    @classmethod
+    def _compute_file_sha256(cls, path: Path) -> Optional[str]:
+        """Return canonical 'sha256:<64-hex>' digest for a file on disk, or None if missing."""
+        if not path.is_file():
+            return None
+        return cls._compute_sha256_bytes(path.read_bytes())
+
+    @staticmethod
+    def _atomic_write_text(path: Path, text: str, encoding: str = "utf-8") -> None:
+        """Write text to a temporary sibling file and atomically replace target path via os.replace."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = path.parent / f".{path.name}.tmp.{uuid.uuid4().hex[:8]}"
+        try:
+            tmp_path.write_text(text, encoding=encoding)
+            os.replace(tmp_path, path)
+        finally:
+            if tmp_path.exists():
+                try:
+                    tmp_path.unlink()
+                except OSError:
+                    pass
+
+    @classmethod
+    def _node_digest(cls, node: Dict[str, Any]) -> str:
+        """Compute deterministic SHA-256 digest of a node's semantic content."""
+        payload = {
+            "id": str(node.get("id", "")),
+            "type": str(node.get("type", "")),
+            "label": str(node.get("label", "")),
+            "content": str(node.get("content", "")),
+            "importance": round(float(node.get("importance", 0.5)), 4),
+            "tags": sorted(str(t) for t in node.get("tags", [])),
+            "is_current": bool(node.get("is_current", True)),
+            "valid_to": node.get("valid_to"),
+        }
+        return cls._compute_sha256_bytes(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8"))
+
+    @classmethod
+    def _compute_graph_content_hash(cls, gdata: Dict[str, Any]) -> str:
+        """Compute canonical SHA-256 content hash over nodes and edges in graph.json."""
+        canonical_nodes = sorted(
+            [
+                {
+                    "id": str(n.get("id", "")),
+                    "type": str(n.get("type", "")),
+                    "label": str(n.get("label", "")),
+                    "content": str(n.get("content", "")),
+                    "importance": round(float(n.get("importance", 0.5)), 4),
+                    "tags": sorted(str(t) for t in n.get("tags", [])),
+                    "is_current": bool(n.get("is_current", True)),
+                }
+                for n in gdata.get("nodes", [])
+            ],
+            key=lambda x: str(x["id"]),
+        )
+        canonical_edges = sorted(
+            [
+                {
+                    "source": str(e.get("source", "")),
+                    "target": str(e.get("target", "")),
+                    "relation": str(e.get("relation", "")),
+                    "weight": round(float(e.get("weight", 1.0)), 4),
+                    "is_current": bool(e.get("is_current", True)),
+                }
+                for e in gdata.get("edges", [])
+            ],
+            key=lambda x: (str(x["source"]), str(x["target"]), str(x["relation"])),
+        )
+        payload = {
+            "graph_id": gdata.get("graph_id", "canonical-memory-space"),
+            "nodes": canonical_nodes,
+            "edges": canonical_edges,
+        }
+        return cls._compute_sha256_bytes(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8"))
+
+    @classmethod
+    def _compute_session_content_hash(cls, session: Dict[str, Any]) -> str:
+        """Compute canonical SHA-256 content hash for a MicroMemorySession capsule."""
+        payload = {
+            "session_id": session.get("session_id"),
+            "prior_session_id": session.get("prior_session_id"),
+            "status": session.get("status"),
+            "read_count": int(session.get("read_count", 0)),
+            "write_count": int(session.get("write_count", 0)),
+            "active_focus": session.get("active_focus", ""),
+            "prior_summary": session.get("prior_summary", ""),
+            "micro_entries": session.get("micro_entries", []),
+            "next_steps": session.get("next_steps", []),
+            "compounded_node_ids": session.get("compounded_node_ids", []),
+        }
+        return cls._compute_sha256_bytes(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8"))
+
+    @classmethod
+    def _default_seed_graph(cls) -> Dict[str, Any]:
         now = datetime.now(timezone.utc).isoformat()
-        return {
+        seed: Dict[str, Any] = {
             "schema_version": "1.0.0",
             "graph_id": "canonical-memory-space",
+            "revision": 1,
+            "content_hash": "",
             "updated_at": now,
             "nodes": [
                 {
@@ -120,8 +242,10 @@ class MemoryManagerBot:
                 },
             ],
         }
+        seed["content_hash"] = cls._compute_graph_content_hash(seed)
+        return seed
 
-    def _load_or_seed_graph(self) -> Dict[str, Any]:
+    def _load_or_seed_graph(self, record_read: bool = True) -> Dict[str, Any]:
         graph_file = self.memory_dir / "graph.json"
         seed = self._default_seed_graph()
         if not graph_file.exists():
@@ -152,18 +276,103 @@ class MemoryManagerBot:
 
         gdata["schema_version"] = gdata.get("schema_version", "1.0.0")
         gdata["graph_id"] = gdata.get("graph_id", "canonical-memory-space")
+        gdata["revision"] = max(1, int(gdata.get("revision", 1)))
         gdata["nodes"] = nodes
         gdata["edges"] = edges
+        gdata["content_hash"] = self._compute_graph_content_hash(gdata)
+        if record_read:
+            self._last_read_graph_hash = gdata["content_hash"]
+            self._last_read_node_digests = {
+                str(n.get("id")): self._node_digest(n) for n in nodes if n.get("id")
+            }
         return gdata
 
     def _load_graph(self) -> Dict[str, Any]:
-        return self._load_or_seed_graph()
+        return self._load_or_seed_graph(record_read=True)
 
-    def _save_graph(self, gdata: Dict[str, Any]) -> Path:
+    def _save_graph(
+        self,
+        gdata: Dict[str, Any],
+        *,
+        expected_hash: Optional[str] = None,
+        auto_merge: bool = True,
+        sync_hashes: bool = True,
+    ) -> Path:
         graph_file = self.memory_dir / "graph.json"
-        gdata["updated_at"] = datetime.now(timezone.utc).isoformat()
         self.memory_dir.mkdir(parents=True, exist_ok=True)
-        graph_file.write_text(json.dumps(gdata, indent=2), encoding="utf-8")
+
+        if graph_file.is_file():
+            try:
+                disk_data = json.loads(graph_file.read_text(encoding="utf-8"))
+            except Exception:
+                disk_data = None
+            if isinstance(disk_data, dict):
+                disk_hash = disk_data.get("content_hash") or self._compute_graph_content_hash(disk_data)
+                if expected_hash and expected_hash != disk_hash:
+                    raise MemoryHashConflictError(
+                        f"HASH_CONFLICT on {graph_file}: expected_hash={expected_hash}, actual_hash={disk_hash}",
+                        expected_hash=expected_hash,
+                        actual_hash=disk_hash,
+                    )
+                if self._last_read_graph_hash and self._last_read_graph_hash != disk_hash:
+                    if not auto_merge:
+                        raise MemoryHashConflictError(
+                            f"HASH_CONFLICT on {graph_file}: base_hash={self._last_read_graph_hash}, actual_hash={disk_hash}",
+                            expected_hash=self._last_read_graph_hash,
+                            actual_hash=disk_hash,
+                        )
+                    # Deterministic set-union auto-merge + same-ID conflict detection
+                    my_nodes_by_id = {str(n.get("id")): n for n in gdata.get("nodes", []) if n.get("id")}
+                    disk_nodes_by_id = {str(n.get("id")): n for n in disk_data.get("nodes", []) if n.get("id")}
+                    conflicting_ids: List[str] = []
+                    for nid, disk_node in disk_nodes_by_id.items():
+                        if nid not in my_nodes_by_id:
+                            my_nodes_by_id[nid] = disk_node
+                        else:
+                            my_node = my_nodes_by_id[nid]
+                            my_d = self._node_digest(my_node)
+                            disk_d = self._node_digest(disk_node)
+                            if my_d != disk_d:
+                                base_d = self._last_read_node_digests.get(nid)
+                                if nid.startswith("session:") or nid in self.CANONICAL_SEED_NODE_IDS:
+                                    # Session & seed nodes take latest timestamp
+                                    if str(disk_node.get("updated_at", "")) > str(my_node.get("updated_at", "")):
+                                        my_nodes_by_id[nid] = disk_node
+                                elif base_d is not None:
+                                    if my_d != base_d and disk_d != base_d:
+                                        conflicting_ids.append(nid)
+                                    elif my_d == base_d and disk_d != base_d:
+                                        my_nodes_by_id[nid] = disk_node
+                                else:
+                                    conflicting_ids.append(nid)
+                    if conflicting_ids:
+                        raise MemoryHashConflictError(
+                            f"HASH_CONFLICT: Concurrent incompatible mutation on node(s) {conflicting_ids}",
+                            expected_hash=self._last_read_graph_hash,
+                            actual_hash=disk_hash,
+                            conflicting_ids=conflicting_ids,
+                        )
+                    gdata["nodes"] = list(my_nodes_by_id.values())
+                    edges = list(gdata.get("edges", []))
+                    existing_ekeys = {(e.get("source"), e.get("target"), e.get("relation")) for e in edges}
+                    for dedge in disk_data.get("edges", []):
+                        ekey = (dedge.get("source"), dedge.get("target"), dedge.get("relation"))
+                        if ekey not in existing_ekeys:
+                            edges.append(dedge)
+                            existing_ekeys.add(ekey)
+                    gdata["edges"] = edges
+                    gdata["revision"] = max(int(gdata.get("revision", 0)), int(disk_data.get("revision", 0)))
+
+        gdata["revision"] = int(gdata.get("revision", 0)) + 1
+        gdata["updated_at"] = datetime.now(timezone.utc).isoformat()
+        gdata["content_hash"] = self._compute_graph_content_hash(gdata)
+        self._atomic_write_text(graph_file, json.dumps(gdata, indent=2))
+        self._last_read_graph_hash = gdata["content_hash"]
+        self._last_read_node_digests = {
+            str(n.get("id")): self._node_digest(n) for n in gdata.get("nodes", []) if n.get("id")
+        }
+        if sync_hashes:
+            self.sync_file_hashes(dry_run=False)
         return graph_file
 
     def _recall_top_nodes_compact(self, query: str = "", top_k: int = 5) -> List[Dict[str, Any]]:
@@ -202,6 +411,8 @@ class MemoryManagerBot:
 
     def _enforce_session_budget(self, session: Dict[str, Any]) -> Dict[str, Any]:
         """Guarantee micro-session JSON stays strictly under MAX_SESSION_CAPSULE_BYTES (<2KB)."""
+        session["revision"] = max(1, int(session.get("revision", 1)))
+        session.setdefault("base_graph_hash", self._last_read_graph_hash)
         session["active_focus"] = str(session.get("active_focus", ""))[:160]
         session["prior_summary"] = str(session.get("prior_summary", ""))[:200]
         recalled = list(session.get("recalled_nodes", []))[: self.MAX_SESSION_RECALLED]
@@ -220,7 +431,10 @@ class MemoryManagerBot:
                 session["prior_summary"] = f"{session.get('prior_summary', '')}; {ev_sum}".strip("; ")[-200:]
         session["micro_entries"] = entries
 
-        while len(json.dumps(session, indent=2).encode("utf-8")) > (self.MAX_SESSION_CAPSULE_BYTES - 16):
+        session["content_hash"] = self._compute_session_content_hash(session)
+        session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
+
+        while session["capsule_bytes"] > self.MAX_SESSION_CAPSULE_BYTES:
             if len(session["recalled_nodes"]) > 1:
                 session["recalled_nodes"].pop()
             elif len(session["micro_entries"]) > 1:
@@ -228,12 +442,17 @@ class MemoryManagerBot:
                 ev_sum = str(evicted.get("summary", ""))[:40]
                 if ev_sum:
                     session["prior_summary"] = f"{session.get('prior_summary', '')}; {ev_sum}".strip("; ")[-120:]
-            elif len(session["prior_summary"]) > 60:
-                session["prior_summary"] = session["prior_summary"][-60:]
+            elif len(session["prior_summary"]) > 40:
+                session["prior_summary"] = session["prior_summary"][-40:]
             elif len(session["recalled_nodes"]) > 0:
                 session["recalled_nodes"].pop()
+            elif len(session["next_steps"]) > 0:
+                session["next_steps"].pop()
             else:
                 break
+            session["content_hash"] = self._compute_session_content_hash(session)
+            session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
+            session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
 
         return session
 
@@ -330,22 +549,94 @@ class MemoryManagerBot:
         gdata["edges"] = edges
         self._save_graph(gdata)
 
-    def _persist_session(self, session: Dict[str, Any]) -> Dict[str, Any]:
-        """Enforce <2KB budget and write current.json, latest.json, <session-id>.json, and graph.json."""
+    def _persist_session(
+        self,
+        session: Dict[str, Any],
+        *,
+        expected_hash: Optional[str] = None,
+        auto_merge: bool = True,
+    ) -> Dict[str, Any]:
+        """Enforce <2KB budget, apply optimistic CAS + auto-merge, and atomically write session files and graph.json."""
+        current_file = self.sessions_dir / "current.json"
+        if current_file.is_file():
+            try:
+                disk_sess = json.loads(current_file.read_text(encoding="utf-8"))
+            except Exception:
+                disk_sess = None
+            if isinstance(disk_sess, dict):
+                disk_hash = disk_sess.get("content_hash") or self._compute_session_content_hash(disk_sess)
+                if expected_hash and expected_hash != disk_hash:
+                    raise MemoryHashConflictError(
+                        f"HASH_CONFLICT on {current_file}: expected_hash={expected_hash}, actual_hash={disk_hash}",
+                        expected_hash=expected_hash,
+                        actual_hash=disk_hash,
+                    )
+                if (
+                    self._last_read_session_hash
+                    and self._last_read_session_hash != disk_hash
+                    and disk_sess.get("session_id") == session.get("session_id")
+                ):
+                    if not auto_merge:
+                        raise MemoryHashConflictError(
+                            f"HASH_CONFLICT on {current_file}: base_hash={self._last_read_session_hash}, actual_hash={disk_hash}",
+                            expected_hash=self._last_read_session_hash,
+                            actual_hash=disk_hash,
+                        )
+                    # Deterministic set-union auto-merge of concurrent micro-entries
+                    merged_entries: List[Dict[str, Any]] = []
+                    seen_keys: Set[tuple[str, str, str, str]] = set()
+                    for me in list(disk_sess.get("micro_entries", [])) + list(session.get("micro_entries", [])):
+                        mkey = (
+                            str(me.get("timestamp", "")),
+                            str(me.get("kind", "")),
+                            str(me.get("summary", "")),
+                            str(me.get("node_id") or ""),
+                        )
+                        if mkey not in seen_keys:
+                            seen_keys.add(mkey)
+                            merged_entries.append(me)
+                    session["micro_entries"] = merged_entries
+                    session["compounded_node_ids"] = list(
+                        dict.fromkeys(
+                            list(disk_sess.get("compounded_node_ids", []))
+                            + list(session.get("compounded_node_ids", []))
+                        )
+                    )
+                    session["next_steps"] = list(
+                        dict.fromkeys(
+                            list(disk_sess.get("next_steps", [])) + list(session.get("next_steps", []))
+                        )
+                    )[:4]
+                    session["read_count"] = max(
+                        int(session.get("read_count", 0)), int(disk_sess.get("read_count", 0))
+                    )
+                    session["write_count"] = max(
+                        int(session.get("write_count", 0)),
+                        int(disk_sess.get("write_count", 0)),
+                        len(merged_entries),
+                    )
+                    session["revision"] = max(
+                        int(session.get("revision", 0)), int(disk_sess.get("revision", 0))
+                    )
+
         session["parent_session_id"] = session.get("prior_session_id")
+        session["revision"] = int(session.get("revision", 0)) + 1
+        if not session.get("base_graph_hash") and self._last_read_graph_hash:
+            session["base_graph_hash"] = self._last_read_graph_hash
         session["capsule_bytes"] = 0
         session = self._enforce_session_budget(session)
+        session["content_hash"] = self._compute_session_content_hash(session)
         session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
         if session["capsule_bytes"] > self.MAX_SESSION_CAPSULE_BYTES:
             session = self._enforce_session_budget(session)
-            session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
         self.sessions_dir.mkdir(parents=True, exist_ok=True)
         payload = json.dumps(session, indent=2)
-        (self.sessions_dir / "current.json").write_text(payload, encoding="utf-8")
-        (self.sessions_dir / "latest.json").write_text(payload, encoding="utf-8")
+        self._atomic_write_text(current_file, payload)
+        self._atomic_write_text(self.sessions_dir / "latest.json", payload)
         sid = str(session.get("session_id", "")).replace(":", "_")
         if sid:
-            (self.sessions_dir / f"{sid}.json").write_text(payload, encoding="utf-8")
+            self._atomic_write_text(self.sessions_dir / f"{sid}.json", payload)
+        self._last_read_session_hash = session.get("content_hash")
         self._sync_session_into_graph(session)
         return session
 
@@ -399,6 +690,9 @@ class MemoryManagerBot:
             "session_id": resolved_sid,
             "prior_session_id": resolved_parent,
             "parent_session_id": resolved_parent,
+            "revision": 0,
+            "content_hash": "",
+            "base_graph_hash": self._last_read_graph_hash,
             "task_id": task_id,
             "role": role,
             "repo_name": self.cwd.name,
@@ -420,8 +714,11 @@ class MemoryManagerBot:
         }
 
         if not dry_run:
+            self._last_read_session_hash = None
             session = self._persist_session(session)
         else:
+            session["revision"] = 1
+            session["content_hash"] = self._compute_session_content_hash(session)
             session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
 
         byte_size = int(session.get("capsule_bytes") or len(json.dumps(session, indent=2).encode("utf-8")))
@@ -454,6 +751,7 @@ class MemoryManagerBot:
         except Exception:
             return self.session_start(focus=resolved_focus, top_k=top_k, dry_run=dry_run)
 
+        self._last_read_session_hash = session.get("content_hash") or self._compute_session_content_hash(session)
         now = datetime.now(timezone.utc).isoformat()
         if focus:
             session["active_focus"] = focus[:160]
@@ -461,6 +759,7 @@ class MemoryManagerBot:
             query=resolved_focus or str(session.get("active_focus", "")),
             top_k=top_k,
         )
+        session["base_graph_hash"] = self._last_read_graph_hash
         session["read_count"] = int(session.get("read_count", 0)) + 1
         session["last_read_at"] = now
         session["updated_at"] = now
@@ -468,6 +767,7 @@ class MemoryManagerBot:
         if not dry_run:
             session = self._persist_session(session)
         else:
+            session["content_hash"] = self._compute_session_content_hash(session)
             session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
 
         byte_size = int(session.get("capsule_bytes") or len(json.dumps(session, indent=2).encode("utf-8")))
@@ -489,6 +789,8 @@ class MemoryManagerBot:
         next_steps: Optional[List[str]] = None,
         node_id: Optional[str] = None,
         ref_node_id: Optional[str] = None,
+        expected_hash: Optional[str] = None,
+        auto_merge: bool = True,
         dry_run: bool = False,
     ) -> Dict[str, Any]:
         """Append a compact micro-memory entry to the active session and sync into graph.json."""
@@ -504,6 +806,9 @@ class MemoryManagerBot:
                     session = dict(self.session_start(focus=focus or summary[:120], dry_run=dry_run)["session"])
             except Exception:
                 session = dict(self.session_start(focus=focus or summary[:120], dry_run=dry_run)["session"])
+
+        if self._last_read_session_hash is None:
+            self._last_read_session_hash = session.get("content_hash") or self._compute_session_content_hash(session)
 
         now = datetime.now(timezone.utc).isoformat()
         if int(session.get("read_count", 0)) < 1:
@@ -535,8 +840,21 @@ class MemoryManagerBot:
             session["compounded_node_ids"] = cids
 
         if not dry_run:
-            session = self._persist_session(session)
+            try:
+                session = self._persist_session(
+                    session, expected_hash=expected_hash, auto_merge=auto_merge
+                )
+            except MemoryHashConflictError as exc:
+                return {
+                    "success": False,
+                    "error_code": "HASH_CONFLICT",
+                    "error": str(exc),
+                    "expected_hash": exc.expected_hash,
+                    "actual_hash": exc.actual_hash,
+                    "session_file": str(current_file),
+                }
         else:
+            session["content_hash"] = self._compute_session_content_hash(session)
             session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
 
         byte_size = int(session.get("capsule_bytes") or len(json.dumps(session, indent=2).encode("utf-8")))
@@ -568,6 +886,9 @@ class MemoryManagerBot:
                     session = dict(self.session_start(focus=summary or f"Session completed in {self.cwd.name}", dry_run=dry_run)["session"])
             except Exception:
                 session = dict(self.session_start(focus=summary or f"Session completed in {self.cwd.name}", dry_run=dry_run)["session"])
+
+        if self._last_read_session_hash is None:
+            self._last_read_session_hash = session.get("content_hash") or self._compute_session_content_hash(session)
 
         now = datetime.now(timezone.utc).isoformat()
         if int(session.get("read_count", 0)) < 1:
@@ -619,6 +940,7 @@ class MemoryManagerBot:
                 except Exception:
                     ag_synced = False
         else:
+            session["content_hash"] = self._compute_session_content_hash(session)
             session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
 
         byte_size = int(session.get("capsule_bytes") or len(json.dumps(session, indent=2).encode("utf-8")))
@@ -644,6 +966,9 @@ class MemoryManagerBot:
                 "exists": False,
                 "session_id": None,
                 "prior_session_id": None,
+                "revision": 0,
+                "content_hash": None,
+                "base_graph_hash": None,
                 "status": "missing",
                 "read_count": 0,
                 "write_count": 0,
@@ -667,6 +992,9 @@ class MemoryManagerBot:
                 "exists": True,
                 "session_id": session.get("session_id"),
                 "prior_session_id": session.get("prior_session_id"),
+                "revision": int(session.get("revision", 1)),
+                "content_hash": session.get("content_hash") or self._compute_session_content_hash(session),
+                "base_graph_hash": session.get("base_graph_hash"),
                 "status": session.get("status", "active"),
                 "read_count": read_count,
                 "write_count": write_count,
@@ -687,6 +1015,9 @@ class MemoryManagerBot:
                 "exists": False,
                 "session_id": None,
                 "prior_session_id": None,
+                "revision": 0,
+                "content_hash": None,
+                "base_graph_hash": None,
                 "status": "corrupt",
                 "read_count": 0,
                 "write_count": 0,
@@ -700,12 +1031,354 @@ class MemoryManagerBot:
                 "session": None,
             }
 
+    def sync_file_hashes(
+        self,
+        track_files: Optional[List[str]] = None,
+        refresh_source_files: bool = False,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Compute and persist SHA-256 digests for all .hath0r/memory/ files and referenced source_files."""
+        hashes_file = self.memory_dir / "hashes.json"
+        now = datetime.now(timezone.utc).isoformat()
+        existing_manifest: Dict[str, Any] = {}
+        if hashes_file.is_file():
+            try:
+                existing_manifest = json.loads(hashes_file.read_text(encoding="utf-8"))
+            except Exception:
+                existing_manifest = {}
+
+        revision = int(existing_manifest.get("revision", 0)) + 1
+        files_map: Dict[str, Dict[str, Any]] = {}
+
+        if self.memory_dir.is_dir():
+            for fpath in sorted(self.memory_dir.rglob("*")):
+                if not fpath.is_file():
+                    continue
+                if fpath.name == "hashes.json" or ".tmp." in fpath.name:
+                    continue
+                try:
+                    rel_path = fpath.relative_to(self.cwd).as_posix()
+                except ValueError:
+                    rel_path = fpath.name
+                raw = fpath.read_bytes()
+                f_hash = self._compute_sha256_bytes(raw)
+                f_rev = 1
+                f_content_hash = f_hash
+                if fpath.suffix == ".json":
+                    try:
+                        parsed = json.loads(raw.decode("utf-8"))
+                        if isinstance(parsed, dict):
+                            f_rev = int(parsed.get("revision", 1))
+                            f_content_hash = str(parsed.get("content_hash") or f_hash)
+                    except Exception:
+                        pass
+                files_map[rel_path] = {
+                    "sha256": f_hash,
+                    "content_hash": f_content_hash,
+                    "revision": f_rev,
+                    "byte_size": len(raw),
+                    "updated_at": now,
+                }
+
+        # Collect source_files from graph.json nodes + existing manifest + track_files
+        source_refs: Dict[str, List[str]] = {}
+        recorded_source_hashes: Dict[str, str] = {}
+        prev_sources = existing_manifest.get("source_files", {})
+        if isinstance(prev_sources, dict):
+            for s_rel, s_info in prev_sources.items():
+                norm_rel = Path(s_rel).as_posix()
+                source_refs.setdefault(norm_rel, [])
+                if isinstance(s_info, dict) and s_info.get("sha256"):
+                    recorded_source_hashes[norm_rel] = str(s_info["sha256"])
+
+        graph_file = self.memory_dir / "graph.json"
+        gdata: Optional[Dict[str, Any]] = None
+        graph_modified = False
+        if graph_file.is_file():
+            try:
+                gdata = json.loads(graph_file.read_text(encoding="utf-8"))
+            except Exception:
+                gdata = None
+
+        if isinstance(gdata, dict):
+            for n in gdata.get("nodes", []):
+                if not n.get("is_current", True):
+                    continue
+                meta = n.get("metadata") or {}
+                sfiles = meta.get("source_files")
+                if isinstance(sfiles, dict):
+                    for s_rel, s_hash in list(sfiles.items()):
+                        norm_rel = Path(s_rel).as_posix()
+                        source_refs.setdefault(norm_rel, []).append(str(n.get("id", "")))
+                        if refresh_source_files:
+                            curr_h = self._compute_file_sha256((self.cwd / norm_rel).resolve())
+                            if curr_h and curr_h != s_hash:
+                                sfiles[s_rel] = curr_h
+                                recorded_source_hashes[norm_rel] = curr_h
+                                graph_modified = True
+                            elif s_hash:
+                                recorded_source_hashes[norm_rel] = str(s_hash)
+                        elif s_hash:
+                            recorded_source_hashes[norm_rel] = str(s_hash)
+
+        explicit_tracked = set()
+        for tf in track_files or []:
+            if not tf:
+                continue
+            tf_path = Path(tf)
+            if tf_path.is_absolute():
+                try:
+                    norm_rel = tf_path.resolve().relative_to(self.cwd).as_posix()
+                except ValueError:
+                    norm_rel = tf_path.name
+            else:
+                norm_rel = tf_path.as_posix()
+            source_refs.setdefault(norm_rel, [])
+            explicit_tracked.add(norm_rel)
+
+        if graph_modified and gdata is not None and not dry_run:
+            gdata["revision"] = int(gdata.get("revision", 0)) + 1
+            gdata["updated_at"] = now
+            gdata["content_hash"] = self._compute_graph_content_hash(gdata)
+            raw_g = json.dumps(gdata, indent=2)
+            self._atomic_write_text(graph_file, raw_g)
+            g_rel = graph_file.relative_to(self.cwd).as_posix()
+            files_map[g_rel] = {
+                "sha256": self._compute_sha256_bytes(raw_g.encode("utf-8")),
+                "content_hash": gdata["content_hash"],
+                "revision": gdata["revision"],
+                "byte_size": len(raw_g.encode("utf-8")),
+                "updated_at": now,
+            }
+
+        source_files_map: Dict[str, Dict[str, Any]] = {}
+        for rel_path in sorted(source_refs.keys()):
+            abs_p = (self.cwd / rel_path).resolve()
+            disk_sha = self._compute_file_sha256(abs_p)
+            if rel_path in explicit_tracked or refresh_source_files or rel_path not in recorded_source_hashes:
+                baseline_sha = disk_sha
+            else:
+                baseline_sha = recorded_source_hashes.get(rel_path) or disk_sha
+            source_files_map[rel_path] = {
+                "sha256": baseline_sha,
+                "byte_size": abs_p.stat().st_size if abs_p.is_file() else 0,
+                "exists": abs_p.is_file(),
+                "referenced_by": sorted(set(source_refs[rel_path])),
+                "updated_at": now,
+            }
+
+        manifest = {
+            "schema_version": "hath0r.memory_hashes/1",
+            "repo_name": self.cwd.name,
+            "revision": revision,
+            "updated_at": now,
+            "files": files_map,
+            "source_files": source_files_map,
+        }
+        if not dry_run:
+            self._atomic_write_text(hashes_file, json.dumps(manifest, indent=2))
+
+        return {
+            "success": True,
+            "dry_run": dry_run,
+            "hashes_file": str(hashes_file),
+            "revision": revision,
+            "tracked_files_count": len(files_map),
+            "source_files_count": len(source_files_map),
+            "manifest": manifest,
+        }
+
+    def verify_file_hashes(self) -> Dict[str, Any]:
+        """Verify all .hath0r/memory/ file hashes and referenced source_files digests against disk."""
+        hashes_file = self.memory_dir / "hashes.json"
+        if not hashes_file.is_file():
+            return {
+                "success": False,
+                "verified": False,
+                "manifest_exists": False,
+                "hashes_file": str(hashes_file),
+                "mismatched_files": [],
+                "missing_files": [str(hashes_file)],
+                "stale_source_files": [],
+                "error": f"Missing file hash manifest at {hashes_file}. Run 'hath0r memory hash --sync' or 'hath0r memory init'.",
+            }
+
+        try:
+            manifest = json.loads(hashes_file.read_text(encoding="utf-8"))
+        except Exception as exc:
+            return {
+                "success": False,
+                "verified": False,
+                "manifest_exists": True,
+                "hashes_file": str(hashes_file),
+                "mismatched_files": [str(hashes_file)],
+                "missing_files": [],
+                "stale_source_files": [],
+                "error": f"Corrupt hashes.json at {hashes_file}: {exc}",
+            }
+
+        mismatched_files: List[Dict[str, Any]] = []
+        missing_files: List[str] = []
+        stale_source_files: List[Dict[str, Any]] = []
+
+        # 1. Verify internal content_hash of graph.json and sessions/current.json
+        graph_file = self.memory_dir / "graph.json"
+        graph_content_hash_valid = True
+        if graph_file.is_file():
+            try:
+                gdata = json.loads(graph_file.read_text(encoding="utf-8"))
+                expected_gh = gdata.get("content_hash")
+                actual_gh = self._compute_graph_content_hash(gdata)
+                if expected_gh and expected_gh != actual_gh:
+                    graph_content_hash_valid = False
+                    mismatched_files.append(
+                        {
+                            "file": ".hath0r/memory/graph.json#content_hash",
+                            "expected": expected_gh,
+                            "actual": actual_gh,
+                        }
+                    )
+            except Exception:
+                graph_content_hash_valid = False
+                mismatched_files.append(
+                    {
+                        "file": ".hath0r/memory/graph.json",
+                        "expected": "valid_json",
+                        "actual": "corrupt_json",
+                    }
+                )
+
+        current_sess_file = self.sessions_dir / "current.json"
+        session_content_hash_valid = True
+        if current_sess_file.is_file():
+            try:
+                sdata = json.loads(current_sess_file.read_text(encoding="utf-8"))
+                expected_sh = sdata.get("content_hash")
+                actual_sh = self._compute_session_content_hash(sdata)
+                if expected_sh and expected_sh != actual_sh:
+                    session_content_hash_valid = False
+                    mismatched_files.append(
+                        {
+                            "file": ".hath0r/memory/sessions/current.json#content_hash",
+                            "expected": expected_sh,
+                            "actual": actual_sh,
+                        }
+                    )
+            except Exception:
+                session_content_hash_valid = False
+                mismatched_files.append(
+                    {
+                        "file": ".hath0r/memory/sessions/current.json",
+                        "expected": "valid_json",
+                        "actual": "corrupt_json",
+                    }
+                )
+
+        # 2. Verify all tracked .hath0r/memory/* files in manifest["files"]
+        files_map = manifest.get("files", {})
+        for rel_path, info in files_map.items():
+            abs_p = (self.cwd / rel_path).resolve()
+            if not abs_p.is_file():
+                missing_files.append(rel_path)
+                continue
+            actual_sha = self._compute_file_sha256(abs_p)
+            expected_sha = info.get("sha256")
+            if expected_sha and actual_sha != expected_sha:
+                mismatched_files.append(
+                    {
+                        "file": rel_path,
+                        "expected": expected_sha,
+                        "actual": actual_sha,
+                    }
+                )
+
+        # 3. Verify source_files from both manifest["source_files"] and active nodes in graph.json
+        checked_sources: Dict[str, tuple[Optional[str], List[str]]] = {}
+        for rel_path, sinfo in manifest.get("source_files", {}).items():
+            checked_sources[rel_path] = (sinfo.get("sha256"), list(sinfo.get("referenced_by", [])))
+
+        if graph_file.is_file():
+            try:
+                gdata = json.loads(graph_file.read_text(encoding="utf-8"))
+                for n in gdata.get("nodes", []):
+                    if not n.get("is_current", True):
+                        continue
+                    sfiles = (n.get("metadata") or {}).get("source_files")
+                    if isinstance(sfiles, dict):
+                        for s_rel, s_sha in sfiles.items():
+                            norm_rel = Path(s_rel).as_posix()
+                            prev_sha, refs = checked_sources.get(norm_rel, (s_sha, []))
+                            nid = str(n.get("id", ""))
+                            if nid and nid not in refs:
+                                refs.append(nid)
+                            checked_sources[norm_rel] = (s_sha or prev_sha, refs)
+            except Exception:
+                pass
+
+        for rel_path, (expected_sha, refs) in sorted(checked_sources.items()):
+            abs_p = (self.cwd / rel_path).resolve()
+            if not abs_p.is_file():
+                stale_source_files.append(
+                    {
+                        "file": rel_path,
+                        "expected": expected_sha,
+                        "actual": None,
+                        "reason": "missing_source_file",
+                        "referenced_by": refs,
+                    }
+                )
+                continue
+            actual_sha = self._compute_file_sha256(abs_p)
+            if expected_sha and actual_sha != expected_sha:
+                stale_source_files.append(
+                    {
+                        "file": rel_path,
+                        "expected": expected_sha,
+                        "actual": actual_sha,
+                        "reason": "source_file_modified",
+                        "referenced_by": refs,
+                    }
+                )
+
+        verified = (
+            len(mismatched_files) == 0
+            and len(missing_files) == 0
+            and len(stale_source_files) == 0
+            and graph_content_hash_valid
+            and session_content_hash_valid
+        )
+        err: Optional[str] = None
+        if not verified:
+            err = (
+                f"CR-MEMORY-COMPOUND-001: Memory file hash verification failed "
+                f"(mismatched={len(mismatched_files)}, missing={len(missing_files)}, "
+                f"stale_source_files={len(stale_source_files)}). "
+                "Run 'hath0r memory hash --sync' or re-compound stale knowledge nodes."
+            )
+
+        return {
+            "success": verified,
+            "verified": verified,
+            "manifest_exists": True,
+            "hashes_file": str(hashes_file),
+            "revision": manifest.get("revision", 0),
+            "tracked_files_count": len(files_map),
+            "source_files_count": len(checked_sources),
+            "mismatched_files": mismatched_files,
+            "missing_files": missing_files,
+            "stale_source_files": stale_source_files,
+            "graph_content_hash_valid": graph_content_hash_valid,
+            "session_content_hash_valid": session_content_hash_valid,
+            "error": err,
+        }
+
     def initialize_memory(self, dry_run: bool = False) -> Dict[str, Any]:
-        """Initialize the core Hath0r memory spaces and micro session capsule."""
+        """Initialize the core Hath0r memory spaces, micro session capsule, and SHA-256 hash manifest."""
         core_file = self.memory_dir / "core_rules.md"
         arch_file = self.memory_dir / "architecture.md"
         graph_file = self.memory_dir / "graph.json"
         current_session_file = self.sessions_dir / "current.json"
+        hashes_file = self.memory_dir / "hashes.json"
 
         core_content = (
             "# Core Hath0r Rules\n"
@@ -727,18 +1400,25 @@ class MemoryManagerBot:
 
         if not dry_run:
             if not core_file.exists():
-                core_file.write_text(core_content, encoding="utf-8")
+                self._atomic_write_text(core_file, core_content)
             if not arch_file.exists():
-                arch_file.write_text(arch_content, encoding="utf-8")
-            self._save_graph(gdata)
+                self._atomic_write_text(arch_file, arch_content)
+            self._save_graph(gdata, sync_hashes=False)
             if not current_session_file.is_file():
                 self.session_start(focus=f"Initialized local memory space for {self.cwd.name}", dry_run=False)
+            self.sync_file_hashes(dry_run=False)
             gdata = self._load_or_seed_graph()
 
         return {
             "success": True,
-            "message": "Initialized core memory spaces and micro session store.",
-            "files": [str(core_file), str(arch_file), str(graph_file), str(current_session_file)],
+            "message": "Initialized core memory spaces, micro session store, and SHA-256 hash manifest.",
+            "files": [
+                str(core_file),
+                str(arch_file),
+                str(graph_file),
+                str(current_session_file),
+                str(hashes_file),
+            ],
             "nodes_count": len(gdata.get("nodes", [])),
             "edges_count": len(gdata.get("edges", [])),
         }
@@ -774,7 +1454,7 @@ class MemoryManagerBot:
         actual_topic = "core_rules" if topic in ("rules", "core") else topic
         target_file = self.memory_dir / f"{actual_topic}.md"
         if not dry_run:
-            target_file.write_text(content, encoding="utf-8")
+            self._atomic_write_text(target_file, content)
             gdata = self._load_or_seed_graph()
             now = datetime.now(timezone.utc).isoformat()
             topic_id = f"topic:{actual_topic}"
@@ -827,6 +1507,9 @@ class MemoryManagerBot:
         relates_to: Optional[List[str]] = None,
         relation: str = "DERIVES_FROM",
         supersedes: Optional[str] = None,
+        source_files: Optional[List[str]] = None,
+        expected_hash: Optional[str] = None,
+        auto_merge: bool = True,
         metadata: Optional[Dict[str, Any]] = None,
         sync_agentgraph: bool = True,
         dry_run: bool = False,
@@ -838,6 +1521,25 @@ class MemoryManagerBot:
         resolved_id = node_id or f"{resolved_type}:{slug}"
         clean_tags = [t.strip().lower() for t in (tags or []) if t and t.strip()]
         resolved_tags = list(dict.fromkeys(clean_tags + [resolved_type, "compounded"]))
+
+        resolved_meta: Dict[str, Any] = dict(metadata or {})
+        if source_files:
+            sf_map: Dict[str, Optional[str]] = dict(resolved_meta.get("source_files") or {})
+            for sf in source_files:
+                if not sf:
+                    continue
+                sf_path = Path(sf)
+                if sf_path.is_absolute():
+                    abs_sf = sf_path.resolve()
+                    try:
+                        rel_sf = abs_sf.relative_to(self.cwd).as_posix()
+                    except ValueError:
+                        rel_sf = abs_sf.name
+                else:
+                    rel_sf = sf_path.as_posix()
+                    abs_sf = (self.cwd / rel_sf).resolve()
+                sf_map[rel_sf] = self._compute_file_sha256(abs_sf)
+            resolved_meta["source_files"] = sf_map
 
         node_entry: Dict[str, Any] = {
             "id": resolved_id,
@@ -851,7 +1553,7 @@ class MemoryManagerBot:
             "is_current": True,
             "created_at": now,
             "updated_at": now,
-            "metadata": metadata or {},
+            "metadata": resolved_meta,
         }
 
         if dry_run:
@@ -866,7 +1568,7 @@ class MemoryManagerBot:
             }
 
         self.initialize_memory(dry_run=False)
-        gdata = self._load_or_seed_graph()
+        gdata = self._load_or_seed_graph(record_read=(self._last_read_graph_hash is None))
         nodes: List[Dict[str, Any]] = list(gdata.get("nodes", []))
         edges: List[Dict[str, Any]] = list(gdata.get("edges", []))
 
@@ -927,7 +1629,20 @@ class MemoryManagerBot:
 
         gdata["nodes"] = nodes
         gdata["edges"] = edges
-        graph_file = self._save_graph(gdata)
+        try:
+            graph_file = self._save_graph(
+                gdata, expected_hash=expected_hash, auto_merge=auto_merge
+            )
+        except MemoryHashConflictError as exc:
+            return {
+                "success": False,
+                "error_code": "HASH_CONFLICT",
+                "error": str(exc),
+                "expected_hash": exc.expected_hash,
+                "actual_hash": exc.actual_hash,
+                "conflicting_ids": exc.conflicting_ids,
+                "graph_file": str(self.memory_dir / "graph.json"),
+            }
 
         # Record a micro-session write and link compounded node to active session
         session_res = self.session_write(
@@ -940,6 +1655,9 @@ class MemoryManagerBot:
 
         # Run autonomous reflection consolidation
         reflection_res = self.reflect_memory(dry_run=False)
+
+        # Ensure hashes.json reflects final post-reflection & post-session state
+        hash_sync = self.sync_file_hashes(track_files=source_files, dry_run=False)
 
         # Synchronize AgentGraph memory plane
         ag_synced = False
@@ -956,6 +1674,8 @@ class MemoryManagerBot:
             "success": True,
             "message": f"Compounded '{resolved_id}' into MemoryGraph ({graph_file}).",
             "graph_file": str(graph_file),
+            "hashes_file": hash_sync.get("hashes_file"),
+            "content_hash": self._last_read_graph_hash,
             "node": node_entry,
             "edges_added": edges_added,
             "reflection": reflection_res,
@@ -1060,8 +1780,9 @@ class MemoryManagerBot:
         since: Optional[str] = None,
         task_id: Optional[str] = None,
         require_session: bool = True,
+        require_hashes: bool = True,
     ) -> Dict[str, Any]:
-        """Verify that .hath0r/memory/graph.json contains compounded task knowledge and micro session read/write."""
+        """Verify that .hath0r/memory/graph.json contains compounded task knowledge, micro session R/W, and SHA-256 hash integrity."""
         graph_file = self.memory_dir / "graph.json"
         if not graph_file.is_file():
             return {
@@ -1074,6 +1795,8 @@ class MemoryManagerBot:
                 "latest_node": None,
                 "session_read_verified": False,
                 "session_write_verified": False,
+                "hashes_verified": False,
+                "hash_status": None,
                 "session": None,
                 "error": f"Missing MemoryGraph file at {graph_file}. Run 'hath0r memory init' and 'hath0r memory compound'.",
             }
@@ -1091,6 +1814,8 @@ class MemoryManagerBot:
                 "latest_node": None,
                 "session_read_verified": False,
                 "session_write_verified": False,
+                "hashes_verified": False,
+                "hash_status": None,
                 "session": None,
                 "error": f"Corrupt MemoryGraph JSON at {graph_file}: {exc}",
             }
@@ -1123,7 +1848,10 @@ class MemoryManagerBot:
         write_ok = bool(s_status.get("write_verified"))
         session_ok = (read_ok and write_ok) if require_session else True
 
-        is_compounded = has_compounded_nodes and session_ok
+        hash_status = self.verify_file_hashes()
+        hash_ok = bool(hash_status.get("verified")) if require_hashes else True
+
+        is_compounded = has_compounded_nodes and session_ok and hash_ok
         err_msg: Optional[str] = None
         if not has_compounded_nodes:
             err_msg = (
@@ -1136,18 +1864,24 @@ class MemoryManagerBot:
                 f"(read_count={s_status.get('read_count', 0)}, write_count={s_status.get('write_count', 0)}). "
                 "Run 'hath0r memory session read' and 'hath0r memory session write' prior to announcing complete."
             )
+        elif not hash_ok:
+            err_msg = str(hash_status.get("error") or "CR-MEMORY-COMPOUND-001: Memory file hash verification failed.")
 
         return {
             "success": is_compounded,
             "compounded": is_compounded,
             "graph_exists": True,
             "graph_file": str(graph_file),
+            "revision": int(gdata.get("revision", 1)),
+            "content_hash": gdata.get("content_hash") or self._compute_graph_content_hash(gdata),
             "total_nodes": len(nodes),
             "total_edges": len(edges),
             "compounded_nodes_count": len(compounded_nodes),
             "latest_node": latest,
             "session_read_verified": read_ok,
             "session_write_verified": write_ok,
+            "hashes_verified": bool(hash_status.get("verified")),
+            "hash_status": hash_status,
             "session": s_status,
             "error": err_msg,
         }
@@ -1158,7 +1892,7 @@ class MemoryManagerBot:
         sync_agentgraph: bool = True,
         dry_run: bool = False,
     ) -> Dict[str, Any]:
-        """Discover all active repositories under root_dir and ensure .hath0r/memory/graph.json and sessions/ are provisioned."""
+        """Discover all active repositories under root_dir and ensure .hath0r/memory/graph.json, sessions/, and hashes.json are provisioned."""
         base = Path(root_dir).resolve() if root_dir else Path("/Users/raybayly/Development")
         if not base.is_dir():
             base = self.cwd.parent
@@ -1178,7 +1912,7 @@ class MemoryManagerBot:
         for rpath in repo_paths:
             rbot = MemoryManagerBot(cwd=rpath)
             slug = re.sub(r"[^a-z0-9]+", "-", rpath.name.lower()).strip("-") or "repo"
-            summary = f"Repository '{rpath.name}' initialized with canonical .hath0r/memory/graph.json and micro sessions under CR-MEMORY-COMPOUND-001."
+            summary = f"Repository '{rpath.name}' initialized with canonical .hath0r/memory/graph.json, micro sessions, and SHA-256 hashes under CR-MEMORY-COMPOUND-001."
             for doc_candidate in (rpath / "README.md", rpath / "AGENTS.md"):
                 if doc_candidate.is_file():
                     try:
@@ -1207,12 +1941,14 @@ class MemoryManagerBot:
             )
             if not dry_run:
                 rbot.session_read(focus=f"Repository orientation verified for {rpath.name}", dry_run=False)
+                rbot.sync_file_hashes(refresh_source_files=True, dry_run=False)
             ver = rbot.verify_compounded() if not dry_run else {
                 "compounded": True,
                 "total_nodes": 5,
                 "total_edges": 4,
                 "session_read_verified": True,
                 "session_write_verified": True,
+                "hashes_verified": True,
             }
             results.append(
                 {
@@ -1221,9 +1957,11 @@ class MemoryManagerBot:
                     "memory_dir": str(rpath / ".hath0r" / "memory"),
                     "graph_file": str(rpath / ".hath0r" / "memory" / "graph.json"),
                     "session_file": str(rpath / ".hath0r" / "memory" / "sessions" / "current.json"),
+                    "hashes_file": str(rpath / ".hath0r" / "memory" / "hashes.json"),
                     "compounded": ver.get("compounded", False),
                     "session_read_verified": ver.get("session_read_verified", False),
                     "session_write_verified": ver.get("session_write_verified", False),
+                    "hashes_verified": ver.get("hashes_verified", False),
                     "total_nodes": ver.get("total_nodes", 0),
                     "total_edges": ver.get("total_edges", 0),
                     "agentgraph_synced": comp_res.get("agentgraph_synced", False),

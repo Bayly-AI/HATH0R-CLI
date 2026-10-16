@@ -56,3 +56,18 @@ hath0r memory ensure-all --root /Users/raybayly/Development
   hath0r agentgraph heal
   hath0r agentgraph validate
   ```
+
+### Issue 4: Stale File Hash (`STALE_FILE_HASH`) or Concurrent Write Conflict (`HASH_CONFLICT`)
+- **Symptom**: `hath0r memory verify` or `hath0r memory hash --check` reports that a file in `.hath0r/memory/` or a tracked `source_files` path has diverged from `.hath0r/memory/hashes.json`, or a write with `--expected-hash` returned `HASH_CONFLICT`.
+- **Remediation**:
+  1. Inspect which files changed or conflicted:
+     ```bash
+     hath0r memory hash --check
+     ```
+  2. Read the latest state, compound any updated knowledge if a tracked source file changed, and synchronize the hash manifest:
+     ```bash
+     hath0r memory session read
+     hath0r memory hash --sync
+     hath0r memory verify
+     ```
+
