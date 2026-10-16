@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "updated_at": "2026-10-16T15:29:34.745077+00:00",
+  "updated_at": "2026-10-16T15:48:11.125130+00:00",
   "nodes": [
     {
       "id": "rule:cr-cli-entry-001",
@@ -446,10 +446,30 @@
       }
     },
     {
+      "id": "episode:clean-repo-hathor-cli",
+      "type": "episode",
+      "label": "Clean Repo Lifecycle (hathor-cli)",
+      "content": "Executed 13-step clean-repo hygiene and knowledge sync for hathor-cli.",
+      "importance": 0.75,
+      "tags": [
+        "clean-repo",
+        "hygiene",
+        "hathor-cli",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T15:48:11.060452+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T15:48:11.060452+00:00",
+      "updated_at": "2026-10-16T15:48:11.060452+00:00",
+      "metadata": {}
+    },
+    {
       "id": "session:sess-20261016-151409-a068f7",
       "type": "session",
       "label": "Micro Session sess-20261016-151409-a068f7",
-      "content": "Micro Session sess-20261016-151409-a068f7 [completed] | Focus: Repository orientation verified for hathor-cli | Reads: 3, Writes: 6 | Entries: Completed #480: provisioned .hath0r/mcp.json across all 31 repos with group Hath0r MCP defaults.",
+      "content": "Micro Session sess-20261016-151409-a068f7 [completed] | Focus: Repository orientation verified for hathor-cli | Reads: 4, Writes: 8 | Entries: Clean Repo Lifecycle completed for hathor-cli.",
       "importance": 0.75,
       "tags": [
         "session",
@@ -457,18 +477,18 @@
         "completed"
       ],
       "valid_from": "2026-10-16T15:14:09.919787+00:00",
-      "valid_to": "2026-10-16T15:29:34.736985+00:00",
+      "valid_to": "2026-10-16T15:48:11.120170+00:00",
       "is_current": true,
       "created_at": "2026-10-16T15:14:09.919787+00:00",
-      "updated_at": "2026-10-16T15:29:34.736985+00:00",
+      "updated_at": "2026-10-16T15:48:11.120170+00:00",
       "metadata": {
         "session_id": "sess-20261016-151409-a068f7",
         "prior_session_id": "sess-20261016-142632-17cfdc",
         "parent_session_id": "sess-20261016-142632-17cfdc",
-        "read_count": 3,
-        "write_count": 6,
+        "read_count": 4,
+        "write_count": 8,
         "status": "completed",
-        "byte_size": 1842
+        "byte_size": 1856
       }
     }
   ],
@@ -814,8 +834,32 @@
       "weight": 1.0,
       "valid_from": "2026-10-16T15:26:16.466758+00:00",
       "is_current": true
+    },
+    {
+      "source": "episode:clean-repo-hathor-cli",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T15:48:11.060452+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:clean-repo-hathor-cli",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T15:48:11.060452+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:clean-repo-hathor-cli",
+      "target": "session:sess-20261016-151409-a068f7",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T15:48:11.094657+00:00",
+      "is_current": true
     }
   ],
-  "revision": 52,
-  "content_hash": "sha256:fa7e7ac045be6f6b0de0973df08906b289b6cdf359b5dd201610e1487693134a"
+  "revision": 57,
+  "content_hash": "sha256:d07bcb7657939aba15dd73161fee59e51f22565eecc545b8614ada5e0538cbab"
 }
