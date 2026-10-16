@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import uuid
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,6 +13,10 @@ from typing import Any, Dict, List, Optional, Set
 
 class MemoryManagerBot:
     """Bot to manage the Canonical Local Memory Space and Semantic Memory Graphs."""
+
+    MAX_SESSION_CAPSULE_BYTES: int = 2048
+    MAX_SESSION_ENTRIES: int = 8
+    MAX_SESSION_RECALLED: int = 5
 
     CANONICAL_SEED_NODE_IDS: Set[str] = {
         "rule:cr-cli-entry-001",
@@ -31,12 +36,16 @@ class MemoryManagerBot:
         "insight",
         "reflection",
         "synthesized",
+        "session",
+        "micro-session",
     }
 
     def __init__(self, cwd: Optional[Path] = None):
         self.cwd = (cwd or Path.cwd()).resolve()
         self.memory_dir = self.cwd / ".hath0r" / "memory"
+        self.sessions_dir = self.memory_dir / "sessions"
         self.memory_dir.mkdir(parents=True, exist_ok=True)
+        self.sessions_dir.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def _default_seed_graph() -> Dict[str, Any]:
@@ -147,6 +156,9 @@ class MemoryManagerBot:
         gdata["edges"] = edges
         return gdata
 
+    def _load_graph(self) -> Dict[str, Any]:
+        return self._load_or_seed_graph()
+
     def _save_graph(self, gdata: Dict[str, Any]) -> Path:
         graph_file = self.memory_dir / "graph.json"
         gdata["updated_at"] = datetime.now(timezone.utc).isoformat()
@@ -154,16 +166,551 @@ class MemoryManagerBot:
         graph_file.write_text(json.dumps(gdata, indent=2), encoding="utf-8")
         return graph_file
 
+    def _recall_top_nodes_compact(self, query: str = "", top_k: int = 5) -> List[Dict[str, Any]]:
+        """Recall compact summaries of top-ranked active memory nodes from graph.json."""
+        gdata = self._load_or_seed_graph()
+        nodes = [
+            n
+            for n in gdata.get("nodes", [])
+            if n.get("is_current", True) and n.get("type") != "session"
+        ]
+        non_seed = [n for n in nodes if str(n.get("id")) not in self.CANONICAL_SEED_NODE_IDS]
+        pool = non_seed if non_seed else nodes
+
+        q_words = set(re.findall(r"\w+", (query or "").lower()))
+
+        def _score(n: Dict[str, Any]) -> tuple[float, float, str]:
+            imp = float(n.get("importance", 0.5))
+            upd = str(n.get("updated_at") or n.get("created_at") or "")
+            if not q_words:
+                return (0.0, imp, upd)
+            text = f"{n.get('id', '')} {n.get('label', '')} {n.get('content', '')} {' '.join(n.get('tags', []))}".lower()
+            n_words = set(re.findall(r"\w+", text))
+            overlap = len(q_words.intersection(n_words)) / max(1, len(q_words))
+            return (overlap, imp, upd)
+
+        pool.sort(key=_score, reverse=True)
+        return [
+            {
+                "id": str(n.get("id", "")),
+                "type": str(n.get("type", "fact")),
+                "label": str(n.get("label", ""))[:60],
+                "snippet": str(n.get("content", ""))[:90],
+            }
+            for n in pool[:top_k]
+        ]
+
+    def _enforce_session_budget(self, session: Dict[str, Any]) -> Dict[str, Any]:
+        """Guarantee micro-session JSON stays strictly under MAX_SESSION_CAPSULE_BYTES (<2KB)."""
+        session["active_focus"] = str(session.get("active_focus", ""))[:160]
+        session["prior_summary"] = str(session.get("prior_summary", ""))[:200]
+        recalled = list(session.get("recalled_nodes", []))[: self.MAX_SESSION_RECALLED]
+        for rnode in recalled:
+            rnode["label"] = str(rnode.get("label", ""))[:60]
+            rnode["snippet"] = str(rnode.get("snippet", ""))[:90]
+        session["recalled_nodes"] = recalled
+        session["next_steps"] = [str(s)[:100] for s in list(session.get("next_steps", []))[:4]]
+        session["compounded_node_ids"] = list(dict.fromkeys(session.get("compounded_node_ids", [])))[-6:]
+
+        entries = list(session.get("micro_entries", []))
+        while len(entries) > self.MAX_SESSION_ENTRIES:
+            evicted = entries.pop(0)
+            ev_sum = str(evicted.get("summary", ""))[:60]
+            if ev_sum:
+                session["prior_summary"] = f"{session.get('prior_summary', '')}; {ev_sum}".strip("; ")[-200:]
+        session["micro_entries"] = entries
+
+        while len(json.dumps(session, indent=2).encode("utf-8")) > (self.MAX_SESSION_CAPSULE_BYTES - 16):
+            if len(session["recalled_nodes"]) > 1:
+                session["recalled_nodes"].pop()
+            elif len(session["micro_entries"]) > 1:
+                evicted = session["micro_entries"].pop(0)
+                ev_sum = str(evicted.get("summary", ""))[:40]
+                if ev_sum:
+                    session["prior_summary"] = f"{session.get('prior_summary', '')}; {ev_sum}".strip("; ")[-120:]
+            elif len(session["prior_summary"]) > 60:
+                session["prior_summary"] = session["prior_summary"][-60:]
+            elif len(session["recalled_nodes"]) > 0:
+                session["recalled_nodes"].pop()
+            else:
+                break
+
+        return session
+
+    def _sync_session_into_graph(self, session: Dict[str, Any]) -> None:
+        """Upsert session:<session_id> node and PRECEDES / DERIVES_FROM edges into graph.json."""
+        now = datetime.now(timezone.utc).isoformat()
+        sid = str(session.get("session_id", ""))
+        if not sid:
+            return
+        snode_id = sid if sid.startswith("session:") else f"session:{sid}"
+        entries = session.get("micro_entries", [])
+        entry_summaries = "; ".join(str(e.get("summary", "")) for e in entries[-4:] if e.get("summary"))
+        status = str(session.get("status", "active"))
+        content = (
+            f"Micro Session {sid} [{status}] | Focus: {session.get('active_focus') or 'General'} | "
+            f"Reads: {session.get('read_count', 0)}, Writes: {session.get('write_count', 0)} | "
+            f"Entries: {entry_summaries or session.get('prior_summary') or 'Initialized'}"
+        )
+        byte_size = len(json.dumps(session, indent=2).encode("utf-8"))
+        snode: Dict[str, Any] = {
+            "id": snode_id,
+            "type": "session",
+            "label": f"Micro Session {sid}",
+            "content": content[:600],
+            "importance": 0.75,
+            "tags": ["session", "micro-session", status],
+            "valid_from": session.get("started_at", now),
+            "valid_to": session.get("ended_at"),
+            "is_current": True,
+            "created_at": session.get("started_at", now),
+            "updated_at": session.get("updated_at", now),
+            "metadata": {
+                "session_id": sid,
+                "prior_session_id": session.get("prior_session_id"),
+                "parent_session_id": session.get("prior_session_id"),
+                "read_count": session.get("read_count", 0),
+                "write_count": session.get("write_count", 0),
+                "status": status,
+                "byte_size": byte_size,
+            },
+        }
+
+        gdata = self._load_or_seed_graph()
+        nodes = [n for n in gdata.get("nodes", []) if n.get("id") != snode_id]
+        nodes.append(snode)
+        edges = list(gdata.get("edges", []))
+        existing_ids = {str(n.get("id")) for n in nodes if n.get("id")}
+        existing_edge_keys = {(e.get("source"), e.get("target"), e.get("relation")) for e in edges}
+
+        prior_sid = session.get("prior_session_id")
+        if prior_sid and prior_sid != sid:
+            prior_nid = str(prior_sid) if str(prior_sid).startswith("session:") else f"session:{prior_sid}"
+            if prior_nid in existing_ids and (prior_nid, snode_id, "PRECEDES") not in existing_edge_keys:
+                edges.append(
+                    {
+                        "source": prior_nid,
+                        "target": snode_id,
+                        "relation": "PRECEDES",
+                        "weight": 1.0,
+                        "valid_from": now,
+                        "is_current": True,
+                    }
+                )
+                existing_edge_keys.add((prior_nid, snode_id, "PRECEDES"))
+
+        if "concept:tri-graph" in existing_ids and (snode_id, "concept:tri-graph", "RELATES_TO") not in existing_edge_keys:
+            edges.append(
+                {
+                    "source": snode_id,
+                    "target": "concept:tri-graph",
+                    "relation": "RELATES_TO",
+                    "weight": 0.8,
+                    "valid_from": now,
+                    "is_current": True,
+                }
+            )
+            existing_edge_keys.add((snode_id, "concept:tri-graph", "RELATES_TO"))
+
+        for cid in session.get("compounded_node_ids", []):
+            if cid in existing_ids and cid != snode_id and (cid, snode_id, "DERIVES_FROM") not in existing_edge_keys:
+                edges.append(
+                    {
+                        "source": cid,
+                        "target": snode_id,
+                        "relation": "DERIVES_FROM",
+                        "weight": 1.0,
+                        "valid_from": now,
+                        "is_current": True,
+                    }
+                )
+                existing_edge_keys.add((cid, snode_id, "DERIVES_FROM"))
+
+        gdata["nodes"] = nodes
+        gdata["edges"] = edges
+        self._save_graph(gdata)
+
+    def _persist_session(self, session: Dict[str, Any]) -> Dict[str, Any]:
+        """Enforce <2KB budget and write current.json, latest.json, <session-id>.json, and graph.json."""
+        session["parent_session_id"] = session.get("prior_session_id")
+        session["capsule_bytes"] = 0
+        session = self._enforce_session_budget(session)
+        session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
+        if session["capsule_bytes"] > self.MAX_SESSION_CAPSULE_BYTES:
+            session = self._enforce_session_budget(session)
+            session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
+        self.sessions_dir.mkdir(parents=True, exist_ok=True)
+        payload = json.dumps(session, indent=2)
+        (self.sessions_dir / "current.json").write_text(payload, encoding="utf-8")
+        (self.sessions_dir / "latest.json").write_text(payload, encoding="utf-8")
+        sid = str(session.get("session_id", "")).replace(":", "_")
+        if sid:
+            (self.sessions_dir / f"{sid}.json").write_text(payload, encoding="utf-8")
+        self._sync_session_into_graph(session)
+        return session
+
+    def session_start(
+        self,
+        focus: Optional[str] = None,
+        session_id: Optional[str] = None,
+        task_id: Optional[str] = None,
+        role: Optional[str] = None,
+        force_new: bool = False,
+        top_k: int = 5,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Start a new Micro Memory Session (.hath0r/memory/sessions/current.json), reading prior session & graph."""
+        now = datetime.now(timezone.utc).isoformat()
+        resolved_sid = session_id or f"sess-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:6]}"
+
+        prior_sid: Optional[str] = None
+        prior_summary = ""
+        for cand in (self.sessions_dir / "latest.json", self.sessions_dir / "current.json"):
+            if cand.is_file():
+                try:
+                    prev = json.loads(cand.read_text(encoding="utf-8"))
+                    prior_sid = prev.get("session_id")
+                    last_entries = [str(e.get("summary", "")) for e in prev.get("micro_entries", [])[-2:] if e.get("summary")]
+                    prior_summary = "; ".join(last_entries) or str(prev.get("active_focus") or prev.get("prior_summary") or "")
+                    break
+                except Exception:
+                    pass
+
+        recalled = self._recall_top_nodes_compact(query=focus or "", top_k=top_k)
+        micro_entries: List[Dict[str, Any]] = []
+        write_count = 0
+        last_write_at: Optional[str] = None
+        if focus:
+            micro_entries.append(
+                {
+                    "timestamp": now,
+                    "kind": "observation",
+                    "summary": f"Started session focus: {focus}"[:240],
+                    "tags": ["session-start"],
+                    "node_id": None,
+                }
+            )
+            write_count = 1
+            last_write_at = now
+
+        resolved_parent = prior_sid if prior_sid != resolved_sid else None
+        session: Dict[str, Any] = {
+            "schema_version": "hath0r.micro_session/1",
+            "session_id": resolved_sid,
+            "prior_session_id": resolved_parent,
+            "parent_session_id": resolved_parent,
+            "task_id": task_id,
+            "role": role,
+            "repo_name": self.cwd.name,
+            "status": "active",
+            "started_at": now,
+            "updated_at": now,
+            "ended_at": None,
+            "read_count": 1,
+            "write_count": write_count,
+            "last_read_at": now,
+            "last_write_at": last_write_at,
+            "active_focus": (focus or f"Active working session in {self.cwd.name}")[:160],
+            "prior_summary": prior_summary[:200],
+            "recalled_nodes": recalled,
+            "micro_entries": micro_entries,
+            "next_steps": [],
+            "compounded_node_ids": [],
+            "capsule_bytes": 0,
+        }
+
+        if not dry_run:
+            session = self._persist_session(session)
+        else:
+            session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
+
+        byte_size = int(session.get("capsule_bytes") or len(json.dumps(session, indent=2).encode("utf-8")))
+        return {
+            "success": True,
+            "dry_run": dry_run,
+            "message": f"Started micro memory session '{resolved_sid}' ({byte_size} bytes).",
+            "session_file": str(self.sessions_dir / "current.json"),
+            "byte_size": byte_size,
+            "session": session,
+        }
+
+    def session_read(
+        self,
+        focus: Optional[str] = None,
+        note: Optional[str] = None,
+        top_k: int = 5,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Read the active Micro Memory Session capsule, auto-starting if absent."""
+        resolved_focus = focus or note
+        current_file = self.sessions_dir / "current.json"
+        if not current_file.is_file():
+            return self.session_start(focus=resolved_focus, top_k=top_k, dry_run=dry_run)
+
+        try:
+            session = json.loads(current_file.read_text(encoding="utf-8"))
+            if not isinstance(session, dict):
+                return self.session_start(focus=resolved_focus, top_k=top_k, dry_run=dry_run)
+        except Exception:
+            return self.session_start(focus=resolved_focus, top_k=top_k, dry_run=dry_run)
+
+        now = datetime.now(timezone.utc).isoformat()
+        if focus:
+            session["active_focus"] = focus[:160]
+        session["recalled_nodes"] = self._recall_top_nodes_compact(
+            query=resolved_focus or str(session.get("active_focus", "")),
+            top_k=top_k,
+        )
+        session["read_count"] = int(session.get("read_count", 0)) + 1
+        session["last_read_at"] = now
+        session["updated_at"] = now
+
+        if not dry_run:
+            session = self._persist_session(session)
+        else:
+            session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
+
+        byte_size = int(session.get("capsule_bytes") or len(json.dumps(session, indent=2).encode("utf-8")))
+        return {
+            "success": True,
+            "dry_run": dry_run,
+            "message": f"Read micro memory session '{session.get('session_id')}' (reads={session.get('read_count')}, writes={session.get('write_count')}, {byte_size} bytes).",
+            "session_file": str(current_file),
+            "byte_size": byte_size,
+            "session": session,
+        }
+
+    def session_write(
+        self,
+        summary: str = "",
+        kind: str = "observation",
+        tags: Optional[List[str]] = None,
+        focus: Optional[str] = None,
+        next_steps: Optional[List[str]] = None,
+        node_id: Optional[str] = None,
+        ref_node_id: Optional[str] = None,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Append a compact micro-memory entry to the active session and sync into graph.json."""
+        resolved_node_id = node_id or ref_node_id
+        current_file = self.sessions_dir / "current.json"
+        if not current_file.is_file():
+            start_res = self.session_start(focus=focus or summary[:120], dry_run=dry_run)
+            session = dict(start_res["session"])
+        else:
+            try:
+                session = json.loads(current_file.read_text(encoding="utf-8"))
+                if not isinstance(session, dict):
+                    session = dict(self.session_start(focus=focus or summary[:120], dry_run=dry_run)["session"])
+            except Exception:
+                session = dict(self.session_start(focus=focus or summary[:120], dry_run=dry_run)["session"])
+
+        now = datetime.now(timezone.utc).isoformat()
+        if int(session.get("read_count", 0)) < 1:
+            session["read_count"] = 1
+            session["last_read_at"] = now
+
+        clean_tags = [t.strip().lower() for t in (tags or []) if t and t.strip()]
+        entry = {
+            "timestamp": now,
+            "kind": (kind or "observation").lower(),
+            "summary": summary[:240],
+            "tags": clean_tags,
+            "node_id": resolved_node_id,
+        }
+        entries = list(session.get("micro_entries", []))
+        entries.append(entry)
+        session["micro_entries"] = entries
+        session["write_count"] = int(session.get("write_count", 0)) + 1
+        session["last_write_at"] = now
+        session["updated_at"] = now
+        if focus:
+            session["active_focus"] = focus[:160]
+        if next_steps is not None:
+            session["next_steps"] = [str(s)[:100] for s in next_steps[:4]]
+        if resolved_node_id:
+            cids = list(session.get("compounded_node_ids", []))
+            if resolved_node_id not in cids:
+                cids.append(resolved_node_id)
+            session["compounded_node_ids"] = cids
+
+        if not dry_run:
+            session = self._persist_session(session)
+        else:
+            session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
+
+        byte_size = int(session.get("capsule_bytes") or len(json.dumps(session, indent=2).encode("utf-8")))
+        return {
+            "success": True,
+            "dry_run": dry_run,
+            "message": f"Wrote micro-entry to session '{session.get('session_id')}' (reads={session.get('read_count')}, writes={session.get('write_count')}, {byte_size} bytes).",
+            "session_file": str(current_file),
+            "byte_size": byte_size,
+            "entry": entry,
+            "session": session,
+        }
+
+    def session_end(
+        self,
+        summary: Optional[str] = None,
+        next_steps: Optional[List[str]] = None,
+        sync_agentgraph: bool = True,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Flush and finalize the active Micro Memory Session into .hath0r/memory/sessions/ and graph.json."""
+        current_file = self.sessions_dir / "current.json"
+        if not current_file.is_file():
+            session = dict(self.session_start(focus=summary or f"Session completed in {self.cwd.name}", dry_run=dry_run)["session"])
+        else:
+            try:
+                session = json.loads(current_file.read_text(encoding="utf-8"))
+                if not isinstance(session, dict):
+                    session = dict(self.session_start(focus=summary or f"Session completed in {self.cwd.name}", dry_run=dry_run)["session"])
+            except Exception:
+                session = dict(self.session_start(focus=summary or f"Session completed in {self.cwd.name}", dry_run=dry_run)["session"])
+
+        now = datetime.now(timezone.utc).isoformat()
+        if int(session.get("read_count", 0)) < 1:
+            session["read_count"] = 1
+            session["last_read_at"] = now
+
+        entries = list(session.get("micro_entries", []))
+        if summary:
+            entries.append(
+                {
+                    "timestamp": now,
+                    "kind": "milestone",
+                    "summary": summary[:240],
+                    "tags": ["session-end"],
+                    "node_id": None,
+                }
+            )
+            session["write_count"] = int(session.get("write_count", 0)) + 1
+            session["last_write_at"] = now
+        elif int(session.get("write_count", 0)) < 1:
+            entries.append(
+                {
+                    "timestamp": now,
+                    "kind": "milestone",
+                    "summary": f"Completed micro memory session {session.get('session_id')}",
+                    "tags": ["session-end"],
+                    "node_id": None,
+                }
+            )
+            session["write_count"] = 1
+            session["last_write_at"] = now
+
+        session["micro_entries"] = entries
+        if next_steps is not None:
+            session["next_steps"] = [str(s)[:100] for s in next_steps[:4]]
+        session["status"] = "completed"
+        session["ended_at"] = now
+        session["updated_at"] = now
+
+        ag_synced = False
+        if not dry_run:
+            session = self._persist_session(session)
+            if sync_agentgraph:
+                try:
+                    from hath0r_cli.bots.agentgraph_bot import AgentGraphBot
+
+                    ag_res = AgentGraphBot(cwd=self.cwd).sync(persist=True, dry_run=False)
+                    ag_synced = bool(ag_res.get("success", False))
+                except Exception:
+                    ag_synced = False
+        else:
+            session["capsule_bytes"] = len(json.dumps(session, indent=2).encode("utf-8"))
+
+        byte_size = int(session.get("capsule_bytes") or len(json.dumps(session, indent=2).encode("utf-8")))
+        return {
+            "success": True,
+            "dry_run": dry_run,
+            "message": f"Flushed micro memory session '{session.get('session_id')}' ({byte_size} bytes).",
+            "session_file": str(current_file),
+            "byte_size": byte_size,
+            "agentgraph_synced": ag_synced,
+            "session": session,
+        }
+
+    def session_status(self) -> Dict[str, Any]:
+        """Inspect the active or latest Micro Memory Session read/write verification status."""
+        current_file = self.sessions_dir / "current.json"
+        latest_file = self.sessions_dir / "latest.json"
+        target_file = current_file if current_file.is_file() else latest_file
+
+        if not target_file.is_file():
+            return {
+                "success": True,
+                "exists": False,
+                "session_id": None,
+                "prior_session_id": None,
+                "status": "missing",
+                "read_count": 0,
+                "write_count": 0,
+                "read_verified": False,
+                "write_verified": False,
+                "byte_size": 0,
+                "max_bytes": self.MAX_SESSION_CAPSULE_BYTES,
+                "within_budget": True,
+                "file": str(current_file),
+                "session": None,
+            }
+
+        try:
+            raw = target_file.read_text(encoding="utf-8")
+            session = json.loads(raw)
+            read_count = int(session.get("read_count", 0))
+            write_count = int(session.get("write_count", 0))
+            byte_size = len(raw.encode("utf-8"))
+            return {
+                "success": True,
+                "exists": True,
+                "session_id": session.get("session_id"),
+                "prior_session_id": session.get("prior_session_id"),
+                "status": session.get("status", "active"),
+                "read_count": read_count,
+                "write_count": write_count,
+                "read_verified": read_count >= 1,
+                "write_verified": write_count >= 1,
+                "active_focus": session.get("active_focus", ""),
+                "entries_count": len(session.get("micro_entries", [])),
+                "recalled_nodes_count": len(session.get("recalled_nodes", [])),
+                "byte_size": byte_size,
+                "max_bytes": self.MAX_SESSION_CAPSULE_BYTES,
+                "within_budget": byte_size <= self.MAX_SESSION_CAPSULE_BYTES,
+                "file": str(target_file),
+                "session": session,
+            }
+        except Exception as exc:
+            return {
+                "success": False,
+                "exists": False,
+                "session_id": None,
+                "prior_session_id": None,
+                "status": "corrupt",
+                "read_count": 0,
+                "write_count": 0,
+                "read_verified": False,
+                "write_verified": False,
+                "byte_size": 0,
+                "max_bytes": self.MAX_SESSION_CAPSULE_BYTES,
+                "within_budget": False,
+                "file": str(target_file),
+                "error": str(exc),
+                "session": None,
+            }
+
     def initialize_memory(self, dry_run: bool = False) -> Dict[str, Any]:
-        """Initialize the core Hath0r memory spaces."""
+        """Initialize the core Hath0r memory spaces and micro session capsule."""
         core_file = self.memory_dir / "core_rules.md"
         arch_file = self.memory_dir / "architecture.md"
         graph_file = self.memory_dir / "graph.json"
+        current_session_file = self.sessions_dir / "current.json"
 
         core_content = (
             "# Core Hath0r Rules\n"
             "1. CLI-First (CR-CLI-ENTRY-001): Always start with the CLI capabilities before improvising.\n"
-            "2. Memory Compounding (CR-MEMORY-COMPOUND-001): Every task must compound knowledge into .hath0r/memory/graph.json prior to announcing complete.\n"
+            "2. Memory Compounding (CR-MEMORY-COMPOUND-001): Every session must read/write a micro memory session and every task must compound knowledge into .hath0r/memory/graph.json prior to announcing complete.\n"
             "3. Bots not Daemons: Background tasks are bots/factories.\n"
             "4. Hyper-Context: Always traverse the defined context paths (playbooks, procedures).\n"
             "5. Promotion Path: local -> development -> testing -> staging -> master.\n"
@@ -172,7 +719,7 @@ class MemoryManagerBot:
         arch_content = (
             "# Canonical Architecture\n"
             "The HATH0R-CLI repository acts as the OpenSource Control Tower.\n"
-            "Agents orienting to any Hath0r app MUST read this Local Memory Space first "
+            "Agents orienting to any Hath0r app MUST read/write `.hath0r/memory/sessions/current.json` first "
             "and compound task learnings into `.hath0r/memory/graph.json` prior to completion.\n"
         )
 
@@ -184,11 +731,14 @@ class MemoryManagerBot:
             if not arch_file.exists():
                 arch_file.write_text(arch_content, encoding="utf-8")
             self._save_graph(gdata)
+            if not current_session_file.is_file():
+                self.session_start(focus=f"Initialized local memory space for {self.cwd.name}", dry_run=False)
+            gdata = self._load_or_seed_graph()
 
         return {
             "success": True,
-            "message": "Initialized core memory spaces.",
-            "files": [str(core_file), str(arch_file), str(graph_file)],
+            "message": "Initialized core memory spaces and micro session store.",
+            "files": [str(core_file), str(arch_file), str(graph_file), str(current_session_file)],
             "nodes_count": len(gdata.get("nodes", [])),
             "edges_count": len(gdata.get("edges", [])),
         }
@@ -256,6 +806,13 @@ class MemoryManagerBot:
                 )
             gdata["edges"] = edges
             self._save_graph(gdata)
+            self.session_write(
+                summary=f"Updated memory topic '{actual_topic}'",
+                kind="observation",
+                tags=["topic", actual_topic],
+                node_id=topic_id,
+                dry_run=False,
+            )
 
         return {"success": True, "message": f"Updated memory topic '{topic}'.", "file": str(target_file)}
 
@@ -372,6 +929,15 @@ class MemoryManagerBot:
         gdata["edges"] = edges
         graph_file = self._save_graph(gdata)
 
+        # Record a micro-session write and link compounded node to active session
+        session_res = self.session_write(
+            summary=f"Compounded {resolved_id}: {label}",
+            kind="compound",
+            tags=resolved_tags,
+            node_id=resolved_id,
+            dry_run=False,
+        )
+
         # Run autonomous reflection consolidation
         reflection_res = self.reflect_memory(dry_run=False)
 
@@ -393,6 +959,7 @@ class MemoryManagerBot:
             "node": node_entry,
             "edges_added": edges_added,
             "reflection": reflection_res,
+            "micro_session": session_res.get("session"),
             "agentgraph_synced": ag_synced,
         }
 
@@ -492,8 +1059,9 @@ class MemoryManagerBot:
         self,
         since: Optional[str] = None,
         task_id: Optional[str] = None,
+        require_session: bool = True,
     ) -> Dict[str, Any]:
-        """Verify that .hath0r/memory/graph.json exists and contains compounded task knowledge."""
+        """Verify that .hath0r/memory/graph.json contains compounded task knowledge and micro session read/write."""
         graph_file = self.memory_dir / "graph.json"
         if not graph_file.is_file():
             return {
@@ -504,6 +1072,9 @@ class MemoryManagerBot:
                 "total_edges": 0,
                 "compounded_nodes_count": 0,
                 "latest_node": None,
+                "session_read_verified": False,
+                "session_write_verified": False,
+                "session": None,
                 "error": f"Missing MemoryGraph file at {graph_file}. Run 'hath0r memory init' and 'hath0r memory compound'.",
             }
 
@@ -518,6 +1089,9 @@ class MemoryManagerBot:
                 "total_edges": 0,
                 "compounded_nodes_count": 0,
                 "latest_node": None,
+                "session_read_verified": False,
+                "session_write_verified": False,
+                "session": None,
                 "error": f"Corrupt MemoryGraph JSON at {graph_file}: {exc}",
             }
 
@@ -529,6 +1103,8 @@ class MemoryManagerBot:
             nid = str(n.get("id", ""))
             if not nid or nid in self.CANONICAL_SEED_NODE_IDS:
                 continue
+            if n.get("type") == "session":
+                continue
             updated = str(n.get("updated_at") or n.get("created_at") or "")
             if since and updated and updated < since:
                 continue
@@ -539,8 +1115,27 @@ class MemoryManagerBot:
             compounded_nodes.append(n)
 
         compounded_nodes.sort(key=lambda x: str(x.get("updated_at") or x.get("created_at") or ""), reverse=True)
-        is_compounded = len(compounded_nodes) > 0
+        has_compounded_nodes = len(compounded_nodes) > 0
         latest = compounded_nodes[0] if compounded_nodes else None
+
+        s_status = self.session_status()
+        read_ok = bool(s_status.get("read_verified"))
+        write_ok = bool(s_status.get("write_verified"))
+        session_ok = (read_ok and write_ok) if require_session else True
+
+        is_compounded = has_compounded_nodes and session_ok
+        err_msg: Optional[str] = None
+        if not has_compounded_nodes:
+            err_msg = (
+                "CR-MEMORY-COMPOUND-001: No task knowledge compounded in .hath0r/memory/graph.json beyond static seeds. "
+                "Run 'hath0r memory compound' prior to announcing complete."
+            )
+        elif not session_ok:
+            err_msg = (
+                f"CR-MEMORY-COMPOUND-001: Micro memory session read/write gate failed "
+                f"(read_count={s_status.get('read_count', 0)}, write_count={s_status.get('write_count', 0)}). "
+                "Run 'hath0r memory session read' and 'hath0r memory session write' prior to announcing complete."
+            )
 
         return {
             "success": is_compounded,
@@ -551,11 +1146,10 @@ class MemoryManagerBot:
             "total_edges": len(edges),
             "compounded_nodes_count": len(compounded_nodes),
             "latest_node": latest,
-            "error": (
-                None
-                if is_compounded
-                else "CR-MEMORY-COMPOUND-001: No task knowledge compounded in .hath0r/memory/graph.json beyond static seeds. Run 'hath0r memory compound' prior to announcing complete."
-            ),
+            "session_read_verified": read_ok,
+            "session_write_verified": write_ok,
+            "session": s_status,
+            "error": err_msg,
         }
 
     def ensure_all_repos(
@@ -564,7 +1158,7 @@ class MemoryManagerBot:
         sync_agentgraph: bool = True,
         dry_run: bool = False,
     ) -> Dict[str, Any]:
-        """Discover all active repositories under root_dir and ensure .hath0r/memory/graph.json is provisioned and compounded."""
+        """Discover all active repositories under root_dir and ensure .hath0r/memory/graph.json and sessions/ are provisioned."""
         base = Path(root_dir).resolve() if root_dir else Path("/Users/raybayly/Development")
         if not base.is_dir():
             base = self.cwd.parent
@@ -584,7 +1178,7 @@ class MemoryManagerBot:
         for rpath in repo_paths:
             rbot = MemoryManagerBot(cwd=rpath)
             slug = re.sub(r"[^a-z0-9]+", "-", rpath.name.lower()).strip("-") or "repo"
-            summary = f"Repository '{rpath.name}' initialized with canonical .hath0r/memory/graph.json under CR-MEMORY-COMPOUND-001."
+            summary = f"Repository '{rpath.name}' initialized with canonical .hath0r/memory/graph.json and micro sessions under CR-MEMORY-COMPOUND-001."
             for doc_candidate in (rpath / "README.md", rpath / "AGENTS.md"):
                 if doc_candidate.is_file():
                     try:
@@ -611,14 +1205,25 @@ class MemoryManagerBot:
                 sync_agentgraph=sync_agentgraph,
                 dry_run=dry_run,
             )
-            ver = rbot.verify_compounded() if not dry_run else {"compounded": True, "total_nodes": 5, "total_edges": 4}
+            if not dry_run:
+                rbot.session_read(focus=f"Repository orientation verified for {rpath.name}", dry_run=False)
+            ver = rbot.verify_compounded() if not dry_run else {
+                "compounded": True,
+                "total_nodes": 5,
+                "total_edges": 4,
+                "session_read_verified": True,
+                "session_write_verified": True,
+            }
             results.append(
                 {
                     "repo": str(rpath.relative_to(base)) if rpath != base else rpath.name,
                     "path": str(rpath),
                     "memory_dir": str(rpath / ".hath0r" / "memory"),
                     "graph_file": str(rpath / ".hath0r" / "memory" / "graph.json"),
+                    "session_file": str(rpath / ".hath0r" / "memory" / "sessions" / "current.json"),
                     "compounded": ver.get("compounded", False),
+                    "session_read_verified": ver.get("session_read_verified", False),
+                    "session_write_verified": ver.get("session_write_verified", False),
                     "total_nodes": ver.get("total_nodes", 0),
                     "total_edges": ver.get("total_edges", 0),
                     "agentgraph_synced": comp_res.get("agentgraph_synced", False),

@@ -1947,6 +1947,77 @@ class BotRegistry:
                 error=res.get("error"),
                 dry_run=dry_run,
             )
+        elif action == "session-start":
+            res = bot.session_start(
+                focus=args.get("focus"),
+                session_id=args.get("session_id"),
+                task_id=args.get("task_id"),
+                role=args.get("role"),
+                force_new=bool(args.get("force_new", False)),
+                dry_run=dry_run,
+            )
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action == "session-read":
+            res = bot.session_read(
+                note=args.get("note"),
+                dry_run=dry_run,
+            )
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action == "session-write":
+            res = bot.session_write(
+                kind=str(args.get("kind") or "note"),
+                summary=str(args.get("summary") or "Session micro-write"),
+                focus=args.get("focus"),
+                ref_node_id=args.get("ref_node_id"),
+                tags=args.get("tags"),
+                dry_run=dry_run,
+            )
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action == "session-end":
+            res = bot.session_end(
+                summary=args.get("summary"),
+                sync_agentgraph=bool(args.get("sync_agentgraph", True)),
+                dry_run=dry_run,
+            )
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action == "session-status":
+            res = bot.session_status()
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
         else:
             return StepExecutionResult(
                 bot_id="memory-manager-bot",
