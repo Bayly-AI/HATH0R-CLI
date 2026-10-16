@@ -11,17 +11,17 @@ flowchart TD
     B --> C["Read latest.json + Top graph.json Nodes -> current.json (read_count >= 1)"]
     C --> D["Task Execution & In-Session Micro-Writes (hath0r memory session write, write_count >= 1)"]
     D --> E["hath0r memory compound (CAS Check + Auto-Merge + Durable Node)"]
-    E --> F["hath0r memory session end & hath0r memory hash --sync (hashes.json)"]
+    E --> F["hath0r memory session end & hath0r memory hash --sync (hashes.json + .gitignore Un-Ignore)"]
     F --> G["ReflectionEngine.consolidate_sleep_cycle() + AgentGraphBot.sync()"]
     G --> H{"TaskAnnouncerBot.announce_complete()\nMemoryManagerBot.verify_compounded()"}
-    H -- "Compounded, Session R/W & Hashes Up-to-Date == True" --> I["Announce Task Complete"]
-    H -- "Gate Failed / Hash Conflict" --> J["BLOCK Announcement (Require Session R/W + Compounding + Hash Sync)"]
+    H -- "Compounded, Session R/W, Hashes Up-to-Date & Graphs Not Ignored == True" --> I["Announce Task Complete"]
+    H -- "Gate Failed / Hash Conflict / Graph Ignored" --> J["BLOCK Announcement (Require Session R/W + Compounding + Hash Sync + Un-Ignore)"]
 ```
 
 ## 2. Declarative Lifecycle Steps
 
 ### Start of Session / Task (`hath0r orient` / `hath0r task start`)
-1. `memory-manager-bot: session-start` (Reads prior `latest.json` and top `graph.json` nodes into `current.json`, records `base_graph_hash`, sets `read_count >= 1`, writes initial task focus, updates `hashes.json`).
+1. `memory-manager-bot: session-start` (Ensures graph folders are not gitignored, reads prior `latest.json` and top `graph.json` nodes into `current.json`, records `base_graph_hash`, sets `read_count >= 1`, writes initial task focus, updates `hashes.json`).
 
 ### In-Session Execution
 2. `memory-manager-bot: session-write` (Performs CAS check + auto-merge, appends compact micro-entries `<2KB` to `current.json`, increments `write_count` & `revision`, updates `hashes.json`).
@@ -36,8 +36,8 @@ flowchart TD
 6. `git-janitor-bot: prune-branch`
 7. `git-janitor-bot: pull-development`
 8. `documentation-bot: share-knowledge`
-9. `memory-manager-bot: compound` (Performs CAS check + deterministic auto-merge, compounds task/PR knowledge into `.hath0r/memory/graph.json`, flushes micro-session, updates `.hath0r/memory/hashes.json`, runs reflection synthesis, and syncs AgentGraph)
-10. `memory-manager-bot: verify` (Enforces pre-announcement MemoryGraph + Micro Session read/write + SHA-256 file hash gate)
+9. `memory-manager-bot: compound` (Performs CAS check + deterministic auto-merge, compounds task/PR knowledge into `.hath0r/memory/graph.json`, flushes micro-session, updates `.hath0r/memory/hashes.json`, ensures graph folders are un-ignored in `.gitignore`, runs reflection synthesis, and syncs AgentGraph)
+10. `memory-manager-bot: verify` (Enforces pre-announcement MemoryGraph + Micro Session read/write + SHA-256 file hash + `graphs_not_ignored` gate)
 11. `change-validation-bot: validate-all`
 12. `task-announcer-bot: announce-complete` (Verifies `MemoryManagerBot.verify_compounded()` before broadcasting completion)
 

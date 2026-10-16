@@ -67,7 +67,20 @@ hath0r memory ensure-all --root /Users/raybayly/Development
   2. Read the latest state, compound any updated knowledge if a tracked source file changed, and synchronize the hash manifest:
      ```bash
      hath0r memory session read
-     hath0r memory hash --sync
+      hath0r memory hash --sync
      hath0r memory verify
      ```
 
+### Issue 5: Graph Folders Ignored in `.gitignore` (`graphs_not_ignored: False`)
+- **Symptom**: `hath0r memory verify` or `git check-ignore -v` indicates that `.hath0r/memory/`, `.hath0r/agentgraph/`, `.hath0r/graphs/`, `.hath0r/state/cache/`, or `.hath0r/state/context/` is ignored by `.gitignore` (for example, due to a blanket `.hath0r/` or `.hath0r/state/` ignore rule).
+- **Remediation**:
+  1. Sanitize `.gitignore` and re-sync hashes in the current repository:
+     ```bash
+     hath0r memory init
+     hath0r memory hash --sync
+     hath0r memory verify
+     ```
+  2. Or sanitize `.gitignore` across all repositories in `/Users/raybayly/Development`:
+     ```bash
+     hath0r memory ensure-all --root /Users/raybayly/Development
+     ```

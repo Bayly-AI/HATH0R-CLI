@@ -49,6 +49,7 @@ Confirm that:
 - `.hath0r/memory/graph.json` is valid and has $\ge 1$ compounded node.
 - `.hath0r/memory/sessions/current.json` (or `latest.json`) has `read_count >= 1` and `write_count >= 1`.
 - `.hath0r/memory/hashes.json` confirms all `.hath0r/memory/*` files and referenced `source_files` match their on-disk SHA-256 digests (`hashes_verified: True`, `conflicts: 0`).
+- All graph folders (`.hath0r/memory/`, `.hath0r/agentgraph/`, `.hath0r/graphs/`, `.hath0r/state/cache/`, `.hath0r/state/context/`) are un-ignored in `.gitignore` (`graphs_not_ignored: True`).
 - `.hath0r/agentgraph/snapshot.json` is synchronized with the `memory` plane.
 
 ### Step 5: Execute End-of-Task / Announce Complete

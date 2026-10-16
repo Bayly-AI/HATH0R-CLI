@@ -3,44 +3,52 @@
   "session_id": "sess-20261016-142632-17cfdc",
   "prior_session_id": "sess-20261016-140217-5ba5c3",
   "parent_session_id": "sess-20261016-140217-5ba5c3",
-  "revision": 5,
-  "content_hash": "sha256:0e13998c4b069e02724c3c08b55c92f2da6156ddcbb513aadb2e5d9583d57621",
-  "base_graph_hash": "sha256:bbd0f2c1b84db9779b1548035f40d35c45a70b14ad7fc5e9c76db1d9a90664f5",
+  "revision": 9,
+  "content_hash": "sha256:de60c36cbb845d4777c71d09d68a6a9bb1925861e978a5539e3f0d88f20eea9c",
+  "base_graph_hash": "sha256:5fa9534be73e5ff29862c51d209dd9e0706993de88ee4e4fc33359690d85366b",
   "task_id": "issue-476",
   "role": null,
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-16T14:26:32.800314+00:00",
-  "updated_at": "2026-10-16T14:26:38.530809+00:00",
+  "updated_at": "2026-10-16T14:56:41.699407+00:00",
   "ended_at": "2026-10-16T14:26:38.530809+00:00",
-  "read_count": 2,
-  "write_count": 4,
-  "last_read_at": "2026-10-16T14:26:34.234495+00:00",
-  "last_write_at": "2026-10-16T14:26:38.530809+00:00",
-  "active_focus": "Issue #476: Cryptographic SHA-256 file hashing, hashes.json manifest, source_files staleness detection, and CAS conflict prevention in HATH0R-CLI",
-  "prior_summary": "ted session focus: Issue #476: Crypt; Added sync_file_hashes, verify_file_hash; Compounded episode:issue-476-memory-file",
+  "read_count": 4,
+  "write_count": 6,
+  "last_read_at": "2026-10-16T14:56:40.065490+00:00",
+  "last_write_at": "2026-10-16T14:56:41.699407+00:00",
+  "active_focus": "Repository orientation verified for hathor-cli",
+  "prior_summary": "ounded episode:issue-476-memory-file; Completed Issue #476 implementation, tes; Compounded fact:repo-hathor-cli-orientat",
   "recalled_nodes": [
     {
-      "id": "insight:memorygraph",
-      "type": "insight",
-      "label": "Synthesized Insight on memorygraph",
-      "snippet": "Consolidated from 2 memory nodes tagged 'memorygraph'. Recurring themes: memory, compound,"
+      "id": "episode:issue-472-memorygraph-compounding",
+      "type": "episode",
+      "label": "Implement hath0r memory compound, verify, reflect, ensure-al",
+      "snippet": "Added compound, reflect, verify, and ensure-all CLI commands and MemoryManagerBot actions;"
     }
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-16T14:26:38.530809+00:00",
-      "kind": "milestone",
-      "summary": "Completed Issue #476 implementation, tests, and SHA-256 hash verification in HATH0R-CLI",
+      "timestamp": "2026-10-16T14:56:41.699407+00:00",
+      "kind": "compound",
+      "summary": "Compounded episode:issue-478-unignore-graph-folders: Enforced Un-Ignored Graph Folders in MemoryManagerBot & RepoLayoutBot",
       "tags": [
-        "session-end"
+        "memorygraph",
+        "gitignore",
+        "agentgraph",
+        "cr-memory-compound-001",
+        "issue-478",
+        "episode",
+        "compounded"
       ],
-      "node_id": null
+      "node_id": "episode:issue-478-unignore-graph-folders"
     }
   ],
   "next_steps": [],
   "compounded_node_ids": [
-    "episode:issue-476-memory-file-hashing"
+    "episode:issue-476-memory-file-hashing",
+    "fact:repo-hathor-cli-orientation",
+    "episode:issue-478-unignore-graph-folders"
   ],
-  "capsule_bytes": 1796
+  "capsule_bytes": 2044
 }

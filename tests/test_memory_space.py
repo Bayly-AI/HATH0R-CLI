@@ -345,3 +345,25 @@ def test_memory_cli_hash_subcommand(tmp_path: Path) -> None:
         res_check_ok = runner.invoke(main, ["memory", "hash", "--check"])
         assert res_check_ok.exit_code == 0
 
+
+def test_memory_manager_unignores_graph_folders_in_gitignore(tmp_path: Path) -> None:
+    import subprocess
+
+    subprocess.run(["git", "init", str(tmp_path)], check=True, capture_output=True)
+    gitignore = tmp_path / ".gitignore"
+    gitignore.write_text(
+        ".hath0r/state/\n"
+        ".hath0r/agentgraph/\n"
+        ".hath0r/*.json\n",
+        encoding="utf-8",
+    )
+
+    bot = MemoryManagerBot(cwd=tmp_path)
+    bad = bot.verify_graphs_not_gitignored()
+    assert bad["graphs_not_ignored"] is False
+    assert len(bad["ignored_paths"]) > 0
+
+    bot.initialize_memory()
+    good = bot.verify_graphs_not_gitignored()
+    assert good["graphs_not_ignored"] is True
+    assert good["ignored_paths"] == []

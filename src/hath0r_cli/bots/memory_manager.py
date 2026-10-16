@@ -60,6 +60,33 @@ class MemoryManagerBot:
         "micro-session",
     }
 
+    CANONICAL_GRAPH_PATHS: tuple[str, ...] = (
+        ".hath0r/memory/graph.json",
+        ".hath0r/memory/hashes.json",
+        ".hath0r/memory/sessions/current.json",
+        ".hath0r/agentgraph/snapshot.json",
+        ".hath0r/graphs/default.json",
+        ".hath0r/state/cache/knowledge.json",
+        ".hath0r/state/context/session_init.json",
+    )
+
+    CANONICAL_GITIGNORE_NEGATIONS: tuple[str, ...] = (
+        "!.hath0r/",
+        "!.hath0r/memory/",
+        "!.hath0r/memory/**",
+        "!.hath0r/memory/sessions/",
+        "!.hath0r/memory/sessions/**",
+        "!.hath0r/agentgraph/",
+        "!.hath0r/agentgraph/**",
+        "!.hath0r/graphs/",
+        "!.hath0r/graphs/**",
+        "!.hath0r/state/",
+        "!.hath0r/state/cache/",
+        "!.hath0r/state/cache/**",
+        "!.hath0r/state/context/",
+        "!.hath0r/state/context/**",
+    )
+
     def __init__(self, cwd: Optional[Path] = None):
         self.cwd = (cwd or Path.cwd()).resolve()
         self.memory_dir = self.cwd / ".hath0r" / "memory"
@@ -1031,6 +1058,202 @@ class MemoryManagerBot:
                 "session": None,
             }
 
+    def ensure_gitignore_unignores_graphs(
+        self,
+        dry_run: bool = False,
+        create_if_missing: bool = False,
+    ) -> Dict[str, Any]:
+        """Ensure .gitignore never ignores .hath0r/memory, .hath0r/agentgraph, .hath0r/graphs, .hath0r/state/cache, or .hath0r/state/context."""
+        gitignore_file = self.cwd / ".gitignore"
+        has_git = (self.cwd / ".git").exists()
+
+        if not gitignore_file.is_file() and not create_if_missing and not has_git:
+            return {
+                "success": True,
+                "updated": False,
+                "gitignore_file": str(gitignore_file),
+                "rewritten_rules": [],
+                "removed_rules": [],
+                "appended_negations": [],
+            }
+
+        raw_text = gitignore_file.read_text(encoding="utf-8", errors="ignore") if gitignore_file.is_file() else ""
+        lines = raw_text.splitlines()
+
+        forbidden_exact = {
+            ".hath0r/memory",
+            ".hath0r/memory/",
+            ".hath0r/memory/*",
+            ".hath0r/memory/**",
+            ".hath0r/memory/sessions",
+            ".hath0r/memory/sessions/",
+            ".hath0r/memory/sessions/*",
+            ".hath0r/memory/sessions/**",
+            ".hath0r/memory/graph.json",
+            ".hath0r/memory/hashes.json",
+            ".hath0r/agentgraph",
+            ".hath0r/agentgraph/",
+            ".hath0r/agentgraph/*",
+            ".hath0r/agentgraph/**",
+            ".hath0r/agentgraph/snapshot.json",
+            ".hath0r/graphs",
+            ".hath0r/graphs/",
+            ".hath0r/graphs/*",
+            ".hath0r/graphs/**",
+            ".hath0r/state/cache",
+            ".hath0r/state/cache/",
+            ".hath0r/state/cache/*",
+            ".hath0r/state/cache/**",
+            ".hath0r/state/context",
+            ".hath0r/state/context/",
+            ".hath0r/state/context/*",
+            ".hath0r/state/context/**",
+            ".agentguard/graph.db",
+        }
+
+        new_lines: List[str] = []
+        rewritten_rules: List[str] = []
+        removed_rules: List[str] = []
+
+        for line in lines:
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#") or stripped.startswith("!"):
+                new_lines.append(line)
+                continue
+
+            normalized = stripped.lstrip("/")
+            if normalized in (".hath0r", ".hath0r/"):
+                new_lines.append(".hath0r/*")
+                rewritten_rules.append(f"{stripped} -> .hath0r/*")
+            elif normalized in (".hath0r/state", ".hath0r/state/"):
+                new_lines.append(".hath0r/state/*")
+                rewritten_rules.append(f"{stripped} -> .hath0r/state/*")
+            elif normalized in forbidden_exact:
+                removed_rules.append(stripped)
+            else:
+                new_lines.append(line)
+
+        existing_stripped = {ln.strip() for ln in new_lines}
+        missing_negations = [neg for neg in self.CANONICAL_GITIGNORE_NEGATIONS if neg not in existing_stripped]
+        if missing_negations:
+            if new_lines and new_lines[-1].strip() != "":
+                new_lines.append("")
+            header = "# Canonical Hath0r Graph Folders (NEVER ignore — CR-MEMORY-COMPOUND-001 & CR-AGENTGRAPH-001)"
+            if header not in existing_stripped:
+                new_lines.append(header)
+            for neg in missing_negations:
+                new_lines.append(neg)
+
+        updated_text = "\n".join(new_lines) + ("\n" if new_lines else "")
+        changed = updated_text != raw_text
+        if changed and not dry_run:
+            self._atomic_write_text(gitignore_file, updated_text)
+
+        return {
+            "success": True,
+            "updated": changed,
+            "gitignore_file": str(gitignore_file),
+            "rewritten_rules": rewritten_rules,
+            "removed_rules": removed_rules,
+            "appended_negations": missing_negations,
+        }
+
+    def verify_graphs_not_gitignored(self) -> Dict[str, Any]:
+        """Verify that no canonical Hath0r cognitive graph folder or file is ignored by Git."""
+        import subprocess
+
+        gitignore_file = self.cwd / ".gitignore"
+        forbidden_rules: List[str] = []
+        ignored_paths: List[str] = []
+
+        if gitignore_file.is_file():
+            raw_lines = [
+                ln.strip()
+                for ln in gitignore_file.read_text(encoding="utf-8", errors="ignore").splitlines()
+                if ln.strip() and not ln.strip().startswith("#")
+            ]
+            forbidden_exact = {
+                ".hath0r",
+                ".hath0r/",
+                ".hath0r/state",
+                ".hath0r/state/",
+                ".hath0r/memory",
+                ".hath0r/memory/",
+                ".hath0r/memory/*",
+                ".hath0r/memory/**",
+                ".hath0r/memory/sessions",
+                ".hath0r/memory/sessions/",
+                ".hath0r/memory/sessions/*",
+                ".hath0r/memory/sessions/**",
+                ".hath0r/memory/graph.json",
+                ".hath0r/memory/hashes.json",
+                ".hath0r/agentgraph",
+                ".hath0r/agentgraph/",
+                ".hath0r/agentgraph/*",
+                ".hath0r/agentgraph/**",
+                ".hath0r/agentgraph/snapshot.json",
+                ".hath0r/graphs",
+                ".hath0r/graphs/",
+                ".hath0r/graphs/*",
+                ".hath0r/graphs/**",
+                ".hath0r/state/cache",
+                ".hath0r/state/cache/",
+                ".hath0r/state/cache/*",
+                ".hath0r/state/cache/**",
+                ".hath0r/state/context",
+                ".hath0r/state/context/",
+                ".hath0r/state/context/*",
+                ".hath0r/state/context/**",
+                ".agentguard/graph.db",
+            }
+            for ln in raw_lines:
+                if not ln.startswith("!") and ln.lstrip("/") in forbidden_exact:
+                    forbidden_rules.append(ln)
+
+            has_wildcard_hath0r = any(
+                not ln.startswith("!")
+                and ln.lstrip("/") in (".hath0r/*", ".hath0r/state/*", ".hath0r/*.json", "*.json")
+                for ln in raw_lines
+            )
+            if has_wildcard_hath0r:
+                line_set = set(raw_lines)
+                for req_neg in (
+                    "!.hath0r/memory/**",
+                    "!.hath0r/agentgraph/**",
+                    "!.hath0r/graphs/**",
+                    "!.hath0r/state/cache/**",
+                    "!.hath0r/state/context/**",
+                ):
+                    if req_neg not in line_set:
+                        forbidden_rules.append(f"missing_negation:{req_neg}")
+
+        if (self.cwd / ".git").exists():
+            try:
+                proc = subprocess.run(
+                    ["git", "-C", str(self.cwd), "check-ignore", "--no-index", *self.CANONICAL_GRAPH_PATHS],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                    check=False,
+                )
+                if proc.returncode == 0 and proc.stdout.strip():
+                    for out_line in proc.stdout.strip().splitlines():
+                        if out_line.strip():
+                            ignored_paths.append(out_line.strip())
+            except Exception:
+                pass
+
+        if forbidden_rules and not ignored_paths:
+            ignored_paths.extend(forbidden_rules)
+
+        graphs_not_ignored = len(ignored_paths) == 0 and len(forbidden_rules) == 0
+        return {
+            "graphs_not_ignored": graphs_not_ignored,
+            "ignored_paths": ignored_paths,
+            "forbidden_rules": forbidden_rules,
+            "gitignore_file": str(gitignore_file),
+        }
+
     def sync_file_hashes(
         self,
         track_files: Optional[List[str]] = None,
@@ -1038,6 +1261,7 @@ class MemoryManagerBot:
         dry_run: bool = False,
     ) -> Dict[str, Any]:
         """Compute and persist SHA-256 digests for all .hath0r/memory/ files and referenced source_files."""
+        self.ensure_gitignore_unignores_graphs(dry_run=dry_run)
         hashes_file = self.memory_dir / "hashes.json"
         now = datetime.now(timezone.utc).isoformat()
         existing_manifest: Dict[str, Any] = {}
@@ -1189,14 +1413,19 @@ class MemoryManagerBot:
         }
 
     def verify_file_hashes(self) -> Dict[str, Any]:
-        """Verify all .hath0r/memory/ file hashes and referenced source_files digests against disk."""
+        """Verify all .hath0r/memory/ file hashes, referenced source_files digests, and gitignore graph rules."""
         hashes_file = self.memory_dir / "hashes.json"
+        gitignore_check = self.verify_graphs_not_gitignored()
+        graphs_not_ignored = bool(gitignore_check.get("graphs_not_ignored", True))
+
         if not hashes_file.is_file():
             return {
                 "success": False,
                 "verified": False,
                 "manifest_exists": False,
                 "hashes_file": str(hashes_file),
+                "graphs_not_ignored": graphs_not_ignored,
+                "ignored_graph_paths": gitignore_check.get("ignored_paths", []),
                 "mismatched_files": [],
                 "missing_files": [str(hashes_file)],
                 "stale_source_files": [],
@@ -1211,6 +1440,8 @@ class MemoryManagerBot:
                 "verified": False,
                 "manifest_exists": True,
                 "hashes_file": str(hashes_file),
+                "graphs_not_ignored": graphs_not_ignored,
+                "ignored_graph_paths": gitignore_check.get("ignored_paths", []),
                 "mismatched_files": [str(hashes_file)],
                 "missing_files": [],
                 "stale_source_files": [],
@@ -1346,9 +1577,16 @@ class MemoryManagerBot:
             and len(stale_source_files) == 0
             and graph_content_hash_valid
             and session_content_hash_valid
+            and graphs_not_ignored
         )
         err: Optional[str] = None
-        if not verified:
+        if not graphs_not_ignored:
+            err = (
+                f"CR-MEMORY-COMPOUND-001: Graph folders are ignored in .gitignore "
+                f"({', '.join(gitignore_check.get('ignored_paths', []))}). "
+                "Run 'hath0r memory init' or 'hath0r memory hash --sync' to un-ignore graph folders."
+            )
+        elif not verified:
             err = (
                 f"CR-MEMORY-COMPOUND-001: Memory file hash verification failed "
                 f"(mismatched={len(mismatched_files)}, missing={len(missing_files)}, "
@@ -1364,6 +1602,8 @@ class MemoryManagerBot:
             "revision": manifest.get("revision", 0),
             "tracked_files_count": len(files_map),
             "source_files_count": len(checked_sources),
+            "graphs_not_ignored": graphs_not_ignored,
+            "ignored_graph_paths": gitignore_check.get("ignored_paths", []),
             "mismatched_files": mismatched_files,
             "missing_files": missing_files,
             "stale_source_files": stale_source_files,
@@ -1371,6 +1611,7 @@ class MemoryManagerBot:
             "session_content_hash_valid": session_content_hash_valid,
             "error": err,
         }
+
 
     def initialize_memory(self, dry_run: bool = False) -> Dict[str, Any]:
         """Initialize the core Hath0r memory spaces, micro session capsule, and SHA-256 hash manifest."""
@@ -1850,8 +2091,9 @@ class MemoryManagerBot:
 
         hash_status = self.verify_file_hashes()
         hash_ok = bool(hash_status.get("verified")) if require_hashes else True
+        graphs_not_ignored = bool(hash_status.get("graphs_not_ignored", True))
 
-        is_compounded = has_compounded_nodes and session_ok and hash_ok
+        is_compounded = has_compounded_nodes and session_ok and hash_ok and graphs_not_ignored
         err_msg: Optional[str] = None
         if not has_compounded_nodes:
             err_msg = (
@@ -1864,7 +2106,7 @@ class MemoryManagerBot:
                 f"(read_count={s_status.get('read_count', 0)}, write_count={s_status.get('write_count', 0)}). "
                 "Run 'hath0r memory session read' and 'hath0r memory session write' prior to announcing complete."
             )
-        elif not hash_ok:
+        elif not graphs_not_ignored or not hash_ok:
             err_msg = str(hash_status.get("error") or "CR-MEMORY-COMPOUND-001: Memory file hash verification failed.")
 
         return {
@@ -1881,6 +2123,7 @@ class MemoryManagerBot:
             "session_read_verified": read_ok,
             "session_write_verified": write_ok,
             "hashes_verified": bool(hash_status.get("verified")),
+            "graphs_not_ignored": graphs_not_ignored,
             "hash_status": hash_status,
             "session": s_status,
             "error": err_msg,
@@ -1892,7 +2135,7 @@ class MemoryManagerBot:
         sync_agentgraph: bool = True,
         dry_run: bool = False,
     ) -> Dict[str, Any]:
-        """Discover all active repositories under root_dir and ensure .hath0r/memory/graph.json, sessions/, and hashes.json are provisioned."""
+        """Discover all active repositories under root_dir and ensure .hath0r/memory/graph.json, sessions/, hashes.json, and .gitignore graph rules are provisioned."""
         base = Path(root_dir).resolve() if root_dir else Path("/Users/raybayly/Development")
         if not base.is_dir():
             base = self.cwd.parent
@@ -1911,6 +2154,7 @@ class MemoryManagerBot:
         results: List[Dict[str, Any]] = []
         for rpath in repo_paths:
             rbot = MemoryManagerBot(cwd=rpath)
+            rbot.ensure_gitignore_unignores_graphs(dry_run=dry_run)
             slug = re.sub(r"[^a-z0-9]+", "-", rpath.name.lower()).strip("-") or "repo"
             summary = f"Repository '{rpath.name}' initialized with canonical .hath0r/memory/graph.json, micro sessions, and SHA-256 hashes under CR-MEMORY-COMPOUND-001."
             for doc_candidate in (rpath / "README.md", rpath / "AGENTS.md"):
@@ -1949,6 +2193,7 @@ class MemoryManagerBot:
                 "session_read_verified": True,
                 "session_write_verified": True,
                 "hashes_verified": True,
+                "graphs_not_ignored": True,
             }
             results.append(
                 {
@@ -1962,6 +2207,7 @@ class MemoryManagerBot:
                     "session_read_verified": ver.get("session_read_verified", False),
                     "session_write_verified": ver.get("session_write_verified", False),
                     "hashes_verified": ver.get("hashes_verified", False),
+                    "graphs_not_ignored": ver.get("graphs_not_ignored", False),
                     "total_nodes": ver.get("total_nodes", 0),
                     "total_edges": ver.get("total_edges", 0),
                     "agentgraph_synced": comp_res.get("agentgraph_synced", False),
