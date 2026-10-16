@@ -17,12 +17,13 @@ except ImportError:  # pragma: no cover
     yaml = None  # type: ignore[assignment]
 
 
-# Default connection specifications for BaylyAI, 1-Nation, and Hath0r MCP servers.
-# Project MCP (hath0r-mcp) is always priority 1.
-DEFAULT_MCP_SERVERS = [
+# Canonical Hath0r MCP servers across the four organizational groups.
+# Every group MCP server is powered by the Hath0r MCP engine (streamable-http at /mcp).
+CANONICAL_HATH0R_MCP_SERVERS: list[dict[str, Any]] = [
     {
         "id": "hath0r-mcp",
         "name": "Hath0rMCP",
+        "engine": "hath0r-mcp",
         "scope": "project",
         "group": "hath0r-opensource",
         "priority": 1,
@@ -40,43 +41,68 @@ DEFAULT_MCP_SERVERS = [
     {
         "id": "bai-mcp",
         "name": "BaylyAIMCP",
+        "engine": "hath0r-mcp",
         "scope": "org",
         "group": "bai",
         "priority": 2,
         "product_id": "bai-mcp",
-        "transport": "http-jsonrpc",
-        "base_url": "http://127.0.0.1:48080",
+        "transport": "streamable-http",
+        "base_url": "https://mcp.baylyai.com",
         "mcp_endpoint": "/mcp",
         "health_endpoint": "/health",
-        "ready_endpoint": "/health",
-        "description": "Bayly AI Enterprise MCP knowledgebase and runbook engine",
+        "ready_endpoint": "/ready",
+        "description": "Bayly AI Enterprise Hath0r MCP knowledgebase and runbook engine",
         "enabled": True,
         "local_path": "/Users/raybayly/Development/BAI/MCP",
         "github": "Bayly-AI/BAI-MCP",
     },
     {
-        "id": "1-nation-mcp",
-        "name": "1-NationMCP",
+        "id": "ray-mcp",
+        "name": "RayMCP",
+        "engine": "hath0r-mcp",
         "scope": "group",
-        "group": "1-nation",
+        "group": "ray",
         "priority": 3,
-        "product_id": "1-nation-mcp",
+        "product_id": "ray-mcp",
         "transport": "streamable-http",
-        "base_url": "http://127.0.0.1:58083",
+        "base_url": "https://mcp.raymondbayly.com",
         "mcp_endpoint": "/mcp",
         "health_endpoint": "/health",
         "ready_endpoint": "/ready",
-        "description": "1-Nation Suite MCP service and reference tools",
+        "description": "Ray Bayly Hath0r MCP knowledgebase and executive tools",
+        "enabled": True,
+        "local_path": "/Users/raybayly/Development/Ray/mcp",
+        "github": "Bayly-AI/RAY-MCP",
+    },
+    {
+        "id": "1-nation-mcp",
+        "name": "1-NationMCP",
+        "engine": "hath0r-mcp",
+        "scope": "group",
+        "group": "1-nation",
+        "priority": 4,
+        "product_id": "1-nation-mcp",
+        "transport": "streamable-http",
+        "base_url": "https://mcp.1-nation.com",
+        "mcp_endpoint": "/mcp",
+        "health_endpoint": "/health",
+        "ready_endpoint": "/ready",
+        "description": "1-Nation Suite Hath0r MCP service and reference tools",
         "enabled": True,
         "local_path": "/Users/raybayly/Development/1-Nation/MCP",
         "github": "Bayly-AI/1-Nation-MCP",
     },
+]
+
+# Default connection specifications for BaylyAI, Ray, 1-Nation, and Hath0r MCP servers.
+DEFAULT_MCP_SERVERS: list[dict[str, Any]] = [
+    *CANONICAL_HATH0R_MCP_SERVERS,
     {
         "id": "paper-design-mcp",
         "name": "PaperDesignMCP",
         "scope": "tools",
         "group": "design",
-        "priority": 4,
+        "priority": 5,
         "product_id": "paper-design-mcp",
         "transport": "streamable-http",
         "base_url": "http://127.0.0.1:29979",
@@ -92,6 +118,33 @@ DEFAULT_MCP_SERVERS = [
         "docs_url": "https://paper.design",
     },
 ]
+
+GROUP_DEFAULT_MCP_SERVER: dict[str, dict[str, str]] = {
+    "hath0r-opensource": {
+        "server_id": "hath0r-mcp",
+        "name": "Hath0rMCP",
+        "base_url": "https://mcp.hath0r-cli.com",
+        "mcp_endpoint": "/mcp",
+    },
+    "bai": {
+        "server_id": "bai-mcp",
+        "name": "BaylyAIMCP",
+        "base_url": "https://mcp.baylyai.com",
+        "mcp_endpoint": "/mcp",
+    },
+    "ray": {
+        "server_id": "ray-mcp",
+        "name": "RayMCP",
+        "base_url": "https://mcp.raymondbayly.com",
+        "mcp_endpoint": "/mcp",
+    },
+    "1-nation": {
+        "server_id": "1-nation-mcp",
+        "name": "1-NationMCP",
+        "base_url": "https://mcp.1-nation.com",
+        "mcp_endpoint": "/mcp",
+    },
+}
 
 
 @dataclass
@@ -148,25 +201,242 @@ def sort_mcp_servers_by_priority(servers: list[dict[str, Any]]) -> list[dict[str
     return sorted(servers, key=_sort_key)
 
 
-def resolve_mcp_config_path(group_root: Path | None = None) -> Path | None:
-    """Locate the MCP connections configuration JSON or YAML file."""
+def normalize_mcp_group(group: str) -> str:
+    """Normalize a repository group identifier into one of the 4 canonical Hath0r MCP groups."""
+    g = group.strip().lower()
+    if g in {"1-nation", "1nation", "one-nation"}:
+        return "1-nation"
+    if g in {"ray", "ray-bayly", "ray bayly", "raymondbayly"}:
+        return "ray"
+    if g in {"bai", "bayly-ai", "baylyai", "websites"}:
+        return "bai"
+    return "hath0r-opensource"
+
+
+def detect_repo_mcp_group(repo_root: Path) -> str:
+    """Detect the canonical Hath0r MCP group for a repository from its path and AGENTS.md metadata."""
+    resolved = repo_root.resolve()
+    parts_lower = [p.lower() for p in resolved.parts]
+
+    if "1-nation" in parts_lower:
+        return "1-nation"
+    if "ray" in parts_lower or "ray bayly" in parts_lower or resolved.name.lower() in {"ray-mcp", "ray bayly"}:
+        return "ray"
+    if "bai" in parts_lower or "websites" in parts_lower:
+        return "bai"
+    if "opensource" in parts_lower or "hath0r" in parts_lower:
+        return "hath0r-opensource"
+
+    agents_md = resolved / "AGENTS.md"
+    if agents_md.is_file():
+        try:
+            head = agents_md.read_text(encoding="utf-8", errors="ignore")[:2000].lower()
+            if "`1-nation`" in head or "group: 1-nation" in head:
+                return "1-nation"
+            if "`ray`" in head or "mcp.raymondbayly.com" in head:
+                return "ray"
+            if "`bai`" in head or "mcp.baylyai.com" in head:
+                return "bai"
+            if "`hath0r-opensource`" in head or "mcp.hath0r-cli.com" in head:
+                return "hath0r-opensource"
+        except Exception:
+            pass
+
+    return "hath0r-opensource"
+
+
+def build_repo_mcp_config(repo_root: Path, group: str | None = None) -> dict[str, Any]:
+    """Build the canonical .hath0r/mcp.json payload for a repository with its group Hath0r MCP as Priority 1."""
+    resolved_root = repo_root.resolve()
+    resolved_group = normalize_mcp_group(group) if group else detect_repo_mcp_group(resolved_root)
+    default_info = GROUP_DEFAULT_MCP_SERVER.get(resolved_group, GROUP_DEFAULT_MCP_SERVER["hath0r-opensource"])
+    default_server_id = default_info["server_id"]
+
+    servers: list[dict[str, Any]] = []
+    next_priority = 2
+    for base_srv in CANONICAL_HATH0R_MCP_SERVERS:
+        srv = dict(base_srv)
+        srv["engine"] = "hath0r-mcp"
+        if srv["id"] == default_server_id:
+            srv["scope"] = "project"
+            srv["priority"] = 1
+        else:
+            srv["scope"] = "org" if srv["id"] == "bai-mcp" else "group"
+            srv["priority"] = next_priority
+            next_priority += 1
+        servers.append(srv)
+
+    sorted_servers = sort_mcp_servers_by_priority(servers)
+    mcp_servers_map: dict[str, dict[str, Any]] = {}
+    for srv in sorted_servers:
+        sid = str(srv["id"])
+        ep = str(srv.get("mcp_endpoint", "/mcp"))
+        url = f"{str(srv['base_url']).rstrip('/')}{ep}"
+        mcp_servers_map[sid] = {
+            "type": str(srv.get("transport", "streamable-http")),
+            "url": url,
+            "engine": "hath0r-mcp",
+            "group": str(srv.get("group", "")),
+            "default": sid == default_server_id,
+        }
+
+    return {
+        "version": "1.0",
+        "engine": "hath0r-mcp",
+        "default_provider": "hath0r-mcp",
+        "group": resolved_group,
+        "default_server": default_server_id,
+        "description": f"Canonical Hath0r MCP configuration for {resolved_root.name} (group: {resolved_group})",
+        "mcpServers": mcp_servers_map,
+        "servers": sorted_servers,
+    }
+
+
+def ensure_repo_mcp_config(
+    repo_root: Path,
+    group: str | None = None,
+    sync_cfg: bool = True,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    """Ensure <repo_root>/.hath0r/mcp.json exists, uses the group's default Hath0r MCP, and is un-ignored in .gitignore."""
+    resolved_root = repo_root.resolve()
+    payload = build_repo_mcp_config(resolved_root, group=group)
+    mcp_file = resolved_root / ".hath0r" / "mcp.json"
+    cfg_file = resolved_root / "cfg" / "mcp.servers.json"
+
+    if not dry_run:
+        mcp_file.parent.mkdir(parents=True, exist_ok=True)
+        mcp_file.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    cfg_synced = False
+    if sync_cfg and cfg_file.is_file():
+        try:
+            existing = json.loads(cfg_file.read_text(encoding="utf-8"))
+            existing_servers = existing.get("servers", []) if isinstance(existing, dict) else []
+            canonical_ids = {s["id"] for s in CANONICAL_HATH0R_MCP_SERVERS}
+            extra_servers: list[dict[str, Any]] = []
+            next_prio = len(payload["servers"]) + 1
+            for es in existing_servers:
+                if isinstance(es, dict) and es.get("id") not in canonical_ids:
+                    es_copy = dict(es)
+                    es_copy["priority"] = next_prio
+                    next_prio += 1
+                    extra_servers.append(es_copy)
+
+            updated_cfg = {
+                "version": "1.0",
+                "engine": "hath0r-mcp",
+                "default_provider": "hath0r-mcp",
+                "group": payload["group"],
+                "default_server": payload["default_server"],
+                "description": existing.get("description", payload["description"])
+                if isinstance(existing, dict)
+                else payload["description"],
+                "servers": [*payload["servers"], *extra_servers],
+            }
+            if not dry_run:
+                cfg_file.write_text(json.dumps(updated_cfg, indent=2) + "\n", encoding="utf-8")
+            cfg_synced = True
+        except Exception:
+            pass
+
+    mcp_not_ignored = True
+    try:
+        from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+        mbot = MemoryManagerBot(cwd=resolved_root)
+        gi_res = mbot.ensure_gitignore_unignores_graphs(dry_run=dry_run)
+        mcp_not_ignored = bool(gi_res.get("graphs_not_ignored", True))
+    except Exception:
+        pass
+
+    default_srv = payload["servers"][0]
+    return {
+        "success": True,
+        "dry_run": dry_run,
+        "repo": resolved_root.name,
+        "path": str(resolved_root),
+        "mcp_file": str(mcp_file),
+        "group": payload["group"],
+        "engine": payload["engine"],
+        "default_server": payload["default_server"],
+        "default_url": default_srv["base_url"],
+        "mcp_endpoint": default_srv.get("mcp_endpoint", "/mcp"),
+        "cfg_synced": cfg_synced,
+        "mcp_not_ignored": mcp_not_ignored,
+        "servers_count": len(payload["servers"]),
+    }
+
+
+def ensure_all_repos_mcp_config(
+    root_dir: Path | str | None = None,
+    sync_cfg: bool = True,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    """Discover all Git repositories under root_dir and provision canonical .hath0r/mcp.json files."""
+    base = Path(root_dir).resolve() if root_dir else Path("/Users/raybayly/Development")
+    if not base.is_dir():
+        base = Path.cwd().resolve()
+
+    skip_parts = {"node_modules", ".venv", "ARCHIVE", "archive", ".terraform", "__pycache__"}
+    repo_paths: list[Path] = []
+    if (base / ".git").exists():
+        repo_paths.append(base)
+    else:
+        for git_entry in sorted(base.rglob(".git")):
+            if any(p in git_entry.parts for p in skip_parts):
+                continue
+            repo_paths.append(git_entry.parent)
+
+    results: list[dict[str, Any]] = []
+    for rpath in repo_paths:
+        res = ensure_repo_mcp_config(rpath, sync_cfg=sync_cfg, dry_run=dry_run)
+        res["repo"] = str(rpath.relative_to(base)) if rpath != base else rpath.name
+        results.append(res)
+
+    return {
+        "success": True,
+        "dry_run": dry_run,
+        "root_dir": str(base),
+        "repos_count": len(results),
+        "repos": results,
+    }
+
+
+def resolve_mcp_config_path(group_root: Path | None = None, cwd: Path | None = None) -> Path | None:
+    """Locate the MCP connections configuration JSON or YAML file.
+
+    Resolution priority:
+    1. HATH0R_MCP_CONFIG environment variable override
+    2. <cwd>/.hath0r/mcp.json (canonical per-repo Hath0r MCP config)
+    3. <cwd>/cfg/mcp.servers.json
+    4. <cwd>/.hath0r/mcp.servers.json
+    5. <cli_repo_root>/.hath0r/mcp.json and <cli_repo_root>/cfg/mcp.servers.json
+    6. <group_root> fallbacks
+    """
     env_override = os.environ.get("HATH0R_MCP_CONFIG")
     if env_override:
         p = Path(env_override).expanduser()
         if p.is_file():
             return p
 
+    active_cwd = (cwd or Path.cwd()).resolve()
     repo_root = Path(__file__).resolve().parents[2]
 
-    # JSON configs take precedence (canonical per cr-mcp-priority-001)
     candidates: list[Path] = [
+        active_cwd / ".hath0r" / "mcp.json",
+        active_cwd / "cfg" / "mcp.servers.json",
+        active_cwd / ".hath0r" / "mcp.servers.json",
+        repo_root / ".hath0r" / "mcp.json",
         repo_root / "cfg" / "mcp.servers.json",
         repo_root / ".hath0r" / "mcp.servers.json",
     ]
     if group_root:
         candidates.extend(
             [
+                group_root / "HATH0R-CLI" / ".hath0r" / "mcp.json",
                 group_root / "HATH0R-CLI" / "cfg" / "mcp.servers.json",
+                group_root / "hathor-cli" / ".hath0r" / "mcp.json",
                 group_root / "hathor-cli" / "cfg" / "mcp.servers.json",
                 group_root / "cfg" / "mcp.servers.json",
                 group_root / "HATH0R-CLI" / "cfg" / "mcp-connections.yaml",
@@ -226,9 +496,9 @@ def validate_mcp_config(config_path: Path) -> tuple[bool, str | None, list[dict[
     return True, warning, sorted_servers
 
 
-def load_mcp_connections(group_root: Path | None = None) -> list[dict[str, Any]]:
+def load_mcp_connections(group_root: Path | None = None, cwd: Path | None = None) -> list[dict[str, Any]]:
     """Load configured MCP servers from JSON or YAML, sorted with project MCP first."""
-    cfg_path = resolve_mcp_config_path(group_root)
+    cfg_path = resolve_mcp_config_path(group_root=group_root, cwd=cwd)
     if cfg_path:
         is_valid, _msg, servers = validate_mcp_config(cfg_path)
         if is_valid and servers:

@@ -3,52 +3,53 @@
   "session_id": "sess-20261016-142632-17cfdc",
   "prior_session_id": "sess-20261016-140217-5ba5c3",
   "parent_session_id": "sess-20261016-140217-5ba5c3",
-  "revision": 9,
-  "content_hash": "sha256:de60c36cbb845d4777c71d09d68a6a9bb1925861e978a5539e3f0d88f20eea9c",
-  "base_graph_hash": "sha256:5fa9534be73e5ff29862c51d209dd9e0706993de88ee4e4fc33359690d85366b",
+  "revision": 14,
+  "content_hash": "sha256:0ef9c5b8cbdf43a8719918dc02c691c31947fe00ca2bca24cfd7f783d87fc76e",
+  "base_graph_hash": "sha256:4583538e1cb97d90f2d108c142dcdef040301cd1d6526942268ac58221818e28",
   "task_id": "issue-476",
   "role": null,
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-16T14:26:32.800314+00:00",
-  "updated_at": "2026-10-16T14:56:41.699407+00:00",
-  "ended_at": "2026-10-16T14:26:38.530809+00:00",
-  "read_count": 4,
-  "write_count": 6,
-  "last_read_at": "2026-10-16T14:56:40.065490+00:00",
-  "last_write_at": "2026-10-16T14:56:41.699407+00:00",
+  "updated_at": "2026-10-16T15:14:01.574643+00:00",
+  "ended_at": "2026-10-16T14:59:22.383221+00:00",
+  "read_count": 6,
+  "write_count": 9,
+  "last_read_at": "2026-10-16T15:14:01.574643+00:00",
+  "last_write_at": "2026-10-16T14:59:22.383221+00:00",
   "active_focus": "Repository orientation verified for hathor-cli",
-  "prior_summary": "ounded episode:issue-476-memory-file; Completed Issue #476 implementation, tes; Compounded fact:repo-hathor-cli-orientat",
+  "prior_summary": "pounded episode:issue-478-unignore-gr; Compounded episode:pr-479: Knowledge Sha; Compounded episode:pr-479: Completed PR",
   "recalled_nodes": [
     {
-      "id": "episode:issue-472-memorygraph-compounding",
-      "type": "episode",
-      "label": "Implement hath0r memory compound, verify, reflect, ensure-al",
-      "snippet": "Added compound, reflect, verify, and ensure-all CLI commands and MemoryManagerBot actions;"
+      "id": "fact:repo-hathor-cli-orientation",
+      "type": "fact",
+      "label": "hathor-cli Repository Memory Orientation",
+      "snippet": "hathor-cli: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR "
+    },
+    {
+      "id": "insight:hathor-cli",
+      "type": "insight",
+      "label": "Synthesized Insight on hathor-cli",
+      "snippet": "Consolidated from 2 memory nodes tagged 'hathor-cli'. Recurring themes: hathor, logo, repo"
     }
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-16T14:56:41.699407+00:00",
-      "kind": "compound",
-      "summary": "Compounded episode:issue-478-unignore-graph-folders: Enforced Un-Ignored Graph Folders in MemoryManagerBot & RepoLayoutBot",
+      "timestamp": "2026-10-16T14:59:22.383221+00:00",
+      "kind": "milestone",
+      "summary": "Completed PR #479 (feature/478-unignore-graph-folders) via EndOfTaskBot.",
       "tags": [
-        "memorygraph",
-        "gitignore",
-        "agentgraph",
-        "cr-memory-compound-001",
-        "issue-478",
-        "episode",
-        "compounded"
+        "session-end"
       ],
-      "node_id": "episode:issue-478-unignore-graph-folders"
+      "node_id": null
     }
   ],
   "next_steps": [],
   "compounded_node_ids": [
     "episode:issue-476-memory-file-hashing",
     "fact:repo-hathor-cli-orientation",
-    "episode:issue-478-unignore-graph-folders"
+    "episode:issue-478-unignore-graph-folders",
+    "episode:pr-479"
   ],
-  "capsule_bytes": 2044
+  "capsule_bytes": 2048
 }

@@ -1,101 +1,146 @@
 {
   "schema_version": "hath0r.memory_hashes/1",
   "repo_name": "hathor-cli",
-  "revision": 29,
-  "updated_at": "2026-10-16T14:56:43.798013+00:00",
+  "revision": 67,
+  "updated_at": "2026-10-16T15:29:36.552538+00:00",
   "files": {
     ".hath0r/memory/architecture.md": {
       "sha256": "sha256:bb77e27d7eb55d790ba3ed8322101d2e637f1fcbf9d13cfc72bceeba7e32d25e",
       "content_hash": "sha256:bb77e27d7eb55d790ba3ed8322101d2e637f1fcbf9d13cfc72bceeba7e32d25e",
       "revision": 1,
       "byte_size": 198,
-      "updated_at": "2026-10-16T14:56:43.798013+00:00"
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
     },
     ".hath0r/memory/core_rules.md": {
       "sha256": "sha256:50f76bdd2e6c222d2b92aff1061bb7aa60f55d116d78a8c7fa6ed57df6ce2e64",
       "content_hash": "sha256:50f76bdd2e6c222d2b92aff1061bb7aa60f55d116d78a8c7fa6ed57df6ce2e64",
       "revision": 1,
       "byte_size": 302,
-      "updated_at": "2026-10-16T14:56:43.798013+00:00"
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
     },
     ".hath0r/memory/graph.json": {
-      "sha256": "sha256:be0dcb418d57845549cdf71cb564e9005e55af2edec64cd5a3b8642029f4fa0d",
-      "content_hash": "sha256:4c54902bb80ee3de03072af979d0dd615f46f463e51a0b839b27b22adfb16819",
-      "revision": 23,
-      "byte_size": 22773,
-      "updated_at": "2026-10-16T14:56:43.798013+00:00"
+      "sha256": "sha256:26a5435f12a0ab500dba5707a3d8feba1557051440aef43c41c8a25dd36f8d7b",
+      "content_hash": "sha256:fa7e7ac045be6f6b0de0973df08906b289b6cdf359b5dd201610e1487693134a",
+      "revision": 52,
+      "byte_size": 29734,
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
     },
     ".hath0r/memory/sessions/current.json": {
-      "sha256": "sha256:b36822b43794f8f9d6b9f50c43472c292b6e4d4061044b58db3523cf34afb754",
-      "content_hash": "sha256:de60c36cbb845d4777c71d09d68a6a9bb1925861e978a5539e3f0d88f20eea9c",
+      "sha256": "sha256:22613226ab41ae8794601d9a0654c1fa3e62cb3d4cb85937da5bdb93f31c724c",
+      "content_hash": "sha256:d34a52973656aef550e25096de8fe27a840b6e58d69d06f331f57fb0b3341268",
       "revision": 9,
-      "byte_size": 2044,
-      "updated_at": "2026-10-16T14:56:43.798013+00:00"
+      "byte_size": 1842,
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
     },
     ".hath0r/memory/sessions/latest.json": {
-      "sha256": "sha256:b36822b43794f8f9d6b9f50c43472c292b6e4d4061044b58db3523cf34afb754",
-      "content_hash": "sha256:de60c36cbb845d4777c71d09d68a6a9bb1925861e978a5539e3f0d88f20eea9c",
+      "sha256": "sha256:22613226ab41ae8794601d9a0654c1fa3e62cb3d4cb85937da5bdb93f31c724c",
+      "content_hash": "sha256:d34a52973656aef550e25096de8fe27a840b6e58d69d06f331f57fb0b3341268",
       "revision": 9,
-      "byte_size": 2044,
-      "updated_at": "2026-10-16T14:56:43.798013+00:00"
+      "byte_size": 1842,
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
     },
     ".hath0r/memory/sessions/sess-20261016-123051-cbad2e.json": {
       "sha256": "sha256:2730002e86e0f5a860eb3d4261e1338a5c9f9f778d141f2f09fd4f6bbb2edfb9",
       "content_hash": "sha256:2730002e86e0f5a860eb3d4261e1338a5c9f9f778d141f2f09fd4f6bbb2edfb9",
       "revision": 1,
       "byte_size": 1985,
-      "updated_at": "2026-10-16T14:56:43.798013+00:00"
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
     },
     ".hath0r/memory/sessions/sess-20261016-123311-4e0dab.json": {
       "sha256": "sha256:4980357e2cd706fb03cae181635b11037b38ed9ae63fcf92069155eea673b9db",
       "content_hash": "sha256:4980357e2cd706fb03cae181635b11037b38ed9ae63fcf92069155eea673b9db",
       "revision": 1,
       "byte_size": 2003,
-      "updated_at": "2026-10-16T14:56:43.798013+00:00"
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
     },
     ".hath0r/memory/sessions/sess-20261016-140217-5ba5c3.json": {
       "sha256": "sha256:10637b4f2abf810b1b925fc74b3ae59c5d68eec7fcb30d929afb4fef5b8e90cd",
       "content_hash": "sha256:ee8fba881c0b76b36e2df4e9779140d7d51e9fbd3534f838e681fe9097b85b3a",
       "revision": 4,
       "byte_size": 1849,
-      "updated_at": "2026-10-16T14:56:43.798013+00:00"
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
     },
     ".hath0r/memory/sessions/sess-20261016-142632-17cfdc.json": {
-      "sha256": "sha256:b36822b43794f8f9d6b9f50c43472c292b6e4d4061044b58db3523cf34afb754",
-      "content_hash": "sha256:de60c36cbb845d4777c71d09d68a6a9bb1925861e978a5539e3f0d88f20eea9c",
+      "sha256": "sha256:2ce5b293541accb20cf418156dc08423e843cdf750c02edc57f54f31e2896a85",
+      "content_hash": "sha256:0ef9c5b8cbdf43a8719918dc02c691c31947fe00ca2bca24cfd7f783d87fc76e",
+      "revision": 14,
+      "byte_size": 2048,
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
+    },
+    ".hath0r/memory/sessions/sess-20261016-151409-a068f7.json": {
+      "sha256": "sha256:22613226ab41ae8794601d9a0654c1fa3e62cb3d4cb85937da5bdb93f31c724c",
+      "content_hash": "sha256:d34a52973656aef550e25096de8fe27a840b6e58d69d06f331f57fb0b3341268",
       "revision": 9,
-      "byte_size": 2044,
-      "updated_at": "2026-10-16T14:56:43.798013+00:00"
+      "byte_size": 1842,
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
     }
   },
   "source_files": {
     ".gitignore": {
-      "sha256": "sha256:539f259d9bdcfcde41730338f7072f4132fc451fa4d41c4bc85ed6f00659a2e9",
-      "byte_size": 844,
+      "sha256": "sha256:1081973c974de85646cafeee9c4eaa45a789a8c481dd528a60e8cc4c68a2fa2b",
+      "byte_size": 863,
       "exists": true,
       "referenced_by": [
         "episode:issue-478-unignore-graph-folders"
       ],
-      "updated_at": "2026-10-16T14:56:43.798013+00:00"
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
+    },
+    ".hath0r/mcp.json": {
+      "sha256": "sha256:5eee26e3857e09b94a7921fef533ed83ef4bfa7c6b8cbf944016aceafedecefa",
+      "byte_size": 3401,
+      "exists": true,
+      "referenced_by": [
+        "episode:issue-480-default-hath0r-mcp-json"
+      ],
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
+    },
+    "cfg/mcp-connections.yaml": {
+      "sha256": "sha256:ac7648df01ab8c93a6c548c90fd8a15faaac952e80e9b60cfedd9857eeee17d9",
+      "byte_size": 2822,
+      "exists": true,
+      "referenced_by": [
+        "episode:issue-480-default-hath0r-mcp-json"
+      ],
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
+    },
+    "cfg/mcp.servers.json": {
+      "sha256": "sha256:95e6ce365170bd5afbaf408b3195fc15378b493827572c09f0e10538522f8e97",
+      "byte_size": 3829,
+      "exists": true,
+      "referenced_by": [
+        "episode:issue-480-default-hath0r-mcp-json"
+      ],
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
     },
     "src/hath0r_cli/bots/memory_manager.py": {
-      "sha256": "sha256:9223994972bc2fcdc1e579b5292cf90938ddd65fc04d023470eab3dc2119954b",
-      "byte_size": 101889,
+      "sha256": "sha256:6094787f1f360f20f473cd1f37add99f63fb4bdfe408a8c65cfc97b160310888",
+      "byte_size": 102207,
       "exists": true,
       "referenced_by": [
         "episode:issue-476-memory-file-hashing",
-        "episode:issue-478-unignore-graph-folders"
+        "episode:issue-478-unignore-graph-folders",
+        "episode:issue-480-default-hath0r-mcp-json"
       ],
-      "updated_at": "2026-10-16T14:56:43.798013+00:00"
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
     },
     "src/hath0r_cli/bots/onboarding.py": {
-      "sha256": "sha256:d2070d1ce11136bbc45c4ab7935c0d20ce7863aaf425651fe922fa99400b3db3",
-      "byte_size": 23929,
+      "sha256": "sha256:e7f705cadb343baca742241133b3ead20679ccb6c1bf391b1d49211f765f3ee4",
+      "byte_size": 24076,
       "exists": true,
       "referenced_by": [
-        "episode:issue-478-unignore-graph-folders"
+        "episode:issue-478-unignore-graph-folders",
+        "episode:issue-480-default-hath0r-mcp-json"
       ],
-      "updated_at": "2026-10-16T14:56:43.798013+00:00"
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
+    },
+    "src/hath0r_cli/commands/mcp.py": {
+      "sha256": "sha256:9d79e9a77bd5e7048dc24a434b7021178d4ec1b024a16df2d416d3677890f965",
+      "byte_size": 30640,
+      "exists": true,
+      "referenced_by": [
+        "episode:issue-480-default-hath0r-mcp-json"
+      ],
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
     },
     "src/hath0r_cli/commands/memory.py": {
       "sha256": "sha256:32bb15d6d92f77da0d176764925e41cbb3e7f7c84b6ddb7bf49364fb3d777a5e",
@@ -104,7 +149,25 @@
       "referenced_by": [
         "episode:issue-476-memory-file-hashing"
       ],
-      "updated_at": "2026-10-16T14:56:43.798013+00:00"
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
+    },
+    "src/hath0r_cli/mcp.py": {
+      "sha256": "sha256:ec4ee2b9e81ffb38a3c7392e0b6c425c49f4e3f8e4415d1e8264b44aa3d16a80",
+      "byte_size": 32893,
+      "exists": true,
+      "referenced_by": [
+        "episode:issue-480-default-hath0r-mcp-json"
+      ],
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
+    },
+    "tests/unit/test_mcp.py": {
+      "sha256": "sha256:86286b729fa650c6c4a89bcc062903fe3b2b2e328953ef4bcad6a5466d6f7c03",
+      "byte_size": 11190,
+      "exists": true,
+      "referenced_by": [
+        "episode:issue-480-default-hath0r-mcp-json"
+      ],
+      "updated_at": "2026-10-16T15:29:36.552538+00:00"
     }
   }
 }
