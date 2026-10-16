@@ -128,3 +128,104 @@ def test_memory_cli_commands(tmp_path: Path) -> None:
         res_read = runner.invoke(main, ["memory", "read", "rules"])
         assert res_read.exit_code == 0
         assert "Rules" in res_read.output or "CR-CLI-ENTRY-001" in res_read.output
+
+
+def test_micro_memory_session_lifecycle_and_budget(tmp_path: Path) -> None:
+    bot = MemoryManagerBot(cwd=tmp_path)
+    bot.initialize_memory()
+
+    # Start first session
+    s1 = bot.session_start(
+        focus="Micro Memory Session Implementation",
+        session_id="session:test-001",
+        task_id="issue-474",
+        role="developer",
+        force_new=True,
+    )
+    assert s1["success"] is True
+    assert s1["session"]["session_id"] == "session:test-001"
+    assert s1["session"]["read_count"] >= 1
+
+    # Read session
+    r1 = bot.session_read(note="Reading micro session capsule")
+    assert r1["success"] is True
+    assert r1["session"]["read_count"] >= 2
+
+    # Write multiple micro entries to exercise <2KB budget enforcement
+    for idx in range(18):
+        w_res = bot.session_write(
+            kind="finding",
+            summary=f"Finding #{idx}: verifying micro-session capsule stays under 2048 bytes budget.",
+            tags=["session", f"item-{idx}"],
+        )
+        assert w_res["success"] is True
+        assert w_res["session"]["capsule_bytes"] <= bot.MAX_SESSION_CAPSULE_BYTES
+
+    # End first session
+    e1 = bot.session_end(summary="Completed first micro session", sync_agentgraph=False)
+    assert e1["success"] is True
+    assert e1["session"]["status"] == "completed"
+
+    # Start second session and verify parent_session_id + PRECEDES edge in graph.json
+    s2 = bot.session_start(
+        focus="Follow-up Micro Session",
+        session_id="session:test-002",
+        force_new=True,
+    )
+    assert s2["success"] is True
+    assert s2["session"]["parent_session_id"] == "session:test-001"
+    bot.session_write(kind="decision", summary="Verified PRECEDES lineage edge between sessions.")
+
+    graph = bot._load_graph()
+    precedes_edges = [
+        e
+        for e in graph.get("edges", [])
+        if e.get("relation") == "PRECEDES"
+        and e.get("source") == "session:test-001"
+        and e.get("target") == "session:test-002"
+    ]
+    assert len(precedes_edges) == 1
+
+    st = bot.session_status()
+    assert st["success"] is True
+    assert st["read_verified"] is True
+    assert st["write_verified"] is True
+
+
+def test_memory_cli_session_subcommands(tmp_path: Path) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem(temp_dir=tmp_path):
+        res_start = runner.invoke(
+            main,
+            ["memory", "session", "start", "--focus", "CLI Session Test", "--id", "session:cli-1", "--new"],
+        )
+        assert res_start.exit_code == 0
+
+        res_read = runner.invoke(main, ["memory", "session", "read", "--note", "CLI session read check"])
+        assert res_read.exit_code == 0
+
+        res_write = runner.invoke(
+            main,
+            [
+                "memory",
+                "session",
+                "write",
+                "--kind",
+                "decision",
+                "--summary",
+                "Recorded micro-session write via CLI",
+                "--tags",
+                "cli,session",
+            ],
+        )
+        assert res_write.exit_code == 0
+
+        res_status = runner.invoke(main, ["memory", "session", "status"])
+        assert res_status.exit_code == 0
+
+        res_end = runner.invoke(
+            main,
+            ["memory", "session", "end", "--summary", "Finished CLI session test", "--no-sync"],
+        )
+        assert res_end.exit_code == 0
+

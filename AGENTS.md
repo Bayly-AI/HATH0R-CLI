@@ -50,10 +50,11 @@
 
 ---
 
-## CR-MEMORY-COMPOUND-001 (Mandatory `.hath0r/memory` Repository Presence & Pre-Announcement MemoryGraph Compounding — CANONICAL)
-- **Universal `.hath0r/memory` Folder**: Every repository across `/Users/raybayly/Development` MUST maintain `.hath0r/memory/graph.json`, `core_rules.md`, and `architecture.md` (`hath0r memory init` / `hath0r memory ensure-all`).
+## CR-MEMORY-COMPOUND-001 (Mandatory `.hath0r/memory` Repository Presence, Micro Memory Sessions & Pre-Announcement MemoryGraph Compounding — CANONICAL)
+- **Universal `.hath0r/memory` & `.hath0r/memory/sessions` Folder**: Every repository across `/Users/raybayly/Development` MUST maintain `.hath0r/memory/graph.json`, `.hath0r/memory/sessions/current.json`, `.hath0r/memory/sessions/latest.json`, `core_rules.md`, and `architecture.md` (`hath0r memory init` / `hath0r memory ensure-all`).
+- **True Micro Memory Session Read & Write**: Every session MUST read and write a compact (<2KB) micro memory session (`hath0r memory session start|read`, `hath0r memory session write`, `hath0r memory session end`) linked via `PRECEDES` edges in `.hath0r/memory/graph.json`.
 - **Pre-Announcement Memory Compounding**: Every task MUST compound structured knowledge (`episode`, `decision`, `fact`, `insight`, `concept`, or `rule`) into `.hath0r/memory/graph.json` prior to announcing complete (`hath0r memory compound` + `hath0r memory verify`).
-- **Hard Gate & Immediate AgentGraph Sync**: `TaskAnnouncerBot.announce_complete`, `EndOfTaskBot`, and `CleanReposWorkflowBot` enforce `MemoryManagerBot.verify_compounded()` before announcing complete and synchronize `.hath0r/agentgraph/snapshot.json` on every memory mutation.
+- **Hard Gate & Immediate AgentGraph Sync**: `TaskAnnouncerBot.announce_complete`, `EndOfTaskBot`, and `CleanReposWorkflowBot` enforce `MemoryManagerBot.verify_compounded()` (`read_count >= 1`, `write_count >= 1`, and `compounded_nodes_count >= 1`) before announcing complete and synchronize `.hath0r/agentgraph/snapshot.json` on every memory mutation.
 
 ---
 

@@ -13,7 +13,7 @@ from hath0r_cli.common import (
     console,
 )
 
-NODE_TYPES = ["rule", "concept", "decision", "fact", "topic", "episode", "insight"]
+NODE_TYPES = ["rule", "concept", "decision", "fact", "topic", "episode", "insight", "session"]
 RELATION_TYPES = ["ENFORCES", "REQUIRES", "DERIVES_FROM", "SUPERSEDES", "RELATES_TO", "RESOLVES", "PRECEDES"]
 
 
@@ -223,13 +223,14 @@ def memory_reflect(ctx: click.Context, threshold: int, max_insights: int, dry_ru
 @memory.command("verify")
 @click.option("--since", default=None, help="Verify knowledge compounded at or after ISO timestamp.")
 @click.option("--task", "task_id", default=None, help="Verify knowledge compounded for a specific task/issue.")
+@click.option("--no-session", is_flag=True, help="Skip micro memory session read/write check.")
 @click.pass_context
-def memory_verify(ctx: click.Context, since: str | None, task_id: str | None) -> None:
-    """Verify CR-MEMORY-COMPOUND-001 pre-announcement gate on .hath0r/memory/graph.json."""
+def memory_verify(ctx: click.Context, since: str | None, task_id: str | None, no_session: bool) -> None:
+    """Verify CR-MEMORY-COMPOUND-001 pre-announcement gate on .hath0r/memory/graph.json and micro session."""
     from hath0r_cli.bots.memory_manager import MemoryManagerBot
 
     bot = MemoryManagerBot()
-    res = bot.verify_compounded(since=since, task_id=task_id)
+    res = bot.verify_compounded(since=since, task_id=task_id, require_session=not no_session)
     ok = bool(res.get("compounded"))
 
     response = _build_response(
@@ -242,9 +243,14 @@ def memory_verify(ctx: click.Context, since: str | None, task_id: str | None) ->
     def _text() -> None:
         if ok:
             latest = res.get("latest_node") or {}
-            console.print("[bold green]✓ MemoryGraph Pre-Announcement Gate PASSED (CR-MEMORY-COMPOUND-001)[/bold green]")
+            sess = res.get("session") or {}
+            console.print("[bold green]✓ MemoryGraph & Micro Session Pre-Announcement Gate PASSED (CR-MEMORY-COMPOUND-001)[/bold green]")
             console.print(
                 f"  • Total Nodes: {res.get('total_nodes')} | Compounded Nodes: {res.get('compounded_nodes_count')} | Edges: {res.get('total_edges')}"
+            )
+            console.print(
+                f"  • Micro Session: [cyan]{sess.get('session_id')}[/cyan] "
+                f"(reads={sess.get('read_count', 0)}, writes={sess.get('write_count', 0)}, {sess.get('byte_size', 0)}B / 2048B)"
             )
             console.print(f"  • Latest Compounded Node: [cyan]{latest.get('id')}[/cyan] — {latest.get('label')}")
         else:
@@ -261,7 +267,7 @@ def memory_verify(ctx: click.Context, since: str | None, task_id: str | None) ->
 @click.option("--dry-run", is_flag=True, help="Simulate provisioning without writing to disk.")
 @click.pass_context
 def memory_ensure_all(ctx: click.Context, root_dir: str | None, no_sync: bool, dry_run: bool) -> None:
-    """Provision and verify .hath0r/memory/graph.json across all active repositories."""
+    """Provision and verify .hath0r/memory/graph.json and micro sessions across all active repositories."""
     from hath0r_cli.bots.memory_manager import MemoryManagerBot
 
     bot = MemoryManagerBot()
@@ -276,19 +282,23 @@ def memory_ensure_all(ctx: click.Context, root_dir: str | None, no_sync: bool, d
     )
 
     def _text() -> None:
-        table = Table(title=f"MemoryGraph Provisioning Across {res.get('repos_count', 0)} Repositories")
+        table = Table(title=f"MemoryGraph & Micro Session Provisioning Across {res.get('repos_count', 0)} Repositories")
         table.add_column("Repository", style="bold")
         table.add_column("Compounded", justify="center")
+        table.add_column("Session R/W", justify="center")
         table.add_column("Nodes", justify="right")
         table.add_column("Edges", justify="right")
         table.add_column("AgentGraph Synced", justify="center")
 
         for r in res.get("repos", []):
             comp = "[green]✓[/green]" if r.get("compounded") else "[red]✗[/red]"
+            rw_ok = r.get("session_read_verified") and r.get("session_write_verified")
+            rw_str = "[green]✓[/green]" if rw_ok else "[red]✗[/red]"
             ag = "[green]✓[/green]" if r.get("agentgraph_synced") else "[yellow]-[/yellow]"
             table.add_row(
                 str(r.get("repo")),
                 comp,
+                rw_str,
                 str(r.get("total_nodes", 0)),
                 str(r.get("total_edges", 0)),
                 ag,
@@ -370,6 +380,7 @@ def memory_search(
             "fact": "green",
             "episode": "yellow",
             "insight": "bright_magenta",
+            "session": "bright_cyan",
         }
 
         for n in nodes:
@@ -399,3 +410,244 @@ def memory_search(
             console.print(tree)
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
+@memory.group("session")
+def memory_session() -> None:
+    """Manage true Micro Memory Sessions (.hath0r/memory/sessions/) read and written on every session."""
+    pass
+
+
+@memory_session.command("start")
+@click.option("--focus", "-f", default=None, help="Initial focus or objective for this micro memory session.")
+@click.option("--session-id", "--id", "-s", "session_id", default=None, help="Explicit session ID.")
+@click.option("--task", "task_id", default=None, help="Optional task or issue identifier.")
+@click.option("--role", default=None, help="Optional operator or agent role.")
+@click.option("--new", "force_new", is_flag=True, help="Force creation of a new session linked to prior session.")
+@click.option("--top-k", default=5, type=int, help="Number of top active MemoryGraph nodes to recall.")
+@click.option("--dry-run", is_flag=True, help="Simulate session start without writing to disk.")
+@click.pass_context
+def memory_session_start(
+    ctx: click.Context,
+    focus: str | None,
+    session_id: str | None,
+    task_id: str | None,
+    role: str | None,
+    force_new: bool,
+    top_k: int,
+    dry_run: bool,
+) -> None:
+    """Start a new Micro Memory Session (.hath0r/memory/sessions/current.json) and recall top nodes."""
+    from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+    bot = MemoryManagerBot()
+    res = bot.session_start(
+        focus=focus,
+        session_id=session_id,
+        task_id=task_id,
+        role=role,
+        force_new=force_new,
+        top_k=top_k,
+        dry_run=dry_run,
+    )
+
+    response = _build_response(
+        ctx,
+        command="memory.session.start",
+        state="ok" if res.get("success") else "error",
+        data=res,
+        dry_run=dry_run,
+    )
+
+    def _text() -> None:
+        sess = res.get("session", {})
+        console.print(f"[bold green]✓ {res.get('message')}[/bold green]")
+        console.print(f"  • Session ID: [cyan]{sess.get('session_id')}[/cyan] (Prior: {sess.get('prior_session_id') or 'none'})")
+        console.print(f"  • Focus: {sess.get('active_focus')}")
+        console.print(f"  • Reads: {sess.get('read_count')} | Writes: {sess.get('write_count')} | Size: {res.get('byte_size')}B / 2048B")
+        console.print(f"  • Recalled Nodes: {len(sess.get('recalled_nodes', []))}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@memory_session.command("read")
+@click.option("--focus", "-f", default=None, help="Optional focus query to refresh recalled MemoryGraph nodes.")
+@click.option("--note", "-n", default=None, help="Optional note for this session read.")
+@click.option("--top-k", default=5, type=int, help="Number of top active MemoryGraph nodes to recall.")
+@click.option("--dry-run", is_flag=True, help="Simulate session read without writing to disk.")
+@click.pass_context
+def memory_session_read(
+    ctx: click.Context,
+    focus: str | None,
+    note: str | None,
+    top_k: int,
+    dry_run: bool,
+) -> None:
+    """Read the active Micro Memory Session capsule (<2KB), auto-starting if absent."""
+    from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+    bot = MemoryManagerBot()
+    res = bot.session_read(focus=focus, note=note, top_k=top_k, dry_run=dry_run)
+
+    response = _build_response(
+        ctx,
+        command="memory.session.read",
+        state="ok" if res.get("success") else "error",
+        data=res,
+        dry_run=dry_run,
+    )
+
+    def _text() -> None:
+        sess = res.get("session", {})
+        console.print(f"[bold green]✓ {res.get('message')}[/bold green]")
+        console.print(f"  • Focus: [bold]{sess.get('active_focus')}[/bold]")
+        if sess.get("prior_summary"):
+            console.print(f"  • Prior Summary: {sess.get('prior_summary')}")
+        recalled = sess.get("recalled_nodes", [])
+        if recalled:
+            console.print("  • Recalled MemoryGraph Nodes:")
+            for rn in recalled:
+                console.print(f"    - [cyan]{rn.get('id')}[/cyan] ({rn.get('type')}): {rn.get('label')}")
+        entries = sess.get("micro_entries", [])
+        if entries:
+            console.print("  • Session Micro-Entries:")
+            for me in entries:
+                console.print(f"    - [{me.get('kind')}] {me.get('summary')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@memory_session.command("write")
+@click.argument("summary_arg", required=False, default=None)
+@click.option("--summary", "-m", "summary_opt", default=None, help="Summary of the micro-memory observation or decision.")
+@click.option(
+    "--kind",
+    "-k",
+    type=click.Choice(
+        ["observation", "decision", "finding", "action", "note", "tool", "hypothesis", "blocker", "milestone", "compound"],
+        case_sensitive=False,
+    ),
+    default="observation",
+    help="Kind of micro-memory entry.",
+)
+@click.option("--tag", "tags_tuple", multiple=True, help="Tag(s) to attach (can be specified multiple times).")
+@click.option("--tags", default="", help="Comma-separated list of tags.")
+@click.option("--focus", "-f", default=None, help="Update active session focus.")
+@click.option("--next-step", "next_steps_tuple", multiple=True, help="Next step action item(s).")
+@click.option("--node-id", default=None, help="Optional compounded MemoryGraph node ID to link.")
+@click.option("--dry-run", is_flag=True, help="Simulate micro-session write without writing to disk.")
+@click.pass_context
+def memory_session_write(
+    ctx: click.Context,
+    summary_arg: str | None,
+    summary_opt: str | None,
+    kind: str,
+    tags_tuple: tuple[str, ...],
+    tags: str,
+    focus: str | None,
+    next_steps_tuple: tuple[str, ...],
+    node_id: str | None,
+    dry_run: bool,
+) -> None:
+    """Write a compact micro-memory entry into .hath0r/memory/sessions/current.json (<2KB)."""
+    from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+    resolved_summary = (summary_opt or summary_arg or "").strip()
+    if not resolved_summary:
+        raise click.UsageError("Provide a micro-memory summary via argument or --summary / -m.")
+
+    tag_list = list(tags_tuple) + ([t.strip() for t in tags.split(",") if t.strip()] if tags else [])
+    next_steps = list(next_steps_tuple) if next_steps_tuple else None
+
+    bot = MemoryManagerBot()
+    res = bot.session_write(
+        summary=resolved_summary,
+        kind=kind,
+        tags=tag_list,
+        focus=focus,
+        next_steps=next_steps,
+        node_id=node_id,
+        dry_run=dry_run,
+    )
+
+    response = _build_response(
+        ctx,
+        command="memory.session.write",
+        state="ok" if res.get("success") else "error",
+        data=res,
+        dry_run=dry_run,
+    )
+
+    def _text() -> None:
+        console.print(f"[bold green]✓ {res.get('message')}[/bold green]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@memory_session.command("end")
+@click.option("--summary", "-m", default=None, help="Final milestone summary for the micro-session.")
+@click.option("--next-step", "next_steps_tuple", multiple=True, help="Handoff next step(s) for the following session.")
+@click.option("--no-sync", is_flag=True, help="Skip immediate AgentGraph synchronization.")
+@click.option("--dry-run", is_flag=True, help="Simulate session flush without writing to disk.")
+@click.pass_context
+def memory_session_end(
+    ctx: click.Context,
+    summary: str | None,
+    next_steps_tuple: tuple[str, ...],
+    no_sync: bool,
+    dry_run: bool,
+) -> None:
+    """Flush and finalize the active Micro Memory Session into .hath0r/memory/sessions/ and graph.json."""
+    from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+    next_steps = list(next_steps_tuple) if next_steps_tuple else None
+    bot = MemoryManagerBot()
+    res = bot.session_end(
+        summary=summary,
+        next_steps=next_steps,
+        sync_agentgraph=not no_sync,
+        dry_run=dry_run,
+    )
+
+    response = _build_response(
+        ctx,
+        command="memory.session.end",
+        state="ok" if res.get("success") else "error",
+        data=res,
+        dry_run=dry_run,
+    )
+
+    def _text() -> None:
+        console.print(f"[bold green]✓ {res.get('message')}[/bold green]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@memory_session.command("status")
+@click.pass_context
+def memory_session_status(ctx: click.Context) -> None:
+    """Check active Micro Memory Session read/write counts and <2KB budget status."""
+    from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+    bot = MemoryManagerBot()
+    res = bot.session_status()
+    ok = bool(res.get("read_verified") and res.get("write_verified"))
+
+    response = _build_response(
+        ctx,
+        command="memory.session.status",
+        state="ok" if res.get("success") else "error",
+        data=res,
+    )
+
+    def _text() -> None:
+        color = "green" if ok else "yellow"
+        console.print(f"[bold {color}]Micro Memory Session Status ({res.get('status')})[/bold {color}]")
+        console.print(f"  • Session ID: [cyan]{res.get('session_id')}[/cyan] (Prior: {res.get('prior_session_id') or 'none'})")
+        console.print(f"  • Read Count: {res.get('read_count')} (Verified: {res.get('read_verified')})")
+        console.print(f"  • Write Count: {res.get('write_count')} (Verified: {res.get('write_verified')})")
+        console.print(f"  • Capsule Size: {res.get('byte_size')}B / {res.get('max_bytes')}B (Within Budget: {res.get('within_budget')})")
+        console.print(f"  • Active Focus: {res.get('active_focus')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+

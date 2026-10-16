@@ -435,6 +435,10 @@ class CleanReposWorkflowBot:
                 from hath0r_cli.bots.memory_manager import MemoryManagerBot
 
                 mem_bot = MemoryManagerBot(cwd=repo_path)
+                mem_bot.session_read(
+                    note=f"CleanReposWorkflowBot reading micro-session for {repo_path.name}",
+                    dry_run=False,
+                )
                 mem_compound = mem_bot.compound_memory(
                     node_id=f"episode:clean-repo-{repo_path.name.lower().replace(' ', '-')}",
                     node_type="episode",
@@ -447,11 +451,17 @@ class CleanReposWorkflowBot:
                     sync_agentgraph=False,
                     dry_run=False,
                 )
+                sess_end = mem_bot.session_end(
+                    summary=f"Clean Repo Lifecycle completed for {repo_path.name}.",
+                    sync_agentgraph=False,
+                    dry_run=False,
+                )
                 kb_synced = (repo_path / ".hath0r" / "knowledgebase").exists() or (repo_path / "AGENTS.md").exists()
                 repo_res["steps"]["6_share_knowledge"] = {
                     "synced": kb_synced,
                     "memory_compounded": mem_compound.get("success", False),
                     "memory_node": (mem_compound.get("node") or {}).get("id"),
+                    "micro_session": (sess_end.get("session") or {}).get("session_id"),
                 }
 
                 # Step 7: Update documentation & AgentGraph synchronization

@@ -305,6 +305,10 @@ class EndOfTaskBot:
         )
         history.append({"phase": "share_knowledge", "result": kb_res})
 
+        self.memory_bot.session_read(
+            note=f"EndOfTaskBot reading micro-session before compounding PR #{current_pr}",
+            dry_run=False,
+        )
         mem_res = self.memory_bot.compound_memory(
             node_id=f"episode:pr-{current_pr}",
             node_type="episode",
@@ -317,7 +321,12 @@ class EndOfTaskBot:
             sync_agentgraph=True,
             dry_run=False,
         )
-        history.append({"phase": "compound_memory", "result": mem_res})
+        sess_end_res = self.memory_bot.session_end(
+            summary=f"Completed PR #{current_pr} ({target_branch or 'feature'}) via EndOfTaskBot.",
+            sync_agentgraph=True,
+            dry_run=False,
+        )
+        history.append({"phase": "compound_memory", "result": mem_res, "session": sess_end_res})
 
         # Step 7: Announce completion
         ann_res = self.announcer_bot.announce_complete(
