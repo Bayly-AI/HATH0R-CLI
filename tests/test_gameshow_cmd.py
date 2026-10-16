@@ -1,14 +1,12 @@
 """Tests for HATH0R Gameshow CLI commands and bot."""
 
-import json
 import os
 import tempfile
-import pytest
+
 from click.testing import CliRunner
+from hath0r_engine.training.gameshow_models import EvaluationCard, TournamentDeckState
 
 from hath0r_cli.cli import main
-from hath0r_cli.bots.gameshow_bot import HathorGameshowBot
-from hath0r_engine.training.gameshow_models import EvaluationCard, TournamentDeckState
 
 
 def test_gameshow_cli_status():

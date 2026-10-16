@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from click.testing import CliRunner
+
 import pytest
+from click.testing import CliRunner
 
 from hath0r_cli.bots.orient_bot import OrientBot
 from hath0r_cli.commands.orient import orient_cmd

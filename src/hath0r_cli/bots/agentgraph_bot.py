@@ -398,6 +398,36 @@ class AgentGraphBot:
             except Exception:
                 pass
 
+        # Extract CR-* rule references from AGENTS.md / rules.md if not already present as rule files
+        existing_rule_ids = {n["id"] for n in nodes if n.get("plane") == "rules" and n.get("type") == "rule_policy"}
+        cr_text_sources: List[str] = []
+        for af in agents_files:
+            if ".git" not in af.parts and ".venv" not in af.parts and af.is_file():
+                try:
+                    cr_text_sources.append(af.read_text(encoding="utf-8", errors="ignore"))
+                except Exception:
+                    pass
+        for cr_match in sorted(set(re.findall(r"\b(CR-[A-Z0-9-]+)\b", "\n".join(cr_text_sources), re.IGNORECASE))):
+            cr_upper = cr_match.upper()
+            rid = f"rule:{cr_upper.lower()}"
+            if rid not in existing_rule_ids:
+                existing_rule_ids.add(rid)
+                nodes.append(
+                    {
+                        "id": rid,
+                        "plane": "rules",
+                        "type": "rule_policy",
+                        "label": f"Rule {cr_upper}",
+                        "content": f"Governance policy rule {cr_upper} referenced in AGENTS.md",
+                        "properties": {
+                            "rule_code": cr_upper,
+                            "priority": 4,
+                            "restricted_actions": [],
+                        },
+                        "is_current": True,
+                    }
+                )
+
         # 3. Ingest Contracts (*.schema.json)
         contracts_dir = root / "contracts"
         if contracts_dir.is_dir():

@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
   "graph_id": "agentgraph-hathor-cli",
-  "timestamp": "2026-10-16T11:48:15.359904+00:00",
+  "timestamp": "2026-10-16T12:00:21.876392+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -267,6 +267,162 @@
       "content": "# CR-MEMORY-COMPOUND-001: Mandatory `.hath0r/memory` Repository Presence & Pre-Announcement MemoryGraph Compounding (CRITICAL — org-wide)\n\n> **Status**: Active · **Tier**: Org Invariant (`RulePriority.ORG_INVARIANT`)  \n> **Scope**: All repositories across `/Users/raybayly/Development` (`OpenSource`, `1-Nation`, `BAI`, `Ray`, `Websites`)  \n> **Enforced by**: `hath0r memory`, `MemoryManagerBot`, `TaskAnnouncerBot`, `EndOfTaskBot`, `CleanReposWorkflowBot`, `AgentGraphBot`\n\n---\n\n## 1. Universal `.hath0r/memory` Repository Invariant\n\n1. Every active project repository in `/Users/raybayly/Development` **MUST** maintain an initialized `.hath0r/memory/` directory containing:\n   - `.hath0r/memory/graph.json`: The canonical serialized `MemoryGraph` (`schema_version: \"1.0.0\"`), storing typed semantic and episodic nodes (`rule`, `concept`, `decision`, `fact`, `episode`, `topic`, `insight`) and relational edges (`ENFORCES`, `REQUIRES`, `DERIVES_FROM`, `SUPERSEDES`, `RELATES_TO`, `RESOLVES`, `PRECEDES`).\n   - `.hath0r/memory/core_rules.md`: Canonical local rule summary.\n   - `.hath0r/memory/architecture.md`: Repository architectural orientation summary.\n2. During repository onboarding (`hath0r init`), orientation (`hath0r orient`), or repository hygiene (`hath0r repo clean` / `clean-repos`), `MemoryManagerBot.ensure_memory_space()` **MUST** verify and initialize `.hath0r/memory/graph.json` if missing.\n3. Suite-wide compliance is audited and enforced via `hath0r memory ensure-all`.\n\n---\n\n##",
       "properties": {
         "path": "docs/governance/rules/cr-memory-compound-001.md",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-bai-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-BAI-001",
+      "content": "Governance policy rule CR-BAI-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-BAI-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-agent-substrate-002",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-AGENT-SUBSTRATE-002",
+      "content": "Governance policy rule CR-CLI-AGENT-SUBSTRATE-002 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-AGENT-SUBSTRATE-002",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-feature-standard-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-FEATURE-STANDARD-001",
+      "content": "Governance policy rule CR-CLI-FEATURE-STANDARD-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-FEATURE-STANDARD-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-finops-verifier-002",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-FINOPS-VERIFIER-002",
+      "content": "Governance policy rule CR-CLI-FINOPS-VERIFIER-002 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-FINOPS-VERIFIER-002",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-knowledge-cag-002",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-KNOWLEDGE-CAG-002",
+      "content": "Governance policy rule CR-CLI-KNOWLEDGE-CAG-002 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-KNOWLEDGE-CAG-002",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-mcp-ecosystem-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-MCP-ECOSYSTEM-001",
+      "content": "Governance policy rule CR-CLI-MCP-ECOSYSTEM-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-MCP-ECOSYSTEM-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-tech-debt-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-TECH-DEBT-001",
+      "content": "Governance policy rule CR-CLI-TECH-DEBT-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-TECH-DEBT-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-hath0r-init-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-HATH0R-INIT-001",
+      "content": "Governance policy rule CR-HATH0R-INIT-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-HATH0R-INIT-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-branch-gov-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-BRANCH-GOV-001",
+      "content": "Governance policy rule CR-BRANCH-GOV-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-BRANCH-GOV-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-first-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-FIRST-001",
+      "content": "Governance policy rule CR-CLI-FIRST-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-FIRST-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-hath0r-root-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-HATH0R-ROOT-001",
+      "content": "Governance policy rule CR-HATH0R-ROOT-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-HATH0R-ROOT-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-kb-tower-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-KB-TOWER-001",
+      "content": "Governance policy rule CR-KB-TOWER-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-KB-TOWER-001",
         "priority": 4,
         "restricted_actions": []
       },
@@ -4059,6 +4215,78 @@
     },
     {
       "source": "rule:cr-memory-compound-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-bai-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-agent-substrate-002",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-feature-standard-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-finops-verifier-002",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-knowledge-cag-002",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-mcp-ecosystem-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-tech-debt-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-hath0r-init-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-branch-gov-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-first-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-hath0r-root-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-kb-tower-001",
       "target": "role:developer",
       "relation": "GOVERNS",
       "is_current": true
