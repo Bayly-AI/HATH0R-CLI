@@ -59,6 +59,6 @@ def evals_redteam(ctx: click.Context, component: str) -> None:
 
 
 # Register gameshow subcommand under evals group
-from hath0r_cli.commands.gameshow import gameshow_cmd
+from hath0r_cli.commands.gameshow import gameshow_cmd  # noqa: E402
 
 evals_cmd.add_command(gameshow_cmd, name="gameshow")

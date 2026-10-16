@@ -48,6 +48,7 @@ def test_eot_bot_polling_success() -> None:
     bot.janitor_bot.pull_development = MagicMock(return_value={"success": True, "output": "Already up to date."})
     bot.janitor_bot.prune_branch = MagicMock(return_value={"success": True, "branch": "feature/101-test"})
     bot.doc_bot.share_knowledge = MagicMock(return_value={"success": True, "target_kb": ".hath0r/knowledgebase"})
+    bot.memory_bot.compound_memory = MagicMock(return_value={"success": True, "node": {"id": "episode:pr-101"}})
     bot.announcer_bot.announce_complete = MagicMock(return_value={"success": True, "message": "Done"})
 
     res = bot.run_bot(pr_number=101, branch="feature/101-test", dry_run=False)
@@ -56,6 +57,7 @@ def test_eot_bot_polling_success() -> None:
     bot.pr_bot.merge_pr.assert_called_once()
     bot.janitor_bot.pull_development.assert_called_once()
     bot.janitor_bot.prune_branch.assert_called_once()
+    bot.memory_bot.compound_memory.assert_called_once()
 
 
 def test_eot_bot_sonar_failure_aborts() -> None:

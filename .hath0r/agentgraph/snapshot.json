@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
   "graph_id": "agentgraph-hathor-cli",
-  "timestamp": "2026-10-11T18:30:15.209971+00:00",
+  "timestamp": "2026-10-16T12:00:21.876392+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -53,6 +53,30 @@
       "properties": {
         "path": "tests/AGENTS.md",
         "subsystem": "tests"
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:agents-hath0r-fileset-1.6.0",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "AGENTS.md (hath0r-fileset-1.6.0)",
+      "content": "# AGENTS.md — HATH0R CLI (OpenSource Control Tower)\n\n> Role: **OpenSource Project control tower + operator/developer CLI (`hath0r`)** · group `hath0r-opensource`  \n> Updated: 2026-09-23\n\n## Group membership (CRITICAL)\n\n| Field | Value |\n|-------|-------|\n| Group | `hath0r-opensource` |\n| Project | **OpenSource Project** |\n| Group root | `/Users/raybayly/Development/OpenSource` |\n| **Control tower** | **this repo** (`HATH0R-CLI`) |\n| This product | `HATH0R-CLI` |\n| GitHub | `Bayly-AI/HATH0R-CLI` |\n| Local path | `/Users/raybayly/Development/OpenSource/HATH0R-CLI` |\n| Canonical KB | `/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase` |\n| Operator CLI | `hath0r` |\n| KB mode | stub → group hub |\n| Tower flag | `is_control_tower: true` |\n\n### Canonical siblings (OpenSource Project members)\n\nEvery git repo under the group root is part of the OpenSource Project. Current canonical set:\n\n- **Control tower / CLI**: `/Users/raybayly/Development/OpenSource/HATH0R-CLI` → `Bayly-AI/HATH0R",
+      "properties": {
+        "path": "release/hath0r-fileset-1.6.0/AGENTS.md",
+        "subsystem": "hath0r-fileset-1.6.0"
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:agents-hath0r-fileset-1.5.0",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "AGENTS.md (hath0r-fileset-1.5.0)",
+      "content": "# AGENTS.md — HATH0R CLI (OpenSource Control Tower)\n\n> Role: **OpenSource Project control tower + operator/developer CLI (`hath0r`)** · group `hath0r-opensource`  \n> Updated: 2026-09-23\n\n## Group membership (CRITICAL)\n\n| Field | Value |\n|-------|-------|\n| Group | `hath0r-opensource` |\n| Project | **OpenSource Project** |\n| Group root | `/Users/raybayly/Development/OpenSource` |\n| **Control tower** | **this repo** (`HATH0R-CLI`) |\n| This product | `HATH0R-CLI` |\n| GitHub | `Bayly-AI/HATH0R-CLI` |\n| Local path | `/Users/raybayly/Development/OpenSource/HATH0R-CLI` |\n| Canonical KB | `/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase` |\n| Operator CLI | `hath0r` |\n| KB mode | stub → group hub |\n| Tower flag | `is_control_tower: true` |\n\n### Canonical siblings (OpenSource Project members)\n\nEvery git repo under the group root is part of the OpenSource Project. Current canonical set:\n\n- **Control tower / CLI**: `/Users/raybayly/Development/OpenSource/HATH0R-CLI` → `Bayly-AI/HATH0R",
+      "properties": {
+        "path": "release/hath0r-fileset-1.5.0/AGENTS.md",
+        "subsystem": "hath0r-fileset-1.5.0"
       },
       "is_current": true
     },
@@ -236,6 +260,175 @@
       "is_current": true
     },
     {
+      "id": "rule:cr-memory-compound-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule cr-memory-compound-001",
+      "content": "# CR-MEMORY-COMPOUND-001: Mandatory `.hath0r/memory` Repository Presence & Pre-Announcement MemoryGraph Compounding (CRITICAL — org-wide)\n\n> **Status**: Active · **Tier**: Org Invariant (`RulePriority.ORG_INVARIANT`)  \n> **Scope**: All repositories across `/Users/raybayly/Development` (`OpenSource`, `1-Nation`, `BAI`, `Ray`, `Websites`)  \n> **Enforced by**: `hath0r memory`, `MemoryManagerBot`, `TaskAnnouncerBot`, `EndOfTaskBot`, `CleanReposWorkflowBot`, `AgentGraphBot`\n\n---\n\n## 1. Universal `.hath0r/memory` Repository Invariant\n\n1. Every active project repository in `/Users/raybayly/Development` **MUST** maintain an initialized `.hath0r/memory/` directory containing:\n   - `.hath0r/memory/graph.json`: The canonical serialized `MemoryGraph` (`schema_version: \"1.0.0\"`), storing typed semantic and episodic nodes (`rule`, `concept`, `decision`, `fact`, `episode`, `topic`, `insight`) and relational edges (`ENFORCES`, `REQUIRES`, `DERIVES_FROM`, `SUPERSEDES`, `RELATES_TO`, `RESOLVES`, `PRECEDES`).\n   - `.hath0r/memory/core_rules.md`: Canonical local rule summary.\n   - `.hath0r/memory/architecture.md`: Repository architectural orientation summary.\n2. During repository onboarding (`hath0r init`), orientation (`hath0r orient`), or repository hygiene (`hath0r repo clean` / `clean-repos`), `MemoryManagerBot.ensure_memory_space()` **MUST** verify and initialize `.hath0r/memory/graph.json` if missing.\n3. Suite-wide compliance is audited and enforced via `hath0r memory ensure-all`.\n\n---\n\n##",
+      "properties": {
+        "path": "docs/governance/rules/cr-memory-compound-001.md",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-bai-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-BAI-001",
+      "content": "Governance policy rule CR-BAI-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-BAI-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-agent-substrate-002",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-AGENT-SUBSTRATE-002",
+      "content": "Governance policy rule CR-CLI-AGENT-SUBSTRATE-002 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-AGENT-SUBSTRATE-002",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-feature-standard-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-FEATURE-STANDARD-001",
+      "content": "Governance policy rule CR-CLI-FEATURE-STANDARD-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-FEATURE-STANDARD-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-finops-verifier-002",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-FINOPS-VERIFIER-002",
+      "content": "Governance policy rule CR-CLI-FINOPS-VERIFIER-002 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-FINOPS-VERIFIER-002",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-knowledge-cag-002",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-KNOWLEDGE-CAG-002",
+      "content": "Governance policy rule CR-CLI-KNOWLEDGE-CAG-002 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-KNOWLEDGE-CAG-002",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-mcp-ecosystem-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-MCP-ECOSYSTEM-001",
+      "content": "Governance policy rule CR-CLI-MCP-ECOSYSTEM-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-MCP-ECOSYSTEM-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-tech-debt-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-TECH-DEBT-001",
+      "content": "Governance policy rule CR-CLI-TECH-DEBT-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-TECH-DEBT-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-hath0r-init-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-HATH0R-INIT-001",
+      "content": "Governance policy rule CR-HATH0R-INIT-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-HATH0R-INIT-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-branch-gov-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-BRANCH-GOV-001",
+      "content": "Governance policy rule CR-BRANCH-GOV-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-BRANCH-GOV-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-first-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-FIRST-001",
+      "content": "Governance policy rule CR-CLI-FIRST-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-FIRST-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-hath0r-root-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-HATH0R-ROOT-001",
+      "content": "Governance policy rule CR-HATH0R-ROOT-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-HATH0R-ROOT-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-kb-tower-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-KB-TOWER-001",
+      "content": "Governance policy rule CR-KB-TOWER-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-KB-TOWER-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
       "id": "contract:hath0r-vision-response-v1.schema.json",
       "plane": "knowledge",
       "type": "contract",
@@ -412,6 +605,18 @@
       "properties": {
         "schema_id": "https://raw.githubusercontent.com/Bayly-AI/HATH0R-Agentic-Framework/development/contracts/hath0r-factory-v1.schema.json",
         "path": "contracts/hath0r-factory-v1.schema.json"
+      },
+      "is_current": true
+    },
+    {
+      "id": "contract:hath0r-orient-report-v1.schema.json",
+      "plane": "knowledge",
+      "type": "contract",
+      "label": "Hath0r Repository Orientation Report Schema",
+      "content": "Defines schema contract for unified repository orientation aggregating AgentGraph governance, README overview, Code scan, Agent Metrics, and CCCD Calibration.",
+      "properties": {
+        "schema_id": "https://hath0r.bayly.ai/contracts/hath0r-orient-report-v1.schema.json",
+        "path": "contracts/hath0r-orient-report-v1.schema.json"
       },
       "is_current": true
     },
@@ -1142,6 +1347,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__procedures__orient-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Orient Procedure",
+      "content": "# Procedure: Repository Orientation Operational Execution\n\n> Canonical Operational Procedure · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\n## 1. Scope & Prerequisites\n\nThis procedure outlines the deterministic 6-step operational procedure executed whenever an operator or agent triggers `\"orient\"`.\n\n### Prerequisites\n- Operator CLI installed (`hath0r`)\n- Repository root containing `.hath0r/` metadata or `README.md`\n- Active AgentGraph snapshot or capability to build one on demand\n\n---\n\n## 2. Step-by-Step Procedure\n\n### Stage 1: Read Agents & Rules from AgentGraph\n1. Locate `.hath0r/agentgraph/snapshot.json`. If missing, invoke `AgentGraphBot.sync()` to compile on the fly.\n2. Filter nodes on `plane == \"rules\"` and `type == \"agent_role\"`:\n   - Extract role name, ID, permitted tools, forbidden tools, and inherited roles.\n3. Filter nodes on `plane == \"rules\"` and `type == \"rule_policy\"`:\n   - Extract rule ID, label, priority, and restricted actions.\n4. Tally active quad-graph topology statistics (Knowledge, Memory, Rules, Context).\n\n### Stage 2: Read Project README\n1. Locate `README.md` (fallback to `TECH_README.md`).\n2. Extract project title, high-level d",
+      "properties": {
+        "path": "docs/governance/procedures/orient-procedure.md",
+        "category": "procedures",
+        "size_bytes": 2752
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__procedures__hyper-context-procedure_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1190,6 +1408,19 @@
         "path": "docs/governance/procedures/coding-procedure.md",
         "category": "procedures",
         "size_bytes": 687
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__procedures__memorygraph-compounding-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Memorygraph Compounding Procedure",
+      "content": "# MemoryGraph Compounding Standard Operating Procedure\n\n> **Rule Binding**: `CR-MEMORY-COMPOUND-001`  \n> **CLI Entrypoint**: `hath0r memory`\n\n## 1. Purpose\n\nDefines the mandatory step-by-step procedure for initializing `.hath0r/memory/`, compounding task knowledge into `.hath0r/memory/graph.json`, synchronizing `.hath0r/agentgraph/snapshot.json`, and verifying the pre-announcement gate before declaring any task complete.\n\n## 2. Procedure Steps\n\n### Step 1: Verify or Initialize Repository Memory Space\nAt the start of orientation or repository hygiene, ensure `.hath0r/memory/graph.json` exists:\n```bash\nhath0r memory init\n# Or across all repositories in a workspace/suite:\nhath0r memory ensure-all --root /Users/raybayly/Development\n```\n\n### Step 2: Query Existing Memory Prior to Implementation\nRetrieve relevant episodic learnings, architectural decisions, and insights:\n```bash\nhath0r memory search \"<topic>\"\nhath0r agentgraph query \"<topic>\" --plane memory\n```\n\n### Step 3: Compound Knowledge Prior to Announcing Complete\nBefore calling `hath0r task finish` or announcing task completion to the operator, record the task's architectural decisions, root-cause fixes, or episodic outcomes:\n```",
+      "properties": {
+        "path": "docs/governance/procedures/memorygraph-compounding-procedure.md",
+        "category": "procedures",
+        "size_bytes": 2054
       },
       "is_current": true
     },
@@ -1398,6 +1629,19 @@
         "path": "docs/governance/strategies/sqlite-fts5-kb-cache-strategy.md",
         "category": "strategies",
         "size_bytes": 4351
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__strategies__memorygraph-compounding-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Memorygraph Compounding Strategy",
+      "content": "# MemoryGraph Compounding & Pre-Announcement Gate Strategy\n\n> **Rule Binding**: `CR-MEMORY-COMPOUND-001` · `CR-AGENTGRAPH-001`  \n> **Subsystem**: `hath0r_engine.memory` · `hath0r_cli.bots.memory_manager` · `hath0r_cli.bots.agentgraph_bot`\n\n## 1. Strategic Objective\n\nAutonomous agents lose institutional context across sessions when task learnings remain trapped in ephemeral chat transcripts or unindexed markdown notes. The **MemoryGraph Compounding Strategy** transforms every repository's `.hath0r/memory/graph.json` into a living, bitemporal semantic network where every completed task compounds institutional knowledge prior to completion announcement.\n\n## 2. Architectural Pillars\n\n1. **Universal Repository Memory Space (`.hath0r/memory/`)**:\n   - Every repository in `/Users/raybayly/Development` maintains `.hath0r/memory/graph.json`, `.hath0r/memory/core_rules.md`, and `.hath0r/memory/architecture.md`.\n   - Repository initialization (`hath0r init`), orientation (`hath0r orient`), cleanup (`hath0r repo clean`), and suite-wide audits (`hath0r memory ensure-all`) guarantee zero uninitialized repositories.\n\n2. **Dual-Path Knowledge Compounding (Explicit + Automated)**:\n   - **Explicit A",
+      "properties": {
+        "path": "docs/governance/strategies/memorygraph-compounding-strategy.md",
+        "category": "strategies",
+        "size_bytes": 2466
       },
       "is_current": true
     },
@@ -1714,6 +1958,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__strategies__orient-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Orient Strategy",
+      "content": "# Strategy: Unified Repository Orientation & Cognitive Calibration Strategy\n\n> Canonical Strategy Specification · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\n## 1. Executive Summary & Strategic Objectives\n\nAutonomous agents and human operators frequently transition across polyglot repositories within the Hath0r suite (`HATH0R-CLI`, `hath0r-framework`, `hath0r-poc`). To prevent cold-start latency, context hallucinations, unauthorized tool invocation, and stale calibration drift, the **Unified Repository Orientation Strategy** establishes a standardized, 6-stage operational protocol triggered by the command `\"orient\"`.\n\nThe strategy fulfills three core pillars:\n1. **Zero-Prompt-Tax Governance Discovery**: Instead of dumping entire rulebooks into LLM context, `orient` extracts scoped agent roles and governing rules directly from the local AgentGraph quad-graph substrate (`KnowledgePlane` + `RulesPlane`).\n2. **Structural Code & Architectural Grounding**: Rapidly outlines the application topology, core classes, entry points, and subsystems via AST symbol parsing and README extraction without exhausting prompt token budgets.\n3. **Continuous Metric & Calibra",
+      "properties": {
+        "path": "docs/governance/strategies/orient-strategy.md",
+        "category": "strategies",
+        "size_bytes": 2447
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__strategies__cicccd-strategy_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2009,6 +2266,19 @@
         "path": "docs/governance/checklists/pr-release-to-master.md",
         "category": "checklists",
         "size_bytes": 367
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__checklists__orient-checklist_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Orient Checklist",
+      "content": "# Checklist: Repository Orientation Verification Checklist\n\n> Canonical Verification Checklist · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\nThis checklist must be satisfied before completing any repository orientation task.\n\n- [ ] **Stage 1: AgentGraph Reading**\n  - [ ] AgentGraph snapshot loaded or synchronized from `.hath0r/agentgraph/snapshot.json`.\n  - [ ] Agent roles extracted with permitted and forbidden tool sets.\n  - [ ] Governing rules extracted with priority and restricted actions.\n- [ ] **Stage 2: Project README Reading**\n  - [ ] Root `README.md` or `TECH_README.md` discovered and parsed.\n  - [ ] Project title, mission statement, and core components summarized.\n- [ ] **Stage 3: Application Code Scan**\n  - [ ] Codebase files scanned across source folders (`src/`, `lib/`, `contracts/`).\n  - [ ] Primary programming languages identified with file distribution.\n  - [ ] Key AST symbols and entry points outlined.\n- [ ] **Stage 4: Agent Metrics**\n  - [ ] Observability latency quantiles (P50, P90, P99) extracted.\n  - [ ] Token telemetry histogram distribution generated.\n  - [ ] PMAT code churn, provability, complexity, and hotspot count evaluated.\n",
+      "properties": {
+        "path": "docs/governance/checklists/orient-checklist.md",
+        "category": "checklists",
+        "size_bytes": 1595
       },
       "is_current": true
     },
@@ -2416,6 +2686,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__memorygraph-compounding-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Memorygraph Compounding Runbook",
+      "content": "# MemoryGraph Compounding & Pre-Announcement Gate Runbook\n\n> **Rule Binding**: `CR-MEMORY-COMPOUND-001`  \n> **Service / Component**: `hath0r memory` · `MemoryManagerBot` · `TaskAnnouncerBot`\n\n## 1. Health & Gate Verification\n\nCheck the current repository's `MemoryGraph` health and pre-announcement gate status:\n```bash\nhath0r memory verify\nhath0r memory search\nhath0r agentgraph status\n```\n\nAudit all repositories in `/Users/raybayly/Development`:\n```bash\nhath0r memory ensure-all --root /Users/raybayly/Development\n```\n\n## 2. Troubleshooting & Remediation\n\n### Issue 1: `TaskAnnouncerBot` Blocks Announcement (`MEMORY_NOT_COMPOUNDED`)\n- **Symptom**: `announce-complete` returns `success: False` with error indicating no task knowledge has been compounded into `.hath0r/memory/graph.json`.\n- **Remediation**:\n  1. Run `hath0r memory compound --label \"<Task Title>\" --content \"<Summary of learnings/changes>\" --type episode --tags \"<tags>\"`\n  2. Verify with `hath0r memory verify`.\n  3. Re-run `hath0r task finish` or completion announcement.\n\n### Issue 2: Repository Missing `.hath0r/memory/graph.json`\n- **Symptom**: Repository has no `.hath0r/memory` directory or only markdown files without `grap",
+      "properties": {
+        "path": "docs/governance/runbooks/memorygraph-compounding-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 1738
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__runbook-cli-update_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2546,6 +2829,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__orient-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Orient Runbook",
+      "content": "# Runbook: Orient Bot & CLI Operational Runbook\n\n> Canonical Operational Runbook · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\n## 1. System Overview\n\n`OrientBot` (`hath0r orient`) services operator and autonomous agent requests for complete repository orientation. It executes a 6-stage cognitive walkthrough, extracting AgentGraph rules, README architecture, AST code symbols, performance observability, and CCCD calibration before returning a dual-mode TUI/Markdown report.\n\n---\n\n## 2. Operator Execution Commands\n\n### Run via Operator CLI\n```bash\n# Standard repository orientation\nhath0r orient\n\n# Orient a specific target repository path\nhath0r orient --repo /path/to/repo\n\n# Output in Markdown format (ideal for CI, logging, and piping)\nhath0r orient --markdown\n\n# Output as raw JSON payload matching schema contract\nhath0r orient --json\n```\n\n### Run via Conversational Agent Trigger\nWhen prompted in agent dialogue with `\"orient\"`, `\"run orient\"`, or `\"orient repo\"`, the agent executes the orient procedure and presents the structured report.\n\n---\n\n## 3. Failure Modes & Troubleshooting\n\n| Symptom | Root Cause | Operator Action |\n| :--- | :--- | :--- |\n| `Agent",
+      "properties": {
+        "path": "docs/governance/runbooks/orient-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 1583
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__opentelemetry-ops-runbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2650,6 +2946,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__workflows__orient-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Orient Workflow",
+      "content": "# Workflow: Repository Orientation Workflow\n\n> Canonical Workflow Definition · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\n```mermaid\nflowchart TD\n    A[\"Operator / Agent Trigger: 'orient' (or 'hath0r orient')\"] --> B[\"Step 1: Read Agents & Rules from AgentGraph\"]\n    B --> C[\"Step 2: Read Project README & Architecture Summary\"]\n    C --> D[\"Step 3: Scan Codebase AST & Application Structure\"]\n    D --> E[\"Step 4: Run Agent Metrics (Observability, Telemetry & PMAT)\"]\n    E --> F[\"Step 5: Run Agent Calibration (CCCD Parameter Loop)\"]\n    F --> G[\"Aggregate into hath0r-orient-report-v1 Schema Contract\"]\n    G --> H{\"Terminal UI (TUI) Supported?\"}\n    H -- Yes --> I[\"Render Rich TUI Scorecards, Topology & Panels\"]\n    H -- No / Fallback --> J[\"Render Comprehensive GitHub-Flavored Markdown Report\"]\n    I & J --> K[\"Ingest Orientation Execution Node into AgentGraph ContextPlane\"]\n    K --> L[\"Return Orientation Report & Verdict to Operator\"]\n```\n\n## Supported Intent Triggers\n1. `\"orient\"`\n2. `\"hath0r orient\"`\n3. `\"run orient\"`\n4. `\"orient repository\"`\n5. `\"orientation report\"`\n6. `\"system orientation\"`\n\n## Six Core Execution Stages\n1. **AgentGraph Retrieval",
+      "properties": {
+        "path": "docs/governance/workflows/orient-workflow.md",
+        "category": "workflows",
+        "size_bytes": 2294
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__workflows__embedded-elt-workflow_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2659,6 +2968,19 @@
         "path": "docs/governance/workflows/embedded-elt-workflow.md",
         "category": "workflows",
         "size_bytes": 1229
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__workflows__memorygraph-compounding-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Memorygraph Compounding Workflow",
+      "content": "# MemoryGraph Compounding Workflow Specification\n\n> **Factory Binding**: `end-of-task-factory.yaml` · `repo-onboarding-factory.yaml`  \n> **Rule Binding**: `CR-MEMORY-COMPOUND-001`\n\n## 1. Workflow Diagram\n\n```mermaid\nflowchart TD\n    A[\"Task Execution / Clean Repo\"] --> B[\"hath0r memory compound (Explicit Agent Call)\"]\n    B --> C[\"MemoryManagerBot.compound_memory()\"]\n    C --> D[\"Update .hath0r/memory/graph.json (Node + Relational Edges)\"]\n    D --> E[\"ReflectionEngine.consolidate_sleep_cycle() (Synthesize Insights)\"]\n    E --> F[\"AgentGraphBot.sync() (Update .hath0r/agentgraph/snapshot.json)\"]\n    F --> G[\"EndOfTaskBot / CleanReposWorkflowBot Auto-Compound\"]\n    G --> H{\"TaskAnnouncerBot.announce_complete()\\nMemoryManagerBot.verify_compounded()\"}\n    H -- \"Compounded == True\" --> I[\"Announce Task Complete\"]\n    H -- \"Compounded == False\" --> J[\"BLOCK Announcement (Require Memory Compounding)\"]\n```\n\n## 2. Declarative Factory Steps (`end-of-task-factory.yaml`)\n\n1. `deploy-test-bot: pre-deploy`\n2. `pr-bot: create-pr`\n3. `documentation-bot: generate-summary`\n4. `pr-bot: monitor-checks`\n5. `pr-bot: merge-pr`\n6. `git-janitor-bot: prune-branch`\n7. `git-janitor-bot: pull-development`\n8. `",
+      "properties": {
+        "path": "docs/governance/workflows/memorygraph-compounding-workflow.md",
+        "category": "workflows",
+        "size_bytes": 1628
       },
       "is_current": true
     },
@@ -2698,6 +3020,19 @@
         "path": "docs/governance/bot-specs/phoenix-manager-bot-spec.md",
         "category": "bot-specs",
         "size_bytes": 1772
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__memory-manager-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Memory Manager Bot Spec",
+      "content": "# Bot Specification: `MemoryManagerBot` (`memory-manager-bot`)\n\n> **Bot ID**: `memory-manager-bot`  \n> **Class**: `hath0r_cli.bots.memory_manager.MemoryManagerBot`  \n> **Engine Backing**: `hath0r_engine.memory.MemoryGraph`, `hath0r_engine.memory.ReflectionEngine`  \n> **Rule Binding**: `CR-MEMORY-COMPOUND-001`, `CR-AGENTGRAPH-001`\n\n## 1. Role & Responsibilities\n\n`MemoryManagerBot` manages the canonical Local Memory Space (`.hath0r/memory/`) and semantic/episodic `MemoryGraph` (`.hath0r/memory/graph.json`) across all Hath0r repositories. It enforces universal repository presence of `.hath0r/memory/graph.json`, compounds task learnings into connected graph nodes and edges, executes autonomous reflection synthesis, synchronizes the `memory` plane of `AgentGraph`, and enforces the pre-announcement completion gate.\n\n## 2. Capabilities & Actions\n\n| Action | Method | Description |\n|--------|--------|-------------|\n| `init` / `initialize-memory` | `initialize_memory(dry_run=False)` | Provisions `.hath0r/memory/core_rules.md`, `architecture.md`, and `graph.json` with canonical seed nodes and edges, plus repository orientation node. |\n| `read` / `read-memory` | `read_memory(topic)` | Reads a ",
+      "properties": {
+        "path": "docs/governance/bot-specs/memory-manager-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 2503
       },
       "is_current": true
     },
@@ -2763,6 +3098,19 @@
         "path": "docs/governance/bot-specs/cicccd-bot-spec.md",
         "category": "bot-specs",
         "size_bytes": 1495
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__orient-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Orient Bot Spec",
+      "content": "# Bot Specification: OrientBot\n\n> Canonical Bot Specification · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\n## 1. Role & Identity\n\n- **Bot Name**: `orient-bot`\n- **Class Name**: `OrientBot`\n- **Subsystem**: `HATH0R-CLI` (`src/hath0r_cli/bots/orient_bot.py`)\n- **CLI Command**: `hath0r orient`\n- **Primary Function**: Autonomous micro-bot servicing operator and agent requests for repository orientation, multi-plane AgentGraph reading, README summarization, AST code scanning, agent metrics retrieval, and continuous calibration.\n\n---\n\n## 2. Supported Conversational Intents\n\n1. `\"orient\"`\n2. `\"hath0r orient\"`\n3. `\"run orient\"`\n4. `\"orient repository\"`\n5. `\"orientation report\"`\n6. `\"system orientation\"`\n7. `\"repo orient\"`\n\n---\n\n## 3. Subsystem Integrations & RBAC\n\n- `AgentGraphBot`: Reads Agent Roles, Rules & Invariants, and Topology from `.hath0r/agentgraph/snapshot.json`.\n- `CodeParser`: Scans codebase files and parses AST symbols (classes, methods, functions).\n- `AgentMetricsBot`: Pulls observability metrics, token histogram, and PMAT multi-dimensional stats.\n- `CICCCDBot`: Evaluates and executes Continuous Calibration (CCCD) loop.\n- `AgentGraphEngine`: I",
+      "properties": {
+        "path": "docs/governance/bot-specs/orient-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 1274
       },
       "is_current": true
     },
@@ -2932,6 +3280,19 @@
         "path": "docs/governance/playbooks/schema-self-repair-loops-playbook.md",
         "category": "playbooks",
         "size_bytes": 1088
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__memorygraph-compounding-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Memorygraph Compounding Playbook",
+      "content": "# MemoryGraph Compounding Playbook\n\n> **Rule Binding**: `CR-MEMORY-COMPOUND-001`  \n> **Target Audience**: Autonomous Agents, Subagents, and Operators\n\n## 1. When to Use This Playbook\n\nExecute this playbook on **every task** prior to announcing completion, during `clean-repos` (Step 6 & Step 13), and whenever onboarding or auditing repositories across `/Users/raybayly/Development`.\n\n## 2. Node Type Selection Guide\n\n| Node Type | When to Use | Default Importance | Example ID Prefix |\n|-----------|-------------|--------------------|-------------------|\n| `episode` | Completed feature, bugfix, or clean-repo task outcome | `0.75` | `episode:` |\n| `decision` | Architectural Decision Record (ADR) or design tradeoff | `0.90` | `decision:` |\n| `fact` | Verified system invariant, endpoint, or configuration truth | `0.80` | `fact:` |\n| `insight` | Synthesized pattern across $\\ge 2$ episodes/decisions | `0.85` | `insight:` |\n| `concept` | Core domain or substrate abstraction | `0.90` | `concept:` |\n| `rule` | Governance policy or operational constraint | `1.00` | `rule:` |\n\n## 3. Relational Edge Selection Guide\n\n- `ENFORCES`: A `rule` node enforces a `concept` or `decision`.\n- `DERIVES_FROM`: ",
+      "properties": {
+        "path": "docs/governance/playbooks/memorygraph-compounding-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 2350
       },
       "is_current": true
     },
@@ -3114,6 +3475,19 @@
         "path": "docs/governance/playbooks/cicccd-playbook.md",
         "category": "playbooks",
         "size_bytes": 891
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__orient-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Orient Playbook",
+      "content": "# Playbook: Repository Orientation Anomaly Diagnostic & Remediation\n\n> Canonical Remediation Playbook · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\n## 1. Trigger Conditions\n\nThis playbook is activated when `OrientBot` encounters anomalies during orientation:\n- **AgentGraph Desync**: AgentGraph snapshot missing, corrupt, or containing 0 rules.\n- **Uncalibrated Runtime State**: Continuous Calibration (CCCD) status is stale ($> 24\\text{h}$) or parameters failed convergence.\n- **High Architectural Risk**: PMAT reports Composite Hotspot Risk Index $R(f) \\ge 0.75$ or provability score $< 0.85$.\n- **Missing Project Identity**: Root repository missing `README.md` or missing ecosystem member definition.\n\n---\n\n## 2. Diagnostic & Remediation Protocol\n\n```mermaid\nflowchart TD\n    A[\"Anomaly Detected during 'orient'\"] --> B{\"Anomaly Class\"}\n    B -- AgentGraph Desync --> C[\"Execute 'hath0r agentgraph sync'\"]\n    B -- Stale Calibration --> D[\"Execute 'hath0r cicccd calibrate'\"]\n    B -- High PMAT Risk --> E[\"Review PMAT Remediation Protocol Items\"]\n    B -- Missing README --> F[\"Scaffold Canonical README from Template\"]\n    C & D & E & F --> G[\"Re-run 'hath0r orien",
+      "properties": {
+        "path": "docs/governance/playbooks/orient-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 1821
       },
       "is_current": true
     },
@@ -3456,6 +3830,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__rules__cr-memory-compound-001_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Cr Memory Compound 001",
+      "content": "# CR-MEMORY-COMPOUND-001: Mandatory `.hath0r/memory` Repository Presence & Pre-Announcement MemoryGraph Compounding (CRITICAL — org-wide)\n\n> **Status**: Active · **Tier**: Org Invariant (`RulePriority.ORG_INVARIANT`)  \n> **Scope**: All repositories across `/Users/raybayly/Development` (`OpenSource`, `1-Nation`, `BAI`, `Ray`, `Websites`)  \n> **Enforced by**: `hath0r memory`, `MemoryManagerBot`, `TaskAnnouncerBot`, `EndOfTaskBot`, `CleanReposWorkflowBot`, `AgentGraphBot`\n\n---\n\n## 1. Universal `.hath0r/memory` Repository Invariant\n\n1. Every active project repository in `/Users/raybayly/Development` **MUST** maintain an initialized `.hath0r/memory/` directory containing:\n   - `.hath0r/memory/graph.json`: The canonical serialized `MemoryGraph` (`schema_version: \"1.0.0\"`), storing typed semantic and episodic nodes (`rule`, `concept`, `decision`, `fact`, `episode`, `topic`, `insight`) and relational edges (`ENFORCES`, `REQUIRES`, `DERIVES_FROM`, `SUPERSEDES`, `RELATES_TO`, `RESOLVES`, `PRECEDES`).\n   - `.hath0r/memory/core_rules.md`: Canonical local rule summary.\n   - `.hath0r/memory/architecture.md`: Repository architectural orientation summary.\n2. During repository onboarding (`hath0r i",
+      "properties": {
+        "path": "docs/governance/rules/cr-memory-compound-001.md",
+        "category": "rules",
+        "size_bytes": 3518
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__reports__compliance-audit-report-hathor-cli_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3560,6 +3947,135 @@
       "is_current": true
     },
     {
+      "id": "memory:rule:cr-cli-entry-001",
+      "plane": "memory",
+      "type": "rule",
+      "label": "Start with CLI Rule",
+      "content": "Always start with hath0r operator CLI before inventing ad-hoc actions.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "rule",
+          "governance",
+          "cli"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:rule:cr-bai-001",
+      "plane": "memory",
+      "type": "rule",
+      "label": "Promotion Path Policy",
+      "content": "Promotion order: local -> development -> testing -> staging -> master.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "rule",
+          "governance",
+          "ci"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:rule:cr-memory-compound-001",
+      "plane": "memory",
+      "type": "rule",
+      "label": "Mandatory MemoryGraph Compounding Rule",
+      "content": "Every project repo must maintain .hath0r/memory/graph.json and every task must compound knowledge prior to announcing complete.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "rule",
+          "governance",
+          "memorygraph",
+          "cr-memory-compound-001"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "concept:tri-graph",
+      "plane": "memory",
+      "type": "concept",
+      "label": "Tri-Graph Substrate",
+      "content": "Three-layer cognitive graph architecture: KnowledgeGraph, ContextGraph, MemoryGraph.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "architecture",
+          "substrate",
+          "tri-graph"
+        ],
+        "importance": 0.9
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:fact:repo-hathor-cli-orientation",
+      "plane": "memory",
+      "type": "fact",
+      "label": "hathor-cli Repository Memory Orientation",
+      "content": "hathor-cli: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" /> </p>",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "orientation",
+          "repository",
+          "hathor-cli",
+          "cr-memory-compound-001",
+          "fact",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:issue-472-memorygraph-compounding",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Implement hath0r memory compound, verify, reflect, ensure-all & Pre-Announcement Gate",
+      "content": "Added compound, reflect, verify, and ensure-all CLI commands and MemoryManagerBot actions; fixed AgentGraphBot memory edge normalization; wired hard CR-MEMORY-COMPOUND-001 pre-announcement gate into TaskAnnouncerBot, EndOfTaskBot, DocumentationBot, and CleanReposWorkflowBot.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "memorygraph",
+          "cr-memory-compound-001",
+          "governance",
+          "cli",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.95
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:cr-memory-compound-001",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on cr-memory-compound-001",
+      "content": "Consolidated from 2 memory nodes tagged 'cr-memory-compound-001'. Recurring themes: hathor, memory, compound, logo. Latest context: Added compound, reflect, verify, and ensure-all CLI commands and MemoryManagerBot actions; fixed AgentGraphBot memory edge normalization; wired hard CR-MEMORY-C",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "cr-memory-compound-001",
+        "source": "local_memory",
+        "tags": [
+          "cr-memory-compound-001",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
       "id": "role:developer",
       "plane": "rules",
       "type": "agent_role",
@@ -3614,9 +4130,51 @@
       "is_current": true
     },
     {
-      "source": "rule:rules",
-      "target": "role:developer",
-      "relation": "GOVERNS",
+      "source": "memory:rule:cr-cli-entry-001",
+      "target": "concept:tri-graph",
+      "relation": "ENFORCES",
+      "is_current": true
+    },
+    {
+      "source": "memory:rule:cr-memory-compound-001",
+      "target": "concept:tri-graph",
+      "relation": "ENFORCES",
+      "is_current": true
+    },
+    {
+      "source": "memory:fact:repo-hathor-cli-orientation",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:fact:repo-hathor-cli-orientation",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-472-memorygraph-compounding",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-472-memorygraph-compounding",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cr-memory-compound-001",
+      "target": "memory:fact:repo-hathor-cli-orientation",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cr-memory-compound-001",
+      "target": "memory:episode:issue-472-memorygraph-compounding",
+      "relation": "DERIVES_FROM",
       "is_current": true
     },
     {
@@ -3647,11 +4205,137 @@
       "source": "rule:rules",
       "target": "role:developer",
       "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:rules",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-memory-compound-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-bai-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-agent-substrate-002",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-feature-standard-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-finops-verifier-002",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-knowledge-cag-002",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-mcp-ecosystem-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-tech-debt-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-hath0r-init-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-branch-gov-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-first-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-hath0r-root-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-kb-tower-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "memory:rule:cr-cli-entry-001",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:rule:cr-bai-001",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:rule:cr-memory-compound-001",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "concept:tri-graph",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:fact:repo-hathor-cli-orientation",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-472-memorygraph-compounding",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cr-memory-compound-001",
+      "target": "role:developer",
+      "relation": "INFORMS",
       "is_current": true
     }
   ],
   "metadata": {
     "repo_root": "/Users/raybayly/Development/OpenSource/hathor-cli",
-    "synced_sources": 273
+    "synced_sources": 292
   }
 }

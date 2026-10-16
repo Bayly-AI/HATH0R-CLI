@@ -13,10 +13,8 @@ import asyncio
 import json
 import logging
 import os
-import re
 import time
 from datetime import datetime
-from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from hath0r_engine.calibration.cag_registry import CAGCalibrationRegistry
@@ -83,7 +81,8 @@ class HathorGameshowBot:
         agent_response: str,
     ) -> Tuple[bool, float, str]:
         """Judge an agent response against ground-truth card."""
-        return self.judge.evaluate(card, agent_response)
+        res = self.judge.evaluate(card, agent_response)
+        return (bool(res[0]), float(res[1]), str(res[2]))
 
     async def run_round(
         self,
@@ -201,7 +200,7 @@ class HathorGameshowBot:
         calibrated_count = self.calibration.calibrate_cards(missed)
         for c in missed:
             c.calibrated = True
-        return calibrated_count
+        return int(calibrated_count)
 
     def generate_report(self, output_path: Optional[str] = None) -> str:
         """Synthesize markdown benchmark convergence report."""

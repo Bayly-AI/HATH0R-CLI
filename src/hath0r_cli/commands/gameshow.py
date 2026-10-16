@@ -2,17 +2,14 @@
 
 from __future__ import annotations
 
-import json
 import os
-from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Optional
 
 import click
 from rich.table import Table
 
 from hath0r_cli.bots.gameshow_bot import HathorGameshowBot
 from hath0r_cli.common import _build_response, _emit_response, console
-from hath0r_engine.training.gameshow_models import EvaluationCard, TournamentDeckState
 
 
 @click.group("gameshow")

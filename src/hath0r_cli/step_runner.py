@@ -1867,6 +1867,86 @@ class BotRegistry:
                 error=res.get("error"),
                 dry_run=dry_run,
             )
+        elif action in ("compound", "add-node"):
+            res = bot.compound_memory(
+                label=str(args.get("label") or "Task Knowledge Compounding"),
+                content=str(args.get("content") or "Compounded task knowledge prior to completion."),
+                node_type=str(args.get("type") or "episode"),
+                node_id=args.get("id"),
+                importance=float(args.get("importance", 0.8)),
+                tags=args.get("tags"),
+                relates_to=args.get("relates_to"),
+                relation=str(args.get("relation") or "DERIVES_FROM"),
+                supersedes=args.get("supersedes"),
+                sync_agentgraph=bool(args.get("sync_agentgraph", True)),
+                dry_run=dry_run,
+            )
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action in ("reflect", "consolidate"):
+            res = bot.reflect_memory(
+                cluster_threshold=int(args.get("threshold", 2)),
+                max_insights=int(args.get("max_insights", 5)),
+                dry_run=dry_run,
+            )
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action in ("verify", "verify-gate"):
+            res = (
+                {"success": True, "compounded": True, "dry_run": True}
+                if dry_run
+                else bot.verify_compounded(since=args.get("since"), task_id=args.get("task_id"))
+            )
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action == "search":
+            res = bot.search_memory(
+                query=str(args.get("query") or ""),
+                node_type=args.get("type"),
+                tag=args.get("tag"),
+                depth=int(args.get("depth", 1)),
+                relation=args.get("relation"),
+            )
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action == "ensure-all":
+            res = bot.ensure_all_repos(
+                root_dir=args.get("root_dir"),
+                sync_agentgraph=bool(args.get("sync_agentgraph", True)),
+                dry_run=dry_run,
+            )
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
         else:
             return StepExecutionResult(
                 bot_id="memory-manager-bot",

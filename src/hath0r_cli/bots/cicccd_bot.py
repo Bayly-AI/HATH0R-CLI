@@ -86,7 +86,7 @@ class SecuritySASTScanner:
         }
 
 
-from hath0r_cli.cccd.training_coordinator import CCCDTTrainingCoordinator
+from hath0r_cli.cccd.training_coordinator import CCCDTTrainingCoordinator  # noqa: E402
 
 
 class CICCCDManagingBot:

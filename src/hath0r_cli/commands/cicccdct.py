@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Optional
 
 import click
 from rich.panel import Panel
@@ -361,7 +361,7 @@ def model_list(ctx: click.Context) -> None:
         ctx,
         command="cicccdct model list",
         state="ok",
-        data=models,
+        data=models,  # type: ignore[arg-type]
     )
 
     def _text() -> None:
@@ -398,7 +398,7 @@ def model_promote(ctx: click.Context, model_name: str, version: int, stage: str)
     )
 
     def _text() -> None:
-        console.print(f"\n[bold green]✓ Model Successfully Promoted[/bold green]")
+        console.print("\n[bold green]✓ Model Successfully Promoted[/bold green]")
         console.print(f"Model: [bold cyan]{model_name}[/bold cyan] (v{version})")
         console.print(f"New Stage: [bold green]{stage}[/bold green]")
         console.print(f"Timestamp: [bold white]{res['promoted_at']}[/bold white]\n")
