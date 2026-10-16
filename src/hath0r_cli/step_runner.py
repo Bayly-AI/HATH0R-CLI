@@ -2018,6 +2018,34 @@ class BotRegistry:
                 error=res.get("error"),
                 dry_run=dry_run,
             )
+        elif action in ("hash", "hash-files", "sync-hashes"):
+            res = bot.sync_file_hashes(
+                track_files=args.get("track_files"),
+                refresh_source_files=bool(args.get("refresh_source_files", True)),
+                dry_run=dry_run,
+            )
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action == "verify-hashes":
+            res = (
+                {"success": True, "verified": True, "dry_run": True}
+                if dry_run
+                else bot.verify_file_hashes()
+            )
+            return StepExecutionResult(
+                bot_id="memory-manager-bot",
+                action=action,
+                success=res.get("success", False),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
         else:
             return StepExecutionResult(
                 bot_id="memory-manager-bot",

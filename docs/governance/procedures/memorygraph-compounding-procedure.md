@@ -25,28 +25,32 @@ hath0r memory session write "Verified MicroMemorySession <2KB budget and PRECEDE
   --next-step "Run pytest and verify gate"
 ```
 
-### Step 3: Compound Durable Knowledge Prior to Announcing Complete
-Before calling `hath0r task finish` or announcing task completion to the operator, record the task's durable architectural decisions, root-cause fixes, or episodic outcomes into `.hath0r/memory/graph.json`:
+### Step 3: Compound Durable Knowledge with Tracked Source File Hashes
+Before calling `hath0r task finish` or announcing task completion to the operator, record the task's durable architectural decisions, root-cause fixes, or episodic outcomes into `.hath0r/memory/graph.json` (optionally binding `--source-file` paths so their SHA-256 digests are tracked in `.hath0r/memory/hashes.json`):
 ```bash
 hath0r memory compound \
   --label "Short descriptive title of learning or decision" \
   --content "Detailed summary of what was built, fixed, or decided and why." \
   --type episode \
   --tags "memorygraph,session,cli" \
+  --source-file "src/hath0r_engine/memory/memory_graph.py" \
   --relates-to "concept:tri-graph" \
   --relation DERIVES_FROM
 ```
 
-### Step 4: Flush Micro Session & Verify Pre-Announcement Memory Gate
-Flush/end the micro-session (or let `hath0r task finish` flush it automatically) and run the deterministic gate verification check:
+### Step 4: Flush Micro Session, Sync File Hashes & Verify Pre-Announcement Memory Gate
+Flush/end the micro-session, verify/sync cryptographic file hashes, and run the deterministic gate verification check:
 ```bash
 hath0r memory session end --summary "Completed micro memory session implementation and verification"
+hath0r memory hash --check
 hath0r memory verify
 ```
 Confirm that:
 - `.hath0r/memory/graph.json` is valid and has $\ge 1$ compounded node.
 - `.hath0r/memory/sessions/current.json` (or `latest.json`) has `read_count >= 1` and `write_count >= 1`.
+- `.hath0r/memory/hashes.json` confirms all `.hath0r/memory/*` files and referenced `source_files` match their on-disk SHA-256 digests (`hashes_verified: True`, `conflicts: 0`).
 - `.hath0r/agentgraph/snapshot.json` is synchronized with the `memory` plane.
 
 ### Step 5: Execute End-of-Task / Announce Complete
-Proceed with `hath0r task finish` or `TaskAnnouncerBot.announce_complete()`, which enforces `verify_compounded()` (both graph compounding and session read/write) prior to announcing completion.
+Proceed with `hath0r task finish` or `TaskAnnouncerBot.announce_complete()`, which enforces `verify_compounded()` (graph compounding, session read/write, and SHA-256 hash freshness) prior to announcing completion.
+

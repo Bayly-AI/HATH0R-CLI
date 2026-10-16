@@ -27,7 +27,13 @@ Autonomous agents lose institutional context across sessions when task learnings
 4. **Autonomous Reflection & Insight Consolidation (`ReflectionEngine`)**:
    - As episodic and decision nodes accumulate shared tags ($\ge 2$ nodes per tag cluster), `ReflectionEngine.consolidate_sleep_cycle()` synthesizes higher-order `insight` nodes linked via `DERIVES_FROM` edges.
 
-5. **Hard Pre-Announcement Gate (`TaskAnnouncerBot`)**:
+5. **Cryptographic File Hashing & Optimistic Concurrency (`hath0r memory hash` / `.hath0r/memory/hashes.json`)**:
+   - Every memory artifact (`graph.json`, `sessions/*.json`, `core_rules.md`, `architecture.md`) and every referenced repository source file (`source_files`) is tracked with canonical `SHA-256` digests and monotonic `revision` counters in `.hath0r/memory/hashes.json`.
+   - Concurrent writes use Compare-And-Swap (`expected_hash` / `base_hash`) with deterministic set-union auto-merging for non-conflicting additions and atomic file replacement (`os.replace`), eliminating race conditions and stale overwrites.
+
+6. **Hard Pre-Announcement Gate (`TaskAnnouncerBot`)**:
    - `TaskAnnouncerBot.announce_complete()` verifies via `MemoryManagerBot.verify_compounded()` that:
-     1. `.hath0r/memory/graph.json` exists and contains compounded task knowledge, AND
-     2. `.hath0r/memory/sessions/current.json` (or `latest.json`) has recorded both a session read (`read_count >= 1`) and a session write (`write_count >= 1`).
+     1. `.hath0r/memory/graph.json` exists and contains compounded task knowledge,
+     2. `.hath0r/memory/sessions/current.json` (or `latest.json`) has recorded both a session read (`read_count >= 1`) and a session write (`write_count >= 1`), AND
+     3. `.hath0r/memory/hashes.json` confirms all memory and tracked source files are up-to-date and conflict-free (`hashes_verified: True`).
+
