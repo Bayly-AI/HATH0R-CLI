@@ -43,3 +43,5 @@ packages/vscode-extension/node_modules/
 !.hath0r/state/cache/**
 !.hath0r/state/context/
 !.hath0r/state/context/**
+
+!.hath0r/mcp.json

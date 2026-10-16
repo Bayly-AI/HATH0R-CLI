@@ -272,3 +272,49 @@ def test_validate_mcp_config_valid(tmp_path) -> None:
     assert warning is None
     assert len(servers) == 2
     assert servers[0]["id"] == "proj"
+
+
+def test_detect_and_build_repo_mcp_config_for_all_groups(tmp_path) -> None:
+    from hath0r_cli.mcp import (
+        build_repo_mcp_config,
+        detect_repo_mcp_group,
+        ensure_repo_mcp_config,
+        resolve_mcp_config_path,
+    )
+
+    bai_repo = tmp_path / "BAI" / "ATC"
+    bai_repo.mkdir(parents=True)
+    assert detect_repo_mcp_group(bai_repo) == "bai"
+    bai_cfg = build_repo_mcp_config(bai_repo)
+    assert bai_cfg["engine"] == "hath0r-mcp"
+    assert bai_cfg["default_server"] == "bai-mcp"
+    assert bai_cfg["servers"][0]["id"] == "bai-mcp"
+    assert bai_cfg["servers"][0]["base_url"] == "https://mcp.baylyai.com"
+
+    ray_repo = tmp_path / "Ray" / "workshop"
+    ray_repo.mkdir(parents=True)
+    assert detect_repo_mcp_group(ray_repo) == "ray"
+    ray_cfg = build_repo_mcp_config(ray_repo)
+    assert ray_cfg["default_server"] == "ray-mcp"
+    assert ray_cfg["servers"][0]["id"] == "ray-mcp"
+    assert ray_cfg["servers"][0]["base_url"] == "https://mcp.raymondbayly.com"
+
+    nation_repo = tmp_path / "1-Nation" / "UXP"
+    nation_repo.mkdir(parents=True)
+    assert detect_repo_mcp_group(nation_repo) == "1-nation"
+    nation_cfg = build_repo_mcp_config(nation_repo)
+    assert nation_cfg["default_server"] == "1-nation-mcp"
+    assert nation_cfg["servers"][0]["id"] == "1-nation-mcp"
+    assert nation_cfg["servers"][0]["base_url"] == "https://mcp.1-nation.com"
+
+    os_repo = tmp_path / "OpenSource" / "hath0r-framework"
+    os_repo.mkdir(parents=True)
+    (os_repo / ".gitignore").write_text(".hath0r/*.json\n", encoding="utf-8")
+    res = ensure_repo_mcp_config(os_repo)
+    assert res["success"] is True
+    assert res["default_server"] == "hath0r-mcp"
+    assert res["default_url"] == "https://mcp.hath0r-cli.com"
+    assert (os_repo / ".hath0r" / "mcp.json").is_file()
+    assert "!.hath0r/mcp.json" in (os_repo / ".gitignore").read_text(encoding="utf-8")
+    assert resolve_mcp_config_path(cwd=os_repo) == (os_repo / ".hath0r" / "mcp.json").resolve()
+

@@ -61,6 +61,7 @@ class MemoryManagerBot:
     }
 
     CANONICAL_GRAPH_PATHS: tuple[str, ...] = (
+        ".hath0r/mcp.json",
         ".hath0r/memory/graph.json",
         ".hath0r/memory/hashes.json",
         ".hath0r/memory/sessions/current.json",
@@ -72,6 +73,7 @@ class MemoryManagerBot:
 
     CANONICAL_GITIGNORE_NEGATIONS: tuple[str, ...] = (
         "!.hath0r/",
+        "!.hath0r/mcp.json",
         "!.hath0r/memory/",
         "!.hath0r/memory/**",
         "!.hath0r/memory/sessions/",
@@ -1378,6 +1380,8 @@ class MemoryManagerBot:
         source_files_map: Dict[str, Dict[str, Any]] = {}
         for rel_path in sorted(source_refs.keys()):
             abs_p = (self.cwd / rel_path).resolve()
+            if not abs_p.is_file() and not source_refs[rel_path] and rel_path not in explicit_tracked:
+                continue
             disk_sha = self._compute_file_sha256(abs_p)
             if rel_path in explicit_tracked or refresh_source_files or rel_path not in recorded_source_hashes:
                 baseline_sha = disk_sha
@@ -2152,7 +2156,10 @@ class MemoryManagerBot:
                 repo_paths.append(git_entry.parent)
 
         results: List[Dict[str, Any]] = []
+        from hath0r_cli.mcp import ensure_repo_mcp_config
+
         for rpath in repo_paths:
+            ensure_repo_mcp_config(rpath, sync_cfg=True, dry_run=dry_run)
             rbot = MemoryManagerBot(cwd=rpath)
             rbot.ensure_gitignore_unignores_graphs(dry_run=dry_run)
             slug = re.sub(r"[^a-z0-9]+", "-", rpath.name.lower()).strip("-") or "repo"
