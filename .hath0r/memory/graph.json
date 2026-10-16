@@ -1,0 +1,195 @@
+{
+  "schema_version": "1.0.0",
+  "graph_id": "canonical-memory-space",
+  "updated_at": "2026-10-16T11:48:14.983686+00:00",
+  "nodes": [
+    {
+      "id": "rule:cr-cli-entry-001",
+      "type": "rule",
+      "label": "Start with CLI Rule",
+      "content": "Always start with hath0r operator CLI before inventing ad-hoc actions.",
+      "importance": 1.0,
+      "tags": [
+        "rule",
+        "governance",
+        "cli"
+      ],
+      "is_current": true,
+      "created_at": "2026-10-16T11:47:30.211396+00:00",
+      "updated_at": "2026-10-16T11:47:30.211396+00:00"
+    },
+    {
+      "id": "rule:cr-bai-001",
+      "type": "rule",
+      "label": "Promotion Path Policy",
+      "content": "Promotion order: local -> development -> testing -> staging -> master.",
+      "importance": 1.0,
+      "tags": [
+        "rule",
+        "governance",
+        "ci"
+      ],
+      "is_current": true,
+      "created_at": "2026-10-16T11:47:30.211396+00:00",
+      "updated_at": "2026-10-16T11:47:30.211396+00:00"
+    },
+    {
+      "id": "rule:cr-memory-compound-001",
+      "type": "rule",
+      "label": "Mandatory MemoryGraph Compounding Rule",
+      "content": "Every project repo must maintain .hath0r/memory/graph.json and every task must compound knowledge prior to announcing complete.",
+      "importance": 1.0,
+      "tags": [
+        "rule",
+        "governance",
+        "memorygraph",
+        "cr-memory-compound-001"
+      ],
+      "is_current": true,
+      "created_at": "2026-10-16T11:47:30.211396+00:00",
+      "updated_at": "2026-10-16T11:47:30.211396+00:00"
+    },
+    {
+      "id": "concept:tri-graph",
+      "type": "concept",
+      "label": "Tri-Graph Substrate",
+      "content": "Three-layer cognitive graph architecture: KnowledgeGraph, ContextGraph, MemoryGraph.",
+      "importance": 0.9,
+      "tags": [
+        "architecture",
+        "substrate",
+        "tri-graph"
+      ],
+      "is_current": true,
+      "created_at": "2026-10-16T11:47:30.211396+00:00",
+      "updated_at": "2026-10-16T11:47:30.211396+00:00"
+    },
+    {
+      "id": "fact:repo-hathor-cli-orientation",
+      "type": "fact",
+      "label": "hathor-cli Repository Memory Orientation",
+      "content": "hathor-cli: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" /> </p>",
+      "importance": 0.85,
+      "tags": [
+        "orientation",
+        "repository",
+        "hathor-cli",
+        "cr-memory-compound-001",
+        "fact",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T11:47:30.211352+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T11:47:30.211352+00:00",
+      "updated_at": "2026-10-16T11:47:30.211352+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "episode:issue-472-memorygraph-compounding",
+      "type": "episode",
+      "label": "Implement hath0r memory compound, verify, reflect, ensure-all & Pre-Announcement Gate",
+      "content": "Added compound, reflect, verify, and ensure-all CLI commands and MemoryManagerBot actions; fixed AgentGraphBot memory edge normalization; wired hard CR-MEMORY-COMPOUND-001 pre-announcement gate into TaskAnnouncerBot, EndOfTaskBot, DocumentationBot, and CleanReposWorkflowBot.",
+      "importance": 0.95,
+      "tags": [
+        "memorygraph",
+        "cr-memory-compound-001",
+        "governance",
+        "cli",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T11:48:14.980815+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T11:48:14.980815+00:00",
+      "updated_at": "2026-10-16T11:48:14.980815+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "insight:cr-memory-compound-001",
+      "type": "insight",
+      "label": "Synthesized Insight on cr-memory-compound-001",
+      "content": "Consolidated from 2 memory nodes tagged 'cr-memory-compound-001'. Recurring themes: hathor, memory, compound, logo. Latest context: Added compound, reflect, verify, and ensure-all CLI commands and MemoryManagerBot actions; fixed AgentGraphBot memory edge normalization; wired hard CR-MEMORY-C",
+      "importance": 1.0,
+      "tags": [
+        "cr-memory-compound-001",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T11:48:14.983230+00:00",
+      "is_current": true,
+      "created_at": "2026-10-16T11:48:14.983230+00:00",
+      "updated_at": "2026-10-16T11:48:14.983230+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "cr-memory-compound-001"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "rule:cr-cli-entry-001",
+      "target": "concept:tri-graph",
+      "relation": "ENFORCES",
+      "weight": 1.0,
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-memory-compound-001",
+      "target": "concept:tri-graph",
+      "relation": "ENFORCES",
+      "weight": 1.0,
+      "is_current": true
+    },
+    {
+      "source": "fact:repo-hathor-cli-orientation",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T11:47:30.211352+00:00",
+      "is_current": true
+    },
+    {
+      "source": "fact:repo-hathor-cli-orientation",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "RELATES_TO",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T11:47:30.211352+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-472-memorygraph-compounding",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T11:48:14.980815+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-472-memorygraph-compounding",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T11:48:14.980815+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:cr-memory-compound-001",
+      "target": "fact:repo-hathor-cli-orientation",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T11:48:14.983230+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:cr-memory-compound-001",
+      "target": "episode:issue-472-memorygraph-compounding",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T11:48:14.983230+00:00",
+      "is_current": true
+    }
+  ]
+}

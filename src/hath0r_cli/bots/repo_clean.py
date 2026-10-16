@@ -431,9 +431,28 @@ class CleanReposWorkflowBot:
                     prs = []
                 repo_res["steps"]["5_verify_prs"] = {"open_prs": pr_count}
 
-                # Step 6: Share knowledge
+                # Step 6: Share knowledge & compound into MemoryGraph (CR-MEMORY-COMPOUND-001)
+                from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+                mem_bot = MemoryManagerBot(cwd=repo_path)
+                mem_compound = mem_bot.compound_memory(
+                    node_id=f"episode:clean-repo-{repo_path.name.lower().replace(' ', '-')}",
+                    node_type="episode",
+                    label=f"Clean Repo Lifecycle ({repo_path.name})",
+                    content=f"Executed 13-step clean-repo hygiene and knowledge sync for {repo_path.name}.",
+                    importance=0.75,
+                    tags=["clean-repo", "hygiene", repo_path.name.lower().replace(" ", "-")],
+                    relates_to=["concept:tri-graph", "rule:cr-memory-compound-001"],
+                    relation="DERIVES_FROM",
+                    sync_agentgraph=False,
+                    dry_run=False,
+                )
                 kb_synced = (repo_path / ".hath0r" / "knowledgebase").exists() or (repo_path / "AGENTS.md").exists()
-                repo_res["steps"]["6_share_knowledge"] = {"synced": kb_synced}
+                repo_res["steps"]["6_share_knowledge"] = {
+                    "synced": kb_synced,
+                    "memory_compounded": mem_compound.get("success", False),
+                    "memory_node": (mem_compound.get("node") or {}).get("id"),
+                }
 
                 # Step 7: Update documentation & AgentGraph synchronization
                 from hath0r_cli.bots.agentgraph_bot import AgentGraphBot
@@ -497,8 +516,13 @@ class CleanReposWorkflowBot:
                 subprocess.run(["git", "pull", "origin", "development"], cwd=repo_path, check=False)
                 repo_res["steps"]["12_return_to_development"] = {"branch": "development", "synced": True}
 
-                # Step 13: Complete
-                repo_res["steps"]["13_announce_complete"] = {"status": "complete"}
+                # Step 13: Verify MemoryGraph Gate & Announce Complete
+                mem_gate = mem_bot.verify_compounded()
+                repo_res["steps"]["13_announce_complete"] = {
+                    "status": "complete" if mem_gate.get("compounded") else "blocked_by_memory_gate",
+                    "memory_compounded": mem_gate.get("compounded", False),
+                    "total_memory_nodes": mem_gate.get("total_nodes", 0),
+                }
 
             except Exception as e:
                 repo_res["clean"] = False
