@@ -42,12 +42,24 @@ class CAGEngine:
                         added_tokens += self._read_file_safe(fp, root, files_content)
         return added_tokens
 
+    @staticmethod
+    def _stability_tier_key(rel_path: str) -> tuple[int, str]:
+        """Order files by stability tier so volatile files sit at the tail of the KV cache."""
+        if rel_path == "AGENTS.md" or rel_path.startswith("contracts/"):
+            return (0, rel_path)  # Tier 0: Pinned governance & contracts
+        if rel_path.startswith("docs/") or rel_path.startswith("cfg/"):
+            return (1, rel_path)  # Tier 1: Semi-static docs & config
+        if rel_path.startswith(".hath0r/"):
+            return (3, rel_path)  # Tier 3: Volatile runtime graphs/snapshots at tail
+        return (2, rel_path)      # Tier 2: Source code
+
     def pack_context(
         self,
         workspace_root: Optional[Path] = None,
         include_agentgraph: bool = True,
+        block_size: int = 16,
     ) -> Dict[str, Any]:
-        """Aggregate workspace source files, AGENTS.md, and AgentGraph into CAG context envelope."""
+        """Aggregate workspace source files, AGENTS.md, and AgentGraph into block-aligned CAG context envelope."""
         root = workspace_root or Path.cwd()
         start_time = time.perf_counter()
 
@@ -60,11 +72,20 @@ class CAGEngine:
 
         total_tokens += self._scan_workspace_sources(root, files_content)
 
-
-        # Construct CAG envelope string
-        cag_buffer = [f"=== HATH0R CAG CONTEXT ENVELOPE (Workspace: {root.name}) ==="]
-        for rel_p, txt in files_content.items():
-            cag_buffer.append(f"\n--- FILE: {rel_p} ---\n{txt}")
+        # Construct CAG envelope with stability-tier ordering and PagedAttention block-boundary padding per file chunk
+        header_tokens = kv_prewarmer.align_tokens_to_block_boundary(
+            f"=== HATH0R CAG CONTEXT ENVELOPE (Workspace: {root.name}) ===".split(),
+            block_size=block_size,
+        )
+        cag_buffer = [" ".join(header_tokens)]
+        for rel_p in sorted(files_content.keys(), key=self._stability_tier_key):
+            txt = files_content[rel_p]
+            chunk_str = f"--- FILE: {rel_p} ---\n{txt}"
+            aligned_chunk_tokens = kv_prewarmer.align_tokens_to_block_boundary(
+                chunk_str.split(),
+                block_size=block_size,
+            )
+            cag_buffer.append(" ".join(aligned_chunk_tokens))
         full_cag_text = "\n".join(cag_buffer)
 
         # Execute Princeton KV cache pre-warming on packed CAG context
@@ -72,6 +93,7 @@ class CAGEngine:
             shared_prompt=full_cag_text,
             system_prompt="hath0r_cag_prompt_caching_anchor",
             model_name="claude-3-7-sonnet-cag",
+            block_size=block_size,
         )
 
         elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
@@ -80,6 +102,10 @@ class CAGEngine:
             "workspace_name": root.name,
             "total_files": len(files_content),
             "estimated_tokens": total_tokens,
+            "aligned_tokens": prewarm_res["aligned_tokens"],
+            "kv_block_size": block_size,
+            "kv_block_count": prewarm_res["block_count"],
+            "chunk_boundary_aligned": prewarm_res["chunk_boundary_aligned"],
             "packing_elapsed_ms": elapsed_ms,
             "prompt_caching": {
                 "type": "ephemeral",

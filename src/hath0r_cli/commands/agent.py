@@ -25,10 +25,15 @@ def agent_cmd(ctx: click.Context) -> None:
 
 @agent_cmd.command("prewarm", help="Execute Princeton KV Cache pre-warming ping on shared context.")
 @click.option("--prompt", "-p", default="Canonical Hath0r Agent System Context", help="Shared system prompt context to prewarm.")
+@click.option("--block-size", "-b", default=16, type=int, help="PagedAttention KV block size in tokens (default: 16).")
 @click.pass_context
-def agent_prewarm(ctx: click.Context, prompt: str) -> None:
+def agent_prewarm(ctx: click.Context, prompt: str, block_size: int) -> None:
     """Prewarm KV cache for shared subagent context."""
-    res = kv_prewarmer.prewarm_context(shared_prompt=prompt, system_prompt="hath0r_canonical_agent")
+    res = kv_prewarmer.prewarm_context(
+        shared_prompt=prompt,
+        system_prompt="hath0r_canonical_agent",
+        block_size=block_size,
+    )
 
     response = _build_response(
         ctx,
@@ -42,7 +47,8 @@ def agent_prewarm(ctx: click.Context, prompt: str) -> None:
             Panel(
                 f"[bold green]✓ Princeton KV Cache Pre-Warming Gate Executed[/bold green]\n\n"
                 f"Context Hash: [bold cyan]{res['context_hash']}[/bold cyan]\n"
-                f"Tokens Pre-warmed: [bold white]{res['tokens_warmed']}[/bold white]\n"
+                f"Tokens Pre-warmed: [bold white]{res['tokens_warmed']} (Aligned: {res['aligned_tokens']} @ block_size={res['block_size']})[/bold white]\n"
+                f"PagedAttention Blocks: [bold white]{res['block_count']} (Chunk-Boundary Aligned: {res['chunk_boundary_aligned']})[/bold white]\n"
                 f"Prefill Latency: [bold white]{res['prefill_latency_ms']} ms[/bold white]\n"
                 f"Estimated Subagent Latency Reduction: [bold green]{res['cache_hit_reduction_pct']}%[/bold green]",
                 title="Hath0r KV Pre-Warmer",

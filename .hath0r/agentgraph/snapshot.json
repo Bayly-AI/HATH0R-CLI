@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
   "graph_id": "agentgraph-hathor-cli",
-  "timestamp": "2026-10-16T15:48:11.423529+00:00",
+  "timestamp": "2026-10-17T14:51:29.212909+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -4417,6 +4417,57 @@
       "is_current": true
     },
     {
+      "id": "memory:decision:cli-kvcacheprewarmer-cagengine-chunk-boundary-al",
+      "plane": "memory",
+      "type": "decision",
+      "label": "CLI KVCachePrewarmer & CAGEngine Chunk-Boundary Alignment",
+      "content": "Added align_tokens_to_block_boundary, compute_rolling_block_hashes, and evict_on_chunk_boundary to KVCachePrewarmer, added stability-tier file sorting and block padding to CAGEngine, and added --block-size flag to hath0r agent prewarm.",
+      "properties": {
+        "source_files": {
+          "src/hath0r_cli/bots/kv_prewarmer.py": "sha256:c54dd8284f8c01b079ac09bd07ebb561a0d8ea3f632fe64b9dd15e0534640cd9",
+          "src/hath0r_cli/bots/cag_engine.py": "sha256:1f844b8d633344d34b78df0a49d47a99d2056e520c3eaad9ead1aa1f18867727",
+          "src/hath0r_cli/commands/agent.py": "sha256:45a4ecd91e2d8e7e53de9f602d4d7de9b4404090a1c2c83da88ea6f835aa84d5",
+          "tests/test_phase1_agent.py": "sha256:330ece3aa4a356d6ca460debb6d56ea7d7870bb947e1a5645eb27cf28f2f0eb4"
+        },
+        "source": "local_memory",
+        "tags": [
+          "pagedattention",
+          "kv-cache",
+          "prewarmer",
+          "cag",
+          "cli",
+          "decision",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:session:sess-20261017-145045-ed36da",
+      "plane": "memory",
+      "type": "session",
+      "label": "Micro Session sess-20261017-145045-ed36da",
+      "content": "Micro Session sess-20261017-145045-ed36da [completed] | Focus: Active working session in hathor-cli | Reads: 1, Writes: 4 | Entries: Completed CLI KVCachePrewarmer and CAGEngine chunk-boundary alignment",
+      "properties": {
+        "session_id": "sess-20261017-145045-ed36da",
+        "prior_session_id": "sess-20261016-151409-a068f7",
+        "parent_session_id": "sess-20261016-151409-a068f7",
+        "read_count": 1,
+        "write_count": 4,
+        "status": "completed",
+        "byte_size": 1763,
+        "source": "local_memory",
+        "tags": [
+          "session",
+          "micro-session",
+          "completed"
+        ],
+        "importance": 0.75
+      },
+      "is_current": true
+    },
+    {
       "id": "role:developer",
       "plane": "rules",
       "type": "agent_role",
@@ -4747,6 +4798,30 @@
       "is_current": true
     },
     {
+      "source": "memory:session:sess-20261016-151409-a068f7",
+      "target": "memory:session:sess-20261017-145045-ed36da",
+      "relation": "PRECEDES",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261017-145045-ed36da",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:decision:cli-kvcacheprewarmer-cagengine-chunk-boundary-al",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:decision:cli-kvcacheprewarmer-cagengine-chunk-boundary-al",
+      "target": "memory:session:sess-20261017-145045-ed36da",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
       "source": "rule:rules",
       "target": "role:developer",
       "relation": "GOVERNS",
@@ -4988,6 +5063,18 @@
     },
     {
       "source": "memory:session:sess-20261016-151409-a068f7",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:decision:cli-kvcacheprewarmer-cagengine-chunk-boundary-al",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261017-145045-ed36da",
       "target": "role:developer",
       "relation": "INFORMS",
       "is_current": true
