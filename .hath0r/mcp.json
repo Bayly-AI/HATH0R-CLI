@@ -33,6 +33,13 @@
       "engine": "hath0r-mcp",
       "group": "bai",
       "default": false
+    },
+    "author-mcp": {
+      "type": "streamable-http",
+      "url": "http://127.0.0.1:18083/mcp",
+      "engine": "author-mcp",
+      "group": "author",
+      "default": false
     }
   },
   "servers": [
@@ -107,6 +114,24 @@
       "enabled": true,
       "local_path": "/Users/raybayly/Development/BAI/MCP",
       "github": "Bayly-AI/BAI-MCP"
+    },
+    {
+      "id": "author-mcp",
+      "name": "AuthorMCP",
+      "engine": "author-mcp",
+      "scope": "group",
+      "group": "author",
+      "priority": 5,
+      "product_id": "author-mcp",
+      "transport": "streamable-http",
+      "base_url": "http://127.0.0.1:18083",
+      "mcp_endpoint": "/mcp",
+      "health_endpoint": "/health",
+      "ready_endpoint": "/ready",
+      "description": "Author MCP root knowledge server, Air Traffic Control (ATC), and tools for Author project",
+      "enabled": true,
+      "local_path": "/Users/raybayly/Development/Projects/Author/mcp",
+      "github": "somesayray/author-mcp"
     }
   ]
 }

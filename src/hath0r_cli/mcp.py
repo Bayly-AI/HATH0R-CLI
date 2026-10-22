@@ -92,6 +92,24 @@ CANONICAL_HATH0R_MCP_SERVERS: list[dict[str, Any]] = [
         "local_path": "/Users/raybayly/Development/1-Nation/MCP",
         "github": "Bayly-AI/1-Nation-MCP",
     },
+    {
+        "id": "author-mcp",
+        "name": "AuthorMCP",
+        "engine": "author-mcp",
+        "scope": "project",
+        "group": "author",
+        "priority": 5,
+        "product_id": "author-mcp",
+        "transport": "streamable-http",
+        "base_url": "http://127.0.0.1:18083",
+        "mcp_endpoint": "/mcp",
+        "health_endpoint": "/health",
+        "ready_endpoint": "/ready",
+        "description": "Author MCP root knowledge server, Air Traffic Control (ATC), and tools for Author project",
+        "enabled": True,
+        "local_path": "/Users/raybayly/Development/Projects/Author/mcp",
+        "github": "somesayray/author-mcp",
+    },
 ]
 
 # Default connection specifications for BaylyAI, Ray, 1-Nation, and Hath0r MCP servers.
@@ -142,6 +160,12 @@ GROUP_DEFAULT_MCP_SERVER: dict[str, dict[str, str]] = {
         "server_id": "1-nation-mcp",
         "name": "1-NationMCP",
         "base_url": "https://mcp.1-nation.com",
+        "mcp_endpoint": "/mcp",
+    },
+    "author": {
+        "server_id": "author-mcp",
+        "name": "AuthorMCP",
+        "base_url": "http://127.0.0.1:18083",
         "mcp_endpoint": "/mcp",
     },
 }
@@ -202,8 +226,10 @@ def sort_mcp_servers_by_priority(servers: list[dict[str, Any]]) -> list[dict[str
 
 
 def normalize_mcp_group(group: str) -> str:
-    """Normalize a repository group identifier into one of the 4 canonical Hath0r MCP groups."""
+    """Normalize a repository group identifier into one of the canonical Hath0r MCP groups."""
     g = group.strip().lower()
+    if g in {"author", "books"}:
+        return "author"
     if g in {"1-nation", "1nation", "one-nation"}:
         return "1-nation"
     if g in {"ray", "ray-bayly", "ray bayly", "raymondbayly"}:
@@ -218,6 +244,8 @@ def detect_repo_mcp_group(repo_root: Path) -> str:
     resolved = repo_root.resolve()
     parts_lower = [p.lower() for p in resolved.parts]
 
+    if "author" in parts_lower or "books" in parts_lower:
+        return "author"
     if "1-nation" in parts_lower:
         return "1-nation"
     if "ray" in parts_lower or "ray bayly" in parts_lower or resolved.name.lower() in {"ray-mcp", "ray bayly"}:
@@ -231,6 +259,8 @@ def detect_repo_mcp_group(repo_root: Path) -> str:
     if agents_md.is_file():
         try:
             head = agents_md.read_text(encoding="utf-8", errors="ignore")[:2000].lower()
+            if "`author`" in head or "`books`" in head or "role: **books**" in head or "role: **mcp**" in head:
+                return "author"
             if "`1-nation`" in head or "group: 1-nation" in head:
                 return "1-nation"
             if "`ray`" in head or "mcp.raymondbayly.com" in head:
