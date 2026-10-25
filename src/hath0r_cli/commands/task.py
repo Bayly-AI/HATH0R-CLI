@@ -159,6 +159,15 @@ def task_start(
     all_success = exec_res.success
     state = "ok" if all_success else "error"
 
+    from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+    mem_bot = MemoryManagerBot(cwd=Path.cwd())
+    session_res = mem_bot.session_start(
+        focus=title or slug or (f"Issue #{issue_number}" if issue_number else "Task Execution"),
+        task_id=f"issue-{issue_number}" if issue_number else None,
+        dry_run=dry_run,
+    )
+
     diagnostics = []
     for st in exec_res.steps:
         if not st.success:
@@ -178,6 +187,7 @@ def task_start(
             "state": state,
             "dry_run": dry_run,
             "steps": [s.to_dict() for s in exec_res.steps],
+            "micro_session": (session_res.get("session") or {}).get("session_id"),
         },
         base_dir=_discover_group_root(),
     )
@@ -190,6 +200,7 @@ def task_start(
         data={
             "run_id": run_id,
             "workflow": exec_res.to_dict(),
+            "micro_session": session_res.get("session"),
         },
         diagnostics=diagnostics,
     )
@@ -201,6 +212,12 @@ def task_start(
             icon = "✓" if st.success else "✗"
             detail = st.data if st.success else st.error
             click.echo(f"  {icon} [{st.bot_id}] {st.action}: {detail}")
+        sess_info = session_res.get("session") or {}
+        if sess_info:
+            click.echo(
+                f"  ✓ [memory-manager-bot] session-start: {sess_info.get('session_id')} "
+                f"(reads={sess_info.get('read_count')}, writes={sess_info.get('write_count')})"
+            )
 
     _emit_response(ctx, response, text_renderer=_text)
     if not all_success:

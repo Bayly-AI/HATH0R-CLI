@@ -68,6 +68,14 @@ class RepoLayoutBot:
                 if not d.exists():
                     d.mkdir(parents=True, exist_ok=True)
                     created_dirs.append(str(d.relative_to(self.cwd)))
+            try:
+                from hath0r_cli.bots.memory_manager import MemoryManagerBot
+                from hath0r_cli.mcp import ensure_repo_mcp_config
+
+                ensure_repo_mcp_config(self.cwd, sync_cfg=True, dry_run=dry_run)
+                MemoryManagerBot(cwd=self.cwd).ensure_gitignore_unignores_graphs(dry_run=dry_run)
+            except Exception:
+                pass
 
         return {
             "success": True,

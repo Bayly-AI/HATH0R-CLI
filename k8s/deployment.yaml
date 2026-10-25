@@ -26,7 +26,7 @@ spec:
         fsGroup: 10001
       containers:
         - name: hathor-cli
-          image: 711387127111.dkr.ecr.us-east-1.amazonaws.com/hathor-cli@sha256:cbe00e393ffe267457470754de7266dc064afd8bac69d34e52df0c73884b39b2
+          image: 711387127111.dkr.ecr.us-east-1.amazonaws.com/hathor-cli@sha256:c101c383765dcf2390b327430f22272e386626c15e932ced28936c710106c2cb
           imagePullPolicy: IfNotPresent
           securityContext:
             readOnlyRootFilesystem: true

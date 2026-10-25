@@ -25,10 +25,15 @@ def agent_cmd(ctx: click.Context) -> None:
 
 @agent_cmd.command("prewarm", help="Execute Princeton KV Cache pre-warming ping on shared context.")
 @click.option("--prompt", "-p", default="Canonical Hath0r Agent System Context", help="Shared system prompt context to prewarm.")
+@click.option("--block-size", "-b", default=16, type=int, help="PagedAttention KV block size in tokens (default: 16).")
 @click.pass_context
-def agent_prewarm(ctx: click.Context, prompt: str) -> None:
+def agent_prewarm(ctx: click.Context, prompt: str, block_size: int) -> None:
     """Prewarm KV cache for shared subagent context."""
-    res = kv_prewarmer.prewarm_context(shared_prompt=prompt, system_prompt="hath0r_canonical_agent")
+    res = kv_prewarmer.prewarm_context(
+        shared_prompt=prompt,
+        system_prompt="hath0r_canonical_agent",
+        block_size=block_size,
+    )
 
     response = _build_response(
         ctx,
@@ -42,7 +47,8 @@ def agent_prewarm(ctx: click.Context, prompt: str) -> None:
             Panel(
                 f"[bold green]✓ Princeton KV Cache Pre-Warming Gate Executed[/bold green]\n\n"
                 f"Context Hash: [bold cyan]{res['context_hash']}[/bold cyan]\n"
-                f"Tokens Pre-warmed: [bold white]{res['tokens_warmed']}[/bold white]\n"
+                f"Tokens Pre-warmed: [bold white]{res['tokens_warmed']} (Aligned: {res['aligned_tokens']} @ block_size={res['block_size']})[/bold white]\n"
+                f"PagedAttention Blocks: [bold white]{res['block_count']} (Chunk-Boundary Aligned: {res['chunk_boundary_aligned']})[/bold white]\n"
                 f"Prefill Latency: [bold white]{res['prefill_latency_ms']} ms[/bold white]\n"
                 f"Estimated Subagent Latency Reduction: [bold green]{res['cache_hit_reduction_pct']}%[/bold green]",
                 title="Hath0r KV Pre-Warmer",
@@ -180,5 +186,69 @@ def agent_status(ctx: click.Context) -> None:
         table.add_row("Active HAHP Handoff Envelopes", str(len(handoffs)))
 
         console.print(table)
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@agent_cmd.command("architecture", help="Audit and display Canonical Architecture: Harness, Resilience, and Dreaming.")
+@click.pass_context
+def agent_architecture(ctx: click.Context) -> None:
+    """Audit canonical agentic architecture: Harness, Brain-Hands split, Resilience, and Dreaming."""
+    arch_data = {
+        "architecture": {
+            "harness": {
+                "loop_control": "DurableWorkflowEngine & StepRunner (Harness owns loops)",
+                "context_management": "AgentGraph Zero-Prompt-Tax + PagedAttention KV Pre-Warmer",
+                "sandboxing": "E2B, Daytona, Local, and Wasm multi-provider zero-trust sandboxes",
+            },
+            "brain_hands_split": {
+                "brain_planner": "TieredRouter REASONING/STANDARD (Claude 3.5 Sonnet, o3-mini, DeepSeek-R1)",
+                "hands_executor": "LIGHT tier (Haiku, Qwen 2.5 Coder) + Deterministic AST Guardrails",
+                "handoff_protocol": "HAHP (Hath0r Agent Handoff Protocol)",
+                "benefit": "Faster time-to-first-token (TTFT) and concurrent tool execution",
+            },
+        },
+        "resilience": {
+            "server_side_execution": "Host-side event-sourced execution with EventJournal",
+            "log_based_resume": "SQLite append-only journal replay recovers exact state machine after crashes",
+            "replay_over_restart": "Idempotent step memoization - cached steps replay in 0ms, retrying only failed actions",
+        },
+        "magic": {
+            "logs_to_memory": "Append-only telemetry and task traces compound into MemoryGraph episodes",
+            "dreaming": "Autonomous sleep-cycle reflection clusters episodes into higher-order insights (hath0r memory dream)",
+            "wakes_up_smarter": "Micro Memory Sessions recall distilled insights at session start with zero prompt tax",
+        },
+    }
+
+    response = _build_response(
+        ctx,
+        command="agent architecture",
+        state="ok",
+        data=arch_data,
+    )
+
+    def _text() -> None:
+        console.print("\n[bold cyan]🏛️  CANONICAL AGENT ARCHITECTURE & RESILIENCE SPECIFICATION[/bold cyan]\n")
+        console.print(
+            Panel(
+                "[bold white]1. The Architecture:[/bold white]\n"
+                "  • [cyan]Harness owns loops, context, sandboxing[/cyan]: "
+                "The host harness (not the LLM) manages iteration loops, zero-prompt-tax context, and multi-provider microVM sandboxes (Daytona/E2B/Local).\n"
+                "  • [cyan]Brain and hands split → faster to first token[/cyan]: "
+                "Architectural planners (Brain) hand off to lightweight streaming executors (Hands) via HAHP envelopes, minimizing TTFT and time-to-action.\n\n"
+                "[bold white]2. The Resilience:[/bold white]\n"
+                "  • [cyan]Server-side execution with log-based resume after crashes[/cyan]: "
+                "Append-only EventJournal records state transitions; upon restart, deterministic log replay reconstructs in-flight state seamlessly.\n"
+                "  • [cyan]Retries and replays beat starting over[/cyan]: "
+                "Idempotent step memoization serves completed steps instantly (0ms) and retries only failed steps, eliminating full-run resets.\n\n"
+                "[bold white]3. The Magic:[/bold white]\n"
+                "  • [cyan]Logs become memory ('Dreaming')[/cyan]: "
+                "Raw execution traces and episodic logs are clustered during sleep cycles by ReflectionEngine ('hath0r memory dream').\n"
+                "  • [cyan]The system wakes up smarter[/cyan]: "
+                "On new session start, distilled insights and causal rules are automatically recalled into active working context.",
+                title="Hath0r Canonical Substrate Pillars",
+                border_style="bold green",
+            )
+        )
 
     _emit_response(ctx, response, text_renderer=_text)

@@ -1,0 +1,55 @@
+{
+  "schema_version": "hath0r.micro_session/1",
+  "session_id": "sess-20261016-142632-17cfdc",
+  "prior_session_id": "sess-20261016-140217-5ba5c3",
+  "parent_session_id": "sess-20261016-140217-5ba5c3",
+  "revision": 14,
+  "content_hash": "sha256:0ef9c5b8cbdf43a8719918dc02c691c31947fe00ca2bca24cfd7f783d87fc76e",
+  "base_graph_hash": "sha256:4583538e1cb97d90f2d108c142dcdef040301cd1d6526942268ac58221818e28",
+  "task_id": "issue-476",
+  "role": null,
+  "repo_name": "hathor-cli",
+  "status": "completed",
+  "started_at": "2026-10-16T14:26:32.800314+00:00",
+  "updated_at": "2026-10-16T15:14:01.574643+00:00",
+  "ended_at": "2026-10-16T14:59:22.383221+00:00",
+  "read_count": 6,
+  "write_count": 9,
+  "last_read_at": "2026-10-16T15:14:01.574643+00:00",
+  "last_write_at": "2026-10-16T14:59:22.383221+00:00",
+  "active_focus": "Repository orientation verified for hathor-cli",
+  "prior_summary": "pounded episode:issue-478-unignore-gr; Compounded episode:pr-479: Knowledge Sha; Compounded episode:pr-479: Completed PR",
+  "recalled_nodes": [
+    {
+      "id": "fact:repo-hathor-cli-orientation",
+      "type": "fact",
+      "label": "hathor-cli Repository Memory Orientation",
+      "snippet": "hathor-cli: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR "
+    },
+    {
+      "id": "insight:hathor-cli",
+      "type": "insight",
+      "label": "Synthesized Insight on hathor-cli",
+      "snippet": "Consolidated from 2 memory nodes tagged 'hathor-cli'. Recurring themes: hathor, logo, repo"
+    }
+  ],
+  "micro_entries": [
+    {
+      "timestamp": "2026-10-16T14:59:22.383221+00:00",
+      "kind": "milestone",
+      "summary": "Completed PR #479 (feature/478-unignore-graph-folders) via EndOfTaskBot.",
+      "tags": [
+        "session-end"
+      ],
+      "node_id": null
+    }
+  ],
+  "next_steps": [],
+  "compounded_node_ids": [
+    "episode:issue-476-memory-file-hashing",
+    "fact:repo-hathor-cli-orientation",
+    "episode:issue-478-unignore-graph-folders",
+    "episode:pr-479"
+  ],
+  "capsule_bytes": 2048
+}

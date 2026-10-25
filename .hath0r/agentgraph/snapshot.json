@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
   "graph_id": "agentgraph-hathor-cli",
-  "timestamp": "2026-10-11T18:30:15.209971+00:00",
+  "timestamp": "2026-10-17T14:51:29.212909+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -53,6 +53,30 @@
       "properties": {
         "path": "tests/AGENTS.md",
         "subsystem": "tests"
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:agents-hath0r-fileset-1.6.0",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "AGENTS.md (hath0r-fileset-1.6.0)",
+      "content": "# AGENTS.md — HATH0R CLI (OpenSource Control Tower)\n\n> Role: **OpenSource Project control tower + operator/developer CLI (`hath0r`)** · group `hath0r-opensource`  \n> Updated: 2026-09-23\n\n## Group membership (CRITICAL)\n\n| Field | Value |\n|-------|-------|\n| Group | `hath0r-opensource` |\n| Project | **OpenSource Project** |\n| Group root | `/Users/raybayly/Development/OpenSource` |\n| **Control tower** | **this repo** (`HATH0R-CLI`) |\n| This product | `HATH0R-CLI` |\n| GitHub | `Bayly-AI/HATH0R-CLI` |\n| Local path | `/Users/raybayly/Development/OpenSource/HATH0R-CLI` |\n| Canonical KB | `/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase` |\n| Operator CLI | `hath0r` |\n| KB mode | stub → group hub |\n| Tower flag | `is_control_tower: true` |\n\n### Canonical siblings (OpenSource Project members)\n\nEvery git repo under the group root is part of the OpenSource Project. Current canonical set:\n\n- **Control tower / CLI**: `/Users/raybayly/Development/OpenSource/HATH0R-CLI` → `Bayly-AI/HATH0R",
+      "properties": {
+        "path": "release/hath0r-fileset-1.6.0/AGENTS.md",
+        "subsystem": "hath0r-fileset-1.6.0"
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:agents-hath0r-fileset-1.5.0",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "AGENTS.md (hath0r-fileset-1.5.0)",
+      "content": "# AGENTS.md — HATH0R CLI (OpenSource Control Tower)\n\n> Role: **OpenSource Project control tower + operator/developer CLI (`hath0r`)** · group `hath0r-opensource`  \n> Updated: 2026-09-23\n\n## Group membership (CRITICAL)\n\n| Field | Value |\n|-------|-------|\n| Group | `hath0r-opensource` |\n| Project | **OpenSource Project** |\n| Group root | `/Users/raybayly/Development/OpenSource` |\n| **Control tower** | **this repo** (`HATH0R-CLI`) |\n| This product | `HATH0R-CLI` |\n| GitHub | `Bayly-AI/HATH0R-CLI` |\n| Local path | `/Users/raybayly/Development/OpenSource/HATH0R-CLI` |\n| Canonical KB | `/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase` |\n| Operator CLI | `hath0r` |\n| KB mode | stub → group hub |\n| Tower flag | `is_control_tower: true` |\n\n### Canonical siblings (OpenSource Project members)\n\nEvery git repo under the group root is part of the OpenSource Project. Current canonical set:\n\n- **Control tower / CLI**: `/Users/raybayly/Development/OpenSource/HATH0R-CLI` → `Bayly-AI/HATH0R",
+      "properties": {
+        "path": "release/hath0r-fileset-1.5.0/AGENTS.md",
+        "subsystem": "hath0r-fileset-1.5.0"
       },
       "is_current": true
     },
@@ -236,6 +260,175 @@
       "is_current": true
     },
     {
+      "id": "rule:cr-memory-compound-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule cr-memory-compound-001",
+      "content": "# CR-MEMORY-COMPOUND-001: Mandatory `.hath0r/memory` Repository Presence, Micro Memory Sessions & Pre-Announcement MemoryGraph Compounding (CRITICAL — org-wide)\n\n> **Status**: Active · **Tier**: Org Invariant (`RulePriority.ORG_INVARIANT`)  \n> **Scope**: All repositories across `/Users/raybayly/Development` (`OpenSource`, `1-Nation`, `BAI`, `Ray`, `Websites`)  \n> **Enforced by**: `hath0r memory`, `MemoryManagerBot`, `OrientBot`, `TaskAnnouncerBot`, `EndOfTaskBot`, `CleanReposWorkflowBot`, `AgentGraphBot`\n\n---\n\n## 1. Universal `.hath0r/memory`, `.hath0r/memory/sessions`, `.hath0r/memory/hashes.json` & Un-Ignored Graph Folders Invariant\n\n1. Every active project repository in `/Users/raybayly/Development` **MUST** maintain an initialized `.hath0r/memory/` directory containing:\n   - `.hath0r/memory/graph.json`: The canonical serialized `MemoryGraph` (`schema_version: \"1.0.0\"`), storing typed semantic, episodic, and session nodes (`rule`, `concept`, `decision`, `fact`, `episode`, `topic`, `insight`, `session`), relational edges (`ENFORCES`, `REQUIRES`, `DERIVES_FROM`, `SUPERSEDES`, `RELATES_TO`, `RESOLVES`, `PRECEDES`), monotonic `revision` counter, and canonical `content_hash` (`sha256:<64-hex>`).\n   - `.hath0r/memory/sessions/`: The dedicated **Micro Memory Session** store containing:\n     - `current.json`: Active compact (<2KB) micro-session state (`session_id`, `prior_session_id`, `read_count`, `write_count`, `revision`, `content_hash`, `base_graph_hash`, `active_focus`, `reca",
+      "properties": {
+        "path": "docs/governance/rules/cr-memory-compound-001.md",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-bai-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-BAI-001",
+      "content": "Governance policy rule CR-BAI-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-BAI-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-agent-substrate-002",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-AGENT-SUBSTRATE-002",
+      "content": "Governance policy rule CR-CLI-AGENT-SUBSTRATE-002 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-AGENT-SUBSTRATE-002",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-feature-standard-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-FEATURE-STANDARD-001",
+      "content": "Governance policy rule CR-CLI-FEATURE-STANDARD-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-FEATURE-STANDARD-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-finops-verifier-002",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-FINOPS-VERIFIER-002",
+      "content": "Governance policy rule CR-CLI-FINOPS-VERIFIER-002 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-FINOPS-VERIFIER-002",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-knowledge-cag-002",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-KNOWLEDGE-CAG-002",
+      "content": "Governance policy rule CR-CLI-KNOWLEDGE-CAG-002 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-KNOWLEDGE-CAG-002",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-mcp-ecosystem-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-MCP-ECOSYSTEM-001",
+      "content": "Governance policy rule CR-CLI-MCP-ECOSYSTEM-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-MCP-ECOSYSTEM-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-tech-debt-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-TECH-DEBT-001",
+      "content": "Governance policy rule CR-CLI-TECH-DEBT-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-TECH-DEBT-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-hath0r-init-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-HATH0R-INIT-001",
+      "content": "Governance policy rule CR-HATH0R-INIT-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-HATH0R-INIT-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-branch-gov-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-BRANCH-GOV-001",
+      "content": "Governance policy rule CR-BRANCH-GOV-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-BRANCH-GOV-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-cli-first-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-CLI-FIRST-001",
+      "content": "Governance policy rule CR-CLI-FIRST-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-CLI-FIRST-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-hath0r-root-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-HATH0R-ROOT-001",
+      "content": "Governance policy rule CR-HATH0R-ROOT-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-HATH0R-ROOT-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-kb-tower-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-KB-TOWER-001",
+      "content": "Governance policy rule CR-KB-TOWER-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-KB-TOWER-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
       "id": "contract:hath0r-vision-response-v1.schema.json",
       "plane": "knowledge",
       "type": "contract",
@@ -412,6 +605,18 @@
       "properties": {
         "schema_id": "https://raw.githubusercontent.com/Bayly-AI/HATH0R-Agentic-Framework/development/contracts/hath0r-factory-v1.schema.json",
         "path": "contracts/hath0r-factory-v1.schema.json"
+      },
+      "is_current": true
+    },
+    {
+      "id": "contract:hath0r-orient-report-v1.schema.json",
+      "plane": "knowledge",
+      "type": "contract",
+      "label": "Hath0r Repository Orientation Report Schema",
+      "content": "Defines schema contract for unified repository orientation aggregating AgentGraph governance, README overview, Code scan, Agent Metrics, and CCCD Calibration.",
+      "properties": {
+        "schema_id": "https://hath0r.bayly.ai/contracts/hath0r-orient-report-v1.schema.json",
+        "path": "contracts/hath0r-orient-report-v1.schema.json"
       },
       "is_current": true
     },
@@ -1142,6 +1347,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__procedures__orient-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Orient Procedure",
+      "content": "# Procedure: Repository Orientation Operational Execution\n\n> Canonical Operational Procedure · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\n## 1. Scope & Prerequisites\n\nThis procedure outlines the deterministic 6-step operational procedure executed whenever an operator or agent triggers `\"orient\"`.\n\n### Prerequisites\n- Operator CLI installed (`hath0r`)\n- Repository root containing `.hath0r/` metadata or `README.md`\n- Active AgentGraph snapshot or capability to build one on demand\n\n---\n\n## 2. Step-by-Step Procedure\n\n### Stage 1: Read Agents & Rules from AgentGraph\n1. Locate `.hath0r/agentgraph/snapshot.json`. If missing, invoke `AgentGraphBot.sync()` to compile on the fly.\n2. Filter nodes on `plane == \"rules\"` and `type == \"agent_role\"`:\n   - Extract role name, ID, permitted tools, forbidden tools, and inherited roles.\n3. Filter nodes on `plane == \"rules\"` and `type == \"rule_policy\"`:\n   - Extract rule ID, label, priority, and restricted actions.\n4. Tally active quad-graph topology statistics (Knowledge, Memory, Rules, Context).\n\n### Stage 2: Read Project README\n1. Locate `README.md` (fallback to `TECH_README.md`).\n2. Extract project title, high-level d",
+      "properties": {
+        "path": "docs/governance/procedures/orient-procedure.md",
+        "category": "procedures",
+        "size_bytes": 2752
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__procedures__hyper-context-procedure_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1190,6 +1408,19 @@
         "path": "docs/governance/procedures/coding-procedure.md",
         "category": "procedures",
         "size_bytes": 687
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__procedures__memorygraph-compounding-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Memorygraph Compounding Procedure",
+      "content": "# MemoryGraph Compounding & Micro Memory Session Standard Operating Procedure\n\n> **Rule Binding**: `CR-MEMORY-COMPOUND-001`  \n> **CLI Entrypoint**: `hath0r memory` · `hath0r memory session`\n\n## 1. Purpose\n\nDefines the mandatory step-by-step procedure for initializing `.hath0r/memory/`, reading and writing a true Micro Memory Session (`.hath0r/memory/sessions/`) on every session, compounding task knowledge into `.hath0r/memory/graph.json`, synchronizing `.hath0r/agentgraph/snapshot.json`, and verifying the pre-announcement gate before declaring any task complete.\n\n## 2. Procedure Steps\n\n### Step 1: Start & Read Micro Memory Session at Session Start\nAt the start of every session, orientation (`hath0r orient`), or task (`hath0r task start`), read the micro-session capsule (which automatically initializes `.hath0r/memory/sessions/current.json` from `latest.json` and top `graph.json` nodes if needed):\n```bash\nhath0r memory session start --focus \"Working on issue #289 micro memory sessions\"\nhath0r memory session read\n```\n\n### Step 2: Write Incremental Micro-Memory Entries During the Session\nAs observations, decisions, tool findings, or milestones occur during the session, write compact m",
+      "properties": {
+        "path": "docs/governance/procedures/memorygraph-compounding-procedure.md",
+        "category": "procedures",
+        "size_bytes": 3474
       },
       "is_current": true
     },
@@ -1398,6 +1629,19 @@
         "path": "docs/governance/strategies/sqlite-fts5-kb-cache-strategy.md",
         "category": "strategies",
         "size_bytes": 4351
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__strategies__memorygraph-compounding-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Memorygraph Compounding Strategy",
+      "content": "# MemoryGraph Compounding, Micro Memory Sessions & Pre-Announcement Gate Strategy\n\n> **Rule Binding**: `CR-MEMORY-COMPOUND-001` · `CR-AGENTGRAPH-001`  \n> **Subsystem**: `hath0r_engine.memory` · `hath0r_cli.bots.memory_manager` · `hath0r_cli.bots.agentgraph_bot`\n\n## 1. Strategic Objective\n\nAutonomous agents lose institutional context across sessions when task learnings remain trapped in ephemeral chat transcripts or unindexed markdown notes. The **MemoryGraph Compounding & Micro Memory Session Strategy** establishes a two-tier memory architecture in every repository:\n1. **True Micro Memory Sessions (`.hath0r/memory/sessions/`)**: A compact (<2KB), zero-prompt-tax working memory capsule (`current.json`, `latest.json`, `<session-id>.json`) that is **read at the start of every session** and **written throughout every session**.\n2. **Compounding Institutional MemoryGraph (`.hath0r/memory/graph.json`)**: A living, bitemporal semantic network where micro-sessions and task episodes compound into durable architectural insights prior to completion announcement.\n\n## 2. Architectural Pillars\n\n1. **Universal Repository Memory Space & Un-Ignored Graph Folders (`.hath0r/memory/`, `.hath0r/agentgr",
+      "properties": {
+        "path": "docs/governance/strategies/memorygraph-compounding-strategy.md",
+        "category": "strategies",
+        "size_bytes": 4791
       },
       "is_current": true
     },
@@ -1714,6 +1958,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__strategies__orient-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Orient Strategy",
+      "content": "# Strategy: Unified Repository Orientation & Cognitive Calibration Strategy\n\n> Canonical Strategy Specification · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\n## 1. Executive Summary & Strategic Objectives\n\nAutonomous agents and human operators frequently transition across polyglot repositories within the Hath0r suite (`HATH0R-CLI`, `hath0r-framework`, `hath0r-poc`). To prevent cold-start latency, context hallucinations, unauthorized tool invocation, and stale calibration drift, the **Unified Repository Orientation Strategy** establishes a standardized, 6-stage operational protocol triggered by the command `\"orient\"`.\n\nThe strategy fulfills three core pillars:\n1. **Zero-Prompt-Tax Governance Discovery**: Instead of dumping entire rulebooks into LLM context, `orient` extracts scoped agent roles and governing rules directly from the local AgentGraph quad-graph substrate (`KnowledgePlane` + `RulesPlane`).\n2. **Structural Code & Architectural Grounding**: Rapidly outlines the application topology, core classes, entry points, and subsystems via AST symbol parsing and README extraction without exhausting prompt token budgets.\n3. **Continuous Metric & Calibra",
+      "properties": {
+        "path": "docs/governance/strategies/orient-strategy.md",
+        "category": "strategies",
+        "size_bytes": 2447
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__strategies__cicccd-strategy_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2009,6 +2266,19 @@
         "path": "docs/governance/checklists/pr-release-to-master.md",
         "category": "checklists",
         "size_bytes": 367
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__checklists__orient-checklist_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Orient Checklist",
+      "content": "# Checklist: Repository Orientation Verification Checklist\n\n> Canonical Verification Checklist · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\nThis checklist must be satisfied before completing any repository orientation task.\n\n- [ ] **Stage 1: AgentGraph Reading**\n  - [ ] AgentGraph snapshot loaded or synchronized from `.hath0r/agentgraph/snapshot.json`.\n  - [ ] Agent roles extracted with permitted and forbidden tool sets.\n  - [ ] Governing rules extracted with priority and restricted actions.\n- [ ] **Stage 2: Project README Reading**\n  - [ ] Root `README.md` or `TECH_README.md` discovered and parsed.\n  - [ ] Project title, mission statement, and core components summarized.\n- [ ] **Stage 3: Application Code Scan**\n  - [ ] Codebase files scanned across source folders (`src/`, `lib/`, `contracts/`).\n  - [ ] Primary programming languages identified with file distribution.\n  - [ ] Key AST symbols and entry points outlined.\n- [ ] **Stage 4: Agent Metrics**\n  - [ ] Observability latency quantiles (P50, P90, P99) extracted.\n  - [ ] Token telemetry histogram distribution generated.\n  - [ ] PMAT code churn, provability, complexity, and hotspot count evaluated.\n",
+      "properties": {
+        "path": "docs/governance/checklists/orient-checklist.md",
+        "category": "checklists",
+        "size_bytes": 1595
       },
       "is_current": true
     },
@@ -2416,6 +2686,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__memorygraph-compounding-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Memorygraph Compounding Runbook",
+      "content": "# MemoryGraph Compounding & Micro Memory Session Runbook\n\n> **Rule Binding**: `CR-MEMORY-COMPOUND-001`  \n> **Service / Component**: `hath0r memory` · `hath0r memory session` · `MemoryManagerBot` · `TaskAnnouncerBot`\n\n## 1. Health, Session & Gate Verification\n\nCheck the current repository's `MemoryGraph` health, active micro-session state, and pre-announcement gate status:\n```bash\nhath0r memory session status\nhath0r memory session read\nhath0r memory verify\nhath0r memory search\nhath0r agentgraph status\n```\n\nAudit and provision `.hath0r/memory/` and `.hath0r/memory/sessions/` across all repositories in `/Users/raybayly/Development`:\n```bash\nhath0r memory ensure-all --root /Users/raybayly/Development\n```\n\n## 2. Troubleshooting & Remediation\n\n### Issue 1: `TaskAnnouncerBot` Blocks Announcement (`SESSION_NOT_READ_OR_WRITTEN` or `MEMORY_NOT_COMPOUNDED`)\n- **Symptom**: `announce-complete` or `hath0r memory verify` returns `success: False` indicating either no task knowledge was compounded into `.hath0r/memory/graph.json`, or the micro-session has `read_count < 1` or `write_count < 1`.\n- **Remediation**:\n  1. Ensure the micro-session has been read and written:\n     ```bash\n     hath0r memor",
+      "properties": {
+        "path": "docs/governance/runbooks/memorygraph-compounding-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 3871
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__runbook-cli-update_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2546,6 +2829,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__orient-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Orient Runbook",
+      "content": "# Runbook: Orient Bot & CLI Operational Runbook\n\n> Canonical Operational Runbook · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\n## 1. System Overview\n\n`OrientBot` (`hath0r orient`) services operator and autonomous agent requests for complete repository orientation. It executes a 6-stage cognitive walkthrough, extracting AgentGraph rules, README architecture, AST code symbols, performance observability, and CCCD calibration before returning a dual-mode TUI/Markdown report.\n\n---\n\n## 2. Operator Execution Commands\n\n### Run via Operator CLI\n```bash\n# Standard repository orientation\nhath0r orient\n\n# Orient a specific target repository path\nhath0r orient --repo /path/to/repo\n\n# Output in Markdown format (ideal for CI, logging, and piping)\nhath0r orient --markdown\n\n# Output as raw JSON payload matching schema contract\nhath0r orient --json\n```\n\n### Run via Conversational Agent Trigger\nWhen prompted in agent dialogue with `\"orient\"`, `\"run orient\"`, or `\"orient repo\"`, the agent executes the orient procedure and presents the structured report.\n\n---\n\n## 3. Failure Modes & Troubleshooting\n\n| Symptom | Root Cause | Operator Action |\n| :--- | :--- | :--- |\n| `Agent",
+      "properties": {
+        "path": "docs/governance/runbooks/orient-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 1583
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__opentelemetry-ops-runbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2650,6 +2946,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__workflows__orient-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Orient Workflow",
+      "content": "# Workflow: Repository Orientation Workflow\n\n> Canonical Workflow Definition · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\n```mermaid\nflowchart TD\n    A[\"Operator / Agent Trigger: 'orient' (or 'hath0r orient')\"] --> B[\"Step 1: Read Agents & Rules from AgentGraph\"]\n    B --> C[\"Step 2: Read Project README & Architecture Summary\"]\n    C --> D[\"Step 3: Scan Codebase AST & Application Structure\"]\n    D --> E[\"Step 4: Run Agent Metrics (Observability, Telemetry & PMAT)\"]\n    E --> F[\"Step 5: Run Agent Calibration (CCCD Parameter Loop)\"]\n    F --> G[\"Aggregate into hath0r-orient-report-v1 Schema Contract\"]\n    G --> H{\"Terminal UI (TUI) Supported?\"}\n    H -- Yes --> I[\"Render Rich TUI Scorecards, Topology & Panels\"]\n    H -- No / Fallback --> J[\"Render Comprehensive GitHub-Flavored Markdown Report\"]\n    I & J --> K[\"Ingest Orientation Execution Node into AgentGraph ContextPlane\"]\n    K --> L[\"Return Orientation Report & Verdict to Operator\"]\n```\n\n## Supported Intent Triggers\n1. `\"orient\"`\n2. `\"hath0r orient\"`\n3. `\"run orient\"`\n4. `\"orient repository\"`\n5. `\"orientation report\"`\n6. `\"system orientation\"`\n\n## Six Core Execution Stages\n1. **AgentGraph Retrieval",
+      "properties": {
+        "path": "docs/governance/workflows/orient-workflow.md",
+        "category": "workflows",
+        "size_bytes": 2294
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__workflows__embedded-elt-workflow_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2659,6 +2968,19 @@
         "path": "docs/governance/workflows/embedded-elt-workflow.md",
         "category": "workflows",
         "size_bytes": 1229
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__workflows__memorygraph-compounding-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Memorygraph Compounding Workflow",
+      "content": "# MemoryGraph Compounding & Micro Memory Session Workflow Specification\n\n> **Factory Binding**: `end-of-task-factory.yaml` · `repo-onboarding-factory.yaml` · `start-of-task-factory.yaml`  \n> **Rule Binding**: `CR-MEMORY-COMPOUND-001`\n\n## 1. Workflow Diagram\n\n```mermaid\nflowchart TD\n    A[\"Session / Task Start (hath0r orient / hath0r task start)\"] --> B[\"hath0r memory session start / read\"]\n    B --> C[\"Read latest.json + Top graph.json Nodes -> current.json (read_count >= 1)\"]\n    C --> D[\"Task Execution & In-Session Micro-Writes (hath0r memory session write, write_count >= 1)\"]\n    D --> E[\"hath0r memory compound (CAS Check + Auto-Merge + Durable Node)\"]\n    E --> F[\"hath0r memory session end & hath0r memory hash --sync (hashes.json + .gitignore Un-Ignore)\"]\n    F --> G[\"ReflectionEngine.consolidate_sleep_cycle() + AgentGraphBot.sync()\"]\n    G --> H{\"TaskAnnouncerBot.announce_complete()\\nMemoryManagerBot.verify_compounded()\"}\n    H -- \"Compounded, Session R/W, Hashes Up-to-Date & Graphs Not Ignored == True\" --> I[\"Announce Task Complete\"]\n    H -- \"Gate Failed / Hash Conflict / Graph Ignored\" --> J[\"BLOCK Announcement (Require Session R/W + Compounding + Hash Sync + Un-Ignore)\"]\n`",
+      "properties": {
+        "path": "docs/governance/workflows/memorygraph-compounding-workflow.md",
+        "category": "workflows",
+        "size_bytes": 2853
       },
       "is_current": true
     },
@@ -2698,6 +3020,19 @@
         "path": "docs/governance/bot-specs/phoenix-manager-bot-spec.md",
         "category": "bot-specs",
         "size_bytes": 1772
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__memory-manager-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Memory Manager Bot Spec",
+      "content": "# Bot Specification: `MemoryManagerBot` (`memory-manager-bot`)\n\n> **Bot ID**: `memory-manager-bot`  \n> **Class**: `hath0r_cli.bots.memory_manager.MemoryManagerBot`  \n> **Engine Backing**: `hath0r_engine.memory.MemoryGraph`, `hath0r_engine.memory.MicroMemorySession`, `hath0r_engine.memory.ReflectionEngine`  \n> **Rule Binding**: `CR-MEMORY-COMPOUND-001`, `CR-AGENTGRAPH-001`\n\n## 1. Role & Responsibilities\n\n`MemoryManagerBot` manages the canonical Local Memory Space (`.hath0r/memory/`), dedicated Micro Memory Sessions (`.hath0r/memory/sessions/`), and semantic/episodic `MemoryGraph` (`.hath0r/memory/graph.json`) across all Hath0r repositories. It enforces universal repository presence of `.hath0r/memory/graph.json` and `.hath0r/memory/sessions/current.json`, manages session-level micro-reads and micro-writes (<2KB capsule), compounds task learnings into connected graph nodes and edges (`PRECEDES`, `DERIVES_FROM`), executes autonomous reflection synthesis, synchronizes the `memory` plane of `AgentGraph`, and enforces the pre-announcement completion gate (`read_count >= 1`, `write_count >= 1`, and `compounded_nodes_count >= 1`).\n\n## 2. Capabilities & Actions\n\n| Action | Method | Descript",
+      "properties": {
+        "path": "docs/governance/bot-specs/memory-manager-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 4834
       },
       "is_current": true
     },
@@ -2763,6 +3098,19 @@
         "path": "docs/governance/bot-specs/cicccd-bot-spec.md",
         "category": "bot-specs",
         "size_bytes": 1495
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__orient-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Orient Bot Spec",
+      "content": "# Bot Specification: OrientBot\n\n> Canonical Bot Specification · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\n## 1. Role & Identity\n\n- **Bot Name**: `orient-bot`\n- **Class Name**: `OrientBot`\n- **Subsystem**: `HATH0R-CLI` (`src/hath0r_cli/bots/orient_bot.py`)\n- **CLI Command**: `hath0r orient`\n- **Primary Function**: Autonomous micro-bot servicing operator and agent requests for repository orientation, multi-plane AgentGraph reading, README summarization, AST code scanning, agent metrics retrieval, and continuous calibration.\n\n---\n\n## 2. Supported Conversational Intents\n\n1. `\"orient\"`\n2. `\"hath0r orient\"`\n3. `\"run orient\"`\n4. `\"orient repository\"`\n5. `\"orientation report\"`\n6. `\"system orientation\"`\n7. `\"repo orient\"`\n\n---\n\n## 3. Subsystem Integrations & RBAC\n\n- `AgentGraphBot`: Reads Agent Roles, Rules & Invariants, and Topology from `.hath0r/agentgraph/snapshot.json`.\n- `CodeParser`: Scans codebase files and parses AST symbols (classes, methods, functions).\n- `AgentMetricsBot`: Pulls observability metrics, token histogram, and PMAT multi-dimensional stats.\n- `CICCCDBot`: Evaluates and executes Continuous Calibration (CCCD) loop.\n- `AgentGraphEngine`: I",
+      "properties": {
+        "path": "docs/governance/bot-specs/orient-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 1274
       },
       "is_current": true
     },
@@ -2932,6 +3280,19 @@
         "path": "docs/governance/playbooks/schema-self-repair-loops-playbook.md",
         "category": "playbooks",
         "size_bytes": 1088
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__memorygraph-compounding-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Memorygraph Compounding Playbook",
+      "content": "# MemoryGraph Compounding & Micro Memory Session Playbook\n\n> **Rule Binding**: `CR-MEMORY-COMPOUND-001`  \n> **Target Audience**: Autonomous Agents, Subagents, and Operators\n\n## 1. When to Use This Playbook\n\nExecute this playbook on **every session and task** (at session start, during execution, and prior to announcing completion), during `clean-repos` (Step 1, Step 6 & Step 13), and whenever onboarding or auditing repositories across `/Users/raybayly/Development`.\n\n## 2. Micro Memory Session Capsule Specification (`.hath0r/memory/sessions/`)\n\nEach repository maintains a dedicated `.hath0r/memory/sessions/` directory containing:\n- `current.json`: Active micro-session (<2KB JSON payload)\n- `latest.json`: Most recently updated/flushed micro-session\n- `<session-id>.json`: Archived session snapshots\n\n| Field | Type | Description |\n|-------|------|-------------|\n| `session_id` | `str` | Unique session identifier (e.g., `sess-20261016-081000-a1b2c3`) |\n| `prior_session_id` | `str \\| None` | Previous session ID linked via `PRECEDES` edge in `graph.json` |\n| `read_count` | `int` | Number of session reads in this session ($\\ge 1$ required by gate) |\n| `write_count` | `int` | Number of micro-",
+      "properties": {
+        "path": "docs/governance/playbooks/memorygraph-compounding-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 4391
       },
       "is_current": true
     },
@@ -3114,6 +3475,19 @@
         "path": "docs/governance/playbooks/cicccd-playbook.md",
         "category": "playbooks",
         "size_bytes": 891
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__orient-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Orient Playbook",
+      "content": "# Playbook: Repository Orientation Anomaly Diagnostic & Remediation\n\n> Canonical Remediation Playbook · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\n## 1. Trigger Conditions\n\nThis playbook is activated when `OrientBot` encounters anomalies during orientation:\n- **AgentGraph Desync**: AgentGraph snapshot missing, corrupt, or containing 0 rules.\n- **Uncalibrated Runtime State**: Continuous Calibration (CCCD) status is stale ($> 24\\text{h}$) or parameters failed convergence.\n- **High Architectural Risk**: PMAT reports Composite Hotspot Risk Index $R(f) \\ge 0.75$ or provability score $< 0.85$.\n- **Missing Project Identity**: Root repository missing `README.md` or missing ecosystem member definition.\n\n---\n\n## 2. Diagnostic & Remediation Protocol\n\n```mermaid\nflowchart TD\n    A[\"Anomaly Detected during 'orient'\"] --> B{\"Anomaly Class\"}\n    B -- AgentGraph Desync --> C[\"Execute 'hath0r agentgraph sync'\"]\n    B -- Stale Calibration --> D[\"Execute 'hath0r cicccd calibrate'\"]\n    B -- High PMAT Risk --> E[\"Review PMAT Remediation Protocol Items\"]\n    B -- Missing README --> F[\"Scaffold Canonical README from Template\"]\n    C & D & E & F --> G[\"Re-run 'hath0r orien",
+      "properties": {
+        "path": "docs/governance/playbooks/orient-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 1821
       },
       "is_current": true
     },
@@ -3456,6 +3830,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__rules__cr-memory-compound-001_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Cr Memory Compound 001",
+      "content": "# CR-MEMORY-COMPOUND-001: Mandatory `.hath0r/memory` Repository Presence, Micro Memory Sessions & Pre-Announcement MemoryGraph Compounding (CRITICAL — org-wide)\n\n> **Status**: Active · **Tier**: Org Invariant (`RulePriority.ORG_INVARIANT`)  \n> **Scope**: All repositories across `/Users/raybayly/Development` (`OpenSource`, `1-Nation`, `BAI`, `Ray`, `Websites`)  \n> **Enforced by**: `hath0r memory`, `MemoryManagerBot`, `OrientBot`, `TaskAnnouncerBot`, `EndOfTaskBot`, `CleanReposWorkflowBot`, `AgentGraphBot`\n\n---\n\n## 1. Universal `.hath0r/memory`, `.hath0r/memory/sessions`, `.hath0r/memory/hashes.json` & Un-Ignored Graph Folders Invariant\n\n1. Every active project repository in `/Users/raybayly/Development` **MUST** maintain an initialized `.hath0r/memory/` directory containing:\n   - `.hath0r/memory/graph.json`: The canonical serialized `MemoryGraph` (`schema_version: \"1.0.0\"`), storing typed semantic, episodic, and session nodes (`rule`, `concept`, `decision`, `fact`, `episode`, `topic`, `insight`, `session`), relational edges (`ENFORCES`, `REQUIRES`, `DERIVES_FROM`, `SUPERSEDES`, `RELATES_TO`, `RESOLVES`, `PRECEDES`), monotonic `revision` counter, and canonical `content_hash` (`sha256",
+      "properties": {
+        "path": "docs/governance/rules/cr-memory-compound-001.md",
+        "category": "rules",
+        "size_bytes": 9078
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__reports__compliance-audit-report-hathor-cli_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3560,6 +3947,527 @@
       "is_current": true
     },
     {
+      "id": "memory:rule:cr-cli-entry-001",
+      "plane": "memory",
+      "type": "rule",
+      "label": "Start with CLI Rule",
+      "content": "Always start with hath0r operator CLI before inventing ad-hoc actions.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "rule",
+          "governance",
+          "cli"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:rule:cr-bai-001",
+      "plane": "memory",
+      "type": "rule",
+      "label": "Promotion Path Policy",
+      "content": "Promotion order: local -> development -> testing -> staging -> master.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "rule",
+          "governance",
+          "ci"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:rule:cr-memory-compound-001",
+      "plane": "memory",
+      "type": "rule",
+      "label": "Mandatory MemoryGraph Compounding Rule",
+      "content": "Every project repo must maintain .hath0r/memory/graph.json and every task must compound knowledge prior to announcing complete.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "rule",
+          "governance",
+          "memorygraph",
+          "cr-memory-compound-001"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "concept:tri-graph",
+      "plane": "memory",
+      "type": "concept",
+      "label": "Tri-Graph Substrate",
+      "content": "Three-layer cognitive graph architecture: KnowledgeGraph, ContextGraph, MemoryGraph.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "architecture",
+          "substrate",
+          "tri-graph"
+        ],
+        "importance": 0.9
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:fact:repo-hathor-cli-orientation",
+      "plane": "memory",
+      "type": "fact",
+      "label": "hathor-cli Repository Memory Orientation",
+      "content": "hathor-cli: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" /> </p>",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "orientation",
+          "repository",
+          "hathor-cli",
+          "cr-memory-compound-001",
+          "fact",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:issue-472-memorygraph-compounding",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Implement hath0r memory compound, verify, reflect, ensure-all & Pre-Announcement Gate",
+      "content": "Added compound, reflect, verify, and ensure-all CLI commands and MemoryManagerBot actions; fixed AgentGraphBot memory edge normalization; wired hard CR-MEMORY-COMPOUND-001 pre-announcement gate into TaskAnnouncerBot, EndOfTaskBot, DocumentationBot, and CleanReposWorkflowBot.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "memorygraph",
+          "cr-memory-compound-001",
+          "governance",
+          "cli",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.95
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:cr-memory-compound-001",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on cr-memory-compound-001",
+      "content": "Consolidated from 2 memory nodes tagged 'cr-memory-compound-001'. Recurring themes: hathor, memory, compound, logo. Latest context: Added compound, reflect, verify, and ensure-all CLI commands and MemoryManagerBot actions; fixed AgentGraphBot memory edge normalization; wired hard CR-MEMORY-C",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "cr-memory-compound-001",
+        "source": "local_memory",
+        "tags": [
+          "cr-memory-compound-001",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:session:sess-20261016-123051-cbad2e",
+      "plane": "memory",
+      "type": "session",
+      "label": "Micro Session sess-20261016-123051-cbad2e",
+      "content": "Micro Session sess-20261016-123051-cbad2e [completed] | Focus: Repository orientation verified for hathor-cli | Reads: 2, Writes: 3 | Entries: Started session focus: EndOfTaskBot reading micro-session before compounding PR #101; Completed PR #101 (feature/101-test) via EndOfTaskBot.; Compounded fact:repo-hathor-cli-orientation: hathor-cli Repository Memory Orientation",
+      "properties": {
+        "session_id": "sess-20261016-123051-cbad2e",
+        "prior_session_id": null,
+        "parent_session_id": null,
+        "read_count": 2,
+        "write_count": 3,
+        "status": "completed",
+        "byte_size": 1985,
+        "source": "local_memory",
+        "tags": [
+          "session",
+          "micro-session",
+          "completed"
+        ],
+        "importance": 0.75
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:decision:issue-474-micro-memory-session",
+      "plane": "memory",
+      "type": "decision",
+      "label": "True Micro Memory Session CLI & Bot Enforcement (Issue #474)",
+      "content": "Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task start/finish and clean-repo session hooks, and verified across all 31 repositories.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "memorygraph",
+          "micro-session",
+          "cli",
+          "governance",
+          "issue-474",
+          "decision",
+          "compounded"
+        ],
+        "importance": 0.95
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:memorygraph",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on memorygraph",
+      "content": "Consolidated from 2 memory nodes tagged 'memorygraph'. Recurring themes: memory, compound, verify, reflect. Latest context: Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task start/finish and clean-repo session hooks, and verified across all 31 re",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "memorygraph",
+        "source": "local_memory",
+        "tags": [
+          "memorygraph",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:governance",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on governance",
+      "content": "Consolidated from 2 memory nodes tagged 'governance'. Recurring themes: memory, compound, verify, reflect. Latest context: Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task start/finish and clean-repo session hooks, and verified across all 31 re",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "governance",
+        "source": "local_memory",
+        "tags": [
+          "governance",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:cli",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on cli",
+      "content": "Consolidated from 2 memory nodes tagged 'cli'. Recurring themes: memory, compound, verify, reflect. Latest context: Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task start/finish and clean-repo session hooks, and verified across all 31 re",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "cli",
+        "source": "local_memory",
+        "tags": [
+          "cli",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:session:sess-20261016-123311-4e0dab",
+      "plane": "memory",
+      "type": "session",
+      "label": "Micro Session sess-20261016-123311-4e0dab",
+      "content": "Micro Session sess-20261016-123311-4e0dab [completed] | Focus: Issue #474: True Micro Memory Session CLI & Bot Enforcement | Reads: 2, Writes: 4 | Entries: Compounded decision:issue-474-micro-memory-session: True Micro Memory Session CLI & Bot Enforcement (Issue #474); Completed Issue #474 Micro Memory Session CLI, bots, and 31-repo provisioning.",
+      "properties": {
+        "session_id": "sess-20261016-123311-4e0dab",
+        "prior_session_id": "sess-20261016-123051-cbad2e",
+        "parent_session_id": "sess-20261016-123051-cbad2e",
+        "read_count": 2,
+        "write_count": 4,
+        "status": "completed",
+        "byte_size": 2003,
+        "source": "local_memory",
+        "tags": [
+          "session",
+          "micro-session",
+          "completed"
+        ],
+        "importance": 0.75
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:session:sess-20261016-140217-5ba5c3",
+      "plane": "memory",
+      "type": "session",
+      "label": "Micro Session sess-20261016-140217-5ba5c3",
+      "content": "Micro Session sess-20261016-140217-5ba5c3 [completed] | Focus: Repository orientation verified for hathor-cli | Reads: 3, Writes: 3 | Entries: Compounded fact:repo-hathor-cli-orientation: hathor-cli Repository Memory Orientation",
+      "properties": {
+        "session_id": "sess-20261016-140217-5ba5c3",
+        "prior_session_id": "sess-20261016-123311-4e0dab",
+        "parent_session_id": "sess-20261016-123311-4e0dab",
+        "read_count": 3,
+        "write_count": 3,
+        "status": "completed",
+        "byte_size": 1849,
+        "source": "local_memory",
+        "tags": [
+          "session",
+          "micro-session",
+          "completed"
+        ],
+        "importance": 0.75
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:issue-476-memory-file-hashing",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Issue #476: MemoryGraph SHA-256 File Hashing & CAS Conflict Prevention",
+      "content": "Implemented cryptographic SHA-256 file hashing (.hath0r/memory/hashes.json), source_files staleness tracking, atomic os.replace writes, optimistic CAS auto-merge, and hath0r memory hash CLI commands.",
+      "properties": {
+        "source_files": {
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:6094787f1f360f20f473cd1f37add99f63fb4bdfe408a8c65cfc97b160310888",
+          "src/hath0r_cli/commands/memory.py": "sha256:32bb15d6d92f77da0d176764925e41cbb3e7f7c84b6ddb7bf49364fb3d777a5e"
+        },
+        "source": "local_memory",
+        "tags": [
+          "memorygraph",
+          "hashing",
+          "cas",
+          "cr-memory-compound-001",
+          "issue-476",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:issue-478-unignore-graph-folders",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Enforced Un-Ignored Graph Folders in MemoryManagerBot & RepoLayoutBot",
+      "content": "Added ensure_gitignore_unignores_graphs and verify_graphs_not_gitignored to MemoryManagerBot and RepoLayoutBot, sanitizing .gitignore across all 31 repositories and enforcing graphs_not_ignored in verify_compounded.",
+      "properties": {
+        "source_files": {
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:6094787f1f360f20f473cd1f37add99f63fb4bdfe408a8c65cfc97b160310888",
+          "src/hath0r_cli/bots/onboarding.py": "sha256:e7f705cadb343baca742241133b3ead20679ccb6c1bf391b1d49211f765f3ee4",
+          ".gitignore": "sha256:1081973c974de85646cafeee9c4eaa45a789a8c481dd528a60e8cc4c68a2fa2b"
+        },
+        "source": "local_memory",
+        "tags": [
+          "memorygraph",
+          "gitignore",
+          "agentgraph",
+          "cr-memory-compound-001",
+          "issue-478",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.9
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:pr-479",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Completed PR #479 (feature/478-unignore-graph-folders)",
+      "content": "Merged PR #479 from branch feature/478-unignore-graph-folders into development.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "pr",
+          "pr-479",
+          "feature/478-unignore-graph-folders",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:hathor-cli",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on hathor-cli",
+      "content": "Consolidated from 2 memory nodes tagged 'hathor-cli'. Recurring themes: hathor, logo, repository, memory. Latest context: Autonomous bot completed PR #479 (feature/478-unignore-graph-folders)",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "hathor-cli",
+        "source": "local_memory",
+        "tags": [
+          "hathor-cli",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 0.97
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:session:sess-20261016-142632-17cfdc",
+      "plane": "memory",
+      "type": "session",
+      "label": "Micro Session sess-20261016-142632-17cfdc",
+      "content": "Micro Session sess-20261016-142632-17cfdc [completed] | Focus: Repository orientation verified for hathor-cli | Reads: 6, Writes: 9 | Entries: Completed PR #479 (feature/478-unignore-graph-folders) via EndOfTaskBot.",
+      "properties": {
+        "session_id": "sess-20261016-142632-17cfdc",
+        "prior_session_id": "sess-20261016-140217-5ba5c3",
+        "parent_session_id": "sess-20261016-140217-5ba5c3",
+        "read_count": 6,
+        "write_count": 9,
+        "status": "completed",
+        "byte_size": 2048,
+        "source": "local_memory",
+        "tags": [
+          "session",
+          "micro-session",
+          "completed"
+        ],
+        "importance": 0.75
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:issue-480-default-hath0r-mcp-json",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Fleet .hath0r/mcp.json Provisioning & Resolution (#480)",
+      "content": "Updated HATH0R-CLI MCP resolution and added hath0r mcp init and hath0r mcp ensure-all so every repository resolves .hath0r/mcp.json first with its group Hath0r MCP server (mcp.hath0r-cli.com, mcp.baylyai.com, mcp.raymondbayly.com, mcp.1-nation.com) as Priority 1.",
+      "properties": {
+        "source_files": {
+          ".hath0r/mcp.json": "sha256:5eee26e3857e09b94a7921fef533ed83ef4bfa7c6b8cbf944016aceafedecefa",
+          "cfg/mcp.servers.json": "sha256:95e6ce365170bd5afbaf408b3195fc15378b493827572c09f0e10538522f8e97",
+          "cfg/mcp-connections.yaml": "sha256:ac7648df01ab8c93a6c548c90fd8a15faaac952e80e9b60cfedd9857eeee17d9",
+          "src/hath0r_cli/mcp.py": "sha256:ec4ee2b9e81ffb38a3c7392e0b6c425c49f4e3f8e4415d1e8264b44aa3d16a80",
+          "src/hath0r_cli/commands/mcp.py": "sha256:9d79e9a77bd5e7048dc24a434b7021178d4ec1b024a16df2d416d3677890f965",
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:6094787f1f360f20f473cd1f37add99f63fb4bdfe408a8c65cfc97b160310888",
+          "src/hath0r_cli/bots/onboarding.py": "sha256:e7f705cadb343baca742241133b3ead20679ccb6c1bf391b1d49211f765f3ee4",
+          "tests/unit/test_mcp.py": "sha256:86286b729fa650c6c4a89bcc062903fe3b2b2e328953ef4bcad6a5466d6f7c03"
+        },
+        "source": "local_memory",
+        "tags": [
+          "mcp",
+          "hath0r-mcp",
+          "cli",
+          "cr-mcp-priority-001",
+          "cr-memory-compound-001",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:clean-repo-hathor-cli",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Clean Repo Lifecycle (hathor-cli)",
+      "content": "Executed 13-step clean-repo hygiene and knowledge sync for hathor-cli.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "clean-repo",
+          "hygiene",
+          "hathor-cli",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.75
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:session:sess-20261016-151409-a068f7",
+      "plane": "memory",
+      "type": "session",
+      "label": "Micro Session sess-20261016-151409-a068f7",
+      "content": "Micro Session sess-20261016-151409-a068f7 [completed] | Focus: Repository orientation verified for hathor-cli | Reads: 4, Writes: 8 | Entries: Clean Repo Lifecycle completed for hathor-cli.",
+      "properties": {
+        "session_id": "sess-20261016-151409-a068f7",
+        "prior_session_id": "sess-20261016-142632-17cfdc",
+        "parent_session_id": "sess-20261016-142632-17cfdc",
+        "read_count": 4,
+        "write_count": 8,
+        "status": "completed",
+        "byte_size": 1856,
+        "source": "local_memory",
+        "tags": [
+          "session",
+          "micro-session",
+          "completed"
+        ],
+        "importance": 0.75
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:decision:cli-kvcacheprewarmer-cagengine-chunk-boundary-al",
+      "plane": "memory",
+      "type": "decision",
+      "label": "CLI KVCachePrewarmer & CAGEngine Chunk-Boundary Alignment",
+      "content": "Added align_tokens_to_block_boundary, compute_rolling_block_hashes, and evict_on_chunk_boundary to KVCachePrewarmer, added stability-tier file sorting and block padding to CAGEngine, and added --block-size flag to hath0r agent prewarm.",
+      "properties": {
+        "source_files": {
+          "src/hath0r_cli/bots/kv_prewarmer.py": "sha256:c54dd8284f8c01b079ac09bd07ebb561a0d8ea3f632fe64b9dd15e0534640cd9",
+          "src/hath0r_cli/bots/cag_engine.py": "sha256:1f844b8d633344d34b78df0a49d47a99d2056e520c3eaad9ead1aa1f18867727",
+          "src/hath0r_cli/commands/agent.py": "sha256:45a4ecd91e2d8e7e53de9f602d4d7de9b4404090a1c2c83da88ea6f835aa84d5",
+          "tests/test_phase1_agent.py": "sha256:330ece3aa4a356d6ca460debb6d56ea7d7870bb947e1a5645eb27cf28f2f0eb4"
+        },
+        "source": "local_memory",
+        "tags": [
+          "pagedattention",
+          "kv-cache",
+          "prewarmer",
+          "cag",
+          "cli",
+          "decision",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:session:sess-20261017-145045-ed36da",
+      "plane": "memory",
+      "type": "session",
+      "label": "Micro Session sess-20261017-145045-ed36da",
+      "content": "Micro Session sess-20261017-145045-ed36da [completed] | Focus: Active working session in hathor-cli | Reads: 1, Writes: 4 | Entries: Completed CLI KVCachePrewarmer and CAGEngine chunk-boundary alignment",
+      "properties": {
+        "session_id": "sess-20261017-145045-ed36da",
+        "prior_session_id": "sess-20261016-151409-a068f7",
+        "parent_session_id": "sess-20261016-151409-a068f7",
+        "read_count": 1,
+        "write_count": 4,
+        "status": "completed",
+        "byte_size": 1763,
+        "source": "local_memory",
+        "tags": [
+          "session",
+          "micro-session",
+          "completed"
+        ],
+        "importance": 0.75
+      },
+      "is_current": true
+    },
+    {
       "id": "role:developer",
       "plane": "rules",
       "type": "agent_role",
@@ -3614,9 +4522,303 @@
       "is_current": true
     },
     {
-      "source": "rule:rules",
-      "target": "role:developer",
-      "relation": "GOVERNS",
+      "source": "memory:rule:cr-cli-entry-001",
+      "target": "concept:tri-graph",
+      "relation": "ENFORCES",
+      "is_current": true
+    },
+    {
+      "source": "memory:rule:cr-memory-compound-001",
+      "target": "concept:tri-graph",
+      "relation": "ENFORCES",
+      "is_current": true
+    },
+    {
+      "source": "memory:fact:repo-hathor-cli-orientation",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:fact:repo-hathor-cli-orientation",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-472-memorygraph-compounding",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-472-memorygraph-compounding",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cr-memory-compound-001",
+      "target": "memory:fact:repo-hathor-cli-orientation",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cr-memory-compound-001",
+      "target": "memory:episode:issue-472-memorygraph-compounding",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-123051-cbad2e",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:fact:repo-hathor-cli-orientation",
+      "target": "memory:session:sess-20261016-123051-cbad2e",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-123051-cbad2e",
+      "target": "memory:session:sess-20261016-123311-4e0dab",
+      "relation": "PRECEDES",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-123311-4e0dab",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:decision:issue-474-micro-memory-session",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:decision:issue-474-micro-memory-session",
+      "target": "memory:session:sess-20261016-123311-4e0dab",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:memorygraph",
+      "target": "memory:episode:issue-472-memorygraph-compounding",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:memorygraph",
+      "target": "memory:decision:issue-474-micro-memory-session",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:governance",
+      "target": "memory:episode:issue-472-memorygraph-compounding",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:governance",
+      "target": "memory:decision:issue-474-micro-memory-session",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cli",
+      "target": "memory:episode:issue-472-memorygraph-compounding",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cli",
+      "target": "memory:decision:issue-474-micro-memory-session",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-123311-4e0dab",
+      "target": "memory:session:sess-20261016-140217-5ba5c3",
+      "relation": "PRECEDES",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-140217-5ba5c3",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:fact:repo-hathor-cli-orientation",
+      "target": "memory:session:sess-20261016-140217-5ba5c3",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-140217-5ba5c3",
+      "target": "memory:session:sess-20261016-142632-17cfdc",
+      "relation": "PRECEDES",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-142632-17cfdc",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-476-memory-file-hashing",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "RESOLVES",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-476-memory-file-hashing",
+      "target": "concept:tri-graph",
+      "relation": "RESOLVES",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-476-memory-file-hashing",
+      "target": "memory:session:sess-20261016-142632-17cfdc",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:fact:repo-hathor-cli-orientation",
+      "target": "memory:session:sess-20261016-142632-17cfdc",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-478-unignore-graph-folders",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "ENFORCES",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-478-unignore-graph-folders",
+      "target": "concept:tri-graph",
+      "relation": "ENFORCES",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-478-unignore-graph-folders",
+      "target": "memory:session:sess-20261016-142632-17cfdc",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-479",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-479",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-479",
+      "target": "memory:session:sess-20261016-142632-17cfdc",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:hathor-cli",
+      "target": "memory:fact:repo-hathor-cli-orientation",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:hathor-cli",
+      "target": "memory:episode:pr-479",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-142632-17cfdc",
+      "target": "memory:session:sess-20261016-151409-a068f7",
+      "relation": "PRECEDES",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-151409-a068f7",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:fact:repo-hathor-cli-orientation",
+      "target": "memory:session:sess-20261016-151409-a068f7",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-480-default-hath0r-mcp-json",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-480-default-hath0r-mcp-json",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-480-default-hath0r-mcp-json",
+      "target": "memory:session:sess-20261016-151409-a068f7",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:clean-repo-hathor-cli",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:clean-repo-hathor-cli",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:clean-repo-hathor-cli",
+      "target": "memory:session:sess-20261016-151409-a068f7",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-151409-a068f7",
+      "target": "memory:session:sess-20261017-145045-ed36da",
+      "relation": "PRECEDES",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261017-145045-ed36da",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:decision:cli-kvcacheprewarmer-cagengine-chunk-boundary-al",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:decision:cli-kvcacheprewarmer-cagengine-chunk-boundary-al",
+      "target": "memory:session:sess-20261017-145045-ed36da",
+      "relation": "DERIVES_FROM",
       "is_current": true
     },
     {
@@ -3647,11 +4849,239 @@
       "source": "rule:rules",
       "target": "role:developer",
       "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:rules",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-memory-compound-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-bai-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-agent-substrate-002",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-feature-standard-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-finops-verifier-002",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-knowledge-cag-002",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-mcp-ecosystem-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-tech-debt-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-hath0r-init-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-branch-gov-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-cli-first-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-hath0r-root-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-kb-tower-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "memory:rule:cr-cli-entry-001",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:rule:cr-bai-001",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:rule:cr-memory-compound-001",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "concept:tri-graph",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:fact:repo-hathor-cli-orientation",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-472-memorygraph-compounding",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cr-memory-compound-001",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-123051-cbad2e",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:decision:issue-474-micro-memory-session",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:memorygraph",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:governance",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cli",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-123311-4e0dab",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-140217-5ba5c3",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-476-memory-file-hashing",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-478-unignore-graph-folders",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-479",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:hathor-cli",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-142632-17cfdc",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-480-default-hath0r-mcp-json",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:clean-repo-hathor-cli",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261016-151409-a068f7",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:decision:cli-kvcacheprewarmer-cagengine-chunk-boundary-al",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261017-145045-ed36da",
+      "target": "role:developer",
+      "relation": "INFORMS",
       "is_current": true
     }
   ],
   "metadata": {
     "repo_root": "/Users/raybayly/Development/OpenSource/hathor-cli",
-    "synced_sources": 273
+    "synced_sources": 292
   }
 }

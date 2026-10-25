@@ -1,0 +1,1073 @@
+{
+  "schema_version": "1.0.0",
+  "graph_id": "canonical-memory-space",
+  "revision": 76,
+  "content_hash": "sha256:d28b866733602df781e28e6fb9f595488664e12b49c41526b9d12221e2a6faa6",
+  "updated_at": "2026-10-25T11:27:47.533409+00:00",
+  "metadata": {},
+  "nodes": [
+    {
+      "id": "rule:cr-cli-entry-001",
+      "type": "rule",
+      "label": "Start with CLI Rule",
+      "content": "Always start with hath0r operator CLI before inventing ad-hoc actions.",
+      "importance": 1.0,
+      "tags": [
+        "rule",
+        "governance",
+        "cli"
+      ],
+      "valid_from": null,
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T11:47:30.211396+00:00",
+      "updated_at": "2026-10-16T11:47:30.211396+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "rule:cr-bai-001",
+      "type": "rule",
+      "label": "Promotion Path Policy",
+      "content": "Promotion order: local -> development -> testing -> staging -> master.",
+      "importance": 1.0,
+      "tags": [
+        "rule",
+        "governance",
+        "ci"
+      ],
+      "valid_from": null,
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T11:47:30.211396+00:00",
+      "updated_at": "2026-10-16T11:47:30.211396+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "rule:cr-memory-compound-001",
+      "type": "rule",
+      "label": "Mandatory MemoryGraph Compounding Rule",
+      "content": "Every project repo must maintain .hath0r/memory/graph.json and every task must compound knowledge prior to announcing complete.",
+      "importance": 1.0,
+      "tags": [
+        "rule",
+        "governance",
+        "memorygraph",
+        "cr-memory-compound-001"
+      ],
+      "valid_from": null,
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T11:47:30.211396+00:00",
+      "updated_at": "2026-10-16T11:47:30.211396+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "concept:tri-graph",
+      "type": "concept",
+      "label": "Tri-Graph Substrate",
+      "content": "Three-layer cognitive graph architecture: KnowledgeGraph, ContextGraph, MemoryGraph.",
+      "importance": 0.9,
+      "tags": [
+        "architecture",
+        "substrate",
+        "tri-graph"
+      ],
+      "valid_from": null,
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T11:47:30.211396+00:00",
+      "updated_at": "2026-10-16T11:47:30.211396+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "fact:repo-hathor-cli-orientation",
+      "type": "fact",
+      "label": "hathor-cli Repository Memory Orientation",
+      "content": "hathor-cli: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" /> </p>",
+      "importance": 0.85,
+      "tags": [
+        "orientation",
+        "repository",
+        "hathor-cli",
+        "cr-memory-compound-001",
+        "fact",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T15:24:57.167333+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T11:47:30.211352+00:00",
+      "updated_at": "2026-10-16T15:24:57.167333+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "episode:issue-472-memorygraph-compounding",
+      "type": "episode",
+      "label": "Implement hath0r memory compound, verify, reflect, ensure-all & Pre-Announcement Gate",
+      "content": "Added compound, reflect, verify, and ensure-all CLI commands and MemoryManagerBot actions; fixed AgentGraphBot memory edge normalization; wired hard CR-MEMORY-COMPOUND-001 pre-announcement gate into TaskAnnouncerBot, EndOfTaskBot, DocumentationBot, and CleanReposWorkflowBot.",
+      "importance": 0.95,
+      "tags": [
+        "memorygraph",
+        "cr-memory-compound-001",
+        "governance",
+        "cli",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T11:48:14.980815+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T11:48:14.980815+00:00",
+      "updated_at": "2026-10-16T11:48:14.980815+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "insight:cr-memory-compound-001",
+      "type": "insight",
+      "label": "Synthesized Insight on cr-memory-compound-001",
+      "content": "Consolidated from 2 memory nodes tagged 'cr-memory-compound-001'. Recurring themes: hathor, memory, compound, logo. Latest context: Added compound, reflect, verify, and ensure-all CLI commands and MemoryManagerBot actions; fixed AgentGraphBot memory edge normalization; wired hard CR-MEMORY-C",
+      "importance": 1.0,
+      "tags": [
+        "cr-memory-compound-001",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T11:48:14.983230+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T11:48:14.983230+00:00",
+      "updated_at": "2026-10-16T11:48:14.983230+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "cr-memory-compound-001"
+      }
+    },
+    {
+      "id": "session:sess-20261016-123051-cbad2e",
+      "type": "session",
+      "label": "Micro Session sess-20261016-123051-cbad2e",
+      "content": "Micro Session sess-20261016-123051-cbad2e [completed] | Focus: Repository orientation verified for hathor-cli | Reads: 2, Writes: 3 | Entries: Started session focus: EndOfTaskBot reading micro-session before compounding PR #101; Completed PR #101 (feature/101-test) via EndOfTaskBot.; Compounded fact:repo-hathor-cli-orientation: hathor-cli Repository Memory Orientation",
+      "importance": 0.75,
+      "tags": [
+        "session",
+        "micro-session",
+        "completed"
+      ],
+      "valid_from": "2026-10-16T12:30:51.007520+00:00",
+      "valid_to": "2026-10-16T12:30:51.011672+00:00",
+      "is_current": true,
+      "created_at": "2026-10-16T12:30:51.007520+00:00",
+      "updated_at": "2026-10-16T12:32:22.153637+00:00",
+      "metadata": {
+        "session_id": "sess-20261016-123051-cbad2e",
+        "prior_session_id": null,
+        "parent_session_id": null,
+        "read_count": 2,
+        "write_count": 3,
+        "status": "completed",
+        "byte_size": 1985
+      }
+    },
+    {
+      "id": "decision:issue-474-micro-memory-session",
+      "type": "decision",
+      "label": "True Micro Memory Session CLI & Bot Enforcement (Issue #474)",
+      "content": "Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task start/finish and clean-repo session hooks, and verified across all 31 repositories.",
+      "importance": 0.95,
+      "tags": [
+        "memorygraph",
+        "micro-session",
+        "cli",
+        "governance",
+        "issue-474",
+        "decision",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T12:33:14.237921+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T12:33:14.237921+00:00",
+      "updated_at": "2026-10-16T12:33:14.237921+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "insight:memorygraph",
+      "type": "insight",
+      "label": "Synthesized Insight on memorygraph",
+      "content": "Consolidated from 2 memory nodes tagged 'memorygraph'. Recurring themes: memory, compound, verify, reflect. Latest context: Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task start/finish and clean-repo session hooks, and verified across all 31 re",
+      "importance": 1.0,
+      "tags": [
+        "memorygraph",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T12:33:14.244444+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T12:33:14.244444+00:00",
+      "updated_at": "2026-10-16T12:33:14.244444+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "memorygraph"
+      }
+    },
+    {
+      "id": "insight:governance",
+      "type": "insight",
+      "label": "Synthesized Insight on governance",
+      "content": "Consolidated from 2 memory nodes tagged 'governance'. Recurring themes: memory, compound, verify, reflect. Latest context: Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task start/finish and clean-repo session hooks, and verified across all 31 re",
+      "importance": 1.0,
+      "tags": [
+        "governance",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T12:33:14.244444+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T12:33:14.244444+00:00",
+      "updated_at": "2026-10-16T12:33:14.244444+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "governance"
+      }
+    },
+    {
+      "id": "insight:cli",
+      "type": "insight",
+      "label": "Synthesized Insight on cli",
+      "content": "Consolidated from 2 memory nodes tagged 'cli'. Recurring themes: memory, compound, verify, reflect. Latest context: Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task start/finish and clean-repo session hooks, and verified across all 31 re",
+      "importance": 1.0,
+      "tags": [
+        "cli",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T12:33:14.244444+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T12:33:14.244444+00:00",
+      "updated_at": "2026-10-16T12:33:14.244444+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "cli"
+      }
+    },
+    {
+      "id": "session:sess-20261016-123311-4e0dab",
+      "type": "session",
+      "label": "Micro Session sess-20261016-123311-4e0dab",
+      "content": "Micro Session sess-20261016-123311-4e0dab [completed] | Focus: Issue #474: True Micro Memory Session CLI & Bot Enforcement | Reads: 2, Writes: 4 | Entries: Compounded decision:issue-474-micro-memory-session: True Micro Memory Session CLI & Bot Enforcement (Issue #474); Completed Issue #474 Micro Memory Session CLI, bots, and 31-repo provisioning.",
+      "importance": 0.75,
+      "tags": [
+        "session",
+        "micro-session",
+        "completed"
+      ],
+      "valid_from": "2026-10-16T12:33:11.101066+00:00",
+      "valid_to": "2026-10-16T12:33:15.555363+00:00",
+      "is_current": true,
+      "created_at": "2026-10-16T12:33:11.101066+00:00",
+      "updated_at": "2026-10-16T12:33:15.555363+00:00",
+      "metadata": {
+        "session_id": "sess-20261016-123311-4e0dab",
+        "prior_session_id": "sess-20261016-123051-cbad2e",
+        "parent_session_id": "sess-20261016-123051-cbad2e",
+        "read_count": 2,
+        "write_count": 4,
+        "status": "completed",
+        "byte_size": 2003
+      }
+    },
+    {
+      "id": "session:sess-20261016-140217-5ba5c3",
+      "type": "session",
+      "label": "Micro Session sess-20261016-140217-5ba5c3",
+      "content": "Micro Session sess-20261016-140217-5ba5c3 [completed] | Focus: Repository orientation verified for hathor-cli | Reads: 3, Writes: 3 | Entries: Compounded fact:repo-hathor-cli-orientation: hathor-cli Repository Memory Orientation",
+      "importance": 0.75,
+      "tags": [
+        "session",
+        "micro-session",
+        "completed"
+      ],
+      "valid_from": "2026-10-16T14:02:17.796973+00:00",
+      "valid_to": "2026-10-16T14:21:21.521536+00:00",
+      "is_current": true,
+      "created_at": "2026-10-16T14:02:17.796973+00:00",
+      "updated_at": "2026-10-16T14:22:54.763764+00:00",
+      "metadata": {
+        "session_id": "sess-20261016-140217-5ba5c3",
+        "prior_session_id": "sess-20261016-123311-4e0dab",
+        "parent_session_id": "sess-20261016-123311-4e0dab",
+        "read_count": 3,
+        "write_count": 3,
+        "status": "completed",
+        "byte_size": 1849
+      }
+    },
+    {
+      "id": "episode:issue-476-memory-file-hashing",
+      "type": "episode",
+      "label": "Issue #476: MemoryGraph SHA-256 File Hashing & CAS Conflict Prevention",
+      "content": "Implemented cryptographic SHA-256 file hashing (.hath0r/memory/hashes.json), source_files staleness tracking, atomic os.replace writes, optimistic CAS auto-merge, and hath0r memory hash CLI commands.",
+      "importance": 0.8,
+      "tags": [
+        "memorygraph",
+        "hashing",
+        "cas",
+        "cr-memory-compound-001",
+        "issue-476",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T14:26:36.848729+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T14:26:36.848729+00:00",
+      "updated_at": "2026-10-16T14:26:36.848729+00:00",
+      "metadata": {
+        "source_files": {
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:6094787f1f360f20f473cd1f37add99f63fb4bdfe408a8c65cfc97b160310888",
+          "src/hath0r_cli/commands/memory.py": "sha256:8433569d9d4995114dc019029ce2202125578a3dd0585016e3061e1b06a7ccb4"
+        }
+      }
+    },
+    {
+      "id": "episode:issue-478-unignore-graph-folders",
+      "type": "episode",
+      "label": "Enforced Un-Ignored Graph Folders in MemoryManagerBot & RepoLayoutBot",
+      "content": "Added ensure_gitignore_unignores_graphs and verify_graphs_not_gitignored to MemoryManagerBot and RepoLayoutBot, sanitizing .gitignore across all 31 repositories and enforcing graphs_not_ignored in verify_compounded.",
+      "importance": 0.9,
+      "tags": [
+        "memorygraph",
+        "gitignore",
+        "agentgraph",
+        "cr-memory-compound-001",
+        "issue-478",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T14:56:41.666374+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T14:56:41.666374+00:00",
+      "updated_at": "2026-10-16T14:56:41.666374+00:00",
+      "metadata": {
+        "source_files": {
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:6094787f1f360f20f473cd1f37add99f63fb4bdfe408a8c65cfc97b160310888",
+          "src/hath0r_cli/bots/onboarding.py": "sha256:e7f705cadb343baca742241133b3ead20679ccb6c1bf391b1d49211f765f3ee4",
+          ".gitignore": "sha256:1081973c974de85646cafeee9c4eaa45a789a8c481dd528a60e8cc4c68a2fa2b"
+        }
+      }
+    },
+    {
+      "id": "episode:pr-479",
+      "type": "episode",
+      "label": "Completed PR #479 (feature/478-unignore-graph-folders)",
+      "content": "Merged PR #479 from branch feature/478-unignore-graph-folders into development.",
+      "importance": 0.8,
+      "tags": [
+        "pr",
+        "pr-479",
+        "feature/478-unignore-graph-folders",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T14:59:21.940287+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T14:59:21.364660+00:00",
+      "updated_at": "2026-10-16T14:59:21.940287+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "insight:hathor-cli",
+      "type": "insight",
+      "label": "Synthesized Insight on hathor-cli",
+      "content": "Consolidated from 2 memory nodes tagged 'hathor-cli'. Recurring themes: hathor, logo, repository, memory. Latest context: Autonomous bot completed PR #479 (feature/478-unignore-graph-folders)",
+      "importance": 0.97,
+      "tags": [
+        "hathor-cli",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T14:59:21.421313+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T14:59:21.421313+00:00",
+      "updated_at": "2026-10-16T14:59:21.421313+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "hathor-cli"
+      }
+    },
+    {
+      "id": "session:sess-20261016-142632-17cfdc",
+      "type": "session",
+      "label": "Micro Session sess-20261016-142632-17cfdc",
+      "content": "Micro Session sess-20261016-142632-17cfdc [completed] | Focus: Repository orientation verified for hathor-cli | Reads: 6, Writes: 9 | Entries: Completed PR #479 (feature/478-unignore-graph-folders) via EndOfTaskBot.",
+      "importance": 0.75,
+      "tags": [
+        "session",
+        "micro-session",
+        "completed"
+      ],
+      "valid_from": "2026-10-16T14:26:32.800314+00:00",
+      "valid_to": "2026-10-16T14:59:22.383221+00:00",
+      "is_current": true,
+      "created_at": "2026-10-16T14:26:32.800314+00:00",
+      "updated_at": "2026-10-16T15:14:01.574643+00:00",
+      "metadata": {
+        "session_id": "sess-20261016-142632-17cfdc",
+        "prior_session_id": "sess-20261016-140217-5ba5c3",
+        "parent_session_id": "sess-20261016-140217-5ba5c3",
+        "read_count": 6,
+        "write_count": 9,
+        "status": "completed",
+        "byte_size": 2048
+      }
+    },
+    {
+      "id": "episode:issue-480-default-hath0r-mcp-json",
+      "type": "episode",
+      "label": "Fleet .hath0r/mcp.json Provisioning & Resolution (#480)",
+      "content": "Updated HATH0R-CLI MCP resolution and added hath0r mcp init and hath0r mcp ensure-all so every repository resolves .hath0r/mcp.json first with its group Hath0r MCP server (mcp.hath0r-cli.com, mcp.baylyai.com, mcp.raymondbayly.com, mcp.1-nation.com) as Priority 1.",
+      "importance": 0.8,
+      "tags": [
+        "mcp",
+        "hath0r-mcp",
+        "cli",
+        "cr-mcp-priority-001",
+        "cr-memory-compound-001",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T15:29:32.728577+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T15:26:16.422938+00:00",
+      "updated_at": "2026-10-16T15:29:32.728577+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/mcp.json": "sha256:196e8a9b14a31535abb8d6e32f03cc5ef767ea29ed5b5b0068c03994621c01ea",
+          "cfg/mcp.servers.json": "sha256:95e6ce365170bd5afbaf408b3195fc15378b493827572c09f0e10538522f8e97",
+          "cfg/mcp-connections.yaml": "sha256:ac7648df01ab8c93a6c548c90fd8a15faaac952e80e9b60cfedd9857eeee17d9",
+          "src/hath0r_cli/mcp.py": "sha256:64cf55377eb96461443e0c5d471b6fc8b044b54d82104edf74483331f57d69df",
+          "src/hath0r_cli/commands/mcp.py": "sha256:9d79e9a77bd5e7048dc24a434b7021178d4ec1b024a16df2d416d3677890f965",
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:6094787f1f360f20f473cd1f37add99f63fb4bdfe408a8c65cfc97b160310888",
+          "src/hath0r_cli/bots/onboarding.py": "sha256:e7f705cadb343baca742241133b3ead20679ccb6c1bf391b1d49211f765f3ee4",
+          "tests/unit/test_mcp.py": "sha256:86286b729fa650c6c4a89bcc062903fe3b2b2e328953ef4bcad6a5466d6f7c03"
+        }
+      }
+    },
+    {
+      "id": "episode:clean-repo-hathor-cli",
+      "type": "episode",
+      "label": "Clean Repo Lifecycle (hathor-cli)",
+      "content": "Executed 13-step clean-repo hygiene and knowledge sync for hathor-cli.",
+      "importance": 0.75,
+      "tags": [
+        "clean-repo",
+        "hygiene",
+        "hathor-cli",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-16T15:48:11.060452+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-16T15:48:11.060452+00:00",
+      "updated_at": "2026-10-16T15:48:11.060452+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "session:sess-20261016-151409-a068f7",
+      "type": "session",
+      "label": "Micro Session sess-20261016-151409-a068f7",
+      "content": "Micro Session sess-20261016-151409-a068f7 [completed] | Focus: Repository orientation verified for hathor-cli | Reads: 4, Writes: 8 | Entries: Clean Repo Lifecycle completed for hathor-cli.",
+      "importance": 0.75,
+      "tags": [
+        "session",
+        "micro-session",
+        "completed"
+      ],
+      "valid_from": "2026-10-16T15:14:09.919787+00:00",
+      "valid_to": "2026-10-16T15:48:11.120170+00:00",
+      "is_current": true,
+      "created_at": "2026-10-16T15:14:09.919787+00:00",
+      "updated_at": "2026-10-16T15:48:11.120170+00:00",
+      "metadata": {
+        "session_id": "sess-20261016-151409-a068f7",
+        "prior_session_id": "sess-20261016-142632-17cfdc",
+        "parent_session_id": "sess-20261016-142632-17cfdc",
+        "read_count": 4,
+        "write_count": 8,
+        "status": "completed",
+        "byte_size": 1856
+      }
+    },
+    {
+      "id": "decision:cli-kvcacheprewarmer-cagengine-chunk-boundary-al",
+      "type": "decision",
+      "label": "CLI KVCachePrewarmer & CAGEngine Chunk-Boundary Alignment",
+      "content": "Added align_tokens_to_block_boundary, compute_rolling_block_hashes, and evict_on_chunk_boundary to KVCachePrewarmer, added stability-tier file sorting and block padding to CAGEngine, and added --block-size flag to hath0r agent prewarm.",
+      "importance": 0.8,
+      "tags": [
+        "pagedattention",
+        "kv-cache",
+        "prewarmer",
+        "cag",
+        "cli",
+        "decision",
+        "compounded"
+      ],
+      "valid_from": "2026-10-17T14:51:26.151909+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-17T14:51:06.668453+00:00",
+      "updated_at": "2026-10-17T14:51:26.151909+00:00",
+      "metadata": {
+        "source_files": {
+          "src/hath0r_cli/bots/kv_prewarmer.py": "sha256:c54dd8284f8c01b079ac09bd07ebb561a0d8ea3f632fe64b9dd15e0534640cd9",
+          "src/hath0r_cli/bots/cag_engine.py": "sha256:1f844b8d633344d34b78df0a49d47a99d2056e520c3eaad9ead1aa1f18867727",
+          "src/hath0r_cli/commands/agent.py": "sha256:a98d62293b3e3d3bbd29990596e8208c7258735ce03870cace9ed4bd0a6f0a9c",
+          "tests/test_phase1_agent.py": "sha256:330ece3aa4a356d6ca460debb6d56ea7d7870bb947e1a5645eb27cf28f2f0eb4"
+        }
+      }
+    },
+    {
+      "id": "session:sess-20261017-145045-ed36da",
+      "type": "session",
+      "label": "Micro Session sess-20261017-145045-ed36da",
+      "content": "Micro Session sess-20261017-145045-ed36da [completed] | Focus: Orienting repository hathor-cli | Reads: 4, Writes: 7 | Entries: Completed AgentGraph orientation for hathor-cli (4 roles, 19 rules); Completed AgentGraph orientation for hathor-cli (4 roles, 19 rules)",
+      "importance": 0.75,
+      "tags": [
+        "session",
+        "micro-session",
+        "completed"
+      ],
+      "valid_from": "2026-10-17T14:50:45.402982+00:00",
+      "valid_to": "2026-10-17T14:51:29.008987+00:00",
+      "is_current": true,
+      "created_at": "2026-10-17T14:50:45.402982+00:00",
+      "updated_at": "2026-10-25T11:27:47.533370+00:00",
+      "metadata": {
+        "session_id": "sess-20261017-145045-ed36da",
+        "prior_session_id": "sess-20261016-151409-a068f7",
+        "read_count": 4,
+        "write_count": 7,
+        "revision": 11,
+        "content_hash": "sha256:392671768d0ee9bc36e0b5a25f42b836a8f61065ebd5e2ab8a8a74cf7e4272c3",
+        "status": "completed",
+        "byte_size": 1850
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "rule:cr-cli-entry-001",
+      "target": "concept:tri-graph",
+      "relation": "ENFORCES",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "rule:cr-memory-compound-001",
+      "target": "concept:tri-graph",
+      "relation": "ENFORCES",
+      "weight": 1.0,
+      "valid_from": null,
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "fact:repo-hathor-cli-orientation",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T11:47:30.211352+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "fact:repo-hathor-cli-orientation",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "RELATES_TO",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T11:47:30.211352+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-472-memorygraph-compounding",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T11:48:14.980815+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-472-memorygraph-compounding",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T11:48:14.980815+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:cr-memory-compound-001",
+      "target": "fact:repo-hathor-cli-orientation",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T11:48:14.983230+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:cr-memory-compound-001",
+      "target": "episode:issue-472-memorygraph-compounding",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T11:48:14.983230+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261016-123051-cbad2e",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 0.8,
+      "valid_from": "2026-10-16T12:30:51.010063+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "fact:repo-hathor-cli-orientation",
+      "target": "session:sess-20261016-123051-cbad2e",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T12:32:21.863280+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261016-123051-cbad2e",
+      "target": "session:sess-20261016-123311-4e0dab",
+      "relation": "PRECEDES",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T12:33:11.103779+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261016-123311-4e0dab",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 0.8,
+      "valid_from": "2026-10-16T12:33:11.103779+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "decision:issue-474-micro-memory-session",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T12:33:14.237921+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "decision:issue-474-micro-memory-session",
+      "target": "session:sess-20261016-123311-4e0dab",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T12:33:14.242833+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:memorygraph",
+      "target": "episode:issue-472-memorygraph-compounding",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T12:33:14.244444+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:memorygraph",
+      "target": "decision:issue-474-micro-memory-session",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T12:33:14.244444+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:governance",
+      "target": "episode:issue-472-memorygraph-compounding",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T12:33:14.244444+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:governance",
+      "target": "decision:issue-474-micro-memory-session",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T12:33:14.244444+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:cli",
+      "target": "episode:issue-472-memorygraph-compounding",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T12:33:14.244444+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:cli",
+      "target": "decision:issue-474-micro-memory-session",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T12:33:14.244444+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261016-123311-4e0dab",
+      "target": "session:sess-20261016-140217-5ba5c3",
+      "relation": "PRECEDES",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:02:17.799966+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261016-140217-5ba5c3",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 0.8,
+      "valid_from": "2026-10-16T14:02:17.799966+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "fact:repo-hathor-cli-orientation",
+      "target": "session:sess-20261016-140217-5ba5c3",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:22:54.258321+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261016-140217-5ba5c3",
+      "target": "session:sess-20261016-142632-17cfdc",
+      "relation": "PRECEDES",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:26:32.812426+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261016-142632-17cfdc",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 0.8,
+      "valid_from": "2026-10-16T14:26:32.812426+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-476-memory-file-hashing",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "RESOLVES",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:26:36.848729+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-476-memory-file-hashing",
+      "target": "concept:tri-graph",
+      "relation": "RESOLVES",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:26:36.848729+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-476-memory-file-hashing",
+      "target": "session:sess-20261016-142632-17cfdc",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:26:36.874008+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "fact:repo-hathor-cli-orientation",
+      "target": "session:sess-20261016-142632-17cfdc",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:54:36.788578+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-478-unignore-graph-folders",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "ENFORCES",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:56:41.666374+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-478-unignore-graph-folders",
+      "target": "concept:tri-graph",
+      "relation": "ENFORCES",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:56:41.666374+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-478-unignore-graph-folders",
+      "target": "session:sess-20261016-142632-17cfdc",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:56:41.703373+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:pr-479",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:59:21.364660+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:pr-479",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:59:21.364660+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:pr-479",
+      "target": "session:sess-20261016-142632-17cfdc",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:59:21.404840+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:hathor-cli",
+      "target": "fact:repo-hathor-cli-orientation",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:59:21.421313+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:hathor-cli",
+      "target": "episode:pr-479",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T14:59:21.421313+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261016-142632-17cfdc",
+      "target": "session:sess-20261016-151409-a068f7",
+      "relation": "PRECEDES",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T15:14:09.931078+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261016-151409-a068f7",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 0.8,
+      "valid_from": "2026-10-16T15:14:09.931078+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "fact:repo-hathor-cli-orientation",
+      "target": "session:sess-20261016-151409-a068f7",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T15:24:57.210879+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-480-default-hath0r-mcp-json",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T15:26:16.422938+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-480-default-hath0r-mcp-json",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T15:26:16.422938+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-480-default-hath0r-mcp-json",
+      "target": "session:sess-20261016-151409-a068f7",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T15:26:16.466758+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:clean-repo-hathor-cli",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T15:48:11.060452+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:clean-repo-hathor-cli",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T15:48:11.060452+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:clean-repo-hathor-cli",
+      "target": "session:sess-20261016-151409-a068f7",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-16T15:48:11.094657+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261016-151409-a068f7",
+      "target": "session:sess-20261017-145045-ed36da",
+      "relation": "PRECEDES",
+      "weight": 1.0,
+      "valid_from": "2026-10-17T14:50:45.410877+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261017-145045-ed36da",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 0.8,
+      "valid_from": "2026-10-17T14:50:45.410877+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "decision:cli-kvcacheprewarmer-cagengine-chunk-boundary-al",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-17T14:51:06.668453+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "decision:cli-kvcacheprewarmer-cagengine-chunk-boundary-al",
+      "target": "session:sess-20261017-145045-ed36da",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-17T14:51:06.698504+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    }
+  ]
+}

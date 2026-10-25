@@ -398,6 +398,36 @@ class AgentGraphBot:
             except Exception:
                 pass
 
+        # Extract CR-* rule references from AGENTS.md / rules.md if not already present as rule files
+        existing_rule_ids = {n["id"] for n in nodes if n.get("plane") == "rules" and n.get("type") == "rule_policy"}
+        cr_text_sources: List[str] = []
+        for af in agents_files:
+            if ".git" not in af.parts and ".venv" not in af.parts and af.is_file():
+                try:
+                    cr_text_sources.append(af.read_text(encoding="utf-8", errors="ignore"))
+                except Exception:
+                    pass
+        for cr_match in sorted(set(re.findall(r"\b(CR-[A-Z0-9-]+)\b", "\n".join(cr_text_sources), re.IGNORECASE))):
+            cr_upper = cr_match.upper()
+            rid = f"rule:{cr_upper.lower()}"
+            if rid not in existing_rule_ids:
+                existing_rule_ids.add(rid)
+                nodes.append(
+                    {
+                        "id": rid,
+                        "plane": "rules",
+                        "type": "rule_policy",
+                        "label": f"Rule {cr_upper}",
+                        "content": f"Governance policy rule {cr_upper} referenced in AGENTS.md",
+                        "properties": {
+                            "rule_code": cr_upper,
+                            "priority": 4,
+                            "restricted_actions": [],
+                        },
+                        "is_current": True,
+                    }
+                )
+
         # 3. Ingest Contracts (*.schema.json)
         contracts_dir = root / "contracts"
         if contracts_dir.is_dir():
@@ -473,12 +503,27 @@ class AgentGraphBot:
             sources_scanned += 1
             try:
                 mem_data = json.loads(mem_graph_file.read_text(encoding="utf-8"))
+
+                def _norm_mem_id(raw_id: str) -> str:
+                    if not raw_id:
+                        return ""
+                    if raw_id.startswith("memory:") or raw_id.startswith("concept:"):
+                        return raw_id
+                    return f"memory:{raw_id}"
+
+                mem_node_ids: Set[str] = set()
                 for mn in mem_data.get("nodes", []):
-                    m_id = str(mn.get("id") or "")
-                    if not m_id:
+                    raw_id = str(mn.get("id") or "")
+                    if not raw_id:
                         continue
-                    if not m_id.startswith("memory:") and not m_id.startswith("concept:"):
-                        m_id = f"memory:{m_id}"
+                    m_id = _norm_mem_id(raw_id)
+                    mem_node_ids.add(m_id)
+                    props = dict(mn.get("properties") or mn.get("metadata") or {"source": "local_memory"})
+                    props.setdefault("source", "local_memory")
+                    if "tags" in mn:
+                        props["tags"] = mn["tags"]
+                    if "importance" in mn:
+                        props["importance"] = mn["importance"]
                     nodes.append(
                         {
                             "id": m_id,
@@ -486,19 +531,22 @@ class AgentGraphBot:
                             "type": mn.get("type", "concept"),
                             "label": mn.get("label", m_id),
                             "content": mn.get("content", ""),
-                            "properties": mn.get("properties", {"source": "local_memory"}),
-                            "is_current": True,
+                            "properties": props,
+                            "is_current": mn.get("is_current", True),
                         }
                     )
                 for me in mem_data.get("edges", []):
-                    edges.append(
-                        {
-                            "source": me.get("source"),
-                            "target": me.get("target"),
-                            "relation": me.get("relation", "RELATES_TO"),
-                            "is_current": True,
-                        }
-                    )
+                    src_id = _norm_mem_id(str(me.get("source") or ""))
+                    tgt_id = _norm_mem_id(str(me.get("target") or ""))
+                    if src_id in mem_node_ids and tgt_id in mem_node_ids:
+                        edges.append(
+                            {
+                                "source": src_id,
+                                "target": tgt_id,
+                                "relation": me.get("relation", "RELATES_TO"),
+                                "is_current": me.get("is_current", True),
+                            }
+                        )
             except Exception:
                 pass
 

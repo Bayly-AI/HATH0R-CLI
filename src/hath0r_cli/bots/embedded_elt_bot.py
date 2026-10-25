@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from hath0r_cli.elt_store import RawRecord, RawStagingStore
+from hath0r_cli.elt_store import RawStagingStore
 
 
 @dataclass

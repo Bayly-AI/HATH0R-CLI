@@ -42,8 +42,10 @@ class EndOfTaskBot:
         self.janitor_bot = GitJanitorBot(cwd=self.cwd)
         self.doc_bot = DocumentationBot(cwd=self.cwd)
         self.announcer_bot = TaskAnnouncerBot(cwd=self.cwd)
+        from hath0r_cli.bots.memory_manager import MemoryManagerBot
         from hath0r_cli.bots.quality import DeployTestBot
 
+        self.memory_bot = MemoryManagerBot(cwd=self.cwd)
         self.test_bot = DeployTestBot(cwd=self.cwd)
 
     def run_bot(
@@ -294,7 +296,7 @@ class EndOfTaskBot:
             reap_res = self.janitor_bot.prune_branch(target_branch, remote=False, dry_run=False)
             history.append({"phase": "reap_branch", "result": reap_res})
 
-        # Step 6: Post-merge knowledge share
+        # Step 6: Post-merge knowledge share & MemoryGraph compounding (CR-MEMORY-COMPOUND-001)
         kb_res = self.doc_bot.share_knowledge(
             summary=f"Autonomous bot completed PR #{current_pr} ({target_branch or 'feature'})",
             pr_number=current_pr,
@@ -302,6 +304,29 @@ class EndOfTaskBot:
             dry_run=False,
         )
         history.append({"phase": "share_knowledge", "result": kb_res})
+
+        self.memory_bot.session_read(
+            note=f"EndOfTaskBot reading micro-session before compounding PR #{current_pr}",
+            dry_run=False,
+        )
+        mem_res = self.memory_bot.compound_memory(
+            node_id=f"episode:pr-{current_pr}",
+            node_type="episode",
+            label=f"Completed PR #{current_pr} ({target_branch or 'feature'})",
+            content=f"Merged PR #{current_pr} from branch {target_branch or 'feature'} into development.",
+            importance=0.8,
+            tags=["pr", f"pr-{current_pr}", target_branch or "feature"],
+            relates_to=["concept:tri-graph", "rule:cr-memory-compound-001"],
+            relation="DERIVES_FROM",
+            sync_agentgraph=True,
+            dry_run=False,
+        )
+        sess_end_res = self.memory_bot.session_end(
+            summary=f"Completed PR #{current_pr} ({target_branch or 'feature'}) via EndOfTaskBot.",
+            sync_agentgraph=True,
+            dry_run=False,
+        )
+        history.append({"phase": "compound_memory", "result": mem_res, "session": sess_end_res})
 
         # Step 7: Announce completion
         ann_res = self.announcer_bot.announce_complete(
