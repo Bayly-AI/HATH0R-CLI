@@ -5,6 +5,28 @@ All notable changes to **HATH0R CLI** (`hath0r-cli`) are documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-10-25
+
+### Added
+- **Canonical Agentic Architecture, Resilience & Dreaming Suite**:
+  - Added `hath0r memory dream` command executing Anthropic-style sleep-cycle reflection and log-to-memory consolidation. Ephemeral execution traces and episodes are clustered into synthesized higher-order `insight` and `rule` nodes so the system wakes up smarter.
+  - Added `hath0r agent architecture` command auditing and displaying the canonical three-pillar architecture: Host Harness loop and sandbox ownership, Brain-Hands decoupling via HAHP for sub-second TTFT, server-side log-based replay crash resilience, and autonomous dreaming memory consolidation.
+- **Gameshow RAG/CAG Evaluation & Continuous Calibration Command Suite** (#470, #471):
+  - Implemented `HathorGameshowBot` and `hath0r gameshow` CLI command suite for tournament execution, evaluation card benchmarks, contradiction auditing, and automated hyperparameter calibration.
+- **CR-MEMORY-COMPOUND-001 Enforcement & Micro Memory Session Gate** (#472, #473, #474, #475):
+  - Mandatory `.hath0r/memory` directory presence and pre-announcement memory compounding across all operations (`hath0r memory compound`, `hath0r memory verify`).
+  - Implemented true Micro Memory Session lifecycle (`hath0r memory session start|read|write|end`) with strict <2KB budget and automatic associative recall from the MemoryGraph.
+- **Cryptographic SHA-256 File Hashing & CAS Conflict Prevention** (#476, #477):
+  - Implemented `hath0r memory hash` command and `.hath0r/memory/hashes.json` manifest tracking SHA-256 digests and monotonic revisions.
+  - Optimistic Compare-And-Swap (CAS) with deterministic set-union auto-merging for non-conflicting additions.
+- **Canonical MCP Provisioning & Author MCP Server** (#480, #481):
+  - Added automated `.hath0r/mcp.json` provisioning across repositories with canonical Hath0r MCP defaults.
+  - Added Author MCP server support.
+
+### Fixed
+- **Graph Folder Preservation** (#478, #479):
+  - Enforced that `.hath0r/memory`, `.hath0r/agentgraph`, and related graph directories are explicitly un-ignored in `.gitignore` (`graphs_not_ignored: True`).
+
 ## [1.6.0] - 2026-10-12
 
 ### Added
