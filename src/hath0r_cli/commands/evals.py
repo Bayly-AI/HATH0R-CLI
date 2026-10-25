@@ -55,6 +55,10 @@ def evals_redteam(ctx: click.Context, component: str) -> None:
         console.print(f"Target Component: [bold cyan]{res['component_under_test']}[/bold cyan]")
         console.print(f"Survival Gate: [bold green]{res['survival_gate']}[/bold green]")
         console.print(f"Attack Vectors Survived: [bold white]{res['attack_vectors_count']}[/bold white]")
-        console.print(f"Adversarial Suite: [bold yellow]{res['adversarial_test_file']}[/bold yellow]")
-
     _emit_response(ctx, response, text_renderer=_text)
+
+
+# Register gameshow subcommand under evals group
+from hath0r_cli.commands.gameshow import gameshow_cmd  # noqa: E402
+
+evals_cmd.add_command(gameshow_cmd, name="gameshow")

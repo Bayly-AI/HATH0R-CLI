@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import math
-import os
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -153,9 +152,9 @@ class CCCDTTrainingCoordinator:
 
         # Latency S/N ratio (smaller the better)
         latencies = [65.0, 70.0, 62.0]
-        msd = sum(l ** 2 for l in latencies) / len(latencies)
+        msd = sum(lat ** 2 for lat in latencies) / len(latencies)
         snr_db = -10.0 * math.log10(msd) if msd > 0 else 0.0
-        quality_loss = 0.01 * sum((l - 120.0) ** 2 for l in latencies) / len(latencies)
+        quality_loss = 0.01 * sum((lat - 120.0) ** 2 for lat in latencies) / len(latencies)
 
         artifact_file = self.artifacts_dir / f"{target}_{method}_{job_id}.bin"
         artifact_file.write_text(f"HATH0R_MODEL_ARTIFACT:{target}:{method}:{job_id}\n", encoding="utf-8")

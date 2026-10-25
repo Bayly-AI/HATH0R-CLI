@@ -1,0 +1,48 @@
+{
+  "schema_version": "hath0r.micro_session/1",
+  "session_id": "sess-20261016-151409-a068f7",
+  "prior_session_id": "sess-20261016-142632-17cfdc",
+  "parent_session_id": "sess-20261016-142632-17cfdc",
+  "revision": 12,
+  "content_hash": "sha256:85a60349b68524afdab08f34da570c2837237e4d0955bf6f38f57c8aeca627ff",
+  "base_graph_hash": "sha256:fa7e7ac045be6f6b0de0973df08906b289b6cdf359b5dd201610e1487693134a",
+  "task_id": "Provision .hath0r/mcp.json across all repos with group Hath0r MCP defaults",
+  "role": "operator",
+  "repo_name": "hathor-cli",
+  "status": "completed",
+  "started_at": "2026-10-16T15:14:09.919787+00:00",
+  "updated_at": "2026-10-16T15:48:11.120170+00:00",
+  "ended_at": "2026-10-16T15:48:11.120170+00:00",
+  "read_count": 4,
+  "write_count": 8,
+  "last_read_at": "2026-10-16T15:48:11.034832+00:00",
+  "last_write_at": "2026-10-16T15:48:11.120170+00:00",
+  "active_focus": "Repository orientation verified for hathor-cli",
+  "prior_summary": "ounded episode:issue-480-default-hat; Completed #480: provisioned .hath0r/mcp.; Compounded episode:clean-repo-hathor-cli",
+  "recalled_nodes": [
+    {
+      "id": "decision:issue-474-micro-memory-session",
+      "type": "decision",
+      "label": "True Micro Memory Session CLI & Bot Enforcement (Issue #474)",
+      "snippet": "Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task st"
+    }
+  ],
+  "micro_entries": [
+    {
+      "timestamp": "2026-10-16T15:48:11.120170+00:00",
+      "kind": "milestone",
+      "summary": "Clean Repo Lifecycle completed for hathor-cli.",
+      "tags": [
+        "session-end"
+      ],
+      "node_id": null
+    }
+  ],
+  "next_steps": [],
+  "compounded_node_ids": [
+    "fact:repo-hathor-cli-orientation",
+    "episode:issue-480-default-hath0r-mcp-json",
+    "episode:clean-repo-hathor-cli"
+  ],
+  "capsule_bytes": 1856
+}

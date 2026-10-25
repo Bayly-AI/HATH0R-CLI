@@ -1,9 +1,16 @@
 # Hath0r CLI MCP Connections Configuration
-# Defines canonical Model Context Protocol (MCP) server connections for Hath0r, BAI, and 1-Nation suites.
+# Defines canonical Model Context Protocol (MCP) server connections for Hath0r, BAI, Ray, and 1-Nation suites.
 version: "1.0"
+engine: "hath0r-mcp"
+default_provider: "hath0r-mcp"
+group: "hath0r-opensource"
+default_server: "hath0r-mcp"
 servers:
   - id: hath0r-mcp
     name: Hath0rMCP
+    engine: hath0r-mcp
+    scope: project
+    priority: 1
     group: hath0r-opensource
     product_id: hath0r-mcp
     transport: streamable-http
@@ -18,28 +25,51 @@ servers:
 
   - id: bai-mcp
     name: BaylyAIMCP
+    engine: hath0r-mcp
+    scope: org
+    priority: 2
     group: bai
     product_id: bai-mcp
-    transport: http-jsonrpc
-    base_url: "http://127.0.0.1:48080"
+    transport: streamable-http
+    base_url: "https://mcp.baylyai.com"
     mcp_endpoint: "/mcp"
     health_endpoint: "/health"
-    ready_endpoint: "/health"
-    description: "Bayly AI Enterprise MCP knowledgebase and runbook engine"
+    ready_endpoint: "/ready"
+    description: "Bayly AI Enterprise Hath0r MCP knowledgebase and runbook engine"
     enabled: true
     local_path: "/Users/raybayly/Development/BAI/MCP"
     github: "Bayly-AI/BAI-MCP"
 
-  - id: 1-nation-mcp
-    name: 1-NationMCP
-    group: 1-nation
-    product_id: 1-nation-mcp
+  - id: ray-mcp
+    name: RayMCP
+    engine: hath0r-mcp
+    scope: group
+    priority: 3
+    group: ray
+    product_id: ray-mcp
     transport: streamable-http
-    base_url: "http://127.0.0.1:58083"
+    base_url: "https://mcp.raymondbayly.com"
     mcp_endpoint: "/mcp"
     health_endpoint: "/health"
     ready_endpoint: "/ready"
-    description: "1-Nation Suite MCP service and reference tools"
+    description: "Ray Bayly Hath0r MCP knowledgebase and executive tools"
+    enabled: true
+    local_path: "/Users/raybayly/Development/Ray/mcp"
+    github: "Bayly-AI/RAY-MCP"
+
+  - id: 1-nation-mcp
+    name: 1-NationMCP
+    engine: hath0r-mcp
+    scope: group
+    priority: 4
+    group: 1-nation
+    product_id: 1-nation-mcp
+    transport: streamable-http
+    base_url: "https://mcp.1-nation.com"
+    mcp_endpoint: "/mcp"
+    health_endpoint: "/health"
+    ready_endpoint: "/ready"
+    description: "1-Nation Suite Hath0r MCP service and reference tools"
     enabled: true
     local_path: "/Users/raybayly/Development/1-Nation/MCP"
     github: "Bayly-AI/1-Nation-MCP"
@@ -49,7 +79,7 @@ servers:
     group: design
     product_id: paper-design-mcp
     scope: tools
-    priority: 4
+    priority: 5
     transport: streamable-http
     base_url: "http://127.0.0.1:29979"
     mcp_endpoint: "/mcp"
@@ -62,3 +92,4 @@ servers:
     local_path: "/Users/raybayly/.paper"
     github: "paper-design/agent-plugins"
     docs_url: "https://paper.design"
+
