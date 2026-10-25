@@ -1,7 +1,6 @@
 """Unit tests for Hath0r Embedded ELT Subsystem."""
 
 import json
-import tempfile
 from pathlib import Path
 
 import pytest

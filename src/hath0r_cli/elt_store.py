@@ -6,7 +6,7 @@ import hashlib
 import json
 import sqlite3
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -46,7 +46,7 @@ class RawStagingStore:
         if db_path is None:
             from hath0r_cli.common import _discover_group_root
 
-            root = _discover_group_root()
+            root = _discover_group_root() or Path.cwd()
             self.db_path = root / ".hath0r" / "cache" / "ingest" / "raw_staging.sqlite"
         else:
             self.db_path = Path(db_path)

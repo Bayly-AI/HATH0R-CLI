@@ -751,10 +751,11 @@ class DocumentationBot:
             return {
                 "success": True,
                 "dry_run": True,
-                "action": f"[DRY-RUN] Would write knowledge share to {dest_file}",
+                "action": f"[DRY-RUN] Would write knowledge share to {dest_file} and compound into MemoryGraph",
                 "target_kb": str(dest_dir),
                 "key": key,
                 "pr_number": pr_number,
+                "memory_compounded": True,
             }
 
         try:
@@ -768,6 +769,27 @@ class DocumentationBot:
                 "key": key,
             }
 
+        # Also compound knowledge into .hath0r/memory/graph.json per CR-MEMORY-COMPOUND-001
+        mem_res: Dict[str, Any] = {}
+        try:
+            from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+            mbot = MemoryManagerBot(cwd=self.cwd)
+            mem_res = mbot.compound_memory(
+                node_id=f"episode:{key}",
+                node_type="episode",
+                label=f"Knowledge Share ({key})",
+                content=summary or notes or f"Completed task knowledge share for {key}.",
+                importance=0.8,
+                tags=["knowledge-share", key, repo or self.cwd.name],
+                relates_to=["concept:tri-graph", "rule:cr-memory-compound-001"],
+                relation="DERIVES_FROM",
+                sync_agentgraph=True,
+                dry_run=False,
+            )
+        except Exception:
+            mem_res = {"success": False}
+
         return {
             "success": True,
             "target_kb": str(dest_dir),
@@ -777,6 +799,8 @@ class DocumentationBot:
             "synced_at": datetime.now(timezone.utc).isoformat(),
             "status": "synchronized",
             "idempotent": True,
+            "memory_compounded": bool(mem_res.get("success", False)),
+            "memory_node_id": (mem_res.get("node") or {}).get("id"),
         }
 
 
@@ -792,8 +816,12 @@ class TaskAnnouncerBot:
         summary: Optional[str] = None,
         channel: str = "console",
         dry_run: bool = False,
+        enforce_memory_gate: bool = True,
     ) -> Dict[str, Any]:
-        """Broadcast completion event upon successful task lifecycle execution."""
+        """Broadcast completion event upon successful task lifecycle execution.
+
+        Enforces CR-MEMORY-COMPOUND-001 pre-announcement MemoryGraph gate.
+        """
         timestamp = datetime.now(timezone.utc).isoformat()
         msg = f"Task '{task_id or 'end-of-task'}' successfully completed and verified at {timestamp}."
 
@@ -802,8 +830,26 @@ class TaskAnnouncerBot:
                 "success": True,
                 "dry_run": True,
                 "task_id": task_id,
+                "memory_gate": "verified (dry-run)",
                 "action": f"[DRY-RUN] Announce complete via {channel}: {msg}",
             }
+
+        gate_res: Dict[str, Any] = {"compounded": True}
+        if enforce_memory_gate:
+            from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+            mbot = MemoryManagerBot(cwd=self.cwd)
+            gate_res = mbot.verify_compounded()
+            if not gate_res.get("compounded"):
+                return {
+                    "success": False,
+                    "task_id": task_id,
+                    "channel": channel,
+                    "timestamp": timestamp,
+                    "memory_gate": gate_res,
+                    "error": gate_res.get("error")
+                    or "CR-MEMORY-COMPOUND-001 violation: No task knowledge compounded in .hath0r/memory/graph.json prior to announcing complete.",
+                }
 
         return {
             "success": True,
@@ -811,6 +857,7 @@ class TaskAnnouncerBot:
             "channel": channel,
             "timestamp": timestamp,
             "message": msg,
+            "memory_gate": gate_res,
         }
 
 

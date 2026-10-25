@@ -181,6 +181,78 @@ def mcp_list(ctx: click.Context) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@mcp.command("init")
+@click.option("--group", default=None, help="Override detected Hath0r MCP group (hath0r-opensource, bai, ray, 1-nation).")
+@click.option("--dry-run", is_flag=True, default=False, help="Preview .hath0r/mcp.json provisioning without writing.")
+@click.pass_context
+def mcp_init(ctx: click.Context, group: str | None, dry_run: bool) -> None:
+    """Provision canonical .hath0r/mcp.json in the current repository with its group Hath0r MCP as Priority 1."""
+    from pathlib import Path
+
+    from hath0r_cli.mcp import ensure_repo_mcp_config
+
+    res = ensure_repo_mcp_config(Path.cwd(), group=group, sync_cfg=True, dry_run=dry_run)
+    response = _build_response(
+        ctx,
+        command="mcp.init",
+        state="ok" if res.get("success") else "error",
+        data=res,
+    )
+
+    def _text() -> None:
+        console.print(
+            f"[bold green]✓ Provisioned canonical Hath0r MCP config:[/bold green] {res['mcp_file']} "
+            f"(group=[cyan]{res['group']}[/cyan], default=[yellow]{res['default_server']}[/yellow] -> {res['default_url']})"
+        )
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@mcp.command("ensure-all")
+@click.option(
+    "--root",
+    "root_dir",
+    default="/Users/raybayly/Development",
+    show_default=True,
+    help="Root directory to scan for Git repositories.",
+)
+@click.option("--dry-run", is_flag=True, default=False, help="Preview fleet .hath0r/mcp.json provisioning without writing.")
+@click.pass_context
+def mcp_ensure_all(ctx: click.Context, root_dir: str, dry_run: bool) -> None:
+    """Provision and verify canonical .hath0r/mcp.json across all repositories under --root."""
+    from pathlib import Path
+
+    from hath0r_cli.mcp import ensure_all_repos_mcp_config
+
+    res = ensure_all_repos_mcp_config(Path(root_dir), sync_cfg=True, dry_run=dry_run)
+    response = _build_response(
+        ctx,
+        command="mcp.ensure_all",
+        state="ok" if res.get("success") else "error",
+        data=res,
+    )
+
+    def _text() -> None:
+        table = Table(title=f"Hath0r MCP Fleet Provisioning ({res['repos_count']} Repositories)")
+        table.add_column("Repository", style="bold cyan")
+        table.add_column("Group", style="magenta")
+        table.add_column("Default MCP", style="green")
+        table.add_column("Base URL", style="yellow")
+        table.add_column("Un-Ignored")
+        for r in res.get("repos", []):
+            table.add_row(
+                str(r.get("repo", "")),
+                str(r.get("group", "")),
+                str(r.get("default_server", "")),
+                str(r.get("default_url", "")),
+                "[green]yes[/green]" if r.get("mcp_not_ignored", True) else "[red]no[/red]",
+            )
+        console.print(table)
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+
 @mcp.command("check")
 @click.option("--timeout", default=2.5, type=float, help="Probe timeout in seconds per server.")
 @click.pass_context

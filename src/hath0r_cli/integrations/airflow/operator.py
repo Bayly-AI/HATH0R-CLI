@@ -86,5 +86,5 @@ class Hath0rCliOperator(BaseOperator):
 
         # Return parsed JSON data if available, otherwise raw stdout
         if res.get("parsed_json") is not None:
-            return res["parsed_json"]
+            return dict(res["parsed_json"])
         return res

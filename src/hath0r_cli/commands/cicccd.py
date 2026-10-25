@@ -184,7 +184,7 @@ def cicccd_autotune(ctx: click.Context, interval: int, daemon: bool) -> None:
 
 
 # Mount Continuous Training subgroups directly onto cicccd
-from hath0r_cli.commands.cicccdct import dataset_group, model_group, train_group
+from hath0r_cli.commands.cicccdct import dataset_group, model_group, train_group  # noqa: E402
 
 cicccd.add_command(train_group, name="train")
 cicccd.add_command(dataset_group, name="dataset")

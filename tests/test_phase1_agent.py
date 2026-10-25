@@ -108,3 +108,34 @@ def test_cccd_calibration_with_l2ws(tmp_path):
     res = loop.run_calibration(iterations=1, signature_name="test_l2ws_sig")
     assert res["success"] is True
     assert "updated_parameters" in res
+
+
+def test_kv_prewarmer_chunk_boundary_eviction_and_cag(tmp_path):
+    from hath0r_cli.bots.cag_engine import CAGEngine
+
+    prewarmer = KVCachePrewarmer(default_block_size=16)
+    shared = " ".join(f"tok_{i}" for i in range(35))
+    res = prewarmer.prewarm_context(shared_prompt=shared, system_prompt="sys_anchor", block_size=16)
+    assert res["chunk_boundary_aligned"] is True
+    assert res["aligned_tokens"] % 16 == 0
+    assert res["block_count"] == res["aligned_tokens"] // 16
+
+    # Partial prefix hit when tail tokens change on block boundary
+    extended = shared + " " + " ".join(f"tail_{i}" for i in range(16))
+    status = prewarmer.check_prefill_status(shared_prompt=extended, system_prompt="sys_anchor", block_size=16)
+    assert status["cache_hit"] is True
+    assert status["matched_blocks"] >= 1
+
+    # Chunk-boundary tail eviction preserves block alignment
+    evict_res = prewarmer.evict_on_chunk_boundary(res["context_hash"], evict_tail_blocks=1)
+    assert evict_res["evicted"] is True
+    assert evict_res["evicted_tokens"] == 16
+    assert evict_res["chunk_boundary_aligned"] is True
+
+    # Verify CAGEngine packs on block boundaries
+    (tmp_path / "AGENTS.md").write_text("# Agents Rule\nAlways align KV blocks.", encoding="utf-8")
+    cag = CAGEngine()
+    env = cag.pack_context(workspace_root=tmp_path, include_agentgraph=False, block_size=16)
+    assert env["chunk_boundary_aligned"] is True
+    assert env["aligned_tokens"] % 16 == 0
+
