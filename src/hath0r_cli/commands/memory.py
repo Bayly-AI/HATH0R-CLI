@@ -235,6 +235,41 @@ def memory_reflect(ctx: click.Context, threshold: int, max_insights: int, dry_ru
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@memory.command("dream")
+@click.option("--threshold", default=2, type=int, help="Minimum cluster size to synthesize an insight.")
+@click.option("--max-insights", default=5, type=int, help="Maximum insights to generate per pass.")
+@click.option("--dry-run", is_flag=True, help="Simulate dreaming / reflection synthesis.")
+@click.pass_context
+def memory_dream(ctx: click.Context, threshold: int, max_insights: int, dry_run: bool) -> None:
+    """Execute Anthropic-style 'Dreaming': consolidate execution logs and episodes into high-order memory insights."""
+    from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+    bot = MemoryManagerBot()
+    res = bot.reflect_memory(cluster_threshold=threshold, max_insights=max_insights, dry_run=dry_run)
+
+    response = _build_response(
+        ctx,
+        command="memory.dream",
+        state="ok" if res.get("success") else "error",
+        data=res,
+        dry_run=dry_run,
+    )
+
+    def _text() -> None:
+        count = res.get("insights_generated", 0)
+        console.print(
+            f"[bold cyan]🌙 Dreaming Consolidation Complete:[/bold cyan] "
+            f"[green]{count} new high-order insight(s) distilled from episodic logs.[/green]"
+        )
+        for ins in res.get("insights", []):
+            console.print(f"  • [bold magenta]{ins.get('id')}[/bold magenta]: {ins.get('label')}")
+            console.print(f"    [dim]{ins.get('content')}[/dim]")
+        if count == 0:
+            console.print("  [dim]• All episodic memory clusters are already synthesized. The system wakes up smarter.[/dim]")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
 @memory.command("verify")
 @click.option("--since", default=None, help="Verify knowledge compounded at or after ISO timestamp.")
 @click.option("--task", "task_id", default=None, help="Verify knowledge compounded for a specific task/issue.")
