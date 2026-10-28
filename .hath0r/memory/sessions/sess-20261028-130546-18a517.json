@@ -5,17 +5,17 @@
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-28T13:05:46.197056+00:00",
-  "updated_at": "2026-10-28T15:18:13.137202+00:00",
+  "updated_at": "2026-10-28T15:21:58.348381+00:00",
   "ended_at": "2026-10-28T14:51:41.444499+00:00",
   "read_count": 12,
-  "write_count": 41,
-  "revision": 52,
-  "content_hash": "sha256:1b3a381c7df432bb285c7ec194c20a8d5b2fc3a1b34b03b4a0574f743e1c5cd3",
+  "write_count": 42,
+  "revision": 53,
+  "content_hash": "sha256:287679362ac1aaac5f19c29283ea7772e6a6db1c7b2fc984858531d28772d3dd",
   "base_graph_hash": "sha256:0b4f55609119cfc2d665ee8b7ca59e7664a8c05fb2db4df718a917341f72fc2d",
   "last_read_at": "2026-10-28T14:51:41.188455+00:00",
-  "last_write_at": "2026-10-28T15:18:13.137202+00:00",
+  "last_write_at": "2026-10-28T15:21:58.348381+00:00",
   "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
-  "prior_summary": "ounded episode:release-v1.11.0: Rele; Compounded eval:release-v1-11-0: Task Ev; Compounded eval:issue-522: Task Evaluati",
+  "prior_summary": "ounded eval:release-v1-11-0: Task Ev; Compounded eval:issue-522: Task Evaluati; Compounded eval:issue-522: Task Evaluati",
   "recalled_nodes": [
     {
       "id": "decision:issue-474-micro-memory-session",
@@ -26,7 +26,7 @@
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-28T15:18:13.137202+00:00",
+      "timestamp": "2026-10-28T15:21:58.348381+00:00",
       "kind": "compound",
       "summary": "Compounded eval:issue-522: Task Evaluation issue-522 (R=1.00, PASS)",
       "tags": [

@@ -353,6 +353,7 @@ CANONICAL_BRANCHES: Set[str] = {
     "master",
     "main",
     "HEAD",
+    "origin",
     "gh-pages",
 }
 
@@ -559,6 +560,28 @@ class CleanReposWorkflowBot:
         return {"ref": ref, "merged": True, "conflicts_resolved": True, "strategy": "tree-ours"}
 
     @classmethod
+    def _pull_base_branch(cls, repo_path: Path, base_branch: str) -> None:
+        """Pull origin/<base_branch> with rebase, falling back to conflict-resolving merge if diverged."""
+        import subprocess
+
+        pull_res = subprocess.run(
+            ["git", "pull", "--rebase", "origin", base_branch],
+            cwd=repo_path,
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        if pull_res.returncode != 0:
+            subprocess.run(
+                ["git", "rebase", "--abort"],
+                cwd=repo_path,
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            cls._merge_ref_with_conflict_resolution(repo_path, f"origin/{base_branch}")
+
+    @classmethod
     def _review_merge_and_prune_branches(
         cls, repo_path: Path, base_branch: str, auto_commit: bool = True
     ) -> Dict[str, Any]:
@@ -585,13 +608,7 @@ class CleanReposWorkflowBot:
                 stderr=subprocess.DEVNULL,
             )
         if has_origin:
-            subprocess.run(
-                ["git", "pull", "--rebase", "origin", base_branch],
-                cwd=repo_path,
-                check=False,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
+            cls._pull_base_branch(repo_path, base_branch)
 
         local_branches = [
             b.strip()
@@ -856,13 +873,7 @@ class CleanReposWorkflowBot:
                     )
                 pushed_origin = False
                 if self._has_origin(repo_path):
-                    subprocess.run(
-                        ["git", "pull", "--rebase", "origin", base_branch],
-                        cwd=repo_path,
-                        check=False,
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
-                    )
+                    self._pull_base_branch(repo_path, base_branch)
                     if auto_commit:
                         push_res = subprocess.run(
                             ["git", "push", "origin", base_branch],
