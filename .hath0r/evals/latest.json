@@ -1,13 +1,13 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261028-153233-956bec",
-  "task_id": "clean-repo-hathor-cli",
+  "eval_id": "eval-20261028-173025-483b87",
+  "task_id": "release-v1-12-0",
   "issue_number": null,
   "repo_name": "hathor-cli",
   "branch": "development",
-  "evaluated_at": "2026-10-28T15:32:33.290638+00:00",
-  "duration_ms": 262.43,
+  "evaluated_at": "2026-10-28T17:30:25.593260+00:00",
+  "duration_ms": 277.31,
   "passed_gate": true,
   "r_task": 1.0,
   "min_reward_threshold": 0.8,
@@ -42,7 +42,7 @@
         },
         "memory_compounded": {
           "passed": true,
-          "compounded_nodes_count": 45,
+          "compounded_nodes_count": 46,
           "session_read_verified": true,
           "session_write_verified": true,
           "hashes_verified": true,
@@ -65,12 +65,12 @@
       "max_usd": 0.25,
       "session_id": "sess-20261028-130546-18a517",
       "session_reads": 13,
-      "session_writes": 44,
-      "session_bytes": 1780,
+      "session_writes": 45,
+      "session_bytes": 1957,
       "within_capsule_budget": true,
-      "latency_ms": 94.17,
+      "latency_ms": 98.67,
       "taguchi_quality_loss": 0.0001,
-      "snr_db": 26.54
+      "snr_db": 26.14
     },
     "adversarial": {
       "score": 1.0,
@@ -85,16 +85,18 @@
     "goal_alignment": {
       "score": 1.0,
       "passed": true,
-      "task_id": "clean-repo-hathor-cli",
+      "task_id": "release-v1-12-0",
       "issue_number": null,
       "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
-      "compounded_nodes_count": 45,
+      "compounded_nodes_count": 46,
       "consensus_score": 1.0
     }
   },
   "blocking_reasons": [],
   "observability_sync": {
-    "mode": "pending"
+    "mode": "live_synced",
+    "phoenix_logged": true,
+    "mlflow_run_id": "abee3dbdc19a465999118fcc0f2bdc50"
   },
-  "content_hash": "sha256:c95793073c28adeb6dbbe218916d7ec4e4687f1bfc12ec82529ca15cd97ca339"
+  "content_hash": "sha256:bd951d80f0ba802ee717d58abc7d66d5e7a21eb98101eaa188129eb022b6b354"
 }
