@@ -7,6 +7,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import click
 
+from hath0r_cli.output import global_json_requested
+
 COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "doctor": ("hath0r_cli.commands.doctor", "doctor"),
     "init": ("hath0r_cli.commands.init_cmd", "init_cmd"),
@@ -18,6 +20,7 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "factory": ("hath0r_cli.commands.factory", "factory"),
     "branch": ("hath0r_cli.commands.branch", "branch"),
     "pr": ("hath0r_cli.commands.pr", "pr"),
+    "promote": ("hath0r_cli.commands.promote", "promote"),
     "janitor": ("hath0r_cli.commands.janitor", "janitor"),
     "task": ("hath0r_cli.commands.task", "task"),
     "jev": ("hath0r_cli.commands.jev", "jev"),
@@ -76,6 +79,24 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
 }
 
 
+def _bridge_json_flags(cmd: click.Command) -> None:
+    """Make legacy per-command ``--json`` flags honour the global ``--output`` mode.
+
+    Commands that predate the response envelope expose their own ``--json`` flag and
+    otherwise print Rich tables, which breaks ``-o json`` and non-TTY ``auto`` callers.
+    An explicit ``--json`` still wins; only the default becomes output-mode aware.
+    """
+    if getattr(cmd, "_hath0r_json_bridged", False):
+        return
+    cmd._hath0r_json_bridged = True  # type: ignore[attr-defined]
+    for param in cmd.params:
+        if isinstance(param, click.Option) and param.is_flag and "--json" in param.opts and not param.default:
+            param.default = global_json_requested
+    if isinstance(cmd, click.Group):
+        for sub in cmd.commands.values():
+            _bridge_json_flags(sub)
+
+
 class Hath0rLazyGroup(click.Group):
     """Click command group that dynamically imports subcommands on demand."""
 
@@ -102,6 +123,7 @@ class Hath0rLazyGroup(click.Group):
                 mod = importlib.import_module(mod_path)
                 target = getattr(mod, attr_name)
                 if isinstance(target, click.Command):
+                    _bridge_json_flags(target)
                     return target
             except Exception:
                 return None

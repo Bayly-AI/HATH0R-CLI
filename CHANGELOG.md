@@ -5,6 +5,19 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2026-10-28
+
+### Added
+- **Git Workflows: branch, PR & environment promotion (`GitWorkflowBot`, CR-BAI-001 / cr-branch-gov-001)**:
+  - New `src/hath0r_cli/bots/git_workflow_bot.py` mirroring `.github/workflows/enforce-promotion-path.yml` locally (same work/release regexes and per-stage rules).
+  - `hath0r branch start <type> <issue> <slug>` (issue-verified branch from `origin/development`) and `hath0r branch sync [--rebase]` (aborts cleanly on conflict).
+  - `hath0r pr check`, `pr create` (path-validated, `Closes #n` + `Version Impact`), `pr status`, and `pr merge` (squash into development; merge commit for promotions; `--human-approved` required for staging/master).
+  - New `hath0r promote` group: `status` (pending/drift/versions/open PRs per stage), `release <x.y.z>` (non-destructive release cut), and `to testing|staging|production [--from release/x.y.z] [--gate]`.
+  - Governance hexad: `cfg/workflows/git-promotion-workflow.yaml`, strategy, procedure, runbook and playbook docs.
+
+### Fixed
+- Legacy `--json` flags (churn, decision/cruise, mesh, mlflow, observe, phoenix, pmat, orient) and the `pmat stats` / `observe charts` `--format` options now honour the global `-o json` and non-TTY `auto` output mode instead of printing Rich tables.
+
 ## [1.12.1] - 2026-10-28
 
 ### Added

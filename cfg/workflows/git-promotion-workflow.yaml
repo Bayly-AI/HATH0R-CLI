@@ -1,0 +1,45 @@
+schema_version: "hath0r.git.workflow/1"
+workflow_id: "git-branch-pr-promotion"
+description: "Issue-driven branching, work PRs and environment promotion (CR-BAI-001 / cr-branch-gov-001)"
+policy:
+  chain: [development, testing, staging, master]
+  environments: {testing: testing, staging: staging, master: production}
+  human_gated: [staging, master]
+  merge_strategy: {development: squash, testing: merge, staging: merge, master: merge}
+  ci_mirror: ".github/workflows/enforce-promotion-path.yml"
+stages:
+  - id: start_work
+    bot: "GitWorkflowBot"
+    action: "start_branch"
+    command: "hath0r branch start <type> <issue> <slug>"
+  - id: sync_work
+    bot: "GitWorkflowBot"
+    action: "sync_branch"
+    command: "hath0r branch sync"
+  - id: open_work_pr
+    bot: "PRBot"
+    action: "create_pr"
+    gate: "GitWorkflowBot.check_path"
+    command: "hath0r pr create --semver <patch|minor|major>"
+  - id: merge_work_pr
+    bot: "GitWorkflowBot"
+    action: "merge"
+    command: "hath0r pr merge <n>"
+  - id: cut_release
+    bot: "GitWorkflowBot"
+    action: "cut_release"
+    command: "hath0r promote release <x.y.z>"
+  - id: promote_testing
+    bot: "GitWorkflowBot"
+    action: "promote"
+    command: "hath0r promote to testing [--from release/x.y.z] [--gate]"
+  - id: promote_staging
+    bot: "GitWorkflowBot"
+    action: "promote"
+    human_gate: true
+    command: "hath0r promote to staging --gate && hath0r pr merge <n> --human-approved"
+  - id: promote_production
+    bot: "GitWorkflowBot"
+    action: "promote"
+    human_gate: true
+    command: "hath0r promote to production --gate && hath0r pr merge <n> --human-approved"
