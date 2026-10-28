@@ -8,7 +8,6 @@ or OS services.
 from __future__ import annotations
 
 import json
-from typing import Any
 
 import pytest
 from click.testing import CliRunner
@@ -18,30 +17,11 @@ import hath0r_cli.bots.voice_daemon as voice_daemon
 import hath0r_cli.bots.voice_speaker as voice_speaker
 import hath0r_cli.voice as voice_mod
 from hath0r_cli.cli import main
-
-
-class Seq(list):
-    """Successive return values for successive method calls on a FakeBot."""
-
-
-class FakeBot:
-    """Stand-in for any bot: every method call returns ``result`` (or the next item of a Seq)."""
-
-    def __init__(self, result: Any) -> None:
-        self._results = list(result) if isinstance(result, Seq) else None
-        self._result = result
-
-    def __getattr__(self, name: str):
-        def method(*args: Any, **kwargs: Any) -> Any:
-            if self._results is not None:
-                return self._results.pop(0) if len(self._results) > 1 else self._results[0]
-            return self._result
-
-        return method
+from tests.fakebot import Seq, patch_bot
 
 
 def _patch(monkeypatch, module, name, result):
-    monkeypatch.setattr(module, name, lambda *a, **k: FakeBot(result))
+    patch_bot(monkeypatch, module, name, result)
 
 
 def _run(*args: str, input: str | None = None):
