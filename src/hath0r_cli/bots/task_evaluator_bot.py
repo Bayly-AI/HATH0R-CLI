@@ -760,25 +760,32 @@ class TaskEvaluatorBot:
             recursive.append(git_entry.parent)
         return recursive if len(recursive) > len(direct) else direct
 
-    @classmethod
-    def _ensure_doc_has_eval_rule(cls, doc_path: Path, *, repo_name: str, dry_run: bool = False) -> bool:
-        """Ensure AGENTS.md or WARP.md contains the canonical CR-TASK-EVAL-001 rule section."""
+    def _ensure_doc_has_eval_rule(self, filename: str, *, dry_run: bool = False) -> bool:
+        """Ensure AGENTS.md or WARP.md in self.cwd contains the canonical CR-TASK-EVAL-001 rule section."""
+        from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+        if filename not in ("AGENTS.md", "WARP.md"):
+            return False
+        doc_path = (self.cwd / filename).resolve()
+        if doc_path.parent != self.cwd:
+            return False
         if doc_path.is_file():
-            raw = doc_path.read_text(encoding="utf-8", errors="ignore")
-            if "CR-TASK-EVAL-001" in raw:
+            has_rule = "CR-TASK-EVAL-001" in doc_path.read_text(encoding="utf-8", errors="ignore")
+            if has_rule:
                 return False
-            updated = raw.rstrip() + "\n" + cls.CANONICAL_AGENTS_EVAL_SECTION
             if not dry_run:
-                doc_path.write_text(updated, encoding="utf-8")
+                with doc_path.open("a", encoding="utf-8") as fh:
+                    fh.write(self.CANONICAL_AGENTS_EVAL_SECTION)
             return True
-        if doc_path.name == "AGENTS.md":
+        if filename == "AGENTS.md":
+            safe_repo = re.sub(r"[^a-zA-Z0-9_.\- ]+", "", self.cwd.name)[:80] or "Repository"
             content = (
-                f"# AGENTS.md — {repo_name}\n\n"
+                f"# AGENTS.md — {safe_repo}\n\n"
                 f"> Governed by Hath0r AgentGraph, MemoryGraph (`CR-MEMORY-COMPOUND-001`), and Automatic Task Evaluations (`CR-TASK-EVAL-001`).\n"
-                + cls.CANONICAL_AGENTS_EVAL_SECTION
+                + self.CANONICAL_AGENTS_EVAL_SECTION
             )
             if not dry_run:
-                doc_path.write_text(content, encoding="utf-8")
+                MemoryManagerBot._atomic_write_text(doc_path, content)
             return True
         return False
 
@@ -793,40 +800,36 @@ class TaskEvaluatorBot:
         from hath0r_cli.bots.memory_manager import MemoryManagerBot
 
         slug = re.sub(r"[^a-z0-9]+", "-", self.cwd.name.lower()).strip("-") or "repo"
-        cfg_file = self.cwd / "cfg" / "evals" / "task-eval.json"
+        cfg_file = (self.cwd / "cfg" / "evals" / "task-eval.json").resolve()
         cfg_created = False
-        if not cfg_file.is_file():
+        if cfg_file.is_relative_to(self.cwd) and not cfg_file.is_file():
             cfg_created = True
             if not dry_run:
-                cfg_file.parent.mkdir(parents=True, exist_ok=True)
-                cfg_Payload = json.loads(json.dumps(DEFAULT_TASK_EVAL_CONFIG))
-                cfg_Payload["product_id"] = slug
-                cfg_file.write_text(json.dumps(cfg_Payload, indent=2) + "\n", encoding="utf-8")
+                cfg_payload = json.loads(json.dumps(DEFAULT_TASK_EVAL_CONFIG))
+                cfg_payload["product_id"] = slug
+                MemoryManagerBot._atomic_write_text(cfg_file, json.dumps(cfg_payload, indent=2) + "\n")
 
         mbot = MemoryManagerBot(cwd=self.cwd)
         mbot.ensure_gitignore_unignores_graphs(dry_run=dry_run, create_if_missing=True)
         mbot.initialize_memory(dry_run=dry_run)
 
-        core_rules_file = self.cwd / ".hath0r" / "memory" / "core_rules.md"
-        if core_rules_file.is_file():
-            raw_core = core_rules_file.read_text(encoding="utf-8", errors="ignore")
-            if "CR-TASK-EVAL-001" not in raw_core and not dry_run:
+        core_rules_file = (self.cwd / ".hath0r" / "memory" / "core_rules.md").resolve()
+        if core_rules_file.is_relative_to(self.cwd) and core_rules_file.is_file():
+            has_core_rule = "CR-TASK-EVAL-001" in core_rules_file.read_text(encoding="utf-8", errors="ignore")
+            if not has_core_rule and not dry_run:
                 rule_line = (
-                    "6. Automatic Task Evaluation (CR-TASK-EVAL-001): Every task must execute and pass the 4-tier "
+                    "\n6. Automatic Task Evaluation (CR-TASK-EVAL-001): Every task must execute and pass the 4-tier "
                     "automatic task evaluation gate (hath0r evals run / hath0r evals verify, R_task >= 0.80) prior to announcing complete.\n"
                 )
-                core_rules_file.write_text(raw_core.rstrip() + "\n" + rule_line, encoding="utf-8")
+                with core_rules_file.open("a", encoding="utf-8") as fh:
+                    fh.write(rule_line)
 
         agents_updated = False
         warp_updated = False
         if sync_agents_md:
-            agents_updated = self._ensure_doc_has_eval_rule(
-                self.cwd / "AGENTS.md", repo_name=self.cwd.name, dry_run=dry_run
-            )
+            agents_updated = self._ensure_doc_has_eval_rule("AGENTS.md", dry_run=dry_run)
             if (self.cwd / "WARP.md").is_file():
-                warp_updated = self._ensure_doc_has_eval_rule(
-                    self.cwd / "WARP.md", repo_name=self.cwd.name, dry_run=dry_run
-                )
+                warp_updated = self._ensure_doc_has_eval_rule("WARP.md", dry_run=dry_run)
 
         if not dry_run:
             mbot.session_read(focus=f"Provisioning CR-TASK-EVAL-001 for {self.cwd.name}", dry_run=False)
@@ -884,12 +887,6 @@ class TaskEvaluatorBot:
         base = Path(root_dir).resolve() if root_dir else Path("/Users/raybayly/Development")
         if not base.is_dir():
             base = self.cwd.parent
-
-        # Also update group-level AGENTS.md / WARP.md files directly inside group folders
-        if sync_agents_md and base.is_dir():
-            for group_doc in sorted(base.glob("*/AGENTS.md")) + sorted(base.glob("*/WARP.md")):
-                if not (group_doc.parent / ".git").exists():
-                    self._ensure_doc_has_eval_rule(group_doc, repo_name=group_doc.parent.name, dry_run=dry_run)
 
         repo_paths = self._discover_repos(base)
         results: List[Dict[str, Any]] = []

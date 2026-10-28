@@ -906,9 +906,8 @@ class BotRegistry:
                 dry_run=dry_run,
             )
         elif action in ("ensure-all", "ensure-all-repos"):
-            root_dir = args.get("root_dir") or context.get("root_dir")
             res = bot.ensure_all_repos(
-                root_dir=str(root_dir) if root_dir else None,
+                root_dir=bot.cwd,
                 run_eval=bool(args.get("run_eval", True)),
                 sync_agents_md=bool(args.get("sync_agents_md", True)),
                 dry_run=dry_run,
