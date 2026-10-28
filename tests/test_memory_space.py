@@ -1,5 +1,7 @@
 """Tests for Local Memory Space, MemoryGraph compounding, and pre-announcement gate (CR-MEMORY-COMPOUND-001)."""
 
+import json
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from click.testing import CliRunner
@@ -367,6 +369,107 @@ def test_memory_manager_unignores_graph_folders_in_gitignore(tmp_path: Path) -> 
     good = bot.verify_graphs_not_gitignored()
     assert good["graphs_not_ignored"] is True
     assert good["ignored_paths"] == []
+
+
+def test_hashes_manifest_monotonic_revisions_and_cas(tmp_path: Path) -> None:
+    src_file = tmp_path / "src" / "svc.py"
+    src_file.parent.mkdir(parents=True)
+    src_file.write_text("x = 1\n", encoding="utf-8")
+
+    bot = MemoryManagerBot(cwd=tmp_path)
+    bot.initialize_memory()
+    bot.sync_file_hashes(track_files=["src/svc.py"])
+    first = bot.sync_file_hashes()
+    manifest = first["manifest"]
+    rules_rev = manifest["files"][".hath0r/memory/core_rules.md"]["revision"]
+    src_rev = manifest["source_files"]["src/svc.py"]["revision"]
+    assert manifest["files"][".hath0r/memory/core_rules.md"]["sha256"].startswith("sha256:")
+
+    # Unchanged files keep their revision; changed files bump it monotonically
+    again = bot.sync_file_hashes()["manifest"]
+    assert again["files"][".hath0r/memory/core_rules.md"]["revision"] == rules_rev
+    (tmp_path / ".hath0r" / "memory" / "core_rules.md").write_text("# Changed\n", encoding="utf-8")
+    src_file.write_text("x = 2\n", encoding="utf-8")
+    bumped = bot.sync_file_hashes(refresh_source_files=True)["manifest"]
+    assert bumped["files"][".hath0r/memory/core_rules.md"]["revision"] == rules_rev + 1
+    assert bumped["source_files"]["src/svc.py"]["revision"] == src_rev + 1
+
+    # CAS on hashes.json: correct expected_revision succeeds, stale one is refused untouched
+    current_rev = bumped["revision"]
+    ok = bot.sync_file_hashes(expected_revision=current_rev)
+    assert ok["success"] is True
+    assert ok["revision"] == current_rev + 1
+    stale = bot.sync_file_hashes(expected_revision=current_rev)
+    assert stale["success"] is False
+    assert stale["error_code"] == "HASH_CONFLICT"
+    assert stale["actual_revision"] == current_rev + 1
+    on_disk = json.loads((tmp_path / ".hath0r" / "memory" / "hashes.json").read_text(encoding="utf-8"))
+    assert on_disk["revision"] == current_rev + 1
+
+
+def test_update_memory_topic_cas(tmp_path: Path) -> None:
+    bot = MemoryManagerBot(cwd=tmp_path)
+    bot.initialize_memory()
+
+    # New topic: "absent" is the expected hash for a file that does not exist yet
+    created = bot.update_memory("ops", "# Ops\nv1\n", expected_hash="absent")
+    assert created["success"] is True
+    v1_hash = bot.read_memory("ops")["sha256"]
+    assert v1_hash == created["sha256"]
+
+    updated = bot.update_memory("ops", "# Ops\nv2\n", expected_hash=v1_hash)
+    assert updated["success"] is True
+
+    # A writer still holding the v1 hash is refused and the file is left as v2
+    stale = bot.update_memory("ops", "# Ops\nlost update\n", expected_hash=v1_hash)
+    assert stale["success"] is False
+    assert stale["error_code"] == "HASH_CONFLICT"
+    assert "v2" in bot.read_memory("ops")["content"]
+
+
+def test_concurrent_compounds_across_threads_do_not_lose_nodes(tmp_path: Path) -> None:
+    MemoryManagerBot(cwd=tmp_path).initialize_memory()
+
+    def _worker(i: int) -> bool:
+        b = MemoryManagerBot(cwd=tmp_path)
+        b._load_graph()
+        res = b.compound_memory(
+            node_id=f"fact:thread-{i}",
+            node_type="fact",
+            label=f"Thread {i}",
+            content=f"Added by thread {i}.",
+            sync_agentgraph=False,
+        )
+        return bool(res.get("success"))
+
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        results = list(pool.map(_worker, range(6)))
+    assert all(results)
+
+    bot = MemoryManagerBot(cwd=tmp_path)
+    ids = {n["id"] for n in bot._load_graph()["nodes"]}
+    assert {f"fact:thread-{i}" for i in range(6)} <= ids
+    assert bot.verify_file_hashes()["verified"] is True
+
+
+def test_memory_cli_hash_and_update_cas_flags(tmp_path: Path) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem(temp_dir=tmp_path):
+        runner.invoke(main, ["memory", "init"])
+        rev = json.loads(Path(".hath0r/memory/hashes.json").read_text(encoding="utf-8"))["revision"]
+
+        res_stale = runner.invoke(main, ["memory", "hash", "--sync", "--expected-revision", str(rev - 1)])
+        assert res_stale.exit_code != 0
+        res_ok = runner.invoke(main, ["memory", "hash", "--sync", "--expected-revision", str(rev)])
+        assert res_ok.exit_code == 0
+
+        res_bad = runner.invoke(
+            main, ["memory", "update", "notes", "# Notes\n", "--expected-hash", "sha256:" + "0" * 64]
+        )
+        assert res_bad.exit_code != 0
+        assert not Path(".hath0r/memory/notes.md").exists()
+        res_new = runner.invoke(main, ["memory", "update", "notes", "# Notes\n", "--expected-hash", "absent"])
+        assert res_new.exit_code == 0
 
 
 def test_gitignore_negations_relocated_after_later_ignore_rule(tmp_path: Path) -> None:

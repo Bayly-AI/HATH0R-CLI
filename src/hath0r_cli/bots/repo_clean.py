@@ -532,7 +532,12 @@ class CleanReposWorkflowBot:
                     "status": "complete" if mem_gate.get("compounded") else "blocked_by_memory_gate",
                     "memory_compounded": mem_gate.get("compounded", False),
                     "total_memory_nodes": mem_gate.get("total_nodes", 0),
+                    "hashes_verified": mem_gate.get("hashes_verified", False),
+                    "error": mem_gate.get("error"),
                 }
+                if not mem_gate.get("compounded"):
+                    repo_res["clean"] = False
+                    all_success = False
 
             except Exception as e:
                 repo_res["clean"] = False
