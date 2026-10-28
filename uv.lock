@@ -674,7 +674,7 @@ wheels = [
 
 [[package]]
 name = "hath0r-cli"
-version = "1.4.0"
+version = "1.7.2"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
