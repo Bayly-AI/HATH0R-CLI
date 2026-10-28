@@ -2167,6 +2167,8 @@ class BotRegistry:
             res = bot.sync_ci_workflows(dry_run=dry_run)
         elif action == "rollback-init":
             res = bot.rollback_init(dry_run=dry_run)
+        elif action == "verify-graph-folders":
+            res = bot.verify_graph_folders(dry_run=dry_run)
         else:
             return StepExecutionResult(
                 bot_id="repo-layout-bot",
