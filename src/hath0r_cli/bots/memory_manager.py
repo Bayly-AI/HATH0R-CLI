@@ -1135,12 +1135,26 @@ class MemoryManagerBot:
             else:
                 new_lines.append(line)
 
+        # Git applies the last matching pattern, so an ignore rule placed after the
+        # canonical negations (e.g. a later "*.json") silently re-ignores graph files.
+        # Move the negation block back to the end of the file when that happens.
+        header = "# Canonical Hath0r Graph Folders (NEVER ignore — CR-MEMORY-COMPOUND-001 & CR-AGENTGRAPH-001)"
+        canonical_negations = set(self.CANONICAL_GITIGNORE_NEGATIONS)
+        negation_idx = [i for i, ln in enumerate(new_lines) if ln.strip() in canonical_negations]
+        rule_idx = [
+            i for i, ln in enumerate(new_lines) if ln.strip() and not ln.strip().startswith(("#", "!"))
+        ]
+        relocated = bool(negation_idx and rule_idx and max(rule_idx) > min(negation_idx))
+        if relocated:
+            new_lines = [ln for ln in new_lines if ln.strip() not in canonical_negations and ln.strip() != header]
+            while new_lines and not new_lines[-1].strip():
+                new_lines.pop()
+
         existing_stripped = {ln.strip() for ln in new_lines}
         missing_negations = [neg for neg in self.CANONICAL_GITIGNORE_NEGATIONS if neg not in existing_stripped]
         if missing_negations:
             if new_lines and new_lines[-1].strip() != "":
                 new_lines.append("")
-            header = "# Canonical Hath0r Graph Folders (NEVER ignore — CR-MEMORY-COMPOUND-001 & CR-AGENTGRAPH-001)"
             if header not in existing_stripped:
                 new_lines.append(header)
             for neg in missing_negations:
@@ -1158,6 +1172,7 @@ class MemoryManagerBot:
             "rewritten_rules": rewritten_rules,
             "removed_rules": removed_rules,
             "appended_negations": missing_negations,
+            "relocated_negations": relocated,
         }
 
     def verify_graphs_not_gitignored(self) -> Dict[str, Any]:
@@ -2221,12 +2236,15 @@ class MemoryManagerBot:
                 }
             )
 
+        ignored_repos = [r["repo"] for r in results if not r["graphs_not_ignored"]]
         return {
             "success": True,
             "dry_run": dry_run,
             "root_dir": str(base),
             "repos_count": len(results),
             "repos": results,
+            "graphs_not_ignored": not ignored_repos,
+            "ignored_repos": ignored_repos,
         }
 
     def search_memory(
