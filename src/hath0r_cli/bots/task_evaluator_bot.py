@@ -98,7 +98,7 @@ class TaskEvaluatorBot:
 
     def load_config(self) -> Dict[str, Any]:
         """Load declarative cfg/evals/task-eval.json merged over canonical defaults."""
-        cfg = json.loads(json.dumps(DEFAULT_TASK_EVAL_CONFIG))
+        cfg: Dict[str, Any] = json.loads(json.dumps(DEFAULT_TASK_EVAL_CONFIG))
         cfg_file = self.cwd / "cfg" / "evals" / "task-eval.json"
         if cfg_file.is_file():
             try:

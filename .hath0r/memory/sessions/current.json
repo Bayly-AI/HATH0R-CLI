@@ -5,17 +5,17 @@
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-28T13:05:46.197056+00:00",
-  "updated_at": "2026-10-28T13:31:55.080956+00:00",
+  "updated_at": "2026-10-28T13:53:51.629911+00:00",
   "ended_at": "2026-10-28T13:28:51.939478+00:00",
   "read_count": 7,
-  "write_count": 11,
-  "revision": 17,
-  "content_hash": "sha256:58c00ee2ca6b4d0e579e586f56808c3dacaa8e37f02504f0dfcff543e824d847",
+  "write_count": 12,
+  "revision": 18,
+  "content_hash": "sha256:52b69c38c4e21d0676806d6d33670cde1ee2df2813dcfa120b3fe60ccf511900",
   "base_graph_hash": "sha256:6d4590562660a365b3dc574fae02444495be9536707a72f800e69687cfc09d8c",
   "last_read_at": "2026-10-28T13:30:15.932029+00:00",
-  "last_write_at": "2026-10-28T13:31:55.080956+00:00",
+  "last_write_at": "2026-10-28T13:53:51.629911+00:00",
   "active_focus": "Orienting repository hathor-cli",
-  "prior_summary": "leted PR #101 (feature/101-test) via; Compounded episode:issue-510-task-evals:; Compounded eval:issue-510: Task Evaluati",
+  "prior_summary": "ounded episode:issue-510-task-evals:; Compounded eval:issue-510: Task Evaluati; Compounded eval:issue-510: Task Evaluati",
   "recalled_nodes": [
     {
       "id": "eval:pr-104",
@@ -26,17 +26,17 @@
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-28T13:31:55.080956+00:00",
+      "timestamp": "2026-10-28T13:53:51.629911+00:00",
       "kind": "compound",
-      "summary": "Compounded eval:issue-510: Task Evaluation issue-510 (R=1.00, PASS)",
+      "summary": "Compounded eval:pr-516: Task Evaluation pr-516 (R=1.00, PASS)",
       "tags": [
         "eval",
         "cr-task-eval-001",
-        "issue-510",
+        "pr-516",
         "passed",
         "compounded"
       ],
-      "node_id": "eval:issue-510"
+      "node_id": "eval:pr-516"
     }
   ],
   "next_steps": [],
@@ -44,8 +44,9 @@
     "eval:pr-101",
     "eval:pr-104",
     "episode:issue-510-task-evals",
-    "eval:issue-510"
+    "eval:issue-510",
+    "eval:pr-516"
   ],
   "parent_session_id": "sess-20261017-145045-ed36da",
-  "capsule_bytes": 1758
+  "capsule_bytes": 1765
 }

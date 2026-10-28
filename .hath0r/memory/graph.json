@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 159,
-  "content_hash": "sha256:d0aec806acfdcac9cd7532e24e163c3ecf4b145e8a0e1d582e1be8939144cca2",
-  "updated_at": "2026-10-28T13:37:09.754436+00:00",
+  "revision": 163,
+  "content_hash": "sha256:461a5653b205ac1311b750e0392896bad51f2fa3bdafc738d436851f898a6c2d",
+  "updated_at": "2026-10-28T13:53:53.812792+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -745,7 +745,7 @@
       "updated_at": "2026-10-28T13:23:14.632392+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:0f2035109d884cf4f62fbe2bf33225272f6f71dce7cc6550fa2123e5143c5b3a"
+          ".hath0r/evals/latest.json": "sha256:4d630c915a1147fa6e8706ede687ff3b43d76f16321b0e8fbfb598b5ee275316"
         }
       }
     },
@@ -769,7 +769,7 @@
       "updated_at": "2026-10-28T13:23:21.538822+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:0f2035109d884cf4f62fbe2bf33225272f6f71dce7cc6550fa2123e5143c5b3a"
+          ".hath0r/evals/latest.json": "sha256:4d630c915a1147fa6e8706ede687ff3b43d76f16321b0e8fbfb598b5ee275316"
         }
       }
     },
@@ -813,7 +813,31 @@
       "updated_at": "2026-10-28T13:31:54.915874+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:0f2035109d884cf4f62fbe2bf33225272f6f71dce7cc6550fa2123e5143c5b3a"
+          ".hath0r/evals/latest.json": "sha256:4d630c915a1147fa6e8706ede687ff3b43d76f16321b0e8fbfb598b5ee275316"
+        }
+      }
+    },
+    {
+      "id": "eval:pr-516",
+      "type": "eval",
+      "label": "Task Evaluation pr-516 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for pr-516 on branch feature/510-automatic-task-evals: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "pr-516",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T13:53:51.569625+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T13:53:51.569625+00:00",
+      "updated_at": "2026-10-28T13:53:51.569625+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:4d630c915a1147fa6e8706ede687ff3b43d76f16321b0e8fbfb598b5ee275316"
         }
       }
     },
@@ -821,7 +845,7 @@
       "id": "session:sess-20261028-130546-18a517",
       "type": "session",
       "label": "Micro Session sess-20261028-130546-18a517",
-      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Orienting repository hathor-cli | Reads: 7, Writes: 11 | Entries: Compounded eval:issue-510: Task Evaluation issue-510 (R=1.00, PASS)",
+      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Orienting repository hathor-cli | Reads: 7, Writes: 12 | Entries: Compounded eval:pr-516: Task Evaluation pr-516 (R=1.00, PASS)",
       "importance": 0.75,
       "tags": [
         "session",
@@ -832,15 +856,15 @@
       "valid_to": "2026-10-28T13:28:51.939478+00:00",
       "is_current": true,
       "created_at": "2026-10-28T13:05:46.197056+00:00",
-      "updated_at": "2026-10-28T13:31:55.080956+00:00",
+      "updated_at": "2026-10-28T13:53:51.629911+00:00",
       "metadata": {
         "session_id": "sess-20261028-130546-18a517",
         "prior_session_id": "sess-20261017-145045-ed36da",
         "parent_session_id": "sess-20261017-145045-ed36da",
         "read_count": 7,
-        "write_count": 11,
+        "write_count": 12,
         "status": "completed",
-        "byte_size": 1758
+        "byte_size": 1765
       }
     }
   ],
@@ -1625,6 +1649,38 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:30:26.786452+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-516",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:53:51.569625+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-516",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:53:51.569625+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-516",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:53:51.569625+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-516",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:53:51.634086+00:00",
       "is_current": true
     }
   ]

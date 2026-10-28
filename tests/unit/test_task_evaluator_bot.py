@@ -115,22 +115,80 @@ def test_step_runner_dispatches_task_evaluator_bot(tmp_path: Path) -> None:
 
 
 def test_cli_evals_commands(tmp_path: Path, monkeypatch) -> None:
-    """Verify hath0r evals run, status, verify, and report CLI commands."""
+    """Verify hath0r evals run, status, verify, report, consensus, and redteam CLI commands in JSON and text modes."""
     _seed_compliant_workspace(tmp_path)
+    (tmp_path / ".git").mkdir(exist_ok=True)
+    cfg_dir = tmp_path / "cfg" / "evals"
+    cfg_dir.mkdir(parents=True, exist_ok=True)
+    (cfg_dir / "task-eval.json").write_text(
+        json.dumps(
+            {
+                "version": "1.0.0",
+                "rule_id": "CR-TASK-EVAL-001",
+                "thresholds": {"min_r_task": 0.80},
+                "observability": {"phoenix_enabled": True, "mlflow_enabled": True},
+            }
+        ),
+        encoding="utf-8",
+    )
     monkeypatch.chdir(tmp_path)
     runner = CliRunner()
 
-    r_run = runner.invoke(cli, ["evals", "run", "--task-id", "issue-510", "--skip-tests", "--no-sync-observability"])
-    assert r_run.exit_code == 0
-    assert '"passed_gate":true' in r_run.output or "PASSED" in r_run.output
+    # Status before any evaluation exists (text mode)
+    r_status_empty = runner.invoke(cli, ["--output", "text", "evals", "status"])
+    assert r_status_empty.exit_code == 0
 
-    r_status = runner.invoke(cli, ["evals", "status"])
+    # Run evaluation in text mode with observability sync
+    r_run = runner.invoke(cli, ["--output", "text", "evals", "run", "--task-id", "issue-510", "--skip-tests"])
+    assert r_run.exit_code == 0
+    assert "PASSED" in r_run.output
+
+    # Status after evaluation exists (text mode)
+    r_status = runner.invoke(cli, ["--output", "text", "evals", "status"])
     assert r_status.exit_code == 0
     assert "issue-510" in r_status.output
 
-    r_verify = runner.invoke(cli, ["evals", "verify", "--task-id", "issue-510"])
+    # Verify in text mode
+    r_verify = runner.invoke(cli, ["--output", "text", "evals", "verify", "--task-id", "issue-510"])
     assert r_verify.exit_code == 0
-    assert '"passed_gate":true' in r_verify.output or "CR-TASK-EVAL-001 Verified" in r_verify.output
+    assert "CR-TASK-EVAL-001 Verified" in r_verify.output
 
-    r_report = runner.invoke(cli, ["evals", "report", "--root", str(tmp_path)])
+    # Report in text mode over parent directory
+    r_report = runner.invoke(cli, ["--output", "text", "evals", "report", "--root", str(tmp_path.parent)])
     assert r_report.exit_code == 0
+    assert tmp_path.name in r_report.output
+
+    # Consensus and Redteam in text mode
+    r_cons = runner.invoke(cli, ["--output", "text", "evals", "consensus", "--threshold", "0.70"])
+    assert r_cons.exit_code == 0
+    assert "PASSED" in r_cons.output
+
+    r_rt = runner.invoke(cli, ["--output", "text", "evals", "redteam", "--component", "eval_engine"])
+    assert r_rt.exit_code == 0
+    assert "eval_engine" in r_rt.output
+
+
+def test_task_evaluator_bot_observability_and_missing_auto_run(tmp_path: Path, monkeypatch) -> None:
+    """Verify MLflow live sync path, corrupt scorecard handling, and auto_run_if_missing on verify_evaluated."""
+    _seed_compliant_workspace(tmp_path)
+    from hath0r_cli.bots.mlflow_manager_bot import mlflow_manager_bot
+
+    monkeypatch.setattr(mlflow_manager_bot, "check_status", lambda group="hath0r": {"healthy": True})
+    monkeypatch.setattr(mlflow_manager_bot, "log_run", lambda **kwargs: "mlflow-run-999")
+
+    bot = TaskEvaluatorBot(cwd=tmp_path)
+    # Verify auto_run_if_missing=False when missing fails
+    ver_missing = bot.verify_evaluated(task_id="issue-510", auto_run_if_missing=False)
+    assert ver_missing["passed_gate"] is False
+    assert "Missing .hath0r/evals/latest.json" in (ver_missing["error"] or "")
+
+    # Verify auto_run_if_missing=True automatically evaluates and passes
+    ver_auto = bot.verify_evaluated(task_id="issue-510", auto_run_if_missing=True)
+    assert ver_auto["passed_gate"] is True
+
+    # Verify corrupt JSON handling in get_status
+    latest_file = tmp_path / ".hath0r" / "evals" / "latest.json"
+    latest_file.write_text("{not-valid-json", encoding="utf-8")
+    st_corrupt = bot.get_status()
+    assert st_corrupt["success"] is False
+    assert "Corrupt evaluation scorecard" in (st_corrupt["error"] or "")

@@ -1,13 +1,13 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261028-133152-0041b8",
-  "task_id": "issue-510",
+  "eval_id": "eval-20261028-135350-6c7e89",
+  "task_id": "pr-516",
   "issue_number": 510,
   "repo_name": "hathor-cli",
   "branch": "feature/510-automatic-task-evals",
-  "evaluated_at": "2026-10-28T13:31:52.021212+00:00",
-  "duration_ms": 1151.77,
+  "evaluated_at": "2026-10-28T13:53:50.683246+00:00",
+  "duration_ms": 365.16,
   "passed_gate": true,
   "r_task": 1.0,
   "min_reward_threshold": 0.8,
@@ -65,12 +65,12 @@
       "max_usd": 0.25,
       "session_id": "sess-20261028-130546-18a517",
       "session_reads": 7,
-      "session_writes": 10,
+      "session_writes": 11,
       "session_bytes": 1758,
       "within_capsule_budget": true,
-      "latency_ms": 390.24,
-      "taguchi_quality_loss": 0.0019,
-      "snr_db": 14.19
+      "latency_ms": 137.86,
+      "taguchi_quality_loss": 0.0002,
+      "snr_db": 23.23
     },
     "adversarial": {
       "score": 1.0,
@@ -85,7 +85,7 @@
     "goal_alignment": {
       "score": 1.0,
       "passed": true,
-      "task_id": "issue-510",
+      "task_id": "pr-516",
       "issue_number": 510,
       "active_focus": "Orienting repository hathor-cli",
       "compounded_nodes_count": 25,
@@ -96,7 +96,7 @@
   "observability_sync": {
     "mode": "live_synced",
     "phoenix_logged": true,
-    "mlflow_run_id": "d73c34a8c4d4403da2e1ffcbffe6af28"
+    "mlflow_run_id": "3520924c39b641569a0f21e34e2fa7ce"
   },
-  "content_hash": "sha256:8ecf2ac07597783b3a07cd3b262919a447be1aa387e4ca911d48211a7cb5aa38"
+  "content_hash": "sha256:265d56c87412a7b9082976af0175467956f963ba6487e1c7e6f71f6d15daf6ab"
 }
