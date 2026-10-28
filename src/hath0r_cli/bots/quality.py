@@ -57,6 +57,32 @@ def _repo_cfg(cwd: Path) -> dict[str, Any]:
     return _load_json_cfg(cwd / "cfg" / "quality-gates.json")
 
 
+_PYTEST_SUMMARY_LABELS = ("failed", "passed", "error", "errors", "skipped", "warning", "warnings")
+
+
+def _summary_counts(summary_text: str) -> List[Tuple[int, str]]:
+    """Parse "1 failed, 40 passed in 1.23s" into [(1, "failed"), (40, "passed")]."""
+    counts: List[Tuple[int, str]] = []
+    for chunk in summary_text.split(","):
+        words = chunk.split()
+        if len(words) >= 2 and words[0].isdigit() and words[1].isalpha():
+            counts.append((int(words[0]), words[1].lower()))
+    return counts
+
+
+def _find_pytest_summary(output: str) -> Optional[Tuple[str, str]]:
+    """Return (summary_line, counts_text) for the first "=== 1 failed, 40 passed in 1.23s ===" line."""
+    for line in output.splitlines():
+        stripped = line.strip()
+        if not (stripped.startswith("==") and stripped.endswith("==") and len(stripped) > 4):
+            continue
+        inner = stripped.strip("=").strip()
+        counts = _summary_counts(inner)
+        if counts and counts[0][1] in _PYTEST_SUMMARY_LABELS:
+            return stripped, inner
+    return None
+
+
 @dataclass
 class QualityGateBot:
     """Aggregate PR quality gates including SonarCloud hard stop."""
@@ -612,15 +638,10 @@ class DeployTestBot:
         }
 
         # Look for pytest short summary lines like "=== 1 failed, 40 passed in 1.23s ==="
-        summary_match = re.search(
-            r"==+\s+((?:\d+\s+(?:failed|passed|error|errors|skipped|warning|warnings)(?:,\s*)?)+).*==+",
-            combined,
-        )
-        if summary_match:
-            parsed["summary_line"] = summary_match.group(0).strip()
-            summary_text = summary_match.group(1)
-            for count_type in re.findall(r"(\d+)\s+([a-zA-Z]+)", summary_text):
-                num, label = int(count_type[0]), count_type[1].lower()
+        summary = _find_pytest_summary(combined)
+        if summary:
+            parsed["summary_line"], summary_text = summary
+            for num, label in _summary_counts(summary_text):
                 if "pass" in label:
                     parsed["passed"] = num
                 elif "fail" in label:

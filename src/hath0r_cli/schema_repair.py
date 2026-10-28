@@ -17,9 +17,13 @@ class SchemaRepairEngine:
         """Strip markdown code block fences and surrounding prose."""
         cleaned = text.strip()
         # Strip ```json ... ``` or ``` ... ```
-        fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", cleaned, re.IGNORECASE)
-        if fence_match:
-            return fence_match.group(1).strip()
+        start = cleaned.find("```")
+        end = cleaned.find("```", start + 3) if start != -1 else -1
+        if end != -1:
+            body = cleaned[start + 3 : end]
+            if body[:4].lower() == "json":
+                body = body[4:]
+            return body.strip()
         return cleaned
 
     def fix_json_syntax(self, text: str) -> str:

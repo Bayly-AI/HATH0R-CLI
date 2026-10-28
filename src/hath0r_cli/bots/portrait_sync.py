@@ -194,7 +194,7 @@ def load_crosswalk(fetcher, urls):
 
 
 # Source credits are not subject matter: "from find-a-grave" portraits are photos of the person.
-_SOURCE_CREDITS = re.compile(r"(?:by|from)?[ _-]*find[ _-]*a[ _-]*grave", re.I)
+_SOURCE_CREDITS = re.compile(r"(?:(?:by|from)[ _-]*)?find[ _-]*a[ _-]*grave", re.I)
 _NON_PORTRAIT_TOKENS = frozenset(
     {
         "signature",

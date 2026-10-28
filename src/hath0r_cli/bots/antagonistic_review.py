@@ -34,7 +34,7 @@ class AntagonisticReviewBot:
         added_text = "\n".join([line[1:].strip() for line in lines if line.startswith("+")])
 
         # Check swallowed exceptions across single or multi-line blocks
-        if re.search(r"except\s*(?:Exception|BaseException)?\s*:\s*pass\b", added_text):
+        if re.search(r"except(?:\s+(?:Exception|BaseException))?\s*:\s*pass\b", added_text):
             flaws.append({
                 "type": "SwallowedException",
                 "severity": "critical",
