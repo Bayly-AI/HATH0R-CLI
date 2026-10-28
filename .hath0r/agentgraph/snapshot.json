@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
   "graph_id": "agentgraph-hathor-cli",
-  "timestamp": "2026-10-28T13:53:52.242910+00:00",
+  "timestamp": "2026-10-28T14:01:16.529655+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -2844,11 +2844,11 @@
       "plane": "knowledge",
       "type": "knowledge_doc",
       "label": "Decision Radar Runbook",
-      "content": "# Runbook: Hath0r Cruise Control Operations\n\n> Canonical Runbook · ID: `RUNBOOK-DECISION-RADAR-001`  \n> Epic: #499 / #508 · Tasks: #500–#506\n\n---\n\n## 1. Quick Command Reference\n\n```bash\n# Launch Cruise Control Web Radar UI (http://127.0.0.1:8085/radar)\nhath0r cruise radar --port 8085\n\n# Seed the canonical 16-node Cruise Control reference topology and render TUI\nhath0r cruise tui --seed-demo\n\n# Queue a new decision from an agent\nhath0r decision ask \\\n  --question \"Patch and reboot the Parts-API widget VMs\" \\\n  --category \"only_you_can_do_this\" \\\n  --agent \"@a11152\" \\\n  --unblocks \"vm-node-1,vm-node-2\"\n\n# Block agent terminal until answered or settled by fact\nhath0r decision wait \\\n  --question \"Catalog read-only tools at zero credit balance\" \\\n  --category \"only_you_can_do_this\" \\\n  --agent \"@a11062\" \\\n  --unblocks \"catalog-sync,mcp-ro-gate,billing-guard\" \\\n  --timeout 1.0\n\n# List open decisions ranked by U(d)\nhath0r decision list\n\n# Answer a decision\nhath0r decision answer <decision-id> --response \"Approved\"\n\n# Bind a decision to a fact predicate instead of a timer\nhath0r decision snooze <decision-id> --fact \"file.exists:VERSION\"\n\n# Assert a fact and trigger auto-settlement\nhath0r ",
+      "content": "# Runbook: Hath0r Cruise Control Operations\n\n> Canonical Runbook · ID: `RUNBOOK-DECISION-RADAR-001`  \n> Epic: #499 / #508 · Tasks: #500–#506\n\n---\n\n## 1. Quick Command Reference\n\n```bash\n# Launch Cruise Control Web Radar UI in a split-window browser display (http://127.0.0.1:38090/radar)\nhath0r cruise radar --port 38090 --split-window --split-side right\n\n# Seed the canonical 16-node Cruise Control reference topology and render TUI\nhath0r cruise tui --seed-demo\n\n# Queue a new decision from an agent (automatically opens/focuses split-window Cruise Control)\nhath0r cruise ask \\\n  --question \"Patch and reboot the Parts-API widget VMs\" \\\n  --category \"only_you_can_do_this\" \\\n  --agent \"@a11152\" \\\n  --unblocks \"vm-node-1,vm-node-2\" \\\n  --split-window\n```\n\n# Block agent terminal until answered or settled by fact\nhath0r decision wait \\\n  --question \"Catalog read-only tools at zero credit balance\" \\\n  --category \"only_you_can_do_this\" \\\n  --agent \"@a11062\" \\\n  --unblocks \"catalog-sync,mcp-ro-gate,billing-guard\" \\\n  --timeout 1.0\n\n# List open decisions ranked by U(d)\nhath0r decision list\n\n# Answer a decision\nhath0r decision answer <decision-id> --response \"Approved\"\n\n# Bind a decision to a fac",
       "properties": {
         "path": "docs/governance/runbooks/decision-radar-runbook.md",
         "category": "runbooks",
-        "size_bytes": 2167
+        "size_bytes": 2425
       },
       "is_current": true
     },
@@ -4677,9 +4677,9 @@
       "content": "Implemented DecisionRadarBot, DecisionGraph, FactSettlementEngine, WorkBoundaryGate, HathorDecisionRadarServer, hath0r decision CLI group, contracts/hath0r-decision-spec-v1.schema.json, Governance Hexad documentation, and tests/unit/test_decision_radar.py with 92% coverage.",
       "properties": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:156099380fd280eef05a78b3a032297bf45b946033266c7d88d6ac95575ccda0",
-          "src/hath0r_cli/commands/decision.py": "sha256:300f9be123769e8fb12ef8403b24e010f317d1071546487ce29450e87e06d605",
-          "src/hath0r_cli/server/decision_radar_server.py": "sha256:f2dfd54a3d5f67f1ff4d57a54fd1a31c2bc53ce13bebbae6c84690b5f2906d4e"
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:3852b9f138f25d2586ba533a0aa72a2b60cc332a0736d31f342288dfb329a611",
+          "src/hath0r_cli/commands/decision.py": "sha256:75ef0ad96a51b20ce3d812e32f1cd09600671933b2b1fb36dbe8bcc09879a91f",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:cd7e033a04dbef7b2fcf96a0e82229b68570d59e3eee397092ebf2bf98e2044f"
         },
         "source": "local_memory",
         "tags": [
@@ -4741,9 +4741,9 @@
       "content": "Renamed feature from Minority Report to Cruise Control across CLI (hath0r cruise / hath0r cruise-control), Web/TUI radar, CruiseControlBot SDK, contracts schema, and Governance Hexad docs.",
       "properties": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:156099380fd280eef05a78b3a032297bf45b946033266c7d88d6ac95575ccda0",
-          "src/hath0r_cli/commands/decision.py": "sha256:300f9be123769e8fb12ef8403b24e010f317d1071546487ce29450e87e06d605",
-          "src/hath0r_cli/server/decision_radar_server.py": "sha256:f2dfd54a3d5f67f1ff4d57a54fd1a31c2bc53ce13bebbae6c84690b5f2906d4e"
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:3852b9f138f25d2586ba533a0aa72a2b60cc332a0736d31f342288dfb329a611",
+          "src/hath0r_cli/commands/decision.py": "sha256:75ef0ad96a51b20ce3d812e32f1cd09600671933b2b1fb36dbe8bcc09879a91f",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:cd7e033a04dbef7b2fcf96a0e82229b68570d59e3eee397092ebf2bf98e2044f"
         },
         "source": "local_memory",
         "tags": [
@@ -4828,7 +4828,7 @@
       "content": "4-Tier Task Evaluation for pr-101 on branch feature/510-automatic-task-evals: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:0f2035109d884cf4f62fbe2bf33225272f6f71dce7cc6550fa2123e5143c5b3a"
+          ".hath0r/evals/latest.json": "sha256:4d630c915a1147fa6e8706ede687ff3b43d76f16321b0e8fbfb598b5ee275316"
         },
         "source": "local_memory",
         "tags": [
@@ -4850,7 +4850,7 @@
       "content": "4-Tier Task Evaluation for pr-104 on branch feature/510-automatic-task-evals: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:0f2035109d884cf4f62fbe2bf33225272f6f71dce7cc6550fa2123e5143c5b3a"
+          ".hath0r/evals/latest.json": "sha256:4d630c915a1147fa6e8706ede687ff3b43d76f16321b0e8fbfb598b5ee275316"
         },
         "source": "local_memory",
         "tags": [
@@ -4891,7 +4891,7 @@
       "content": "4-Tier Task Evaluation for issue-510 on branch feature/510-automatic-task-evals: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:0f2035109d884cf4f62fbe2bf33225272f6f71dce7cc6550fa2123e5143c5b3a"
+          ".hath0r/evals/latest.json": "sha256:4d630c915a1147fa6e8706ede687ff3b43d76f16321b0e8fbfb598b5ee275316"
         },
         "source": "local_memory",
         "tags": [
@@ -4913,7 +4913,7 @@
       "content": "4-Tier Task Evaluation for pr-516 on branch feature/510-automatic-task-evals: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4d630c915a1147fa6e8706ede687ff3b43d76f16321b0e8fbfb598b5ee275316"
+          ".hath0r/evals/latest.json": "sha256:b77c4efbd5fa932e3a8c5265330a539208db78d0ba50e44c86e4e8897dd96f1a"
         },
         "source": "local_memory",
         "tags": [
@@ -4932,13 +4932,13 @@
       "plane": "memory",
       "type": "session",
       "label": "Micro Session sess-20261028-130546-18a517",
-      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Orienting repository hathor-cli | Reads: 7, Writes: 12 | Entries: Compounded eval:pr-516: Task Evaluation pr-516 (R=1.00, PASS)",
+      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Orienting repository hathor-cli | Reads: 7, Writes: 13 | Entries: Compounded eval:pr-516: Task Evaluation pr-516 (R=1.00, PASS)",
       "properties": {
         "session_id": "sess-20261028-130546-18a517",
         "prior_session_id": "sess-20261017-145045-ed36da",
         "parent_session_id": "sess-20261017-145045-ed36da",
         "read_count": 7,
-        "write_count": 12,
+        "write_count": 13,
         "status": "completed",
         "byte_size": 1765,
         "source": "local_memory",

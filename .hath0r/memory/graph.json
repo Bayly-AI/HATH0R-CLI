@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 163,
-  "content_hash": "sha256:461a5653b205ac1311b750e0392896bad51f2fa3bdafc738d436851f898a6c2d",
-  "updated_at": "2026-10-28T13:53:53.812792+00:00",
+  "revision": 168,
+  "content_hash": "sha256:cd4c95486ed855a6298dab66cb85999fd98cf609bd8f037bba3719d0ea492c20",
+  "updated_at": "2026-10-28T14:01:17.310220+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -581,9 +581,9 @@
       "updated_at": "2026-10-28T12:29:58.673969+00:00",
       "metadata": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:156099380fd280eef05a78b3a032297bf45b946033266c7d88d6ac95575ccda0",
-          "src/hath0r_cli/commands/decision.py": "sha256:300f9be123769e8fb12ef8403b24e010f317d1071546487ce29450e87e06d605",
-          "src/hath0r_cli/server/decision_radar_server.py": "sha256:f2dfd54a3d5f67f1ff4d57a54fd1a31c2bc53ce13bebbae6c84690b5f2906d4e"
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:3852b9f138f25d2586ba533a0aa72a2b60cc332a0736d31f342288dfb329a611",
+          "src/hath0r_cli/commands/decision.py": "sha256:75ef0ad96a51b20ce3d812e32f1cd09600671933b2b1fb36dbe8bcc09879a91f",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:cd7e033a04dbef7b2fcf96a0e82229b68570d59e3eee397092ebf2bf98e2044f"
         }
       }
     },
@@ -651,9 +651,9 @@
       "updated_at": "2026-10-28T12:59:58.010370+00:00",
       "metadata": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:156099380fd280eef05a78b3a032297bf45b946033266c7d88d6ac95575ccda0",
-          "src/hath0r_cli/commands/decision.py": "sha256:300f9be123769e8fb12ef8403b24e010f317d1071546487ce29450e87e06d605",
-          "src/hath0r_cli/server/decision_radar_server.py": "sha256:f2dfd54a3d5f67f1ff4d57a54fd1a31c2bc53ce13bebbae6c84690b5f2906d4e"
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:3852b9f138f25d2586ba533a0aa72a2b60cc332a0736d31f342288dfb329a611",
+          "src/hath0r_cli/commands/decision.py": "sha256:75ef0ad96a51b20ce3d812e32f1cd09600671933b2b1fb36dbe8bcc09879a91f",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:cd7e033a04dbef7b2fcf96a0e82229b68570d59e3eee397092ebf2bf98e2044f"
         }
       }
     },
@@ -745,7 +745,7 @@
       "updated_at": "2026-10-28T13:23:14.632392+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4d630c915a1147fa6e8706ede687ff3b43d76f16321b0e8fbfb598b5ee275316"
+          ".hath0r/evals/latest.json": "sha256:b77c4efbd5fa932e3a8c5265330a539208db78d0ba50e44c86e4e8897dd96f1a"
         }
       }
     },
@@ -769,7 +769,7 @@
       "updated_at": "2026-10-28T13:23:21.538822+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4d630c915a1147fa6e8706ede687ff3b43d76f16321b0e8fbfb598b5ee275316"
+          ".hath0r/evals/latest.json": "sha256:b77c4efbd5fa932e3a8c5265330a539208db78d0ba50e44c86e4e8897dd96f1a"
         }
       }
     },
@@ -813,7 +813,7 @@
       "updated_at": "2026-10-28T13:31:54.915874+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4d630c915a1147fa6e8706ede687ff3b43d76f16321b0e8fbfb598b5ee275316"
+          ".hath0r/evals/latest.json": "sha256:b77c4efbd5fa932e3a8c5265330a539208db78d0ba50e44c86e4e8897dd96f1a"
         }
       }
     },
@@ -830,14 +830,14 @@
         "passed",
         "compounded"
       ],
-      "valid_from": "2026-10-28T13:53:51.569625+00:00",
+      "valid_from": "2026-10-28T14:01:16.232202+00:00",
       "valid_to": null,
       "is_current": true,
       "created_at": "2026-10-28T13:53:51.569625+00:00",
-      "updated_at": "2026-10-28T13:53:51.569625+00:00",
+      "updated_at": "2026-10-28T14:01:16.232202+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4d630c915a1147fa6e8706ede687ff3b43d76f16321b0e8fbfb598b5ee275316"
+          ".hath0r/evals/latest.json": "sha256:b77c4efbd5fa932e3a8c5265330a539208db78d0ba50e44c86e4e8897dd96f1a"
         }
       }
     },
@@ -845,7 +845,7 @@
       "id": "session:sess-20261028-130546-18a517",
       "type": "session",
       "label": "Micro Session sess-20261028-130546-18a517",
-      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Orienting repository hathor-cli | Reads: 7, Writes: 12 | Entries: Compounded eval:pr-516: Task Evaluation pr-516 (R=1.00, PASS)",
+      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Orienting repository hathor-cli | Reads: 7, Writes: 13 | Entries: Compounded eval:pr-516: Task Evaluation pr-516 (R=1.00, PASS)",
       "importance": 0.75,
       "tags": [
         "session",
@@ -856,13 +856,13 @@
       "valid_to": "2026-10-28T13:28:51.939478+00:00",
       "is_current": true,
       "created_at": "2026-10-28T13:05:46.197056+00:00",
-      "updated_at": "2026-10-28T13:53:51.629911+00:00",
+      "updated_at": "2026-10-28T14:01:16.264550+00:00",
       "metadata": {
         "session_id": "sess-20261028-130546-18a517",
         "prior_session_id": "sess-20261017-145045-ed36da",
         "parent_session_id": "sess-20261017-145045-ed36da",
         "read_count": 7,
-        "write_count": 12,
+        "write_count": 13,
         "status": "completed",
         "byte_size": 1765
       }

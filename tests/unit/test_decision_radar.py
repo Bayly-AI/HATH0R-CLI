@@ -21,8 +21,15 @@ from hath0r_cli.bots.decision_radar_bot import (
 from hath0r_cli.bots.memory_manager import MemoryManagerBot
 from hath0r_cli.commands.decision import decision_cmd
 from hath0r_cli.server.decision_radar_server import (
+    _ACTIVE_DAEMON_SERVERS,
     HathorCruiseControlServer,
     HathorDecisionRadarServer,
+    _launch_macos_split_browser,
+    build_local_radar_url,
+    build_macos_split_window_applescript,
+    ensure_cruise_control_server,
+    is_cruise_server_listening,
+    launch_cruise_control_split_window,
     render_radar_tui,
 )
 
@@ -457,6 +464,96 @@ def test_cli_text_modes_and_edge_cases(tmp_path: Path, monkeypatch: pytest.Monke
         with pytest.raises(urllib.error.HTTPError) as exc_info:
             urllib.request.urlopen(f"http://127.0.0.1:{port}/unknown-route", timeout=3)
         assert exc_info.value.code == 404
+
+        split_req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/api/decisions/split-window",
+            data=json.dumps({"side": "right", "decision_id": "dec-12345678"}).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(split_req, timeout=3) as resp:
+            split_payload = json.loads(resp.read().decode("utf-8"))
+            assert split_payload["success"] is True
+            assert "focus=dec-12345678" in split_payload["window"]["url"]
+            assert split_payload["window"]["layout"] == "split-right"
     finally:
         server.stop()
+
+
+def test_cruise_control_split_window_display(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Issue #513: Verify automatic split-window browser display when a task needs a decision."""
+    monkeypatch.chdir(tmp_path)
+    script_right = build_macos_split_window_applescript("http://127.0.0.1:38090/radar?focus=dec-1", side="right")
+    assert "{halfW, 25, screenW, screenH}" in script_right
+    script_left = build_macos_split_window_applescript("http://127.0.0.1:38090/radar?focus=dec-1", side="left")
+    assert "{0, 25, halfW, screenH}" in script_left
+
+    win_res = launch_cruise_control_split_window(
+        "http://127.0.0.1:38090/radar",
+        decision_id="dec-abc12345",
+        side="left",
+    )
+    assert win_res["url"] == "http://127.0.0.1:38090/radar?focus=dec-abc12345&split=left"
+    assert win_res["layout"] == "split-left"
+
+    win_existing_qs = launch_cruise_control_split_window(
+        "http://127.0.0.1:38090/radar?operator=Mark",
+        decision_id="dec-abc12345",
+        side="right",
+    )
+    assert win_existing_qs["url"] == "http://127.0.0.1:38090/radar?operator=Mark&focus=dec-abc12345&split=right"
+
+    server = HathorCruiseControlServer(host="127.0.0.1", port=0, cwd=tmp_path)
+    bound_port = server.start(daemon=True)
+    try:
+        assert is_cruise_server_listening(host="127.0.0.1", port=bound_port) is True
+        ensured_url = ensure_cruise_control_server(cwd=tmp_path, host="127.0.0.1", port=bound_port)
+        assert ensured_url == f"http://127.0.0.1:{bound_port}/radar"
+        monkeypatch.setenv("HATH0R_CRUISE_PORT", str(bound_port))
+
+        bot = CruiseControlBot(cwd=tmp_path)
+        res = bot.request_decision(
+            question="Approve split-screen deployment?",
+            category="only_you_can_do_this",
+            agent_id="@split-agent",
+            split_window=True,
+            split_side="right",
+        )
+        assert res["success"] is True
+        assert "browser_window" in res
+        assert f":{bound_port}/radar?focus=" in res["browser_window"]["url"]
+    finally:
+        server.stop()
+
+    # Test auto-start path of ensure_cruise_control_server when not yet listening
+    auto_url = ensure_cruise_control_server(cwd=tmp_path, host="127.0.0.1", port=0)
+    assert "/radar" in auto_url
+    for srv in list(_ACTIVE_DAEMON_SERVERS.values()):
+        srv.stop()
+    _ACTIVE_DAEMON_SERVERS.clear()
+
+    # Test _launch_macos_split_browser with mocked subprocess & webbrowser
+    class _DummyProc:
+        def __init__(self, rc: int) -> None:
+            self.returncode = rc
+
+    monkeypatch.setattr("subprocess.run", lambda *a, **kw: _DummyProc(0))
+    assert (
+        _launch_macos_split_browser(build_local_radar_url(38090), "right", script_right)
+        in ("macos-chrome-app-split", "macos-applescript-split")
+    )
+
+    monkeypatch.setattr("subprocess.run", lambda *a, **kw: _DummyProc(1))
+    monkeypatch.setattr("webbrowser.open", lambda *_a, **_kw: True)
+    assert _launch_macos_split_browser(build_local_radar_url(38090), "left", script_left) == "webbrowser"
+
+    runner = CliRunner()
+    res_daemon = runner.invoke(
+        decision_cmd,
+        ["radar", "--port", "0", "--daemon", "--split-window", "--split-side", "left"],
+    )
+    assert res_daemon.exit_code == 0
+    assert "Split-window Cruise Control" in res_daemon.output
+
+
 
