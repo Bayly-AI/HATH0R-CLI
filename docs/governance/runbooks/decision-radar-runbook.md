@@ -1,0 +1,63 @@
+# Runbook: Hath0r Decision Radar Operations
+
+> Canonical Runbook · ID: `RUNBOOK-DECISION-RADAR-001`  
+> Epic: #499 · Tasks: #500–#506
+
+---
+
+## 1. Quick Command Reference
+
+```bash
+# Launch Minority Report Web Radar UI (http://127.0.0.1:8085/radar)
+hath0r decision radar --port 8085
+
+# Seed the canonical 16-node Minority Report reference topology and render TUI
+hath0r decision tui --seed-demo
+
+# Queue a new decision from an agent
+hath0r decision ask \
+  --question "Patch and reboot the Parts-API widget VMs" \
+  --category "only_you_can_do_this" \
+  --agent "@a11152" \
+  --unblocks "vm-node-1,vm-node-2"
+
+# Block agent terminal until answered or settled by fact
+hath0r decision wait \
+  --question "Catalog read-only tools at zero credit balance" \
+  --category "only_you_can_do_this" \
+  --agent "@a11062" \
+  --unblocks "catalog-sync,mcp-ro-gate,billing-guard" \
+  --timeout 1.0
+
+# List open decisions ranked by U(d)
+hath0r decision list
+
+# Answer a decision
+hath0r decision answer <decision-id> --response "Approved"
+
+# Bind a decision to a fact predicate instead of a timer
+hath0r decision snooze <decision-id> --fact "file.exists:VERSION"
+
+# Assert a fact and trigger auto-settlement
+hath0r decision assert-fact "ci.workflow.passed:sonar-gate"
+
+# Run fact settlement pass
+hath0r decision settle
+```
+
+---
+
+## 2. REST & SSE Endpoints (`HathorDecisionRadarServer`)
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/radar` | Minority Report Radial Sunburst HTML/SVG/Tailwind UI |
+| `GET` | `/api/decisions` | Full radar polar snapshot JSON |
+| `GET` | `/api/decisions/stream` | Server-Sent Events (SSE) real-time radar stream |
+| `POST` | `/api/decisions/request` | Enqueue a new agent decision |
+| `POST` | `/api/decisions/answer` | Resolve a decision with operator answer |
+| `POST` | `/api/decisions/reject` | Reject a decision |
+| `POST` | `/api/decisions/snooze` | Bind a decision to a declarative fact predicate |
+| `POST` | `/api/decisions/assert-fact` | Assert a fact and auto-settle matching decisions |
+| `POST` | `/api/decisions/settle` | Evaluate all pending fact predicates |
+| `POST` | `/api/decisions/seed` | Seed reference topology |

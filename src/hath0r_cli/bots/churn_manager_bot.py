@@ -6,6 +6,7 @@ import collections
 import datetime
 import json
 import logging
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -49,7 +50,7 @@ class ChurnManagerBot:
             except Exception:
                 mcp_registered = False
 
-        if not mcp_registered:
+        if not mcp_registered and not os.environ.get("HATH0R_MCP_CONFIG"):
             cands = [
                 target_path / "cfg" / "mcp.servers.json",
                 Path(__file__).resolve().parents[3] / "cfg" / "mcp.servers.json",

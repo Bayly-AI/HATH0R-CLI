@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
   "graph_id": "agentgraph-hathor-cli",
-  "timestamp": "2026-10-28T11:41:59.805757+00:00",
+  "timestamp": "2026-10-28T12:29:59.102001+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -402,6 +402,19 @@
       "is_current": true
     },
     {
+      "id": "rule:cr-sonar-preannounce-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-SONAR-PREANNOUNCE-001",
+      "content": "Governance policy rule CR-SONAR-PREANNOUNCE-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-SONAR-PREANNOUNCE-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
       "id": "rule:cr-branch-gov-001",
       "plane": "rules",
       "type": "rule_policy",
@@ -618,6 +631,18 @@
       "properties": {
         "schema_id": "https://schemas.hath0r.dev/hath0r-token-telemetry-record-v1.schema.json",
         "path": "contracts/hath0r-token-telemetry-record-v1.schema.json"
+      },
+      "is_current": true
+    },
+    {
+      "id": "contract:hath0r-decision-spec-v1.schema.json",
+      "plane": "knowledge",
+      "type": "contract",
+      "label": "Hath0r Decision Radar Envelope & Specification Schema",
+      "content": "Defines schema contract for the Minority Report Agent Decision Control Layer, including decision envelopes, 7 canonical category wedges, dependency graph edges, transitive unblock scores, fact predicates, and work boundary gates.",
+      "properties": {
+        "schema_id": "https://hath0r.bayly.ai/contracts/hath0r-decision-spec-v1.schema.json",
+        "path": "contracts/hath0r-decision-spec-v1.schema.json"
       },
       "is_current": true
     },
@@ -1463,6 +1488,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__procedures__decision-radar-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Decision Radar Procedure",
+      "content": "# Procedure: Integrating & Operating the Hath0r Decision Radar\n\n> Canonical Procedure · ID: `PROC-DECISION-RADAR-001`  \n> Epic: #499 · Tasks: #500–#506\n\n---\n\n## 1. Purpose\n\nDefines the step-by-step procedure for autonomous agents and human operators to queue decisions, bind declarative wait facts, enforce input/output work boundaries, and resolve items via the Minority Report Decision Radar.\n\n---\n\n## 2. Step-by-Step Procedure\n\n### Step 1: Register Task Dependency Edges (Optional DAG Enrichment)\nWhen multiple downstream tasks depend on upstream milestones, register edges so the transitive unblocking score $U(d)$ reflects the full cascade:\n```bash\nhath0r decision dep --from \"schema-v2\" --to \"api-resolvers\" --weight 1.5 --criticality 2.0\n```\n\n### Step 2: Enforce the Input Boundary Gate (\"What Goes In\")\nBefore starting a high-token multi-agent run, request or approve an Input Gate:\n```bash\nhath0r decision approve-in \"@a11152\" --intent \"Migrate Parts-API schema\" --budget 50000 --tools \"read_file,edit_file,run_command\"\n```\n\n### Step 3: Agent Requests a Decision or Waits on a Fact\nFrom any agent terminal needing human guidance:\n```bash\nhath0r decision wait \\\n  --question \"Confirm Parts-AP",
+      "properties": {
+        "path": "docs/governance/procedures/decision-radar-procedure.md",
+        "category": "procedures",
+        "size_bytes": 2394
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__procedures__mlflow-management-procedure_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1797,6 +1835,19 @@
         "path": "docs/governance/strategies/tree-sitter-ast-parser-strategy.md",
         "category": "strategies",
         "size_bytes": 3326
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__strategies__decision-radar-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Decision Radar Strategy",
+      "content": "# Strategy: Hath0r Decision Radar (Minority Report Agent Control Layer)\n\n> Canonical Governance Strategy · ID: `STRAT-DECISION-RADAR-001`  \n> Epic: #499 · Tasks: #500–#506 · Rule Compliance: `CR-CLI-FEATURE-STANDARD-001`, `CR-MEMORY-COMPOUND-001`\n\n---\n\n## 1. Architectural Rationale\n\nWhen an operator coordinates 10 to 30 concurrent AI coding agent terminals, the agents are no longer the bottleneck—the human operator's attention is. Without a unified control plane:\n- High-leverage root decisions sit buried behind trivial leaf questions.\n- Timer-based snoozing (\"ask me again in 24 hours\") creates stale interruptions even after external events (PR merges, CI runs, sibling completions) have already resolved the blocker.\n- Unregulated input scopes waste token budgets, and unreviewed output deliveries risk branch integrity.\n\nThe **Hath0r Decision Radar** resolves these bottlenecks through four coupled mechanisms:\n\n1. **Graph-Theoretic Dependency & Transitive Unblocking Reranker (`DecisionGraph`)**:\n   Models waiting agents ($\\mathcal{A}$), decisions ($\\mathcal{D}$), and downstream tasks ($\\mathcal{T}$) as a directed acyclic graph (DAG). Ranks every waiting decision by its **Transitive Unb",
+      "properties": {
+        "path": "docs/governance/strategies/decision-radar-strategy.md",
+        "category": "strategies",
+        "size_bytes": 3037
       },
       "is_current": true
     },
@@ -2763,6 +2814,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__decision-radar-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Decision Radar Runbook",
+      "content": "# Runbook: Hath0r Decision Radar Operations\n\n> Canonical Runbook · ID: `RUNBOOK-DECISION-RADAR-001`  \n> Epic: #499 · Tasks: #500–#506\n\n---\n\n## 1. Quick Command Reference\n\n```bash\n# Launch Minority Report Web Radar UI (http://127.0.0.1:8085/radar)\nhath0r decision radar --port 8085\n\n# Seed the canonical 16-node Minority Report reference topology and render TUI\nhath0r decision tui --seed-demo\n\n# Queue a new decision from an agent\nhath0r decision ask \\\n  --question \"Patch and reboot the Parts-API widget VMs\" \\\n  --category \"only_you_can_do_this\" \\\n  --agent \"@a11152\" \\\n  --unblocks \"vm-node-1,vm-node-2\"\n\n# Block agent terminal until answered or settled by fact\nhath0r decision wait \\\n  --question \"Catalog read-only tools at zero credit balance\" \\\n  --category \"only_you_can_do_this\" \\\n  --agent \"@a11062\" \\\n  --unblocks \"catalog-sync,mcp-ro-gate,billing-guard\" \\\n  --timeout 1.0\n\n# List open decisions ranked by U(d)\nhath0r decision list\n\n# Answer a decision\nhath0r decision answer <decision-id> --response \"Approved\"\n\n# Bind a decision to a fact predicate instead of a timer\nhath0r decision snooze <decision-id> --fact \"file.exists:VERSION\"\n\n# Assert a fact and trigger auto-settlement\nhath0r d",
+      "properties": {
+        "path": "docs/governance/runbooks/decision-radar-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 2167
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__elt-runtime-runbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3036,6 +3100,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__workflows__decision-radar-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Decision Radar Workflow",
+      "content": "# Workflow: Hath0r Decision Radar Lifecycle\n\n> Canonical Workflow · ID: `WORKFLOW-DECISION-RADAR-001`  \n> Config: `cfg/workflows/decision-radar-workflow.yaml` · Epic: #499\n\n---\n\n## 1. End-to-End Decision & Settlement Flow\n\n```mermaid\nflowchart TD\n    InGate[\"1. Input Boundary Gate\\n(Start or hold work)\"] --> Exec[\"2. Agent Execution across\\n10-30 Concurrent Terminals\"]\n    Exec --> Blocked[\"3. Agent Hits Decision Point\\n(hath0r decision wait)\"]\n    Blocked --> Graph[\"4. DecisionGraph Computes\\nTransitive Unblock Score U(d)\"]\n    Graph --> Radar[\"5. Minority Report Radial UI\\n7 Canonical Wedges\"]\n    Radar -->|Human Answers| Resolve[\"6a. RESOLVED_HUMAN\\nHMAC Sign + Unblock\"]\n    Radar -->|Snooze on Fact| FactWait[\"6b. WAITING_FACT\\nBind Predicate (Not Timer)\"]\n    FactWait -->|Probe Satisfied| AutoSettle[\"6c. SETTLED_BY_EVENT\\nZero-Touch Auto-Settle\"]\n    Resolve --> OutGate[\"7. Output Boundary Gate\\n(Accept delivered work)\"]\n    AutoSettle --> OutGate\n    OutGate --> Compound[\"8. MemoryGraph CAS Compounding\\n(.hath0r/memory/graph.json)\"]\n```\n\n---\n\n## 2. Stage Specifications\n\n1. **Stage 1 (`input_boundary_gate`)**: Validates prompt scope, token budget cap, and permitted tools before",
+      "properties": {
+        "path": "docs/governance/workflows/decision-radar-workflow.md",
+        "category": "workflows",
+        "size_bytes": 1745
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__bot-specs__phoenix-manager-bot-spec_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3058,6 +3135,19 @@
         "path": "docs/governance/bot-specs/memory-manager-bot-spec.md",
         "category": "bot-specs",
         "size_bytes": 5225
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__decision-radar-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Decision Radar Bot Spec",
+      "content": "# Bot Specification: DecisionRadarBot\n\n> Canonical Bot Specification · Hath0r Agentic Framework  \n> Updated: 2026-10-28 · Epic: #499 · Issues: #500–#506\n\n---\n\n## 1. Role & Identity\n\n- **Bot Name**: `decision-radar-bot`\n- **Class Name**: `DecisionRadarBot`\n- **Companion Engines**: `DecisionGraph`, `FactSettlementEngine`, `WorkBoundaryGate`\n- **Subsystem**: `HATH0R-CLI` (`src/hath0r_cli/bots/decision_radar_bot.py`)\n- **CLI Command**: `hath0r decision` / `hath0r radar`\n- **Contract Schema**: `contracts/hath0r-decision-spec-v1.schema.json`\n- **Primary Function**: Cybernetic control layer between 10–30 concurrent AI coding agents and the human operator. Models work dependencies as a DAG, ranks decisions by transitive downstream work unblocked $U(d)$, replaces timer snoozing with event-driven fact settlement, enforces HMAC-signed input/output work boundary gates, and drives the Minority Report Radial Sunburst UI.\n\n---\n\n## 2. Supported Conversational & CLI Intents\n\n1. `\"hath0r decision radar\"` / `\"hath0r radar\"`\n2. `\"hath0r decision tui\"`\n3. `\"hath0r decision wait\"`\n4. `\"hath0r decision ask\"`\n5. `\"hath0r decision list\"`\n6. `\"hath0r decision answer\"`\n7. `\"hath0r decision snooze\"`\n8. `\"hath",
+      "properties": {
+        "path": "docs/governance/bot-specs/decision-radar-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 1866
       },
       "is_current": true
     },
@@ -3201,6 +3291,19 @@
         "path": "docs/governance/playbooks/release-runbook.md",
         "category": "playbooks",
         "size_bytes": 1841
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__decision-radar-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Decision Radar Playbook",
+      "content": "# Playbook: Decision Radar Queue Triage & Bottleneck Recovery\n\n> Canonical Playbook · ID: `PLAYBOOK-DECISION-RADAR-001`  \n> Epic: #499 · Tasks: #500–#506\n\n---\n\n## 1. Scenario A: Operator Queue Congestion (>20 Open Decisions Across Terminals)\n\n### Symptoms\n- 10–30 agent terminals are simultaneously waiting on human input.\n- Operator cannot tell which question matters most.\n\n### Resolution Steps\n1. Run `hath0r decision settle` first to clear out any questions whose underlying facts (`git.pr.merged`, `file.exists`, `agent.task.completed`, `memory.fact.asserted`) have already been settled by events.\n2. Run `hath0r decision list` or open `hath0r decision radar` to view decisions sorted descending by **Transitive Unblocking Impact Score $U(d)$**.\n3. Resolve `P0` and `P1` decisions with the highest `|| N` unblock badge first to free the maximum number of downstream workers.\n\n---\n\n## 2. Scenario B: Stalled Fact-Bound Questions\n\n### Symptoms\n- A decision remains in `WAITING_FACT` state even though an external deployment or PR completed outside local polling.\n\n### Resolution Steps\n1. Assert the verified external fact into the radar fact ledger:\n   ```bash\n   hath0r decision assert-fact \"git.",
+      "properties": {
+        "path": "docs/governance/playbooks/decision-radar-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 1868
       },
       "is_current": true
     },
@@ -4261,8 +4364,8 @@
       "content": "Implemented cryptographic SHA-256 file hashing (.hath0r/memory/hashes.json), source_files staleness tracking, atomic os.replace writes, optimistic CAS auto-merge, and hath0r memory hash CLI commands.",
       "properties": {
         "source_files": {
-          "src/hath0r_cli/bots/memory_manager.py": "sha256:6094787f1f360f20f473cd1f37add99f63fb4bdfe408a8c65cfc97b160310888",
-          "src/hath0r_cli/commands/memory.py": "sha256:8433569d9d4995114dc019029ce2202125578a3dd0585016e3061e1b06a7ccb4"
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:d0ff7764471cbb6de99bb8c8c28d81ebca05d9d4469e8bc738d08ab3d5b043ce",
+          "src/hath0r_cli/commands/memory.py": "sha256:6f9ad40d08d1ae7858216ccf1c55071411a936d488f9d165de43be79880c2419"
         },
         "source": "local_memory",
         "tags": [
@@ -4286,8 +4389,8 @@
       "content": "Added ensure_gitignore_unignores_graphs and verify_graphs_not_gitignored to MemoryManagerBot and RepoLayoutBot, sanitizing .gitignore across all 31 repositories and enforcing graphs_not_ignored in verify_compounded.",
       "properties": {
         "source_files": {
-          "src/hath0r_cli/bots/memory_manager.py": "sha256:6094787f1f360f20f473cd1f37add99f63fb4bdfe408a8c65cfc97b160310888",
-          "src/hath0r_cli/bots/onboarding.py": "sha256:e7f705cadb343baca742241133b3ead20679ccb6c1bf391b1d49211f765f3ee4",
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:d0ff7764471cbb6de99bb8c8c28d81ebca05d9d4469e8bc738d08ab3d5b043ce",
+          "src/hath0r_cli/bots/onboarding.py": "sha256:4bfa19af27df97c258b0a8339630d9318576196656d2be6709e32b0e13cf894e",
           ".gitignore": "sha256:1081973c974de85646cafeee9c4eaa45a789a8c481dd528a60e8cc4c68a2fa2b"
         },
         "source": "local_memory",
@@ -4380,8 +4483,8 @@
           "cfg/mcp-connections.yaml": "sha256:ac7648df01ab8c93a6c548c90fd8a15faaac952e80e9b60cfedd9857eeee17d9",
           "src/hath0r_cli/mcp.py": "sha256:64cf55377eb96461443e0c5d471b6fc8b044b54d82104edf74483331f57d69df",
           "src/hath0r_cli/commands/mcp.py": "sha256:9d79e9a77bd5e7048dc24a434b7021178d4ec1b024a16df2d416d3677890f965",
-          "src/hath0r_cli/bots/memory_manager.py": "sha256:6094787f1f360f20f473cd1f37add99f63fb4bdfe408a8c65cfc97b160310888",
-          "src/hath0r_cli/bots/onboarding.py": "sha256:e7f705cadb343baca742241133b3ead20679ccb6c1bf391b1d49211f765f3ee4",
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:d0ff7764471cbb6de99bb8c8c28d81ebca05d9d4469e8bc738d08ab3d5b043ce",
+          "src/hath0r_cli/bots/onboarding.py": "sha256:4bfa19af27df97c258b0a8339630d9318576196656d2be6709e32b0e13cf894e",
           "tests/unit/test_mcp.py": "sha256:86286b729fa650c6c4a89bcc062903fe3b2b2e328953ef4bcad6a5466d6f7c03"
         },
         "source": "local_memory",
@@ -4489,19 +4592,43 @@
       "is_current": true
     },
     {
+      "id": "memory:episode:decision-radar-v1-8-0-implementation",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Hath0r Decision Radar v1.8.0 Implementation (#499-#506)",
+      "content": "Implemented DecisionRadarBot, DecisionGraph, FactSettlementEngine, WorkBoundaryGate, HathorDecisionRadarServer, hath0r decision CLI group, contracts/hath0r-decision-spec-v1.schema.json, Governance Hexad documentation, and tests/unit/test_decision_radar.py with 92% coverage.",
+      "properties": {
+        "source_files": {
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:405548c94fb469a4617a192541c54b3aec1fff1488bbfbfb611c029872ee3c93",
+          "src/hath0r_cli/commands/decision.py": "sha256:8f3747df245bcde1195a73bf58386a4c55d1fe9793c3434a2d4e744b99b7731a",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:8d897058c54c54dac67e358f056bdfcc0d314848f44c0cacf3b9fbeba8811300"
+        },
+        "source": "local_memory",
+        "tags": [
+          "decision-radar",
+          "minority-report",
+          "v1.8.0",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.95
+      },
+      "is_current": true
+    },
+    {
       "id": "memory:session:sess-20261017-145045-ed36da",
       "plane": "memory",
       "type": "session",
       "label": "Micro Session sess-20261017-145045-ed36da",
-      "content": "Micro Session sess-20261017-145045-ed36da [completed] | Focus: Orienting repository hathor-cli | Reads: 12, Writes: 17 | Entries: Compounded episode:decision-radar-architecture-plan: Hath0r Decision Radar Architecture Plan and GitHub Issues",
+      "content": "Micro Session sess-20261017-145045-ed36da [completed] | Focus: Orienting repository hathor-cli | Reads: 13, Writes: 19 | Entries: Compounded episode:decision-radar-v1-8-0-implementation: Hath0r Decision Radar v1.8.0 Implementation (#499-#506)",
       "properties": {
         "session_id": "sess-20261017-145045-ed36da",
         "prior_session_id": "sess-20261016-151409-a068f7",
         "parent_session_id": "sess-20261016-151409-a068f7",
-        "read_count": 12,
-        "write_count": 17,
+        "read_count": 13,
+        "write_count": 19,
         "status": "completed",
-        "byte_size": 1929,
+        "byte_size": 1916,
         "source": "local_memory",
         "tags": [
           "session",
@@ -4509,6 +4636,46 @@
           "completed"
         ],
         "importance": 0.75
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:decision-radar",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on decision-radar",
+      "content": "Consolidated from 2 memory nodes tagged 'decision-radar'. Recurring themes: decision, radar, plan, github. Latest context: Implemented DecisionRadarBot, DecisionGraph, FactSettlementEngine, WorkBoundaryGate, HathorDecisionRadarServer, hath0r decision CLI group, contracts/hath0r-deci",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "decision-radar",
+        "source": "local_memory",
+        "tags": [
+          "decision-radar",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:minority-report",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on minority-report",
+      "content": "Consolidated from 2 memory nodes tagged 'minority-report'. Recurring themes: decision, radar, plan, github. Latest context: Implemented DecisionRadarBot, DecisionGraph, FactSettlementEngine, WorkBoundaryGate, HathorDecisionRadarServer, hath0r decision CLI group, contracts/hath0r-deci",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "minority-report",
+        "source": "local_memory",
+        "tags": [
+          "minority-report",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 1.0
       },
       "is_current": true
     },
@@ -4879,6 +5046,42 @@
       "is_current": true
     },
     {
+      "source": "memory:episode:decision-radar-v1-8-0-implementation",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:decision-radar-v1-8-0-implementation",
+      "target": "memory:session:sess-20261017-145045-ed36da",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:decision-radar",
+      "target": "memory:episode:decision-radar-architecture-plan",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:decision-radar",
+      "target": "memory:episode:decision-radar-v1-8-0-implementation",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:minority-report",
+      "target": "memory:episode:decision-radar-architecture-plan",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:minority-report",
+      "target": "memory:episode:decision-radar-v1-8-0-implementation",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
       "source": "rule:rules",
       "target": "role:developer",
       "relation": "GOVERNS",
@@ -4970,6 +5173,12 @@
     },
     {
       "source": "rule:cr-semver-bump-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-sonar-preannounce-001",
       "target": "role:developer",
       "relation": "GOVERNS",
       "is_current": true
@@ -5143,7 +5352,25 @@
       "is_current": true
     },
     {
+      "source": "memory:episode:decision-radar-v1-8-0-implementation",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
       "source": "memory:session:sess-20261017-145045-ed36da",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:decision-radar",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:minority-report",
       "target": "role:developer",
       "relation": "INFORMS",
       "is_current": true
@@ -5151,6 +5378,6 @@
   ],
   "metadata": {
     "repo_root": "/Users/raybayly/Development/OpenSource/hathor-cli",
-    "synced_sources": 293
+    "synced_sources": 300
   }
 }
