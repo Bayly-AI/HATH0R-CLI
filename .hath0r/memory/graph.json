@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 168,
-  "content_hash": "sha256:cd4c95486ed855a6298dab66cb85999fd98cf609bd8f037bba3719d0ea492c20",
-  "updated_at": "2026-10-28T14:01:17.310220+00:00",
+  "revision": 188,
+  "content_hash": "sha256:4c585ae7faf83db67f9dc96a60311d555efa779d3e7b781884b23550640aaf93",
+  "updated_at": "2026-10-28T14:05:50.848458+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -745,7 +745,7 @@
       "updated_at": "2026-10-28T13:23:14.632392+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b77c4efbd5fa932e3a8c5265330a539208db78d0ba50e44c86e4e8897dd96f1a"
+          ".hath0r/evals/latest.json": "sha256:d4c4a987c2553e07baa92f598eefff5c95f2ed1bf25279d535c0430234ebb603"
         }
       }
     },
@@ -769,7 +769,7 @@
       "updated_at": "2026-10-28T13:23:21.538822+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b77c4efbd5fa932e3a8c5265330a539208db78d0ba50e44c86e4e8897dd96f1a"
+          ".hath0r/evals/latest.json": "sha256:d4c4a987c2553e07baa92f598eefff5c95f2ed1bf25279d535c0430234ebb603"
         }
       }
     },
@@ -813,7 +813,7 @@
       "updated_at": "2026-10-28T13:31:54.915874+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b77c4efbd5fa932e3a8c5265330a539208db78d0ba50e44c86e4e8897dd96f1a"
+          ".hath0r/evals/latest.json": "sha256:d4c4a987c2553e07baa92f598eefff5c95f2ed1bf25279d535c0430234ebb603"
         }
       }
     },
@@ -821,7 +821,7 @@
       "id": "eval:pr-516",
       "type": "eval",
       "label": "Task Evaluation pr-516 (R=1.00, PASS)",
-      "content": "4-Tier Task Evaluation for pr-516 on branch feature/510-automatic-task-evals: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "content": "4-Tier Task Evaluation for pr-516 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "importance": 0.85,
       "tags": [
         "eval",
@@ -830,14 +830,120 @@
         "passed",
         "compounded"
       ],
-      "valid_from": "2026-10-28T14:01:16.232202+00:00",
+      "valid_from": "2026-10-28T14:05:46.606003+00:00",
       "valid_to": null,
       "is_current": true,
       "created_at": "2026-10-28T13:53:51.569625+00:00",
-      "updated_at": "2026-10-28T14:01:16.232202+00:00",
+      "updated_at": "2026-10-28T14:05:46.606003+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b77c4efbd5fa932e3a8c5265330a539208db78d0ba50e44c86e4e8897dd96f1a"
+          ".hath0r/evals/latest.json": "sha256:d4c4a987c2553e07baa92f598eefff5c95f2ed1bf25279d535c0430234ebb603"
+        }
+      }
+    },
+    {
+      "id": "episode:pr-516",
+      "type": "episode",
+      "label": "PR #516 Merged: CR-TASK-EVAL-001 Automatic Task Evals",
+      "content": "Implemented TaskEvaluatorBot, CLI commands hath0r evals run|status|verify|report, EndOfTaskBot/TaskAnnouncerBot pre-completion gate, Governance Documentation Hexad, unit tests (90% coverage), bumped VERSION to 1.10.0, and merged PR #516 into development.",
+      "importance": 0.8,
+      "tags": [
+        "evals",
+        "cr-task-eval-001",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T14:05:47.979071+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T14:05:45.051494+00:00",
+      "updated_at": "2026-10-28T14:05:47.979071+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "insight:feature",
+      "type": "insight",
+      "label": "Synthesized Insight on feature",
+      "content": "Consolidated from 2 memory nodes tagged 'feature'. Recurring themes: feature, completed, merged, from. Latest context: Merged PR #516 from branch feature into development.",
+      "importance": 0.95,
+      "tags": [
+        "feature",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T14:05:45.487984+00:00",
+      "is_current": true,
+      "created_at": "2026-10-28T14:05:45.487984+00:00",
+      "updated_at": "2026-10-28T14:05:45.487984+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "feature"
+      }
+    },
+    {
+      "id": "insight:evals",
+      "type": "insight",
+      "label": "Synthesized Insight on evals",
+      "content": "Consolidated from 2 memory nodes tagged 'evals'. Recurring themes: task, evals, implemented, automatic. Latest context: Implemented TaskEvaluatorBot, CLI commands hath0r evals run|status|verify|report, EndOfTaskBot/TaskAnnouncerBot pre-completion gate, Governance Documentation He",
+      "importance": 0.95,
+      "tags": [
+        "evals",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T14:05:48.036075+00:00",
+      "is_current": true,
+      "created_at": "2026-10-28T14:05:48.036075+00:00",
+      "updated_at": "2026-10-28T14:05:48.036075+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "evals"
+      }
+    },
+    {
+      "id": "insight:cr-task-eval-001",
+      "type": "insight",
+      "label": "Synthesized Insight on cr-task-eval-001",
+      "content": "Consolidated from 2 memory nodes tagged 'cr-task-eval-001'. Recurring themes: task, evals, implemented, automatic. Latest context: Implemented TaskEvaluatorBot, CLI commands hath0r evals run|status|verify|report, EndOfTaskBot/TaskAnnouncerBot pre-completion gate, Governance Documentation He",
+      "importance": 0.95,
+      "tags": [
+        "cr-task-eval-001",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T14:05:48.036075+00:00",
+      "is_current": true,
+      "created_at": "2026-10-28T14:05:48.036075+00:00",
+      "updated_at": "2026-10-28T14:05:48.036075+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "cr-task-eval-001"
+      }
+    },
+    {
+      "id": "eval:pr-516-merged",
+      "type": "eval",
+      "label": "Task Evaluation pr-516-merged (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for pr-516-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "pr-516-merged",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T14:05:49.726259+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T14:05:49.726259+00:00",
+      "updated_at": "2026-10-28T14:05:49.726259+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:d4c4a987c2553e07baa92f598eefff5c95f2ed1bf25279d535c0430234ebb603"
         }
       }
     },
@@ -845,7 +951,7 @@
       "id": "session:sess-20261028-130546-18a517",
       "type": "session",
       "label": "Micro Session sess-20261028-130546-18a517",
-      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Orienting repository hathor-cli | Reads: 7, Writes: 13 | Entries: Compounded eval:pr-516: Task Evaluation pr-516 (R=1.00, PASS)",
+      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Orienting repository hathor-cli | Reads: 8, Writes: 19 | Entries: Compounded eval:pr-516-merged: Task Evaluation pr-516-merged (R=1.00, PASS)",
       "importance": 0.75,
       "tags": [
         "session",
@@ -853,18 +959,18 @@
         "completed"
       ],
       "valid_from": "2026-10-28T13:05:46.197056+00:00",
-      "valid_to": "2026-10-28T13:28:51.939478+00:00",
+      "valid_to": "2026-10-28T14:05:45.693946+00:00",
       "is_current": true,
       "created_at": "2026-10-28T13:05:46.197056+00:00",
-      "updated_at": "2026-10-28T14:01:16.264550+00:00",
+      "updated_at": "2026-10-28T14:05:49.760519+00:00",
       "metadata": {
         "session_id": "sess-20261028-130546-18a517",
         "prior_session_id": "sess-20261017-145045-ed36da",
         "parent_session_id": "sess-20261017-145045-ed36da",
-        "read_count": 7,
-        "write_count": 13,
+        "read_count": 8,
+        "write_count": 19,
         "status": "completed",
-        "byte_size": 1765
+        "byte_size": 1877
       }
     }
   ],
@@ -1681,6 +1787,110 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:53:51.634086+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:pr-516",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:05:45.051494+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:pr-516",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:05:45.051494+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:pr-516",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:05:45.095060+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:feature",
+      "target": "episode:pr-509",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:05:45.487984+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:feature",
+      "target": "episode:pr-516",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:05:45.487984+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:evals",
+      "target": "episode:issue-510-task-evals",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:05:48.036075+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:evals",
+      "target": "episode:pr-516",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:05:48.036075+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:cr-task-eval-001",
+      "target": "episode:issue-510-task-evals",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:05:48.036075+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:cr-task-eval-001",
+      "target": "episode:pr-516",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:05:48.036075+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-516-merged",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:05:49.726259+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-516-merged",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:05:49.726259+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-516-merged",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:05:49.726259+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-516-merged",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:05:49.762562+00:00",
       "is_current": true
     }
   ]
