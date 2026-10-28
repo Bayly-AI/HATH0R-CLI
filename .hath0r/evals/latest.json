@@ -1,13 +1,13 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261028-174246-0c2c63",
-  "task_id": "pr-525-scorecard-summary-rule",
+  "eval_id": "eval-20261028-174533-960ec8",
+  "task_id": "eval-baseline-hathor-cli",
   "issue_number": null,
   "repo_name": "hathor-cli",
   "branch": "development",
-  "evaluated_at": "2026-10-28T17:42:46.612914+00:00",
-  "duration_ms": 290.32,
+  "evaluated_at": "2026-10-28T17:45:33.082530+00:00",
+  "duration_ms": 281.63,
   "passed_gate": true,
   "r_task": 1.0,
   "min_reward_threshold": 0.8,
@@ -42,7 +42,7 @@
         },
         "memory_compounded": {
           "passed": true,
-          "compounded_nodes_count": 48,
+          "compounded_nodes_count": 49,
           "session_read_verified": true,
           "session_write_verified": true,
           "hashes_verified": true,
@@ -64,13 +64,13 @@
       "estimated_usd": 0.0,
       "max_usd": 0.25,
       "session_id": "sess-20261028-130546-18a517",
-      "session_reads": 14,
-      "session_writes": 48,
-      "session_bytes": 1878,
+      "session_reads": 15,
+      "session_writes": 50,
+      "session_bytes": 1962,
       "within_capsule_budget": true,
-      "latency_ms": 84.62,
+      "latency_ms": 94.47,
       "taguchi_quality_loss": 0.0001,
-      "snr_db": 27.47
+      "snr_db": 26.51
     },
     "adversarial": {
       "score": 1.0,
@@ -85,18 +85,16 @@
     "goal_alignment": {
       "score": 1.0,
       "passed": true,
-      "task_id": "pr-525-scorecard-summary-rule",
+      "task_id": "eval-baseline-hathor-cli",
       "issue_number": null,
       "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
-      "compounded_nodes_count": 48,
+      "compounded_nodes_count": 49,
       "consensus_score": 1.0
     }
   },
   "blocking_reasons": [],
   "observability_sync": {
-    "mode": "live_synced",
-    "phoenix_logged": true,
-    "mlflow_run_id": "bd73168218ee4641998bae7c74c21577"
+    "mode": "pending"
   },
-  "content_hash": "sha256:088ef6be690c26f9b629eec1c9b83cfa3d03acd87041586d2d7a3143beb8984e"
+  "content_hash": "sha256:d8e499d03e85ca90765ed0a63dc582b916f15c414ff99ab410883d6403eeede4"
 }
