@@ -5,6 +5,15 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0] - 2026-10-28
+
+### Added
+- **Clean Repo Workflow Branch Merge, Conflict Resolution & Local/Remote Pruning (`CleanReposWorkflowBot` — `#522`)**:
+  - Updated `CleanReposWorkflowBot.run_clean_repo_workflow` (`src/hath0r_cli/bots/repo_clean.py`) to review all local and remote non-canonical branches, detect genuinely unmerged commits (`git cherry`), merge unmerged branches into `development` (or canonical base branch), and automatically resolve merge conflicts (`-X ours` and tree-level conflict fallback).
+  - Enhanced worktree pruning (`_prune_worktrees`) to detach or remove secondary feature worktrees so locked local feature branches can be merged and deleted cleanly.
+  - Added automatic deletion of all merged/stale local feature branches (`git branch -D`) and remote feature branches (`git push origin --delete` + `git fetch --prune`).
+  - Reordered Step 8, Step 12, and Step 13 so `TaskEvaluatorBot` (`CR-TASK-EVAL-001`) and `MemoryManagerBot` (`CR-MEMORY-COMPOUND-001`) execute and commit before switching back to `development` and running `git pull --rebase origin development` and `git push origin development`.
+
 ## [1.11.0] - 2026-10-28
 
 ### Added

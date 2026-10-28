@@ -5,17 +5,17 @@
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-28T13:05:46.197056+00:00",
-  "updated_at": "2026-10-28T14:59:38.793445+00:00",
+  "updated_at": "2026-10-28T15:21:58.348381+00:00",
   "ended_at": "2026-10-28T14:51:41.444499+00:00",
   "read_count": 12,
-  "write_count": 39,
-  "revision": 50,
-  "content_hash": "sha256:58142387437442a1792dd8d844419003b06c9173e8c714c18f30b02e1ac9cb47",
+  "write_count": 42,
+  "revision": 53,
+  "content_hash": "sha256:287679362ac1aaac5f19c29283ea7772e6a6db1c7b2fc984858531d28772d3dd",
   "base_graph_hash": "sha256:0b4f55609119cfc2d665ee8b7ca59e7664a8c05fb2db4df718a917341f72fc2d",
   "last_read_at": "2026-10-28T14:51:41.188455+00:00",
-  "last_write_at": "2026-10-28T14:59:38.793445+00:00",
+  "last_write_at": "2026-10-28T15:21:58.348381+00:00",
   "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
-  "prior_summary": "ounded episode:pr-521: PR #521 Merge; Compounded eval:pr-521-merged: Task Eval; Compounded episode:release-v1.11.0: Rele",
+  "prior_summary": "ounded eval:release-v1-11-0: Task Ev; Compounded eval:issue-522: Task Evaluati; Compounded eval:issue-522: Task Evaluati",
   "recalled_nodes": [
     {
       "id": "decision:issue-474-micro-memory-session",
@@ -26,28 +26,28 @@
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-28T14:59:38.793445+00:00",
+      "timestamp": "2026-10-28T15:21:58.348381+00:00",
       "kind": "compound",
-      "summary": "Compounded eval:release-v1-11-0: Task Evaluation release-v1.11.0 (R=1.00, PASS)",
+      "summary": "Compounded eval:issue-522: Task Evaluation issue-522 (R=1.00, PASS)",
       "tags": [
         "eval",
         "cr-task-eval-001",
-        "release-v1-11-0",
+        "issue-522",
         "passed",
         "compounded"
       ],
-      "node_id": "eval:release-v1-11-0"
+      "node_id": "eval:issue-522"
     }
   ],
   "next_steps": [],
   "compounded_node_ids": [
-    "eval:issue-520",
     "episode:pr-521",
     "eval:pr-521",
     "eval:pr-521-merged",
     "episode:release-v1.11.0",
-    "eval:release-v1-11-0"
+    "eval:release-v1-11-0",
+    "eval:issue-522"
   ],
   "parent_session_id": "sess-20261017-145045-ed36da",
-  "capsule_bytes": 1903
+  "capsule_bytes": 1879
 }
