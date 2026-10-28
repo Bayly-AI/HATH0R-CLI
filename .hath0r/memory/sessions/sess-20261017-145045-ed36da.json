@@ -5,38 +5,34 @@
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-17T14:50:45.402982+00:00",
-  "updated_at": "2026-10-28T13:37:35.116306+00:00",
-  "ended_at": "2026-10-28T09:33:49.371663+00:00",
+  "updated_at": "2026-10-28T13:05:33.217197+00:00",
+  "ended_at": "2026-10-28T13:05:33.217197+00:00",
   "read_count": 15,
-  "write_count": 23,
-  "revision": 38,
-  "content_hash": "sha256:359502ee9eb1b06937774f1ee94615f1900c77a096653ccadfe071c95914d1f2",
-  "base_graph_hash": "sha256:3a4ef90a0e021607d6777d97991bbaa3b8dd1a525d6ce513617015dddc010952",
-  "last_read_at": "2026-10-28T13:37:30.220266+00:00",
-  "last_write_at": "2026-10-28T13:37:35.116306+00:00",
+  "write_count": 24,
+  "revision": 39,
+  "content_hash": "sha256:253ebdec6eafb877043504b1074264d094e4a3be9bcce99ad2a99640502f3905",
+  "base_graph_hash": "sha256:d83058bc4b70caf13028e52c58a8be792bad6d30a395143c66c5ef2e72c440a9",
+  "last_read_at": "2026-10-28T13:05:32.634868+00:00",
+  "last_write_at": "2026-10-28T13:05:33.217197+00:00",
   "active_focus": "Orienting repository hathor-cli",
-  "prior_summary": "med feature to Cruise Control v1.8.1; Compounded decision:cruise-control-namin; Added split-window browser display to Cr",
+  "prior_summary": "pounded decision:cruise-control-namin; Compounded episode:pr-509: Knowledge Sha; Compounded episode:pr-509: Completed PR",
   "recalled_nodes": [
     {
-      "id": "insight:hathor-cli",
-      "type": "insight",
-      "label": "Synthesized Insight on hathor-cli",
-      "snippet": "Consolidated from 2 memory nodes tagged 'hathor-cli'. Recurring themes: hathor, logo, repo"
+      "id": "decision:issue-474-micro-memory-session",
+      "type": "decision",
+      "label": "True Micro Memory Session CLI & Bot Enforcement (Issue #474)",
+      "snippet": "Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task st"
     }
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-28T13:37:35.116306+00:00",
-      "kind": "compound",
-      "summary": "Compounded decision:cruise-control-split-window: Cruise Control Split-Window Browser Display (#513)",
+      "timestamp": "2026-10-28T13:05:33.217197+00:00",
+      "kind": "milestone",
+      "summary": "Completed PR #509 (feature) via EndOfTaskBot.",
       "tags": [
-        "cruise-control",
-        "split-window",
-        "v1.9.0",
-        "decision",
-        "compounded"
+        "session-end"
       ],
-      "node_id": "decision:cruise-control-split-window"
+      "node_id": null
     }
   ],
   "next_steps": [],
@@ -45,8 +41,8 @@
     "episode:decision-radar-architecture-plan",
     "episode:decision-radar-v1-8-0-implementation",
     "decision:cruise-control-naming",
-    "decision:cruise-control-split-window"
+    "episode:pr-509"
   ],
   "parent_session_id": "sess-20261016-151409-a068f7",
-  "capsule_bytes": 1975
+  "capsule_bytes": 1828
 }

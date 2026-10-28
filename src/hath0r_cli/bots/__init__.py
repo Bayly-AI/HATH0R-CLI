@@ -817,10 +817,12 @@ class TaskAnnouncerBot:
         channel: str = "console",
         dry_run: bool = False,
         enforce_memory_gate: bool = True,
+        enforce_eval_gate: bool = False,
     ) -> Dict[str, Any]:
         """Broadcast completion event upon successful task lifecycle execution.
 
-        Enforces CR-MEMORY-COMPOUND-001 pre-announcement MemoryGraph gate.
+        Enforces CR-MEMORY-COMPOUND-001 pre-announcement MemoryGraph gate
+        and optional CR-TASK-EVAL-001 pre-announcement Task Evaluation gate.
         """
         timestamp = datetime.now(timezone.utc).isoformat()
         msg = f"Task '{task_id or 'end-of-task'}' successfully completed and verified at {timestamp}."
@@ -831,6 +833,7 @@ class TaskAnnouncerBot:
                 "dry_run": True,
                 "task_id": task_id,
                 "memory_gate": "verified (dry-run)",
+                "eval_gate": "verified (dry-run)",
                 "action": f"[DRY-RUN] Announce complete via {channel}: {msg}",
             }
 
@@ -851,6 +854,24 @@ class TaskAnnouncerBot:
                     or "CR-MEMORY-COMPOUND-001 violation: No task knowledge compounded in .hath0r/memory/graph.json prior to announcing complete.",
                 }
 
+        eval_res: Dict[str, Any] = {"evaluated": True, "passed_gate": True}
+        if enforce_eval_gate:
+            from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot
+
+            ebot = TaskEvaluatorBot(cwd=self.cwd)
+            eval_res = ebot.verify_evaluated(task_id=task_id, auto_run_if_missing=True)
+            if not eval_res.get("passed_gate"):
+                return {
+                    "success": False,
+                    "task_id": task_id,
+                    "channel": channel,
+                    "timestamp": timestamp,
+                    "memory_gate": gate_res,
+                    "eval_gate": eval_res,
+                    "error": eval_res.get("error")
+                    or "CR-TASK-EVAL-001 violation: Task evaluation gate failed prior to announcing complete.",
+                }
+
         return {
             "success": True,
             "task_id": task_id,
@@ -858,6 +879,7 @@ class TaskAnnouncerBot:
             "timestamp": timestamp,
             "message": msg,
             "memory_gate": gate_res,
+            "eval_gate": eval_res,
         }
 
 
@@ -1306,6 +1328,7 @@ from hath0r_cli.bots.mesh_manager_bot import MeshManagerBot, mesh_manager_bot  #
 from hath0r_cli.bots.paper_design_bot import PaperDesignBot  # noqa: E402
 from hath0r_cli.bots.pmat_bot import PmatBot, pmat_bot  # noqa: E402
 from hath0r_cli.bots.supercompress_bot import SuperCompressBot  # noqa: E402
+from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot, task_evaluator_bot  # noqa: E402
 from hath0r_cli.bots.task_level_planner_bot import TaskLevelPlannerBot, task_level_planner  # noqa: E402
 from hath0r_cli.bots.temporal_logic_planner_bot import TemporalLogicPlannerBot, temporal_logic_planner  # noqa: E402
 from hath0r_cli.bots.thread_parallelism_bot import ThreadLevelParallelismBot, thread_parallelism  # noqa: E402
@@ -1317,6 +1340,8 @@ __all__ = [
     "DecisionRadarBot",
     "FactSettlementEngine",
     "WorkBoundaryGate",
+    "TaskEvaluatorBot",
+    "task_evaluator_bot",
     "TaskLevelPlannerBot",
     "task_level_planner",
     "ThreadLevelParallelismBot",

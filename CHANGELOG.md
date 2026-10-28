@@ -5,6 +5,16 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2026-10-28
+
+### Added
+- **Automatic Task Evaluation Architecture (`CR-TASK-EVAL-001` / `hath0r evals`)**: Implemented 4-tier hybrid task evaluation pipeline in `TaskEvaluatorBot` (`src/hath0r_cli/bots/task_evaluator_bot.py`) evaluating every task prior to completion (#510):
+  - **Tier 1 (Deterministic Rubrics)**: Preflight checks, test suite, SemVer validation, AgentGraph OWL validation, and MemoryGraph SHA-256 CAS integrity.
+  - **Tier 2 (Trajectory & FinOps Efficiency)**: Micro-session read/write balance, `TokenTreeBudgetGuard` budget verification, and Taguchi Quality Loss / SNR metrics.
+  - **Tier 3 (Adversarial & Diff Critics)**: `AntagonisticReviewBot` zero-swallowed-exception verification, `CR-CLI-TECH-DEBT-001` issue hand-off, and `ChangeValidationBot`.
+  - **Tier 4 (Goal Alignment & Consensus)**: Active issue/focus alignment and `MultiAgentConsensusEngine` scoring.
+- Added CLI subcommands `hath0r evals run`, `hath0r evals status`, `hath0r evals verify`, and `hath0r evals report`, plus `EndOfTaskBot` / `TaskAnnouncerBot` pre-announcement gate integration, `end-of-task-factory.yaml` step binding, Governance Documentation Hexad, and unit test suite `tests/unit/test_task_evaluator_bot.py`.
+
 ## [1.9.0] - 2026-10-28
 
 ### Added

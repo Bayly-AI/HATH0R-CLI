@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 126,
-  "content_hash": "sha256:e8e13756ba95efbb00c3c0cf1cd6a4945fefa557da89c67805e76445e5ccab58",
-  "updated_at": "2026-10-28T13:47:02.633678+00:00",
+  "revision": 168,
+  "content_hash": "sha256:cd4c95486ed855a6298dab66cb85999fd98cf609bd8f037bba3719d0ea492c20",
+  "updated_at": "2026-10-28T14:01:17.310220+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -331,7 +331,7 @@
       "updated_at": "2026-10-16T14:26:36.848729+00:00",
       "metadata": {
         "source_files": {
-          "src/hath0r_cli/bots/memory_manager.py": "sha256:d0ff7764471cbb6de99bb8c8c28d81ebca05d9d4469e8bc738d08ab3d5b043ce",
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:917fddca1047208e6f2f61ffd3b9796f268887515618ada0b5856b9ca6d1fe53",
           "src/hath0r_cli/commands/memory.py": "sha256:6f9ad40d08d1ae7858216ccf1c55071411a936d488f9d165de43be79880c2419"
         }
       }
@@ -358,9 +358,9 @@
       "updated_at": "2026-10-16T14:56:41.666374+00:00",
       "metadata": {
         "source_files": {
-          "src/hath0r_cli/bots/memory_manager.py": "sha256:d0ff7764471cbb6de99bb8c8c28d81ebca05d9d4469e8bc738d08ab3d5b043ce",
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:917fddca1047208e6f2f61ffd3b9796f268887515618ada0b5856b9ca6d1fe53",
           "src/hath0r_cli/bots/onboarding.py": "sha256:4bfa19af27df97c258b0a8339630d9318576196656d2be6709e32b0e13cf894e",
-          ".gitignore": "sha256:7fd3a19f2851ff32c084b72589105ef4da4912838923efde5ebc34f50c6ce233"
+          ".gitignore": "sha256:0975b54c52529c0d6a45217c8f84740ce241fab5d6caaa606656a010de03ae0f"
         }
       }
     },
@@ -459,7 +459,7 @@
           "cfg/mcp-connections.yaml": "sha256:ac7648df01ab8c93a6c548c90fd8a15faaac952e80e9b60cfedd9857eeee17d9",
           "src/hath0r_cli/mcp.py": "sha256:64cf55377eb96461443e0c5d471b6fc8b044b54d82104edf74483331f57d69df",
           "src/hath0r_cli/commands/mcp.py": "sha256:9d79e9a77bd5e7048dc24a434b7021178d4ec1b024a16df2d416d3677890f965",
-          "src/hath0r_cli/bots/memory_manager.py": "sha256:d0ff7764471cbb6de99bb8c8c28d81ebca05d9d4469e8bc738d08ab3d5b043ce",
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:917fddca1047208e6f2f61ffd3b9796f268887515618ada0b5856b9ca6d1fe53",
           "src/hath0r_cli/bots/onboarding.py": "sha256:4bfa19af27df97c258b0a8339630d9318576196656d2be6709e32b0e13cf894e",
           "tests/unit/test_mcp.py": "sha256:86286b729fa650c6c4a89bcc062903fe3b2b2e328953ef4bcad6a5466d6f7c03"
         }
@@ -600,6 +600,7 @@
         "compounded"
       ],
       "valid_from": "2026-10-28T12:29:58.716261+00:00",
+      "valid_to": null,
       "is_current": true,
       "created_at": "2026-10-28T12:29:58.716261+00:00",
       "updated_at": "2026-10-28T12:29:58.716261+00:00",
@@ -621,6 +622,7 @@
         "compounded"
       ],
       "valid_from": "2026-10-28T12:29:58.716261+00:00",
+      "valid_to": null,
       "is_current": true,
       "created_at": "2026-10-28T12:29:58.716261+00:00",
       "updated_at": "2026-10-28T12:29:58.716261+00:00",
@@ -656,36 +658,52 @@
       }
     },
     {
-      "id": "decision:cruise-control-split-window",
-      "type": "decision",
-      "label": "Cruise Control Split-Window Browser Display (#513)",
-      "content": "Configured Hath0r Cruise Control to automatically ensure HathorCruiseControlServer is running and launch/tile a split-window browser display (side=right/left, ?focus=<decision_id>) whenever a task or agent needs a decision.",
-      "importance": 0.9,
+      "id": "episode:pr-509",
+      "type": "episode",
+      "label": "Completed PR #509 (feature)",
+      "content": "Merged PR #509 from branch feature into development.",
+      "importance": 0.8,
       "tags": [
-        "cruise-control",
-        "split-window",
-        "v1.9.0",
-        "decision",
+        "pr",
+        "pr-509",
+        "feature",
+        "episode",
         "compounded"
       ],
-      "valid_from": "2026-10-28T13:37:35.044269+00:00",
+      "valid_from": "2026-10-28T13:05:32.667114+00:00",
       "valid_to": null,
       "is_current": true,
-      "created_at": "2026-10-28T13:37:35.044269+00:00",
-      "updated_at": "2026-10-28T13:37:35.044269+00:00",
+      "created_at": "2026-10-28T13:05:32.234958+00:00",
+      "updated_at": "2026-10-28T13:05:32.667114+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "insight:pr",
+      "type": "insight",
+      "label": "Synthesized Insight on pr",
+      "content": "Consolidated from 2 memory nodes tagged 'pr'. Recurring themes: feature, completed, unignore, graph. Latest context: Merged PR #509 from branch feature into development.",
+      "importance": 0.95,
+      "tags": [
+        "pr",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T13:05:32.771550+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T13:05:32.771550+00:00",
+      "updated_at": "2026-10-28T13:05:32.771550+00:00",
       "metadata": {
-        "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:3852b9f138f25d2586ba533a0aa72a2b60cc332a0736d31f342288dfb329a611",
-          "src/hath0r_cli/commands/decision.py": "sha256:75ef0ad96a51b20ce3d812e32f1cd09600671933b2b1fb36dbe8bcc09879a91f",
-          "src/hath0r_cli/server/decision_radar_server.py": "sha256:cd7e033a04dbef7b2fcf96a0e82229b68570d59e3eee397092ebf2bf98e2044f"
-        }
+        "constituent_count": 2,
+        "source_tag": "pr"
       }
     },
     {
       "id": "session:sess-20261017-145045-ed36da",
       "type": "session",
       "label": "Micro Session sess-20261017-145045-ed36da",
-      "content": "Micro Session sess-20261017-145045-ed36da [completed] | Focus: Orienting repository hathor-cli | Reads: 15, Writes: 23 | Entries: Compounded decision:cruise-control-split-window: Cruise Control Split-Window Browser Display (#513)",
+      "content": "Micro Session sess-20261017-145045-ed36da [completed] | Focus: Orienting repository hathor-cli | Reads: 15, Writes: 24 | Entries: Completed PR #509 (feature) via EndOfTaskBot.",
       "importance": 0.75,
       "tags": [
         "session",
@@ -693,39 +711,160 @@
         "completed"
       ],
       "valid_from": "2026-10-17T14:50:45.402982+00:00",
-      "valid_to": "2026-10-28T09:33:49.371663+00:00",
+      "valid_to": "2026-10-28T13:05:33.217197+00:00",
       "is_current": true,
       "created_at": "2026-10-17T14:50:45.402982+00:00",
-      "updated_at": "2026-10-28T13:37:35.116306+00:00",
+      "updated_at": "2026-10-28T13:05:33.217197+00:00",
       "metadata": {
         "session_id": "sess-20261017-145045-ed36da",
         "prior_session_id": "sess-20261016-151409-a068f7",
         "parent_session_id": "sess-20261016-151409-a068f7",
         "read_count": 15,
-        "write_count": 23,
+        "write_count": 24,
         "status": "completed",
-        "byte_size": 1975
+        "byte_size": 1828
       }
     },
     {
-      "id": "insight:cruise-control",
-      "type": "insight",
-      "label": "Synthesized Insight on cruise-control",
-      "content": "Consolidated from 2 memory nodes tagged 'cruise-control'. Recurring themes: control, cruise, agent, decision. Latest context: Configured Hath0r Cruise Control to automatically ensure HathorCruiseControlServer is running and launch/tile a split-window browser display (side=right/left, ?",
-      "importance": 1.0,
+      "id": "eval:pr-101",
+      "type": "eval",
+      "label": "Task Evaluation pr-101 (R=0.90, FAIL)",
+      "content": "4-Tier Task Evaluation for pr-101 on branch feature/510-automatic-task-evals: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
+      "importance": 0.85,
       "tags": [
-        "cruise-control",
-        "insight",
-        "reflection",
+        "eval",
+        "cr-task-eval-001",
+        "pr-101",
+        "failed",
         "compounded"
       ],
-      "valid_from": "2026-10-28T13:37:35.149857+00:00",
+      "valid_from": "2026-10-28T13:23:14.632392+00:00",
+      "valid_to": null,
       "is_current": true,
-      "created_at": "2026-10-28T13:37:35.149857+00:00",
-      "updated_at": "2026-10-28T13:37:35.149857+00:00",
+      "created_at": "2026-10-28T13:23:14.632392+00:00",
+      "updated_at": "2026-10-28T13:23:14.632392+00:00",
       "metadata": {
-        "constituent_count": 2,
-        "source_tag": "cruise-control"
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:b77c4efbd5fa932e3a8c5265330a539208db78d0ba50e44c86e4e8897dd96f1a"
+        }
+      }
+    },
+    {
+      "id": "eval:pr-104",
+      "type": "eval",
+      "label": "Task Evaluation pr-104 (R=0.90, FAIL)",
+      "content": "4-Tier Task Evaluation for pr-104 on branch feature/510-automatic-task-evals: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "pr-104",
+        "failed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T13:23:21.538822+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T13:23:21.538822+00:00",
+      "updated_at": "2026-10-28T13:23:21.538822+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:b77c4efbd5fa932e3a8c5265330a539208db78d0ba50e44c86e4e8897dd96f1a"
+        }
+      }
+    },
+    {
+      "id": "episode:issue-510-task-evals",
+      "type": "episode",
+      "label": "Implemented Automatic Task Evaluation Architecture (CR-TASK-EVAL-001)",
+      "content": "Delivered TaskEvaluatorBot 4-tier hybrid task evaluation pipeline, hath0r evals run/status/verify/report CLI commands, EndOfTaskBot and TaskAnnouncerBot pre-announcement gate integration, and Governance Documentation Hexad.",
+      "importance": 0.8,
+      "tags": [
+        "evals",
+        "cr-task-eval-001",
+        "issue-510",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T13:30:19.202740+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T13:30:19.202740+00:00",
+      "updated_at": "2026-10-28T13:30:19.202740+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "eval:issue-510",
+      "type": "eval",
+      "label": "Task Evaluation issue-510 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for issue-510 on branch feature/510-automatic-task-evals: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "issue-510",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T13:31:54.915874+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T13:30:26.608472+00:00",
+      "updated_at": "2026-10-28T13:31:54.915874+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:b77c4efbd5fa932e3a8c5265330a539208db78d0ba50e44c86e4e8897dd96f1a"
+        }
+      }
+    },
+    {
+      "id": "eval:pr-516",
+      "type": "eval",
+      "label": "Task Evaluation pr-516 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for pr-516 on branch feature/510-automatic-task-evals: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "pr-516",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T14:01:16.232202+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T13:53:51.569625+00:00",
+      "updated_at": "2026-10-28T14:01:16.232202+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:b77c4efbd5fa932e3a8c5265330a539208db78d0ba50e44c86e4e8897dd96f1a"
+        }
+      }
+    },
+    {
+      "id": "session:sess-20261028-130546-18a517",
+      "type": "session",
+      "label": "Micro Session sess-20261028-130546-18a517",
+      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Orienting repository hathor-cli | Reads: 7, Writes: 13 | Entries: Compounded eval:pr-516: Task Evaluation pr-516 (R=1.00, PASS)",
+      "importance": 0.75,
+      "tags": [
+        "session",
+        "micro-session",
+        "completed"
+      ],
+      "valid_from": "2026-10-28T13:05:46.197056+00:00",
+      "valid_to": "2026-10-28T13:28:51.939478+00:00",
+      "is_current": true,
+      "created_at": "2026-10-28T13:05:46.197056+00:00",
+      "updated_at": "2026-10-28T14:01:16.264550+00:00",
+      "metadata": {
+        "session_id": "sess-20261028-130546-18a517",
+        "prior_session_id": "sess-20261017-145045-ed36da",
+        "parent_session_id": "sess-20261017-145045-ed36da",
+        "read_count": 7,
+        "write_count": 13,
+        "status": "completed",
+        "byte_size": 1765
       }
     }
   ],
@@ -1236,7 +1375,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T11:41:59.277983+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:decision-radar-architecture-plan",
@@ -1244,7 +1385,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T11:41:59.306011+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:decision-radar-v1-8-0-implementation",
@@ -1252,7 +1395,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T12:29:58.673969+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:decision-radar-v1-8-0-implementation",
@@ -1260,7 +1405,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T12:29:58.703268+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "insight:decision-radar",
@@ -1268,7 +1415,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T12:29:58.716261+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "insight:decision-radar",
@@ -1276,7 +1425,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T12:29:58.716261+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "insight:minority-report",
@@ -1284,7 +1435,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T12:29:58.716261+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "insight:minority-report",
@@ -1292,7 +1445,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T12:29:58.716261+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "decision:cruise-control-naming",
@@ -1300,7 +1455,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T12:59:58.010370+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "decision:cruise-control-naming",
@@ -1308,38 +1465,222 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T12:59:58.045364+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
-      "source": "decision:cruise-control-split-window",
+      "source": "episode:pr-509",
       "target": "concept:tri-graph",
       "relation": "DERIVES_FROM",
       "weight": 1.0,
-      "valid_from": "2026-10-28T13:37:35.044269+00:00",
-      "is_current": true
+      "valid_from": "2026-10-28T13:05:32.234958+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
-      "source": "decision:cruise-control-split-window",
+      "source": "episode:pr-509",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:05:32.234958+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:pr-509",
       "target": "session:sess-20261017-145045-ed36da",
       "relation": "DERIVES_FROM",
       "weight": 1.0,
-      "valid_from": "2026-10-28T13:37:35.120070+00:00",
+      "valid_from": "2026-10-28T13:05:32.290557+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:pr",
+      "target": "episode:pr-479",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:05:32.771550+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:pr",
+      "target": "episode:pr-509",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:05:32.771550+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261017-145045-ed36da",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "PRECEDES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:05:46.206085+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261028-130546-18a517",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 0.8,
+      "valid_from": "2026-10-28T13:05:46.206085+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "eval:pr-101",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:23:14.632392+00:00",
       "is_current": true
     },
     {
-      "source": "insight:cruise-control",
-      "target": "decision:cruise-control-naming",
-      "relation": "DERIVES_FROM",
+      "source": "eval:pr-101",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
       "weight": 1.0,
-      "valid_from": "2026-10-28T13:37:35.149857+00:00",
+      "valid_from": "2026-10-28T13:23:14.632392+00:00",
       "is_current": true
     },
     {
-      "source": "insight:cruise-control",
-      "target": "decision:cruise-control-split-window",
+      "source": "eval:pr-101",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:23:14.632392+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-101",
+      "target": "session:sess-20261028-130546-18a517",
       "relation": "DERIVES_FROM",
       "weight": 1.0,
-      "valid_from": "2026-10-28T13:37:35.149857+00:00",
+      "valid_from": "2026-10-28T13:23:14.906799+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-104",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:23:21.538822+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-104",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:23:21.538822+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-104",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:23:21.538822+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-104",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:23:21.748037+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-510-task-evals",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:30:19.202740+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-510-task-evals",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:30:19.282219+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-510",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:30:26.608472+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-510",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:30:26.608472+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-510",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:30:26.608472+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-510",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:30:26.786452+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-516",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:53:51.569625+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-516",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:53:51.569625+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-516",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:53:51.569625+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-516",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:53:51.634086+00:00",
       "is_current": true
     }
   ]
