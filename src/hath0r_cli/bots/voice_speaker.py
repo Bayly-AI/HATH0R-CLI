@@ -117,6 +117,19 @@ def expand_technical_tokens(text: str) -> str:
     return out
 
 
+def _replace_spaced(text: str, token: str, replacement: str) -> str:
+    """Replace ``token`` and the whitespace around it, without a backtracking regex."""
+    parts = text.split(token)
+    last = len(parts) - 1
+    for i, part in enumerate(parts):
+        if i > 0:
+            part = part.lstrip()
+        if i < last:
+            part = part.rstrip()
+        parts[i] = part
+    return replacement.join(parts)
+
+
 def apply_prosody_rhythm(text: str) -> str:
     """Enhance sentence rhythm, punctuation pauses, and breathing cadence for realistic prosody."""
     if not text:
@@ -125,10 +138,10 @@ def apply_prosody_rhythm(text: str) -> str:
     out = text
 
     # Insert slight micro-pause formatting at dashes and transition arrows
-    out = re.sub(r"\s*—\s*", ", ", out)
-    out = re.sub(r"\s*–\s*", ", ", out)
-    out = re.sub(r"\s*->\s*", " to ", out)
-    out = re.sub(r"\s*=>\s*", " results in ", out)
+    out = _replace_spaced(out, "—", ", ")
+    out = _replace_spaced(out, "–", ", ")
+    out = _replace_spaced(out, "->", " to ")
+    out = _replace_spaced(out, "=>", " results in ")
 
     # Clean double commas and redundant punctuation
     out = re.sub(r",\s*,+", ",", out)

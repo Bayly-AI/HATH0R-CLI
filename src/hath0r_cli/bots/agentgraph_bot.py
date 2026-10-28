@@ -335,7 +335,7 @@ class AgentGraphBot:
 
                 # Extract roles if defined in markdown
                 # Look for patterns like `Role | ...` or `### Role: <name>`
-                role_matches = re.findall(r"(?:### Role:\s*([^\n]+)|\|\s*Role\s*\|\s*([^\|]+)\|)", content)
+                role_matches = re.findall(r"(?:### Role:[ \t]*([^\n]+)|\|[ \t]*Role[ \t]*\|([^|\n]+)\|)", content)
                 for rm in role_matches:
                     rname = (rm[0] or rm[1]).strip()
                     if rname and len(rname) < 50:
