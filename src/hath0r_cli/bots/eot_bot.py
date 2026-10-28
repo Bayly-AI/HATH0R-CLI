@@ -335,6 +335,17 @@ class EndOfTaskBot:
             dry_run=False,
         )
         history.append({"phase": "announce", "result": ann_res})
+        if not ann_res.get("success"):
+            # CR-MEMORY-COMPOUND-001: the memory/hash gate blocked the completion announcement.
+            return {
+                "success": False,
+                "phase": "announce",
+                "pr_number": current_pr,
+                "branch": target_branch,
+                "error": ann_res.get("error") or "Memory gate blocked announce_complete.",
+                "memory_gate": ann_res.get("memory_gate"),
+                "history": history,
+            }
 
         return {
             "success": True,

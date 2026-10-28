@@ -1858,7 +1858,12 @@ class BotRegistry:
                 dry_run=dry_run,
             )
         elif action == "update":
-            res = bot.update_memory(topic=str(args.get("topic")), content=args.get("content", ""), dry_run=dry_run)
+            res = bot.update_memory(
+                topic=str(args.get("topic")),
+                content=args.get("content", ""),
+                dry_run=dry_run,
+                expected_hash=args.get("expected_hash"),
+            )
             return StepExecutionResult(
                 bot_id="memory-manager-bot",
                 action=action,
@@ -1878,6 +1883,8 @@ class BotRegistry:
                 relates_to=args.get("relates_to"),
                 relation=str(args.get("relation") or "DERIVES_FROM"),
                 supersedes=args.get("supersedes"),
+                source_files=args.get("source_files"),
+                expected_hash=args.get("expected_hash"),
                 sync_agentgraph=bool(args.get("sync_agentgraph", True)),
                 dry_run=dry_run,
             )
@@ -2023,6 +2030,7 @@ class BotRegistry:
                 track_files=args.get("track_files"),
                 refresh_source_files=bool(args.get("refresh_source_files", True)),
                 dry_run=dry_run,
+                expected_revision=args.get("expected_revision"),
             )
             return StepExecutionResult(
                 bot_id="memory-manager-bot",
