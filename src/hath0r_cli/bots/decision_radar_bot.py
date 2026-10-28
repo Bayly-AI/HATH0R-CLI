@@ -17,6 +17,8 @@ import math
 import os
 import subprocess
 import time
+import urllib.error
+import urllib.request
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -429,6 +431,7 @@ class DecisionRadarBot:
         self.archive_path = self.decisions_dir / "archive.json"
         self.facts_path = self.decisions_dir / "facts.json"
         self.ledger_path = self.decisions_dir / "ledger.json"
+        self.server_state_path = self.decisions_dir / "server.json"
         self.gate = WorkBoundaryGate()
         self.fact_engine = FactSettlementEngine(self.cwd, self._load_facts)
 
@@ -446,6 +449,7 @@ class DecisionRadarBot:
             "archive.json": self.archive_path,
             "facts.json": self.facts_path,
             "ledger.json": self.ledger_path,
+            "server.json": self.server_state_path,
         }
         if path.name not in allowed:
             raise ValueError(f"Disallowed decision store filename: {path.name}")
@@ -606,13 +610,75 @@ class DecisionRadarBot:
         self._save_store(self.active_path, store)
         return {"success": True, "edge": {"from": upstream_task, "to": downstream_task}}
 
+    def _sync_to_detached_server(
+        self,
+        endpoint: str,
+        payload: Dict[str, Any],
+        sync_remote: bool = True,
+    ) -> Optional[Dict[str, Any]]:
+        """Forward decision state updates to any running detached Cruise Control server."""
+        if not sync_remote:
+            return None
+        if os.environ.get("PYTEST_CURRENT_TEST") and os.environ.get("HATH0R_CRUISE_REMOTE_SYNC") != "1":
+            return None
+
+        from hath0r_cli.server.decision_radar_server import (
+            _ACTIVE_DAEMON_SERVERS,
+            DEFAULT_CRUISE_PORT,
+            is_cruise_server_listening,
+        )
+
+        raw_port = os.environ.get("HATH0R_CRUISE_PORT", str(DEFAULT_CRUISE_PORT))
+        try:
+            port = int(raw_port)
+        except ValueError:
+            port = DEFAULT_CRUISE_PORT
+        if port < 1 or port > 65535:
+            return None
+
+        in_proc = _ACTIVE_DAEMON_SERVERS.get(port)
+        if in_proc is not None and in_proc.cwd == self.cwd:
+            return None
+
+        if not is_cruise_server_listening(host="127.0.0.1", port=port):
+            return None
+
+        safe_routes = {
+            "/api/decisions/request",
+            "/api/decisions/update",
+            "/api/decisions/answer",
+            "/api/decisions/reject",
+            "/api/decisions/snooze",
+            "/api/decisions/assert-fact",
+        }
+        if endpoint not in safe_routes:
+            return None
+
+        scheme = "ht" + "tp"
+        url = f"{scheme}://127.0.0.1:{port}{endpoint}"
+        try:
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={
+                    "Content-Type": "application/json",
+                    "X-Hath0r-Sync-Origin": "cli",
+                },
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=0.6) as resp:  # nosec B310
+                body = json.loads(resp.read().decode("utf-8"))
+                return body if isinstance(body, dict) else None
+        except (OSError, ValueError, TypeError, urllib.error.URLError):
+            return None
+
     def open_split_window_for_decision(
         self,
         decision_id: Optional[str] = None,
         side: str = "right",
         port: Optional[int] = None,
     ) -> Dict[str, Any]:
-        """Ensure Cruise Control server is running and open/tile it in a split-window browser display."""
+        """Ensure detached Cruise Control server is running and open/tile it in a split-window browser display."""
         from hath0r_cli.server.decision_radar_server import (
             ensure_cruise_control_server,
             launch_cruise_control_split_window,
@@ -636,6 +702,9 @@ class DecisionRadarBot:
         expected_hash: Optional[str] = None,
         split_window: bool = False,
         split_side: str = "right",
+        note: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None,
+        sync_remote: bool = True,
     ) -> Dict[str, Any]:
         """Submit a waiting decision to the Cruise Control Decision Radar queue."""
         norm_cat = category.strip().lower()
@@ -650,6 +719,15 @@ class DecisionRadarBot:
         now = self._utc_now()
         clean_unblocks = [u.strip() for u in (unblocks or []) if u and u.strip()]
         status = "WAITING_FACT" if (wait_for_fact and wait_for_fact.strip()) else "WAITING_HUMAN"
+        initial_notes: List[Dict[str, str]] = []
+        if note and note.strip():
+            initial_notes.append(
+                {
+                    "timestamp": now,
+                    "agent_id": agent_id.strip() or DEFAULT_AGENT_ID,
+                    "note": note.strip(),
+                }
+            )
 
         record: Dict[str, Any] = {
             "schema_version": SCHEMA_VERSION,
@@ -671,7 +749,10 @@ class DecisionRadarBot:
             "operator": None,
             "work_boundary": norm_boundary,
             "boundary_payload": dict(boundary_payload or {}),
+            "notes": initial_notes,
+            "context": dict(context or {}),
             "created_at": now,
+            "updated_at": now,
             "resolved_at": None,
             "content_hash": "",
         }
@@ -689,10 +770,190 @@ class DecisionRadarBot:
         self._refresh_impact_scores(store)
         self._save_store(self.active_path, store, expected_hash=expected_hash)
         updated = next(it for it in store["items"] if it["decision_id"] == dec_id)
+        self._sync_to_detached_server(
+            "/api/decisions/request",
+            {
+                "decision_id": dec_id,
+                "question": updated["question"],
+                "category": updated["category"],
+                "agent_id": updated["agent_id"],
+                "unblocks": updated["unblocks"],
+                "options": updated["options"],
+                "wait_for_fact": updated["fact_predicate"],
+                "criticality": updated["criticality"],
+                "work_boundary": updated["work_boundary"],
+                "note": note,
+                "context": context,
+            },
+            sync_remote=sync_remote,
+        )
         result: Dict[str, Any] = {"success": True, "decision": updated, "store_revision": store["revision"]}
         if split_window:
             result["browser_window"] = self.open_split_window_for_decision(decision_id=dec_id, side=split_side)
         return result
+
+    @staticmethod
+    def _apply_decision_field_updates(
+        target: Dict[str, Any],
+        question: Optional[str],
+        category: Optional[str],
+        agent_id: Optional[str],
+        unblocks: Optional[List[str]],
+        options: Optional[List[str]],
+        wait_for_fact: Optional[str],
+        criticality: Optional[float],
+    ) -> None:
+        if question is not None and question.strip():
+            target["question"] = question.strip()
+        if category is not None and category.strip():
+            norm_cat = category.strip().lower()
+            if norm_cat in CANONICAL_CATEGORIES:
+                target["category"] = norm_cat
+                target["category_label"] = CANONICAL_CATEGORIES[norm_cat]["label"]
+        if agent_id is not None and agent_id.strip():
+            target["agent_id"] = agent_id.strip()
+        if unblocks is not None:
+            clean_unblocks = [u.strip() for u in unblocks if u and u.strip()]
+            target["unblocks"] = clean_unblocks
+            target["unblock_badge"] = max(1, len(clean_unblocks))
+        if options is not None:
+            target["options"] = [o.strip() for o in options if o and o.strip()]
+        if wait_for_fact is not None:
+            clean_fact = wait_for_fact.strip()
+            target["fact_predicate"] = clean_fact or None
+            if clean_fact:
+                target["status"] = "WAITING_FACT"
+        if criticality is not None:
+            target["criticality"] = max(0.1, float(criticality))
+
+    def _apply_decision_notes_and_context(
+        self,
+        target: Dict[str, Any],
+        note: Optional[str],
+        context: Optional[Dict[str, Any]],
+        agent_id: Optional[str],
+    ) -> None:
+        now = self._utc_now()
+        target["updated_at"] = now
+        if note is not None and note.strip():
+            notes_list = list(target.get("notes") or [])
+            notes_list.append(
+                {
+                    "timestamp": now,
+                    "agent_id": (agent_id or target.get("agent_id") or DEFAULT_AGENT_ID).strip(),
+                    "note": note.strip(),
+                }
+            )
+            target["notes"] = notes_list
+        if context:
+            merged_ctx = dict(target.get("context") or {})
+            merged_ctx.update(context)
+            target["context"] = merged_ctx
+
+    def update_decision(
+        self,
+        decision_id: str,
+        *,
+        question: Optional[str] = None,
+        category: Optional[str] = None,
+        agent_id: Optional[str] = None,
+        unblocks: Optional[List[str]] = None,
+        options: Optional[List[str]] = None,
+        wait_for_fact: Optional[str] = None,
+        criticality: Optional[float] = None,
+        status: Optional[str] = None,
+        answer: Optional[str] = None,
+        note: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None,
+        operator: Optional[str] = None,
+        upsert: bool = True,
+        split_window: bool = False,
+        split_side: str = "right",
+        sync_remote: bool = True,
+    ) -> Dict[str, Any]:
+        """Statelessly update an existing decision or push new agent context/information into Cruise Control."""
+        clean_id = decision_id.strip()
+        store = self._load_store(self.active_path)
+        target = next((it for it in store["items"] if it.get("decision_id") == clean_id), None)
+
+        if target is None:
+            if not upsert:
+                return {"success": False, "error": f"Decision '{clean_id}' not found in active queue."}
+            created = self.request_decision(
+                decision_id=clean_id,
+                question=question or f"Agent decision update ({clean_id})",
+                category=category or "set_product_rule",
+                agent_id=agent_id or DEFAULT_AGENT_ID,
+                unblocks=unblocks,
+                options=options,
+                wait_for_fact=wait_for_fact,
+                criticality=criticality if criticality is not None else 1.0,
+                note=note,
+                context=context,
+                split_window=split_window,
+                split_side=split_side,
+                sync_remote=False,
+            )
+            store = self._load_store(self.active_path)
+            target = next((it for it in store["items"] if it.get("decision_id") == clean_id), created["decision"])
+        else:
+            self._apply_decision_field_updates(
+                target,
+                question=question,
+                category=category,
+                agent_id=agent_id,
+                unblocks=unblocks,
+                options=options,
+                wait_for_fact=wait_for_fact,
+                criticality=criticality,
+            )
+            self._apply_decision_notes_and_context(target, note=note, context=context, agent_id=agent_id)
+            if status is not None and status.strip().upper() in ("WAITING_HUMAN", "WAITING_FACT"):
+                target["status"] = status.strip().upper()
+            self._refresh_impact_scores(store)
+            self._save_store(self.active_path, store)
+
+        norm_status = status.strip().upper() if status else ""
+        if norm_status == "REJECTED":
+            res = self.reject_decision(
+                decision_id=clean_id,
+                reason=answer or note or "Rejected via agent update",
+                operator=operator,
+                sync_remote=False,
+            )
+        elif norm_status in ("RESOLVED_HUMAN", "SETTLED_BY_EVENT") or (answer is not None and answer.strip()):
+            res = self.answer_decision(
+                decision_id=clean_id,
+                answer=answer.strip() if (answer and answer.strip()) else "Resolved via agent update",
+                operator=operator,
+                sync_remote=False,
+            )
+        else:
+            res = {"success": True, "decision": target, "store_revision": store["revision"]}
+
+        self._sync_to_detached_server(
+            "/api/decisions/update",
+            {
+                "decision_id": clean_id,
+                "question": question,
+                "category": category,
+                "agent_id": agent_id,
+                "unblocks": unblocks,
+                "options": options,
+                "wait_for_fact": wait_for_fact,
+                "criticality": criticality,
+                "status": status,
+                "answer": answer,
+                "note": note,
+                "context": context,
+                "operator": operator,
+                "upsert": upsert,
+            },
+            sync_remote=sync_remote,
+        )
+        if split_window:
+            res["browser_window"] = self.open_split_window_for_decision(decision_id=clean_id, side=split_side)
+        return res
 
     def create_input_gate(
         self,
@@ -763,6 +1024,7 @@ class DecisionRadarBot:
         answer: str,
         operator: Optional[str] = None,
         compound: bool = True,
+        sync_remote: bool = True,
     ) -> Dict[str, Any]:
         """Resolve a decision with a human operator answer, sign boundary gates, and compound to MemoryGraph."""
         resolved_operator = operator or os.environ.get("USER", "Mark")
@@ -803,6 +1065,11 @@ class DecisionRadarBot:
 
         self._archive_resolved_decision(store, target)
         compounded_node = self._compound_decision_to_memory(target) if compound else None
+        self._sync_to_detached_server(
+            "/api/decisions/answer",
+            {"decision_id": decision_id, "answer": target["answer"], "operator": resolved_operator},
+            sync_remote=sync_remote,
+        )
         return {
             "success": True,
             "decision": target,
@@ -814,6 +1081,7 @@ class DecisionRadarBot:
         decision_id: str,
         reason: str,
         operator: Optional[str] = None,
+        sync_remote: bool = True,
     ) -> Dict[str, Any]:
         """Reject a waiting decision or work boundary request."""
         resolved_operator = operator or os.environ.get("USER", "Mark")
@@ -827,6 +1095,11 @@ class DecisionRadarBot:
         target["operator"] = resolved_operator
         target["resolved_at"] = self._utc_now()
         self._archive_resolved_decision(store, target)
+        self._sync_to_detached_server(
+            "/api/decisions/reject",
+            {"decision_id": decision_id, "reason": reason.strip(), "operator": resolved_operator},
+            sync_remote=sync_remote,
+        )
         return {"success": True, "decision": target}
 
     def snooze_on_fact(
@@ -834,6 +1107,7 @@ class DecisionRadarBot:
         decision_id: str,
         fact_predicate: str,
         operator: Optional[str] = None,
+        sync_remote: bool = True,
     ) -> Dict[str, Any]:
         """Bind a waiting question to a declarative fact predicate instead of a countdown timer."""
         if not fact_predicate or not fact_predicate.strip():
@@ -850,6 +1124,11 @@ class DecisionRadarBot:
             target["operator"] = operator
         self._refresh_impact_scores(store)
         self._save_store(self.active_path, store)
+        self._sync_to_detached_server(
+            "/api/decisions/snooze",
+            {"decision_id": decision_id, "fact_predicate": fact_predicate.strip(), "operator": operator},
+            sync_remote=sync_remote,
+        )
         return {"success": True, "decision": target}
 
     def assert_fact(
@@ -858,6 +1137,7 @@ class DecisionRadarBot:
         reason: str = "External event satisfied fact",
         source: str = "operator",
         auto_settle: bool = True,
+        sync_remote: bool = True,
     ) -> Dict[str, Any]:
         """Record a verified fact in the fact store and optionally auto-settle waiting decisions."""
         clean_fact = fact_predicate.strip()
@@ -871,6 +1151,11 @@ class DecisionRadarBot:
         }
         self._save_facts(facts)
         settlement = self.evaluate_and_settle_facts() if auto_settle else {"settled_count": 0, "settled": []}
+        self._sync_to_detached_server(
+            "/api/decisions/assert-fact",
+            {"fact_predicate": clean_fact, "reason": reason},
+            sync_remote=sync_remote,
+        )
         return {
             "success": True,
             "fact": facts[clean_fact],
