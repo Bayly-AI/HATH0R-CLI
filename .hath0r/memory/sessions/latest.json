@@ -5,17 +5,17 @@
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-28T13:05:46.197056+00:00",
-  "updated_at": "2026-10-28T14:50:50.937102+00:00",
-  "ended_at": "2026-10-28T14:38:20.363603+00:00",
-  "read_count": 11,
-  "write_count": 31,
-  "revision": 41,
-  "content_hash": "sha256:9994f1fbb369f1dd0cc0ac53ddb2a6a4167bfcfb0a53a2faa793313b2ca87bfd",
-  "base_graph_hash": "sha256:436e9caaa03dd9562af3032defede0110901be8f728aa6a7cce43c427713a727",
-  "last_read_at": "2026-10-28T14:38:20.155873+00:00",
-  "last_write_at": "2026-10-28T14:50:50.937102+00:00",
+  "updated_at": "2026-10-28T14:51:44.783498+00:00",
+  "ended_at": "2026-10-28T14:51:41.444499+00:00",
+  "read_count": 12,
+  "write_count": 37,
+  "revision": 48,
+  "content_hash": "sha256:bf1be8c074d2f871e0fc291b5721f78f0a538dab284fcdfd280ac8cb66730ef6",
+  "base_graph_hash": "sha256:0b4f55609119cfc2d665ee8b7ca59e7664a8c05fb2db4df718a917341f72fc2d",
+  "last_read_at": "2026-10-28T14:51:41.188455+00:00",
+  "last_write_at": "2026-10-28T14:51:44.783498+00:00",
   "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
-  "prior_summary": "ounded episode:pr-519: PR #519 Merge; Compounded eval:pr-519-merged: Task Eval; Compounded eval:issue-520: Task Evaluati",
+  "prior_summary": "pleted PR #521 (feature) via EndOfTas; Compounded eval:pr-521: Task Evaluation; Compounded episode:pr-521: PR #521 Merge",
   "recalled_nodes": [
     {
       "id": "decision:issue-474-micro-memory-session",
@@ -26,28 +26,28 @@
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-28T14:50:50.937102+00:00",
+      "timestamp": "2026-10-28T14:51:44.783498+00:00",
       "kind": "compound",
-      "summary": "Compounded eval:issue-520: Task Evaluation issue-520 (R=1.00, PASS)",
+      "summary": "Compounded eval:pr-521-merged: Task Evaluation pr-521-merged (R=1.00, PASS)",
       "tags": [
         "eval",
         "cr-task-eval-001",
-        "issue-520",
+        "pr-521-merged",
         "passed",
         "compounded"
       ],
-      "node_id": "eval:issue-520"
+      "node_id": "eval:pr-521-merged"
     }
   ],
   "next_steps": [],
   "compounded_node_ids": [
-    "eval:eval-baseline-hathor-cli",
-    "eval:issue-518",
-    "episode:pr-519",
     "eval:pr-519",
     "eval:pr-519-merged",
-    "eval:issue-520"
+    "eval:issue-520",
+    "episode:pr-521",
+    "eval:pr-521",
+    "eval:pr-521-merged"
   ],
   "parent_session_id": "sess-20261017-145045-ed36da",
-  "capsule_bytes": 1879
+  "capsule_bytes": 1881
 }
