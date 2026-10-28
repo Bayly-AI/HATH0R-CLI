@@ -1,11 +1,11 @@
-"""DecisionRadarBot: Minority Report Agent Decision Control Layer & Unblocking Engine.
+"""DecisionRadarBot (CruiseControlBot): Cruise Control Agent Decision Control Layer & Unblocking Engine.
 
 Provides:
 - Graph-theoretic dependency modeling and transitive unblocking impact reranking (Task 2 / #501)
 - Event-driven fact settlement engine replacing timer snoozing (Task 3 / #502)
 - Bidirectional Input & Output work boundary approval gates with HMAC tokens (Task 4 / #503)
 - Persistent CAS micro-store in .hath0r/decisions/ with MemoryGraph compounding (Task 1 / #500)
-- Radial polar coordinate layout engine for Minority Report Sunburst UI & TUI (Task 6 / #505)
+- Radial polar coordinate layout engine for Cruise Control Sunburst UI & TUI (Task 6 / #505)
 """
 
 from __future__ import annotations
@@ -420,7 +420,7 @@ class WorkBoundaryGate:
 
 
 class DecisionRadarBot:
-    """Autonomous control plane managing the Minority Report Agent Decision Radar."""
+    """Autonomous control plane managing the Cruise Control Agent Decision Radar."""
 
     def __init__(self, cwd: Optional[Path | str] = None) -> None:
         self.cwd = Path(cwd or Path.cwd()).resolve()
@@ -620,7 +620,7 @@ class DecisionRadarBot:
         decision_id: Optional[str] = None,
         expected_hash: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Submit a waiting decision to the Minority Report Decision Radar queue."""
+        """Submit a waiting decision to the Cruise Control Decision Radar queue."""
         norm_cat = category.strip().lower()
         if norm_cat not in CANONICAL_CATEGORIES:
             norm_cat = "set_product_rule"
@@ -1022,7 +1022,7 @@ class DecisionRadarBot:
         }
 
     def get_radar_snapshot(self, operator_name: str = "Mark") -> Dict[str, Any]:
-        """Compute full polar radial sunburst geometry for the Minority Report Radar UI."""
+        """Compute full polar radial sunburst geometry for the Cruise Control Radar UI."""
         listing = self.list_decisions(include_archived=False)
         open_decisions = listing["decisions"]
         summary = listing["summary"]
@@ -1106,7 +1106,7 @@ class DecisionRadarBot:
         }
 
     def seed_demo_radar(self) -> Dict[str, Any]:
-        """Populate the canonical 22-decision Minority Report reference topology for visualization."""
+        """Populate the canonical 22-decision Cruise Control reference topology for visualization."""
         store = {"schema_version": SCHEMA_VERSION, "revision": 0, "content_hash": "", "items": [], "task_edges": []}
         self._save_store(self.active_path, store)
 
@@ -1250,3 +1250,6 @@ class DecisionRadarBot:
             )
 
         return self.get_radar_snapshot(operator_name="Mark")
+
+
+CruiseControlBot = DecisionRadarBot

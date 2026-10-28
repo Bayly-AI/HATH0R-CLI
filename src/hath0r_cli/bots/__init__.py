@@ -1296,6 +1296,7 @@ from hath0r_cli.bots.churn_manager_bot import (  # noqa: E402
 )
 from hath0r_cli.bots.decision_radar_bot import (  # noqa: E402
     CANONICAL_CATEGORIES,
+    CruiseControlBot,
     DecisionGraph,
     DecisionRadarBot,
     FactSettlementEngine,
@@ -1311,6 +1312,7 @@ from hath0r_cli.bots.thread_parallelism_bot import ThreadLevelParallelismBot, th
 
 __all__ = [
     "CANONICAL_CATEGORIES",
+    "CruiseControlBot",
     "DecisionGraph",
     "DecisionRadarBot",
     "FactSettlementEngine",

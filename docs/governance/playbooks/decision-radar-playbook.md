@@ -1,7 +1,7 @@
-# Playbook: Decision Radar Queue Triage & Bottleneck Recovery
+# Playbook: Cruise Control Queue Triage & Bottleneck Recovery
 
 > Canonical Playbook · ID: `PLAYBOOK-DECISION-RADAR-001`  
-> Epic: #499 · Tasks: #500–#506
+> Epic: #499 · Tasks: #500–#506, #508
 
 ---
 

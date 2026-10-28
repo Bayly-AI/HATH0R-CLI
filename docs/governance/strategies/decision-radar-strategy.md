@@ -1,7 +1,7 @@
-# Strategy: Hath0r Decision Radar (Minority Report Agent Control Layer)
+# Strategy: Hath0r Cruise Control (Agent Decision Control Layer)
 
 > Canonical Governance Strategy · ID: `STRAT-DECISION-RADAR-001`  
-> Epic: #499 · Tasks: #500–#506 · Rule Compliance: `CR-CLI-FEATURE-STANDARD-001`, `CR-MEMORY-COMPOUND-001`
+> Epic: #499 / #508 · Tasks: #500–#506 · Rule Compliance: `CR-CLI-FEATURE-STANDARD-001`, `CR-MEMORY-COMPOUND-001`
 
 ---
 
@@ -21,7 +21,7 @@ The **Hath0r Decision Radar** resolves these bottlenecks through four coupled me
    Replaces arbitrary countdown timers with declarative **Fact Predicates** (`git.pr.merged`, `ci.workflow.passed`, `agent.task.completed`, `file.exists`, `memory.fact.asserted`). Satisfied predicates auto-settle waiting questions (`STATUS=SETTLED_BY_EVENT`) without human intervention.
 3. **Bidirectional Work Boundary Gates (`WorkBoundaryGate`)**:
    Enforces HMAC-SHA256 signed approvals on what goes into agent work (`INPUT` gate: prompt intent, token cap, tool RBAC) and what comes out (`OUTPUT` gate: code diffs, test proofs, PR drafts).
-4. **Minority Report Radial Sunburst UX (`HathorDecisionRadarServer`)**:
+4. **Cruise Control Radial Sunburst UX (`HathorDecisionRadarServer` / `HathorCruiseControlServer`)**:
    Projects all active decisions onto a concentric circular radar around the operator hub across 7 canonical semantic wedges.
 
 ---

@@ -70,6 +70,8 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "orient": ("hath0r_cli.commands.orient", "orient_cmd"),
     "gameshow": ("hath0r_cli.commands.gameshow", "gameshow_cmd"),
     "decision": ("hath0r_cli.commands.decision", "decision_cmd"),
+    "cruise": ("hath0r_cli.commands.decision", "decision_cmd"),
+    "cruise-control": ("hath0r_cli.commands.decision", "decision_cmd"),
     "radar": ("hath0r_cli.commands.decision", "decision_radar"),
 }
 

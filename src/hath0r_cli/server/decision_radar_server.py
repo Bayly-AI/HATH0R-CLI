@@ -1,7 +1,7 @@
-"""Minority Report Radial Sunburst Decision Radar Web Server, SSE Stream & Rich TUI.
+"""Cruise Control Radial Sunburst Decision Radar Web Server, SSE Stream & Rich TUI.
 
-Implements Task 6 (#505):
-- Interactive concentric circular SVG sunburst visualization matching the Minority Report UX
+Implements Task 6 (#505) & #508:
+- Interactive concentric circular SVG sunburst visualization for the Cruise Control UX
 - 7 canonical decision wedges with radiating orbital agent nodes and '|| N' unblock badges
 - Real-time Server-Sent Events (SSE) stream (/api/decisions/stream) and REST endpoints
 - Rich Terminal TUI companion renderer for CLI inspection
@@ -29,7 +29,7 @@ RADAR_HTML_TEMPLATE = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HATH0R Decision Radar — Minority Report Agent Control Layer</title>
+    <title>HATH0R Cruise Control — Agent Decision Control Layer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0d0e14; color: #e2e8f0; font-family: 'Inter', -apple-system, sans-serif; }
@@ -45,10 +45,10 @@ RADAR_HTML_TEMPLATE = """<!DOCTYPE html>
         <div class="flex items-center space-x-3">
             <span class="h-2.5 w-2.5 rounded-full bg-blue-400 animate-ping"></span>
             <h1 class="text-lg font-bold tracking-tight text-slate-100">
-                HATH0R DECISION RADAR
+                HATH0R CRUISE CONTROL
             </h1>
             <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-blue-300 border border-slate-700">
-                Minority Report Control Layer
+                Agent Decision Radar
             </span>
         </div>
         <div class="flex items-center space-x-3 text-xs">
@@ -504,7 +504,7 @@ def render_radar_tui(
     snapshot: Dict[str, Any],
     console: Optional[Console] = None,
 ) -> str:
-    """Render the Minority Report Decision Radar in Rich Terminal TUI format."""
+    """Render the Cruise Control Decision Radar in Rich Terminal TUI format."""
     out_console = console or Console(record=True, width=110)
     op = snapshot.get("operator", {})
     header_text = (
@@ -514,7 +514,7 @@ def render_radar_tui(
         f"[bold magenta]Settled by Event:[/bold magenta] {op.get('settled_by_event', 0)}   "
         f"[bold blue]Total Unblock Weight:[/bold blue] {op.get('total_unblock_weight', 0.0)}"
     )
-    out_console.print(Panel(header_text, title="[bold white]HATH0R DECISION RADAR (MINORITY REPORT CONTROL LAYER)[/bold white]", border_style="bright_blue"))
+    out_console.print(Panel(header_text, title="[bold white]HATH0R CRUISE CONTROL (AGENT DECISION RADAR)[/bold white]", border_style="bright_blue"))
 
     root_tree = Tree(f"[bold bright_blue]◉ {op.get('name', 'Mark')} ({op.get('open_count', 0)} open)[/bold bright_blue]")
     for wedge in snapshot.get("wedges", []):
@@ -559,7 +559,7 @@ def render_radar_tui(
 
 
 class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
-    """HTTP handler serving the Minority Report Decision Radar UI, REST API, and SSE stream."""
+    """HTTP handler serving the Cruise Control Decision Radar UI, REST API, and SSE stream."""
 
     server_app: HathorDecisionRadarServer
 
@@ -697,7 +697,7 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
 
 
 class HathorDecisionRadarServer:
-    """Lifecycle manager for the embedded Minority Report Decision Radar HTTP/SSE server."""
+    """Lifecycle manager for the embedded Cruise Control Decision Radar HTTP/SSE server."""
 
     def __init__(
         self,
@@ -734,3 +734,6 @@ class HathorDecisionRadarServer:
             self.server.shutdown()
             self.server.server_close()
             self.server = None
+
+
+HathorCruiseControlServer = HathorDecisionRadarServer
