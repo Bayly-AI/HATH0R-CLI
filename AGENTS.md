@@ -131,19 +131,19 @@ local → development → testing → staging → master (Production)
 
 When requested to **"clean repo"** or **"clean repos"**, the bot must execute the following 13 steps across all repositories:
 
-1. **Capture all repos in the project**: Enumerate all member repositories in `/Users/raybayly/Development/Ray`.
+1. **Capture all repos in the project**: Enumerate all member repositories in the project or workspace.
 2. **Ensure all changes are committed**: Verify `git status` and commit uncommitted source changes.
 3. **Cleanup development artifacts**: Remove `.DS_Store`, `__pycache__`, `.pytest_cache`, `.coverage`, and build logs.
-4. **Clean up and remove stale worktrees**: Run `git worktree prune` and clear orphaned worktrees.
-5. **Ensure all PRs are merged**: Review and merge pending approved Pull Requests.
-6. **Share Knowledge**: Synchronize context to OneDrive knowledge roots and `.hath0r/knowledgebase`.
-7. **Update Documentation**: Update `README.md`, `AGENTS.md`, and relevant architecture docs.
-8. **Commit documentation changes**: Stage and commit doc/knowledge updates cleanly.
+4. **Clean up and remove stale worktrees**: Run `git worktree prune` and detach/remove orphaned worktrees.
+5. **Review branches, merge changes, resolve conflicts & ensure all PRs are merged**: Review all local and remote non-canonical branches, merge any branches with unmerged changes into `development` (resolving conflicts cleanly), and merge pending approved Pull Requests.
+6. **Share Knowledge & Compound MemoryGraph**: Synchronize context to knowledge roots, `.hath0r/knowledgebase`, and `.hath0r/memory/graph.json` (`CR-MEMORY-COMPOUND-001`).
+7. **Update Documentation & AgentGraph**: Update `README.md`, `AGENTS.md`, and relevant architecture docs, and run `hath0r agentgraph sync` / `validate`.
+8. **Evaluate Task & Commit Documentation/State Changes**: Run `hath0r evals run` (`CR-TASK-EVAL-001`), sync `.hath0r/memory/hashes.json`, and commit doc/knowledge/eval updates cleanly.
 9. **Ensure all changes are PR'd**: Push active feature branches and open PRs against `development`.
 10. **Monitor PRs and merge**: Monitor CI/CD checks (`gh pr checks`) and merge passing PRs (or fix errors).
-11. **Delete feature branches**: Prune merged feature branches both locally and remotely.
-12. **Return to Development**: Switch to `development` branch and pull latest changes from `origin`.
-13. **Announce Complete**: Present a concise status summary to the user.
+11. **Delete stale feature branches (local & remote)**: Remove all merged/stale non-canonical feature branches locally (`git branch -D`) and remotely (`git push origin --delete` + `git fetch --prune`).
+12. **Return to Development & Pull/Push Origin**: Switch back to `development`, `git pull --rebase origin development`, and `git push origin development`.
+13. **Verify Pre-Announce Gates & Announce Complete**: Verify `CR-MEMORY-COMPOUND-001` and `CR-TASK-EVAL-001` gates and present a concise status summary to the user.
 
 
 ## AgentGraph Substrate

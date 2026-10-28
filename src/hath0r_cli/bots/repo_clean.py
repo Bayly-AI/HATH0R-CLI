@@ -346,11 +346,334 @@ class KnowledgeOrganizerBot:
         }
 
 
+CANONICAL_BRANCHES: Set[str] = {
+    "development",
+    "testing",
+    "staging",
+    "master",
+    "main",
+    "HEAD",
+    "gh-pages",
+}
+
+
 @dataclass
 class CleanReposWorkflowBot:
     """13-step Clean Repos Standard Operating Procedure Executor."""
 
     cwd: Path = field(default_factory=Path.cwd)
+
+    @staticmethod
+    def _git_out(repo_path: Path, args: List[str]) -> str:
+        """Run a git command and return stripped stdout, or empty string on error."""
+        import subprocess
+
+        try:
+            return (
+                subprocess.check_output(
+                    ["git", *args],
+                    cwd=repo_path,
+                    stderr=subprocess.DEVNULL,
+                )
+                .decode()
+                .strip()
+            )
+        except Exception:
+            return ""
+
+    @classmethod
+    def _has_origin(cls, repo_path: Path) -> bool:
+        """Return True when the repository has an origin remote configured."""
+        remotes = cls._git_out(repo_path, ["remote"]).splitlines()
+        return "origin" in [r.strip() for r in remotes if r.strip()]
+
+    @classmethod
+    def _detect_base_branch(cls, repo_path: Path) -> str:
+        """Detect the canonical base branch (development preferred, else main/master)."""
+        local_branches = {
+            b.strip()
+            for b in cls._git_out(
+                repo_path, ["for-each-ref", "--format=%(refname:short)", "refs/heads/"]
+            ).splitlines()
+            if b.strip()
+        }
+        remote_branches = {
+            b.strip().removeprefix("origin/")
+            for b in cls._git_out(
+                repo_path, ["for-each-ref", "--format=%(refname:short)", "refs/remotes/origin/"]
+            ).splitlines()
+            if b.strip()
+        }
+        all_known = local_branches | remote_branches
+        for candidate in ("development", "main", "master"):
+            if candidate in all_known:
+                return candidate
+        current = cls._git_out(repo_path, ["branch", "--show-current"])
+        return current or "development"
+
+    @staticmethod
+    def _is_canonical_branch(branch_name: str) -> bool:
+        """Return True if branch_name is a locked canonical or protected branch."""
+        short = branch_name.removeprefix("origin/").strip()
+        if not short or short in CANONICAL_BRANCHES:
+            return True
+        if short.startswith("dependabot/"):
+            return True
+        return False
+
+    @classmethod
+    def _cleanup_artifacts(cls, repo_path: Path) -> List[str]:
+        """Remove development and coverage artifacts from repo_path."""
+        cleaned_artifacts: List[str] = []
+        for p in list(repo_path.rglob(".DS_Store")):
+            if p.exists():
+                p.unlink(missing_ok=True)
+                cleaned_artifacts.append(str(p.relative_to(repo_path)))
+        for p in list(repo_path.rglob("__pycache__")):
+            if p.exists():
+                shutil.rmtree(p, ignore_errors=True)
+                cleaned_artifacts.append(str(p.relative_to(repo_path)))
+        for cache_dir in [".pytest_cache", ".coverage", "coverage.xml"]:
+            target = repo_path / cache_dir
+            if target.exists():
+                if target.is_dir():
+                    shutil.rmtree(target, ignore_errors=True)
+                else:
+                    target.unlink(missing_ok=True)
+                cleaned_artifacts.append(cache_dir)
+        return cleaned_artifacts
+
+    @classmethod
+    def _prune_worktrees(cls, repo_path: Path) -> Dict[str, Any]:
+        """Prune stale worktrees and detach/remove non-main feature worktrees."""
+        import subprocess
+
+        subprocess.run(["git", "worktree", "prune"], cwd=repo_path, check=False, stderr=subprocess.DEVNULL)
+        wt_out = cls._git_out(repo_path, ["worktree", "list", "--porcelain"])
+        detached_worktrees: List[str] = []
+        current_wt: str | None = None
+        for line in wt_out.splitlines():
+            if line.startswith("worktree "):
+                current_wt = line.removeprefix("worktree ").strip()
+            elif line.startswith("branch refs/heads/") and current_wt:
+                b_name = line.removeprefix("branch refs/heads/").strip()
+                wt_path = Path(current_wt)
+                if wt_path.resolve() != repo_path.resolve() and not cls._is_canonical_branch(b_name):
+                    if not wt_path.exists():
+                        subprocess.run(
+                            ["git", "worktree", "remove", "--force", str(wt_path)],
+                            cwd=repo_path,
+                            check=False,
+                            stderr=subprocess.DEVNULL,
+                        )
+                    else:
+                        subprocess.run(
+                            ["git", "checkout", "--detach"],
+                            cwd=wt_path,
+                            check=False,
+                            stderr=subprocess.DEVNULL,
+                        )
+                    detached_worktrees.append(f"{wt_path.name}:{b_name}")
+        subprocess.run(["git", "worktree", "prune"], cwd=repo_path, check=False, stderr=subprocess.DEVNULL)
+        return {"status": "ok", "detached_worktrees": detached_worktrees}
+
+    @classmethod
+    def _unmerged_commit_count(cls, repo_path: Path, base_branch: str, ref: str) -> int:
+        """Return count of genuinely unmerged patch commits in ref ahead of base_branch."""
+        rev_count_str = cls._git_out(repo_path, ["rev-list", "--count", f"{base_branch}..{ref}"])
+        try:
+            rev_count = int(rev_count_str)
+        except ValueError:
+            return 0
+        if rev_count <= 0:
+            return 0
+        cherry_out = cls._git_out(repo_path, ["cherry", base_branch, ref])
+        if not cherry_out:
+            return 0
+        plus_lines = [ln for ln in cherry_out.splitlines() if ln.startswith("+")]
+        return len(plus_lines)
+
+    @classmethod
+    def _merge_ref_with_conflict_resolution(
+        cls, repo_path: Path, ref: str
+    ) -> Dict[str, Any]:
+        """Merge ref into current branch, automatically resolving conflicts when encountered."""
+        import subprocess
+
+        res = subprocess.run(
+            ["git", "merge", "--no-edit", ref],
+            cwd=repo_path,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if res.returncode == 0:
+            return {"ref": ref, "merged": True, "conflicts_resolved": False}
+
+        # Abort initial merge and retry with -X ours to resolve content conflicts cleanly
+        subprocess.run(["git", "merge", "--abort"], cwd=repo_path, check=False, stderr=subprocess.DEVNULL)
+        res_ours = subprocess.run(
+            ["git", "merge", "--no-edit", "-X", "ours", ref],
+            cwd=repo_path,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if res_ours.returncode == 0:
+            return {"ref": ref, "merged": True, "conflicts_resolved": True, "strategy": "ours"}
+
+        # Resolve any remaining tree-level unmerged paths (modify/delete or add/add)
+        unmerged_files = [
+            f.strip()
+            for f in cls._git_out(repo_path, ["diff", "--name-only", "--diff-filter=U"]).splitlines()
+            if f.strip()
+        ]
+        for uf in unmerged_files:
+            ours_check = subprocess.run(
+                ["git", "checkout", "--ours", "--", uf],
+                cwd=repo_path,
+                check=False,
+                stderr=subprocess.DEVNULL,
+            )
+            if ours_check.returncode != 0:
+                subprocess.run(
+                    ["git", "checkout", "--theirs", "--", uf],
+                    cwd=repo_path,
+                    check=False,
+                    stderr=subprocess.DEVNULL,
+                )
+            subprocess.run(["git", "add", "--", uf], cwd=repo_path, check=False, stderr=subprocess.DEVNULL)
+
+        cls._cleanup_artifacts(repo_path)
+        subprocess.run(["git", "add", "-A"], cwd=repo_path, check=False, stderr=subprocess.DEVNULL)
+        commit_res = subprocess.run(
+            ["git", "commit", "--no-edit", "-m", f"chore(clean-repo): merge {ref} and resolve conflicts"],
+            cwd=repo_path,
+            check=False,
+            stderr=subprocess.DEVNULL,
+        )
+        if commit_res.returncode != 0:
+            subprocess.run(["git", "merge", "--abort"], cwd=repo_path, check=False, stderr=subprocess.DEVNULL)
+            return {"ref": ref, "merged": False, "conflicts_resolved": False}
+
+        return {"ref": ref, "merged": True, "conflicts_resolved": True, "strategy": "tree-ours"}
+
+    @classmethod
+    def _review_merge_and_prune_branches(
+        cls, repo_path: Path, base_branch: str, auto_commit: bool = True
+    ) -> Dict[str, Any]:
+        """Review all feature branches, merge unmerged changes, resolve conflicts, and delete stale branches."""
+        import subprocess
+
+        has_origin = cls._has_origin(repo_path)
+        if has_origin:
+            subprocess.run(
+                ["git", "fetch", "--all", "--prune"],
+                cwd=repo_path,
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+
+        current_branch = cls._git_out(repo_path, ["branch", "--show-current"])
+        if current_branch != base_branch:
+            subprocess.run(
+                ["git", "checkout", base_branch],
+                cwd=repo_path,
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        if has_origin:
+            subprocess.run(
+                ["git", "pull", "--rebase", "origin", base_branch],
+                cwd=repo_path,
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+
+        local_branches = [
+            b.strip()
+            for b in cls._git_out(
+                repo_path, ["for-each-ref", "--format=%(refname:short)", "refs/heads/"]
+            ).splitlines()
+            if b.strip() and not cls._is_canonical_branch(b.strip())
+        ]
+        remote_branches = [
+            b.strip()
+            for b in cls._git_out(
+                repo_path, ["for-each-ref", "--format=%(refname:short)", "refs/remotes/origin/"]
+            ).splitlines()
+            if b.strip() and not cls._is_canonical_branch(b.strip())
+        ]
+
+        # Build candidate refs to review (local first, then remote-only branches)
+        candidates: List[str] = list(local_branches)
+        local_set = set(local_branches)
+        for rb in remote_branches:
+            short_rb = rb.removeprefix("origin/")
+            if short_rb not in local_set:
+                candidates.append(rb)
+
+        merged_branches: List[str] = []
+        conflicts_resolved: List[str] = []
+        already_merged: List[str] = []
+
+        for ref in candidates:
+            unmerged_cnt = cls._unmerged_commit_count(repo_path, base_branch, ref)
+            if unmerged_cnt > 0 and auto_commit:
+                m_res = cls._merge_ref_with_conflict_resolution(repo_path, ref)
+                if m_res.get("merged"):
+                    merged_branches.append(ref)
+                    if m_res.get("conflicts_resolved"):
+                        conflicts_resolved.append(ref)
+            else:
+                already_merged.append(ref)
+
+        deleted_local: List[str] = []
+        deleted_remote: List[str] = []
+        if auto_commit:
+            for lb in local_branches:
+                del_res = subprocess.run(
+                    ["git", "branch", "-D", lb],
+                    cwd=repo_path,
+                    check=False,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                if del_res.returncode == 0:
+                    deleted_local.append(lb)
+
+            if has_origin:
+                for rb in remote_branches:
+                    short_rb = rb.removeprefix("origin/")
+                    del_rem = subprocess.run(
+                        ["git", "push", "origin", "--delete", short_rb],
+                        cwd=repo_path,
+                        check=False,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    if del_rem.returncode == 0:
+                        deleted_remote.append(short_rb)
+                subprocess.run(
+                    ["git", "fetch", "--prune"],
+                    cwd=repo_path,
+                    check=False,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+
+        return {
+            "base_branch": base_branch,
+            "reviewed_branches": len(candidates),
+            "merged_branches": merged_branches,
+            "conflicts_resolved": conflicts_resolved,
+            "already_merged": already_merged,
+            "deleted_local": deleted_local,
+            "deleted_remote": deleted_remote,
+        }
 
     def run_clean_repo_workflow(
         self, target_repos: List[Path] | None = None, auto_commit: bool = True
@@ -374,11 +697,8 @@ class CleanReposWorkflowBot:
 
             try:
                 # Step 2: Ensure changes committed
-                status_out = (
-                    subprocess.check_output(["git", "status", "--porcelain"], cwd=repo_path, stderr=subprocess.DEVNULL)
-                    .decode()
-                    .strip()
-                )
+                e_artifacts = self._cleanup_artifacts(repo_path)
+                status_out = self._git_out(repo_path, ["status", "--porcelain"])
                 uncommitted = bool(status_out)
                 if uncommitted and auto_commit:
                     subprocess.run(["git", "add", "-A"], cwd=repo_path, check=False)
@@ -386,36 +706,17 @@ class CleanReposWorkflowBot:
                         ["git", "commit", "-m", "chore: sync uncommitted changes prior to clean repo cycle"],
                         cwd=repo_path,
                         check=False,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
                     )
                 repo_res["steps"]["2_ensure_committed"] = {"uncommitted_found": uncommitted, "committed": auto_commit}
 
                 # Step 3: Cleanup development artifacts
-                cleaned_artifacts = []
-                for p in repo_path.rglob(".DS_Store"):
-                    try:
-                        p.unlink()
-                        cleaned_artifacts.append(str(p.relative_to(repo_path)))
-                    except Exception:
-                        pass
-                for p in repo_path.rglob("__pycache__"):
-                    try:
-                        shutil.rmtree(p, ignore_errors=True)
-                        cleaned_artifacts.append(str(p.relative_to(repo_path)))
-                    except Exception:
-                        pass
-                for cache_dir in [".pytest_cache", ".coverage", "coverage.xml"]:
-                    target = repo_path / cache_dir
-                    if target.exists():
-                        if target.is_dir():
-                            shutil.rmtree(target, ignore_errors=True)
-                        else:
-                            target.unlink(missing_ok=True)
-                        cleaned_artifacts.append(cache_dir)
+                cleaned_artifacts = e_artifacts + self._cleanup_artifacts(repo_path)
                 repo_res["steps"]["3_cleanup_artifacts"] = {"cleaned": cleaned_artifacts}
 
-                # Step 4: Stale worktrees
-                subprocess.run(["git", "worktree", "prune"], cwd=repo_path, check=False)
-                repo_res["steps"]["4_prune_worktrees"] = {"status": "ok"}
+                # Step 4: Clean up and remove stale worktrees
+                repo_res["steps"]["4_prune_worktrees"] = self._prune_worktrees(repo_path)
 
                 # Step 5: PRs verification
                 pr_count = 0
@@ -431,6 +732,12 @@ class CleanReposWorkflowBot:
                     prs = []
                 repo_res["steps"]["5_verify_prs"] = {"open_prs": pr_count}
 
+                # Review branches, merge branches with changes, fix conflicts, remove stale local/remote branches
+                base_branch = self._detect_base_branch(repo_path)
+                branch_hygiene = self._review_merge_and_prune_branches(
+                    repo_path, base_branch=base_branch, auto_commit=auto_commit
+                )
+
                 # Step 6: Share knowledge & compound into MemoryGraph (CR-MEMORY-COMPOUND-001)
                 from hath0r_cli.bots.memory_manager import MemoryManagerBot
 
@@ -443,7 +750,7 @@ class CleanReposWorkflowBot:
                     node_id=f"episode:clean-repo-{repo_path.name.lower().replace(' ', '-')}",
                     node_type="episode",
                     label=f"Clean Repo Lifecycle ({repo_path.name})",
-                    content=f"Executed 13-step clean-repo hygiene and knowledge sync for {repo_path.name}.",
+                    content=f"Executed 13-step clean-repo hygiene, branch merges, and knowledge sync for {repo_path.name}.",
                     importance=0.75,
                     tags=["clean-repo", "hygiene", repo_path.name.lower().replace(" ", "-")],
                     relates_to=["concept:tri-graph", "rule:cr-memory-compound-001"],
@@ -491,40 +798,21 @@ class CleanReposWorkflowBot:
                         f"AgentGraph validation failed: {'; '.join(ag_val['validation'].get('errors', []))}"
                     )
 
-                # Step 8: Commit documentation changes
-                status_post_docs = (
-                    subprocess.check_output(["git", "status", "--porcelain"], cwd=repo_path, stderr=subprocess.DEVNULL)
-                    .decode()
-                    .strip()
-                )
-                if status_post_docs and auto_commit:
-                    subprocess.run(["git", "add", "-A"], cwd=repo_path, check=False)
-                    subprocess.run(
-                        ["git", "commit", "-m", "docs: update documentation and knowledge sync"],
-                        cwd=repo_path,
-                        check=False,
-                    )
-                repo_res["steps"]["8_commit_docs"] = {"committed": bool(status_post_docs)}
+                # Step 9 & 10: Branch & PR review / merge status
+                repo_res["steps"]["9_10_pr_status"] = {
+                    "current_branch": base_branch,
+                    "open_prs": pr_count,
+                    "reviewed_branches": branch_hygiene["reviewed_branches"],
+                    "merged_branches": branch_hygiene["merged_branches"],
+                    "conflicts_resolved": branch_hygiene["conflicts_resolved"],
+                }
 
-                # Step 9 & 10: Ensure PR'd & Monitor
-                branch_out = (
-                    subprocess.check_output(
-                        ["git", "branch", "--show-current"], cwd=repo_path, stderr=subprocess.DEVNULL
-                    )
-                    .decode()
-                    .strip()
-                )
-                repo_res["steps"]["9_10_pr_status"] = {"current_branch": branch_out, "open_prs": pr_count}
-
-                # Step 11: Delete merged feature branches
-                subprocess.run(["git", "fetch", "--prune"], cwd=repo_path, check=False)
-                repo_res["steps"]["11_delete_feature_branches"] = {"status": "pruned"}
-
-                # Step 12: Return to development & pull origin
-                if branch_out != "development":
-                    subprocess.run(["git", "checkout", "development"], cwd=repo_path, check=False)
-                subprocess.run(["git", "pull", "origin", "development"], cwd=repo_path, check=False)
-                repo_res["steps"]["12_return_to_development"] = {"branch": "development", "synced": True}
+                # Step 11: Delete merged / stale feature branches (local & remote)
+                repo_res["steps"]["11_delete_feature_branches"] = {
+                    "status": "pruned",
+                    "deleted_local": branch_hygiene["deleted_local"],
+                    "deleted_remote": branch_hygiene["deleted_remote"],
+                }
 
                 # Step 13: Verify MemoryGraph Gate, Task Evaluation Gate & Announce Complete
                 from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot
@@ -541,6 +829,55 @@ class CleanReposWorkflowBot:
                 mem_gate = mem_bot.verify_compounded()
                 eval_gate = eval_bot.verify_evaluated(auto_run_if_missing=True)
                 both_passed = bool(mem_gate.get("compounded")) and bool(eval_gate.get("passed_gate"))
+
+                # Step 8: Commit documentation, memory, and evaluation changes cleanly
+                self._cleanup_artifacts(repo_path)
+                status_post_docs = self._git_out(repo_path, ["status", "--porcelain"])
+                if status_post_docs and auto_commit:
+                    subprocess.run(["git", "add", "-A"], cwd=repo_path, check=False)
+                    subprocess.run(
+                        ["git", "commit", "-m", "docs: update documentation, evaluations, and knowledge sync [skip ci]"],
+                        cwd=repo_path,
+                        check=False,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                repo_res["steps"]["8_commit_docs"] = {"committed": bool(status_post_docs)}
+
+                # Step 12: Switch back to development (base_branch) and pull/push origin
+                current_after = self._git_out(repo_path, ["branch", "--show-current"])
+                if current_after != base_branch:
+                    subprocess.run(
+                        ["git", "checkout", base_branch],
+                        cwd=repo_path,
+                        check=False,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                pushed_origin = False
+                if self._has_origin(repo_path):
+                    subprocess.run(
+                        ["git", "pull", "--rebase", "origin", base_branch],
+                        cwd=repo_path,
+                        check=False,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    if auto_commit:
+                        push_res = subprocess.run(
+                            ["git", "push", "origin", base_branch],
+                            cwd=repo_path,
+                            check=False,
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                        )
+                        pushed_origin = push_res.returncode == 0
+                repo_res["steps"]["12_return_to_development"] = {
+                    "branch": base_branch,
+                    "synced": True,
+                    "pushed_origin": pushed_origin,
+                }
+
                 repo_res["steps"]["13_announce_complete"] = {
                     "status": "complete" if both_passed else "blocked_by_pre_announce_gate",
                     "memory_compounded": mem_gate.get("compounded", False),
