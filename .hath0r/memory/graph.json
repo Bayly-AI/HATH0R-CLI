@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 204,
-  "content_hash": "sha256:d07377068b6579b6550b8d3db6da4177f4015160799cb1847d61609c442f9d70",
-  "updated_at": "2026-10-28T14:22:03.778345+00:00",
+  "revision": 222,
+  "content_hash": "sha256:feb14ed671b5134df5bba17e62f329a4f2dd9ca76690f5775bd58a58fb18a2dd",
+  "updated_at": "2026-10-28T14:38:24.534591+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -745,7 +745,7 @@
       "updated_at": "2026-10-28T13:23:14.632392+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:83e9a42baea1804e75c2c072ee7df87bccae5f46ed4e395a636122299dd6c5ed"
+          ".hath0r/evals/latest.json": "sha256:6e4108544354eca7fb19b43e436b514d8d680b1bd7c1684069893b8185f00dd4"
         }
       }
     },
@@ -769,7 +769,7 @@
       "updated_at": "2026-10-28T13:23:21.538822+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:83e9a42baea1804e75c2c072ee7df87bccae5f46ed4e395a636122299dd6c5ed"
+          ".hath0r/evals/latest.json": "sha256:6e4108544354eca7fb19b43e436b514d8d680b1bd7c1684069893b8185f00dd4"
         }
       }
     },
@@ -813,7 +813,7 @@
       "updated_at": "2026-10-28T13:31:54.915874+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:83e9a42baea1804e75c2c072ee7df87bccae5f46ed4e395a636122299dd6c5ed"
+          ".hath0r/evals/latest.json": "sha256:6e4108544354eca7fb19b43e436b514d8d680b1bd7c1684069893b8185f00dd4"
         }
       }
     },
@@ -837,7 +837,7 @@
       "updated_at": "2026-10-28T14:05:46.606003+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:83e9a42baea1804e75c2c072ee7df87bccae5f46ed4e395a636122299dd6c5ed"
+          ".hath0r/evals/latest.json": "sha256:6e4108544354eca7fb19b43e436b514d8d680b1bd7c1684069893b8185f00dd4"
         }
       }
     },
@@ -943,7 +943,7 @@
       "updated_at": "2026-10-28T14:05:49.726259+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:83e9a42baea1804e75c2c072ee7df87bccae5f46ed4e395a636122299dd6c5ed"
+          ".hath0r/evals/latest.json": "sha256:6e4108544354eca7fb19b43e436b514d8d680b1bd7c1684069893b8185f00dd4"
         }
       }
     },
@@ -987,7 +987,7 @@
       "updated_at": "2026-10-28T14:21:15.312334+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:83e9a42baea1804e75c2c072ee7df87bccae5f46ed4e395a636122299dd6c5ed"
+          ".hath0r/evals/latest.json": "sha256:6e4108544354eca7fb19b43e436b514d8d680b1bd7c1684069893b8185f00dd4"
         }
       }
     },
@@ -1011,7 +1011,75 @@
       "updated_at": "2026-10-28T14:22:02.710039+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:83e9a42baea1804e75c2c072ee7df87bccae5f46ed4e395a636122299dd6c5ed"
+          ".hath0r/evals/latest.json": "sha256:6e4108544354eca7fb19b43e436b514d8d680b1bd7c1684069893b8185f00dd4"
+        }
+      }
+    },
+    {
+      "id": "episode:pr-519",
+      "type": "episode",
+      "label": "PR #519 Merged: Enforced CR-TASK-EVAL-001 Across All ~/Development Repos",
+      "content": "Enforced CR-TASK-EVAL-001 across all 42 repositories under ~/Development via hath0r evals ensure-all, defaulted TaskAnnouncerBot.announce_complete(enforce_eval_gate=True), wired TaskEvaluatorBot into CleanReposWorkflowBot Step 13, and merged PR #519 into development.",
+      "importance": 0.8,
+      "tags": [
+        "evals",
+        "cr-task-eval-001",
+        "ensure-all",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T14:38:22.089222+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T14:38:19.794771+00:00",
+      "updated_at": "2026-10-28T14:38:22.089222+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "eval:pr-519",
+      "type": "eval",
+      "label": "Task Evaluation pr-519 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for pr-519 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "pr-519",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T14:38:21.109040+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T14:38:21.109040+00:00",
+      "updated_at": "2026-10-28T14:38:21.109040+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:6e4108544354eca7fb19b43e436b514d8d680b1bd7c1684069893b8185f00dd4"
+        }
+      }
+    },
+    {
+      "id": "eval:pr-519-merged",
+      "type": "eval",
+      "label": "Task Evaluation pr-519-merged (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for pr-519-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "pr-519-merged",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T14:38:23.473566+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T14:38:23.473566+00:00",
+      "updated_at": "2026-10-28T14:38:23.473566+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:6e4108544354eca7fb19b43e436b514d8d680b1bd7c1684069893b8185f00dd4"
         }
       }
     },
@@ -1019,7 +1087,7 @@
       "id": "session:sess-20261028-130546-18a517",
       "type": "session",
       "label": "Micro Session sess-20261028-130546-18a517",
-      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 10, Writes: 23 | Entries: Compounded eval:issue-518: Task Evaluation issue-518 (R=1.00, PASS)",
+      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 11, Writes: 29 | Entries: Compounded eval:pr-519-merged: Task Evaluation pr-519-merged (R=1.00, PASS)",
       "importance": 0.75,
       "tags": [
         "session",
@@ -1027,18 +1095,18 @@
         "completed"
       ],
       "valid_from": "2026-10-28T13:05:46.197056+00:00",
-      "valid_to": "2026-10-28T14:20:16.362560+00:00",
+      "valid_to": "2026-10-28T14:38:20.363603+00:00",
       "is_current": true,
       "created_at": "2026-10-28T13:05:46.197056+00:00",
-      "updated_at": "2026-10-28T14:22:02.747758+00:00",
+      "updated_at": "2026-10-28T14:38:23.526097+00:00",
       "metadata": {
         "session_id": "sess-20261028-130546-18a517",
         "prior_session_id": "sess-20261017-145045-ed36da",
         "parent_session_id": "sess-20261017-145045-ed36da",
-        "read_count": 10,
-        "write_count": 23,
+        "read_count": 11,
+        "write_count": 29,
         "status": "completed",
-        "byte_size": 1849
+        "byte_size": 1902
       }
     }
   ],
@@ -2047,6 +2115,94 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:22:02.750093+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:pr-519",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:38:19.794771+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:pr-519",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:38:19.794771+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:pr-519",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:38:19.843502+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-519",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:38:21.109040+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-519",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:38:21.109040+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-519",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:38:21.109040+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-519",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:38:21.139365+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-519-merged",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:38:23.473566+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-519-merged",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:38:23.473566+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-519-merged",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:38:23.473566+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-519-merged",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:38:23.528471+00:00",
       "is_current": true
     }
   ]
