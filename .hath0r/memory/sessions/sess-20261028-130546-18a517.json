@@ -5,50 +5,49 @@
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-28T13:05:46.197056+00:00",
-  "updated_at": "2026-10-28T20:46:34.347537+00:00",
-  "ended_at": "2026-10-28T20:43:50.401832+00:00",
-  "read_count": 18,
-  "write_count": 55,
-  "revision": 72,
-  "content_hash": "sha256:ba8067694148f614079eac82eb171dafab3650e053d60ef308f79b486608fc0d",
-  "base_graph_hash": "sha256:2ca85a27706b991d566800612f2ceed74e2bf60185396d3aff736b6b91df30db",
-  "last_read_at": "2026-10-28T20:46:33.047225+00:00",
-  "last_write_at": "2026-10-28T20:46:34.347537+00:00",
-  "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
-  "prior_summary": "ounded episode:clean-repo-hathor-cli; Compounded eval:clean-repo-hathor-cli: T; Completed PR #101 (feature/101-test) via",
+  "updated_at": "2026-10-28T20:55:27.658616+00:00",
+  "ended_at": "2026-10-28T20:51:41.080022+00:00",
+  "read_count": 22,
+  "write_count": 60,
+  "revision": 81,
+  "content_hash": "sha256:8a7d719d384f1f545431664cc8e277497c3c7700d7964d24cda82ce2bc04f27d",
+  "base_graph_hash": "sha256:72fa71d6f1f596c5a86850fdedd18511bd5ab48bcce6f01440d1c545d487e437",
+  "last_read_at": "2026-10-28T20:51:41.045287+00:00",
+  "last_write_at": "2026-10-28T20:55:27.658616+00:00",
+  "active_focus": "Orienting repository hcli",
+  "prior_summary": "leted AgentGraph orientation for hcl; Completed AgentGraph orientation for hcl; Completed PR #101 (feature/101-test) via",
   "recalled_nodes": [
     {
-      "id": "eval:issue-524",
-      "type": "eval",
-      "label": "Task Evaluation issue-524 (R=1.00, PASS)",
-      "snippet": "4-Tier Task Evaluation for issue-524 on branch feature/524-eval-scorecard-summary-rule: R_"
+      "id": "decision:issue-474-micro-memory-session",
+      "type": "decision",
+      "label": "True Micro Memory Session CLI & Bot Enforcement (Issue #474)",
+      "snippet": "Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task st"
     }
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-28T20:46:34.347537+00:00",
+      "timestamp": "2026-10-28T20:55:27.658616+00:00",
       "kind": "compound",
-      "summary": "Compounded episode:issue-528-rules-ensure-all: hath0r rules ensure-all canonical rule rollout (#528)",
+      "summary": "Compounded eval:issue-528: Task Evaluation issue-528 (R=1.00, PASS)",
       "tags": [
-        "rules",
-        "rollout",
-        "cr-cli-entry-001",
+        "eval",
+        "cr-task-eval-001",
         "issue-528",
-        "episode",
+        "passed",
         "compounded"
       ],
-      "node_id": "episode:issue-528-rules-ensure-all"
+      "node_id": "eval:issue-528"
     }
   ],
   "next_steps": [],
   "compounded_node_ids": [
-    "eval:issue-524",
     "eval:pr-525-scorecard-summary-rule",
     "eval:eval-baseline-hathor-cli",
     "episode:clean-repo-hathor-cli",
     "eval:clean-repo-hathor-cli",
-    "episode:issue-528-rules-ensure-all"
+    "episode:issue-528-rules-ensure-all",
+    "eval:issue-528"
   ],
   "parent_session_id": "sess-20261017-145045-ed36da",
-  "capsule_bytes": 1970
+  "capsule_bytes": 1926
 }

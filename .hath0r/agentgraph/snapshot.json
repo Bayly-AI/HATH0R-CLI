@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
   "graph_id": "agentgraph-hcli",
-  "timestamp": "2026-10-28T20:46:34.511427+00:00",
+  "timestamp": "2026-10-28T20:55:27.887338+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -5491,19 +5491,60 @@
       "is_current": true
     },
     {
+      "id": "memory:fact:repo-hcli-orientation",
+      "plane": "memory",
+      "type": "fact",
+      "label": "hcli Repository Orientation Memory",
+      "content": "hcli: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" /> </p>",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "orientation",
+          "repository",
+          "hcli",
+          "fact",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:issue-528",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation issue-528 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for issue-528 on branch feature/528-rules-ensure-all: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:74599e1992710a912f63683e7336614ef7afcfe9ec3c522e9ca6baea4a6d98c7"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "issue-528",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
       "id": "memory:session:sess-20261028-130546-18a517",
       "plane": "memory",
       "type": "session",
       "label": "Micro Session sess-20261028-130546-18a517",
-      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 18, Writes: 55 | Entries: Compounded episode:issue-528-rules-ensure-all: hath0r rules ensure-all canonical rule rollout (#528)",
+      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Orienting repository hcli | Reads: 22, Writes: 60 | Entries: Compounded eval:issue-528: Task Evaluation issue-528 (R=1.00, PASS)",
       "properties": {
         "session_id": "sess-20261028-130546-18a517",
         "prior_session_id": "sess-20261017-145045-ed36da",
         "parent_session_id": "sess-20261017-145045-ed36da",
-        "read_count": 18,
-        "write_count": 55,
+        "read_count": 22,
+        "write_count": 60,
         "status": "completed",
-        "byte_size": 1970,
+        "byte_size": 1926,
         "source": "local_memory",
         "tags": [
           "session",
@@ -5511,6 +5552,46 @@
           "completed"
         ],
         "importance": 0.75
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:orientation",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on orientation",
+      "content": "Consolidated from 2 memory nodes tagged 'orientation'. Recurring themes: hathor, logo, repository, memory. Latest context: hcli: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" /> </p>",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "orientation",
+        "source": "local_memory",
+        "tags": [
+          "orientation",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:repository",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on repository",
+      "content": "Consolidated from 2 memory nodes tagged 'repository'. Recurring themes: hathor, logo, repository, memory. Latest context: hcli: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" /> </p>",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "repository",
+        "source": "local_memory",
+        "tags": [
+          "repository",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 1.0
       },
       "is_current": true
     },
@@ -6565,6 +6646,66 @@
       "is_current": true
     },
     {
+      "source": "memory:fact:repo-hcli-orientation",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:fact:repo-hcli-orientation",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-528",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-528",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-528",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-528",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:orientation",
+      "target": "memory:fact:repo-hathor-cli-orientation",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:orientation",
+      "target": "memory:fact:repo-hcli-orientation",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:repository",
+      "target": "memory:fact:repo-hathor-cli-orientation",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:repository",
+      "target": "memory:fact:repo-hcli-orientation",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
       "source": "rule:rules",
       "target": "role:developer",
       "relation": "GOVERNS",
@@ -7057,7 +7198,31 @@
       "is_current": true
     },
     {
+      "source": "memory:fact:repo-hcli-orientation",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-528",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
       "source": "memory:session:sess-20261028-130546-18a517",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:orientation",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:repository",
       "target": "role:developer",
       "relation": "INFORMS",
       "is_current": true
