@@ -6,6 +6,7 @@ Continuous Development (CD) across member repositories and the control tower.
 
 from __future__ import annotations
 
+import calendar
 import logging
 import os
 import re
@@ -141,7 +142,7 @@ class CICCCDManagingBot:
         train_age_hours = 0.0
         if last_train_ts:
             try:
-                lt = time.mktime(time.strptime(last_train_ts, "%Y-%m-%dT%H:%M:%SZ"))
+                lt = calendar.timegm(time.strptime(last_train_ts, "%Y-%m-%dT%H:%M:%SZ"))
                 train_age_hours = (time.time() - lt) / 3600.0
             except Exception:
                 pass

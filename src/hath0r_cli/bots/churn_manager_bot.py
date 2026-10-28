@@ -42,7 +42,7 @@ class ChurnManagerBot:
             try:
                 with open(mcp_cfg_path, "r", encoding="utf-8") as f:
                     cfg_data = json.load(f)
-                    mcp_registered = any(
+                    mcp_registered = "pmat-mcp" in (cfg_data.get("mcpServers") or {}) or any(
                         s.get("id") == "pmat-mcp" for s in cfg_data.get("servers", [])
                     )
             except Exception:
