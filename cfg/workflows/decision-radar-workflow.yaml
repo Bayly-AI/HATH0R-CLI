@@ -1,6 +1,6 @@
 schema_version: "hath0r.decision.workflow/1"
 workflow_id: "decision-radar-canonical-orchestration"
-description: "Minority Report Agent Decision Control Layer, Unblocking Reranker & Fact Settlement Pipeline"
+description: "Cruise Control Agent Decision Control Layer, Unblocking Reranker & Fact Settlement Pipeline"
 stages:
   - id: input_boundary_gate
     bot: "DecisionRadarBot"

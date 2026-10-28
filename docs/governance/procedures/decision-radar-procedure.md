@@ -1,13 +1,13 @@
-# Procedure: Integrating & Operating the Hath0r Decision Radar
+# Procedure: Integrating & Operating Hath0r Cruise Control
 
 > Canonical Procedure · ID: `PROC-DECISION-RADAR-001`  
-> Epic: #499 · Tasks: #500–#506
+> Epic: #499 / #508 · Tasks: #500–#506
 
 ---
 
 ## 1. Purpose
 
-Defines the step-by-step procedure for autonomous agents and human operators to queue decisions, bind declarative wait facts, enforce input/output work boundaries, and resolve items via the Minority Report Decision Radar.
+Defines the step-by-step procedure for autonomous agents and human operators to queue decisions, bind declarative wait facts, enforce input/output work boundaries, and resolve items via the Cruise Control Decision Radar.
 
 ---
 
@@ -37,14 +37,14 @@ hath0r decision wait \
   --timeout 5.0
 ```
 
-### Step 4: Operator Inspects & Resolves via Radar UI or CLI
-1. Launch the Minority Report Radial Web Radar:
+### Step 4: Operator Inspects & Resolves via Cruise Control Radar UI or CLI
+1. Launch the Cruise Control Radial Web Radar:
    ```bash
-   hath0r decision radar --port 8085
+   hath0r cruise radar --port 8085
    ```
    Or inspect in the terminal via Rich TUI:
    ```bash
-   hath0r decision tui
+   hath0r cruise tui
    ```
 2. Answer highest-$U(d)$ decision first:
    ```bash

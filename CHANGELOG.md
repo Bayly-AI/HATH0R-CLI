@@ -5,10 +5,16 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.1] - 2026-10-28
+
+### Changed
+- **Hath0r Cruise Control (`hath0r cruise` / `hath0r cruise-control` / `hath0r decision`)**: Renamed the Agent Decision Control Layer & Unblocking Engine from "Minority Report" to **Cruise Control** across CLI commands, Web/TUI radar headers, contracts schema, and Governance Documentation Hexad (#508).
+- Added `CruiseControlBot` (`src/hath0r_cli/bots/decision_radar_bot.py`) and `HathorCruiseControlServer` (`src/hath0r_cli/server/decision_radar_server.py`) SDK exports alongside `hath0r cruise` and `hath0r cruise-control` CLI aliases.
+
 ## [1.8.0] - 2026-10-28
 
 ### Added
-- **Hath0r Decision Radar (`hath0r decision` / `hath0r radar`)**: Minority Report Agent Decision Control Layer & Unblocking Engine (#499, #500, #501, #502, #503, #504, #505, #506):
+- **Hath0r Cruise Control / Decision Radar (`hath0r decision` / `hath0r radar`)**: Agent Decision Control Layer & Unblocking Engine (#499, #500, #501, #502, #503, #504, #505, #506):
   - `DecisionGraph` DAG dependency modeling and Transitive Unblocking Impact Score $U(d)$ reranker (`src/hath0r_cli/bots/decision_radar_bot.py`).
   - `FactSettlementEngine` replacing timer-based snoozing with declarative fact predicates (`git.pr.merged`, `ci.workflow.passed`, `agent.task.completed`, `file.exists`, `memory.fact.asserted`, `endpoint.health.ok`) and automatic event settlement (`STATUS=SETTLED_BY_EVENT`).
   - `WorkBoundaryGate` bidirectional Input ("what goes in") and Output ("what comes out") approval gates with HMAC-SHA256 signatures and audit ledger.

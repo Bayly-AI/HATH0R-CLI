@@ -7,13 +7,13 @@
 
 ## 1. Role & Identity
 
-- **Bot Name**: `decision-radar-bot`
-- **Class Name**: `DecisionRadarBot`
+- **Bot Name**: `decision-radar-bot` (`cruise-control-bot`)
+- **Class Name**: `DecisionRadarBot` (`CruiseControlBot`)
 - **Companion Engines**: `DecisionGraph`, `FactSettlementEngine`, `WorkBoundaryGate`
 - **Subsystem**: `HATH0R-CLI` (`src/hath0r_cli/bots/decision_radar_bot.py`)
-- **CLI Command**: `hath0r decision` / `hath0r radar`
+- **CLI Command**: `hath0r cruise` / `hath0r cruise-control` / `hath0r decision` / `hath0r radar`
 - **Contract Schema**: `contracts/hath0r-decision-spec-v1.schema.json`
-- **Primary Function**: Cybernetic control layer between 10–30 concurrent AI coding agents and the human operator. Models work dependencies as a DAG, ranks decisions by transitive downstream work unblocked $U(d)$, replaces timer snoozing with event-driven fact settlement, enforces HMAC-signed input/output work boundary gates, and drives the Minority Report Radial Sunburst UI.
+- **Primary Function**: Cybernetic Cruise Control layer between 10–30 concurrent AI coding agents and the human operator. Models work dependencies as a DAG, ranks decisions by transitive downstream work unblocked $U(d)$, replaces timer snoozing with event-driven fact settlement, enforces HMAC-signed input/output work boundary gates, and drives the Cruise Control Radial Sunburst UI.
 
 ---
 

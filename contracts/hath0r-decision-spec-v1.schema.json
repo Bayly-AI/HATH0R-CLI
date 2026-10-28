@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://hath0r.bayly.ai/contracts/hath0r-decision-spec-v1.schema.json",
-  "title": "Hath0r Decision Radar Envelope & Specification Schema",
-  "description": "Defines schema contract for the Minority Report Agent Decision Control Layer, including decision envelopes, 7 canonical category wedges, dependency graph edges, transitive unblock scores, fact predicates, and work boundary gates.",
+  "title": "Hath0r Cruise Control Decision Envelope & Specification Schema",
+  "description": "Defines schema contract for the Cruise Control Agent Decision Control Layer, including decision envelopes, 7 canonical category wedges, dependency graph edges, transitive unblock scores, fact predicates, and work boundary gates.",
   "type": "object",
   "required": [
     "schema_version",

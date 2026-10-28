@@ -1,10 +1,10 @@
-"""HATH0R CLI 'decision' command group — Minority Report Agent Decision Control Layer.
+"""HATH0R CLI 'decision' / 'cruise' command group — Cruise Control Agent Decision Control Layer.
 
-Implements Task 5 (#504):
-- hath0r decision ask / wait / list / answer / reject
-- hath0r decision snooze / assert-fact / settle
-- hath0r decision approve-in / approve-out / dep
-- hath0r decision radar / tui
+Implements Task 5 (#504) & #508:
+- hath0r cruise / hath0r decision ask / wait / list / answer / reject
+- hath0r cruise / hath0r decision snooze / assert-fact / settle
+- hath0r cruise / hath0r decision approve-in / approve-out / dep
+- hath0r cruise / hath0r decision radar / tui
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ def _split_csv(raw: Optional[str]) -> List[str]:
 
 @click.group("decision")
 def decision_cmd() -> None:
-    """Minority Report Agent Decision Control Layer & Unblocking Engine."""
+    """Cruise Control Agent Decision Control Layer & Unblocking Engine."""
 
 
 @decision_cmd.command("ask")
@@ -431,10 +431,10 @@ def decision_dep(
 
 @decision_cmd.command("tui")
 @click.option("--operator", default="Mark", show_default=True, help="Operator display name.")
-@click.option("--seed-demo", is_flag=True, default=False, help="Seed canonical Minority Report reference topology.")
+@click.option("--seed-demo", is_flag=True, default=False, help="Seed canonical Cruise Control reference topology.")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit radar snapshot as JSON.")
 def decision_tui(operator: str, seed_demo: bool, as_json: bool) -> None:
-    """Render the Minority Report Decision Radar in Rich Terminal TUI format."""
+    """Render the Cruise Control Decision Radar in Rich Terminal TUI format."""
     bot = DecisionRadarBot(cwd=Path.cwd())
     snapshot = bot.seed_demo_radar() if seed_demo else bot.get_radar_snapshot(operator_name=operator)
     if as_json:
@@ -447,7 +447,7 @@ def decision_tui(operator: str, seed_demo: bool, as_json: bool) -> None:
 @click.option("--host", "-h", default="127.0.0.1", show_default=True, help="Host interface to bind HTTP server.")
 @click.option("--port", "-p", default=8085, type=int, show_default=True, help="Port to bind HTTP server.")
 @click.option("--operator", default="Mark", show_default=True, help="Operator identity in center hub.")
-@click.option("--seed-demo", is_flag=True, default=False, help="Seed canonical Minority Report reference topology.")
+@click.option("--seed-demo", is_flag=True, default=False, help="Seed canonical Cruise Control reference topology.")
 @click.option("--daemon", "-d", is_flag=True, default=False, help="Run server in background daemon thread.")
 @click.option("--no-serve", is_flag=True, default=False, help="Compute radar snapshot without blocking on HTTP server.")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit radar snapshot as JSON.")
@@ -460,7 +460,7 @@ def decision_radar(
     no_serve: bool,
     as_json: bool,
 ) -> None:
-    """Launch the interactive Minority Report Radial Sunburst Web Radar & SSE Server."""
+    """Launch the interactive Cruise Control Radial Sunburst Web Radar & SSE Server."""
     bot = DecisionRadarBot(cwd=Path.cwd())
     snapshot = bot.seed_demo_radar() if seed_demo else bot.get_radar_snapshot(operator_name=operator)
 
@@ -474,9 +474,9 @@ def decision_radar(
     server = HathorDecisionRadarServer(host=host, port=port, cwd=Path.cwd(), operator_name=operator)
     bound_port = server.start(daemon=True)
     console.print(
-        f"[bold green]Starting HATH0R Decision Radar[/bold green] at [cyan]http://{host}:{bound_port}/radar[/cyan]"
+        f"[bold green]Starting HATH0R Cruise Control[/bold green] at [cyan]http://{host}:{bound_port}/radar[/cyan]"
     )
-    console.print("[dim]Serving Minority Report Radial Sunburst UX, Unblock Reranker, and SSE stream.[/dim]")
+    console.print("[dim]Serving Cruise Control Radial Sunburst UX, Unblock Reranker, and SSE stream.[/dim]")
 
     if daemon:
         console.print("[green]Decision Radar server running in background daemon thread.[/green]")

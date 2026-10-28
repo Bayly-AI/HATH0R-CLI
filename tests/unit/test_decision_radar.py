@@ -14,12 +14,17 @@ from click.testing import CliRunner
 from hath0r_cli.bots.decision_radar_bot import (
     CANONICAL_CATEGORIES,
     CASConflictError,
+    CruiseControlBot,
     DecisionGraph,
     DecisionRadarBot,
 )
 from hath0r_cli.bots.memory_manager import MemoryManagerBot
 from hath0r_cli.commands.decision import decision_cmd
-from hath0r_cli.server.decision_radar_server import HathorDecisionRadarServer, render_radar_tui
+from hath0r_cli.server.decision_radar_server import (
+    HathorCruiseControlServer,
+    HathorDecisionRadarServer,
+    render_radar_tui,
+)
 
 
 def test_decision_contract_schema_validation(tmp_path: Path) -> None:
@@ -202,8 +207,10 @@ def test_bidirectional_work_boundary_gates_and_hmac(tmp_path: Path) -> None:
 
 
 def test_radar_snapshot_and_tui_rendering(tmp_path: Path) -> None:
-    """Task 6 (#505): Verify polar radial sunburst geometry, 7 canonical wedges, and Rich TUI output."""
-    bot = DecisionRadarBot(cwd=tmp_path)
+    """Task 6 (#505) & #508: Verify Cruise Control polar radial sunburst geometry, 7 canonical wedges, and Rich TUI."""
+    assert CruiseControlBot is DecisionRadarBot
+    assert HathorCruiseControlServer is HathorDecisionRadarServer
+    bot = CruiseControlBot(cwd=tmp_path)
     snap = bot.seed_demo_radar()
     assert snap["operator"]["name"] == "Mark"
     assert snap["operator"]["open_count"] == 16
@@ -216,14 +223,14 @@ def test_radar_snapshot_and_tui_rendering(tmp_path: Path) -> None:
             assert 200.0 <= node["polar"]["radius"] <= 400.0
 
     tui_text = render_radar_tui(snap)
-    assert "HATH0R DECISION RADAR" in tui_text
+    assert "HATH0R CRUISE CONTROL" in tui_text
     assert "Only you can do this" in tui_text
     assert "@a11062" in tui_text
 
 
 def test_decision_radar_http_and_sse_server(tmp_path: Path) -> None:
-    """Task 6 (#505): Verify embedded HTTP server endpoints and SSE stream."""
-    server = HathorDecisionRadarServer(host="127.0.0.1", port=0, cwd=tmp_path, operator_name="Mark")
+    """Task 6 (#505) & #508: Verify embedded Cruise Control HTTP server endpoints and SSE stream."""
+    server = HathorCruiseControlServer(host="127.0.0.1", port=0, cwd=tmp_path, operator_name="Mark")
     port = server.start(daemon=True)
     base_url = f"http://127.0.0.1:{port}"
 
@@ -232,7 +239,7 @@ def test_decision_radar_http_and_sse_server(tmp_path: Path) -> None:
         with urllib.request.urlopen(f"{base_url}/radar", timeout=3) as resp:
             html = resp.read().decode("utf-8")
             assert resp.status == 200
-            assert "HATH0R DECISION RADAR" in html
+            assert "HATH0R CRUISE CONTROL" in html
 
         # 2. POST /api/decisions/request
         req_data = json.dumps(
@@ -385,7 +392,7 @@ def test_cli_decision_commands(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
     # 8. tui & radar --no-serve
     res_tui = runner.invoke(decision_cmd, ["tui", "--seed-demo"])
     assert res_tui.exit_code == 0
-    assert "HATH0R DECISION RADAR" in res_tui.output
+    assert "HATH0R CRUISE CONTROL" in res_tui.output
 
     res_radar = runner.invoke(decision_cmd, ["radar", "--no-serve", "--json"])
     assert res_radar.exit_code == 0

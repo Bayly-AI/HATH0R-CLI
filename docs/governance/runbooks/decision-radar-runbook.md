@@ -1,18 +1,18 @@
-# Runbook: Hath0r Decision Radar Operations
+# Runbook: Hath0r Cruise Control Operations
 
 > Canonical Runbook · ID: `RUNBOOK-DECISION-RADAR-001`  
-> Epic: #499 · Tasks: #500–#506
+> Epic: #499 / #508 · Tasks: #500–#506
 
 ---
 
 ## 1. Quick Command Reference
 
 ```bash
-# Launch Minority Report Web Radar UI (http://127.0.0.1:8085/radar)
-hath0r decision radar --port 8085
+# Launch Cruise Control Web Radar UI (http://127.0.0.1:8085/radar)
+hath0r cruise radar --port 8085
 
-# Seed the canonical 16-node Minority Report reference topology and render TUI
-hath0r decision tui --seed-demo
+# Seed the canonical 16-node Cruise Control reference topology and render TUI
+hath0r cruise tui --seed-demo
 
 # Queue a new decision from an agent
 hath0r decision ask \
@@ -51,7 +51,7 @@ hath0r decision settle
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/radar` | Minority Report Radial Sunburst HTML/SVG/Tailwind UI |
+| `GET` | `/radar` | Cruise Control Radial Sunburst HTML/SVG/Tailwind UI |
 | `GET` | `/api/decisions` | Full radar polar snapshot JSON |
 | `GET` | `/api/decisions/stream` | Server-Sent Events (SSE) real-time radar stream |
 | `POST` | `/api/decisions/request` | Enqueue a new agent decision |
