@@ -52,7 +52,9 @@ class RepoLayoutBot:
         """Create canonical directories: .hath0r/, cfg/, contracts/, docs/, tests/, .github/workflows/."""
         dirs_to_create = [
             self.cwd / ".hath0r" / "cfg",
-            self.cwd / ".hath0r" / "memory",
+            self.cwd / ".hath0r" / "memory" / "sessions",
+            self.cwd / ".hath0r" / "agentgraph",
+            self.cwd / ".hath0r" / "graphs",
             self.cwd / ".hath0r" / "state" / "cache",
             self.cwd / ".hath0r" / "state" / "context",
             self.cwd / "cfg",
@@ -82,6 +84,26 @@ class RepoLayoutBot:
             "dry_run": dry_run,
             "directories_created": created_dirs,
             "message": f"Scaffolded {len(created_dirs)} canonical directories.",
+        }
+
+    def verify_graph_folders(self, dry_run: bool = False) -> Dict[str, Any]:
+        """Ensure and verify no canonical graph folder is git-ignored (CR-MEMORY-COMPOUND-001)."""
+        from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+        mem_bot = MemoryManagerBot(cwd=self.cwd)
+        ensure_res = mem_bot.ensure_gitignore_unignores_graphs(dry_run=dry_run)
+        verify_res = mem_bot.verify_graphs_not_gitignored()
+        ok = bool(verify_res.get("graphs_not_ignored", False))
+        return {
+            "success": ok,
+            "dry_run": dry_run,
+            "gitignore": ensure_res,
+            "graphs_not_ignored": ok,
+            "ignored_paths": verify_res.get("ignored_paths", []),
+            "forbidden_rules": verify_res.get("forbidden_rules", []),
+            "message": "Graph folders are tracked by git."
+            if ok
+            else f"Graph folders are git-ignored: {', '.join(verify_res.get('ignored_paths', []))}",
         }
 
     def sync_ci_workflows(self, dry_run: bool = False) -> Dict[str, Any]:

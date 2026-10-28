@@ -470,3 +470,40 @@ def test_memory_cli_hash_and_update_cas_flags(tmp_path: Path) -> None:
         assert not Path(".hath0r/memory/notes.md").exists()
         res_new = runner.invoke(main, ["memory", "update", "notes", "# Notes\n", "--expected-hash", "absent"])
         assert res_new.exit_code == 0
+
+
+def test_gitignore_negations_relocated_after_later_ignore_rule(tmp_path: Path) -> None:
+    import subprocess
+
+    subprocess.run(["git", "init", str(tmp_path)], check=True, capture_output=True)
+    bot = MemoryManagerBot(cwd=tmp_path)
+    bot.ensure_gitignore_unignores_graphs()
+    gitignore = tmp_path / ".gitignore"
+    gitignore.write_text(gitignore.read_text(encoding="utf-8") + "*.json\n\n", encoding="utf-8")
+    assert bot.verify_graphs_not_gitignored()["graphs_not_ignored"] is False
+
+    res = bot.ensure_gitignore_unignores_graphs()
+    assert res["relocated_negations"] is True
+    lines = [ln.strip() for ln in gitignore.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    assert lines.index("*.json") < lines.index("!.hath0r/memory/**")
+    assert bot.verify_graphs_not_gitignored()["graphs_not_ignored"] is True
+
+    again = bot.ensure_gitignore_unignores_graphs()
+    assert again["updated"] is False
+    assert again["relocated_negations"] is False
+
+
+def test_ensure_all_repos_reports_graphs_not_ignored(tmp_path: Path) -> None:
+    import subprocess
+
+    for name in ("repo-alpha", "repo-beta"):
+        repo = tmp_path / name
+        repo.mkdir()
+        subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
+        (repo / ".gitignore").write_text(".hath0r/\n.hath0r/agentgraph/\n", encoding="utf-8")
+
+    res = MemoryManagerBot(cwd=tmp_path).ensure_all_repos(root_dir=tmp_path, sync_agentgraph=False)
+    assert res["repos_count"] == 2
+    assert res["graphs_not_ignored"] is True
+    assert res["ignored_repos"] == []
+    assert all(r["graphs_not_ignored"] for r in res["repos"])
