@@ -156,10 +156,10 @@ def test_cli_evals_commands(tmp_path: Path, monkeypatch) -> None:
     assert r_verify.exit_code == 0
     assert "CR-TASK-EVAL-001 Verified" in r_verify.output
 
-    # Report in text mode over parent directory
-    r_report = runner.invoke(cli, ["--output", "text", "evals", "report", "--root", str(tmp_path.parent)])
+    # Report in text mode over tmp_path
+    r_report = runner.invoke(cli, ["--output", "text", "evals", "report", "--root", str(tmp_path)])
     assert r_report.exit_code == 0
-    assert tmp_path.name in r_report.output
+    assert "Evaluated Repos: 1/1" in r_report.output
 
     # Consensus and Redteam in text mode
     r_cons = runner.invoke(cli, ["--output", "text", "evals", "consensus", "--threshold", "0.70"])
