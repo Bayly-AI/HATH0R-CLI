@@ -5,6 +5,13 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.1] - 2026-10-28
+
+### Added
+- **Workspace-Wide `CR-TASK-EVAL-001` Pre-Announcement Enforcement (`hath0r evals ensure-all`)**:
+  - Defaulted `TaskAnnouncerBot.announce_complete(enforce_eval_gate=True)` and integrated `TaskEvaluatorBot` verification into `CleanReposWorkflowBot` Step 13 (`13_announce_complete`) and `MemoryManagerBot.ensure_all_repos()` (#518).
+  - Added `TaskEvaluatorBot.ensure_repo_eval_setup()` and `TaskEvaluatorBot.ensure_all_repos()` plus CLI subcommand `hath0r evals ensure-all` to provision `cfg/evals/task-eval.json`, `.gitignore` negations (`!.hath0r/evals/**`), canonical `## CR-TASK-EVAL-001` directives in `AGENTS.md` / `WARP.md` / `.hath0r/memory/core_rules.md`, and baseline `.hath0r/evals/latest.json` scorecards across every repository under `~/Development`.
+
 ## [1.10.0] - 2026-10-28
 
 ### Added

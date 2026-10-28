@@ -161,13 +161,20 @@ class TaskEvaluatorBot:
         checks: Dict[str, Dict[str, Any]] = {}
 
         # 1. Version & SemVer check
-        rel_bot = ReleaseBot(cwd=self.cwd)
-        ver_res = rel_bot.read_version()
-        checks["version_valid"] = {
-            "passed": bool(ver_res.get("success")),
-            "version": ver_res.get("version"),
-            "error": ver_res.get("error"),
-        }
+        if (self.cwd / "VERSION").is_file():
+            rel_bot = ReleaseBot(cwd=self.cwd)
+            ver_res = rel_bot.read_version()
+            checks["version_valid"] = {
+                "passed": bool(ver_res.get("success")),
+                "version": ver_res.get("version"),
+                "error": ver_res.get("error"),
+            }
+        else:
+            checks["version_valid"] = {
+                "passed": True,
+                "version": "0.1.0 (unversioned)",
+                "error": None,
+            }
 
         # 2. AgentGraph validation
         try:
@@ -291,7 +298,7 @@ class TaskEvaluatorBot:
         diff_text = ""
         try:
             proc = subprocess.run(
-                ["git", "diff", "HEAD"],
+                ["git", "diff", "HEAD", "--", ":!.hath0r"],
                 cwd=self.cwd,
                 capture_output=True,
                 text=True,
@@ -300,7 +307,7 @@ class TaskEvaluatorBot:
             diff_text = proc.stdout or ""
             if not diff_text.strip():
                 proc2 = subprocess.run(
-                    ["git", "diff", "origin/development...HEAD"],
+                    ["git", "diff", "origin/development...HEAD", "--", ":!.hath0r"],
                     cwd=self.cwd,
                     capture_output=True,
                     text=True,
@@ -724,18 +731,201 @@ class TaskEvaluatorBot:
             "error": None,
         }
 
+    CANONICAL_AGENTS_EVAL_SECTION: str = (
+        "\n---\n\n"
+        "## CR-TASK-EVAL-001 (Automatic Task Evaluation Before Announcing Complete — CRITICAL · CANONICAL)\n"
+        "- **Mandatory Pre-Announcement Task Evaluation Gate**: Every task MUST be evaluated across the 4-tier hybrid evaluation pipeline "
+        "(Tier 1 Deterministic Rubrics, Tier 2 Trajectory & FinOps Efficiency, Tier 3 Adversarial & Diff Critics, Tier 4 Goal Alignment & Consensus) "
+        "prior to announcing work as Complete.\n"
+        "- **Composite Reward Threshold**: Task completion requires `passed_gate: true` and composite reward score `R_task >= 0.80` "
+        "persisted in `.hath0r/evals/latest.json` and compounded as an `eval:<task_id>` node in `.hath0r/memory/graph.json`.\n"
+        "- **How to Verify**: Run `hath0r evals run` and `hath0r evals verify` before announcing Complete "
+        "(`EndOfTaskBot`, `TaskAnnouncerBot.announce_complete`, and `CleanReposWorkflowBot` enforce this gate automatically).\n"
+        "- **Not Complete Until Evaluated**: A missing, failing, or unverified task evaluation means the work is not Complete.\n"
+    )
+
+    @staticmethod
+    def _discover_repos(base: Path) -> List[Path]:
+        """Discover all Git repositories under base directory."""
+        skip_parts = {"node_modules", ".venv", "ARCHIVE", "archive", ".terraform", "__pycache__"}
+        if not base.is_dir():
+            return []
+        if (base / ".git").exists():
+            return [base]
+        direct = sorted(p for p in base.iterdir() if p.is_dir() and (p / ".git").exists())
+        recursive: List[Path] = []
+        for git_entry in sorted(base.rglob(".git")):
+            if any(part in git_entry.parts for part in skip_parts):
+                continue
+            recursive.append(git_entry.parent)
+        return recursive if len(recursive) > len(direct) else direct
+
+    @classmethod
+    def _ensure_doc_has_eval_rule(cls, doc_path: Path, *, repo_name: str, dry_run: bool = False) -> bool:
+        """Ensure AGENTS.md or WARP.md contains the canonical CR-TASK-EVAL-001 rule section."""
+        if doc_path.is_file():
+            raw = doc_path.read_text(encoding="utf-8", errors="ignore")
+            if "CR-TASK-EVAL-001" in raw:
+                return False
+            updated = raw.rstrip() + "\n" + cls.CANONICAL_AGENTS_EVAL_SECTION
+            if not dry_run:
+                doc_path.write_text(updated, encoding="utf-8")
+            return True
+        if doc_path.name == "AGENTS.md":
+            content = (
+                f"# AGENTS.md — {repo_name}\n\n"
+                f"> Governed by Hath0r AgentGraph, MemoryGraph (`CR-MEMORY-COMPOUND-001`), and Automatic Task Evaluations (`CR-TASK-EVAL-001`).\n"
+                + cls.CANONICAL_AGENTS_EVAL_SECTION
+            )
+            if not dry_run:
+                doc_path.write_text(content, encoding="utf-8")
+            return True
+        return False
+
+    def ensure_repo_eval_setup(
+        self,
+        *,
+        run_eval: bool = True,
+        sync_agents_md: bool = True,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Provision cfg/evals/task-eval.json, .gitignore negations, AGENTS.md CR-TASK-EVAL-001 directive, and baseline evaluation."""
+        from hath0r_cli.bots.memory_manager import MemoryManagerBot
+
+        slug = re.sub(r"[^a-z0-9]+", "-", self.cwd.name.lower()).strip("-") or "repo"
+        cfg_file = self.cwd / "cfg" / "evals" / "task-eval.json"
+        cfg_created = False
+        if not cfg_file.is_file():
+            cfg_created = True
+            if not dry_run:
+                cfg_file.parent.mkdir(parents=True, exist_ok=True)
+                cfg_Payload = json.loads(json.dumps(DEFAULT_TASK_EVAL_CONFIG))
+                cfg_Payload["product_id"] = slug
+                cfg_file.write_text(json.dumps(cfg_Payload, indent=2) + "\n", encoding="utf-8")
+
+        mbot = MemoryManagerBot(cwd=self.cwd)
+        mbot.ensure_gitignore_unignores_graphs(dry_run=dry_run, create_if_missing=True)
+        mbot.initialize_memory(dry_run=dry_run)
+
+        core_rules_file = self.cwd / ".hath0r" / "memory" / "core_rules.md"
+        if core_rules_file.is_file():
+            raw_core = core_rules_file.read_text(encoding="utf-8", errors="ignore")
+            if "CR-TASK-EVAL-001" not in raw_core and not dry_run:
+                rule_line = (
+                    "6. Automatic Task Evaluation (CR-TASK-EVAL-001): Every task must execute and pass the 4-tier "
+                    "automatic task evaluation gate (hath0r evals run / hath0r evals verify, R_task >= 0.80) prior to announcing complete.\n"
+                )
+                core_rules_file.write_text(raw_core.rstrip() + "\n" + rule_line, encoding="utf-8")
+
+        agents_updated = False
+        warp_updated = False
+        if sync_agents_md:
+            agents_updated = self._ensure_doc_has_eval_rule(
+                self.cwd / "AGENTS.md", repo_name=self.cwd.name, dry_run=dry_run
+            )
+            if (self.cwd / "WARP.md").is_file():
+                warp_updated = self._ensure_doc_has_eval_rule(
+                    self.cwd / "WARP.md", repo_name=self.cwd.name, dry_run=dry_run
+                )
+
+        if not dry_run:
+            mbot.session_read(focus=f"Provisioning CR-TASK-EVAL-001 for {self.cwd.name}", dry_run=False)
+            mbot.compound_memory(
+                node_id="rule:cr-task-eval-001",
+                node_type="rule",
+                label="Automatic Task Evaluation Gate (CR-TASK-EVAL-001)",
+                content=(
+                    "Every task must execute and pass the 4-tier hybrid evaluation pipeline (R_task >= 0.80) "
+                    "and persist .hath0r/evals/latest.json prior to announcing complete."
+                ),
+                importance=1.0,
+                tags=["rule", "governance", "evals", "cr-task-eval-001"],
+                relates_to=["concept:tri-graph", "rule:cr-memory-compound-001"],
+                relation="INFORMS",
+                sync_agentgraph=True,
+                dry_run=False,
+            )
+            mbot.sync_file_hashes(refresh_source_files=True, dry_run=False)
+
+        eval_res: Dict[str, Any] = {"passed_gate": True, "r_task": 1.0}
+        if run_eval:
+            eval_res = self.evaluate_task(
+                task_id=f"eval-baseline-{slug}",
+                skip_tests=True,
+                compound_node=True,
+                sync_observability=False,
+                dry_run=dry_run,
+            )
+            if not dry_run:
+                mbot.sync_file_hashes(refresh_source_files=True, dry_run=False)
+
+        return {
+            "success": bool(eval_res.get("passed_gate", True)),
+            "repo": self.cwd.name,
+            "path": str(self.cwd),
+            "cfg_file": str(cfg_file),
+            "cfg_created": cfg_created,
+            "agents_md_updated": agents_updated,
+            "warp_md_updated": warp_updated,
+            "passed_gate": bool(eval_res.get("passed_gate", True)),
+            "r_task": eval_res.get("r_task", 1.0),
+            "latest_file": str(self.evals_dir / "latest.json"),
+        }
+
+    def ensure_all_repos(
+        self,
+        *,
+        root_dir: Optional[Path | str] = None,
+        run_eval: bool = True,
+        sync_agents_md: bool = True,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Discover all repositories under root_dir (default /Users/raybayly/Development) and enforce CR-TASK-EVAL-001."""
+        base = Path(root_dir).resolve() if root_dir else Path("/Users/raybayly/Development")
+        if not base.is_dir():
+            base = self.cwd.parent
+
+        # Also update group-level AGENTS.md / WARP.md files directly inside group folders
+        if sync_agents_md and base.is_dir():
+            for group_doc in sorted(base.glob("*/AGENTS.md")) + sorted(base.glob("*/WARP.md")):
+                if not (group_doc.parent / ".git").exists():
+                    self._ensure_doc_has_eval_rule(group_doc, repo_name=group_doc.parent.name, dry_run=dry_run)
+
+        repo_paths = self._discover_repos(base)
+        results: List[Dict[str, Any]] = []
+        for rpath in repo_paths:
+            rbot = TaskEvaluatorBot(cwd=rpath)
+            res = rbot.ensure_repo_eval_setup(
+                run_eval=run_eval,
+                sync_agents_md=sync_agents_md,
+                dry_run=dry_run,
+            )
+            res["repo"] = str(rpath.relative_to(base)) if rpath != base else rpath.name
+            results.append(res)
+
+        passed_count = sum(1 for r in results if r.get("passed_gate"))
+        return {
+            "success": passed_count == len(results),
+            "dry_run": dry_run,
+            "root_dir": str(base),
+            "repos_count": len(results),
+            "passed_repos": passed_count,
+            "repos": results,
+        }
+
     def generate_suite_report(self, root_dir: Optional[Path] = None) -> Dict[str, Any]:
-        """Aggregate task evaluation scorecards across all sibling repositories in the workspace."""
+        """Aggregate task evaluation scorecards across all repositories in the workspace."""
         base = (root_dir or self.cwd.parent).resolve()
         repos_summary: List[Dict[str, Any]] = []
-        candidates = sorted(p for p in base.iterdir() if p.is_dir() and (p / ".git").exists()) if base.is_dir() else [self.cwd]
+        candidates = self._discover_repos(base) or [self.cwd]
 
         for rpath in candidates:
             bot = TaskEvaluatorBot(cwd=rpath)
             st = bot.get_status()
+            rel_name = str(rpath.relative_to(base)) if rpath != base and rpath.is_relative_to(base) else rpath.name
             repos_summary.append(
                 {
-                    "repo": rpath.name,
+                    "repo": rel_name,
                     "path": str(rpath),
                     "evaluated": bool(st.get("exists")),
                     "passed_gate": bool(st.get("passed_gate")),

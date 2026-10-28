@@ -817,12 +817,12 @@ class TaskAnnouncerBot:
         channel: str = "console",
         dry_run: bool = False,
         enforce_memory_gate: bool = True,
-        enforce_eval_gate: bool = False,
+        enforce_eval_gate: bool = True,
     ) -> Dict[str, Any]:
         """Broadcast completion event upon successful task lifecycle execution.
 
         Enforces CR-MEMORY-COMPOUND-001 pre-announcement MemoryGraph gate
-        and optional CR-TASK-EVAL-001 pre-announcement Task Evaluation gate.
+        and CR-TASK-EVAL-001 pre-announcement Task Evaluation gate by default.
         """
         timestamp = datetime.now(timezone.utc).isoformat()
         msg = f"Task '{task_id or 'end-of-task'}' successfully completed and verified at {timestamp}."

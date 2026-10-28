@@ -196,6 +196,66 @@ def evals_report(ctx: click.Context, root_dir: Optional[str]) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@evals_cmd.command("ensure-all")
+@click.option(
+    "--root",
+    "root_dir",
+    default=None,
+    help="Root workspace directory to scan (defaults to /Users/raybayly/Development).",
+)
+@click.option(
+    "--run-eval/--no-run-eval",
+    default=True,
+    help="Run initial 4-tier evaluation across every discovered repository.",
+)
+@click.option(
+    "--sync-agents-md/--no-sync-agents-md",
+    default=True,
+    help="Ensure AGENTS.md and WARP.md contain the canonical CR-TASK-EVAL-001 directive.",
+)
+@click.option("--dry-run", is_flag=True, default=False, help="Preview provisioning without writing files.")
+@click.pass_context
+def evals_ensure_all(
+    ctx: click.Context,
+    root_dir: Optional[str],
+    run_eval: bool,
+    sync_agents_md: bool,
+    dry_run: bool,
+) -> None:
+    """Provision CR-TASK-EVAL-001 config, AGENTS.md directives, and baseline scorecards across all repositories."""
+    bot = TaskEvaluatorBot(cwd=Path.cwd())
+    res = bot.ensure_all_repos(
+        root_dir=root_dir,
+        run_eval=run_eval,
+        sync_agents_md=sync_agents_md,
+        dry_run=dry_run,
+    )
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="evals.ensure_all", state=state, dry_run=dry_run, data=res)
+
+    def _text() -> None:
+        table = Table(title=f"CR-TASK-EVAL-001 Workspace Enforcement ({res['root_dir']})")
+        table.add_column("Repository", style="bold cyan")
+        table.add_column("Cfg", justify="center")
+        table.add_column("AGENTS.md", justify="center")
+        table.add_column("Gate", justify="center")
+        table.add_column("R_task", justify="right", style="magenta")
+        for r in res.get("repos", []):
+            cfg_str = "[green]+created[/green]" if r.get("cfg_created") else "✓"
+            ag_str = "[green]+updated[/green]" if r.get("agents_md_updated") else "✓"
+            gate_str = "[green]PASS[/green]" if r.get("passed_gate") else "[red]FAIL[/red]"
+            r_str = f"{float(r.get('r_task') or 0.0):.4f}"
+            table.add_row(str(r.get("repo")), cfg_str, ag_str, gate_str, r_str)
+        console.print(table)
+        console.print(
+            f"[bold green]✓ Enforced CR-TASK-EVAL-001 across {res['passed_repos']}/{res['repos_count']} repositories.[/bold green]"
+        )
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
 @evals_cmd.command("consensus")
 @click.option("--threshold", default=0.70, type=float, help="Agreement score threshold (0.0 - 1.0).")
 @click.pass_context

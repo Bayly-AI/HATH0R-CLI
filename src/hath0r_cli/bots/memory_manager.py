@@ -1762,6 +1762,7 @@ class MemoryManagerBot:
             "3. Bots not Daemons: Background tasks are bots/factories.\n"
             "4. Hyper-Context: Always traverse the defined context paths (playbooks, procedures).\n"
             "5. Promotion Path: local -> development -> testing -> staging -> master.\n"
+            "6. Automatic Task Evaluation (CR-TASK-EVAL-001): Every task must execute and pass the 4-tier automatic task evaluation gate (hath0r evals run / hath0r evals verify, R_task >= 0.80) prior to announcing complete.\n"
         )
 
         arch_content = (
@@ -2353,6 +2354,10 @@ class MemoryManagerBot:
                 dry_run=dry_run,
             )
             if not dry_run:
+                from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot
+
+                ebot = TaskEvaluatorBot(cwd=rpath)
+                ebot.ensure_repo_eval_setup(run_eval=True, sync_agents_md=True, dry_run=False)
                 rbot.session_read(focus=f"Repository orientation verified for {rpath.name}", dry_run=False)
                 rbot.sync_file_hashes(refresh_source_files=True, dry_run=False)
             ver = rbot.verify_compounded() if not dry_run else {

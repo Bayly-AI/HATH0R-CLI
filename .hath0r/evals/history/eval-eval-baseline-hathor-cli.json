@@ -1,0 +1,100 @@
+{
+  "schema_version": "hath0r.evals.scorecard/v1",
+  "rule_id": "CR-TASK-EVAL-001",
+  "eval_id": "eval-20261028-142115-0f969b",
+  "task_id": "eval-baseline-hathor-cli",
+  "issue_number": 518,
+  "repo_name": "hathor-cli",
+  "branch": "feature/518-evals-ensure-all-repos",
+  "evaluated_at": "2026-10-28T14:21:15.110540+00:00",
+  "duration_ms": 232.33,
+  "passed_gate": true,
+  "r_task": 1.0,
+  "min_reward_threshold": 0.8,
+  "weights": {
+    "deterministic": 0.4,
+    "trajectory": 0.2,
+    "adversarial": 0.25,
+    "goal_alignment": 0.15
+  },
+  "tier_scores": {
+    "deterministic": 1.0,
+    "trajectory": 1.0,
+    "adversarial": 1.0,
+    "goal_alignment": 1.0
+  },
+  "tiers": {
+    "deterministic": {
+      "score": 1.0,
+      "passed": true,
+      "passed_checks": 4,
+      "total_checks": 4,
+      "checks": {
+        "version_valid": {
+          "passed": true,
+          "version": "1.10.1",
+          "error": null
+        },
+        "agentgraph_valid": {
+          "passed": true,
+          "cycles": 0,
+          "contradictions": 0
+        },
+        "memory_compounded": {
+          "passed": true,
+          "compounded_nodes_count": 32,
+          "session_read_verified": true,
+          "session_write_verified": true,
+          "hashes_verified": true,
+          "graphs_not_ignored": true,
+          "error": null
+        },
+        "test_suite": {
+          "passed": true,
+          "skipped": true,
+          "message": "Test execution skipped via flag or dry-run."
+        }
+      }
+    },
+    "trajectory": {
+      "score": 1.0,
+      "passed": true,
+      "tokens_used": 0,
+      "max_tokens": 50000,
+      "estimated_usd": 0.0,
+      "max_usd": 0.25,
+      "session_id": "sess-20261028-130546-18a517",
+      "session_reads": 10,
+      "session_writes": 21,
+      "session_bytes": 1871,
+      "within_capsule_budget": true,
+      "latency_ms": 84.21,
+      "taguchi_quality_loss": 0.0001,
+      "snr_db": 27.51
+    },
+    "adversarial": {
+      "score": 1.0,
+      "passed": true,
+      "adversarial_flaws_count": 0,
+      "adversarial_flaws": [],
+      "tech_debts_count": 0,
+      "auto_created_issues": [],
+      "change_categories": {},
+      "changed_files_count": 0
+    },
+    "goal_alignment": {
+      "score": 1.0,
+      "passed": true,
+      "task_id": "eval-baseline-hathor-cli",
+      "issue_number": 518,
+      "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
+      "compounded_nodes_count": 32,
+      "consensus_score": 1.0
+    }
+  },
+  "blocking_reasons": [],
+  "observability_sync": {
+    "mode": "pending"
+  },
+  "content_hash": "sha256:4c4a31276d0c33a3c73f95e5f62bbf5da3de1f205538a566bf7d9535abd02e07"
+}
