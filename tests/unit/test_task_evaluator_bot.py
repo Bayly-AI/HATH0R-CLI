@@ -113,6 +113,9 @@ def test_step_runner_dispatches_task_evaluator_bot(tmp_path: Path) -> None:
     res_st = reg.invoke("task-evaluator-bot", "status", {}, dry_run=True)
     assert res_st.success is True
 
+    res_ens = reg.invoke("task-evaluator-bot", "ensure-all", {"root_dir": str(tmp_path)}, dry_run=True)
+    assert res_ens.success is True
+
 
 def test_cli_evals_commands(tmp_path: Path, monkeypatch) -> None:
     """Verify hath0r evals run, status, verify, report, consensus, and redteam CLI commands in JSON and text modes."""
@@ -153,10 +156,10 @@ def test_cli_evals_commands(tmp_path: Path, monkeypatch) -> None:
     assert r_verify.exit_code == 0
     assert "CR-TASK-EVAL-001 Verified" in r_verify.output
 
-    # Report in text mode over parent directory
-    r_report = runner.invoke(cli, ["--output", "text", "evals", "report", "--root", str(tmp_path.parent)])
+    # Report in text mode over tmp_path
+    r_report = runner.invoke(cli, ["--output", "text", "evals", "report", "--root", str(tmp_path)])
     assert r_report.exit_code == 0
-    assert tmp_path.name in r_report.output
+    assert "Evaluated Repos: 1/1" in r_report.output
 
     # Consensus and Redteam in text mode
     r_cons = runner.invoke(cli, ["--output", "text", "evals", "consensus", "--threshold", "0.70"])
@@ -166,6 +169,10 @@ def test_cli_evals_commands(tmp_path: Path, monkeypatch) -> None:
     r_rt = runner.invoke(cli, ["--output", "text", "evals", "redteam", "--component", "eval_engine"])
     assert r_rt.exit_code == 0
     assert "eval_engine" in r_rt.output
+
+    r_ens = runner.invoke(cli, ["--output", "text", "evals", "ensure-all", "--root", str(tmp_path)])
+    assert r_ens.exit_code == 0
+    assert "CR-TASK-EVAL-001" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
 
 
 def test_task_evaluator_bot_observability_and_missing_auto_run(tmp_path: Path, monkeypatch) -> None:

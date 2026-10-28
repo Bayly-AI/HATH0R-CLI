@@ -526,16 +526,31 @@ class CleanReposWorkflowBot:
                 subprocess.run(["git", "pull", "origin", "development"], cwd=repo_path, check=False)
                 repo_res["steps"]["12_return_to_development"] = {"branch": "development", "synced": True}
 
-                # Step 13: Verify MemoryGraph Gate & Announce Complete
+                # Step 13: Verify MemoryGraph Gate, Task Evaluation Gate & Announce Complete
+                from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot
+
+                eval_bot = TaskEvaluatorBot(cwd=repo_path)
+                eval_run = eval_bot.evaluate_task(
+                    task_id=f"clean-repo-{repo_path.name.lower().replace(' ', '-')}",
+                    skip_tests=True,
+                    compound_node=True,
+                    sync_observability=False,
+                    dry_run=False,
+                )
+                mem_bot.sync_file_hashes(refresh_source_files=True, dry_run=False)
                 mem_gate = mem_bot.verify_compounded()
+                eval_gate = eval_bot.verify_evaluated(auto_run_if_missing=True)
+                both_passed = bool(mem_gate.get("compounded")) and bool(eval_gate.get("passed_gate"))
                 repo_res["steps"]["13_announce_complete"] = {
-                    "status": "complete" if mem_gate.get("compounded") else "blocked_by_memory_gate",
+                    "status": "complete" if both_passed else "blocked_by_pre_announce_gate",
                     "memory_compounded": mem_gate.get("compounded", False),
                     "total_memory_nodes": mem_gate.get("total_nodes", 0),
                     "hashes_verified": mem_gate.get("hashes_verified", False),
-                    "error": mem_gate.get("error"),
+                    "eval_passed": eval_gate.get("passed_gate", False),
+                    "r_task": eval_gate.get("r_task", eval_run.get("r_task", 0.0)),
+                    "error": mem_gate.get("error") or eval_gate.get("error"),
                 }
-                if not mem_gate.get("compounded"):
+                if not both_passed:
                     repo_res["clean"] = False
                     all_success = False
 

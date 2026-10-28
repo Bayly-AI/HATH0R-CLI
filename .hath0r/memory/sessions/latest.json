@@ -5,49 +5,49 @@
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-28T13:05:46.197056+00:00",
-  "updated_at": "2026-10-28T14:05:49.760519+00:00",
-  "ended_at": "2026-10-28T14:05:45.693946+00:00",
-  "read_count": 8,
-  "write_count": 19,
-  "revision": 26,
-  "content_hash": "sha256:e12a41cde17fda2bb796780141914a535ef4aecfd7a954137a741fd72c49f3dc",
-  "base_graph_hash": "sha256:2020561cf726dec3a5f7b59b7e960f2e680e1ff37336a8938888da92af27800e",
-  "last_read_at": "2026-10-28T14:05:45.419920+00:00",
-  "last_write_at": "2026-10-28T14:05:49.760519+00:00",
-  "active_focus": "Orienting repository hathor-cli",
-  "prior_summary": "pleted PR #516 (feature) via EndOfTas; Compounded eval:pr-516: Task Evaluation; Compounded episode:pr-516: PR #516 Merge",
+  "updated_at": "2026-10-28T14:22:02.747758+00:00",
+  "ended_at": "2026-10-28T14:20:16.362560+00:00",
+  "read_count": 10,
+  "write_count": 23,
+  "revision": 32,
+  "content_hash": "sha256:12e33d82abd413a27799ce1d7b9ead7fc8e9de8c5c229a797cf2aae4c26ab102",
+  "base_graph_hash": "sha256:c711d336916de1d46b61f33126e6a0132f6f9db4df3c4a1c035d4fd0674f0ab4",
+  "last_read_at": "2026-10-28T14:21:14.759154+00:00",
+  "last_write_at": "2026-10-28T14:22:02.747758+00:00",
+  "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
+  "prior_summary": "leted PR #101 (feature/101-test) via; Compounded rule:cr-task-eval-001: Automa; Compounded eval:eval-baseline-hathor-cli",
   "recalled_nodes": [
     {
-      "id": "decision:issue-474-micro-memory-session",
-      "type": "decision",
-      "label": "True Micro Memory Session CLI & Bot Enforcement (Issue #474)",
-      "snippet": "Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task st"
+      "id": "insight:cr-task-eval-001",
+      "type": "insight",
+      "label": "Synthesized Insight on cr-task-eval-001",
+      "snippet": "Consolidated from 2 memory nodes tagged 'cr-task-eval-001'. Recurring themes: task, evals,"
     }
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-28T14:05:49.760519+00:00",
+      "timestamp": "2026-10-28T14:22:02.747758+00:00",
       "kind": "compound",
-      "summary": "Compounded eval:pr-516-merged: Task Evaluation pr-516-merged (R=1.00, PASS)",
+      "summary": "Compounded eval:issue-518: Task Evaluation issue-518 (R=1.00, PASS)",
       "tags": [
         "eval",
         "cr-task-eval-001",
-        "pr-516-merged",
+        "issue-518",
         "passed",
         "compounded"
       ],
-      "node_id": "eval:pr-516-merged"
+      "node_id": "eval:issue-518"
     }
   ],
   "next_steps": [],
   "compounded_node_ids": [
-    "eval:pr-104",
-    "episode:issue-510-task-evals",
-    "eval:issue-510",
     "eval:pr-516",
     "episode:pr-516",
-    "eval:pr-516-merged"
+    "eval:pr-516-merged",
+    "rule:cr-task-eval-001",
+    "eval:eval-baseline-hathor-cli",
+    "eval:issue-518"
   ],
   "parent_session_id": "sess-20261017-145045-ed36da",
-  "capsule_bytes": 1877
+  "capsule_bytes": 1849
 }
