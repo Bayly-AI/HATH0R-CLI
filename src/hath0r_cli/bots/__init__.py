@@ -1294,6 +1294,13 @@ from hath0r_cli.bots.churn_manager_bot import (  # noqa: E402
     churn_manager_bot,
     hotspot_refactor_bot,
 )
+from hath0r_cli.bots.decision_radar_bot import (  # noqa: E402
+    CANONICAL_CATEGORIES,
+    DecisionGraph,
+    DecisionRadarBot,
+    FactSettlementEngine,
+    WorkBoundaryGate,
+)
 from hath0r_cli.bots.mesh_manager_bot import MeshManagerBot, mesh_manager_bot  # noqa: E402
 from hath0r_cli.bots.paper_design_bot import PaperDesignBot  # noqa: E402
 from hath0r_cli.bots.pmat_bot import PmatBot, pmat_bot  # noqa: E402
@@ -1303,6 +1310,11 @@ from hath0r_cli.bots.temporal_logic_planner_bot import TemporalLogicPlannerBot, 
 from hath0r_cli.bots.thread_parallelism_bot import ThreadLevelParallelismBot, thread_parallelism  # noqa: E402
 
 __all__ = [
+    "CANONICAL_CATEGORIES",
+    "DecisionGraph",
+    "DecisionRadarBot",
+    "FactSettlementEngine",
+    "WorkBoundaryGate",
     "TaskLevelPlannerBot",
     "task_level_planner",
     "ThreadLevelParallelismBot",

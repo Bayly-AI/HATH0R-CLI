@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 103,
-  "content_hash": "sha256:63a1a8a768c539718c92b44106dc3d3041482c245a3f2050592a144ec44c98b0",
-  "updated_at": "2026-10-28T11:42:03.840256+00:00",
+  "revision": 110,
+  "content_hash": "sha256:79484a4a7fbc7503c07650485bb18725ee99e2f42b5fbfdad9e80b7e5b21971d",
+  "updated_at": "2026-10-28T12:30:01.499751+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -360,7 +360,7 @@
         "source_files": {
           "src/hath0r_cli/bots/memory_manager.py": "sha256:d0ff7764471cbb6de99bb8c8c28d81ebca05d9d4469e8bc738d08ab3d5b043ce",
           "src/hath0r_cli/bots/onboarding.py": "sha256:4bfa19af27df97c258b0a8339630d9318576196656d2be6709e32b0e13cf894e",
-          ".gitignore": "sha256:1081973c974de85646cafeee9c4eaa45a789a8c481dd528a60e8cc4c68a2fa2b"
+          ".gitignore": "sha256:7fd3a19f2851ff32c084b72589105ef4da4912838923efde5ebc34f50c6ce233"
         }
       }
     },
@@ -562,10 +562,36 @@
       "metadata": {}
     },
     {
+      "id": "episode:decision-radar-v1-8-0-implementation",
+      "type": "episode",
+      "label": "Hath0r Decision Radar v1.8.0 Implementation (#499-#506)",
+      "content": "Implemented DecisionRadarBot, DecisionGraph, FactSettlementEngine, WorkBoundaryGate, HathorDecisionRadarServer, hath0r decision CLI group, contracts/hath0r-decision-spec-v1.schema.json, Governance Hexad documentation, and tests/unit/test_decision_radar.py with 92% coverage.",
+      "importance": 0.95,
+      "tags": [
+        "decision-radar",
+        "minority-report",
+        "v1.8.0",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T12:29:58.673969+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T12:29:58.673969+00:00",
+      "updated_at": "2026-10-28T12:29:58.673969+00:00",
+      "metadata": {
+        "source_files": {
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:405548c94fb469a4617a192541c54b3aec1fff1488bbfbfb611c029872ee3c93",
+          "src/hath0r_cli/commands/decision.py": "sha256:8f3747df245bcde1195a73bf58386a4c55d1fe9793c3434a2d4e744b99b7731a",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:8d897058c54c54dac67e358f056bdfcc0d314848f44c0cacf3b9fbeba8811300"
+        }
+      }
+    },
+    {
       "id": "session:sess-20261017-145045-ed36da",
       "type": "session",
       "label": "Micro Session sess-20261017-145045-ed36da",
-      "content": "Micro Session sess-20261017-145045-ed36da [completed] | Focus: Orienting repository hathor-cli | Reads: 12, Writes: 17 | Entries: Compounded episode:decision-radar-architecture-plan: Hath0r Decision Radar Architecture Plan and GitHub Issues",
+      "content": "Micro Session sess-20261017-145045-ed36da [completed] | Focus: Orienting repository hathor-cli | Reads: 13, Writes: 19 | Entries: Compounded episode:decision-radar-v1-8-0-implementation: Hath0r Decision Radar v1.8.0 Implementation (#499-#506)",
       "importance": 0.75,
       "tags": [
         "session",
@@ -576,15 +602,57 @@
       "valid_to": "2026-10-28T09:33:49.371663+00:00",
       "is_current": true,
       "created_at": "2026-10-17T14:50:45.402982+00:00",
-      "updated_at": "2026-10-28T11:41:59.303869+00:00",
+      "updated_at": "2026-10-28T12:29:58.701275+00:00",
       "metadata": {
         "session_id": "sess-20261017-145045-ed36da",
         "prior_session_id": "sess-20261016-151409-a068f7",
         "parent_session_id": "sess-20261016-151409-a068f7",
-        "read_count": 12,
-        "write_count": 17,
+        "read_count": 13,
+        "write_count": 19,
         "status": "completed",
-        "byte_size": 1929
+        "byte_size": 1916
+      }
+    },
+    {
+      "id": "insight:decision-radar",
+      "type": "insight",
+      "label": "Synthesized Insight on decision-radar",
+      "content": "Consolidated from 2 memory nodes tagged 'decision-radar'. Recurring themes: decision, radar, plan, github. Latest context: Implemented DecisionRadarBot, DecisionGraph, FactSettlementEngine, WorkBoundaryGate, HathorDecisionRadarServer, hath0r decision CLI group, contracts/hath0r-deci",
+      "importance": 1.0,
+      "tags": [
+        "decision-radar",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T12:29:58.716261+00:00",
+      "is_current": true,
+      "created_at": "2026-10-28T12:29:58.716261+00:00",
+      "updated_at": "2026-10-28T12:29:58.716261+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "decision-radar"
+      }
+    },
+    {
+      "id": "insight:minority-report",
+      "type": "insight",
+      "label": "Synthesized Insight on minority-report",
+      "content": "Consolidated from 2 memory nodes tagged 'minority-report'. Recurring themes: decision, radar, plan, github. Latest context: Implemented DecisionRadarBot, DecisionGraph, FactSettlementEngine, WorkBoundaryGate, HathorDecisionRadarServer, hath0r decision CLI group, contracts/hath0r-deci",
+      "importance": 1.0,
+      "tags": [
+        "minority-report",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T12:29:58.716261+00:00",
+      "is_current": true,
+      "created_at": "2026-10-28T12:29:58.716261+00:00",
+      "updated_at": "2026-10-28T12:29:58.716261+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "minority-report"
       }
     }
   ],
@@ -1103,6 +1171,54 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T11:41:59.306011+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:decision-radar-v1-8-0-implementation",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T12:29:58.673969+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:decision-radar-v1-8-0-implementation",
+      "target": "session:sess-20261017-145045-ed36da",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T12:29:58.703268+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:decision-radar",
+      "target": "episode:decision-radar-architecture-plan",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T12:29:58.716261+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:decision-radar",
+      "target": "episode:decision-radar-v1-8-0-implementation",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T12:29:58.716261+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:minority-report",
+      "target": "episode:decision-radar-architecture-plan",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T12:29:58.716261+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:minority-report",
+      "target": "episode:decision-radar-v1-8-0-implementation",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T12:29:58.716261+00:00",
       "is_current": true
     }
   ]
