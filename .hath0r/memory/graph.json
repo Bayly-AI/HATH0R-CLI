@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 290,
-  "content_hash": "sha256:dab14fe086b4c2a20daeadca06d249975eee4142228606c76398c72c0388d8a4",
-  "updated_at": "2026-10-28T17:37:07.835892+00:00",
+  "revision": 294,
+  "content_hash": "sha256:75800e95106d439d23d1c01d6b703dce528feb525acdc777740e8ae66cca18ae",
+  "updated_at": "2026-10-28T17:42:48.137244+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -745,7 +745,7 @@
       "updated_at": "2026-10-28T13:23:14.632392+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -769,7 +769,7 @@
       "updated_at": "2026-10-28T13:23:21.538822+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -813,7 +813,7 @@
       "updated_at": "2026-10-28T13:31:54.915874+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -837,7 +837,7 @@
       "updated_at": "2026-10-28T14:05:46.606003+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -943,7 +943,7 @@
       "updated_at": "2026-10-28T14:05:49.726259+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -988,7 +988,7 @@
       "updated_at": "2026-10-28T14:21:15.312334+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -1012,7 +1012,7 @@
       "updated_at": "2026-10-28T14:22:02.710039+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -1056,7 +1056,7 @@
       "updated_at": "2026-10-28T14:38:21.109040+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -1080,7 +1080,7 @@
       "updated_at": "2026-10-28T14:38:23.473566+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -1104,7 +1104,7 @@
       "updated_at": "2026-10-28T14:50:50.899901+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -1149,7 +1149,7 @@
       "updated_at": "2026-10-28T14:51:42.220727+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -1194,7 +1194,7 @@
       "updated_at": "2026-10-28T14:51:44.744643+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -1239,7 +1239,7 @@
       "updated_at": "2026-10-28T14:59:38.749656+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -1263,7 +1263,7 @@
       "updated_at": "2026-10-28T15:21:58.314539+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -1287,7 +1287,7 @@
       "updated_at": "2026-10-28T15:32:33.522286+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -1311,7 +1311,7 @@
       "updated_at": "2026-10-28T17:30:26.311044+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -1335,7 +1335,31 @@
       "updated_at": "2026-10-28T17:37:06.843311+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:ab254aa643fb9c1303690c5384f68ac39b4309eb60d903cf5bb0c94396bc4fdf"
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
+        }
+      }
+    },
+    {
+      "id": "eval:pr-525-scorecard-summary-rule",
+      "type": "eval",
+      "label": "Task Evaluation pr-525-scorecard-summary-rule (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for pr-525-scorecard-summary-rule on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "pr-525-scorecard-summary-rule",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T17:42:47.222209+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T17:42:47.222209+00:00",
+      "updated_at": "2026-10-28T17:42:47.222209+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:a8d6d432af8bb979b99c5371f0e0dafdc9164e6f3e105c98e499b2df9c99bc37"
         }
       }
     },
@@ -1343,7 +1367,7 @@
       "id": "session:sess-20261028-130546-18a517",
       "type": "session",
       "label": "Micro Session sess-20261028-130546-18a517",
-      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 14, Writes: 48 | Entries: Compounded eval:issue-524: Task Evaluation issue-524 (R=1.00, PASS)",
+      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 14, Writes: 49 | Entries: Compounded eval:pr-525-scorecard-summary-rule: Task Evaluation pr-525-scorecard-summary-rule (R=1.00, PASS)",
       "importance": 0.75,
       "tags": [
         "session",
@@ -1354,15 +1378,15 @@
       "valid_to": "2026-10-28T15:32:30.683620+00:00",
       "is_current": true,
       "created_at": "2026-10-28T13:05:46.197056+00:00",
-      "updated_at": "2026-10-28T17:37:06.886136+00:00",
+      "updated_at": "2026-10-28T17:42:47.264988+00:00",
       "metadata": {
         "session_id": "sess-20261028-130546-18a517",
         "prior_session_id": "sess-20261017-145045-ed36da",
         "parent_session_id": "sess-20261017-145045-ed36da",
         "read_count": 14,
-        "write_count": 48,
+        "write_count": 49,
         "status": "completed",
-        "byte_size": 1878
+        "byte_size": 1978
       }
     }
   ],
@@ -2779,6 +2803,38 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T17:37:06.888640+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-525-scorecard-summary-rule",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T17:42:47.222209+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-525-scorecard-summary-rule",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T17:42:47.222209+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-525-scorecard-summary-rule",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T17:42:47.222209+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:pr-525-scorecard-summary-rule",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T17:42:47.267264+00:00",
       "is_current": true
     }
   ]
