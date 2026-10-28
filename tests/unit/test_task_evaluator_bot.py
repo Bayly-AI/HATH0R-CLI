@@ -199,3 +199,15 @@ def test_task_evaluator_bot_observability_and_missing_auto_run(tmp_path: Path, m
     st_corrupt = bot.get_status()
     assert st_corrupt["success"] is False
     assert "Corrupt evaluation scorecard" in (st_corrupt["error"] or "")
+    assert "Eval Scorecard Summary" in bot.format_scorecard_markdown()
+
+    # Verify _ensure_doc_has_eval_rule upgrades an older CR-TASK-EVAL-001 section to include the Scorecard Summary rule
+    agents_file = tmp_path / "AGENTS.md"
+    agents_file.write_text(
+        "# AGENTS\n\n---\n\n## CR-TASK-EVAL-001 (Automatic Task Evaluation)\n- Old bullet\n",
+        encoding="utf-8",
+    )
+    upgraded = bot._ensure_doc_has_eval_rule("AGENTS.md", dry_run=False)
+    assert upgraded is True
+    assert "Mandatory Eval Scorecard Summary After Every Task" in agents_file.read_text(encoding="utf-8")
+

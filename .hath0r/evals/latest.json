@@ -1,13 +1,13 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261028-173025-483b87",
-  "task_id": "release-v1-12-0",
-  "issue_number": null,
+  "eval_id": "eval-20261028-173706-bf72b0",
+  "task_id": "issue-524",
+  "issue_number": 524,
   "repo_name": "hathor-cli",
-  "branch": "development",
-  "evaluated_at": "2026-10-28T17:30:25.593260+00:00",
-  "duration_ms": 277.31,
+  "branch": "feature/524-eval-scorecard-summary-rule",
+  "evaluated_at": "2026-10-28T17:37:06.260199+00:00",
+  "duration_ms": 259.27,
   "passed_gate": true,
   "r_task": 1.0,
   "min_reward_threshold": 0.8,
@@ -32,7 +32,7 @@
       "checks": {
         "version_valid": {
           "passed": true,
-          "version": "1.12.0",
+          "version": "1.12.1",
           "error": null
         },
         "agentgraph_valid": {
@@ -42,7 +42,7 @@
         },
         "memory_compounded": {
           "passed": true,
-          "compounded_nodes_count": 46,
+          "compounded_nodes_count": 47,
           "session_read_verified": true,
           "session_write_verified": true,
           "hashes_verified": true,
@@ -64,13 +64,13 @@
       "estimated_usd": 0.0,
       "max_usd": 0.25,
       "session_id": "sess-20261028-130546-18a517",
-      "session_reads": 13,
-      "session_writes": 45,
-      "session_bytes": 1957,
+      "session_reads": 14,
+      "session_writes": 47,
+      "session_bytes": 1948,
       "within_capsule_budget": true,
-      "latency_ms": 98.67,
+      "latency_ms": 96.46,
       "taguchi_quality_loss": 0.0001,
-      "snr_db": 26.14
+      "snr_db": 26.33
     },
     "adversarial": {
       "score": 1.0,
@@ -85,10 +85,10 @@
     "goal_alignment": {
       "score": 1.0,
       "passed": true,
-      "task_id": "release-v1-12-0",
-      "issue_number": null,
+      "task_id": "issue-524",
+      "issue_number": 524,
       "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
-      "compounded_nodes_count": 46,
+      "compounded_nodes_count": 47,
       "consensus_score": 1.0
     }
   },
@@ -96,7 +96,7 @@
   "observability_sync": {
     "mode": "live_synced",
     "phoenix_logged": true,
-    "mlflow_run_id": "abee3dbdc19a465999118fcc0f2bdc50"
+    "mlflow_run_id": "8a53d1fb1b2747798d63b2c052ea96bd"
   },
-  "content_hash": "sha256:bd951d80f0ba802ee717d58abc7d66d5e7a21eb98101eaa188129eb022b6b354"
+  "content_hash": "sha256:a3d093c7db678cc5726878446c8a37d59bf2d43f7e905233d3bf9297ce31c848"
 }

@@ -880,6 +880,7 @@ class TaskAnnouncerBot:
             "message": msg,
             "memory_gate": gate_res,
             "eval_gate": eval_res,
+            "eval_scorecard_summary": eval_res.get("scorecard_summary_markdown"),
         }
 
 

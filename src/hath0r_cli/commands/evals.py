@@ -153,10 +153,18 @@ def evals_verify(ctx: click.Context, task_id: Optional[str], auto_run: bool) -> 
 
     def _text() -> None:
         if passed:
+            t_scores = res.get("tier_scores", {})
             console.print(
-                f"[bold green]✓ CR-TASK-EVAL-001 Verified:[/bold green] Task '{res.get('task_id')}' "
+                f"[bold green]✓ CR-TASK-EVAL-001 Verified:[/bold green] Task '{res.get('task_id')}' ({res.get('eval_id')}) "
                 f"passed evaluation gate (R_task={res.get('r_task'):.4f})."
             )
+            console.print(
+                f"  • Tier 1 (Deterministic): {t_scores.get('deterministic', 0.0):.2f} | "
+                f"Tier 2 (Trajectory): {t_scores.get('trajectory', 0.0):.2f} | "
+                f"Tier 3 (Adversarial): {t_scores.get('adversarial', 0.0):.2f} | "
+                f"Tier 4 (Goal Align): {t_scores.get('goal_alignment', 0.0):.2f}"
+            )
+            console.print(f"  • Scorecard: {res.get('latest_file')}")
         else:
             console.print(f"[bold red]✗ {res.get('error')}[/bold red]")
 

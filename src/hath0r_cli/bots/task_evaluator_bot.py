@@ -603,6 +603,7 @@ class TaskEvaluatorBot:
             else:
                 mbot.sync_file_hashes(track_files=[".hath0r/evals/latest.json"], dry_run=False)
 
+        summary_md = self.format_scorecard_markdown(scorecard)
         return {
             "success": passed_gate,
             "passed_gate": passed_gate,
@@ -616,8 +617,43 @@ class TaskEvaluatorBot:
             "latest_file": str(latest_file),
             "history_file": str(history_file),
             "compounded_node_id": compounded_node_id,
+            "scorecard_summary_markdown": summary_md,
             "scorecard": scorecard,
         }
+
+    def format_scorecard_markdown(self, scorecard: Optional[Dict[str, Any]] = None) -> str:
+        """Render a canonical Markdown Eval Scorecard summary table for agent completion responses."""
+        sc = scorecard
+        if sc is None:
+            latest_file = self.evals_dir / "latest.json"
+            if latest_file.is_file():
+                try:
+                    sc = json.loads(latest_file.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    sc = {}
+            else:
+                sc = {}
+        eval_id = sc.get("eval_id", "N/A")
+        task_id = sc.get("task_id", "N/A")
+        passed = bool(sc.get("passed_gate", False))
+        gate_str = "PASSED" if passed else "FAILED"
+        r_task = float(sc.get("r_task", 0.0))
+        t_scores = sc.get("tier_scores") or {}
+        s_det = float(t_scores.get("deterministic", 0.0))
+        s_traj = float(t_scores.get("trajectory", 0.0))
+        s_adv = float(t_scores.get("adversarial", 0.0))
+        s_goal = float(t_scores.get("goal_alignment", 0.0))
+        latest_path = str(self.evals_dir / "latest.json")
+        return (
+            "### Eval Scorecard Summary (`CR-TASK-EVAL-001`)\n"
+            "| Field | Value |\n"
+            "| :--- | :--- |\n"
+            f"| **Task ID / Eval ID** | `{task_id}` (`{eval_id}`) |\n"
+            f"| **Gate Status** | **`{gate_str}`** |\n"
+            f"| **Composite Reward (`R_task`)** | **`{r_task:.4f}`** (Threshold `>= 0.80`) |\n"
+            f"| **Tier Breakdown** | Tier 1 (Deterministic): `{s_det:.2f}` · Tier 2 (Trajectory): `{s_traj:.2f}` · Tier 3 (Adversarial): `{s_adv:.2f}` · Tier 4 (Goal Align): `{s_goal:.2f}` |\n"
+            f"| **Scorecard Artifact** | `{latest_path}` |"
+        )
 
     def get_status(self) -> Dict[str, Any]:
         """Read the latest evaluation scorecard from .hath0r/evals/latest.json."""
@@ -648,6 +684,7 @@ class TaskEvaluatorBot:
                 "tier_scores": scorecard.get("tier_scores"),
                 "evaluated_at": scorecard.get("evaluated_at"),
                 "latest_file": str(latest_file),
+                "scorecard_summary_markdown": self.format_scorecard_markdown(scorecard),
                 "scorecard": scorecard,
             }
         except Exception as exc:
@@ -679,6 +716,7 @@ class TaskEvaluatorBot:
                     "r_task": run_res.get("r_task", 0.0),
                     "blocking_reasons": run_res.get("blocking_reasons", []),
                     "latest_file": str(self.evals_dir / "latest.json"),
+                    "scorecard_summary_markdown": run_res.get("scorecard_summary_markdown"),
                     "error": (
                         f"CR-TASK-EVAL-001 violation: Task evaluation failed "
                         f"(R_task={run_res.get('r_task', 0.0):.4f}; {', '.join(run_res.get('blocking_reasons', []))})."
@@ -701,6 +739,7 @@ class TaskEvaluatorBot:
         passed = bool(st.get("passed_gate"))
         r_task = float(scorecard.get("r_task", 0.0))
         blocking = scorecard.get("blocking_reasons", [])
+        summary_md = self.format_scorecard_markdown(scorecard)
 
         if not passed:
             return {
@@ -712,6 +751,7 @@ class TaskEvaluatorBot:
                 "r_task": r_task,
                 "blocking_reasons": blocking,
                 "latest_file": str(self.evals_dir / "latest.json"),
+                "scorecard_summary_markdown": summary_md,
                 "error": (
                     f"CR-TASK-EVAL-001 violation: Latest task evaluation did not pass gate "
                     f"(R_task={r_task:.4f}; {', '.join(blocking) or 'hash mismatch'})."
@@ -728,6 +768,7 @@ class TaskEvaluatorBot:
             "tier_scores": scorecard.get("tier_scores", {}),
             "evaluated_at": scorecard.get("evaluated_at"),
             "latest_file": str(self.evals_dir / "latest.json"),
+            "scorecard_summary_markdown": summary_md,
             "error": None,
         }
 
@@ -741,7 +782,10 @@ class TaskEvaluatorBot:
         "persisted in `.hath0r/evals/latest.json` and compounded as an `eval:<task_id>` node in `.hath0r/memory/graph.json`.\n"
         "- **How to Verify**: Run `hath0r evals run` and `hath0r evals verify` before announcing Complete "
         "(`EndOfTaskBot`, `TaskAnnouncerBot.announce_complete`, and `CleanReposWorkflowBot` enforce this gate automatically).\n"
-        "- **Not Complete Until Evaluated**: A missing, failing, or unverified task evaluation means the work is not Complete.\n"
+        "- **Mandatory Eval Scorecard Summary After Every Task (CRITICAL · CANONICAL)**: Immediately after running task evaluations (`hath0r evals run`), "
+        "the agent MUST always return a structured summary of the **Eval Scorecard** (`eval_id`, `task_id`, `passed_gate`, composite `R_task`, "
+        "Tier 1–4 scores, and `.hath0r/evals/latest.json` path) in its completion response to the user.\n"
+        "- **Not Complete Until Evaluated & Scorecard Returned**: A missing, failing, unverified, or unreported task evaluation scorecard means the work is not Complete.\n"
     )
 
     @staticmethod
@@ -761,7 +805,7 @@ class TaskEvaluatorBot:
         return recursive if len(recursive) > len(direct) else direct
 
     def _ensure_doc_has_eval_rule(self, filename: str, *, dry_run: bool = False) -> bool:
-        """Ensure AGENTS.md or WARP.md in self.cwd contains the canonical CR-TASK-EVAL-001 rule section."""
+        """Ensure AGENTS.md or WARP.md in self.cwd contains the canonical CR-TASK-EVAL-001 rule section (including Eval Scorecard summary rule)."""
         from hath0r_cli.bots.memory_manager import MemoryManagerBot
 
         if filename not in ("AGENTS.md", "WARP.md"):
@@ -770,9 +814,22 @@ class TaskEvaluatorBot:
         if doc_path.parent != self.cwd:
             return False
         if doc_path.is_file():
-            has_rule = "CR-TASK-EVAL-001" in doc_path.read_text(encoding="utf-8", errors="ignore")
-            if has_rule:
-                return False
+            existing = doc_path.read_text(encoding="utf-8", errors="ignore")
+            if "CR-TASK-EVAL-001" in existing:
+                if "Mandatory Eval Scorecard Summary After Every Task" in existing:
+                    return False
+                # Upgrade existing CR-TASK-EVAL-001 section in-place
+                pattern = re.compile(
+                    r"(?:\n---\n\n)?## CR-TASK-EVAL-001[^\n]*\n(?:- [^\n]+\n)+",
+                    re.MULTILINE,
+                )
+                if pattern.search(existing):
+                    updated = pattern.sub(self.CANONICAL_AGENTS_EVAL_SECTION, existing, count=1)
+                else:
+                    updated = existing.rstrip() + "\n" + self.CANONICAL_AGENTS_EVAL_SECTION
+                if not dry_run:
+                    MemoryManagerBot._atomic_write_text(doc_path, updated)
+                return True
             if not dry_run:
                 with doc_path.open("a", encoding="utf-8") as fh:
                     fh.write(self.CANONICAL_AGENTS_EVAL_SECTION)
@@ -815,14 +872,22 @@ class TaskEvaluatorBot:
 
         core_rules_file = (self.cwd / ".hath0r" / "memory" / "core_rules.md").resolve()
         if core_rules_file.is_relative_to(self.cwd) and core_rules_file.is_file():
-            has_core_rule = "CR-TASK-EVAL-001" in core_rules_file.read_text(encoding="utf-8", errors="ignore")
-            if not has_core_rule and not dry_run:
-                rule_line = (
-                    "\n6. Automatic Task Evaluation (CR-TASK-EVAL-001): Every task must execute and pass the 4-tier "
-                    "automatic task evaluation gate (hath0r evals run / hath0r evals verify, R_task >= 0.80) prior to announcing complete.\n"
-                )
+            existing_core = core_rules_file.read_text(encoding="utf-8", errors="ignore")
+            rule_line = (
+                "6. Automatic Task Evaluation & Scorecard Summary (CR-TASK-EVAL-001): Every task must execute and pass the 4-tier "
+                "automatic task evaluation gate (hath0r evals run / hath0r evals verify, R_task >= 0.80) and always return a structured "
+                "summary of the Eval Scorecard in the completion response to the user.\n"
+            )
+            if "CR-TASK-EVAL-001" not in existing_core and not dry_run:
                 with core_rules_file.open("a", encoding="utf-8") as fh:
-                    fh.write(rule_line)
+                    fh.write("\n" + rule_line)
+            elif "summary of the Eval Scorecard" not in existing_core and not dry_run:
+                updated_core = re.sub(
+                    r"6\. Automatic Task Evaluation \(CR-TASK-EVAL-001\):[^\n]*\n?",
+                    rule_line,
+                    existing_core,
+                )
+                MemoryManagerBot._atomic_write_text(core_rules_file, updated_core)
 
         agents_updated = False
         warp_updated = False
@@ -836,13 +901,14 @@ class TaskEvaluatorBot:
             mbot.compound_memory(
                 node_id="rule:cr-task-eval-001",
                 node_type="rule",
-                label="Automatic Task Evaluation Gate (CR-TASK-EVAL-001)",
+                label="Automatic Task Evaluation & Scorecard Summary Gate (CR-TASK-EVAL-001)",
                 content=(
-                    "Every task must execute and pass the 4-tier hybrid evaluation pipeline (R_task >= 0.80) "
-                    "and persist .hath0r/evals/latest.json prior to announcing complete."
+                    "Every task must execute and pass the 4-tier hybrid evaluation pipeline (R_task >= 0.80), "
+                    "persist .hath0r/evals/latest.json, and always return a structured summary of the Eval Scorecard "
+                    "in the completion response to the user."
                 ),
                 importance=1.0,
-                tags=["rule", "governance", "evals", "cr-task-eval-001"],
+                tags=["rule", "governance", "evals", "cr-task-eval-001", "scorecard"],
                 relates_to=["concept:tri-graph", "rule:cr-memory-compound-001"],
                 relation="INFORMS",
                 sync_agentgraph=True,

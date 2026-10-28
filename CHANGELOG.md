@@ -5,6 +5,13 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.1] - 2026-10-28
+
+### Added
+- **Mandatory Eval Scorecard Summary in Completion Responses (`CR-TASK-EVAL-001` — `#524`)**:
+  - Updated `TaskEvaluatorBot.CANONICAL_AGENTS_EVAL_SECTION` (`src/hath0r_cli/bots/task_evaluator_bot.py`) to mandate as **CRITICAL · CANONICAL** (immediately below running the evals themselves) that agents always return a structured summary of the **Eval Scorecard** (`eval_id`, `task_id`, `passed_gate`, composite `R_task`, Tier 1–4 breakdown, and `.hath0r/evals/latest.json` path) after completion of every task.
+  - Added `TaskEvaluatorBot.format_scorecard_markdown()`, `scorecard_summary_markdown` output across `evaluate_task()`, `get_status()`, `verify_evaluated()`, and `TaskAnnouncerBot.announce_complete()`, and automatic in-place upgrading of existing `CR-TASK-EVAL-001` sections via `hath0r evals ensure-all`.
+
 ## [1.12.0] - 2026-10-28
 
 ### Added
