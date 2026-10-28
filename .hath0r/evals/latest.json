@@ -1,13 +1,13 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261028-145144-306dcf",
-  "task_id": "pr-521-merged",
+  "eval_id": "eval-20261028-145938-52e33d",
+  "task_id": "release-v1.11.0",
   "issue_number": null,
   "repo_name": "hathor-cli",
   "branch": "development",
-  "evaluated_at": "2026-10-28T14:51:44.173361+00:00",
-  "duration_ms": 262.76,
+  "evaluated_at": "2026-10-28T14:59:38.163488+00:00",
+  "duration_ms": 218.68,
   "passed_gate": true,
   "r_task": 1.0,
   "min_reward_threshold": 0.8,
@@ -42,7 +42,7 @@
         },
         "memory_compounded": {
           "passed": true,
-          "compounded_nodes_count": 41,
+          "compounded_nodes_count": 43,
           "session_read_verified": true,
           "session_write_verified": true,
           "hashes_verified": true,
@@ -65,12 +65,12 @@
       "max_usd": 0.25,
       "session_id": "sess-20261028-130546-18a517",
       "session_reads": 12,
-      "session_writes": 36,
-      "session_bytes": 1920,
+      "session_writes": 38,
+      "session_bytes": 1918,
       "within_capsule_budget": true,
-      "latency_ms": 88.19,
+      "latency_ms": 73.51,
       "taguchi_quality_loss": 0.0001,
-      "snr_db": 27.11
+      "snr_db": 28.69
     },
     "adversarial": {
       "score": 1.0,
@@ -85,10 +85,10 @@
     "goal_alignment": {
       "score": 1.0,
       "passed": true,
-      "task_id": "pr-521-merged",
+      "task_id": "release-v1.11.0",
       "issue_number": null,
       "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
-      "compounded_nodes_count": 41,
+      "compounded_nodes_count": 43,
       "consensus_score": 1.0
     }
   },
@@ -96,7 +96,7 @@
   "observability_sync": {
     "mode": "live_synced",
     "phoenix_logged": true,
-    "mlflow_run_id": "24dd7985a77d4dce91f5633aedd5c709"
+    "mlflow_run_id": "d72c7178dcc44cb6b8c1397c45314907"
   },
-  "content_hash": "sha256:b8a7592d2b0a14aa22aee014cbccebf79a537521c64c2c863c79717cb9bd2061"
+  "content_hash": "sha256:932d70661da8eba02b728b820b1be292563af415112ebcc611020d9b0a89899f"
 }

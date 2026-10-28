@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 249,
-  "content_hash": "sha256:a6283fd5fd38adc77a5873723fce1c752a7824b22710b8b55d41a1e3e07c49a7",
-  "updated_at": "2026-10-28T14:51:45.682135+00:00",
+  "revision": 256,
+  "content_hash": "sha256:139dda8b2991a1607b02faaffda0aea3cbf190917e964e241bd5cf60e6c468a3",
+  "updated_at": "2026-10-28T14:59:39.837340+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -745,7 +745,7 @@
       "updated_at": "2026-10-28T13:23:14.632392+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4b04badacf5cdd702b3a45001fc6f9451b87a6409b6299ea25de84fc6d653efd"
+          ".hath0r/evals/latest.json": "sha256:26391deb494d1265d9ed8fd9bde486195457c99c6ea4ff0d8154b45efd79807d"
         }
       }
     },
@@ -769,7 +769,7 @@
       "updated_at": "2026-10-28T13:23:21.538822+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4b04badacf5cdd702b3a45001fc6f9451b87a6409b6299ea25de84fc6d653efd"
+          ".hath0r/evals/latest.json": "sha256:26391deb494d1265d9ed8fd9bde486195457c99c6ea4ff0d8154b45efd79807d"
         }
       }
     },
@@ -813,7 +813,7 @@
       "updated_at": "2026-10-28T13:31:54.915874+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4b04badacf5cdd702b3a45001fc6f9451b87a6409b6299ea25de84fc6d653efd"
+          ".hath0r/evals/latest.json": "sha256:26391deb494d1265d9ed8fd9bde486195457c99c6ea4ff0d8154b45efd79807d"
         }
       }
     },
@@ -837,7 +837,7 @@
       "updated_at": "2026-10-28T14:05:46.606003+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4b04badacf5cdd702b3a45001fc6f9451b87a6409b6299ea25de84fc6d653efd"
+          ".hath0r/evals/latest.json": "sha256:26391deb494d1265d9ed8fd9bde486195457c99c6ea4ff0d8154b45efd79807d"
         }
       }
     },
@@ -943,7 +943,7 @@
       "updated_at": "2026-10-28T14:05:49.726259+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4b04badacf5cdd702b3a45001fc6f9451b87a6409b6299ea25de84fc6d653efd"
+          ".hath0r/evals/latest.json": "sha256:26391deb494d1265d9ed8fd9bde486195457c99c6ea4ff0d8154b45efd79807d"
         }
       }
     },
@@ -987,7 +987,7 @@
       "updated_at": "2026-10-28T14:21:15.312334+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4b04badacf5cdd702b3a45001fc6f9451b87a6409b6299ea25de84fc6d653efd"
+          ".hath0r/evals/latest.json": "sha256:26391deb494d1265d9ed8fd9bde486195457c99c6ea4ff0d8154b45efd79807d"
         }
       }
     },
@@ -1011,7 +1011,7 @@
       "updated_at": "2026-10-28T14:22:02.710039+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4b04badacf5cdd702b3a45001fc6f9451b87a6409b6299ea25de84fc6d653efd"
+          ".hath0r/evals/latest.json": "sha256:26391deb494d1265d9ed8fd9bde486195457c99c6ea4ff0d8154b45efd79807d"
         }
       }
     },
@@ -1055,7 +1055,7 @@
       "updated_at": "2026-10-28T14:38:21.109040+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4b04badacf5cdd702b3a45001fc6f9451b87a6409b6299ea25de84fc6d653efd"
+          ".hath0r/evals/latest.json": "sha256:26391deb494d1265d9ed8fd9bde486195457c99c6ea4ff0d8154b45efd79807d"
         }
       }
     },
@@ -1079,7 +1079,7 @@
       "updated_at": "2026-10-28T14:38:23.473566+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4b04badacf5cdd702b3a45001fc6f9451b87a6409b6299ea25de84fc6d653efd"
+          ".hath0r/evals/latest.json": "sha256:26391deb494d1265d9ed8fd9bde486195457c99c6ea4ff0d8154b45efd79807d"
         }
       }
     },
@@ -1103,7 +1103,7 @@
       "updated_at": "2026-10-28T14:50:50.899901+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4b04badacf5cdd702b3a45001fc6f9451b87a6409b6299ea25de84fc6d653efd"
+          ".hath0r/evals/latest.json": "sha256:26391deb494d1265d9ed8fd9bde486195457c99c6ea4ff0d8154b45efd79807d"
         }
       }
     },
@@ -1148,7 +1148,7 @@
       "updated_at": "2026-10-28T14:51:42.220727+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4b04badacf5cdd702b3a45001fc6f9451b87a6409b6299ea25de84fc6d653efd"
+          ".hath0r/evals/latest.json": "sha256:26391deb494d1265d9ed8fd9bde486195457c99c6ea4ff0d8154b45efd79807d"
         }
       }
     },
@@ -1193,7 +1193,52 @@
       "updated_at": "2026-10-28T14:51:44.744643+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:4b04badacf5cdd702b3a45001fc6f9451b87a6409b6299ea25de84fc6d653efd"
+          ".hath0r/evals/latest.json": "sha256:26391deb494d1265d9ed8fd9bde486195457c99c6ea4ff0d8154b45efd79807d"
+        }
+      }
+    },
+    {
+      "id": "episode:release-v1.11.0",
+      "type": "episode",
+      "label": "Released HATH0R CLI v1.11.0 & Installed Globally",
+      "content": "Validated, tagged, pushed, and published GitHub Release v1.11.0 of HATH0R-CLI (Automatic 4-tier Task Evaluations CR-TASK-EVAL-001, workspace-wide ensure-all, and Detached Cruise Control & Stateless Agent Update API) and installed v1.11.0 as the global hath0r CLI at /usr/local/bin/hath0r.",
+      "importance": 0.8,
+      "tags": [
+        "release",
+        "v1.11.0",
+        "cli",
+        "global-install",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T14:59:37.235624+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T14:59:37.235624+00:00",
+      "updated_at": "2026-10-28T14:59:37.235624+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "eval:release-v1-11-0",
+      "type": "eval",
+      "label": "Task Evaluation release-v1.11.0 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for release-v1.11.0 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "release-v1-11-0",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T14:59:38.749656+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T14:59:38.749656+00:00",
+      "updated_at": "2026-10-28T14:59:38.749656+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:26391deb494d1265d9ed8fd9bde486195457c99c6ea4ff0d8154b45efd79807d"
         }
       }
     },
@@ -1201,7 +1246,7 @@
       "id": "session:sess-20261028-130546-18a517",
       "type": "session",
       "label": "Micro Session sess-20261028-130546-18a517",
-      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 12, Writes: 37 | Entries: Compounded eval:pr-521-merged: Task Evaluation pr-521-merged (R=1.00, PASS)",
+      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 12, Writes: 39 | Entries: Compounded eval:release-v1-11-0: Task Evaluation release-v1.11.0 (R=1.00, PASS)",
       "importance": 0.75,
       "tags": [
         "session",
@@ -1212,15 +1257,15 @@
       "valid_to": "2026-10-28T14:51:41.444499+00:00",
       "is_current": true,
       "created_at": "2026-10-28T13:05:46.197056+00:00",
-      "updated_at": "2026-10-28T14:51:44.783498+00:00",
+      "updated_at": "2026-10-28T14:59:38.793445+00:00",
       "metadata": {
         "session_id": "sess-20261028-130546-18a517",
         "prior_session_id": "sess-20261017-145045-ed36da",
         "parent_session_id": "sess-20261017-145045-ed36da",
         "read_count": 12,
-        "write_count": 37,
+        "write_count": 39,
         "status": "completed",
-        "byte_size": 1881
+        "byte_size": 1903
       }
     }
   ],
@@ -2453,6 +2498,54 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:51:44.785586+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:release-v1.11.0",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:59:37.235624+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:release-v1.11.0",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:59:37.286253+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:release-v1-11-0",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:59:38.749656+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:release-v1-11-0",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:59:38.749656+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:release-v1-11-0",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:59:38.749656+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:release-v1-11-0",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T14:59:38.795774+00:00",
       "is_current": true
     }
   ]
