@@ -22,7 +22,7 @@ def temp_workspace(tmp_path: Path) -> Path:
     state = {
         "schema_version": "hath0r.cicccdct.state/1",
         "active_calibration": True,
-        "last_run_timestamp": "2026-10-11T12:00:00Z",
+        "last_run_timestamp": recent,
         "total_calibration_runs": 10,
         "current_parameters": {"temperature": 0.2, "max_tokens": 2048},
         "drift_metrics": {"accuracy_drift": 0.001, "latency_drift_ms": 1.5, "token_tax_drift": -0.01},

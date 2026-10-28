@@ -5,49 +5,46 @@
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-17T14:50:45.402982+00:00",
-  "updated_at": "2026-10-25T11:27:47.527691+00:00",
-  "ended_at": "2026-10-17T14:51:29.008987+00:00",
-  "read_count": 4,
-  "write_count": 7,
-  "revision": 11,
-  "content_hash": "sha256:392671768d0ee9bc36e0b5a25f42b836a8f61065ebd5e2ab8a8a74cf7e4272c3",
-  "base_graph_hash": "sha256:d95d387e1e02c85497be45a9df4a1872b9dfa23e8f4f7288cc31607a2ed411b6",
-  "last_read_at": "2026-10-25T11:27:47.502395+00:00",
-  "last_write_at": "2026-10-25T11:27:47.527691+00:00",
+  "updated_at": "2026-10-28T11:41:59.303869+00:00",
+  "ended_at": "2026-10-28T09:33:49.371663+00:00",
+  "read_count": 12,
+  "write_count": 17,
+  "revision": 29,
+  "content_hash": "sha256:f56b52654112b9657c309698aee3d4b3102ea7407722c7ac7c8fcd3dc310f1b1",
+  "base_graph_hash": "sha256:e1cad51e4d51b14cc26207a3df048db6db6cc1ddad886ea3722fbc12d8dd2977",
+  "last_read_at": "2026-10-28T09:33:49.352703+00:00",
+  "last_write_at": "2026-10-28T11:41:59.303869+00:00",
   "active_focus": "Orienting repository hathor-cli",
-  "prior_summary": "ounded decision:cli-kvcacheprewarmer; Completed CLI KVCachePrewarmer and CAGEn; Completed AgentGraph orientation for hat",
+  "prior_summary": "leted AgentGraph orientation for hat; Completed PR #101 (feature/101-test) via; Created comprehensive architectural plan",
   "recalled_nodes": [
     {
-      "id": "insight:hathor-cli",
-      "type": "insight",
-      "label": "Synthesized Insight on hathor-cli",
-      "snippet": "Consolidated from 2 memory nodes tagged 'hathor-cli'. Recurring themes: hathor, logo, repo"
+      "id": "decision:issue-474-micro-memory-session",
+      "type": "decision",
+      "label": "True Micro Memory Session CLI & Bot Enforcement (Issue #474)",
+      "snippet": "Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task st"
     }
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-25T11:27:42.203693+00:00",
-      "kind": "observation",
-      "summary": "Completed AgentGraph orientation for hathor-cli (4 roles, 19 rules)",
+      "timestamp": "2026-10-28T11:41:59.303869+00:00",
+      "kind": "compound",
+      "summary": "Compounded episode:decision-radar-architecture-plan: Hath0r Decision Radar Architecture Plan and GitHub Issues",
       "tags": [
-        "orient",
-        "agentgraph"
+        "decision-radar",
+        "minority-report",
+        "epic",
+        "architecture",
+        "episode",
+        "compounded"
       ],
-      "node_id": null
-    },
-    {
-      "timestamp": "2026-10-25T11:27:47.527691+00:00",
-      "kind": "observation",
-      "summary": "Completed AgentGraph orientation for hathor-cli (4 roles, 19 rules)",
-      "tags": [
-        "orient",
-        "agentgraph"
-      ],
-      "node_id": null
+      "node_id": "episode:decision-radar-architecture-plan"
     }
   ],
   "next_steps": [],
   "compounded_node_ids": [
-    "decision:cli-kvcacheprewarmer-cagengine-chunk-boundary-al"
-  ]
+    "decision:cli-kvcacheprewarmer-cagengine-chunk-boundary-al",
+    "episode:decision-radar-architecture-plan"
+  ],
+  "parent_session_id": "sess-20261016-151409-a068f7",
+  "capsule_bytes": 1929
 }
