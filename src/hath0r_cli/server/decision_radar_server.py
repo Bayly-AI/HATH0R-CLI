@@ -9,11 +9,12 @@ Implements Task 6 (#505):
 
 from __future__ import annotations
 
+import html
 import json
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 from urllib.parse import parse_qs, urlparse
 
 from rich.console import Console
@@ -21,7 +22,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.tree import Tree
 
-from hath0r_cli.bots.decision_radar_bot import CANONICAL_CATEGORIES, DecisionRadarBot
+from hath0r_cli.bots.decision_radar_bot import CANONICAL_CATEGORIES, DEFAULT_AGENT_ID, DecisionRadarBot
 
 RADAR_HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
@@ -563,9 +564,11 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
     server_app: HathorDecisionRadarServer
 
     def _send_json(self, payload: Dict[str, Any], status_code: int = 200) -> None:
-        body = json.dumps(payload, indent=2).encode("utf-8")
+        safe_json = html.escape(json.dumps(payload, indent=2), quote=False)
+        body = safe_json.encode("utf-8")
         self.send_response(status_code)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Type", "application/json")
+        self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -607,7 +610,8 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
             self.end_headers()
             try:
                 snap = self.server_app.bot.get_radar_snapshot(operator_name=self.server_app.operator_name)
-                self.wfile.write(f"data: {json.dumps(snap)}\n\n".encode("utf-8"))
+                safe_snap = html.escape(json.dumps(snap), quote=False)
+                self.wfile.write(f"data: {safe_snap}\n\n".encode("utf-8"))
                 self.wfile.flush()
             except (BrokenPipeError, ConnectionResetError):
                 pass
@@ -616,71 +620,75 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
 
         self._send_json({"error": "Not Found", "categories": list(CANONICAL_CATEGORIES.keys())}, status_code=404)
 
+    def _post_request(self, body: Dict[str, Any]) -> None:
+        res = self.server_app.bot.request_decision(
+            question=str(body.get("question", "Pending agent decision")),
+            category=str(body.get("category", "set_product_rule")),
+            agent_id=str(body.get("agent_id", DEFAULT_AGENT_ID)),
+            unblocks=body.get("unblocks") or [],
+            options=body.get("options") or [],
+            wait_for_fact=body.get("wait_for_fact"),
+            criticality=float(body.get("criticality", 1.0)),
+            work_boundary=str(body.get("work_boundary", "DECISION")),
+        )
+        self._send_json(res, status_code=200 if res.get("success") else 400)
+
+    def _post_answer(self, body: Dict[str, Any]) -> None:
+        res = self.server_app.bot.answer_decision(
+            decision_id=str(body.get("decision_id", "")),
+            answer=str(body.get("answer", "Approved")),
+            operator=body.get("operator") or self.server_app.operator_name,
+        )
+        self._send_json(res, status_code=200 if res.get("success") else 404)
+
+    def _post_reject(self, body: Dict[str, Any]) -> None:
+        res = self.server_app.bot.reject_decision(
+            decision_id=str(body.get("decision_id", "")),
+            reason=str(body.get("reason", "Rejected by operator")),
+            operator=body.get("operator") or self.server_app.operator_name,
+        )
+        self._send_json(res, status_code=200 if res.get("success") else 404)
+
+    def _post_snooze(self, body: Dict[str, Any]) -> None:
+        res = self.server_app.bot.snooze_on_fact(
+            decision_id=str(body.get("decision_id", "")),
+            fact_predicate=str(body.get("fact_predicate", "")),
+            operator=body.get("operator") or self.server_app.operator_name,
+        )
+        self._send_json(res, status_code=200 if res.get("success") else 400)
+
+    def _post_assert_fact(self, body: Dict[str, Any]) -> None:
+        res = self.server_app.bot.assert_fact(
+            fact_predicate=str(body.get("fact_predicate", "")),
+            reason=str(body.get("reason", "Asserted via Radar API")),
+        )
+        self._send_json(res, status_code=200)
+
+    def _post_settle(self, body: Dict[str, Any]) -> None:
+        res = self.server_app.bot.evaluate_and_settle_facts(live_probes=bool(body.get("live_probes", False)))
+        self._send_json(res, status_code=200)
+
+    def _post_seed(self, _body: Dict[str, Any]) -> None:
+        snap = self.server_app.bot.seed_demo_radar()
+        self._send_json({"success": True, "snapshot": snap}, status_code=200)
+
     def do_POST(self) -> None:
         """Handle HTTP POST mutations for requesting, answering, snoozing, and settling decisions."""
         parsed = urlparse(self.path)
         body = self._read_json_body()
-        bot = self.server_app.bot
-
-        if parsed.path == "/api/decisions/request":
-            res = bot.request_decision(
-                question=str(body.get("question", "Pending agent decision")),
-                category=str(body.get("category", "set_product_rule")),
-                agent_id=str(body.get("agent_id", "@agent")),
-                unblocks=body.get("unblocks") or [],
-                options=body.get("options") or [],
-                wait_for_fact=body.get("wait_for_fact"),
-                criticality=float(body.get("criticality", 1.0)),
-                work_boundary=str(body.get("work_boundary", "DECISION")),
-            )
-            self._send_json(res, status_code=200 if res.get("success") else 400)
+        routes: Dict[str, Callable[[Dict[str, Any]], None]] = {
+            "/api/decisions/request": self._post_request,
+            "/api/decisions/answer": self._post_answer,
+            "/api/decisions/reject": self._post_reject,
+            "/api/decisions/snooze": self._post_snooze,
+            "/api/decisions/assert-fact": self._post_assert_fact,
+            "/api/decisions/settle": self._post_settle,
+            "/api/decisions/seed": self._post_seed,
+        }
+        handler = routes.get(parsed.path)
+        if handler is not None:
+            handler(body)
             return
-
-        if parsed.path == "/api/decisions/answer":
-            res = bot.answer_decision(
-                decision_id=str(body.get("decision_id", "")),
-                answer=str(body.get("answer", "Approved")),
-                operator=body.get("operator") or self.server_app.operator_name,
-            )
-            self._send_json(res, status_code=200 if res.get("success") else 404)
-            return
-
-        if parsed.path == "/api/decisions/reject":
-            res = bot.reject_decision(
-                decision_id=str(body.get("decision_id", "")),
-                reason=str(body.get("reason", "Rejected by operator")),
-                operator=body.get("operator") or self.server_app.operator_name,
-            )
-            self._send_json(res, status_code=200 if res.get("success") else 404)
-            return
-
-        if parsed.path == "/api/decisions/snooze":
-            res = bot.snooze_on_fact(
-                decision_id=str(body.get("decision_id", "")),
-                fact_predicate=str(body.get("fact_predicate", "")),
-                operator=body.get("operator") or self.server_app.operator_name,
-            )
-            self._send_json(res, status_code=200 if res.get("success") else 400)
-            return
-
-        if parsed.path == "/api/decisions/assert-fact":
-            res = bot.assert_fact(
-                fact_predicate=str(body.get("fact_predicate", "")),
-                reason=str(body.get("reason", "Asserted via Radar API")),
-            )
-            self._send_json(res, status_code=200)
-            return
-
-        if parsed.path == "/api/decisions/settle":
-            res = bot.evaluate_and_settle_facts(live_probes=bool(body.get("live_probes", False)))
-            self._send_json(res, status_code=200)
-            return
-
-        if parsed.path == "/api/decisions/seed":
-            snap = bot.seed_demo_radar()
-            self._send_json({"success": True, "snapshot": snap}, status_code=200)
-            return
-
         self._send_json({"error": "Endpoint not found"}, status_code=404)
 
     def log_message(self, format: str, *args: Any) -> None:

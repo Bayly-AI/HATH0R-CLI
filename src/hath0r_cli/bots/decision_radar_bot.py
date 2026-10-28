@@ -25,6 +25,7 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 from hath0r_cli.bots.memory_manager import MemoryManagerBot
 
 SCHEMA_VERSION = "hath0r.decision.spec/1"
+DEFAULT_AGENT_ID = "@agent"
 
 CANONICAL_CATEGORIES: Dict[str, Dict[str, Any]] = {
     "needs_card": {
@@ -439,20 +440,36 @@ class DecisionRadarBot:
     def _compute_sha256(text: str) -> str:
         return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
+    def _resolve_safe_store_path(self, path: Path) -> Path:
+        allowed = {
+            "active.json": self.active_path,
+            "archive.json": self.archive_path,
+            "facts.json": self.facts_path,
+            "ledger.json": self.ledger_path,
+        }
+        if path.name not in allowed:
+            raise ValueError(f"Disallowed decision store filename: {path.name}")
+        return allowed[path.name]
+
     def _atomic_write_json(self, path: Path, data: Any) -> str:
-        path.parent.mkdir(parents=True, exist_ok=True)
+        safe_target = self._resolve_safe_store_path(path)
+        safe_target.parent.mkdir(parents=True, exist_ok=True)
         serialized = json.dumps(data, indent=2, sort_keys=True)
         digest = self._compute_sha256(serialized)
-        tmp_path = path.with_suffix(f".{uuid.uuid4().hex[:8]}.tmp")
-        tmp_path.write_text(serialized + "\n", encoding="utf-8")
-        os.replace(tmp_path, path)
+        tmp_path = safe_target.parent / f".{safe_target.name}.{uuid.uuid4().hex[:8]}.tmp"
+        with open(tmp_path, "w", encoding="utf-8") as fh:
+            fh.write(serialized)
+            fh.write("\n")
+        os.replace(tmp_path, safe_target)
         return digest
 
     def _load_store(self, path: Path) -> Dict[str, Any]:
-        if not path.is_file():
+        safe_target = self._resolve_safe_store_path(path)
+        if not safe_target.is_file():
             return {"schema_version": SCHEMA_VERSION, "revision": 0, "content_hash": "", "items": [], "task_edges": []}
         try:
-            data = json.loads(path.read_text(encoding="utf-8"))
+            with open(safe_target, "r", encoding="utf-8") as fh:
+                data = json.load(fh)
             if isinstance(data, dict):
                 data.setdefault("items", [])
                 data.setdefault("task_edges", [])
@@ -485,7 +502,8 @@ class DecisionRadarBot:
         if not self.facts_path.is_file():
             return {}
         try:
-            data = json.loads(self.facts_path.read_text(encoding="utf-8"))
+            with open(self.facts_path, "r", encoding="utf-8") as fh:
+                data = json.load(fh)
             return data.get("facts", {}) if isinstance(data, dict) else {}
         except (OSError, ValueError, TypeError):
             return {}
@@ -520,7 +538,7 @@ class DecisionRadarBot:
             if item.get("status") in ("WAITING_HUMAN", "WAITING_FACT"):
                 graph.add_decision(
                     decision_id=str(item["decision_id"]),
-                    agent_id=str(item.get("agent_id", "@agent")),
+                    agent_id=str(item.get("agent_id", DEFAULT_AGENT_ID)),
                     unblocks=[str(u) for u in item.get("unblocks", [])],
                     criticality=float(item.get("criticality", 1.0)),
                 )
@@ -592,7 +610,7 @@ class DecisionRadarBot:
         self,
         question: str,
         category: str = "set_product_rule",
-        agent_id: str = "@agent",
+        agent_id: str = DEFAULT_AGENT_ID,
         unblocks: Optional[List[str]] = None,
         options: Optional[List[str]] = None,
         wait_for_fact: Optional[str] = None,
@@ -621,7 +639,7 @@ class DecisionRadarBot:
             "decision_id": dec_id,
             "category": norm_cat,
             "category_label": CANONICAL_CATEGORIES[norm_cat]["label"],
-            "agent_id": agent_id.strip() or "@agent",
+            "agent_id": agent_id.strip() or DEFAULT_AGENT_ID,
             "question": question.strip(),
             "options": list(options or []),
             "status": status,
@@ -736,7 +754,7 @@ class DecisionRadarBot:
             b_payload = dict(target.get("boundary_payload") or {})
             sig = self.gate.sign_gate_payload(
                 decision_id=decision_id,
-                agent_id=str(target.get("agent_id", "@agent")),
+                agent_id=str(target.get("agent_id", DEFAULT_AGENT_ID)),
                 boundary=boundary,
                 operator=resolved_operator,
                 payload={k: v for k, v in b_payload.items() if k != "hmac_signature"},
@@ -982,7 +1000,7 @@ class DecisionRadarBot:
         settled_by_event = sum(1 for it in archived_items if it.get("status") == "SETTLED_BY_EVENT")
         resolved_human = sum(1 for it in archived_items if it.get("status") == "RESOLVED_HUMAN")
 
-        category_counts: Dict[str, int] = {cat_id: 0 for cat_id in CANONICAL_CATEGORIES}
+        category_counts: Dict[str, int] = dict.fromkeys(CANONICAL_CATEGORIES, 0)
         for it in items:
             cat = str(it.get("category", "set_product_rule"))
             if cat in category_counts:
@@ -1035,7 +1053,12 @@ class DecisionRadarBot:
                 # Radial distance: higher unblock weight sits closer to inner action ring (radius 230..360)
                 weight = float(dec.get("unblock_weight", 1.0))
                 norm_factor = min(1.0, weight / 10.0)
-                orbit_ring = 1 if norm_factor >= 0.5 else (2 if (n_idx % 2 == 0) else 3)
+                if norm_factor >= 0.5:
+                    orbit_ring = 1
+                elif n_idx % 2 == 0:
+                    orbit_ring = 2
+                else:
+                    orbit_ring = 3
                 radius = 235.0 + (orbit_ring - 1) * 58.0
 
                 angle_rad = math.radians(angle_deg)
