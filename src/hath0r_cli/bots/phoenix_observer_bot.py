@@ -89,11 +89,67 @@ class PhoenixObserverBot:
 
         return status
 
-    def get_evaluation_manifest(self) -> Dict[str, Any]:
+    def get_evaluation_manifest(self, suite: str = "hath0r") -> Dict[str, Any]:
         """Return the canonical suite evaluation targets and thresholds."""
+        if suite == "1-nation":
+            return {
+                "suite": "1-nation",
+                "evaluators": [
+                    {
+                        "name": "StatutoryFaithfulness",
+                        "kind": "LLM-as-a-judge",
+                        "target_product": "1n-mcp",
+                        "min_threshold": 0.45,
+                    },
+                    {
+                        "name": "NeutralityTone",
+                        "kind": "Objective Tone Classifier",
+                        "target_product": "1n-mcp",
+                        "min_threshold": 0.70,
+                    },
+                    {
+                        "name": "CitizenReadability",
+                        "kind": "Flesch-Kincaid",
+                        "target_product": "1n-mcp",
+                        "min_threshold": 0.80,
+                    },
+                    {
+                        "name": "JailbreakSecurity",
+                        "kind": "Safety Classifier",
+                        "target_product": "agentguard",
+                        "min_threshold": 1.00,
+                    },
+                ],
+            }
+
         return {
-            "suite": "1-nation",
+            "suite": suite,
+            "rule_id": "CR-TASK-EVAL-001",
             "evaluators": [
+                {
+                    "name": "DeterministicRubric",
+                    "kind": "Programmatic Engineering Gate (Tier 1)",
+                    "target_product": "hath0r-opensource",
+                    "min_threshold": 1.00,
+                },
+                {
+                    "name": "TrajectoryEfficiency",
+                    "kind": "FinOps & Taguchi Loss Evaluator (Tier 2)",
+                    "target_product": "hath0r-opensource",
+                    "min_threshold": 0.75,
+                },
+                {
+                    "name": "AntagonisticDiffCritic",
+                    "kind": "Adversarial Diff & Tech Debt Critic (Tier 3)",
+                    "target_product": "hath0r-opensource",
+                    "min_threshold": 0.80,
+                },
+                {
+                    "name": "GoalAlignmentConsensus",
+                    "kind": "Issue Alignment & Multi-Agent Consensus (Tier 4)",
+                    "target_product": "hath0r-opensource",
+                    "min_threshold": 0.70,
+                },
                 {
                     "name": "StatutoryFaithfulness",
                     "kind": "LLM-as-a-judge",

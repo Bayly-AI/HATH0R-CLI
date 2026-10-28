@@ -158,7 +158,7 @@ def phoenix_ui(group: str, edge: bool) -> None:
 @click.option("--json", "as_json", is_flag=True, help="Output evaluation schema as JSON.")
 def phoenix_evals(suite: str, as_json: bool) -> None:
     """List registered evaluation judges and quality gates."""
-    manifest = phoenix_observer_bot.get_evaluation_manifest()
+    manifest = phoenix_observer_bot.get_evaluation_manifest(suite=suite)
 
     if as_json:
         click.echo(json.dumps(manifest, indent=2))

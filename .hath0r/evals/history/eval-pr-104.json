@@ -1,0 +1,109 @@
+{
+  "schema_version": "hath0r.evals.scorecard/v1",
+  "rule_id": "CR-TASK-EVAL-001",
+  "eval_id": "eval-20261028-132317-ee1ece",
+  "task_id": "pr-104",
+  "issue_number": 510,
+  "repo_name": "hathor-cli",
+  "branch": "feature/510-automatic-task-evals",
+  "evaluated_at": "2026-10-28T13:23:17.197485+00:00",
+  "duration_ms": 3354.61,
+  "passed_gate": false,
+  "r_task": 0.9,
+  "min_reward_threshold": 0.8,
+  "weights": {
+    "deterministic": 0.4,
+    "trajectory": 0.2,
+    "adversarial": 0.25,
+    "goal_alignment": 0.15
+  },
+  "tier_scores": {
+    "deterministic": 0.75,
+    "trajectory": 1.0,
+    "adversarial": 1.0,
+    "goal_alignment": 1.0
+  },
+  "tiers": {
+    "deterministic": {
+      "score": 0.75,
+      "passed": false,
+      "passed_checks": 3,
+      "total_checks": 4,
+      "checks": {
+        "version_valid": {
+          "passed": true,
+          "version": "1.9.0",
+          "error": null
+        },
+        "agentgraph_valid": {
+          "passed": true,
+          "cycles": 0,
+          "contradictions": 0
+        },
+        "memory_compounded": {
+          "passed": false,
+          "compounded_nodes_count": 22,
+          "session_read_verified": true,
+          "session_write_verified": true,
+          "hashes_verified": false,
+          "graphs_not_ignored": true,
+          "error": "CR-MEMORY-COMPOUND-001: Memory file hash verification failed (mismatched=0, missing=0, stale_source_files=1). Run 'hath0r memory hash --sync' or re-compound stale knowledge nodes."
+        },
+        "test_suite": {
+          "passed": true,
+          "skipped": true,
+          "message": "Test execution skipped via flag or dry-run."
+        }
+      }
+    },
+    "trajectory": {
+      "score": 1.0,
+      "passed": true,
+      "tokens_used": 0,
+      "max_tokens": 50000,
+      "estimated_usd": 0.0,
+      "max_usd": 0.25,
+      "session_id": "sess-20261028-130546-18a517",
+      "session_reads": 5,
+      "session_writes": 6,
+      "session_bytes": 1962,
+      "within_capsule_budget": true,
+      "latency_ms": 524.57,
+      "taguchi_quality_loss": 0.0034,
+      "snr_db": 11.62
+    },
+    "adversarial": {
+      "score": 1.0,
+      "passed": true,
+      "adversarial_flaws_count": 0,
+      "adversarial_flaws": [],
+      "tech_debts_count": 1,
+      "auto_created_issues": [
+        {
+          "title": "tech-debt: resolve TODO in codebase - `/`FIXME`), uncompounded memory graphs, or FinOps budget ove",
+          "issue_url": "https://github.com/Bayly-AI/HATH0R-CLI/issues/512"
+        }
+      ],
+      "change_categories": {},
+      "changed_files_count": 0
+    },
+    "goal_alignment": {
+      "score": 1.0,
+      "passed": true,
+      "task_id": "pr-104",
+      "issue_number": 510,
+      "active_focus": "Orienting repository hathor-cli",
+      "compounded_nodes_count": 22,
+      "consensus_score": 1.0
+    }
+  },
+  "blocking_reasons": [
+    "Tier 1 deterministic gate failed: memory_compounded"
+  ],
+  "observability_sync": {
+    "mode": "live_synced",
+    "phoenix_logged": true,
+    "mlflow_run_id": "f572a35aa6f14ffb9136681a7c38c5b8"
+  },
+  "content_hash": "sha256:10dad66cf381b998d6e00f2c6a8df24d424c8a13536577a6a53f2b9080e59d2e"
+}

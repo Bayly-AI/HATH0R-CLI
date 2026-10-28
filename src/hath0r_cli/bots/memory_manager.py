@@ -92,6 +92,7 @@ class MemoryManagerBot:
         "synthesized",
         "session",
         "micro-session",
+        "eval",
     }
 
     CANONICAL_GRAPH_PATHS: tuple[str, ...] = (
@@ -99,6 +100,7 @@ class MemoryManagerBot:
         ".hath0r/memory/graph.json",
         ".hath0r/memory/hashes.json",
         ".hath0r/memory/sessions/current.json",
+        ".hath0r/evals/latest.json",
         ".hath0r/agentgraph/snapshot.json",
         ".hath0r/graphs/default.json",
         ".hath0r/state/cache/knowledge.json",
@@ -112,6 +114,8 @@ class MemoryManagerBot:
         "!.hath0r/memory/**",
         "!.hath0r/memory/sessions/",
         "!.hath0r/memory/sessions/**",
+        "!.hath0r/evals/",
+        "!.hath0r/evals/**",
         "!.hath0r/agentgraph/",
         "!.hath0r/agentgraph/**",
         "!.hath0r/graphs/",
