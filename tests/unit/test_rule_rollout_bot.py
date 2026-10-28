@@ -48,7 +48,7 @@ def _make_repo(root: Path, remotes: Path, name: str, files: Dict[str, str], remo
     return repo
 
 
-@pytest.fixture()
+@pytest.fixture
 def workspace(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     for key, val in {
         "GIT_AUTHOR_NAME": "t",
@@ -167,9 +167,12 @@ def test_status_classifies_and_dedupes(workspace):
 def test_preview_writes_nothing(workspace, tmp_path: Path):
     root, _ = workspace
     res = RuleRolloutBot(runner=FakeGh()).ensure_all(RULE, root=root, work_dir=tmp_path / "wt")
-    assert res["mode"] == "preview" and res["success"]
+    assert res["mode"] == "preview"
+    assert res["success"]
     assert not (tmp_path / "wt").exists()
     assert RULE not in (root / "alpha" / "AGENTS.md").read_text()
+    # without --work-dir, preview must not create a temp directory either
+    assert RuleRolloutBot(runner=FakeGh()).ensure_all(RULE, root=root)["work_dir"] is None
 
 
 def test_apply_commits_in_worktree_and_leaves_checkout_untouched(workspace, tmp_path: Path):
@@ -218,7 +221,8 @@ def test_publish_opens_issue_pushes_branch_and_pr(workspace, tmp_path: Path, mon
     assert pushed == "1.2.4"
     pr_call = next(c for c in gh.calls if c[:3] == ["gh", "pr", "create"])
     body = pr_call[pr_call.index("--body") + 1]
-    assert "Closes #7" in body and "Version Impact: patch" in body
+    assert "Closes #7" in body
+    assert "Version Impact: patch" in body
     assert pr_call[pr_call.index("--base") + 1] == "development"
     assert sorted(c[c.index("--repo") + 1] for c in created) == ["Org/alpha", "Org/gamma", "Org/zeta"]
 

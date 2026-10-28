@@ -81,6 +81,13 @@ def changelog_with_entry(changelog: Optional[str], version: str, entry: str) -> 
     return changelog[: m.start()] + block + changelog[m.start() :]
 
 
+def _tally(repos: List[Dict[str, Any]]) -> Dict[str, int]:
+    counts: Dict[str, int] = {}
+    for r in repos:
+        counts[r["status"]] = counts.get(r["status"], 0) + 1
+    return counts
+
+
 def remote_slug(url: str) -> Optional[str]:
     """``https://github.com/Owner/Repo.git`` or ``git@github.com:Owner/Repo.git`` → ``Owner/Repo``."""
     m = re.search(r"github\.com[:/]([^/]+/[^/]+?)(?:\.git)?/?$", url.strip())
@@ -181,10 +188,7 @@ class RuleRolloutBot:
     def status(self, rule_id: str, root: Optional[Path | str] = None, *, check_prs: bool = True) -> Dict[str, Any]:
         base = Path(root).resolve() if root else DEFAULT_ROOT
         repos = [self.classify(r, rule_id, check_prs=check_prs) for r in self.discover(base)]
-        counts: Dict[str, int] = {}
-        for r in repos:
-            counts[r["status"]] = counts.get(r["status"], 0) + 1
-        return {"success": True, "rule_id": rule_id, "root_dir": str(base), "counts": counts, "repos": repos}
+        return {"success": True, "rule_id": rule_id, "root_dir": str(base), "counts": _tally(repos), "repos": repos}
 
     # ----------------------------------------------------------------- prepare
 
@@ -306,6 +310,26 @@ class RuleRolloutBot:
 
     # -------------------------------------------------------------- ensure-all
 
+    def _roll_out(
+        self,
+        repo: Dict[str, Any],
+        rule_id: str,
+        rule: Dict[str, str],
+        work_dir: Path,
+        *,
+        publish: bool,
+        keep_worktree: bool,
+    ) -> Dict[str, Any]:
+        """Prepare (and optionally publish) one repository, removing its worktree unless kept or failed."""
+        work_dir.mkdir(parents=True, exist_ok=True)
+        res = self.prepare(repo, rule_id, rule, work_dir)
+        if publish and res["status"] == "prepared":
+            res = self.publish(res, rule_id, rule)
+        if res.get("worktree") and not keep_worktree and res["status"] != "error":
+            self._git(Path(repo["path"]), "worktree", "remove", "--force", res["worktree"])
+            res.pop("worktree")
+        return res
+
     def ensure_all(
         self,
         rule_id: str,
@@ -324,30 +348,27 @@ class RuleRolloutBot:
             return {"success": False, "rule_id": rule_id, "error": str(exc), "repos": []}
         apply = apply or publish
         plan = self.status(rule_id, root)
-        wdir = Path(work_dir) if work_dir else Path(tempfile.mkdtemp(prefix=f"hath0r-rules-{rule_id.lower()}-"))
+        wdir: Optional[Path] = None
+        if apply:
+            wdir = Path(work_dir) if work_dir else Path(tempfile.mkdtemp(prefix=f"hath0r-rules-{rule_id.lower()}-"))
         results: List[Dict[str, Any]] = []
         for repo in plan["repos"]:
-            if repo["status"] != "missing" or not apply:
+            if wdir is None or repo["status"] != "missing":
                 results.append(repo)
-                continue
-            wdir.mkdir(parents=True, exist_ok=True)
-            res = self.prepare(repo, rule_id, rule, wdir)
-            if publish and res["status"] == "prepared":
-                res = self.publish(res, rule_id, rule)
-            if res.get("worktree") and not keep_worktrees and res["status"] != "error":
-                self._git(Path(repo["path"]), "worktree", "remove", "--force", res["worktree"])
-                res.pop("worktree")
-            results.append(res)
-        counts: Dict[str, int] = {}
-        for r in results:
-            counts[r["status"]] = counts.get(r["status"], 0) + 1
-        mode = "publish" if publish else ("apply" if apply else "preview")
+            else:
+                results.append(self._roll_out(repo, rule_id, rule, wdir, publish=publish, keep_worktree=keep_worktrees))
+        counts = _tally(results)
+        mode = "preview"
+        if publish:
+            mode = "publish"
+        elif apply:
+            mode = "apply"
         return {
             "success": counts.get("error", 0) == 0,
             "rule_id": rule_id,
             "mode": mode,
             "root_dir": plan["root_dir"],
-            "work_dir": str(wdir) if apply else None,
+            "work_dir": str(wdir) if wdir else None,
             "counts": counts,
             "repos": results,
         }
