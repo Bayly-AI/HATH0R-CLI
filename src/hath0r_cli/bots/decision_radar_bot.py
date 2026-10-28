@@ -606,6 +606,21 @@ class DecisionRadarBot:
         self._save_store(self.active_path, store)
         return {"success": True, "edge": {"from": upstream_task, "to": downstream_task}}
 
+    def open_split_window_for_decision(
+        self,
+        decision_id: Optional[str] = None,
+        side: str = "right",
+        port: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Ensure Cruise Control server is running and open/tile it in a split-window browser display."""
+        from hath0r_cli.server.decision_radar_server import (
+            ensure_cruise_control_server,
+            launch_cruise_control_split_window,
+        )
+
+        radar_url = ensure_cruise_control_server(cwd=self.cwd, port=port)
+        return launch_cruise_control_split_window(url=radar_url, decision_id=decision_id, side=side)
+
     def request_decision(
         self,
         question: str,
@@ -619,6 +634,8 @@ class DecisionRadarBot:
         boundary_payload: Optional[Dict[str, Any]] = None,
         decision_id: Optional[str] = None,
         expected_hash: Optional[str] = None,
+        split_window: bool = False,
+        split_side: str = "right",
     ) -> Dict[str, Any]:
         """Submit a waiting decision to the Cruise Control Decision Radar queue."""
         norm_cat = category.strip().lower()
@@ -672,7 +689,10 @@ class DecisionRadarBot:
         self._refresh_impact_scores(store)
         self._save_store(self.active_path, store, expected_hash=expected_hash)
         updated = next(it for it in store["items"] if it["decision_id"] == dec_id)
-        return {"success": True, "decision": updated, "store_revision": store["revision"]}
+        result: Dict[str, Any] = {"success": True, "decision": updated, "store_revision": store["revision"]}
+        if split_window:
+            result["browser_window"] = self.open_split_window_for_decision(decision_id=dec_id, side=split_side)
+        return result
 
     def create_input_gate(
         self,
@@ -682,6 +702,8 @@ class DecisionRadarBot:
         tools: Optional[List[str]] = None,
         unblocks: Optional[List[str]] = None,
         criticality: float = 1.5,
+        split_window: bool = False,
+        split_side: str = "right",
     ) -> Dict[str, Any]:
         """Create an Input Work Boundary Gate ('approve what goes into the work')."""
         payload = {
@@ -699,6 +721,8 @@ class DecisionRadarBot:
             criticality=criticality,
             work_boundary="INPUT",
             boundary_payload=payload,
+            split_window=split_window,
+            split_side=split_side,
         )
 
     def create_output_gate(
@@ -710,6 +734,8 @@ class DecisionRadarBot:
         tests_passed: bool = True,
         unblocks: Optional[List[str]] = None,
         criticality: float = 1.8,
+        split_window: bool = False,
+        split_side: str = "right",
     ) -> Dict[str, Any]:
         """Create an Output Work Boundary Gate ('approve what comes out of the work')."""
         payload = {
@@ -727,6 +753,8 @@ class DecisionRadarBot:
             criticality=criticality,
             work_boundary="OUTPUT",
             boundary_payload=payload,
+            split_window=split_window,
+            split_side=split_side,
         )
 
     def answer_decision(
@@ -914,15 +942,26 @@ class DecisionRadarBot:
         timeout_seconds: float = 5.0,
         poll_interval: float = 0.2,
         live_probes: bool = False,
+        split_window: bool = True,
+        split_side: str = "right",
     ) -> Dict[str, Any]:
         """Poll until a decision is answered by a human or settled by an event fact."""
+        window_info: Optional[Dict[str, Any]] = None
+        if split_window and os.environ.get("HATH0R_CRUISE_AUTO_SPLIT", "1") != "0":
+            window_info = self.open_split_window_for_decision(decision_id=decision_id, side=split_side)
+
         deadline = time.monotonic() + max(0.0, float(timeout_seconds))
         while True:
             self.evaluate_and_settle_facts(live_probes=live_probes)
             archive = self._load_store(self.archive_path)
             for item in reversed(archive.get("items", [])):
                 if item.get("decision_id") == decision_id:
-                    return {"success": True, "resolved": True, "decision": item}
+                    return {
+                        "success": True,
+                        "resolved": True,
+                        "decision": item,
+                        "browser_window": window_info,
+                    }
 
             active = self._load_store(self.active_path)
             current = next((it for it in active.get("items", []) if it.get("decision_id") == decision_id), None)
@@ -930,7 +969,13 @@ class DecisionRadarBot:
                 return {"success": False, "resolved": False, "error": f"Decision '{decision_id}' not found."}
 
             if time.monotonic() >= deadline:
-                return {"success": True, "resolved": False, "timeout": True, "decision": current}
+                return {
+                    "success": True,
+                    "resolved": False,
+                    "timeout": True,
+                    "decision": current,
+                    "browser_window": window_info,
+                }
             time.sleep(min(poll_interval, max(0.01, deadline - time.monotonic())))
 
     def _archive_resolved_decision(self, active_store: Dict[str, Any], resolved_item: Dict[str, Any]) -> None:

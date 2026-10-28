@@ -5,6 +5,14 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2026-10-28
+
+### Added
+- **Hath0r Cruise Control Split-Window Browser Display (`#513`)**:
+  - Automatic split-window browser display (`--split-window` / `--split-side right|left`) whenever a task or agent needs a decision (`hath0r cruise wait`, `hath0r cruise ask`, `hath0r cruise approve-in --queue-only`, `hath0r cruise approve-out --queue-only`, `hath0r cruise radar`, and `CruiseControlBot.open_split_window_for_decision`).
+  - Added `ensure_cruise_control_server`, `build_macos_split_window_applescript`, `launch_cruise_control_split_window`, and `POST /api/decisions/split-window` in `src/hath0r_cli/server/decision_radar_server.py`.
+  - Added `?focus=<decision_id>` URL deep-linking and header `◫ Split Window` control in the Cruise Control Web Radar UI.
+
 ## [1.8.1] - 2026-10-28
 
 ### Changed

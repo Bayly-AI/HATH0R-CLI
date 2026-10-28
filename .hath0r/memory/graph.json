@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 117,
-  "content_hash": "sha256:3a4ef90a0e021607d6777d97991bbaa3b8dd1a525d6ce513617015dddc010952",
-  "updated_at": "2026-10-28T12:59:59.993858+00:00",
+  "revision": 125,
+  "content_hash": "sha256:e8e13756ba95efbb00c3c0cf1cd6a4945fefa557da89c67805e76445e5ccab58",
+  "updated_at": "2026-10-28T13:40:21.273489+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -581,9 +581,9 @@
       "updated_at": "2026-10-28T12:29:58.673969+00:00",
       "metadata": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:156099380fd280eef05a78b3a032297bf45b946033266c7d88d6ac95575ccda0",
-          "src/hath0r_cli/commands/decision.py": "sha256:300f9be123769e8fb12ef8403b24e010f317d1071546487ce29450e87e06d605",
-          "src/hath0r_cli/server/decision_radar_server.py": "sha256:f2dfd54a3d5f67f1ff4d57a54fd1a31c2bc53ce13bebbae6c84690b5f2906d4e"
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:3852b9f138f25d2586ba533a0aa72a2b60cc332a0736d31f342288dfb329a611",
+          "src/hath0r_cli/commands/decision.py": "sha256:ff3f193d9fcc952a1058af525cf49091c9a5d041aa048a100fe6b56916d2f1cc",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:d9223fa2af64e8b1ab90f2061073a4799c98db566e5851dfdb6a541d4e140e78"
         }
       }
     },
@@ -649,9 +649,35 @@
       "updated_at": "2026-10-28T12:59:58.010370+00:00",
       "metadata": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:156099380fd280eef05a78b3a032297bf45b946033266c7d88d6ac95575ccda0",
-          "src/hath0r_cli/commands/decision.py": "sha256:300f9be123769e8fb12ef8403b24e010f317d1071546487ce29450e87e06d605",
-          "src/hath0r_cli/server/decision_radar_server.py": "sha256:f2dfd54a3d5f67f1ff4d57a54fd1a31c2bc53ce13bebbae6c84690b5f2906d4e"
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:3852b9f138f25d2586ba533a0aa72a2b60cc332a0736d31f342288dfb329a611",
+          "src/hath0r_cli/commands/decision.py": "sha256:ff3f193d9fcc952a1058af525cf49091c9a5d041aa048a100fe6b56916d2f1cc",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:d9223fa2af64e8b1ab90f2061073a4799c98db566e5851dfdb6a541d4e140e78"
+        }
+      }
+    },
+    {
+      "id": "decision:cruise-control-split-window",
+      "type": "decision",
+      "label": "Cruise Control Split-Window Browser Display (#513)",
+      "content": "Configured Hath0r Cruise Control to automatically ensure HathorCruiseControlServer is running and launch/tile a split-window browser display (side=right/left, ?focus=<decision_id>) whenever a task or agent needs a decision.",
+      "importance": 0.9,
+      "tags": [
+        "cruise-control",
+        "split-window",
+        "v1.9.0",
+        "decision",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T13:37:35.044269+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T13:37:35.044269+00:00",
+      "updated_at": "2026-10-28T13:37:35.044269+00:00",
+      "metadata": {
+        "source_files": {
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:3852b9f138f25d2586ba533a0aa72a2b60cc332a0736d31f342288dfb329a611",
+          "src/hath0r_cli/commands/decision.py": "sha256:ff3f193d9fcc952a1058af525cf49091c9a5d041aa048a100fe6b56916d2f1cc",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:d9223fa2af64e8b1ab90f2061073a4799c98db566e5851dfdb6a541d4e140e78"
         }
       }
     },
@@ -659,7 +685,7 @@
       "id": "session:sess-20261017-145045-ed36da",
       "type": "session",
       "label": "Micro Session sess-20261017-145045-ed36da",
-      "content": "Micro Session sess-20261017-145045-ed36da [completed] | Focus: Orienting repository hathor-cli | Reads: 14, Writes: 21 | Entries: Compounded decision:cruise-control-naming: Named Agent Decision Control Layer 'Cruise Control' (#508)",
+      "content": "Micro Session sess-20261017-145045-ed36da [completed] | Focus: Orienting repository hathor-cli | Reads: 15, Writes: 23 | Entries: Compounded decision:cruise-control-split-window: Cruise Control Split-Window Browser Display (#513)",
       "importance": 0.75,
       "tags": [
         "session",
@@ -670,15 +696,36 @@
       "valid_to": "2026-10-28T09:33:49.371663+00:00",
       "is_current": true,
       "created_at": "2026-10-17T14:50:45.402982+00:00",
-      "updated_at": "2026-10-28T12:59:58.043136+00:00",
+      "updated_at": "2026-10-28T13:37:35.116306+00:00",
       "metadata": {
         "session_id": "sess-20261017-145045-ed36da",
         "prior_session_id": "sess-20261016-151409-a068f7",
         "parent_session_id": "sess-20261016-151409-a068f7",
-        "read_count": 14,
-        "write_count": 21,
+        "read_count": 15,
+        "write_count": 23,
         "status": "completed",
-        "byte_size": 1921
+        "byte_size": 1975
+      }
+    },
+    {
+      "id": "insight:cruise-control",
+      "type": "insight",
+      "label": "Synthesized Insight on cruise-control",
+      "content": "Consolidated from 2 memory nodes tagged 'cruise-control'. Recurring themes: control, cruise, agent, decision. Latest context: Configured Hath0r Cruise Control to automatically ensure HathorCruiseControlServer is running and launch/tile a split-window browser display (side=right/left, ?",
+      "importance": 1.0,
+      "tags": [
+        "cruise-control",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T13:37:35.149857+00:00",
+      "is_current": true,
+      "created_at": "2026-10-28T13:37:35.149857+00:00",
+      "updated_at": "2026-10-28T13:37:35.149857+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "cruise-control"
       }
     }
   ],
@@ -1261,6 +1308,38 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T12:59:58.045364+00:00",
+      "is_current": true
+    },
+    {
+      "source": "decision:cruise-control-split-window",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:37:35.044269+00:00",
+      "is_current": true
+    },
+    {
+      "source": "decision:cruise-control-split-window",
+      "target": "session:sess-20261017-145045-ed36da",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:37:35.120070+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:cruise-control",
+      "target": "decision:cruise-control-naming",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:37:35.149857+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:cruise-control",
+      "target": "decision:cruise-control-split-window",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-28T13:37:35.149857+00:00",
       "is_current": true
     }
   ]

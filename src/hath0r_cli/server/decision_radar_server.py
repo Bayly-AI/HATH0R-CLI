@@ -11,7 +11,12 @@ from __future__ import annotations
 
 import html
 import json
+import os
+import socket
+import subprocess
+import sys
 import threading
+import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional
@@ -23,6 +28,9 @@ from rich.table import Table
 from rich.tree import Tree
 
 from hath0r_cli.bots.decision_radar_bot import CANONICAL_CATEGORIES, DEFAULT_AGENT_ID, DecisionRadarBot
+
+DEFAULT_CRUISE_PORT = 38090
+_ACTIVE_DAEMON_SERVERS: Dict[int, "HathorDecisionRadarServer"] = {}
 
 RADAR_HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
@@ -52,6 +60,9 @@ RADAR_HTML_TEMPLATE = """<!DOCTYPE html>
             </span>
         </div>
         <div class="flex items-center space-x-3 text-xs">
+            <button onclick="snapSplitWindow('right')" class="px-3 py-1.5 rounded bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-800">
+                ◫ Split Window
+            </button>
             <button onclick="seedDemo()" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">
                 Seed Reference Topology
             </button>
@@ -137,7 +148,18 @@ RADAR_HTML_TEMPLATE = """<!DOCTYPE html>
 
     <script>
         let currentSnapshot = null;
-        let selectedDecisionId = null;
+        const _urlParams = new URLSearchParams(window.location.search);
+        let selectedDecisionId = _urlParams.get("focus") || null;
+        const _initialSplitSide = _urlParams.get("split");
+        if (_initialSplitSide === "right" || _initialSplitSide === "left") {
+            try {
+                const availW = window.screen.availWidth || 1728;
+                const availH = window.screen.availHeight || 1080;
+                const halfW = Math.floor(availW / 2);
+                window.moveTo(_initialSplitSide === "left" ? 0 : halfW, 0);
+                window.resizeTo(halfW, availH);
+            } catch (err) {}
+        }
 
         function polarToCartesian(r, angleDeg) {
             const rad = (angleDeg * Math.PI) / 180.0;
@@ -486,6 +508,22 @@ RADAR_HTML_TEMPLATE = """<!DOCTYPE html>
             await refreshRadar();
         }
 
+        async function snapSplitWindow(side = "right") {
+            try {
+                const availW = window.screen.availWidth || 1728;
+                const availH = window.screen.availHeight || 1080;
+                const halfW = Math.floor(availW / 2);
+                const x = side === "left" ? 0 : halfW;
+                window.moveTo(x, 0);
+                window.resizeTo(halfW, availH);
+            } catch (err) {}
+            await fetch("/api/decisions/split-window", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ side: side, decision_id: selectedDecisionId })
+            });
+        }
+
         refreshRadar();
         const evtSource = new EventSource("/api/decisions/stream");
         evtSource.onmessage = (e) => {
@@ -672,6 +710,17 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
         snap = self.server_app.bot.seed_demo_radar()
         self._send_json({"success": True, "snapshot": snap}, status_code=200)
 
+    def _post_split_window(self, body: Dict[str, Any]) -> None:
+        side = str(body.get("side", "right"))
+        decision_id = body.get("decision_id")
+        base_url = f"http://{self.server_app.host}:{self.server_app.port}/radar"
+        res = launch_cruise_control_split_window(
+            url=base_url,
+            decision_id=str(decision_id) if decision_id else None,
+            side=side,
+        )
+        self._send_json({"success": True, "window": res}, status_code=200)
+
     def do_POST(self) -> None:
         """Handle HTTP POST mutations for requesting, answering, snoozing, and settling decisions."""
         parsed = urlparse(self.path)
@@ -684,6 +733,7 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
             "/api/decisions/assert-fact": self._post_assert_fact,
             "/api/decisions/settle": self._post_settle,
             "/api/decisions/seed": self._post_seed,
+            "/api/decisions/split-window": self._post_split_window,
         }
         handler = routes.get(parsed.path)
         if handler is not None:
@@ -737,3 +787,152 @@ class HathorDecisionRadarServer:
 
 
 HathorCruiseControlServer = HathorDecisionRadarServer
+
+
+def is_cruise_server_listening(host: str = "127.0.0.1", port: int = DEFAULT_CRUISE_PORT) -> bool:
+    """Return True if a Cruise Control server is already listening on host:port."""
+    try:
+        with socket.create_connection((host, int(port)), timeout=0.25):
+            return True
+    except OSError:
+        return False
+
+
+def ensure_cruise_control_server(
+    cwd: Optional[Path | str] = None,
+    host: str = "127.0.0.1",
+    port: Optional[int] = None,
+    operator_name: str = "Mark",
+) -> str:
+    """Ensure a Cruise Control HTTP/SSE server is listening and return its /radar URL."""
+    resolved_port = int(port if port is not None else os.environ.get("HATH0R_CRUISE_PORT", str(DEFAULT_CRUISE_PORT)))
+    if is_cruise_server_listening(host=host, port=resolved_port):
+        return f"http://{host}:{resolved_port}/radar"
+
+    try:
+        srv = HathorDecisionRadarServer(host=host, port=resolved_port, cwd=cwd, operator_name=operator_name)
+        bound_port = srv.start(daemon=True)
+    except OSError:
+        srv = HathorDecisionRadarServer(host=host, port=0, cwd=cwd, operator_name=operator_name)
+        bound_port = srv.start(daemon=True)
+
+    _ACTIVE_DAEMON_SERVERS[bound_port] = srv
+    return f"http://{host}:{bound_port}/radar"
+
+
+def build_macos_split_window_applescript(url: str, side: str = "right") -> str:
+    """Generate macOS AppleScript to open Cruise Control and tile it in a split-screen browser window."""
+    safe_url = url.replace('"', "").replace("\\", "")
+    is_left = str(side).strip().lower() == "left"
+    x_expr = "0" if is_left else "halfW"
+    right_expr = "halfW" if is_left else "screenW"
+    return (
+        'tell application "Finder"\n'
+        "    set screenBounds to bounds of window of desktop\n"
+        "    set screenW to item 3 of screenBounds\n"
+        "    set screenH to item 4 of screenBounds\n"
+        "    set halfW to screenW div 2\n"
+        "end tell\n"
+        'tell application "Google Chrome"\n'
+        "    activate\n"
+        "    if (count of windows) = 0 then\n"
+        "        make new window\n"
+        "    end if\n"
+        f'    set URL of active tab of front window to "{safe_url}"\n'
+        f"    set bounds of front window to {{{x_expr}, 25, {right_expr}, screenH}}\n"
+        "end tell"
+    )
+
+
+def _format_focus_url(url: str, decision_id: Optional[str], side: str = "right") -> str:
+    params = []
+    if decision_id:
+        params.append(f"focus={decision_id}")
+    params.append(f"split={side}")
+    sep = "&" if "?" in url else "?"
+    return f"{url}{sep}{'&'.join(params)}"
+
+
+def _launch_macos_split_browser(target_url: str, norm_side: str, script: str) -> str:
+    """Launch split-screen browser on macOS via Chrome --app window bounds or AppleScript fallback."""
+    half_w = 864
+    win_h = 1055
+    pos_x = 0 if norm_side == "left" else half_w
+    chrome_app = Path("/Applications/Google Chrome.app")
+    if chrome_app.exists():
+        try:
+            proc = subprocess.run(
+                [
+                    "open",
+                    "-na",
+                    "Google Chrome",
+                    "--args",
+                    f"--app={target_url}",
+                    f"--window-position={pos_x},25",
+                    f"--window-size={half_w},{win_h}",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=4,
+                check=False,
+            )
+            if proc.returncode == 0:
+                return "macos-chrome-app-split"
+        except (OSError, subprocess.SubprocessError):
+            pass
+
+    try:
+        proc = subprocess.run(
+            ["osascript", "-e", script],
+            capture_output=True,
+            text=True,
+            timeout=4,
+            check=False,
+        )
+        if proc.returncode == 0:
+            return "macos-applescript-split"
+    except (OSError, subprocess.SubprocessError):
+        pass
+
+    webbrowser.open(target_url)
+    return "webbrowser"
+
+
+def launch_cruise_control_split_window(
+    url: str,
+    decision_id: Optional[str] = None,
+    side: str = "right",
+    dry_run: bool = False,
+) -> Dict[str, Any]:
+    """Open and tile the Cruise Control Web Radar in a split-window browser display."""
+    norm_side = "left" if str(side).strip().lower() == "left" else "right"
+    target_url = _format_focus_url(url, decision_id, side=norm_side)
+    script = build_macos_split_window_applescript(target_url, side=norm_side)
+
+    no_browser = os.environ.get("HATH0R_NO_BROWSER") == "1" or bool(os.environ.get("PYTEST_CURRENT_TEST"))
+    if dry_run or no_browser:
+        return {
+            "launched": not dry_run,
+            "simulated": True,
+            "url": target_url,
+            "layout": f"split-{norm_side}",
+            "side": norm_side,
+            "decision_id": decision_id,
+            "method": "simulated",
+        }
+
+    if sys.platform == "darwin":
+        method = _launch_macos_split_browser(target_url, norm_side, script)
+    else:
+        webbrowser.open(target_url)
+        method = "webbrowser"
+
+    return {
+        "launched": True,
+        "simulated": False,
+        "url": target_url,
+        "layout": f"split-{norm_side}",
+        "side": norm_side,
+        "decision_id": decision_id,
+        "method": method,
+    }

@@ -8,18 +8,20 @@
 ## 1. Quick Command Reference
 
 ```bash
-# Launch Cruise Control Web Radar UI (http://127.0.0.1:8085/radar)
-hath0r cruise radar --port 8085
+# Launch Cruise Control Web Radar UI in a split-window browser display (http://127.0.0.1:38090/radar)
+hath0r cruise radar --port 38090 --split-window --split-side right
 
 # Seed the canonical 16-node Cruise Control reference topology and render TUI
 hath0r cruise tui --seed-demo
 
-# Queue a new decision from an agent
-hath0r decision ask \
+# Queue a new decision from an agent (automatically opens/focuses split-window Cruise Control)
+hath0r cruise ask \
   --question "Patch and reboot the Parts-API widget VMs" \
   --category "only_you_can_do_this" \
   --agent "@a11152" \
-  --unblocks "vm-node-1,vm-node-2"
+  --unblocks "vm-node-1,vm-node-2" \
+  --split-window
+```
 
 # Block agent terminal until answered or settled by fact
 hath0r decision wait \
@@ -58,6 +60,7 @@ hath0r decision settle
 | `POST` | `/api/decisions/answer` | Resolve a decision with operator answer |
 | `POST` | `/api/decisions/reject` | Reject a decision |
 | `POST` | `/api/decisions/snooze` | Bind a decision to a declarative fact predicate |
+| `POST` | `/api/decisions/split-window` | Tile Cruise Control in a right/left split-screen browser window |
 | `POST` | `/api/decisions/assert-fact` | Assert a fact and auto-settle matching decisions |
 | `POST` | `/api/decisions/settle` | Evaluate all pending fact predicates |
 | `POST` | `/api/decisions/seed` | Seed reference topology |
