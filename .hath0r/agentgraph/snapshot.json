@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
-  "graph_id": "agentgraph-hathor-cli",
-  "timestamp": "2026-10-28T18:13:53.936397+00:00",
+  "graph_id": "agentgraph-hcli",
+  "timestamp": "2026-10-28T20:46:34.511427+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -53,42 +53,6 @@
       "properties": {
         "path": "tests/AGENTS.md",
         "subsystem": "tests"
-      },
-      "is_current": true
-    },
-    {
-      "id": "doc:agents-hath0r-fileset-1.7.0",
-      "plane": "knowledge",
-      "type": "knowledge_doc",
-      "label": "AGENTS.md (hath0r-fileset-1.7.0)",
-      "content": "# AGENTS.md — HATH0R CLI (OpenSource Control Tower)\n\n> Role: **OpenSource Project control tower + operator/developer CLI (`hath0r`)** · group `hath0r-opensource`  \n> Updated: 2026-09-23\n\n## Group membership (CRITICAL)\n\n| Field | Value |\n|-------|-------|\n| Group | `hath0r-opensource` |\n| Project | **OpenSource Project** |\n| Group root | `/Users/raybayly/Development/OpenSource` |\n| **Control tower** | **this repo** (`HATH0R-CLI`) |\n| This product | `HATH0R-CLI` |\n| GitHub | `Bayly-AI/HATH0R-CLI` |\n| Local path | `/Users/raybayly/Development/OpenSource/HATH0R-CLI` |\n| Canonical KB | `/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase` |\n| Operator CLI | `hath0r` |\n| KB mode | stub → group hub |\n| Tower flag | `is_control_tower: true` |\n\n### Canonical siblings (OpenSource Project members)\n\nEvery git repo under the group root is part of the OpenSource Project. Current canonical set:\n\n- **Control tower / CLI**: `/Users/raybayly/Development/OpenSource/HATH0R-CLI` → `Bayly-AI/HATH0R",
-      "properties": {
-        "path": "release/hath0r-fileset-1.7.0/AGENTS.md",
-        "subsystem": "hath0r-fileset-1.7.0"
-      },
-      "is_current": true
-    },
-    {
-      "id": "doc:agents-hath0r-fileset-1.6.0",
-      "plane": "knowledge",
-      "type": "knowledge_doc",
-      "label": "AGENTS.md (hath0r-fileset-1.6.0)",
-      "content": "# AGENTS.md — HATH0R CLI (OpenSource Control Tower)\n\n> Role: **OpenSource Project control tower + operator/developer CLI (`hath0r`)** · group `hath0r-opensource`  \n> Updated: 2026-09-23\n\n## Group membership (CRITICAL)\n\n| Field | Value |\n|-------|-------|\n| Group | `hath0r-opensource` |\n| Project | **OpenSource Project** |\n| Group root | `/Users/raybayly/Development/OpenSource` |\n| **Control tower** | **this repo** (`HATH0R-CLI`) |\n| This product | `HATH0R-CLI` |\n| GitHub | `Bayly-AI/HATH0R-CLI` |\n| Local path | `/Users/raybayly/Development/OpenSource/HATH0R-CLI` |\n| Canonical KB | `/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase` |\n| Operator CLI | `hath0r` |\n| KB mode | stub → group hub |\n| Tower flag | `is_control_tower: true` |\n\n### Canonical siblings (OpenSource Project members)\n\nEvery git repo under the group root is part of the OpenSource Project. Current canonical set:\n\n- **Control tower / CLI**: `/Users/raybayly/Development/OpenSource/HATH0R-CLI` → `Bayly-AI/HATH0R",
-      "properties": {
-        "path": "release/hath0r-fileset-1.6.0/AGENTS.md",
-        "subsystem": "hath0r-fileset-1.6.0"
-      },
-      "is_current": true
-    },
-    {
-      "id": "doc:agents-hath0r-fileset-1.5.0",
-      "plane": "knowledge",
-      "type": "knowledge_doc",
-      "label": "AGENTS.md (hath0r-fileset-1.5.0)",
-      "content": "# AGENTS.md — HATH0R CLI (OpenSource Control Tower)\n\n> Role: **OpenSource Project control tower + operator/developer CLI (`hath0r`)** · group `hath0r-opensource`  \n> Updated: 2026-09-23\n\n## Group membership (CRITICAL)\n\n| Field | Value |\n|-------|-------|\n| Group | `hath0r-opensource` |\n| Project | **OpenSource Project** |\n| Group root | `/Users/raybayly/Development/OpenSource` |\n| **Control tower** | **this repo** (`HATH0R-CLI`) |\n| This product | `HATH0R-CLI` |\n| GitHub | `Bayly-AI/HATH0R-CLI` |\n| Local path | `/Users/raybayly/Development/OpenSource/HATH0R-CLI` |\n| Canonical KB | `/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase` |\n| Operator CLI | `hath0r` |\n| KB mode | stub → group hub |\n| Tower flag | `is_control_tower: true` |\n\n### Canonical siblings (OpenSource Project members)\n\nEvery git repo under the group root is part of the OpenSource Project. Current canonical set:\n\n- **Control tower / CLI**: `/Users/raybayly/Development/OpenSource/HATH0R-CLI` → `Bayly-AI/HATH0R",
-      "properties": {
-        "path": "release/hath0r-fileset-1.5.0/AGENTS.md",
-        "subsystem": "hath0r-fileset-1.5.0"
       },
       "is_current": true
     },
@@ -1180,11 +1144,11 @@
       "plane": "knowledge",
       "type": "knowledge_doc",
       "label": "Cli First Rules",
-      "content": "# CLI-first & missing capability offer (cr-cli-first-001)\n\n> Control tower: `Bayly-AI/HATH0R-CLI` · Issue track: #61  \n> Binding agent rule also mirrored in root `AGENTS.md`.\n\n## Rules\n\n1. **CLI-first** — For connections, MCP, workflows, factories, Docker workflows, KB path, or suite orientation, invoke **`hath0r`** (or the documented operator entrypoint) instead of ad-hoc scripts.\n2. **Missing capability offer** — If the required connection/MCP/workflow/factory does not exist, do **not** silently improvise. Offer to:\n   - create/register the missing capability, and\n   - use the original user request as the acceptance test.\n3. **Session start** — Follow `docs/governance/checklists/agent-session-start.md`.\n4. **Docs before code** — Procedure/strategy/playbook/runbook before scaffolding new implementation (`workflow-documentation-standard.md`).\n\n## Discoverability\n\n| Surface | Location |\n|---------|----------|\n| Agent rules | `AGENTS.md` (CLI-First section) |\n| Group policy | `cfg/group/WARP.md` / OpenSource `WARP.md` |\n| Session checklist | `docs/governance/checklists/agent-session-start.md` |\n| This standard | `docs/governance/cli-first-rules.md` |\n\n## Example offer language\n\n> The",
+      "content": "# CLI-first & missing capability offer (cr-cli-first-001)\n\n> Control tower: `Bayly-AI/HATH0R-CLI` · Issue track: #61  \n> Binding agent rule also mirrored in root `AGENTS.md`.\n\n## Rules\n\n1. **CLI-first** — For connections, MCP, workflows, factories, Docker workflows, KB path, or suite orientation, invoke **`hath0r`** (or the documented operator entrypoint) instead of ad-hoc scripts.\n2. **Missing capability offer** — If the required connection/MCP/workflow/factory does not exist, do **not** silently improvise. Offer to:\n   - create/register the missing capability, and\n   - use the original user request as the acceptance test.\n3. **Session start** — Follow `docs/governance/checklists/agent-session-start.md`.\n4. **Docs before code** — Procedure/strategy/playbook/runbook before scaffolding new implementation (`workflow-documentation-standard.md`).\n\n## Discoverability\n\n| Surface | Location |\n|---------|----------|\n| Agent rules | `AGENTS.md` (CLI-First section) |\n| Group policy | `cfg/group/WARP.md` / OpenSource `WARP.md` |\n| Session checklist | `docs/governance/checklists/agent-session-start.md` |\n| This standard | `docs/governance/cli-first-rules.md` |\n| Cross-repo rollout | `hath0r ru",
       "properties": {
         "path": "docs/governance/cli-first-rules.md",
         "category": "governance",
-        "size_bytes": 1585
+        "size_bytes": 1713
       },
       "is_current": true
     },
@@ -1471,6 +1435,19 @@
         "path": "docs/governance/procedures/voice-command-group-procedure.md",
         "category": "procedures",
         "size_bytes": 859
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__procedures__rule-rollout-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Rule Rollout Procedure",
+      "content": "# Procedure: Roll Out a Canonical Rule (`hath0r rules`)\n\n> Canonical Governance Procedure · ID: `PROC-RULE-ROLLOUT-001` · Issue: #528\n\n## Steps\n\n1. **Check coverage**\n   ```bash\n   hath0r rules status --rule CR-CLI-ENTRY-001\n   ```\n2. **Preview the rollout.** Nothing is written.\n   ```bash\n   hath0r rules ensure-all --rule CR-CLI-ENTRY-001\n   ```\n3. **Prepare commits in scratch worktrees**, then review the diffs.\n   ```bash\n   hath0r rules ensure-all --rule CR-CLI-ENTRY-001 --apply --keep-worktrees\n   ```\n4. **Publish.** This opens one issue and one PR per remote, with a `Version Impact: patch` line in each PR body.\n   ```bash\n   hath0r rules ensure-all --rule CR-CLI-ENTRY-001 --publish\n   ```\n5. **Follow CI** on each PR. A failure that also fails on `development` predates the rollout and is reported, not fixed, by the rollout.\n\nFor a rule not shipped in the CLI, add `--section-file path/to/section.md`. The file must contain a `## <RULE-ID>` heading.\n",
+      "properties": {
+        "path": "docs/governance/procedures/rule-rollout-procedure.md",
+        "category": "procedures",
+        "size_bytes": 967
       },
       "is_current": true
     },
@@ -1835,6 +1812,19 @@
         "path": "docs/governance/strategies/hyper-context-strategy.md",
         "category": "strategies",
         "size_bytes": 1021
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__strategies__rule-rollout-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Rule Rollout Strategy",
+      "content": "# Strategy: Canonical Rule Rollout (`hath0r rules`)\n\n> Canonical Governance Strategy · ID: `STRAT-RULE-ROLLOUT-001`\n> Issue: #528 · Rule Compliance: `CR-CLI-FEATURE-STANDARD-001`, `CR-CLI-ENTRY-001`, `CR-SEMVER-BUMP-001`\n\n---\n\n## 1. Problem\n\nCanonical `CR-*` rules live as sections in each repository's root `AGENTS.md`. When a new rule is adopted, it has to reach every repository, and each change needs its own issue, `chore/<issue>-<slug>` branch, SemVer patch bump, `CHANGELOG.md` entry, and pull request. Before #528 this was scripted by hand per rollout. On 2026-10-28, `CR-CLI-ENTRY-001` was present in only 20 of 145 `AGENTS.md` files, and the control tower itself was missing it.\n\n## 2. Approach\n\n`RuleRolloutBot` makes the rollout one CLI capability (`CR-CLI-ENTRY-001`: the CLI comes first):\n\n- **One source for the section text.** Canonical sections ship inside HATH0R-CLI (`CANONICAL_RULE_SECTIONS`). Any other section can be passed with `--section-file`.\n- **One PR per unique remote.** Extra clones of the same remote are grouped, and only the first is used.\n- **Upstream is the truth.** A repository counts as compliant when `origin/development:AGENTS.md` contains the rule ID. A repo",
+      "properties": {
+        "path": "docs/governance/strategies/rule-rollout-strategy.md",
+        "category": "strategies",
+        "size_bytes": 1697
       },
       "is_current": true
     },
@@ -3035,6 +3025,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__rule-rollout-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Rule Rollout Runbook",
+      "content": "# Runbook: `hath0r rules`\n\n> Canonical Governance Runbook · ID: `RB-RULE-ROLLOUT-001` · Issue: #528\n\n## Commands\n\n| Command | Effect |\n|---|---|\n| `hath0r rules list` | Canonical sections shipped with the CLI. |\n| `hath0r rules status --rule <ID> [--root DIR]` | Per-remote coverage: `compliant`, `pending-pr`, `missing`, `no-agents-md`, `no-remote`. |\n| `hath0r rules ensure-all --rule <ID>` | Preview only. |\n| `... --apply [--keep-worktrees] [--work-dir DIR]` | Insert the section, bump the patch version, update the CHANGELOG, validate, and commit in a scratch worktree. |\n| `... --publish` | `--apply`, plus an issue (`IssueManagerBot`), a push, and a PR to `development`. |\n\n## Recovery\n\n- **Worktrees left behind:** `git -C <repo> worktree remove --force <path>`.\n- **Issue opened but push failed:** re-run with `--publish`. The repo is still `missing` because no PR names the rule. Close the orphan issue by hand.\n",
+      "properties": {
+        "path": "docs/governance/runbooks/rule-rollout-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 924
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__mlflow-service-runbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3096,6 +3099,19 @@
         "path": "docs/governance/workflows/orient-workflow.md",
         "category": "workflows",
         "size_bytes": 3793
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__workflows__rule-rollout-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Rule Rollout Workflow",
+      "content": "# Workflow: Canonical Rule Rollout\n\n> Canonical Governance Workflow · ID: `WF-RULE-ROLLOUT-001` · Issue: #528\n\n```mermaid\nstateDiagram-v2\n    [*] --> Discover: hath0r rules ensure-all --rule ID\n    Discover --> Classify: group repos by origin remote\n    Classify --> Skip: compliant / pending-pr / no-agents-md / no-remote\n    Classify --> Missing\n    Missing --> Preview: no --apply\n    Missing --> Worktree: --apply (from origin/development)\n    Worktree --> Edit: insert section, bump patch, CHANGELOG\n    Edit --> Validate: ReleaseBot.validate\n    Validate --> Commit\n    Commit --> Done: no --publish\n    Commit --> Issue: --publish (IssueManagerBot)\n    Issue --> Push: chore/<issue>-<slug>\n    Push --> PR: gh pr create --base development\n    PR --> Done\n    Skip --> Done\n    Preview --> Done\n```\n",
+      "properties": {
+        "path": "docs/governance/workflows/rule-rollout-workflow.md",
+        "category": "workflows",
+        "size_bytes": 807
       },
       "is_current": true
     },
@@ -3174,6 +3190,19 @@
         "path": "docs/governance/workflows/task-evals-workflow.md",
         "category": "workflows",
         "size_bytes": 1625
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__rule-rollout-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Rule Rollout Bot Spec",
+      "content": "# Bot Specification: RuleRolloutBot\n\n> Canonical Bot Specification · Updated: 2026-10-28 · Issue: #528\n\n## 1. Role & Identity\n\n- **Class**: `RuleRolloutBot` (`src/hath0r_cli/bots/rule_rollout_bot.py`)\n- **CLI**: `hath0r rules list | status | ensure-all`\n- **Function**: Rolls a canonical `CR-*` `AGENTS.md` section out to every repository remote under a workspace root, with SemVer bump, issue, and PR.\n\n## 2. Actions\n\n1. `list_rules()`: canonical sections shipped in `CANONICAL_RULE_SECTIONS`.\n2. `status(rule_id, root)`: per-remote classification without writing.\n3. `ensure_all(rule_id, root, section, apply, publish, ...)`: preview, prepare, or publish.\n\n## 3. Reuse\n\n- Repository discovery: `TaskEvaluatorBot._discover_repos` (skips `ARCHIVE`, `node_modules`, `.venv`).\n- Release check: `ReleaseBot.validate`.\n- Issue creation: `IssueManagerBot.create_issue`.\n\n## 4. Guarantees\n\n- Never edits a primary checkout. Work happens only in worktrees cut from `origin/development`.\n- Never bypasses git hooks.\n- Idempotent: compliant and pending-PR remotes are skipped.\n",
+      "properties": {
+        "path": "docs/governance/bot-specs/rule-rollout-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 1070
       },
       "is_current": true
     },
@@ -3551,6 +3580,19 @@
         "path": "docs/governance/playbooks/lazy-command-loading-playbook.md",
         "category": "playbooks",
         "size_bytes": 1233
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__rule-rollout-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Rule Rollout Playbook",
+      "content": "# Playbook: Canonical Rule Rollout\n\n> Canonical Governance Playbook · ID: `PB-RULE-ROLLOUT-001` · Issue: #528\n\n| Situation | Play |\n|---|---|\n| New org-wide `CR-*` rule adopted | Add it to `CANONICAL_RULE_SECTIONS`, release the CLI, then follow `PROC-RULE-ROLLOUT-001`. |\n| One-off rule for a subset of repos | `--section-file` plus `--root` pointing at that subset. |\n| Repo shows `pending-pr` | An open PR already carries the rule. Review and merge it instead of opening another. |\n| Repo shows `no-agents-md` | Run `hath0r init` in that repo first. |\n| Pre-commit hook rejects the commit | The repo is reported as `error` with the hook output. Fix the section text for that repo by hand; never bypass hooks. |\n| CI fails on the PR | Compare with the latest `development` run. If `development` fails the same way, report it as pre-existing. |\n",
+      "properties": {
+        "path": "docs/governance/playbooks/rule-rollout-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 847
       },
       "is_current": true
     },
@@ -4841,7 +4883,7 @@
       "content": "4-Tier Task Evaluation for pr-101 on branch feature/510-automatic-task-evals: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -4863,7 +4905,7 @@
       "content": "4-Tier Task Evaluation for pr-104 on branch feature/510-automatic-task-evals: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -4904,7 +4946,7 @@
       "content": "4-Tier Task Evaluation for issue-510 on branch feature/510-automatic-task-evals: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -4926,7 +4968,7 @@
       "content": "4-Tier Task Evaluation for pr-516 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -5026,7 +5068,7 @@
       "content": "4-Tier Task Evaluation for pr-516-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -5068,7 +5110,7 @@
       "content": "4-Tier Task Evaluation for eval-baseline-hathor-cli on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -5090,7 +5132,7 @@
       "content": "4-Tier Task Evaluation for issue-518 on branch feature/518-evals-ensure-all-repos: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -5131,7 +5173,7 @@
       "content": "4-Tier Task Evaluation for pr-519 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -5153,7 +5195,7 @@
       "content": "4-Tier Task Evaluation for pr-519-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -5175,7 +5217,7 @@
       "content": "4-Tier Task Evaluation for issue-520 on branch feature/520-detached-cruise-control: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -5217,7 +5259,7 @@
       "content": "4-Tier Task Evaluation for pr-521 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -5259,7 +5301,7 @@
       "content": "4-Tier Task Evaluation for pr-521-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -5301,7 +5343,7 @@
       "content": "4-Tier Task Evaluation for release-v1.11.0 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -5323,7 +5365,7 @@
       "content": "4-Tier Task Evaluation for issue-522 on branch feature/522-clean-repo-branch-hygiene: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -5367,7 +5409,7 @@
       "content": "4-Tier Task Evaluation for release-v1-12-0 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -5389,7 +5431,7 @@
       "content": "4-Tier Task Evaluation for issue-524 on branch feature/524-eval-scorecard-summary-rule: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -5411,7 +5453,7 @@
       "content": "4-Tier Task Evaluation for pr-525-scorecard-summary-rule on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:b1ffb229d098dc848fa290288f9b0ce260386850fe706da28d1687832c7ecd58"
+          ".hath0r/evals/latest.json": "sha256:8daebcecd9b046e19fb11efd54fc7343435e00b8115f3a2800f58c514159f8ab"
         },
         "source": "local_memory",
         "tags": [
@@ -5426,19 +5468,42 @@
       "is_current": true
     },
     {
+      "id": "memory:episode:issue-528-rules-ensure-all",
+      "plane": "memory",
+      "type": "episode",
+      "label": "hath0r rules ensure-all canonical rule rollout (#528)",
+      "content": "Added RuleRolloutBot and hath0r rules list/status/ensure-all to roll a canonical CR-* AGENTS.md section to every repo remote: scratch worktree off origin/development, patch SemVer bump, ReleaseBot check, optional issue + PR. Acceptance: CR-CLI-ENTRY-001 preview reports 23 pending PRs, 9 compliant, 0 missing.",
+      "properties": {
+        "source_files": {
+          "src/hath0r_cli/bots/rule_rollout_bot.py": "sha256:bb952669a6e32c39a349a17c98ab905c40d87f0c0e8a4021dd5d0e1553ccfdfb"
+        },
+        "source": "local_memory",
+        "tags": [
+          "rules",
+          "rollout",
+          "cr-cli-entry-001",
+          "issue-528",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
       "id": "memory:session:sess-20261028-130546-18a517",
       "plane": "memory",
       "type": "session",
       "label": "Micro Session sess-20261028-130546-18a517",
-      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 16, Writes: 53 | Entries: Compounded eval:clean-repo-hathor-cli: Task Evaluation clean-repo-hathor-cli (R=1.00, PASS)",
+      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 18, Writes: 55 | Entries: Compounded episode:issue-528-rules-ensure-all: hath0r rules ensure-all canonical rule rollout (#528)",
       "properties": {
         "session_id": "sess-20261028-130546-18a517",
         "prior_session_id": "sess-20261017-145045-ed36da",
         "parent_session_id": "sess-20261017-145045-ed36da",
-        "read_count": 16,
-        "write_count": 53,
+        "read_count": 18,
+        "write_count": 55,
         "status": "completed",
-        "byte_size": 1955,
+        "byte_size": 1970,
         "source": "local_memory",
         "tags": [
           "session",
@@ -6488,6 +6553,18 @@
       "is_current": true
     },
     {
+      "source": "memory:episode:issue-528-rules-ensure-all",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-528-rules-ensure-all",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
       "source": "rule:rules",
       "target": "role:developer",
       "relation": "GOVERNS",
@@ -6974,6 +7051,12 @@
       "is_current": true
     },
     {
+      "source": "memory:episode:issue-528-rules-ensure-all",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
       "source": "memory:session:sess-20261028-130546-18a517",
       "target": "role:developer",
       "relation": "INFORMS",
@@ -6981,7 +7064,7 @@
     }
   ],
   "metadata": {
-    "repo_root": "/Users/raybayly/Development/OpenSource/hathor-cli",
-    "synced_sources": 306
+    "repo_root": "/private/tmp/claude-502/-Users-raybayly-Development-BAI-GAMES-MXO/75aaa40e-3415-414b-983d-8f9c59baf576/scratchpad/hcli",
+    "synced_sources": 309
   }
 }

@@ -5,6 +5,15 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2026-10-28
+
+### Added
+- **Canonical Rule Rollout (`hath0r rules` — `#528`)**:
+  - New `RuleRolloutBot` (`src/hath0r_cli/bots/rule_rollout_bot.py`) and `hath0r rules list | status | ensure-all` roll any canonical `CR-*` `AGENTS.md` section out to every repository remote under a workspace root. Each repo gets a scratch worktree off `origin/development`, a patch SemVer bump with matching manifests and `CHANGELOG.md` (`CR-SEMVER-BUMP-001`), a `ReleaseBot` check, and with `--publish` a linked issue (`IssueManagerBot`) and PR with `Version Impact: patch`.
+  - Previews by default. Repositories that already have the rule on `origin/development`, or an open PR naming it, are skipped. Clones of the same remote are grouped into one PR. Git hooks are never bypassed.
+  - Ships `CR-CLI-ENTRY-001` as the first canonical section; `--section-file` covers any other rule.
+  - Documentation hexad: `docs/governance/{strategies,procedures,playbooks,runbooks,workflows,bot-specs}/rule-rollout-*.md`.
+
 ## [1.12.1] - 2026-10-28
 
 ### Added
