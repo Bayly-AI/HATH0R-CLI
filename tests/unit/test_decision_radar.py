@@ -25,6 +25,7 @@ from hath0r_cli.server.decision_radar_server import (
     HathorCruiseControlServer,
     HathorDecisionRadarServer,
     _launch_macos_split_browser,
+    _spawn_detached_daemon_process,
     build_local_radar_url,
     build_macos_split_window_applescript,
     ensure_cruise_control_server,
@@ -554,6 +555,227 @@ def test_cruise_control_split_window_display(tmp_path: Path, monkeypatch: pytest
     )
     assert res_daemon.exit_code == 0
     assert "Split-window Cruise Control" in res_daemon.output
+
+
+def test_detached_cruise_control_autonomous_monitor_and_stateless_updates(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Issue #520: Verify detached Cruise Control autonomous fact monitor & stateless remote agent updates."""
+    import time
+
+    server_dir = tmp_path / "server_root"
+    agent_dir = tmp_path / "agent_repo"
+    server_dir.mkdir(parents=True, exist_ok=True)
+    agent_dir.mkdir(parents=True, exist_ok=True)
+
+    server = HathorCruiseControlServer(
+        host="127.0.0.1",
+        port=0,
+        cwd=server_dir,
+        operator_name="Mark",
+        autonomous_monitor=True,
+        monitor_interval=0.1,
+    )
+    port = server.start(daemon=True)
+    monkeypatch.setenv("HATH0R_CRUISE_PORT", str(port))
+    monkeypatch.setenv("HATH0R_CRUISE_REMOTE_SYNC", "1")
+
+    try:
+        # 1. Verify GET /api/decisions/status on detached server
+        with urllib.request.urlopen(f"http://127.0.0.1:{port}/api/decisions/status", timeout=3) as resp:
+            st = json.loads(resp.read().decode("utf-8"))
+            assert st["success"] is True
+            assert st["mode"] == "detached"
+            assert st["autonomous_monitor"] is True
+
+        # 2. Stateless agent in a separate repo pushes decision & updates via DecisionRadarBot
+        agent_bot = DecisionRadarBot(cwd=agent_dir)
+        req = agent_bot.request_decision(
+            decision_id="dec-stateless-1",
+            question="Initial question from stateless agent",
+            category="set_product_rule",
+            agent_id="@stateless-agent",
+            unblocks=["task-alpha"],
+            note="Initial discovery note",
+            context={"phase": "init"},
+        )
+        assert req["success"] is True
+
+        # Verify remote detached server immediately received the decision
+        snap = server.bot.get_radar_snapshot()
+        assert any(d["decision_id"] == "dec-stateless-1" for d in snap["decisions"])
+
+        # 3. Stateless agent updates the decision with new options, unblocks, note, context, and fact predicate
+        upd = agent_bot.update_decision(
+            "dec-stateless-1",
+            question="Updated question with new context",
+            category="only_you_can_do_this",
+            agent_id="@stateless-agent-v2",
+            unblocks=["task-alpha", "task-beta"],
+            options=["Option A", "Option B"],
+            wait_for_fact="file.exists:auto_settled.flag",
+            criticality=2.5,
+            note="Found dependency on auto_settled.flag",
+            context={"phase": "ready"},
+        )
+        assert upd["success"] is True
+        assert upd["decision"]["status"] == "WAITING_FACT"
+        assert len(upd["decision"]["notes"]) == 2
+        assert upd["decision"]["context"]["phase"] == "ready"
+
+        # Verify remote detached server has the updated fields
+        remote_snap = server.bot.get_radar_snapshot()
+        remote_dec = next(d for d in remote_snap["decisions"] if d["decision_id"] == "dec-stateless-1")
+        assert remote_dec["question"] == "Updated question with new context"
+        assert remote_dec["fact_predicate"] == "file.exists:auto_settled.flag"
+
+        # 4. Trigger autonomous background fact settlement on the detached server WITHOUT any agent polling!
+        (server_dir / "auto_settled.flag").write_text("settled\n", encoding="utf-8")
+        deadline = time.monotonic() + 1.5
+        settled = False
+        while time.monotonic() < deadline:
+            listing = server.bot.list_decisions(include_archived=True)
+            arch = next(
+                (d for d in listing["decisions"] if d["decision_id"] == "dec-stateless-1" and d["status"] == "SETTLED_BY_EVENT"),
+                None,
+            )
+            if arch is not None:
+                settled = True
+                break
+            time.sleep(0.05)
+        assert settled is True
+
+        # 5. Test upsert=True and upsert=False on update_decision + status transitions
+        missing = agent_bot.update_decision("dec-missing", question="Should fail", upsert=False)
+        assert missing["success"] is False
+
+        upserted = agent_bot.update_decision(
+            "dec-upserted",
+            question="Upserted directly by agent",
+            agent_id="@upsert-agent",
+            upsert=True,
+        )
+        assert upserted["success"] is True
+        assert upserted["decision"]["decision_id"] == "dec-upserted"
+
+        # Resolve via update_decision
+        resolved_upd = agent_bot.update_decision(
+            "dec-upserted",
+            status="RESOLVED_HUMAN",
+            answer="Approved via stateless update",
+        )
+        assert resolved_upd["success"] is True
+        assert resolved_upd["decision"]["status"] == "RESOLVED_HUMAN"
+
+        # Reject via update_decision
+        agent_bot.update_decision("dec-to-reject", question="Reject me", upsert=True)
+        rejected_upd = agent_bot.update_decision("dec-to-reject", status="REJECTED", note="No longer needed")
+        assert rejected_upd["success"] is True
+        assert rejected_upd["decision"]["status"] == "REJECTED"
+
+    finally:
+        server.stop()
+
+
+def test_cli_detached_and_update_commands(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Issue #520: Verify hath0r cruise update, detach, status, stop, and radar --detached CLI commands."""
+    monkeypatch.chdir(tmp_path)
+    runner = CliRunner()
+
+    # 1. Start detached Cruise Control server via CLI
+    res_detach = runner.invoke(
+        decision_cmd,
+        ["detach", "--port", "0", "--seed-demo", "--json"],
+    )
+    assert res_detach.exit_code == 0
+    detach_state = json.loads(res_detach.output)
+    assert detach_state["mode"] == "detached"
+    assert detach_state["autonomous_monitor"] is True
+    bound_port = int(detach_state["port"])
+    monkeypatch.setenv("HATH0R_CRUISE_PORT", str(bound_port))
+
+    try:
+        # Text mode detach and radar --detached (reuses running server without opening duplicate window)
+        res_detach_txt = runner.invoke(decision_cmd, ["detach", "--port", str(bound_port)])
+        assert res_detach_txt.exit_code == 0
+        assert "Cruise Control running in detached mode" in res_detach_txt.output
+
+        res_radar_det = runner.invoke(decision_cmd, ["radar", "--port", str(bound_port), "--detached"])
+        assert res_radar_det.exit_code == 0
+        assert "Cruise Control detached" in res_radar_det.output
+
+        # 2. Check status in JSON and text mode
+        res_status_json = runner.invoke(decision_cmd, ["status", "--port", str(bound_port), "--json"])
+        assert res_status_json.exit_code == 0
+        assert json.loads(res_status_json.output)["running"] is True
+
+        res_status_txt = runner.invoke(decision_cmd, ["status", "--port", str(bound_port)])
+        assert res_status_txt.exit_code == 0
+        assert "RUNNING (DETACHED)" in res_status_txt.output
+
+        # 3. CLI update command (upsert, update fields, --no-upsert failure)
+        res_upd = runner.invoke(
+            decision_cmd,
+            [
+                "update",
+                "dec-cli-900",
+                "-q",
+                "Stateless CLI update question",
+                "-c",
+                "approve_message",
+                "-a",
+                "@cli-agent",
+                "-u",
+                "task-1,task-2",
+                "--options",
+                "Send,Hold",
+                "--note",
+                "Drafted email payload",
+                "--context",
+                '{"recipient": "partner"}',
+                "--json",
+            ],
+        )
+        assert res_upd.exit_code == 0
+        upd_payload = json.loads(res_upd.output)
+        assert upd_payload["success"] is True
+        assert upd_payload["decision"]["decision_id"] == "dec-cli-900"
+
+        # Text mode update
+        res_upd_txt = runner.invoke(
+            decision_cmd,
+            ["update", "dec-cli-900", "--note", "Second note", "--context", "raw-context-string"],
+        )
+        assert res_upd_txt.exit_code == 0
+        assert "Updated dec-cli-900" in res_upd_txt.output
+
+        # --no-upsert failure in text and json mode
+        assert runner.invoke(decision_cmd, ["update", "nonexistent-999", "--no-upsert"]).exit_code != 0
+        assert runner.invoke(decision_cmd, ["update", "nonexistent-999", "--no-upsert", "--json"]).exit_code != 0
+
+        # Test _spawn_detached_daemon_process with mocked Popen
+        class _DummyPopen:
+            def __init__(self, *_a: object, **_kw: object) -> None:
+                self.pid = 42424
+
+        monkeypatch.setenv("HATH0R_TEST_SPAWN_DETACHED", "1")
+        monkeypatch.setattr("subprocess.Popen", _DummyPopen)
+        assert _spawn_detached_daemon_process(tmp_path, "127.0.0.1", bound_port, "Mark") == 42424
+        monkeypatch.delenv("HATH0R_TEST_SPAWN_DETACHED", raising=False)
+
+    finally:
+        # 4. Stop detached server via CLI
+        res_stop_json = runner.invoke(decision_cmd, ["stop", "--port", str(bound_port), "--json"])
+        assert res_stop_json.exit_code == 0
+        assert json.loads(res_stop_json.output)["stopped"] is True
+
+        res_stop_txt = runner.invoke(decision_cmd, ["stop", "--port", str(bound_port)])
+        assert res_stop_txt.exit_code == 0
+        for srv in list(_ACTIVE_DAEMON_SERVERS.values()):
+            srv.stop()
+        _ACTIVE_DAEMON_SERVERS.clear()
+
 
 
 

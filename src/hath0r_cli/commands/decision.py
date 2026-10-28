@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import click
 from rich.console import Console
@@ -23,8 +23,11 @@ from hath0r_cli.server.decision_radar_server import (
     DEFAULT_CRUISE_PORT,
     HathorDecisionRadarServer,
     build_local_radar_url,
+    ensure_detached_cruise_server,
+    get_cruise_server_status,
     launch_cruise_control_split_window,
     render_radar_tui,
+    stop_detached_cruise_server,
 )
 
 console = Console()
@@ -39,6 +42,16 @@ def _split_csv(raw: Optional[str]) -> List[str]:
     if not raw:
         return []
     return [part.strip() for part in raw.split(",") if part.strip()]
+
+
+def _parse_json_context(raw: Optional[str]) -> Optional[Dict[str, Any]]:
+    if not raw or not raw.strip():
+        return None
+    try:
+        parsed = json.loads(raw)
+        return parsed if isinstance(parsed, dict) else {"value": parsed}
+    except (ValueError, TypeError):
+        return {"raw": raw.strip()}
 
 
 @click.group("decision")
@@ -61,6 +74,9 @@ def decision_cmd() -> None:
 @click.option("--options", default="", help="Comma-separated answer options.")
 @click.option("--fact", "--wait-for-fact", "wait_for_fact", default=None, help="Declarative fact predicate to wait on.")
 @click.option("--criticality", default=1.0, type=float, show_default=True, help="Criticality multiplier.")
+@click.option("--note", "-n", default=None, help="Agent context or background note.")
+@click.option("--context", default=None, help="JSON context object attached to decision.")
+@click.option("--id", "decision_id", default=None, help="Explicit decision ID.")
 @click.option(_SPLIT_WINDOW_FLAG, default=True, show_default=True, help=_SPLIT_WINDOW_HELP)
 @click.option(_SPLIT_SIDE_OPT, default="right", show_default=True, help=_SPLIT_SIDE_HELP)
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit machine-readable JSON.")
@@ -72,11 +88,14 @@ def decision_ask(
     options: str,
     wait_for_fact: Optional[str],
     criticality: float,
+    note: Optional[str],
+    context: Optional[str],
+    decision_id: Optional[str],
     split_window: bool,
     split_side: str,
     as_json: bool,
 ) -> None:
-    """Submit a non-blocking agent decision to the radar queue and display in split browser window."""
+    """Submit a non-blocking agent decision to the detached Cruise Control radar queue."""
     bot = DecisionRadarBot(cwd=Path.cwd())
     res = bot.request_decision(
         question=question,
@@ -86,6 +105,9 @@ def decision_ask(
         options=_split_csv(options),
         wait_for_fact=wait_for_fact,
         criticality=criticality,
+        decision_id=decision_id,
+        note=note,
+        context=_parse_json_context(context),
         split_window=split_window,
         split_side=split_side,
     )
@@ -102,6 +124,84 @@ def decision_ask(
         console.print(
             f"[bold blue]◫ Split-window Cruise Control ({win.get('layout')}):[/bold blue] [cyan]{win['url']}[/cyan]"
         )
+
+
+@decision_cmd.command("update")
+@click.argument("decision_id")
+@click.option("--question", "-q", default=None, help="Updated question or decision summary.")
+@click.option(
+    "--category",
+    "-c",
+    default=None,
+    type=click.Choice(list(CANONICAL_CATEGORIES.keys()), case_sensitive=False),
+    help="Updated canonical radar wedge category.",
+)
+@click.option("--agent", "-a", "agent_id", default=None, help="Updating agent identifier.")
+@click.option("--unblocks", "-u", default=None, help="Updated comma-separated downstream tasks/agents unblocked.")
+@click.option("--options", default=None, help="Updated comma-separated answer options.")
+@click.option("--fact", "--wait-for-fact", "wait_for_fact", default=None, help="Updated fact predicate.")
+@click.option("--criticality", default=None, type=float, help="Updated criticality multiplier.")
+@click.option("--status", default=None, help="Updated status (WAITING_HUMAN, WAITING_FACT, RESOLVED_HUMAN, REJECTED).")
+@click.option("--answer", "--response", "-r", default=None, help="Resolution answer or directive.")
+@click.option("--note", "-n", default=None, help="Agent progress note or newly discovered information.")
+@click.option("--context", default=None, help="JSON context metadata to merge into decision.")
+@click.option("--operator", default=None, help="Operator identity.")
+@click.option("--upsert/--no-upsert", default=True, show_default=True, help="Create decision if ID does not exist.")
+@click.option(_SPLIT_WINDOW_FLAG, default=False, show_default=True, help=_SPLIT_WINDOW_HELP)
+@click.option(_SPLIT_SIDE_OPT, default="right", show_default=True, help=_SPLIT_SIDE_HELP)
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit machine-readable JSON.")
+def decision_update(
+    decision_id: str,
+    question: Optional[str],
+    category: Optional[str],
+    agent_id: Optional[str],
+    unblocks: Optional[str],
+    options: Optional[str],
+    wait_for_fact: Optional[str],
+    criticality: Optional[float],
+    status: Optional[str],
+    answer: Optional[str],
+    note: Optional[str],
+    context: Optional[str],
+    operator: Optional[str],
+    upsert: bool,
+    split_window: bool,
+    split_side: str,
+    as_json: bool,
+) -> None:
+    """Statelessly update a decision or push new agent information to detached Cruise Control."""
+    bot = DecisionRadarBot(cwd=Path.cwd())
+    res = bot.update_decision(
+        decision_id=decision_id,
+        question=question,
+        category=category,
+        agent_id=agent_id,
+        unblocks=_split_csv(unblocks) if unblocks is not None else None,
+        options=_split_csv(options) if options is not None else None,
+        wait_for_fact=wait_for_fact,
+        criticality=criticality,
+        status=status,
+        answer=answer,
+        note=note,
+        context=_parse_json_context(context),
+        operator=operator,
+        upsert=upsert,
+        split_window=split_window,
+        split_side=split_side,
+    )
+    if as_json:
+        click.echo(json.dumps(res, indent=2))
+        if not res.get("success"):
+            raise click.exceptions.Exit(1)
+        return
+    if not res.get("success"):
+        console.print(f"[bold red]✗ {res.get('error')}[/bold red]")
+        raise click.exceptions.Exit(1)
+    dec = res["decision"]
+    console.print(
+        f"[bold green]✓ Updated {dec['decision_id']} ({dec['status']}):[/bold green] "
+        f"{dec['question']} [yellow](|| {dec.get('unblock_badge', 1)} · U={dec.get('unblock_weight', 0.0)})[/yellow]"
+    )
 
 
 @decision_cmd.command("wait")
@@ -488,6 +588,85 @@ def decision_tui(operator: str, seed_demo: bool, as_json: bool) -> None:
     render_radar_tui(snapshot, console=console)
 
 
+@decision_cmd.command("detach")
+@click.option("--host", "-h", default="127.0.0.1", show_default=True, help="Host interface to bind HTTP server.")
+@click.option("--port", "-p", default=DEFAULT_CRUISE_PORT, type=int, show_default=True, help="Port to bind HTTP server.")
+@click.option("--operator", default="Mark", show_default=True, help="Operator identity in center hub.")
+@click.option("--seed-demo", is_flag=True, default=False, help="Seed canonical Cruise Control reference topology.")
+@click.option(_SPLIT_WINDOW_FLAG, default=True, show_default=True, help=_SPLIT_WINDOW_HELP)
+@click.option(_SPLIT_SIDE_OPT, default="right", show_default=True, help=_SPLIT_SIDE_HELP)
+@click.option("--force-window", is_flag=True, default=False, help="Force reopening detached browser window.")
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit detached server state as JSON.")
+def decision_detach(
+    host: str,
+    port: int,
+    operator: str,
+    seed_demo: bool,
+    split_window: bool,
+    split_side: str,
+    force_window: bool,
+    as_json: bool,
+) -> None:
+    """Ensure Cruise Control runs in a detached background service + detached browser view and exit immediately."""
+    bot = DecisionRadarBot(cwd=Path.cwd())
+    snapshot = bot.seed_demo_radar() if seed_demo else bot.get_radar_snapshot(operator_name=operator)
+    top_decisions = snapshot.get("decisions") or []
+    focus_id = str(top_decisions[0]["decision_id"]) if top_decisions else None
+    state = ensure_detached_cruise_server(
+        cwd=Path.cwd(),
+        host=host,
+        port=port,
+        operator_name=operator,
+        split_window=split_window,
+        split_side=split_side,
+        focus_decision_id=focus_id,
+        force_window=force_window,
+    )
+    if as_json:
+        click.echo(json.dumps(state, indent=2))
+        return
+    console.print(
+        f"[bold green]✓ Cruise Control running in detached mode:[/bold green] "
+        f"[cyan]{state['url']}[/cyan] [dim](pid={state.get('pid')}, autonomous_monitor=True)[/dim]"
+    )
+    win = state.get("browser_window")
+    if isinstance(win, dict) and win.get("url"):
+        console.print(
+            f"[bold blue]◫ Detached Cruise Control Window ({win.get('layout')}):[/bold blue] [cyan]{win['url']}[/cyan]"
+        )
+
+
+@decision_cmd.command("status")
+@click.option("--host", "-h", default="127.0.0.1", show_default=True, help="Cruise Control server host.")
+@click.option("--port", "-p", default=None, type=int, help="Cruise Control server port.")
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit machine-readable JSON.")
+def decision_status(host: str, port: Optional[int], as_json: bool) -> None:
+    """Check status of the detached Cruise Control server and autonomous monitor."""
+    status = get_cruise_server_status(cwd=Path.cwd(), host=host, port=port)
+    if as_json:
+        click.echo(json.dumps(status, indent=2))
+        return
+    badge = "[bold green]RUNNING (DETACHED)[/bold green]" if status["running"] else "[bold yellow]STOPPED[/bold yellow]"
+    console.print(
+        f"Cruise Control: {badge} · URL: [cyan]{status['url']}[/cyan] · "
+        f"Open Decisions: [bold yellow]{status['open_count']}[/bold yellow] · "
+        f"Autonomous Monitor: [green]{status['autonomous_monitor']}[/green]"
+    )
+
+
+@decision_cmd.command("stop")
+@click.option("--host", "-h", default="127.0.0.1", show_default=True, help="Cruise Control server host.")
+@click.option("--port", "-p", default=None, type=int, help="Cruise Control server port.")
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit machine-readable JSON.")
+def decision_stop(host: str, port: Optional[int], as_json: bool) -> None:
+    """Stop the detached Cruise Control background server."""
+    res = stop_detached_cruise_server(cwd=Path.cwd(), host=host, port=port)
+    if as_json:
+        click.echo(json.dumps(res, indent=2))
+        return
+    console.print(f"[bold green]✓ Stopped detached Cruise Control server on port {res['port']}.[/bold green]")
+
+
 @decision_cmd.command("radar")
 @click.option("--host", "-h", default="127.0.0.1", show_default=True, help="Host interface to bind HTTP server.")
 @click.option("--port", "-p", default=DEFAULT_CRUISE_PORT, type=int, show_default=True, help="Port to bind HTTP server.")
@@ -496,6 +675,12 @@ def decision_tui(operator: str, seed_demo: bool, as_json: bool) -> None:
 @click.option(_SPLIT_WINDOW_FLAG, default=True, show_default=True, help=_SPLIT_WINDOW_HELP)
 @click.option(_SPLIT_SIDE_OPT, default="right", show_default=True, help=_SPLIT_SIDE_HELP)
 @click.option("--daemon", "-d", is_flag=True, default=False, help="Run server in background daemon thread.")
+@click.option(
+    "--detached/--foreground",
+    default=False,
+    show_default=True,
+    help="Run Cruise Control as a detached background OS service without blocking the agent/terminal.",
+)
 @click.option("--no-serve", is_flag=True, default=False, help="Compute radar snapshot without blocking on HTTP server.")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit radar snapshot as JSON.")
 def decision_radar(
@@ -506,6 +691,7 @@ def decision_radar(
     split_window: bool,
     split_side: str,
     daemon: bool,
+    detached: bool,
     no_serve: bool,
     as_json: bool,
 ) -> None:
@@ -518,6 +704,29 @@ def decision_radar(
             click.echo(json.dumps(snapshot, indent=2))
         else:
             render_radar_tui(snapshot, console=console)
+        return
+
+    if detached:
+        top_decisions = snapshot.get("decisions") or []
+        focus_id = str(top_decisions[0]["decision_id"]) if top_decisions else None
+        state = ensure_detached_cruise_server(
+            cwd=Path.cwd(),
+            host=host,
+            port=port,
+            operator_name=operator,
+            split_window=split_window,
+            split_side=split_side,
+            focus_decision_id=focus_id,
+        )
+        console.print(
+            f"[bold green]✓ Cruise Control detached at[/bold green] [cyan]{state['url']}[/cyan] "
+            f"[dim](pid={state.get('pid')}, autonomous_monitor=True)[/dim]"
+        )
+        win = state.get("browser_window")
+        if isinstance(win, dict) and win.get("url"):
+            console.print(
+                f"[bold blue]◫ Split-window Cruise Control ({win.get('layout')}):[/bold blue] [cyan]{win.get('url')}[/cyan]"
+            )
         return
 
     server = HathorDecisionRadarServer(host=host, port=port, cwd=Path.cwd(), operator_name=operator)

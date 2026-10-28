@@ -12,11 +12,14 @@ from __future__ import annotations
 import html
 import json
 import os
+import signal
 import socket
 import subprocess
 import sys
 import threading
+import time
 import webbrowser
+from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional
@@ -57,6 +60,9 @@ RADAR_HTML_TEMPLATE = """<!DOCTYPE html>
             </h1>
             <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-blue-300 border border-slate-700">
                 Agent Decision Radar
+            </span>
+            <span class="text-xs px-2 py-0.5 rounded bg-emerald-950/90 text-emerald-300 border border-emerald-800">
+                Detached View · Autonomous Monitor
             </span>
         </div>
         <div class="flex items-center space-x-3 text-xs">
@@ -113,6 +119,10 @@ RADAR_HTML_TEMPLATE = """<!DOCTYPE html>
                     <div>Unblocks: <span id="insp-unblocks" class="text-emerald-300 font-mono"></span></div>
                     <div>Boundary Gate: <span id="insp-boundary" class="text-purple-300 font-mono"></span></div>
                     <div>Wait Fact: <span id="insp-fact" class="text-cyan-300 font-mono"></span></div>
+                    <div id="insp-notes-wrap" class="pt-1 hidden">
+                        <div class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Agent Updates &amp; Notes</div>
+                        <div id="insp-notes" class="mt-1 space-y-1 text-[11px] text-amber-200/90 font-mono bg-slate-950/80 border border-slate-800 rounded p-2"></div>
+                    </div>
                 </div>
                 <div id="insp-controls" class="space-y-2.5 pt-2 border-t border-slate-800 hidden">
                     <div id="insp-options" class="flex flex-wrap gap-1.5"></div>
@@ -445,6 +455,17 @@ RADAR_HTML_TEMPLATE = """<!DOCTYPE html>
             document.getElementById("insp-fact").textContent = d.fact_predicate || "None (waiting on human)";
             document.getElementById("fact-input").value = d.fact_predicate || "";
 
+            const notesWrap = document.getElementById("insp-notes-wrap");
+            const notesDiv = document.getElementById("insp-notes");
+            const notesList = d.notes || [];
+            if (notesList.length > 0) {
+                notesWrap.classList.remove("hidden");
+                notesDiv.innerHTML = notesList.map(n => `<div>[${n.agent_id || "@agent"}] ${n.note}</div>`).join("");
+            } else {
+                notesWrap.classList.add("hidden");
+                notesDiv.innerHTML = "";
+            }
+
             document.getElementById("insp-meta").classList.remove("hidden");
             document.getElementById("insp-controls").classList.remove("hidden");
 
@@ -640,6 +661,24 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
             self._send_json(self.server_app.bot.get_radar_snapshot(operator_name=operator))
             return
 
+        if parsed.path == "/api/decisions/status":
+            snap = self.server_app.bot.get_radar_snapshot(operator_name=self.server_app.operator_name)
+            self._send_json(
+                {
+                    "success": True,
+                    "running": True,
+                    "mode": "detached",
+                    "autonomous_monitor": self.server_app.autonomous_monitor,
+                    "host": self.server_app.host,
+                    "port": self.server_app.port,
+                    "pid": os.getpid(),
+                    "cwd": str(self.server_app.cwd),
+                    "url": build_local_radar_url(port=self.server_app.port, host=self.server_app.host),
+                    "operator": snap.get("operator", {}),
+                }
+            )
+            return
+
         if parsed.path == "/api/decisions/stream":
             self.send_response(200)
             self.send_header("Content-Type", "text/event-stream")
@@ -668,14 +707,40 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
             wait_for_fact=body.get("wait_for_fact"),
             criticality=float(body.get("criticality", 1.0)),
             work_boundary=str(body.get("work_boundary", "DECISION")),
+            decision_id=str(body["decision_id"]) if body.get("decision_id") else None,
+            note=str(body["note"]) if body.get("note") else None,
+            context=body.get("context") if isinstance(body.get("context"), dict) else None,
+            sync_remote=False,
         )
         self._send_json(res, status_code=200 if res.get("success") else 400)
+
+    def _post_update(self, body: Dict[str, Any]) -> None:
+        raw_crit = body.get("criticality")
+        res = self.server_app.bot.update_decision(
+            decision_id=str(body.get("decision_id", "")),
+            question=str(body["question"]) if body.get("question") is not None else None,
+            category=str(body["category"]) if body.get("category") is not None else None,
+            agent_id=str(body["agent_id"]) if body.get("agent_id") is not None else None,
+            unblocks=body.get("unblocks") if isinstance(body.get("unblocks"), list) else None,
+            options=body.get("options") if isinstance(body.get("options"), list) else None,
+            wait_for_fact=str(body["wait_for_fact"]) if body.get("wait_for_fact") is not None else None,
+            criticality=float(raw_crit) if raw_crit is not None else None,
+            status=str(body["status"]) if body.get("status") is not None else None,
+            answer=str(body["answer"]) if body.get("answer") is not None else None,
+            note=str(body["note"]) if body.get("note") is not None else None,
+            context=body.get("context") if isinstance(body.get("context"), dict) else None,
+            operator=str(body["operator"]) if body.get("operator") is not None else None,
+            upsert=bool(body.get("upsert", True)),
+            sync_remote=False,
+        )
+        self._send_json(res, status_code=200 if res.get("success") else 404)
 
     def _post_answer(self, body: Dict[str, Any]) -> None:
         res = self.server_app.bot.answer_decision(
             decision_id=str(body.get("decision_id", "")),
             answer=str(body.get("answer", "Approved")),
             operator=body.get("operator") or self.server_app.operator_name,
+            sync_remote=False,
         )
         self._send_json(res, status_code=200 if res.get("success") else 404)
 
@@ -684,6 +749,7 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
             decision_id=str(body.get("decision_id", "")),
             reason=str(body.get("reason", "Rejected by operator")),
             operator=body.get("operator") or self.server_app.operator_name,
+            sync_remote=False,
         )
         self._send_json(res, status_code=200 if res.get("success") else 404)
 
@@ -692,6 +758,7 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
             decision_id=str(body.get("decision_id", "")),
             fact_predicate=str(body.get("fact_predicate", "")),
             operator=body.get("operator") or self.server_app.operator_name,
+            sync_remote=False,
         )
         self._send_json(res, status_code=200 if res.get("success") else 400)
 
@@ -699,6 +766,7 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
         res = self.server_app.bot.assert_fact(
             fact_predicate=str(body.get("fact_predicate", "")),
             reason=str(body.get("reason", "Asserted via Radar API")),
+            sync_remote=False,
         )
         self._send_json(res, status_code=200)
 
@@ -722,11 +790,12 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
         self._send_json({"success": True, "window": res}, status_code=200)
 
     def do_POST(self) -> None:
-        """Handle HTTP POST mutations for requesting, answering, snoozing, and settling decisions."""
+        """Handle HTTP POST mutations for requesting, updating, answering, snoozing, and settling decisions."""
         parsed = urlparse(self.path)
         body = self._read_json_body()
         routes: Dict[str, Callable[[Dict[str, Any]], None]] = {
             "/api/decisions/request": self._post_request,
+            "/api/decisions/update": self._post_update,
             "/api/decisions/answer": self._post_answer,
             "/api/decisions/reject": self._post_reject,
             "/api/decisions/snooze": self._post_snooze,
@@ -747,7 +816,7 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
 
 
 class HathorDecisionRadarServer:
-    """Lifecycle manager for the embedded Cruise Control Decision Radar HTTP/SSE server."""
+    """Lifecycle manager for the detached Cruise Control Decision Radar HTTP/SSE server & autonomous fact monitor."""
 
     def __init__(
         self,
@@ -755,17 +824,34 @@ class HathorDecisionRadarServer:
         port: int = 8085,
         cwd: Optional[Path | str] = None,
         operator_name: str = "Mark",
+        autonomous_monitor: bool = True,
+        monitor_interval: float = 2.0,
+        live_probes: bool = False,
     ) -> None:
         self.host = host
         self.port = port
         self.cwd = Path(cwd or Path.cwd()).resolve()
         self.operator_name = operator_name
+        self.autonomous_monitor = autonomous_monitor
+        self.monitor_interval = max(0.1, float(monitor_interval))
+        self.live_probes = live_probes
         self.bot = DecisionRadarBot(cwd=self.cwd)
         self.server: Optional[HTTPServer] = None
         self.thread: Optional[threading.Thread] = None
+        self._monitor_thread: Optional[threading.Thread] = None
+        self._stop_event = threading.Event()
+
+    def _run_autonomous_monitor(self) -> None:
+        """Background fact-settlement loop so no agent needs to stay running or monitoring Cruise Control."""
+        while not self._stop_event.wait(self.monitor_interval):
+            try:
+                self.bot.evaluate_and_settle_facts(live_probes=self.live_probes)
+            except (OSError, ValueError, RuntimeError):
+                pass
 
     def start(self, daemon: bool = True) -> int:
-        """Start the HTTP server and return the bound port."""
+        """Start the HTTP server and autonomous background fact monitor, returning the bound port."""
+        self._stop_event.clear()
 
         class _BoundHandler(HathorDecisionRadarHandler):
             pass
@@ -776,10 +862,14 @@ class HathorDecisionRadarServer:
         self.port = bound_port
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=daemon)
         self.thread.start()
+        if self.autonomous_monitor:
+            self._monitor_thread = threading.Thread(target=self._run_autonomous_monitor, daemon=True)
+            self._monitor_thread.start()
         return bound_port
 
     def stop(self) -> None:
-        """Stop the HTTP server cleanly."""
+        """Stop the HTTP server and autonomous monitor cleanly."""
+        self._stop_event.set()
         if self.server:
             self.server.shutdown()
             self.server.server_close()
@@ -804,6 +894,39 @@ def is_cruise_server_listening(host: str = "127.0.0.1", port: int = DEFAULT_CRUI
         return False
 
 
+def _write_server_state(
+    bot: DecisionRadarBot,
+    host: str,
+    port: int,
+    pid: int,
+    mode: str = "detached",
+    window_launched: bool = False,
+) -> Dict[str, Any]:
+    state = {
+        "schema_version": "hath0r.decision.server/1",
+        "host": host,
+        "port": int(port),
+        "pid": int(pid),
+        "mode": mode,
+        "autonomous_monitor": True,
+        "window_launched": bool(window_launched),
+        "url": build_local_radar_url(port=port, host=host),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    bot._atomic_write_json(bot.server_state_path, state)
+    return state
+
+
+def _read_server_state(bot: DecisionRadarBot) -> Dict[str, Any]:
+    if not bot.server_state_path.is_file():
+        return {}
+    try:
+        data = json.loads(bot.server_state_path.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError, TypeError):
+        return {}
+
+
 def ensure_cruise_control_server(
     cwd: Optional[Path | str] = None,
     host: str = "127.0.0.1",
@@ -823,7 +946,180 @@ def ensure_cruise_control_server(
         bound_port = srv.start(daemon=True)
 
     _ACTIVE_DAEMON_SERVERS[bound_port] = srv
+    _write_server_state(srv.bot, host=host, port=bound_port, pid=os.getpid(), mode="daemon")
     return build_local_radar_url(port=bound_port, host=host)
+
+
+def _spawn_detached_daemon_process(
+    resolved_cwd: Path,
+    host: str,
+    resolved_port: int,
+    operator_name: str,
+) -> Optional[int]:
+    """Spawn a detached OS background process for Cruise Control so no agent stays blocked."""
+    if os.environ.get("PYTEST_CURRENT_TEST") and os.environ.get("HATH0R_TEST_SPAWN_DETACHED") != "1":
+        return None
+    try:
+        proc = subprocess.Popen(
+            [
+                sys.executable,
+                "-m",
+                "hath0r_cli.cli",
+                "decision",
+                "radar",
+                "--host",
+                host,
+                "--port",
+                str(resolved_port),
+                "--operator",
+                operator_name,
+                "--foreground",
+                "--no-split-window",
+            ],
+            cwd=str(resolved_cwd),
+            start_new_session=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL,
+        )
+        deadline = time.monotonic() + 2.0
+        while time.monotonic() < deadline:
+            if is_cruise_server_listening(host=host, port=resolved_port):
+                return int(proc.pid)
+            time.sleep(0.05)
+        return int(proc.pid)
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
+def ensure_detached_cruise_server(
+    cwd: Optional[Path | str] = None,
+    host: str = "127.0.0.1",
+    port: Optional[int] = None,
+    operator_name: str = "Mark",
+    split_window: bool = True,
+    split_side: str = "right",
+    focus_decision_id: Optional[str] = None,
+    force_window: bool = False,
+) -> Dict[str, Any]:
+    """Ensure Cruise Control is running in a detached background service + detached browser view."""
+    resolved_cwd = Path(cwd or Path.cwd()).resolve()
+    bot = DecisionRadarBot(cwd=resolved_cwd)
+    resolved_port = int(port if port is not None else os.environ.get("HATH0R_CRUISE_PORT", str(DEFAULT_CRUISE_PORT)))
+    prev_state = _read_server_state(bot)
+
+    already_listening = is_cruise_server_listening(host=host, port=resolved_port)
+    pid = int(prev_state.get("pid") or os.getpid())
+    bound_port = resolved_port
+
+    if not already_listening:
+        spawned_pid = _spawn_detached_daemon_process(resolved_cwd, host, resolved_port, operator_name)
+        if spawned_pid is not None and is_cruise_server_listening(host=host, port=resolved_port):
+            pid = spawned_pid
+        else:
+            ensure_url = ensure_cruise_control_server(
+                cwd=resolved_cwd,
+                host=host,
+                port=resolved_port,
+                operator_name=operator_name,
+            )
+            parsed_u = urlparse(ensure_url)
+            bound_port = int(parsed_u.port or resolved_port)
+            pid = os.getpid()
+
+    radar_url = build_local_radar_url(port=bound_port, host=host)
+    window_already_launched = bool(prev_state.get("window_launched")) and already_listening
+    browser_window: Optional[Dict[str, Any]] = None
+
+    if split_window and (force_window or not window_already_launched):
+        browser_window = launch_cruise_control_split_window(
+            url=radar_url,
+            decision_id=focus_decision_id,
+            side=split_side,
+        )
+        window_already_launched = True
+
+    state = _write_server_state(
+        bot,
+        host=host,
+        port=bound_port,
+        pid=pid,
+        mode="detached",
+        window_launched=window_already_launched,
+    )
+    if browser_window is not None:
+        state["browser_window"] = browser_window
+    state["already_running"] = already_listening
+    return state
+
+
+def get_cruise_server_status(
+    cwd: Optional[Path | str] = None,
+    host: str = "127.0.0.1",
+    port: Optional[int] = None,
+) -> Dict[str, Any]:
+    """Return status of the detached Cruise Control server and autonomous monitor."""
+    resolved_cwd = Path(cwd or Path.cwd()).resolve()
+    bot = DecisionRadarBot(cwd=resolved_cwd)
+    state = _read_server_state(bot)
+    resolved_port = int(
+        port
+        if port is not None
+        else state.get("port") or os.environ.get("HATH0R_CRUISE_PORT", str(DEFAULT_CRUISE_PORT))
+    )
+    listening = is_cruise_server_listening(host=host, port=resolved_port)
+    url = build_local_radar_url(port=resolved_port, host=host)
+    snap = bot.get_radar_snapshot()
+    return {
+        "success": True,
+        "running": listening,
+        "mode": state.get("mode", "detached" if listening else "stopped"),
+        "autonomous_monitor": True,
+        "host": host,
+        "port": resolved_port,
+        "pid": state.get("pid"),
+        "url": url,
+        "window_launched": bool(state.get("window_launched", False)),
+        "open_count": snap.get("operator", {}).get("open_count", 0),
+    }
+
+
+def stop_detached_cruise_server(
+    cwd: Optional[Path | str] = None,
+    host: str = "127.0.0.1",
+    port: Optional[int] = None,
+) -> Dict[str, Any]:
+    """Stop any running in-process or detached Cruise Control background server."""
+    resolved_cwd = Path(cwd or Path.cwd()).resolve()
+    bot = DecisionRadarBot(cwd=resolved_cwd)
+    state = _read_server_state(bot)
+    resolved_port = int(
+        port
+        if port is not None
+        else state.get("port") or os.environ.get("HATH0R_CRUISE_PORT", str(DEFAULT_CRUISE_PORT))
+    )
+
+    in_proc = _ACTIVE_DAEMON_SERVERS.pop(resolved_port, None)
+    if in_proc is not None:
+        in_proc.stop()
+
+    pid = state.get("pid")
+    killed = False
+    if isinstance(pid, int) and pid > 0 and pid != os.getpid():
+        try:
+            os.kill(pid, signal.SIGTERM)
+            killed = True
+        except OSError:
+            killed = False
+
+    _write_server_state(bot, host=host, port=resolved_port, pid=0, mode="stopped", window_launched=False)
+    return {
+        "success": True,
+        "stopped": True,
+        "port": resolved_port,
+        "pid": pid,
+        "killed_process": killed,
+    }
 
 
 def build_macos_split_window_applescript(url: str, side: str = "right") -> str:

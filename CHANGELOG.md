@@ -5,6 +5,14 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.0] - 2026-10-28
+
+### Added
+- **Detached Cruise Control View & Stateless Agent Update API (`hath0r cruise detach|update|status|stop`)**:
+  - Added autonomous background fact-settlement monitor (`_run_autonomous_monitor`) inside `HathorDecisionRadarServer` (`src/hath0r_cli/server/decision_radar_server.py`) so Cruise Control runs in a detached view and evaluates/settles ready facts without requiring any agent process to keep running or monitoring it (#520).
+  - Added `DecisionRadarBot.update_decision()` (`src/hath0r_cli/bots/decision_radar_bot.py`), HTTP endpoints `POST /api/decisions/update` and `GET /api/decisions/status`, and automatic HTTP push sync (`_sync_to_detached_server`) from any agent repository to the detached Cruise Control server (`127.0.0.1:38090`).
+  - Added CLI subcommands `hath0r cruise update <decision_id>`, `hath0r cruise detach`, `hath0r cruise status`, `hath0r cruise stop`, and `--detached/--foreground` flag on `hath0r cruise radar`.
+
 ## [1.10.1] - 2026-10-28
 
 ### Added
