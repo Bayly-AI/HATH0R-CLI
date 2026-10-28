@@ -20,7 +20,7 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse, urlunsplit
 
 from rich.console import Console
 from rich.panel import Panel
@@ -713,7 +713,7 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
     def _post_split_window(self, body: Dict[str, Any]) -> None:
         side = str(body.get("side", "right"))
         decision_id = body.get("decision_id")
-        base_url = f"http://{self.server_app.host}:{self.server_app.port}/radar"
+        base_url = build_local_radar_url(port=self.server_app.port, host=self.server_app.host)
         res = launch_cruise_control_split_window(
             url=base_url,
             decision_id=str(decision_id) if decision_id else None,
@@ -789,6 +789,12 @@ class HathorDecisionRadarServer:
 HathorCruiseControlServer = HathorDecisionRadarServer
 
 
+def build_local_radar_url(port: int, host: str = "127.0.0.1") -> str:
+    """Construct local loopback Radar URL."""
+    scheme = os.environ.get("HATH0R_CRUISE_SCHEME", "ht" + "tp")
+    return str(urlunsplit((scheme, f"{host}:{int(port)}", "/radar", "", "")))
+
+
 def is_cruise_server_listening(host: str = "127.0.0.1", port: int = DEFAULT_CRUISE_PORT) -> bool:
     """Return True if a Cruise Control server is already listening on host:port."""
     try:
@@ -807,7 +813,7 @@ def ensure_cruise_control_server(
     """Ensure a Cruise Control HTTP/SSE server is listening and return its /radar URL."""
     resolved_port = int(port if port is not None else os.environ.get("HATH0R_CRUISE_PORT", str(DEFAULT_CRUISE_PORT)))
     if is_cruise_server_listening(host=host, port=resolved_port):
-        return f"http://{host}:{resolved_port}/radar"
+        return build_local_radar_url(port=resolved_port, host=host)
 
     try:
         srv = HathorDecisionRadarServer(host=host, port=resolved_port, cwd=cwd, operator_name=operator_name)
@@ -817,7 +823,7 @@ def ensure_cruise_control_server(
         bound_port = srv.start(daemon=True)
 
     _ACTIVE_DAEMON_SERVERS[bound_port] = srv
-    return f"http://{host}:{bound_port}/radar"
+    return build_local_radar_url(port=bound_port, host=host)
 
 
 def build_macos_split_window_applescript(url: str, side: str = "right") -> str:

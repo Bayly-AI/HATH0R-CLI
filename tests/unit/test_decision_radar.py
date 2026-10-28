@@ -21,8 +21,11 @@ from hath0r_cli.bots.decision_radar_bot import (
 from hath0r_cli.bots.memory_manager import MemoryManagerBot
 from hath0r_cli.commands.decision import decision_cmd
 from hath0r_cli.server.decision_radar_server import (
+    _ACTIVE_DAEMON_SERVERS,
     HathorCruiseControlServer,
     HathorDecisionRadarServer,
+    _launch_macos_split_browser,
+    build_local_radar_url,
     build_macos_split_window_applescript,
     ensure_cruise_control_server,
     is_cruise_server_listening,
@@ -521,5 +524,36 @@ def test_cruise_control_split_window_display(tmp_path: Path, monkeypatch: pytest
         assert f":{bound_port}/radar?focus=" in res["browser_window"]["url"]
     finally:
         server.stop()
+
+    # Test auto-start path of ensure_cruise_control_server when not yet listening
+    auto_url = ensure_cruise_control_server(cwd=tmp_path, host="127.0.0.1", port=0)
+    assert "/radar" in auto_url
+    for srv in list(_ACTIVE_DAEMON_SERVERS.values()):
+        srv.stop()
+    _ACTIVE_DAEMON_SERVERS.clear()
+
+    # Test _launch_macos_split_browser with mocked subprocess & webbrowser
+    class _DummyProc:
+        def __init__(self, rc: int) -> None:
+            self.returncode = rc
+
+    monkeypatch.setattr("subprocess.run", lambda *a, **kw: _DummyProc(0))
+    assert (
+        _launch_macos_split_browser(build_local_radar_url(38090), "right", script_right)
+        in ("macos-chrome-app-split", "macos-applescript-split")
+    )
+
+    monkeypatch.setattr("subprocess.run", lambda *a, **kw: _DummyProc(1))
+    monkeypatch.setattr("webbrowser.open", lambda *_a, **_kw: True)
+    assert _launch_macos_split_browser(build_local_radar_url(38090), "left", script_left) == "webbrowser"
+
+    runner = CliRunner()
+    res_daemon = runner.invoke(
+        decision_cmd,
+        ["radar", "--port", "0", "--daemon", "--split-window", "--split-side", "left"],
+    )
+    assert res_daemon.exit_code == 0
+    assert "Split-window Cruise Control" in res_daemon.output
+
 
 

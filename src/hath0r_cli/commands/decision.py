@@ -22,6 +22,7 @@ from hath0r_cli.bots.decision_radar_bot import CANONICAL_CATEGORIES, DecisionRad
 from hath0r_cli.server.decision_radar_server import (
     DEFAULT_CRUISE_PORT,
     HathorDecisionRadarServer,
+    build_local_radar_url,
     launch_cruise_control_split_window,
     render_radar_tui,
 )
@@ -521,7 +522,7 @@ def decision_radar(
 
     server = HathorDecisionRadarServer(host=host, port=port, cwd=Path.cwd(), operator_name=operator)
     bound_port = server.start(daemon=True)
-    radar_url = f"http://{host}:{bound_port}/radar"
+    radar_url = build_local_radar_url(port=bound_port, host=host)
     console.print(f"[bold green]Starting HATH0R Cruise Control[/bold green] at [cyan]{radar_url}[/cyan]")
     console.print("[dim]Serving Cruise Control Radial Sunburst UX, Unblock Reranker, and SSE stream.[/dim]")
 
