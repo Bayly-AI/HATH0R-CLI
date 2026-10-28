@@ -19,9 +19,20 @@ from rich.console import Console
 from rich.table import Table
 
 from hath0r_cli.bots.decision_radar_bot import CANONICAL_CATEGORIES, DecisionRadarBot
-from hath0r_cli.server.decision_radar_server import HathorDecisionRadarServer, render_radar_tui
+from hath0r_cli.server.decision_radar_server import (
+    DEFAULT_CRUISE_PORT,
+    HathorDecisionRadarServer,
+    build_local_radar_url,
+    launch_cruise_control_split_window,
+    render_radar_tui,
+)
 
 console = Console()
+
+_SPLIT_WINDOW_FLAG = "--split-window/--no-split-window"
+_SPLIT_WINDOW_HELP = "Auto-open Cruise Control in a split-window browser display."
+_SPLIT_SIDE_OPT = "--split-side"
+_SPLIT_SIDE_HELP = "Screen half for Cruise Control split browser window (right or left)."
 
 
 def _split_csv(raw: Optional[str]) -> List[str]:
@@ -50,6 +61,8 @@ def decision_cmd() -> None:
 @click.option("--options", default="", help="Comma-separated answer options.")
 @click.option("--fact", "--wait-for-fact", "wait_for_fact", default=None, help="Declarative fact predicate to wait on.")
 @click.option("--criticality", default=1.0, type=float, show_default=True, help="Criticality multiplier.")
+@click.option(_SPLIT_WINDOW_FLAG, default=True, show_default=True, help=_SPLIT_WINDOW_HELP)
+@click.option(_SPLIT_SIDE_OPT, default="right", show_default=True, help=_SPLIT_SIDE_HELP)
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit machine-readable JSON.")
 def decision_ask(
     question: str,
@@ -59,9 +72,11 @@ def decision_ask(
     options: str,
     wait_for_fact: Optional[str],
     criticality: float,
+    split_window: bool,
+    split_side: str,
     as_json: bool,
 ) -> None:
-    """Submit a non-blocking agent decision to the radar queue."""
+    """Submit a non-blocking agent decision to the radar queue and display in split browser window."""
     bot = DecisionRadarBot(cwd=Path.cwd())
     res = bot.request_decision(
         question=question,
@@ -71,6 +86,8 @@ def decision_ask(
         options=_split_csv(options),
         wait_for_fact=wait_for_fact,
         criticality=criticality,
+        split_window=split_window,
+        split_side=split_side,
     )
     if as_json:
         click.echo(json.dumps(res, indent=2))
@@ -80,6 +97,11 @@ def decision_ask(
         f"[bold green]✓ Decision queued:[/bold green] [cyan]{dec['decision_id']}[/cyan] "
         f"({dec['category_label']}) — [yellow]|| {dec['unblock_badge']} (U={dec['unblock_weight']})[/yellow]"
     )
+    win = res.get("browser_window")
+    if isinstance(win, dict) and win.get("url"):
+        console.print(
+            f"[bold blue]◫ Split-window Cruise Control ({win.get('layout')}):[/bold blue] [cyan]{win['url']}[/cyan]"
+        )
 
 
 @decision_cmd.command("wait")
@@ -99,6 +121,8 @@ def decision_ask(
 @click.option("--timeout", default=0.5, type=float, show_default=True, help="Seconds to wait before returning state.")
 @click.option("--poll-interval", default=0.1, type=float, show_default=True, help="Polling interval in seconds.")
 @click.option("--live-probes", is_flag=True, default=False, help="Run live Git/GH probes during wait.")
+@click.option(_SPLIT_WINDOW_FLAG, default=True, show_default=True, help=_SPLIT_WINDOW_HELP)
+@click.option(_SPLIT_SIDE_OPT, default="right", show_default=True, help=_SPLIT_SIDE_HELP)
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit machine-readable JSON.")
 def decision_wait(
     question: str,
@@ -110,9 +134,11 @@ def decision_wait(
     timeout: float,
     poll_interval: float,
     live_probes: bool,
+    split_window: bool,
+    split_side: str,
     as_json: bool,
 ) -> None:
-    """Register an agent decision and wait for human resolution or event fact settlement."""
+    """Register an agent decision, open split-window Cruise Control, and wait for resolution."""
     bot = DecisionRadarBot(cwd=Path.cwd())
     req = bot.request_decision(
         question=question,
@@ -128,10 +154,17 @@ def decision_wait(
         timeout_seconds=timeout,
         poll_interval=poll_interval,
         live_probes=live_probes,
+        split_window=split_window,
+        split_side=split_side,
     )
     if as_json:
         click.echo(json.dumps(res, indent=2))
         return
+    win = res.get("browser_window")
+    if isinstance(win, dict) and win.get("url"):
+        console.print(
+            f"[bold blue]◫ Split-window Cruise Control ({win.get('layout')}):[/bold blue] [cyan]{win['url']}[/cyan]"
+        )
     dec = res.get("decision", {})
     if res.get("resolved"):
         console.print(
@@ -319,6 +352,8 @@ def decision_settle(live_probes: bool, as_json: bool) -> None:
 @click.option("--tools", default="read_file,edit_file,run_command", show_default=True, help="Permitted tools CSV.")
 @click.option("--unblocks", "-u", default="", help="Downstream tasks unblocked.")
 @click.option("--queue-only", is_flag=True, default=False, help="Queue input gate without immediate approval.")
+@click.option(_SPLIT_WINDOW_FLAG, default=True, show_default=True, help=_SPLIT_WINDOW_HELP)
+@click.option(_SPLIT_SIDE_OPT, default="right", show_default=True, help=_SPLIT_SIDE_HELP)
 @click.option("--operator", default=None, help="Operator identity.")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit machine-readable JSON.")
 def decision_approve_in(
@@ -328,6 +363,8 @@ def decision_approve_in(
     tools: str,
     unblocks: str,
     queue_only: bool,
+    split_window: bool,
+    split_side: str,
     operator: Optional[str],
     as_json: bool,
 ) -> None:
@@ -339,6 +376,8 @@ def decision_approve_in(
         token_budget=budget,
         tools=_split_csv(tools),
         unblocks=_split_csv(unblocks) or None,
+        split_window=queue_only and split_window,
+        split_side=split_side,
     )
     dec_id = str(gate_req["decision"]["decision_id"])
     res = (
@@ -364,6 +403,8 @@ def decision_approve_in(
 @click.option("--pr-draft", default="", help="PR title/body draft.")
 @click.option("--unblocks", "-u", default="", help="Downstream release tasks unblocked.")
 @click.option("--queue-only", is_flag=True, default=False, help="Queue output gate without immediate signoff.")
+@click.option(_SPLIT_WINDOW_FLAG, default=True, show_default=True, help=_SPLIT_WINDOW_HELP)
+@click.option(_SPLIT_SIDE_OPT, default="right", show_default=True, help=_SPLIT_SIDE_HELP)
 @click.option("--operator", default=None, help="Operator identity.")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit machine-readable JSON.")
 def decision_approve_out(
@@ -373,6 +414,8 @@ def decision_approve_out(
     pr_draft: str,
     unblocks: str,
     queue_only: bool,
+    split_window: bool,
+    split_side: str,
     operator: Optional[str],
     as_json: bool,
 ) -> None:
@@ -384,6 +427,8 @@ def decision_approve_out(
         diff_summary=diff_summary,
         pr_draft=pr_draft,
         unblocks=_split_csv(unblocks) or None,
+        split_window=queue_only and split_window,
+        split_side=split_side,
     )
     dec_id = str(gate_req["decision"]["decision_id"])
     res = (
@@ -445,9 +490,11 @@ def decision_tui(operator: str, seed_demo: bool, as_json: bool) -> None:
 
 @decision_cmd.command("radar")
 @click.option("--host", "-h", default="127.0.0.1", show_default=True, help="Host interface to bind HTTP server.")
-@click.option("--port", "-p", default=8085, type=int, show_default=True, help="Port to bind HTTP server.")
+@click.option("--port", "-p", default=DEFAULT_CRUISE_PORT, type=int, show_default=True, help="Port to bind HTTP server.")
 @click.option("--operator", default="Mark", show_default=True, help="Operator identity in center hub.")
 @click.option("--seed-demo", is_flag=True, default=False, help="Seed canonical Cruise Control reference topology.")
+@click.option(_SPLIT_WINDOW_FLAG, default=True, show_default=True, help=_SPLIT_WINDOW_HELP)
+@click.option(_SPLIT_SIDE_OPT, default="right", show_default=True, help=_SPLIT_SIDE_HELP)
 @click.option("--daemon", "-d", is_flag=True, default=False, help="Run server in background daemon thread.")
 @click.option("--no-serve", is_flag=True, default=False, help="Compute radar snapshot without blocking on HTTP server.")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit radar snapshot as JSON.")
@@ -456,6 +503,8 @@ def decision_radar(
     port: int,
     operator: str,
     seed_demo: bool,
+    split_window: bool,
+    split_side: str,
     daemon: bool,
     no_serve: bool,
     as_json: bool,
@@ -473,10 +522,17 @@ def decision_radar(
 
     server = HathorDecisionRadarServer(host=host, port=port, cwd=Path.cwd(), operator_name=operator)
     bound_port = server.start(daemon=True)
-    console.print(
-        f"[bold green]Starting HATH0R Cruise Control[/bold green] at [cyan]http://{host}:{bound_port}/radar[/cyan]"
-    )
+    radar_url = build_local_radar_url(port=bound_port, host=host)
+    console.print(f"[bold green]Starting HATH0R Cruise Control[/bold green] at [cyan]{radar_url}[/cyan]")
     console.print("[dim]Serving Cruise Control Radial Sunburst UX, Unblock Reranker, and SSE stream.[/dim]")
+
+    if split_window:
+        top_decisions = snapshot.get("decisions") or []
+        focus_id = str(top_decisions[0]["decision_id"]) if top_decisions else None
+        win = launch_cruise_control_split_window(url=radar_url, decision_id=focus_id, side=split_side)
+        console.print(
+            f"[bold blue]◫ Split-window Cruise Control ({win.get('layout')}):[/bold blue] [cyan]{win.get('url')}[/cyan]"
+        )
 
     if daemon:
         console.print("[green]Decision Radar server running in background daemon thread.[/green]")

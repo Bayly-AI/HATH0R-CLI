@@ -5,17 +5,17 @@
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-17T14:50:45.402982+00:00",
-  "updated_at": "2026-10-28T12:59:58.043136+00:00",
+  "updated_at": "2026-10-28T13:37:35.116306+00:00",
   "ended_at": "2026-10-28T09:33:49.371663+00:00",
-  "read_count": 14,
-  "write_count": 21,
-  "revision": 35,
-  "content_hash": "sha256:9c40541199a7a37ea1a0cc71aebf6a33834ff6681cd2e99c5e4c75f85f791ab3",
-  "base_graph_hash": "sha256:79484a4a7fbc7503c07650485bb18725ee99e2f42b5fbfdad9e80b7e5b21971d",
-  "last_read_at": "2026-10-28T12:59:56.388699+00:00",
-  "last_write_at": "2026-10-28T12:59:58.043136+00:00",
+  "read_count": 15,
+  "write_count": 23,
+  "revision": 38,
+  "content_hash": "sha256:359502ee9eb1b06937774f1ee94615f1900c77a096653ccadfe071c95914d1f2",
+  "base_graph_hash": "sha256:3a4ef90a0e021607d6777d97991bbaa3b8dd1a525d6ce513617015dddc010952",
+  "last_read_at": "2026-10-28T13:37:30.220266+00:00",
+  "last_write_at": "2026-10-28T13:37:35.116306+00:00",
   "active_focus": "Orienting repository hathor-cli",
-  "prior_summary": "emented Hath0r Decision Radar v1.8.0; Compounded episode:decision-radar-v1-8-0; Renamed feature to Cruise Control v1.8.1",
+  "prior_summary": "med feature to Cruise Control v1.8.1; Compounded decision:cruise-control-namin; Added split-window browser display to Cr",
   "recalled_nodes": [
     {
       "id": "insight:hathor-cli",
@@ -26,17 +26,17 @@
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-28T12:59:58.043136+00:00",
+      "timestamp": "2026-10-28T13:37:35.116306+00:00",
       "kind": "compound",
-      "summary": "Compounded decision:cruise-control-naming: Named Agent Decision Control Layer 'Cruise Control' (#508)",
+      "summary": "Compounded decision:cruise-control-split-window: Cruise Control Split-Window Browser Display (#513)",
       "tags": [
         "cruise-control",
-        "naming",
-        "v1.8.1",
+        "split-window",
+        "v1.9.0",
         "decision",
         "compounded"
       ],
-      "node_id": "decision:cruise-control-naming"
+      "node_id": "decision:cruise-control-split-window"
     }
   ],
   "next_steps": [],
@@ -44,8 +44,9 @@
     "decision:cli-kvcacheprewarmer-cagengine-chunk-boundary-al",
     "episode:decision-radar-architecture-plan",
     "episode:decision-radar-v1-8-0-implementation",
-    "decision:cruise-control-naming"
+    "decision:cruise-control-naming",
+    "decision:cruise-control-split-window"
   ],
   "parent_session_id": "sess-20261016-151409-a068f7",
-  "capsule_bytes": 1921
+  "capsule_bytes": 1975
 }
