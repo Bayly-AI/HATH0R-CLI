@@ -1,13 +1,13 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261028-174533-960ec8",
-  "task_id": "eval-baseline-hathor-cli",
+  "eval_id": "eval-20261028-181353-c7d1c7",
+  "task_id": "clean-repo-hathor-cli",
   "issue_number": null,
   "repo_name": "hathor-cli",
   "branch": "development",
-  "evaluated_at": "2026-10-28T17:45:33.082530+00:00",
-  "duration_ms": 281.63,
+  "evaluated_at": "2026-10-28T18:13:53.027420+00:00",
+  "duration_ms": 465.77,
   "passed_gate": true,
   "r_task": 1.0,
   "min_reward_threshold": 0.8,
@@ -64,13 +64,13 @@
       "estimated_usd": 0.0,
       "max_usd": 0.25,
       "session_id": "sess-20261028-130546-18a517",
-      "session_reads": 15,
-      "session_writes": 50,
-      "session_bytes": 1962,
+      "session_reads": 16,
+      "session_writes": 52,
+      "session_bytes": 1934,
       "within_capsule_budget": true,
-      "latency_ms": 94.47,
-      "taguchi_quality_loss": 0.0001,
-      "snr_db": 26.51
+      "latency_ms": 137.53,
+      "taguchi_quality_loss": 0.0002,
+      "snr_db": 23.25
     },
     "adversarial": {
       "score": 1.0,
@@ -85,7 +85,7 @@
     "goal_alignment": {
       "score": 1.0,
       "passed": true,
-      "task_id": "eval-baseline-hathor-cli",
+      "task_id": "clean-repo-hathor-cli",
       "issue_number": null,
       "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
       "compounded_nodes_count": 49,
@@ -96,5 +96,5 @@
   "observability_sync": {
     "mode": "pending"
   },
-  "content_hash": "sha256:d8e499d03e85ca90765ed0a63dc582b916f15c414ff99ab410883d6403eeede4"
+  "content_hash": "sha256:d259deb76f29b7df6ae7813cc6db26bf8a8c167be4b2ca893be49c38ba820b6d"
 }
