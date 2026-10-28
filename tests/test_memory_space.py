@@ -376,7 +376,7 @@ def test_gitignore_negations_relocated_after_later_ignore_rule(tmp_path: Path) -
     bot = MemoryManagerBot(cwd=tmp_path)
     bot.ensure_gitignore_unignores_graphs()
     gitignore = tmp_path / ".gitignore"
-    gitignore.write_text(gitignore.read_text(encoding="utf-8") + "*.json\n", encoding="utf-8")
+    gitignore.write_text(gitignore.read_text(encoding="utf-8") + "*.json\n\n", encoding="utf-8")
     assert bot.verify_graphs_not_gitignored()["graphs_not_ignored"] is False
 
     res = bot.ensure_gitignore_unignores_graphs()

@@ -163,3 +163,9 @@ def test_repo_layout_bot_verifies_graph_folders(tmp_path: Path) -> None:
     assert res["success"] is True
     assert res["graphs_not_ignored"] is True
     assert ".hath0r/memory/" in res["gitignore"]["removed_rules"]
+
+    from hath0r_cli.step_runner import BotRegistry
+
+    step_res = BotRegistry(cwd=tmp_path).invoke("repo-layout-bot", "verify-graph-folders")
+    assert step_res.success is True
+    assert step_res.data["graphs_not_ignored"] is True
