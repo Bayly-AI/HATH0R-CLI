@@ -5,17 +5,17 @@
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-28T13:05:46.197056+00:00",
-  "updated_at": "2026-10-28T15:21:58.348381+00:00",
-  "ended_at": "2026-10-28T14:51:41.444499+00:00",
-  "read_count": 12,
-  "write_count": 42,
-  "revision": 53,
-  "content_hash": "sha256:287679362ac1aaac5f19c29283ea7772e6a6db1c7b2fc984858531d28772d3dd",
-  "base_graph_hash": "sha256:0b4f55609119cfc2d665ee8b7ca59e7664a8c05fb2db4df718a917341f72fc2d",
-  "last_read_at": "2026-10-28T14:51:41.188455+00:00",
-  "last_write_at": "2026-10-28T15:21:58.348381+00:00",
+  "updated_at": "2026-10-28T15:32:33.555561+00:00",
+  "ended_at": "2026-10-28T15:32:30.683620+00:00",
+  "read_count": 13,
+  "write_count": 45,
+  "revision": 57,
+  "content_hash": "sha256:85b402a8717aebb079d9030f4320b067d41d35acd4601948860a01a46945a2a4",
+  "base_graph_hash": "sha256:512a415045831168de26da9b318adec3498885314a019b171cda4b3cdbc030aa",
+  "last_read_at": "2026-10-28T15:32:30.583980+00:00",
+  "last_write_at": "2026-10-28T15:32:33.555561+00:00",
   "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
-  "prior_summary": "ounded eval:release-v1-11-0: Task Ev; Compounded eval:issue-522: Task Evaluati; Compounded eval:issue-522: Task Evaluati",
+  "prior_summary": "ounded eval:issue-522: Task Evaluati; Compounded episode:clean-repo-hathor-cli; Clean Repo Lifecycle completed for hatho",
   "recalled_nodes": [
     {
       "id": "decision:issue-474-micro-memory-session",
@@ -26,28 +26,28 @@
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-28T15:21:58.348381+00:00",
+      "timestamp": "2026-10-28T15:32:33.555561+00:00",
       "kind": "compound",
-      "summary": "Compounded eval:issue-522: Task Evaluation issue-522 (R=1.00, PASS)",
+      "summary": "Compounded eval:clean-repo-hathor-cli: Task Evaluation clean-repo-hathor-cli (R=1.00, PASS)",
       "tags": [
         "eval",
         "cr-task-eval-001",
-        "issue-522",
+        "clean-repo-hathor-cli",
         "passed",
         "compounded"
       ],
-      "node_id": "eval:issue-522"
+      "node_id": "eval:clean-repo-hathor-cli"
     }
   ],
   "next_steps": [],
   "compounded_node_ids": [
-    "episode:pr-521",
-    "eval:pr-521",
     "eval:pr-521-merged",
     "episode:release-v1.11.0",
     "eval:release-v1-11-0",
-    "eval:issue-522"
+    "eval:issue-522",
+    "episode:clean-repo-hathor-cli",
+    "eval:clean-repo-hathor-cli"
   ],
   "parent_session_id": "sess-20261017-145045-ed36da",
-  "capsule_bytes": 1879
+  "capsule_bytes": 1957
 }

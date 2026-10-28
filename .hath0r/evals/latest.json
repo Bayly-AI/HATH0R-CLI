@@ -1,13 +1,13 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261028-152157-fbc17e",
-  "task_id": "issue-522",
-  "issue_number": 522,
+  "eval_id": "eval-20261028-153233-956bec",
+  "task_id": "clean-repo-hathor-cli",
+  "issue_number": null,
   "repo_name": "hathor-cli",
-  "branch": "feature/522-clean-repo-branch-hygiene",
-  "evaluated_at": "2026-10-28T15:21:57.695044+00:00",
-  "duration_ms": 232.13,
+  "branch": "development",
+  "evaluated_at": "2026-10-28T15:32:33.290638+00:00",
+  "duration_ms": 262.43,
   "passed_gate": true,
   "r_task": 1.0,
   "min_reward_threshold": 0.8,
@@ -64,13 +64,13 @@
       "estimated_usd": 0.0,
       "max_usd": 0.25,
       "session_id": "sess-20261028-130546-18a517",
-      "session_reads": 12,
-      "session_writes": 41,
-      "session_bytes": 1879,
+      "session_reads": 13,
+      "session_writes": 44,
+      "session_bytes": 1780,
       "within_capsule_budget": true,
-      "latency_ms": 92.31,
+      "latency_ms": 94.17,
       "taguchi_quality_loss": 0.0001,
-      "snr_db": 26.72
+      "snr_db": 26.54
     },
     "adversarial": {
       "score": 1.0,
@@ -85,8 +85,8 @@
     "goal_alignment": {
       "score": 1.0,
       "passed": true,
-      "task_id": "issue-522",
-      "issue_number": 522,
+      "task_id": "clean-repo-hathor-cli",
+      "issue_number": null,
       "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
       "compounded_nodes_count": 45,
       "consensus_score": 1.0
@@ -94,9 +94,7 @@
   },
   "blocking_reasons": [],
   "observability_sync": {
-    "mode": "live_synced",
-    "phoenix_logged": true,
-    "mlflow_run_id": "f5eb44238eb44d6bb595914d41273025"
+    "mode": "pending"
   },
-  "content_hash": "sha256:d95cf8ba6d20686ec0b6cbe9ea09d08a2795775358355a50f98f346f643bb5a6"
+  "content_hash": "sha256:c95793073c28adeb6dbbe218916d7ec4e4687f1bfc12ec82529ca15cd97ca339"
 }
