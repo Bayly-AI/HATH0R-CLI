@@ -5,9 +5,11 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.13.0] - 2026-10-28
+## [1.13.0] - 2026-10-29
 
 ### Added
+- **SFT, LoRA, QLoRA & PEFT Subspace Training Coordinator & Benchmark Evals (`CCCDTTrainingCoordinator`)**:
+  - Updated `CCCDTTrainingCoordinator` (`src/hath0r_cli/cccd/training_coordinator.py`) to execute real Low-Rank Adaptation (`lora`), 4-bit NormalFloat QLoRA (`qlora`), Supervised Fine-Tuning (`sft`), and Parameter-Efficient Fine-Tuning (`peft`) subspace optimization (`_optimize_lora_peft_subspace`), persist `.bin` PEFT adapter weights with SHA-256 checksums, and run post-training benchmark evaluations (`eval_passed`).
 - **Git Workflows: branch, PR & environment promotion (`GitWorkflowBot`, CR-BAI-001 / cr-branch-gov-001)**:
   - New `src/hath0r_cli/bots/git_workflow_bot.py` mirroring `.github/workflows/enforce-promotion-path.yml` locally (same work/release regexes and per-stage rules).
   - `hath0r branch start <type> <issue> <slug>` (issue-verified branch from `origin/development`) and `hath0r branch sync [--rebase]` (aborts cleanly on conflict).
@@ -16,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Governance hexad: `cfg/workflows/git-promotion-workflow.yaml`, strategy, procedure, runbook and playbook docs.
 
 ### Fixed
+- **SAST Dynamic Code Execution Scanner (`SecuritySASTScanner`)**: Updated `SecuritySASTScanner._scan_python_file` (`src/hath0r_cli/bots/cicccd_bot.py`) to ignore string literals, comments, method definitions (`def exec(`), and attribute calls (`.exec(`) when scanning for dynamic `eval()`/`exec()` invocations.
 - Legacy `--json` flags (churn, decision/cruise, mesh, mlflow, observe, phoenix, pmat, orient) and the `pmat stats` / `observe charts` `--format` options now honour the global `-o json` and non-TTY `auto` output mode instead of printing Rich tables.
 
 ## [1.12.1] - 2026-10-28

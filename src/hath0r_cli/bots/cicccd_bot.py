@@ -28,14 +28,19 @@ class SecuritySASTScanner:
             r"(?i)(api_?key|secret_?key|auth_?token|password)\s*=\s*['\"][\w.-]{12,}['\"]"
         )
         self.unsafe_cmd_pattern = re.compile(r"subprocess\.(Popen|call|run|check_output)\([^)]*shell\s*=\s*True")
-        self.eval_pattern = re.compile(r"\b(eval|exec)\s*\(")
+        self.eval_pattern = re.compile(r"(?<![.\w])(eval|exec)\s*\(")
 
     def _scan_python_file(self, fp: Path, findings: List[Dict[str, Any]]) -> None:
         try:
             lines = fp.read_text(encoding="utf-8", errors="ignore").splitlines()
             for idx, line in enumerate(lines, 1):
-                line_lower = line.lower()
-                if self.secret_pattern.search(line) and not ("example" in line_lower or "test" in line_lower):
+                stripped = line.strip()
+                if stripped.startswith("#") or stripped.startswith("def "):
+                    continue
+                code_part = line.split("#", 1)[0]
+                code_no_strings = re.sub(r"(['\"])(?:\\.|(?!\1).)*\1", '""', code_part)
+                line_lower = code_part.lower()
+                if self.secret_pattern.search(code_part) and not ("example" in line_lower or "test" in line_lower):
                     findings.append({
                         "file": str(fp.relative_to(self.root_dir)),
                         "line": idx,
@@ -43,7 +48,7 @@ class SecuritySASTScanner:
                         "severity": "CRITICAL",
                         "description": "Hardcoded credential detected",
                     })
-                if self.unsafe_cmd_pattern.search(line):
+                if self.unsafe_cmd_pattern.search(code_no_strings):
                     findings.append({
                         "file": str(fp.relative_to(self.root_dir)),
                         "line": idx,
@@ -51,7 +56,7 @@ class SecuritySASTScanner:
                         "severity": "HIGH",
                         "description": "Unsafe subprocess execution with shell=True",
                     })
-                if self.eval_pattern.search(line) and "ast.literal_eval" not in line:
+                if self.eval_pattern.search(code_no_strings) and "ast.literal_eval" not in code_part:
                     findings.append({
                         "file": str(fp.relative_to(self.root_dir)),
                         "line": idx,
