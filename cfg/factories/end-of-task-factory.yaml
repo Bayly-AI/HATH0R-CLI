@@ -68,6 +68,15 @@ bots:
       - validate-text
       - validate-all
 
+  - id: task-evaluator-bot
+    name: Task Evaluator Bot
+    role: task-evaluation-gate
+    description: Executes 4-tier hybrid automatic task evaluation (CR-TASK-EVAL-001) prior to completion.
+    capabilities:
+      - run-eval
+      - verify-eval
+      - status
+
   - id: task-announcer-bot
     name: Task Announcer Bot
     role: notification-and-announcements
@@ -127,6 +136,12 @@ workflows:
       - bot: change-validation-bot
         action: validate-all
         on_failure: abort
+
+      - bot: task-evaluator-bot
+        action: run-eval
+        on_failure: abort
+        args:
+          skip_tests: true
 
       - bot: task-announcer-bot
         action: announce-complete

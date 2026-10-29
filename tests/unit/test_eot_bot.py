@@ -49,6 +49,7 @@ def test_eot_bot_polling_success() -> None:
     bot.janitor_bot.prune_branch = MagicMock(return_value={"success": True, "branch": "feature/101-test"})
     bot.doc_bot.share_knowledge = MagicMock(return_value={"success": True, "target_kb": ".hath0r/knowledgebase"})
     bot.memory_bot.compound_memory = MagicMock(return_value={"success": True, "node": {"id": "episode:pr-101"}})
+    bot.eval_bot.evaluate_task = MagicMock(return_value={"success": True, "passed_gate": True, "r_task": 0.95})
     bot.announcer_bot.announce_complete = MagicMock(return_value={"success": True, "message": "Done"})
 
     res = bot.run_bot(pr_number=101, branch="feature/101-test", dry_run=False)
@@ -58,6 +59,7 @@ def test_eot_bot_polling_success() -> None:
     bot.janitor_bot.pull_development.assert_called_once()
     bot.janitor_bot.prune_branch.assert_called_once()
     bot.memory_bot.compound_memory.assert_called_once()
+    bot.eval_bot.evaluate_task.assert_called_once()
 
 
 def test_eot_bot_sonar_failure_aborts() -> None:
@@ -111,3 +113,38 @@ def test_cli_task_finish_daemon_dry_run() -> None:
     assert "bot" in data["data"]
     assert data["data"]["bot"]["success"] is True
     assert data["data"]["bot"]["pr_number"] == 77
+
+
+def test_eot_bot_memory_gate_blocks_success() -> None:
+    bot = EndOfTaskBot(poll_interval=0.01, timeout=5.0, sleeper=lambda _: None)
+
+    bot.pr_bot.check_pr_status = MagicMock(
+        return_value={
+            "state": "OPEN",
+            "statusCheckRollup": [
+                {"name": "CI / test-and-lint", "conclusion": "SUCCESS", "state": "SUCCESS"},
+                {"name": "SonarCloud Quality Gate", "conclusion": "SUCCESS", "state": "SUCCESS"},
+            ],
+        }
+    )
+    bot.pr_bot.merge_pr = MagicMock(return_value={"success": True, "output": "Merged PR #104"})
+    bot.janitor_bot.pull_development = MagicMock(return_value={"success": True})
+    bot.janitor_bot.prune_branch = MagicMock(return_value={"success": True})
+    bot.doc_bot.share_knowledge = MagicMock(return_value={"success": True})
+    bot.memory_bot.session_read = MagicMock(return_value={"success": True})
+    bot.memory_bot.compound_memory = MagicMock(return_value={"success": True})
+    bot.memory_bot.session_end = MagicMock(return_value={"success": True})
+    bot.eval_bot.evaluate_task = MagicMock(return_value={"success": True, "passed_gate": True, "r_task": 0.95})
+    bot.announcer_bot.announce_complete = MagicMock(
+        return_value={
+            "success": False,
+            "error": "CR-MEMORY-COMPOUND-001: Memory file hash verification failed",
+            "memory_gate": {"compounded": False, "hashes_verified": False},
+        }
+    )
+
+    res = bot.run_bot(pr_number=104, branch="feature/104-test", dry_run=False)
+    assert res["success"] is False
+    assert res["phase"] == "announce"
+    assert "hash verification failed" in res["error"]
+    assert res["memory_gate"]["hashes_verified"] is False

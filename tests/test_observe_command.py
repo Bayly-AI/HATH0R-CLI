@@ -35,7 +35,7 @@ def test_observe_status_json():
 
 def test_observe_charts():
     runner = CliRunner()
-    result = runner.invoke(main, ["observe", "charts"])
+    result = runner.invoke(main, ["-o", "text", "observe", "charts"])
     assert result.exit_code == 0
     assert (
         "OBSERVATION CHARTS" in result.output

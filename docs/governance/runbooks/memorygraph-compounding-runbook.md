@@ -67,9 +67,16 @@ hath0r memory ensure-all --root /Users/raybayly/Development
   2. Read the latest state, compound any updated knowledge if a tracked source file changed, and synchronize the hash manifest:
      ```bash
      hath0r memory session read
-      hath0r memory hash --sync
+     hath0r memory hash --sync
      hath0r memory verify
      ```
+  3. For a `HASH_CONFLICT`, re-read the current digest or revision and retry the write against it:
+     ```bash
+     hath0r --output json memory read <topic>          # .data.sha256 -> --expected-hash
+     hath0r memory update <topic> "<content>" --expected-hash sha256:<hex>
+     hath0r memory hash --sync --expected-revision <revision from hashes.json>
+     ```
+- **Concurrency model**: all memory mutations (`graph.json`, `sessions/*.json`, topic `.md` files, `hashes.json`) take an exclusive, re-entrant lock (an OS file lock in the system temp dir, keyed by the memory dir path) so the CAS check and the `os.replace` happen atomically across threads and processes. Non-conflicting graph additions still auto-merge by set union.
 
 ### Issue 5: Graph Folders Ignored in `.gitignore` (`graphs_not_ignored: False`)
 - **Symptom**: `hath0r memory verify` or `git check-ignore -v` indicates that `.hath0r/memory/`, `.hath0r/agentgraph/`, `.hath0r/graphs/`, `.hath0r/state/cache/`, or `.hath0r/state/context/` is ignored by `.gitignore` (for example, due to a blanket `.hath0r/` or `.hath0r/state/` ignore rule).

@@ -1,6 +1,7 @@
 """Unit and integration tests for HATH0R-CLI CICCCDCT control plane, bot, commands, and FastMCP tools."""
 
 import json
+import time
 from pathlib import Path
 
 import pytest
@@ -14,19 +15,21 @@ from hath0r_cli.server.mcp_server import create_mcp_server
 
 @pytest.fixture
 def temp_workspace(tmp_path: Path) -> Path:
+    # Relative to now: the CT gate treats training older than 168h as stale.
+    recent = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - 3600))
     hath0r_dir = tmp_path / ".hath0r"
     hath0r_dir.mkdir(parents=True, exist_ok=True)
     state = {
         "schema_version": "hath0r.cicccdct.state/1",
         "active_calibration": True,
-        "last_run_timestamp": "2026-10-11T12:00:00Z",
+        "last_run_timestamp": recent,
         "total_calibration_runs": 10,
         "current_parameters": {"temperature": 0.2, "max_tokens": 2048},
         "drift_metrics": {"accuracy_drift": 0.001, "latency_drift_ms": 1.5, "token_tax_drift": -0.01},
         "training": {
             "active_training": True,
             "total_training_runs": 2,
-            "last_trained_timestamp": "2026-10-11T12:00:00Z",
+            "last_trained_timestamp": recent,
             "active_model_name": "reasoning_slm",
             "active_model_version": 1,
             "active_model_stage": "Production",

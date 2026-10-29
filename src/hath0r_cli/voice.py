@@ -477,7 +477,7 @@ def _standalone_fast_route(transcript: str, cwd: Optional[Path] = None) -> Dict[
         args = parts[1:] if len(parts) > 1 else []
 
         # Check if subcmd is an app open or system control
-        open_m = re.match(r"^(?:open|launch|start)\s+([a-zA-Z0-9\s\.\-_]+)$", cmd_to_eval, re.IGNORECASE)
+        open_m = re.match(r"^(?:open|launch|start)\s+([a-zA-Z0-9.\-_][a-zA-Z0-9\s.\-_]*)$", cmd_to_eval, re.IGNORECASE)
         if open_m:
             app_name = open_m.group(1).strip()
             return {
@@ -548,7 +548,7 @@ def _standalone_fast_route(transcript: str, cwd: Optional[Path] = None) -> Dict[
             "metadata": {"router": "cli_fastpath"},
         }
 
-    open_match = re.match(r"^(?:open|launch|start)\s+([a-zA-Z0-9\s\.\-_]+)$", transcript.strip(), re.IGNORECASE)
+    open_match = re.match(r"^(?:open|launch|start)\s+([a-zA-Z0-9.\-_][a-zA-Z0-9\s.\-_]*)$", transcript.strip(), re.IGNORECASE)
     if open_match:
         app_name = open_match.group(1).strip()
         return {

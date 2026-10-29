@@ -2,15 +2,38 @@
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import json
 import os
 import re
+import tempfile
+import threading
 import uuid
 from collections import Counter
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, Iterator, List, Optional, Set, TypeVar
+
+try:
+    import fcntl as _fcntl
+except ImportError:  # pragma: no cover - Windows
+    _fcntl = None  # type: ignore[assignment]
+
+try:
+    import msvcrt as _msvcrt
+except ImportError:
+    _msvcrt = None  # type: ignore[assignment]
+
+_F = TypeVar("_F", bound=Callable[..., Any])
+
+# Per-memory-dir re-entrant locks so nested CAS writes (session -> graph -> hashes.json)
+# within one process do not deadlock on the cross-process file lock.
+_LOCK_REGISTRY_GUARD = threading.Lock()
+_MEMORY_RLOCKS: Dict[str, threading.RLock] = {}
+_MEMORY_LOCK_DEPTH: Dict[str, int] = {}
+_MEMORY_LOCK_HANDLES: Dict[str, Any] = {}
 
 
 class MemoryHashConflictError(RuntimeError):
@@ -29,6 +52,17 @@ class MemoryHashConflictError(RuntimeError):
         self.actual_hash = actual_hash
         self.conflicting_ids = conflicting_ids or []
         self.error_code = "HASH_CONFLICT"
+
+
+def _with_memory_lock(fn: _F) -> _F:
+    """Serialize a MemoryManagerBot mutation so its CAS check and os.replace happen atomically."""
+
+    @functools.wraps(fn)
+    def wrapper(self: "MemoryManagerBot", *args: Any, **kwargs: Any) -> Any:
+        with self._memory_lock():
+            return fn(self, *args, **kwargs)
+
+    return wrapper  # type: ignore[return-value]
 
 
 class MemoryManagerBot:
@@ -58,6 +92,7 @@ class MemoryManagerBot:
         "synthesized",
         "session",
         "micro-session",
+        "eval",
     }
 
     CANONICAL_GRAPH_PATHS: tuple[str, ...] = (
@@ -65,6 +100,7 @@ class MemoryManagerBot:
         ".hath0r/memory/graph.json",
         ".hath0r/memory/hashes.json",
         ".hath0r/memory/sessions/current.json",
+        ".hath0r/evals/latest.json",
         ".hath0r/agentgraph/snapshot.json",
         ".hath0r/graphs/default.json",
         ".hath0r/state/cache/knowledge.json",
@@ -78,6 +114,8 @@ class MemoryManagerBot:
         "!.hath0r/memory/**",
         "!.hath0r/memory/sessions/",
         "!.hath0r/memory/sessions/**",
+        "!.hath0r/evals/",
+        "!.hath0r/evals/**",
         "!.hath0r/agentgraph/",
         "!.hath0r/agentgraph/**",
         "!.hath0r/graphs/",
@@ -98,6 +136,43 @@ class MemoryManagerBot:
         self._last_read_graph_hash: Optional[str] = None
         self._last_read_node_digests: Dict[str, str] = {}
         self._last_read_session_hash: Optional[str] = None
+
+    def _memory_lock_path(self) -> Path:
+        """Return the cross-process lock file for this memory dir (kept outside the repo tree)."""
+        digest = hashlib.sha256(str(self.memory_dir).encode("utf-8")).hexdigest()[:16]
+        return Path(tempfile.gettempdir()) / f"hath0r-memory-{digest}.lock"
+
+    @contextmanager
+    def _memory_lock(self) -> Iterator[None]:
+        """Hold an exclusive, re-entrant lock on .hath0r/memory/ across threads and processes."""
+        key = str(self.memory_dir)
+        with _LOCK_REGISTRY_GUARD:
+            rlock = _MEMORY_RLOCKS.setdefault(key, threading.RLock())
+        with rlock:
+            depth = _MEMORY_LOCK_DEPTH.get(key, 0)
+            if depth == 0:
+                handle = open(self._memory_lock_path(), "a+b")
+                if _fcntl is not None:
+                    _fcntl.flock(handle.fileno(), _fcntl.LOCK_EX)
+                elif _msvcrt is not None:  # pragma: no cover - Windows
+                    handle.seek(0)
+                    _msvcrt.locking(handle.fileno(), _msvcrt.LK_LOCK, 1)
+                _MEMORY_LOCK_HANDLES[key] = handle
+            _MEMORY_LOCK_DEPTH[key] = depth + 1
+            try:
+                yield
+            finally:
+                _MEMORY_LOCK_DEPTH[key] -= 1
+                if _MEMORY_LOCK_DEPTH[key] == 0:
+                    handle = _MEMORY_LOCK_HANDLES.pop(key)
+                    try:
+                        if _fcntl is not None:
+                            _fcntl.flock(handle.fileno(), _fcntl.LOCK_UN)
+                        elif _msvcrt is not None:  # pragma: no cover - Windows
+                            handle.seek(0)
+                            _msvcrt.locking(handle.fileno(), _msvcrt.LK_UNLCK, 1)
+                    finally:
+                        handle.close()
 
     @staticmethod
     def _compute_sha256_bytes(data: bytes) -> str:
@@ -319,6 +394,7 @@ class MemoryManagerBot:
     def _load_graph(self) -> Dict[str, Any]:
         return self._load_or_seed_graph(record_read=True)
 
+    @_with_memory_lock
     def _save_graph(
         self,
         gdata: Dict[str, Any],
@@ -578,6 +654,7 @@ class MemoryManagerBot:
         gdata["edges"] = edges
         self._save_graph(gdata)
 
+    @_with_memory_lock
     def _persist_session(
         self,
         session: Dict[str, Any],
@@ -1135,12 +1212,26 @@ class MemoryManagerBot:
             else:
                 new_lines.append(line)
 
+        # Git applies the last matching pattern, so an ignore rule placed after the
+        # canonical negations (e.g. a later "*.json") silently re-ignores graph files.
+        # Move the negation block back to the end of the file when that happens.
+        header = "# Canonical Hath0r Graph Folders (NEVER ignore — CR-MEMORY-COMPOUND-001 & CR-AGENTGRAPH-001)"
+        canonical_negations = set(self.CANONICAL_GITIGNORE_NEGATIONS)
+        negation_idx = [i for i, ln in enumerate(new_lines) if ln.strip() in canonical_negations]
+        rule_idx = [
+            i for i, ln in enumerate(new_lines) if ln.strip() and not ln.strip().startswith(("#", "!"))
+        ]
+        relocated = bool(negation_idx and rule_idx and max(rule_idx) > min(negation_idx))
+        if relocated:
+            new_lines = [ln for ln in new_lines if ln.strip() not in canonical_negations and ln.strip() != header]
+            while new_lines and not new_lines[-1].strip():
+                new_lines.pop()
+
         existing_stripped = {ln.strip() for ln in new_lines}
         missing_negations = [neg for neg in self.CANONICAL_GITIGNORE_NEGATIONS if neg not in existing_stripped]
         if missing_negations:
             if new_lines and new_lines[-1].strip() != "":
                 new_lines.append("")
-            header = "# Canonical Hath0r Graph Folders (NEVER ignore — CR-MEMORY-COMPOUND-001 & CR-AGENTGRAPH-001)"
             if header not in existing_stripped:
                 new_lines.append(header)
             for neg in missing_negations:
@@ -1158,6 +1249,7 @@ class MemoryManagerBot:
             "rewritten_rules": rewritten_rules,
             "removed_rules": removed_rules,
             "appended_negations": missing_negations,
+            "relocated_negations": relocated,
         }
 
     def verify_graphs_not_gitignored(self) -> Dict[str, Any]:
@@ -1256,16 +1348,30 @@ class MemoryManagerBot:
             "gitignore_file": str(gitignore_file),
         }
 
+    @staticmethod
+    def _next_file_revision(prev: Any, sha: Optional[str], floor: int = 1) -> int:
+        """Return a monotonic per-file revision: bump when the digest changed, never go backwards."""
+        if not isinstance(prev, dict):
+            return max(1, floor)
+        prev_rev = int(prev.get("revision", 0) or 0)
+        if prev.get("sha256") == sha:
+            return max(prev_rev, floor, 1)
+        return max(prev_rev + 1, floor, 1)
+
+    @_with_memory_lock
     def sync_file_hashes(
         self,
         track_files: Optional[List[str]] = None,
         refresh_source_files: bool = False,
         dry_run: bool = False,
+        expected_revision: Optional[int] = None,
     ) -> Dict[str, Any]:
-        """Compute and persist SHA-256 digests for all .hath0r/memory/ files and referenced source_files."""
-        self.ensure_gitignore_unignores_graphs(dry_run=dry_run)
+        """Compute and persist SHA-256 digests for all .hath0r/memory/ files and referenced source_files.
+
+        When ``expected_revision`` is given, the write is a Compare-And-Swap on hashes.json: it is
+        refused with ``HASH_CONFLICT`` if another writer bumped the manifest revision in between.
+        """
         hashes_file = self.memory_dir / "hashes.json"
-        now = datetime.now(timezone.utc).isoformat()
         existing_manifest: Dict[str, Any] = {}
         if hashes_file.is_file():
             try:
@@ -1273,7 +1379,27 @@ class MemoryManagerBot:
             except Exception:
                 existing_manifest = {}
 
-        revision = int(existing_manifest.get("revision", 0)) + 1
+        current_revision = int(existing_manifest.get("revision", 0) or 0)
+        if expected_revision is not None and int(expected_revision) != current_revision:
+            return {
+                "success": False,
+                "dry_run": dry_run,
+                "error_code": "HASH_CONFLICT",
+                "error": (
+                    f"HASH_CONFLICT on {hashes_file}: expected_revision={expected_revision}, "
+                    f"actual_revision={current_revision}"
+                ),
+                "hashes_file": str(hashes_file),
+                "expected_revision": int(expected_revision),
+                "actual_revision": current_revision,
+            }
+
+        self.ensure_gitignore_unignores_graphs(dry_run=dry_run)
+        now = datetime.now(timezone.utc).isoformat()
+        revision = current_revision + 1
+        prev_files = existing_manifest.get("files", {})
+        if not isinstance(prev_files, dict):
+            prev_files = {}
         files_map: Dict[str, Dict[str, Any]] = {}
 
         if self.memory_dir.is_dir():
@@ -1288,20 +1414,20 @@ class MemoryManagerBot:
                     rel_path = fpath.name
                 raw = fpath.read_bytes()
                 f_hash = self._compute_sha256_bytes(raw)
-                f_rev = 1
+                doc_rev = 1
                 f_content_hash = f_hash
                 if fpath.suffix == ".json":
                     try:
                         parsed = json.loads(raw.decode("utf-8"))
                         if isinstance(parsed, dict):
-                            f_rev = int(parsed.get("revision", 1))
+                            doc_rev = int(parsed.get("revision", 1))
                             f_content_hash = str(parsed.get("content_hash") or f_hash)
                     except Exception:
                         pass
                 files_map[rel_path] = {
                     "sha256": f_hash,
                     "content_hash": f_content_hash,
-                    "revision": f_rev,
+                    "revision": self._next_file_revision(prev_files.get(rel_path), f_hash, doc_rev),
                     "byte_size": len(raw),
                     "updated_at": now,
                 }
@@ -1369,10 +1495,11 @@ class MemoryManagerBot:
             raw_g = json.dumps(gdata, indent=2)
             self._atomic_write_text(graph_file, raw_g)
             g_rel = graph_file.relative_to(self.cwd).as_posix()
+            g_sha = self._compute_sha256_bytes(raw_g.encode("utf-8"))
             files_map[g_rel] = {
-                "sha256": self._compute_sha256_bytes(raw_g.encode("utf-8")),
+                "sha256": g_sha,
                 "content_hash": gdata["content_hash"],
-                "revision": gdata["revision"],
+                "revision": self._next_file_revision(prev_files.get(g_rel), g_sha, int(gdata["revision"])),
                 "byte_size": len(raw_g.encode("utf-8")),
                 "updated_at": now,
             }
@@ -1389,6 +1516,9 @@ class MemoryManagerBot:
                 baseline_sha = recorded_source_hashes.get(rel_path) or disk_sha
             source_files_map[rel_path] = {
                 "sha256": baseline_sha,
+                "revision": self._next_file_revision(
+                    prev_sources.get(rel_path) if isinstance(prev_sources, dict) else None, baseline_sha
+                ),
                 "byte_size": abs_p.stat().st_size if abs_p.is_file() else 0,
                 "exists": abs_p.is_file(),
                 "referenced_by": sorted(set(source_refs[rel_path])),
@@ -1632,6 +1762,7 @@ class MemoryManagerBot:
             "3. Bots not Daemons: Background tasks are bots/factories.\n"
             "4. Hyper-Context: Always traverse the defined context paths (playbooks, procedures).\n"
             "5. Promotion Path: local -> development -> testing -> staging -> master.\n"
+            "6. Automatic Task Evaluation (CR-TASK-EVAL-001): Every task must execute and pass the 4-tier automatic task evaluation gate (hath0r evals run / hath0r evals verify, R_task >= 0.80) prior to announcing complete.\n"
         )
 
         arch_content = (
@@ -1692,12 +1823,39 @@ class MemoryManagerBot:
             if not target_file.exists():
                 return {"success": False, "error": f"Memory topic '{topic}' does not exist."}
 
-        return {"success": True, "topic": topic, "content": target_file.read_text(encoding="utf-8")}
+        return {
+            "success": True,
+            "topic": topic,
+            "content": target_file.read_text(encoding="utf-8"),
+            "sha256": self._compute_file_sha256(target_file),
+        }
 
-    def update_memory(self, topic: str, content: str, dry_run: bool = False) -> Dict[str, Any]:
-        """Update or create a specific memory topic and sync into graph.json."""
+    @_with_memory_lock
+    def update_memory(
+        self,
+        topic: str,
+        content: str,
+        dry_run: bool = False,
+        expected_hash: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Update or create a specific memory topic and sync into graph.json.
+
+        ``expected_hash`` is the topic file's current ``sha256:<hex>`` digest (or ``"absent"`` for a
+        new topic); a mismatch is refused with ``HASH_CONFLICT`` instead of overwriting.
+        """
         actual_topic = "core_rules" if topic in ("rules", "core") else topic
         target_file = self.memory_dir / f"{actual_topic}.md"
+        if expected_hash:
+            actual_hash = self._compute_file_sha256(target_file) or "absent"
+            if expected_hash != actual_hash:
+                return {
+                    "success": False,
+                    "error_code": "HASH_CONFLICT",
+                    "error": f"HASH_CONFLICT on {target_file}: expected_hash={expected_hash}, actual_hash={actual_hash}",
+                    "expected_hash": expected_hash,
+                    "actual_hash": actual_hash,
+                    "file": str(target_file),
+                }
         if not dry_run:
             self._atomic_write_text(target_file, content)
             gdata = self._load_or_seed_graph()
@@ -1739,7 +1897,12 @@ class MemoryManagerBot:
                 dry_run=False,
             )
 
-        return {"success": True, "message": f"Updated memory topic '{topic}'.", "file": str(target_file)}
+        return {
+            "success": True,
+            "message": f"Updated memory topic '{topic}'.",
+            "file": str(target_file),
+            "sha256": None if dry_run else self._compute_file_sha256(target_file),
+        }
 
     def compound_memory(
         self,
@@ -2191,6 +2354,10 @@ class MemoryManagerBot:
                 dry_run=dry_run,
             )
             if not dry_run:
+                from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot
+
+                ebot = TaskEvaluatorBot(cwd=rpath)
+                ebot.ensure_repo_eval_setup(run_eval=True, sync_agents_md=True, dry_run=False)
                 rbot.session_read(focus=f"Repository orientation verified for {rpath.name}", dry_run=False)
                 rbot.sync_file_hashes(refresh_source_files=True, dry_run=False)
             ver = rbot.verify_compounded() if not dry_run else {
@@ -2221,12 +2388,15 @@ class MemoryManagerBot:
                 }
             )
 
+        ignored_repos = [r["repo"] for r in results if not r["graphs_not_ignored"]]
         return {
             "success": True,
             "dry_run": dry_run,
             "root_dir": str(base),
             "repos_count": len(results),
             "repos": results,
+            "graphs_not_ignored": not ignored_repos,
+            "ignored_repos": ignored_repos,
         }
 
     def search_memory(

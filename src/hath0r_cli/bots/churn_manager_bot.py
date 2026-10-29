@@ -6,6 +6,7 @@ import collections
 import datetime
 import json
 import logging
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -36,17 +37,39 @@ class ChurnManagerBot:
         from hath0r_cli.common import _discover_group_root
         from hath0r_cli.mcp import resolve_mcp_config_path
 
-        mcp_cfg_path = resolve_mcp_config_path(_discover_group_root())
+        group_root = _discover_group_root()
+        mcp_cfg_path = resolve_mcp_config_path(group_root)
         mcp_registered = False
         if mcp_cfg_path is not None and mcp_cfg_path.suffix == ".json":
             try:
                 with open(mcp_cfg_path, "r", encoding="utf-8") as f:
                     cfg_data = json.load(f)
-                    mcp_registered = any(
+                    mcp_registered = "pmat-mcp" in (cfg_data.get("mcpServers") or {}) or any(
                         s.get("id") == "pmat-mcp" for s in cfg_data.get("servers", [])
                     )
             except Exception:
                 mcp_registered = False
+
+        if not mcp_registered and not os.environ.get("HATH0R_MCP_CONFIG"):
+            cands = [
+                target_path / "cfg" / "mcp.servers.json",
+                Path(__file__).resolve().parents[3] / "cfg" / "mcp.servers.json",
+            ]
+            if group_root is not None:
+                cands.extend([
+                    group_root / "hathor-cli" / "cfg" / "mcp.servers.json",
+                    group_root / "HATH0R-CLI" / "cfg" / "mcp.servers.json",
+                ])
+            for cand in cands:
+                if cand.is_file():
+                    try:
+                        with open(cand, "r", encoding="utf-8") as f:
+                            cfg_data = json.load(f)
+                            if any(s.get("id") == "pmat-mcp" for s in cfg_data.get("servers", [])):
+                                mcp_registered = True
+                                break
+                    except Exception:
+                        pass
 
         return {
             "status": "OK",

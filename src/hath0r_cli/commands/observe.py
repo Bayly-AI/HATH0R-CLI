@@ -14,6 +14,7 @@ import click
 from rich.console import Console
 
 from ..bots.phoenix_observer_bot import phoenix_observer_bot
+from ..output import global_json_requested
 from ..telemetry import load_otel_config
 
 console = Console()
@@ -114,9 +115,9 @@ def observe_evals(dataset: str, as_json: bool) -> None:
 @click.option(
     "--format",
     "fmt",
-    default="ascii",
+    default=lambda: "json" if global_json_requested() else "ascii",
     type=click.Choice(["ascii", "json", "html"]),
-    help="Output visualization format.",
+    help="Output visualization format (defaults to json under -o json / non-TTY, else ascii).",
 )
 def observe_charts(metric: str, fmt: str) -> None:
     """Display observation charts and statistical metrics for agent performance."""
