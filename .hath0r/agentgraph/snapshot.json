@@ -3003,7 +3003,7 @@
       "properties": {
         "path": "docs/governance/runbooks/decision-radar-runbook.md",
         "category": "runbooks",
-        "size_bytes": 2425
+        "size_bytes": 3975
       },
       "is_current": true
     },
@@ -4884,9 +4884,9 @@
       "content": "Implemented DecisionRadarBot, DecisionGraph, FactSettlementEngine, WorkBoundaryGate, HathorDecisionRadarServer, hath0r decision CLI group, contracts/hath0r-decision-spec-v1.schema.json, Governance Hexad documentation, and tests/unit/test_decision_radar.py with 92% coverage.",
       "properties": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:d512b687e2eaa6475dcdd287185411b168d3b32b59c96d4e8797281b46a83558",
-          "src/hath0r_cli/commands/decision.py": "sha256:9c490142c59675ce68e75611c43fd3b2dd785bd4509391fe47ffdcddb692b5bb",
-          "src/hath0r_cli/server/decision_radar_server.py": "sha256:9a9a76fe9e342d482fe639d967f65f095a62d3be1362b02fa2dc442bc6f8c840"
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:8117dbf6b0a9bca58ee166719166e4abe18fe1b2f783b1aff4ee976c1f7f3d7b",
+          "src/hath0r_cli/commands/decision.py": "sha256:275fb92d46061c2c5b15d5cef210936b8d6f7ef972cf773692eb21e8d9adea4b",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:62d23b6b9d877b25af14b11f672387d3eabca565809f17bc2b8c11c1c83d70bb"
         },
         "source": "local_memory",
         "tags": [
@@ -4948,9 +4948,9 @@
       "content": "Renamed feature from Minority Report to Cruise Control across CLI (hath0r cruise / hath0r cruise-control), Web/TUI radar, CruiseControlBot SDK, contracts schema, and Governance Hexad docs.",
       "properties": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:d512b687e2eaa6475dcdd287185411b168d3b32b59c96d4e8797281b46a83558",
-          "src/hath0r_cli/commands/decision.py": "sha256:9c490142c59675ce68e75611c43fd3b2dd785bd4509391fe47ffdcddb692b5bb",
-          "src/hath0r_cli/server/decision_radar_server.py": "sha256:9a9a76fe9e342d482fe639d967f65f095a62d3be1362b02fa2dc442bc6f8c840"
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:8117dbf6b0a9bca58ee166719166e4abe18fe1b2f783b1aff4ee976c1f7f3d7b",
+          "src/hath0r_cli/commands/decision.py": "sha256:275fb92d46061c2c5b15d5cef210936b8d6f7ef972cf773692eb21e8d9adea4b",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:62d23b6b9d877b25af14b11f672387d3eabca565809f17bc2b8c11c1c83d70bb"
         },
         "source": "local_memory",
         "tags": [

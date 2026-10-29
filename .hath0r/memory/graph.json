@@ -581,9 +581,9 @@
       "updated_at": "2026-10-28T12:29:58.673969+00:00",
       "metadata": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:d512b687e2eaa6475dcdd287185411b168d3b32b59c96d4e8797281b46a83558",
-          "src/hath0r_cli/commands/decision.py": "sha256:9c490142c59675ce68e75611c43fd3b2dd785bd4509391fe47ffdcddb692b5bb",
-          "src/hath0r_cli/server/decision_radar_server.py": "sha256:9a9a76fe9e342d482fe639d967f65f095a62d3be1362b02fa2dc442bc6f8c840"
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:8117dbf6b0a9bca58ee166719166e4abe18fe1b2f783b1aff4ee976c1f7f3d7b",
+          "src/hath0r_cli/commands/decision.py": "sha256:275fb92d46061c2c5b15d5cef210936b8d6f7ef972cf773692eb21e8d9adea4b",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:62d23b6b9d877b25af14b11f672387d3eabca565809f17bc2b8c11c1c83d70bb"
         }
       }
     },
@@ -651,9 +651,9 @@
       "updated_at": "2026-10-28T12:59:58.010370+00:00",
       "metadata": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:d512b687e2eaa6475dcdd287185411b168d3b32b59c96d4e8797281b46a83558",
-          "src/hath0r_cli/commands/decision.py": "sha256:9c490142c59675ce68e75611c43fd3b2dd785bd4509391fe47ffdcddb692b5bb",
-          "src/hath0r_cli/server/decision_radar_server.py": "sha256:9a9a76fe9e342d482fe639d967f65f095a62d3be1362b02fa2dc442bc6f8c840"
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:8117dbf6b0a9bca58ee166719166e4abe18fe1b2f783b1aff4ee976c1f7f3d7b",
+          "src/hath0r_cli/commands/decision.py": "sha256:275fb92d46061c2c5b15d5cef210936b8d6f7ef972cf773692eb21e8d9adea4b",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:62d23b6b9d877b25af14b11f672387d3eabca565809f17bc2b8c11c1c83d70bb"
         }
       }
     },
@@ -1433,6 +1433,75 @@
       "metadata": {
         "source_files": {
           ".hath0r/evals/latest.json": "sha256:74599e1992710a912f63683e7336614ef7afcfe9ec3c522e9ca6baea4a6d98c7"
+        }
+      }
+    },
+    {
+      "id": "episode:issue-532-cruise-sync",
+      "type": "episode",
+      "label": "Cruise Control CLI-to-radar sync fix (#532)",
+      "content": "CLI decisions never reached the radar: the Hath0r-Cruise-Control container ran an image older than the /api/decisions/update API (404 dropped silently) and --seed-demo wiped its store on every start; --detached spawned python -m hath0r_cli.cli which has no __main__. Fixed with remote_sync reporting, hath0r cruise sync, API version checks in status, a -m hath0r_cli spawn, and honest stop results.",
+      "importance": 0.8,
+      "tags": [
+        "cruise",
+        "decision-radar",
+        "sync",
+        "issue-532",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-29T10:05:11.981713+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-29T10:05:11.981713+00:00",
+      "updated_at": "2026-10-29T10:05:11.981713+00:00",
+      "metadata": {
+        "source_files": {
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:8117dbf6b0a9bca58ee166719166e4abe18fe1b2f783b1aff4ee976c1f7f3d7b"
+        }
+      }
+    },
+    {
+      "id": "fact:repo-hcli2-orientation",
+      "type": "fact",
+      "label": "hcli2 Repository Orientation Memory",
+      "content": "hcli2: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" /> </p>",
+      "importance": 0.85,
+      "tags": [
+        "orientation",
+        "repository",
+        "hcli2",
+        "fact",
+        "compounded"
+      ],
+      "valid_from": "2026-10-29T10:09:57.153090+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-29T10:09:57.153090+00:00",
+      "updated_at": "2026-10-29T10:09:57.153125+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "eval:issue-532",
+      "type": "eval",
+      "label": "Task Evaluation issue-532 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for issue-532 on branch fix/532-cruise-sync: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "issue-532",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-29T10:12:49.607556+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-29T10:12:49.607556+00:00",
+      "updated_at": "2026-10-29T10:12:49.607556+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:dc9acf8510f8861fd969d0e199cb70fe835fb065a274415c92299992b11a85da"
         }
       }
     },

@@ -250,7 +250,8 @@
       "exists": true,
       "referenced_by": [
         "decision:cruise-control-naming",
-        "episode:decision-radar-v1-8-0-implementation"
+        "episode:decision-radar-v1-8-0-implementation",
+        "episode:issue-532-cruise-sync"
       ],
       "updated_at": "2026-10-29T13:58:56.569695+00:00"
     },
