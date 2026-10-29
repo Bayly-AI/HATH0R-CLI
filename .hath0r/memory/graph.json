@@ -1368,6 +1368,75 @@
       }
     },
     {
+      "id": "episode:issue-528-rules-ensure-all",
+      "type": "episode",
+      "label": "hath0r rules ensure-all canonical rule rollout (#528)",
+      "content": "Added RuleRolloutBot and hath0r rules list/status/ensure-all to roll a canonical CR-* AGENTS.md section to every repo remote: scratch worktree off origin/development, patch SemVer bump, ReleaseBot check, optional issue + PR. Acceptance: CR-CLI-ENTRY-001 preview reports 23 pending PRs, 9 compliant, 0 missing.",
+      "importance": 0.8,
+      "tags": [
+        "rules",
+        "rollout",
+        "cr-cli-entry-001",
+        "issue-528",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T20:46:34.280769+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T20:46:34.280769+00:00",
+      "updated_at": "2026-10-28T20:46:34.280769+00:00",
+      "metadata": {
+        "source_files": {
+          "src/hath0r_cli/bots/rule_rollout_bot.py": "sha256:bb952669a6e32c39a349a17c98ab905c40d87f0c0e8a4021dd5d0e1553ccfdfb"
+        }
+      }
+    },
+    {
+      "id": "fact:repo-hcli-orientation",
+      "type": "fact",
+      "label": "hcli Repository Orientation Memory",
+      "content": "hcli: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" /> </p>",
+      "importance": 0.85,
+      "tags": [
+        "orientation",
+        "repository",
+        "hcli",
+        "fact",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T20:50:03.450507+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T20:50:03.450507+00:00",
+      "updated_at": "2026-10-28T20:50:03.450556+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "eval:issue-528",
+      "type": "eval",
+      "label": "Task Evaluation issue-528 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for issue-528 on branch feature/528-rules-ensure-all: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "issue-528",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-28T20:55:27.567714+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-28T20:55:27.567714+00:00",
+      "updated_at": "2026-10-28T20:55:27.567714+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:74599e1992710a912f63683e7336614ef7afcfe9ec3c522e9ca6baea4a6d98c7"
+        }
+      }
+    },
+    {
       "id": "session:sess-20261028-130546-18a517",
       "type": "session",
       "label": "Micro Session sess-20261028-130546-18a517",

@@ -20,6 +20,7 @@
 | Group policy | `cfg/group/WARP.md` / OpenSource `WARP.md` |
 | Session checklist | `docs/governance/checklists/agent-session-start.md` |
 | This standard | `docs/governance/cli-first-rules.md` |
+| Cross-repo rollout | `hath0r rules ensure-all --rule CR-CLI-ENTRY-001` (`docs/governance/runbooks/rule-rollout-runbook.md`) |
 
 ## Example offer language
 

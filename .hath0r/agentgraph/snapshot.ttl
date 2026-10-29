@@ -123,18 +123,6 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "AGENTS.md (group)" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:agents-hath0r-fileset-1.5.0> a hath0r:Plane ;
-    rdfs:label "AGENTS.md (hath0r-fileset-1.5.0)" ;
-    hath0r:inPlane "knowledge" .
-
-<https://hath0r.dev/ontology/v1#doc:agents-hath0r-fileset-1.6.0> a hath0r:Plane ;
-    rdfs:label "AGENTS.md (hath0r-fileset-1.6.0)" ;
-    hath0r:inPlane "knowledge" .
-
-<https://hath0r.dev/ontology/v1#doc:agents-hath0r-fileset-1.7.0> a hath0r:Plane ;
-    rdfs:label "AGENTS.md (hath0r-fileset-1.7.0)" ;
-    hath0r:inPlane "knowledge" .
-
 <https://hath0r.dev/ontology/v1#doc:agents-hath0r_cli> a hath0r:Plane ;
     rdfs:label "AGENTS.md (hath0r_cli)" ;
     hath0r:inPlane "knowledge" .
@@ -544,6 +532,10 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Repo Clean Playbook" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__rule-rollout-playbook_md> a hath0r:Plane ;
+    rdfs:label "Rule Rollout Playbook" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__schema-self-repair-loops-playbook_md> a hath0r:Plane ;
     rdfs:label "Schema Self Repair Loops Playbook" ;
     hath0r:inPlane "knowledge" .
@@ -840,6 +832,10 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Repo Clean Runbook" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__rule-rollout-runbook_md> a hath0r:Plane ;
+    rdfs:label "Rule Rollout Runbook" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__runbook-cli-update_md> a hath0r:Plane ;
     rdfs:label "Runbook Cli Update" ;
     hath0r:inPlane "knowledge" .
@@ -1002,6 +998,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__repo-clean-strategy_md> a hath0r:Plane ;
     rdfs:label "Repo Clean Strategy" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__rule-rollout-strategy_md> a hath0r:Plane ;
+    rdfs:label "Rule Rollout Strategy" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__schema-self-repair-loops-strategy_md> a hath0r:Plane ;

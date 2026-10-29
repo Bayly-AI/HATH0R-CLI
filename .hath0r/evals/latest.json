@@ -51,8 +51,34 @@
         },
         "test_suite": {
           "passed": true,
-          "skipped": true,
-          "message": "Test execution skipped via flag or dry-run."
+          "commands_run": 2,
+          "results": [
+            {
+              "command": [
+                "python",
+                "-m",
+                "pytest",
+                "-q"
+              ],
+              "ok": true,
+              "exit_code": 0,
+              "stdout_tail": "............ [ 53%]\n........................................................................ [ 61%]\n........................................................................ [ 69%]\n........................................................................ [ 76%]\n........................................................................ [ 84%]\n........................................................................ [ 92%]\n........................................................................ [100%]\n",
+              "stderr_tail": ""
+            },
+            {
+              "command": [
+                "python",
+                "-m",
+                "ruff",
+                "check",
+                "src"
+              ],
+              "ok": true,
+              "exit_code": 0,
+              "stdout_tail": "All checks passed!\n",
+              "stderr_tail": ""
+            }
+          ]
         }
       }
     },
@@ -125,7 +151,9 @@
   },
   "blocking_reasons": [],
   "observability_sync": {
-    "mode": "pending"
+    "mode": "live_synced",
+    "phoenix_logged": true,
+    "mlflow_run_id": "7c3dd8e9929345f7859036f92f04a2c5"
   },
   "content_hash": "sha256:9270b0f6fadd78a2fa0b0656ba8ae3d883ef076e571806b2eb5f52decc2f4a10"
 }
