@@ -8,6 +8,7 @@ Includes:
 
 from __future__ import annotations
 
+import os
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -395,7 +396,9 @@ class CleanReposWorkflowBot:
 
     @classmethod
     def _has_origin(cls, repo_path: Path) -> bool:
-        """Return True when the repository has an origin remote configured."""
+        """Return True when the repository has an origin remote configured (and is not a local archive)."""
+        if "archive" in repo_path.name.lower():
+            return False
         remotes = cls._git_out(repo_path, ["remote"]).splitlines()
         return "origin" in [r.strip() for r in remotes if r.strip()]
 
@@ -435,16 +438,21 @@ class CleanReposWorkflowBot:
 
     @classmethod
     def _cleanup_artifacts(cls, repo_path: Path) -> List[str]:
-        """Remove development and coverage artifacts from repo_path."""
+        """Remove development and coverage artifacts from repo_path (skipping node_modules/.venv)."""
         cleaned_artifacts: List[str] = []
-        for p in list(repo_path.rglob(".DS_Store")):
-            if p.exists():
-                p.unlink(missing_ok=True)
-                cleaned_artifacts.append(str(p.relative_to(repo_path)))
-        for p in list(repo_path.rglob("__pycache__")):
-            if p.exists():
-                shutil.rmtree(p, ignore_errors=True)
-                cleaned_artifacts.append(str(p.relative_to(repo_path)))
+        skip_dirs = {"node_modules", ".venv", ".git", "venv"}
+        for root, dirs, files in os.walk(repo_path):
+            dirs[:] = [d for d in dirs if d not in skip_dirs]
+            root_p = Path(root)
+            if ".DS_Store" in files:
+                ds_p = root_p / ".DS_Store"
+                ds_p.unlink(missing_ok=True)
+                cleaned_artifacts.append(str(ds_p.relative_to(repo_path)))
+            if "__pycache__" in dirs:
+                pc_p = root_p / "__pycache__"
+                shutil.rmtree(pc_p, ignore_errors=True)
+                dirs.remove("__pycache__")
+                cleaned_artifacts.append(str(pc_p.relative_to(repo_path)))
         for cache_dir in [".pytest_cache", ".coverage", "coverage.xml"]:
             target = repo_path / cache_dir
             if target.exists():
