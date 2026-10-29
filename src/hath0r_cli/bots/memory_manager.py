@@ -470,6 +470,13 @@ class MemoryManagerBot:
 
         gdata["revision"] = int(gdata.get("revision", 0)) + 1
         gdata["updated_at"] = datetime.now(timezone.utc).isoformat()
+        from hath0r_cli.bots.secret_pii_sanitizer import secret_pii_sanitizer
+
+        for n in gdata.get("nodes", []):
+            if isinstance(n, dict) and isinstance(n.get("content"), str):
+                n["content"] = secret_pii_sanitizer.redact_text(n["content"]).sanitized_text
+            if isinstance(n, dict) and isinstance(n.get("label"), str):
+                n["label"] = secret_pii_sanitizer.redact_text(n["label"]).sanitized_text
         gdata["content_hash"] = self._compute_graph_content_hash(gdata)
         self._atomic_write_text(graph_file, json.dumps(gdata, indent=2))
         self._last_read_graph_hash = gdata["content_hash"]
@@ -727,6 +734,13 @@ class MemoryManagerBot:
 
         session["parent_session_id"] = session.get("prior_session_id")
         session["revision"] = int(session.get("revision", 0)) + 1
+        from hath0r_cli.bots.secret_pii_sanitizer import secret_pii_sanitizer
+
+        if isinstance(session.get("focus"), str):
+            session["focus"] = secret_pii_sanitizer.redact_text(session["focus"]).sanitized_text
+        for me in session.get("micro_entries", []):
+            if isinstance(me, dict) and isinstance(me.get("summary"), str):
+                me["summary"] = secret_pii_sanitizer.redact_text(me["summary"]).sanitized_text
         if not session.get("base_graph_hash") and self._last_read_graph_hash:
             session["base_graph_hash"] = self._last_read_graph_hash
         session["capsule_bytes"] = 0

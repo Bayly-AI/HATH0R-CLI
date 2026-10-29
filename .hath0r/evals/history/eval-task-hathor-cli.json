@@ -1,0 +1,158 @@
+{
+  "schema_version": "hath0r.evals.scorecard/v1",
+  "rule_id": "CR-TASK-EVAL-001",
+  "eval_id": "eval-20261029-124752-dcddd3",
+  "task_id": "task-hathor-cli",
+  "issue_number": null,
+  "repo_name": "hathor-cli",
+  "branch": "development",
+  "evaluated_at": "2026-10-29T12:47:52.607930+00:00",
+  "duration_ms": 263.56,
+  "passed_gate": true,
+  "r_task": 1.0,
+  "min_reward_threshold": 0.8,
+  "weights": {
+    "deterministic": 0.4,
+    "trajectory": 0.2,
+    "adversarial": 0.25,
+    "goal_alignment": 0.15
+  },
+  "tier_scores": {
+    "deterministic": 1.0,
+    "trajectory": 1.0,
+    "adversarial": 1.0,
+    "goal_alignment": 1.0
+  },
+  "tiers": {
+    "deterministic": {
+      "score": 1.0,
+      "passed": true,
+      "passed_checks": 4,
+      "total_checks": 4,
+      "checks": {
+        "version_valid": {
+          "passed": true,
+          "version": "1.14.0",
+          "error": null
+        },
+        "agentgraph_valid": {
+          "passed": true,
+          "cycles": 0,
+          "contradictions": 0
+        },
+        "memory_compounded": {
+          "passed": true,
+          "compounded_nodes_count": 55,
+          "session_read_verified": true,
+          "session_write_verified": true,
+          "hashes_verified": true,
+          "graphs_not_ignored": true,
+          "error": null
+        },
+        "test_suite": {
+          "passed": true,
+          "skipped": true,
+          "message": "Test execution skipped via flag or dry-run."
+        }
+      }
+    },
+    "trajectory": {
+      "score": 1.0,
+      "passed": true,
+      "tokens_used": 0,
+      "max_tokens": 50000,
+      "estimated_usd": 0.0,
+      "max_usd": 0.25,
+      "session_id": "sess-20261029-124722-424d8e",
+      "session_reads": 1,
+      "session_writes": 4,
+      "session_bytes": 1818,
+      "within_capsule_budget": true,
+      "latency_ms": 106.51,
+      "taguchi_quality_loss": 0.0001,
+      "snr_db": 25.47
+    },
+    "adversarial": {
+      "score": 1.0,
+      "passed": true,
+      "adversarial_flaws_count": 0,
+      "adversarial_flaws": [],
+      "tech_debts_count": 0,
+      "auto_created_issues": [],
+      "change_categories": {},
+      "changed_files_count": 0
+    },
+    "goal_alignment": {
+      "score": 1.0,
+      "passed": true,
+      "task_id": "task-hathor-cli",
+      "issue_number": null,
+      "active_focus": "Implement CR-AGENTIC-SEC-001 Workstreams 1, 2, 5, 6 (#537-#541)",
+      "compounded_nodes_count": 55,
+      "consensus_score": 1.0
+    }
+  },
+  "evidence_trust_report": {
+    "schema": "hath0r.security.evidence_trust_report/1",
+    "tiers": {
+      "VERIFIED_EXECUTION": [
+        ".hath0r/evals/latest.json"
+      ],
+      "STATIC_AST_ANALYSIS": [
+        "src/hath0r_cli/bots/cag_rag_router.py",
+        "src/hath0r_cli/bots/change_validation.py",
+        "src/hath0r_cli/bots/hahp_protocol.py",
+        "src/hath0r_cli/bots/memory_manager.py",
+        "src/hath0r_cli/bots/quality.py",
+        "src/hath0r_cli/bots/redteam_engine.py",
+        "src/hath0r_cli/bots/task_evaluator_bot.py",
+        "src/hath0r_cli/bots/token_telemetry_bot.py",
+        "src/hath0r_cli/commands/finops.py",
+        "src/hath0r_cli/commands/kb.py",
+        "src/hath0r_cli/commands/mcp.py",
+        "src/hath0r_cli/commands/observe.py",
+        "src/hath0r_cli/lazy_group.py",
+        "src/hath0r_cli/bots/bite_verifier_bot.py",
+        "src/hath0r_cli/bots/dependency_guard_bot.py",
+        "src/hath0r_cli/bots/secret_pii_sanitizer.py",
+        "src/hath0r_cli/bots/shadow_ai_classifier.py",
+        "src/hath0r_cli/commands/skills.py",
+        "src/hath0r_cli/commands/threatmodel.py",
+        "tests/unit/test_agentic_security_suite.py",
+        ".hath0r/agentgraph/snapshot.json",
+        ".hath0r/evals/latest.json",
+        ".hath0r/memory/graph.json",
+        ".hath0r/memory/hashes.json",
+        ".hath0r/memory/sessions/current.json",
+        ".hath0r/memory/sessions/latest.json",
+        "CHANGELOG.md",
+        "pyproject.toml",
+        ".hath0r/evals/history/eval-task-hathor-cli.json",
+        ".hath0r/memory/sessions/sess-20261029-124722-424d8e.json",
+        "THREATMODEL.md",
+        "cfg/workflows/bite-supply-chain-workflow.yaml",
+        "docs/playbooks/bite-supply-chain-playbook.md",
+        "docs/procedures/bite-supply-chain-procedure.md",
+        "docs/runbooks/bite-supply-chain-runbook.md",
+        "docs/strategies/bite-supply-chain-strategy.md"
+      ],
+      "UNVERIFIED_FILE_PRESENCE": [
+        "VERSION",
+        ".hath0r/security/",
+        "docs/bots/"
+      ]
+    },
+    "counts": {
+      "VERIFIED_EXECUTION": 1,
+      "STATIC_AST_ANALYSIS": 36,
+      "UNVERIFIED_FILE_PRESENCE": 3
+    }
+  },
+  "blocking_reasons": [],
+  "observability_sync": {
+    "mode": "live_synced",
+    "phoenix_logged": true,
+    "mlflow_run_id": "f77b980896a4495f857e554948c3306f"
+  },
+  "content_hash": "sha256:e20c762a1d420f40eee13ff62439c9ce37c432b953a651589a1beac2bdaae850"
+}

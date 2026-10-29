@@ -345,6 +345,34 @@ def finops_tokens_check(
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@finops_tokens.command("verify-ledger")
+@click.pass_context
+def finops_tokens_verify_ledger(ctx: click.Context) -> None:
+    """Verify cryptographic SHA-256 hash chain integrity of .hath0r/finops/token_telemetry.jsonl."""
+    from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
+
+    bot = TokenTelemetryCLIBot(cwd=Path.cwd())
+    res = bot.verify_ledger()
+    state = "ok" if res.get("valid") else "error"
+    response = _build_response(ctx, command="finops.tokens.verify_ledger", state=state, data=res)
+
+    def _text() -> None:
+        if res.get("valid"):
+            console.print(
+                f"[bold green]✓ Token Telemetry Ledger Verified[/bold green] "
+                f"({res['records_checked']} records, head=[cyan]{str(res['chain_head_hash'])[:16]}[/cyan])"
+            )
+        else:
+            console.print(
+                f"[bold red]✗ Token Telemetry Ledger Tampering Detected![/bold red] "
+                f"({len(res.get('tampered_records', []))} tampered record(s))"
+            )
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("valid"):
+        ctx.exit(1)
+
+
 @finops.group("budget")
 def finops_budget() -> None:
     """Subagent token and USD tree budget circuit breaker commands."""

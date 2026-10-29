@@ -526,6 +526,14 @@ class TaskEvaluatorBot:
         passed_gate = len(blocking_reasons) == 0
         total_duration_ms = round((time.monotonic() - t0) * 1000.0, 2)
 
+        evidence_trust_report: Dict[str, Any] = {}
+        try:
+            from hath0r_cli.bots.change_validation import ChangeValidationBot
+
+            evidence_trust_report = ChangeValidationBot(cwd=self.cwd).generate_evidence_trust_report()
+        except Exception:
+            evidence_trust_report = {"schema": "hath0r.security.evidence_trust_report/1", "tiers": {}, "counts": {}}
+
         scorecard: Dict[str, Any] = {
             "schema_version": "hath0r.evals.scorecard/v1",
             "rule_id": "CR-TASK-EVAL-001",
@@ -552,6 +560,7 @@ class TaskEvaluatorBot:
                 "adversarial": tier3,
                 "goal_alignment": tier4,
             },
+            "evidence_trust_report": evidence_trust_report,
             "blocking_reasons": blocking_reasons,
             "observability_sync": {"mode": "pending"},
             "content_hash": "",

@@ -5,6 +5,17 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2026-10-29
+
+### Added
+- **Agentic Supply-Chain Security, BITE Verification & Knowledge Curation Suite (`CR-AGENTIC-SEC-001`)** (#537, #538, #539, #540, #541):
+  - **WS1 (`BITEVerifierBot`, `hath0r skills audit`, `hath0r mcp audit`)**: Added [`src/hath0r_cli/bots/bite_verifier_bot.py`](src/hath0r_cli/bots/bite_verifier_bot.py) and [`src/hath0r_cli/commands/skills.py`](src/hath0r_cli/commands/skills.py) evaluating `SKILL.md`, `AGENTS.md`, `WARP.md`, and MCP configs against the 3 BITE questions (`is_reachable`, `is_unnecessary`, `is_concealed`), detecting invisible Unicode variation selectors (`\uFE00-\uFE0F`) and prompt overrides, and persisting `.hath0r/security/bite_manifest.json` (#538).
+  - **WS2 (`SecretPIISanitizerBot` & Hash-Chained Token Telemetry Ledger)**: Added [`src/hath0r_cli/bots/secret_pii_sanitizer.py`](src/hath0r_cli/bots/secret_pii_sanitizer.py) wired into `MemoryManagerBot`, `HAHPProtocolManager`, and `TokenTelemetryCLIBot`, plus SHA-256 hash chaining (`prev_hash`, `hash`), token-bucket rate limiting, and `hath0r finops tokens verify-ledger` (#539).
+  - **WS3 & WS4 CLI (`hath0r kb redteam` & OpenAnt Red-Team Reachability)**: Added `hath0r kb redteam` in `src/hath0r_cli/commands/kb.py`, L2 snippet sanitization in `HybridCAGRAGRouter`, and OpenAnt static reachability + constrained attacker persona verification in `MultiAgentRedTeamEngine`.
+  - **WS5 (`THREATMODEL.md` & Evidence Trust Tiers)**: Added [`src/hath0r_cli/commands/threatmodel.py`](src/hath0r_cli/commands/threatmodel.py) (`hath0r threatmodel init|validate` with fail-closed validation) and `ChangeValidationBot.generate_evidence_trust_report()` wired into `TaskEvaluatorBot` (#540).
+  - **WS6 (`DependencyGuardBot` & `ShadowAIClassifierBot`)**: Added [`src/hath0r_cli/bots/dependency_guard_bot.py`](src/hath0r_cli/bots/dependency_guard_bot.py) (slopsquatting & rule-drift guard wired into `PreflightBot`) and [`src/hath0r_cli/bots/shadow_ai_classifier.py`](src/hath0r_cli/bots/shadow_ai_classifier.py) (`hath0r observe shadow-ai` AgentSonar commit scoring) (#541).
+  - Delivered the `CR-CLI-FEATURE-STANDARD-001` Governance Documentation Hexad (`docs/strategies/bite-supply-chain-strategy.md`, `docs/procedures/bite-supply-chain-procedure.md`, `docs/playbooks/bite-supply-chain-playbook.md`, `docs/runbooks/bite-supply-chain-runbook.md`, `cfg/workflows/bite-supply-chain-workflow.yaml`, `docs/bots/bite-verifier-bot-spec.md`).
+
 ## [1.13.0] - 2026-10-29
 
 ### Added

@@ -1,0 +1,44 @@
+{
+  "schema": "hath0r.security.bite_manifest/1",
+  "scope": "mcp_servers",
+  "generated_at": "2026-10-29T12:45:58.942136+00:00",
+  "passed": true,
+  "summary": {
+    "total_audited": 2,
+    "clean": 2,
+    "risky": 0,
+    "dangerous": 0
+  },
+  "artifacts": [
+    {
+      "artifact_id": "cfg/mcp.servers.json",
+      "artifact_type": "mcp_server",
+      "path": "cfg/mcp.servers.json",
+      "sha256": "95e6ce365170bd5afbaf408b3195fc15378b493827572c09f0e10538522f8e97",
+      "stated_purpose": "mcp server http api remote cloud auth token cli command",
+      "verdict": "CLEAN",
+      "behaviors": [],
+      "invisible_unicode_count": 0
+    },
+    {
+      "artifact_id": "cfg/mcp-doc-publish.json",
+      "artifact_type": "mcp_server",
+      "path": "cfg/mcp-doc-publish.json",
+      "sha256": "2f0ccdd45b03959386910d05c9f46bba90258147d7e88833a1fca103fc00e747",
+      "stated_purpose": "mcp server http api remote cloud auth token cli command",
+      "verdict": "CLEAN",
+      "behaviors": [
+        {
+          "category": "CREDENTIAL_READ",
+          "indicator": "ssh_or_aws_creds",
+          "evidence_snippet": ".credentials/",
+          "is_reachable": true,
+          "is_unnecessary": false,
+          "is_concealed": false,
+          "severity": "LOW"
+        }
+      ],
+      "invisible_unicode_count": 0
+    }
+  ]
+}
