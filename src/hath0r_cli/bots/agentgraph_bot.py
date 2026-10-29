@@ -282,6 +282,31 @@ class AgentGraphBot:
             if not n.get("plane"):
                 errors.append(f"Node '{node_id}' is missing required 'plane' attribute.")
 
+        # 5. AGENTS.md <-> CLAUDE.md synchronization & rule conflict verification (CR-CLAUDE-SYNC-001)
+        root_dir = Path(path).resolve() if path else self.cwd
+        agents_md = root_dir / "AGENTS.md"
+        claude_md = root_dir / "CLAUDE.md"
+        if agents_md.is_file():
+            try:
+                agents_text = agents_md.read_text(encoding="utf-8")
+                if "CR-SEMVER-BUMP-001" in agents_text and re.search(
+                    r"declare version impact \(`major`, `minor`, `patch`, or `none`\)", agents_text
+                ):
+                    contradictions_detected += 1
+                    errors.append(
+                        "AGENTS.md rule contradiction: Legacy SemVer section permits `none` while CR-SEMVER-BUMP-001 forbids `Version Impact: none`."
+                    )
+                if claude_md.is_file():
+                    claude_text = claude_md.read_text(encoding="utf-8")
+                    if claude_text != agents_text:
+                        warnings.append(
+                            "CLAUDE.md is out of sync with AGENTS.md (run `hath0r agentgraph sync` to synchronize)."
+                        )
+                else:
+                    warnings.append("CLAUDE.md is missing (run `hath0r agentgraph sync` to synchronize from AGENTS.md).")
+            except OSError:
+                pass
+
         is_valid = len(errors) == 0 and (not strict or len(warnings) == 0)
 
         return {
@@ -298,6 +323,25 @@ class AgentGraphBot:
             },
         }
 
+    def sync_claude_md(self, root: Optional[Path] = None, dry_run: bool = False) -> Dict[str, Any]:
+        """Ensure root CLAUDE.md stays in 1:1 synchronization with AGENTS.md (CR-CLAUDE-SYNC-001)."""
+        target_root = (root or self.cwd).resolve()
+        agents_file = target_root / "AGENTS.md"
+        claude_file = target_root / "CLAUDE.md"
+        if not agents_file.is_file():
+            return {"synced": False, "reason": "AGENTS.md not present", "path": str(claude_file)}
+
+        agents_content = agents_file.read_text(encoding="utf-8")
+        already_in_sync = claude_file.is_file() and claude_file.read_text(encoding="utf-8") == agents_content
+        if not already_in_sync and not dry_run:
+            claude_file.write_text(agents_content, encoding="utf-8")
+
+        return {
+            "synced": True,
+            "updated": not already_in_sync,
+            "path": str(claude_file),
+        }
+
     def sync(
         self,
         path: Optional[str] = None,
@@ -306,6 +350,8 @@ class AgentGraphBot:
     ) -> Dict[str, Any]:
         """Ingest local repository rules, docs, and contracts into the AgentGraph."""
         root = Path(path).resolve() if path else self.cwd
+        if persist and not dry_run:
+            self.sync_claude_md(root, dry_run=dry_run)
         nodes: List[Dict[str, Any]] = []
         edges: List[Dict[str, Any]] = []
         sources_scanned = 0

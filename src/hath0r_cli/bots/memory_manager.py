@@ -1409,6 +1409,16 @@ class MemoryManagerBot:
             }
 
         self.ensure_gitignore_unignores_graphs(dry_run=dry_run)
+        if not dry_run:
+            agents_file = self.cwd / "AGENTS.md"
+            claude_file = self.cwd / "CLAUDE.md"
+            if agents_file.is_file():
+                try:
+                    a_bytes = agents_file.read_bytes()
+                    if not claude_file.is_file() or claude_file.read_bytes() != a_bytes:
+                        self._atomic_write_text(claude_file, a_bytes.decode("utf-8"))
+                except OSError:
+                    pass
         now = datetime.now(timezone.utc).isoformat()
         revision = current_revision + 1
         prev_files = existing_manifest.get("files", {})

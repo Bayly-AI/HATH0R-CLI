@@ -113,23 +113,29 @@ class DependencyGuardBot:
         return suspects
 
     def check_rule_file_drift(self) -> list[str]:
-        """Verify AGENTS.md and WARP.md against recorded SHA-256 digests in .hath0r/memory/hashes.json."""
+        """Verify AGENTS.md, CLAUDE.md, and WARP.md against .hath0r/memory/hashes.json and 1:1 AGENTS/CLAUDE sync."""
+        drifted: list[str] = []
+        agents_f = self.workspace_root / "AGENTS.md"
+        claude_f = self.workspace_root / "CLAUDE.md"
+        if agents_f.exists() and claude_f.exists():
+            if agents_f.read_bytes() != claude_f.read_bytes():
+                drifted.append("CLAUDE.md!=AGENTS.md")
+
         hashes_file = self.workspace_root / ".hath0r" / "memory" / "hashes.json"
         if not hashes_file.exists():
-            return []
+            return drifted
         try:
             data = json.loads(hashes_file.read_text(encoding="utf-8"))
             tracked = data.get("files", {})
         except Exception:
-            return []
+            return drifted
 
-        drifted: list[str] = []
-        for rel_name in ("AGENTS.md", "WARP.md"):
+        for rel_name in ("AGENTS.md", "CLAUDE.md", "WARP.md"):
             if rel_name in tracked:
                 f_path = self.workspace_root / rel_name
                 if f_path.exists():
                     actual_sha = hashlib.sha256(f_path.read_bytes()).hexdigest()
-                    expected_sha = tracked[rel_name].get("sha256")
+                    expected_sha = str(tracked[rel_name].get("sha256", "")).removeprefix("sha256:")
                     if expected_sha and actual_sha != expected_sha:
                         drifted.append(rel_name)
         return drifted

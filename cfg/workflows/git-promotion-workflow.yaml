@@ -1,6 +1,6 @@
-schema_version: "hath0r.git.workflow/1"
+schema_version: "hath0r.git.workflow/2"
 workflow_id: "git-branch-pr-promotion"
-description: "Issue-driven branching, work PRs and environment promotion (CR-BAI-001 / cr-branch-gov-001)"
+description: "Issue-driven branching, CLAUDE.md sync, BITE/threatmodel security gates, 4-tier evals, work PRs and environment promotion (CR-BAI-001 / cr-branch-gov-001 / CR-AGENTIC-SEC-001 / CR-CLAUDE-SYNC-001)"
 policy:
   chain: [development, testing, staging, master]
   environments: {testing: testing, staging: staging, master: production}
@@ -11,16 +11,24 @@ stages:
   - id: start_work
     bot: "GitWorkflowBot"
     action: "start_branch"
-    command: "hath0r branch start <type> <issue> <slug>"
+    command: "hath0r branch start <type> <issue> <slug> && hath0r memory session start --task <issue>-<slug>"
   - id: sync_work
     bot: "GitWorkflowBot"
     action: "sync_branch"
     command: "hath0r branch sync"
+  - id: security_and_rule_sync_gate
+    bot: "AgentGraphBot"
+    action: "sync_and_validate"
+    command: "hath0r agentgraph sync && hath0r agentgraph validate && hath0r skills audit && hath0r mcp audit --pin && hath0r threatmodel validate && hath0r finops tokens verify-ledger"
+  - id: eval_and_memory_gate
+    bot: "EvaluationEngineBot"
+    action: "evaluate_and_compound"
+    command: "hath0r memory compound && hath0r memory hash --sync && hath0r evals run && hath0r memory hash --sync && hath0r memory verify && hath0r evals verify && hath0r release validate && hath0r quality sonar"
   - id: open_work_pr
     bot: "PRBot"
     action: "create_pr"
     gate: "GitWorkflowBot.check_path"
-    command: "hath0r pr create --semver <patch|minor|major>"
+    command: "hath0r pr create --semver <patch|minor|major> && hath0r pr review --antagonistic"
   - id: merge_work_pr
     bot: "GitWorkflowBot"
     action: "merge"

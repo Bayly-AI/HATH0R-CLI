@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from hath0r_cli.bots.agentgraph_bot import AgentGraphBot
 from hath0r_cli.bots.bite_verifier_bot import BITEVerifierBot
 from hath0r_cli.bots.change_validation import ChangeValidationBot
 from hath0r_cli.bots.dependency_guard_bot import DependencyGuardBot
@@ -133,3 +134,50 @@ def test_dependency_guard_and_shadow_ai_classifier(tmp_path: Path) -> None:
     )
     assert agent_score.classification == "AUTONOMOUS_AGENT"
     assert agent_score.score >= 70
+
+
+def test_claude_md_sync_and_rule_contradiction_detection(tmp_path: Path) -> None:
+    ag_bot = AgentGraphBot(cwd=tmp_path)
+    agents_file = tmp_path / "AGENTS.md"
+    claude_file = tmp_path / "CLAUDE.md"
+
+    # 1. Conflicting SemVer rule ('CR-SEMVER-BUMP-001' + 'major, minor, patch, or none')
+    agents_file.write_text(
+        "# AGENTS.md\n"
+        "## CR-SEMVER-BUMP-001\n"
+        "Version Impact: none is not allowed.\n"
+        "PRs must declare version impact (`major`, `minor`, `patch`, or `none`).\n",
+        encoding="utf-8",
+    )
+    ag_bot.sync()
+    assert claude_file.exists()
+    assert claude_file.read_text(encoding="utf-8") == agents_file.read_text(encoding="utf-8")
+
+    val_conflict = ag_bot.validate()
+    assert val_conflict["validation"]["valid"] is False
+    assert val_conflict["validation"]["contradictions_detected"] >= 1
+    assert any("CR-SEMVER-BUMP-001" in e for e in val_conflict["validation"]["errors"])
+
+    # 2. Resolve rule conflict and verify drift detection before sync
+    agents_file.write_text(
+        "# AGENTS.md\n"
+        "## CR-SEMVER-BUMP-001\n"
+        "Version Impact: none is not allowed.\n",
+        encoding="utf-8",
+    )
+    val_drift = ag_bot.validate(strict=True)
+    assert val_drift["validation"]["valid"] is False
+    assert any("CLAUDE.md is out of sync" in w for w in val_drift["validation"]["warnings"])
+
+    d_bot = DependencyGuardBot(workspace_root=tmp_path)
+    drift_res = d_bot.check_rule_file_drift()
+    assert "CLAUDE.md!=AGENTS.md" in drift_res
+
+    # Sync CLAUDE.md and confirm validation passes
+    sync_res = ag_bot.sync_claude_md(root=tmp_path)
+    assert sync_res["synced"] is True
+    assert sync_res["updated"] is True
+    val_ok = ag_bot.validate(strict=True)
+    assert val_ok["validation"]["valid"] is True
+
+

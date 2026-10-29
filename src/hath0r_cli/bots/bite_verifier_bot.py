@@ -208,11 +208,16 @@ class BITEVerifierBot:
         )
 
     def audit_skills_and_rules(self, target_dir: Path | None = None) -> dict[str, Any]:
-        """Scan SKILL.md, AGENTS.md, and WARP.md files in workspace and persist BITE manifest."""
+        """Scan SKILL.md, AGENTS.md, CLAUDE.md, and WARP.md files in workspace and persist BITE manifest."""
         root = (target_dir or self.workspace_root).resolve()
         candidate_files: list[tuple[str, Path]] = []
 
-        for pattern, a_type in (("**/SKILL.md", "skill"), ("AGENTS.md", "rule_file"), ("WARP.md", "rule_file")):
+        for pattern, a_type in (
+            ("**/SKILL.md", "skill"),
+            ("AGENTS.md", "rule_file"),
+            ("CLAUDE.md", "rule_file"),
+            ("WARP.md", "rule_file"),
+        ):
             for p in root.glob(pattern):
                 if any(part in (".git", ".venv", "venv", "node_modules") for part in p.parts):
                     continue

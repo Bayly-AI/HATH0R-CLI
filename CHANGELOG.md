@@ -5,6 +5,14 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0] - 2026-10-29
+
+### Added
+- **Mandatory `CLAUDE.md` ↔ `AGENTS.md` 1:1 Synchronization & Rule Conflict Detection (`CR-CLAUDE-SYNC-001`)**:
+  - Added `AgentGraphBot.sync_claude_md()` and wired automatic `CLAUDE.md` synchronization into `hath0r agentgraph sync`, `hath0r memory hash --sync` (`MemoryManagerBot.sync_file_hashes`), and `hath0r clean-repos` (`CleanReposWorkflowBot`).
+  - Enhanced `AgentGraphBot.validate()`, `DependencyGuardBot.check_rule_file_drift()`, and `BITEVerifierBot.audit_skills_and_rules()` to verify `CLAUDE.md == AGENTS.md` and detect rule contradictions (such as `CR-SEMVER-BUMP-001` vs legacy `Version Impact: none`).
+  - Updated `.agents/skills/clean-repos/SKILL.md`, `.agents/skills/orient/SKILL.md`, `plugin/skills/hath0r/SKILL.md`, and `cfg/workflows/git-promotion-workflow.yaml` to leverage the latest CLI workflows.
+
 ## [1.14.0] - 2026-10-29
 
 ### Added

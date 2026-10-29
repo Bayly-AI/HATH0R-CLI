@@ -17,6 +17,9 @@ from typing import Any, Dict, List, Set
 ALLOWED_ROOT_FILES: Set[str] = {
     # Core Hath0r / UPL files
     "AGENTS.md",
+    "CLAUDE.md",
+    "Claude.md",
+    "THREATMODEL.md",
     "WARP.md",
     "README.md",
     "TECH_README.md",
@@ -301,8 +304,16 @@ class KnowledgeOrganizerBot:
             # Check root of documentation / knowledge directory for stray non-index markdown
             for item in base.iterdir():
                 if item.is_file() and item.suffix.lower() == ".md":
-                    # Single top-level files (apart from README, INDEX, WARP, AGENTS)
-                    if item.name.upper() not in {"README.MD", "INDEX.MD", "WARP.MD", "AGENTS.MD", "LLMS.TXT"}:
+                    # Single top-level files (apart from README, INDEX, WARP, AGENTS, CLAUDE, THREATMODEL)
+                    if item.name.upper() not in {
+                        "README.MD",
+                        "INDEX.MD",
+                        "WARP.MD",
+                        "AGENTS.MD",
+                        "CLAUDE.MD",
+                        "THREATMODEL.MD",
+                        "LLMS.TXT",
+                    }:
                         line_count = len(item.read_text(encoding="utf-8", errors="ignore").splitlines())
                         scanned_files += 1
                         if line_count > MAX_MONOLITHIC_LINES:
@@ -793,6 +804,7 @@ class CleanReposWorkflowBot:
                 from hath0r_cli.bots.churn_manager_bot import churn_manager_bot
 
                 ag_bot = AgentGraphBot(cwd=repo_path)
+                ag_bot.sync_claude_md(repo_path)
                 ag_sync = ag_bot.sync(persist=True)
                 ag_val = ag_bot.validate()
                 ag_valid = bool(ag_val.get("validation", {}).get("valid", False))
@@ -803,6 +815,7 @@ class CleanReposWorkflowBot:
 
                 repo_res["steps"]["7_update_documentation"] = {
                     "agents_md": (repo_path / "AGENTS.md").exists(),
+                    "claude_md": (repo_path / "CLAUDE.md").exists(),
                     "readme_md": (repo_path / "README.md").exists(),
                     "agentgraph_synced": ag_sync.get("success", False),
                     "agentgraph_valid": ag_valid,
