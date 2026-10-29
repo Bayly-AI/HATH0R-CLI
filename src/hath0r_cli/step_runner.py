@@ -47,6 +47,7 @@ from hath0r_cli.bots.onboarding import (
 from hath0r_cli.bots.political_data_mining import ComplianceBot, DataMinerBot
 from hath0r_cli.bots.postgres_validation import DataAuditorBot, ReportingBot
 from hath0r_cli.bots.quality import DeployTestBot, PreflightBot, QualityGateBot, ReleaseBot
+from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot
 from hath0r_cli.bots.upgrade_bot import UpgradeAnnouncerBot, UpgradeBot, UpgradeVerifierBot
 from hath0r_cli.factory_manager import FactoryManagerBot
 from hath0r_cli.telemetry import get_current_trace_context, trace_span
@@ -161,6 +162,7 @@ class BotRegistry:
             "test-harness-bot": TestHarnessBot(cwd=self.cwd),
             "tri-graph-ingest-bot": TriGraphIngestBot(cwd=self.cwd),
             "agentgraph-bot": AgentGraphBot(cwd=self.cwd),
+            "task-evaluator-bot": TaskEvaluatorBot(cwd=self.cwd),
             "upgrade-bot": UpgradeBot(cwd=self.cwd),
             "upgrade-verifier-bot": UpgradeVerifierBot(cwd=self.cwd),
             "upgrade-announcer-bot": UpgradeAnnouncerBot(cwd=self.cwd),
@@ -280,6 +282,8 @@ class BotRegistry:
                 return self._dispatch_tri_graph_ingest_bot(bot, action, args, dry_run=dry_run)
             elif bot_id == "agentgraph-bot":
                 return self._dispatch_agentgraph_bot(bot, action, args, dry_run=dry_run)
+            elif bot_id == "task-evaluator-bot":
+                return self._dispatch_task_evaluator_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id in ("upgrade-bot", "upgrade-verifier-bot", "upgrade-announcer-bot"):
                 return self._dispatch_upgrade_bots(bot_id, bot, action, args, dry_run=dry_run, context=ctx)
             else:
@@ -832,12 +836,20 @@ class BotRegistry:
             task_id = args.get("task_id") or context.get("task_id") or "end-of-task"
             summary = args.get("summary") or context.get("latest_summary")
             channel = args.get("channel", "console")
-            res = bot.announce_complete(task_id=task_id, summary=summary, channel=channel, dry_run=dry_run)
+            enforce_eval_gate = bool(args.get("enforce_eval_gate", False))
+            res = bot.announce_complete(
+                task_id=task_id,
+                summary=summary,
+                channel=channel,
+                dry_run=dry_run,
+                enforce_eval_gate=enforce_eval_gate,
+            )
             return StepExecutionResult(
                 bot_id="task-announcer-bot",
                 action=action,
                 success=bool(res.get("success")),
                 data=res,
+                error=res.get("error"),
                 dry_run=dry_run,
             )
 
@@ -846,6 +858,73 @@ class BotRegistry:
             action=action,
             success=False,
             error=f"Unknown action '{action}' for task-announcer-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_task_evaluator_bot(
+        self,
+        bot: TaskEvaluatorBot,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        task_id = args.get("task_id") or context.get("task_id")
+        if action in ("run-eval", "evaluate", "run"):
+            skip_tests = bool(args.get("skip_tests", True))
+            res = bot.evaluate_task(task_id=task_id, skip_tests=skip_tests, dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="task-evaluator-bot",
+                action=action,
+                success=bool(res.get("passed_gate")),
+                data=res,
+                error="; ".join(res.get("blocking_reasons", [])) if not res.get("passed_gate") else None,
+                dry_run=dry_run,
+            )
+        elif action in ("verify-eval", "verify"):
+            res = bot.verify_evaluated(task_id=task_id, auto_run_if_missing=True) if not dry_run else {
+                "success": True,
+                "passed_gate": True,
+                "dry_run": True,
+            }
+            return StepExecutionResult(
+                bot_id="task-evaluator-bot",
+                action=action,
+                success=bool(res.get("passed_gate")),
+                data=res,
+                error=res.get("error"),
+                dry_run=dry_run,
+            )
+        elif action == "status":
+            res = bot.get_status()
+            return StepExecutionResult(
+                bot_id="task-evaluator-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("ensure-all", "ensure-all-repos"):
+            res = bot.ensure_all_repos(
+                root_dir=bot.cwd,
+                run_eval=bool(args.get("run_eval", True)),
+                sync_agents_md=bool(args.get("sync_agents_md", True)),
+                dry_run=dry_run,
+            )
+            return StepExecutionResult(
+                bot_id="task-evaluator-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                dry_run=dry_run,
+            )
+
+        return StepExecutionResult(
+            bot_id="task-evaluator-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for task-evaluator-bot.",
             dry_run=dry_run,
         )
 
@@ -1858,7 +1937,12 @@ class BotRegistry:
                 dry_run=dry_run,
             )
         elif action == "update":
-            res = bot.update_memory(topic=str(args.get("topic")), content=args.get("content", ""), dry_run=dry_run)
+            res = bot.update_memory(
+                topic=str(args.get("topic")),
+                content=args.get("content", ""),
+                dry_run=dry_run,
+                expected_hash=args.get("expected_hash"),
+            )
             return StepExecutionResult(
                 bot_id="memory-manager-bot",
                 action=action,
@@ -1878,6 +1962,8 @@ class BotRegistry:
                 relates_to=args.get("relates_to"),
                 relation=str(args.get("relation") or "DERIVES_FROM"),
                 supersedes=args.get("supersedes"),
+                source_files=args.get("source_files"),
+                expected_hash=args.get("expected_hash"),
                 sync_agentgraph=bool(args.get("sync_agentgraph", True)),
                 dry_run=dry_run,
             )
@@ -2023,6 +2109,7 @@ class BotRegistry:
                 track_files=args.get("track_files"),
                 refresh_source_files=bool(args.get("refresh_source_files", True)),
                 dry_run=dry_run,
+                expected_revision=args.get("expected_revision"),
             )
             return StepExecutionResult(
                 bot_id="memory-manager-bot",
@@ -2167,6 +2254,8 @@ class BotRegistry:
             res = bot.sync_ci_workflows(dry_run=dry_run)
         elif action == "rollback-init":
             res = bot.rollback_init(dry_run=dry_run)
+        elif action == "verify-graph-folders":
+            res = bot.verify_graph_folders(dry_run=dry_run)
         else:
             return StepExecutionResult(
                 bot_id="repo-layout-bot",

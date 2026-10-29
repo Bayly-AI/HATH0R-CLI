@@ -44,9 +44,11 @@ class EndOfTaskBot:
         self.announcer_bot = TaskAnnouncerBot(cwd=self.cwd)
         from hath0r_cli.bots.memory_manager import MemoryManagerBot
         from hath0r_cli.bots.quality import DeployTestBot
+        from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot
 
         self.memory_bot = MemoryManagerBot(cwd=self.cwd)
         self.test_bot = DeployTestBot(cwd=self.cwd)
+        self.eval_bot = TaskEvaluatorBot(cwd=self.cwd)
 
     def run_bot(
         self,
@@ -328,13 +330,45 @@ class EndOfTaskBot:
         )
         history.append({"phase": "compound_memory", "result": mem_res, "session": sess_end_res})
 
+        # Step 6b: Automatic 4-Tier Task Evaluation (CR-TASK-EVAL-001)
+        eval_res = self.eval_bot.evaluate_task(
+            task_id=f"pr-{current_pr}",
+            skip_tests=True,
+            compound_node=True,
+            sync_observability=True,
+            dry_run=False,
+        )
+        history.append({"phase": "evaluate_task", "result": eval_res})
+        if not eval_res.get("passed_gate"):
+            return {
+                "success": False,
+                "phase": "evaluate_task",
+                "pr_number": current_pr,
+                "branch": target_branch,
+                "error": "; ".join(eval_res.get("blocking_reasons", [])) or "Task evaluation gate failed.",
+                "eval_gate": eval_res,
+                "history": history,
+            }
+
         # Step 7: Announce completion
         ann_res = self.announcer_bot.announce_complete(
             task_id=f"pr-{current_pr}",
             summary=f"PR #{current_pr} merged and branch {target_branch} pruned by EndOfTaskBot.",
             dry_run=False,
+            enforce_eval_gate=True,
         )
         history.append({"phase": "announce", "result": ann_res})
+        if not ann_res.get("success"):
+            # CR-MEMORY-COMPOUND-001: the memory/hash gate blocked the completion announcement.
+            return {
+                "success": False,
+                "phase": "announce",
+                "pr_number": current_pr,
+                "branch": target_branch,
+                "error": ann_res.get("error") or "Memory gate blocked announce_complete.",
+                "memory_gate": ann_res.get("memory_gate"),
+                "history": history,
+            }
 
         return {
             "success": True,

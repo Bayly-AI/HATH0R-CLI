@@ -65,6 +65,43 @@ jobs:
           echo "project_key=$KEY" >> "$GITHUB_OUTPUT"
           echo "Using organization=$ORG projectKey=$KEY"
 
+      # Automatic Analysis cannot import coverage, so the scan runs here, after the
+      # tests have written coverage.xml (sonar.python.coverage.reportPaths).
+      - name: Checkout Framework (hath0r_engine + contracts)
+        uses: actions/checkout@v4
+        with:
+          repository: Bayly-AI/HATH0R-Agentic-Framework
+          ref: development
+          path: hath0r-framework
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package + dev deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" pytest-cov
+          pip install -e ./hath0r-framework
+
+      - name: Pytest with Coverage
+        env:
+          HATH0R_FRAMEWORK_ROOT: ${{ github.workspace }}/hath0r-framework
+        run: python -m pytest --cov=src/hath0r_cli --cov-report=xml:coverage.xml -q --tb=short
+
+      - name: SonarCloud Scan
+        if: ${{ !cancelled() }}
+        uses: SonarSource/sonarqube-scan-action@v8.3.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=${{ steps.meta.outputs.organization }}
+            -Dsonar.projectKey=${{ steps.meta.outputs.project_key }}
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
+
       - name: Verify SonarCloud Quality Gate
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

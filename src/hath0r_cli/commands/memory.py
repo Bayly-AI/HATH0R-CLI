@@ -82,13 +82,20 @@ def memory_read(ctx: click.Context, topic: str) -> None:
 @click.argument("topic")
 @click.argument("content")
 @click.option("--dry-run", is_flag=True, help="Simulate update.")
+@click.option(
+    "--expected-hash",
+    default=None,
+    help="Expected current sha256:<hex> of the topic file (or 'absent') for optimistic CAS.",
+)
 @click.pass_context
-def memory_update(ctx: click.Context, topic: str, content: str, dry_run: bool) -> None:
+def memory_update(
+    ctx: click.Context, topic: str, content: str, dry_run: bool, expected_hash: str | None
+) -> None:
     """Update a canonical memory topic."""
     from hath0r_cli.bots.memory_manager import MemoryManagerBot
 
     bot = MemoryManagerBot()
-    res = bot.update_memory(topic=topic, content=content, dry_run=dry_run)
+    res = bot.update_memory(topic=topic, content=content, dry_run=dry_run, expected_hash=expected_hash)
 
     response = _build_response(
         ctx,
@@ -105,6 +112,8 @@ def memory_update(ctx: click.Context, topic: str, content: str, dry_run: bool) -
             console.print(f"[red]✗ {res.get('error')}[/red]")
 
     _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
 
 
 @memory.command("compound")
@@ -334,6 +343,12 @@ def memory_verify(
     help="Additional repository source file(s) to record in .hath0r/memory/hashes.json.",
 )
 @click.option("--dry-run", is_flag=True, help="Simulate hash sync without writing to disk.")
+@click.option(
+    "--expected-revision",
+    type=int,
+    default=None,
+    help="Expected current hashes.json revision for optimistic CAS on --sync.",
+)
 @click.pass_context
 def memory_hash(
     ctx: click.Context,
@@ -341,6 +356,7 @@ def memory_hash(
     sync_manifest: bool,
     track_files_tuple: tuple[str, ...],
     dry_run: bool,
+    expected_revision: int | None,
 ) -> None:
     """Verify or synchronize SHA-256 file hashes in .hath0r/memory/hashes.json."""
     from hath0r_cli.bots.memory_manager import MemoryManagerBot
@@ -353,8 +369,12 @@ def memory_hash(
             track_files=track_list,
             refresh_source_files=True,
             dry_run=dry_run,
+            expected_revision=expected_revision,
         )
-        ver_res = bot.verify_file_hashes() if not dry_run else {"verified": True}
+        if sync_res.get("success"):
+            ver_res = bot.verify_file_hashes() if not dry_run else {"verified": True}
+        else:
+            ver_res = {"verified": False}
         data = {**sync_res, "verification": ver_res}
         ok = bool(sync_res.get("success") and ver_res.get("verified", True))
     else:
@@ -370,6 +390,9 @@ def memory_hash(
     )
 
     def _text() -> None:
+        if (sync_manifest or track_list) and not data.get("success"):
+            console.print(f"[bold red]✗ {data.get('error')}[/bold red]")
+            return
         if sync_manifest or track_list:
             console.print(
                 f"[bold green]✓ Synchronized .hath0r/memory/hashes.json "
@@ -391,9 +414,7 @@ def memory_hash(
                 console.print(f"  • Stale Source File: {sf}")
 
     _emit_response(ctx, response, text_renderer=_text)
-    if check_only and not ok:
-        ctx.exit(1)
-    elif not (sync_manifest or track_list) and not ok:
+    if not ok and (check_only or not (sync_manifest or track_list) or data.get("error_code") == "HASH_CONFLICT"):
         ctx.exit(1)
 
 

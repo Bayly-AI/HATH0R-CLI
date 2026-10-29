@@ -1,0 +1,25 @@
+schema_version: "hath0r.decision.workflow/1"
+workflow_id: "decision-radar-canonical-orchestration"
+description: "Cruise Control Agent Decision Control Layer, Unblocking Reranker & Fact Settlement Pipeline"
+stages:
+  - id: input_boundary_gate
+    bot: "DecisionRadarBot"
+    action: "create_input_gate"
+    wedge: "start_hold_work"
+    timeout_seconds: 60
+  - id: impact_reranking
+    bot: "DecisionRadarBot"
+    action: "list_decisions"
+    sort_by: "unblock_weight"
+    timeout_seconds: 10
+  - id: fact_settlement_loop
+    bot: "DecisionRadarBot"
+    action: "evaluate_and_settle_facts"
+    live_probes: false
+    timeout_seconds: 30
+  - id: output_boundary_gate
+    bot: "DecisionRadarBot"
+    action: "create_output_gate"
+    wedge: "accept_delivered_work"
+    compound_memory: true
+    timeout_seconds: 60

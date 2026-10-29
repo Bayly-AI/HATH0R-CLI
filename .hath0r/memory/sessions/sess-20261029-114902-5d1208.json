@@ -1,0 +1,53 @@
+{
+  "schema_version": "hath0r.micro_session/1",
+  "session_id": "sess-20261029-114902-5d1208",
+  "prior_session_id": "sess-20261028-130546-18a517",
+  "parent_session_id": "sess-20261028-130546-18a517",
+  "revision": 6,
+  "content_hash": "sha256:6d3238e4c3b8e988b56a1c3b5b1f575d302b87a79a138608d277eb5857a7b9cd",
+  "base_graph_hash": "sha256:4d007f644543c98d784b42872864607c6c94cf8a6a7279ab73f50ced536efdfb",
+  "task_id": "Finish SFT, LoRA, PEFT and Evals in training_coordinator",
+  "role": null,
+  "repo_name": "hathor-cli",
+  "status": "active",
+  "started_at": "2026-10-29T11:49:02.568855+00:00",
+  "updated_at": "2026-10-29T11:57:17.398828+00:00",
+  "ended_at": null,
+  "read_count": 1,
+  "write_count": 5,
+  "last_read_at": "2026-10-29T11:49:02.568855+00:00",
+  "last_write_at": "2026-10-29T11:57:17.398828+00:00",
+  "active_focus": "SFT/LoRA/PEFT training coordinator and evals",
+  "prior_summary": "ounded episode:sft-lora-peft-coordin; Compounded eval:sft-lora-peft-evals: Tas; Compounded release-v1.13.0: Release HATH",
+  "recalled_nodes": [
+    {
+      "id": "rule:cr-task-eval-001",
+      "type": "rule",
+      "label": "Automatic Task Evaluation & Scorecard Summary Gate (CR-TASK-",
+      "snippet": "Every task must execute and pass the 4-tier hybrid evaluation pipeline (R_task >= 0.80), p"
+    }
+  ],
+  "micro_entries": [
+    {
+      "timestamp": "2026-10-29T11:57:17.398828+00:00",
+      "kind": "compound",
+      "summary": "Compounded eval:release-v1-13-0: Task Evaluation release-v1-13-0 (R=1.00, PASS)",
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "release-v1-13-0",
+        "passed",
+        "compounded"
+      ],
+      "node_id": "eval:release-v1-13-0"
+    }
+  ],
+  "next_steps": [],
+  "compounded_node_ids": [
+    "episode:sft-lora-peft-coordinator",
+    "eval:sft-lora-peft-evals",
+    "release-v1.13.0",
+    "eval:release-v1-13-0"
+  ],
+  "capsule_bytes": 1910
+}
