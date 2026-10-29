@@ -1,0 +1,55 @@
+{
+  "schema_version": "hath0r.micro_session/1",
+  "session_id": "sess-20261028-130546-18a517",
+  "prior_session_id": "sess-20261017-145045-ed36da",
+  "repo_name": "hathor-cli",
+  "status": "completed",
+  "started_at": "2026-10-28T13:05:46.197056+00:00",
+  "updated_at": "2026-10-28T20:49:08.952914+00:00",
+  "ended_at": "2026-10-28T20:44:50.120828+00:00",
+  "read_count": 36,
+  "write_count": 69,
+  "revision": 104,
+  "content_hash": "sha256:3471a3ecd92d162855f9d507c037fa86f4fde2cac51dfddf3b834f35c8d34184",
+  "base_graph_hash": "sha256:fad8b672e18d6f05b6e7e344c3bbef6004365d09078928f140372aa8ea79c618",
+  "last_read_at": "2026-10-28T20:49:08.952914+00:00",
+  "last_write_at": "2026-10-28T20:44:50.120828+00:00",
+  "active_focus": "Orienting repository hathor-cli",
+  "prior_summary": "leted AgentGraph orientation for hat; Completed AgentGraph orientation for hat; Completed AgentGraph orientation for hat",
+  "recalled_nodes": [
+    {
+      "id": "insight:hathor-cli",
+      "type": "insight",
+      "label": "Synthesized Insight on hathor-cli",
+      "snippet": "Consolidated from 2 memory nodes tagged 'hathor-cli'. Recurring themes: hathor, logo, repo"
+    },
+    {
+      "id": "fact:repo-hathor-cli-orientation",
+      "type": "fact",
+      "label": "hathor-cli Repository Memory Orientation",
+      "snippet": "hathor-cli: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR "
+    }
+  ],
+  "micro_entries": [
+    {
+      "timestamp": "2026-10-28T20:44:50.120828+00:00",
+      "kind": "milestone",
+      "summary": "Completed PR #101 (feature/101-test) via EndOfTaskBot.",
+      "tags": [
+        "session-end"
+      ],
+      "node_id": null
+    }
+  ],
+  "next_steps": [],
+  "compounded_node_ids": [
+    "rule:cr-task-eval-001",
+    "eval:issue-524",
+    "eval:pr-525-scorecard-summary-rule",
+    "eval:eval-baseline-hathor-cli",
+    "episode:clean-repo-hathor-cli",
+    "eval:clean-repo-hathor-cli"
+  ],
+  "parent_session_id": "sess-20261017-145045-ed36da",
+  "capsule_bytes": 2022
+}

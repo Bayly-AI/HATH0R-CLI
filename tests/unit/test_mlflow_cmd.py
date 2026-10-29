@@ -65,7 +65,7 @@ def test_mlflow_manager_bot_log_run_mocked():
 
 def test_mlflow_cli_status():
     runner = CliRunner()
-    result = runner.invoke(main, ["mlflow", "status"])
+    result = runner.invoke(main, ["-o", "text", "mlflow", "status"])
     assert result.exit_code == 0
     assert "MLflow Experiment Tracking Status" in result.output
 

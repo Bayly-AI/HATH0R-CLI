@@ -222,15 +222,18 @@ def trace_span(
     if _TRACE_MODULE is not None and hasattr(tracer, "start_as_current_span"):
         attrs = {k: v for k, v in (attributes or {}).items() if v is not None}
         with tracer.start_as_current_span(name, attributes=attrs) as span:
+            failed = False
             try:
                 yield span
-                if _STATUS_CLS is not None and _STATUS_CODE_CLS is not None:
-                    span.set_status(_STATUS_CLS(_STATUS_CODE_CLS.OK))
             except Exception as exc:
+                failed = True
                 if _STATUS_CLS is not None and _STATUS_CODE_CLS is not None:
                     span.set_status(_STATUS_CLS(_STATUS_CODE_CLS.ERROR, str(exc)))
                 span.record_exception(exc)
                 raise
+            finally:
+                if not failed and _STATUS_CLS is not None and _STATUS_CODE_CLS is not None:
+                    span.set_status(_STATUS_CLS(_STATUS_CODE_CLS.OK))
     else:
         # Fallback trace context propagation
         parent = _FALLBACK_CONTEXT_STACK[-1] if _FALLBACK_CONTEXT_STACK else None

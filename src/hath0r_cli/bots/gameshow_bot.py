@@ -14,7 +14,7 @@ import json
 import logging
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from hath0r_engine.calibration.cag_registry import CAGCalibrationRegistry
@@ -92,7 +92,7 @@ class HathorGameshowBot:
         concurrency: int = 5,
     ) -> TournamentRoundStats:
         """Execute a single evaluation round across a batch of cards."""
-        start_time = datetime.utcnow().isoformat()
+        start_time = datetime.now(timezone.utc).isoformat()
         semaphore = asyncio.Semaphore(concurrency)
         correct_count = 0
         incorrect_count = 0
@@ -175,7 +175,7 @@ class HathorGameshowBot:
         round_stat = TournamentRoundStats(
             round_num=round_num,
             started_at=start_time,
-            completed_at=datetime.utcnow().isoformat(),
+            completed_at=datetime.now(timezone.utc).isoformat(),
             total_cards=len(self.deck_state.cards) if self.deck_state else total_evaluated,
             cards_evaluated=total_evaluated,
             correct_cards=correct_count,
@@ -215,7 +215,7 @@ class HathorGameshowBot:
         lines = [
             f"# Hath0r Gameshow Continuous Calibration Benchmark Report — Epoch {self.deck_state.epoch}",
             "",
-            f"- **Generated:** {datetime.utcnow().isoformat()}Z",
+            f"- **Generated:** {datetime.now(timezone.utc).isoformat()}",
             f"- **Total Cards in Deck:** {len(self.deck_state.cards):,}",
             f"- **Rounds Completed:** {len(self.deck_state.rounds)}",
             f"- **Active CAG Ground Truth Memories:** {self.calibration.count:,}",

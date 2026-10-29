@@ -127,7 +127,7 @@ class MCPSecurityPolicyEngine:
 
     DESTRUCTIVE_OPERATIONS = [
         (
-            re.compile(r"git\s+push\s+.*(--force|-f)\b", re.I),
+            re.compile(r"git\s+push\s[^\n]*?(?:--force|-f)\b", re.I),
             "CRITICAL: Unauthorized git force push operation blocked (SEC-TOOL-002)",
         ),
         (
@@ -142,7 +142,7 @@ class MCPSecurityPolicyEngine:
             "CRITICAL: Destructive root/home filesystem deletion",
         ),
         (
-            re.compile(r"(?:curl|wget)\s+[^|\r\n]+\|\s*(?:bash|sh|zsh)", re.I),
+            re.compile(r"(?:curl|wget)\s[^|\r\n]*\|\s*(?:bash|sh|zsh)", re.I),
             "CRITICAL: Unverified remote script execution via pipe",
         ),
         (re.compile(r":\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:", re.I), "CRITICAL: Fork bomb denial of service"),

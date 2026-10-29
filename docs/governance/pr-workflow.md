@@ -85,6 +85,18 @@ See `docs/governance/playbooks/pr-workflow-playbook.md`.
 5. After testing validation: **human** opens/approves PR into `staging`.
 6. After staging validation: **human** opens/approves PR into `master`.
 
+### CLI equivalents (`GitWorkflowBot`)
+
+| Step | Command |
+|------|---------|
+| 1 | `hath0r branch start <type> <issue> <slug>` |
+| 2–3 | `hath0r pr create --semver <level>` · `hath0r pr status <n>` · `hath0r pr merge <n>` |
+| 4 | `hath0r promote release <x.y.z>` · `hath0r promote to testing [--from release/x.y.z]` |
+| 5–6 | `hath0r promote to staging|production --gate` · `hath0r pr merge <n> --human-approved` |
+| any | `hath0r promote status` · `hath0r pr check --head <h> --base <b>` |
+
+Local verdicts mirror `enforce-promotion-path.yml`. See `docs/procedures/git-promotion-workflow-procedure.md`.
+
 ## Acceptance criteria (ticket)
 
 - [x] Workflow documented and linked from AGENTS/WARP

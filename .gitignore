@@ -17,6 +17,7 @@ venv/
 .hath0r/*.json
 .hath0r/*.jsonl
 .hath0r/cccd/
+.hath0r/decisions/
 .hath0r/training_artifacts/
 .hath0r/training_datasets/
 src/hath0r_cli/bin/hath0r-listen
@@ -45,3 +46,6 @@ packages/vscode-extension/node_modules/
 !.hath0r/state/context/**
 
 !.hath0r/mcp.json
+
+!.hath0r/evals/
+!.hath0r/evals/**

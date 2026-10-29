@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
   "graph_id": "agentgraph-hathor-cli",
-  "timestamp": "2026-10-17T14:51:29.212909+00:00",
+  "timestamp": "2026-10-29T11:57:17.683963+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -53,6 +53,18 @@
       "properties": {
         "path": "tests/AGENTS.md",
         "subsystem": "tests"
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:agents-hath0r-fileset-1.7.0",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "AGENTS.md (hath0r-fileset-1.7.0)",
+      "content": "# AGENTS.md — HATH0R CLI (OpenSource Control Tower)\n\n> Role: **OpenSource Project control tower + operator/developer CLI (`hath0r`)** · group `hath0r-opensource`  \n> Updated: 2026-09-23\n\n## Group membership (CRITICAL)\n\n| Field | Value |\n|-------|-------|\n| Group | `hath0r-opensource` |\n| Project | **OpenSource Project** |\n| Group root | `/Users/raybayly/Development/OpenSource` |\n| **Control tower** | **this repo** (`HATH0R-CLI`) |\n| This product | `HATH0R-CLI` |\n| GitHub | `Bayly-AI/HATH0R-CLI` |\n| Local path | `/Users/raybayly/Development/OpenSource/HATH0R-CLI` |\n| Canonical KB | `/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase` |\n| Operator CLI | `hath0r` |\n| KB mode | stub → group hub |\n| Tower flag | `is_control_tower: true` |\n\n### Canonical siblings (OpenSource Project members)\n\nEvery git repo under the group root is part of the OpenSource Project. Current canonical set:\n\n- **Control tower / CLI**: `/Users/raybayly/Development/OpenSource/HATH0R-CLI` → `Bayly-AI/HATH0R",
+      "properties": {
+        "path": "release/hath0r-fileset-1.7.0/AGENTS.md",
+        "subsystem": "hath0r-fileset-1.7.0"
       },
       "is_current": true
     },
@@ -377,6 +389,45 @@
       "is_current": true
     },
     {
+      "id": "rule:cr-semver-bump-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-SEMVER-BUMP-001",
+      "content": "Governance policy rule CR-SEMVER-BUMP-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-SEMVER-BUMP-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-sonar-preannounce-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-SONAR-PREANNOUNCE-001",
+      "content": "Governance policy rule CR-SONAR-PREANNOUNCE-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-SONAR-PREANNOUNCE-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-task-eval-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-TASK-EVAL-001",
+      "content": "Governance policy rule CR-TASK-EVAL-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-TASK-EVAL-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
       "id": "rule:cr-branch-gov-001",
       "plane": "rules",
       "type": "rule_policy",
@@ -593,6 +644,18 @@
       "properties": {
         "schema_id": "https://schemas.hath0r.dev/hath0r-token-telemetry-record-v1.schema.json",
         "path": "contracts/hath0r-token-telemetry-record-v1.schema.json"
+      },
+      "is_current": true
+    },
+    {
+      "id": "contract:hath0r-decision-spec-v1.schema.json",
+      "plane": "knowledge",
+      "type": "contract",
+      "label": "Hath0r Cruise Control Decision Envelope & Specification Schema",
+      "content": "Defines schema contract for the Cruise Control Agent Decision Control Layer, including decision envelopes, 7 canonical category wedges, dependency graph edges, transitive unblock scores, fact predicates, and work boundary gates.",
+      "properties": {
+        "schema_id": "https://hath0r.bayly.ai/contracts/hath0r-decision-spec-v1.schema.json",
+        "path": "contracts/hath0r-decision-spec-v1.schema.json"
       },
       "is_current": true
     },
@@ -931,6 +994,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__procedures__git-promotion-workflow-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Git Promotion Workflow Procedure",
+      "content": "# Git Workflow & Environment Promotion — Procedure\n\n1. **Issue first.** Create or pick an open GitHub issue (`hath0r issue create …`).\n2. **Start the branch:** `hath0r branch start feature 42 \"add kb sync\"` → `feature/42-add-kb-sync` from `origin/development`\n   (verifies issue #42 is open; `--no-issue-check` to skip, `--dry-run` to preview).\n3. **Keep current:** `hath0r branch sync` (merge) or `hath0r branch sync --rebase`.\n4. **Bump version** (`VERSION`, `pyproject.toml`, `CHANGELOG.md`) per CR-SEMVER-BUMP-001.\n5. **Open the work PR:** `hath0r pr create --semver minor` — validates the path, pushes, writes `Closes #42` and `Version Impact`.\n6. **Watch checks:** `hath0r pr status <n>`; then `hath0r pr merge <n>` (squash + delete branch).\n7. **Optional release branch:** `hath0r promote release 1.13.0`.\n8. **Promote to testing:** `hath0r promote to testing [--from release/1.13.0] [--gate]` → merge with `hath0r pr merge <n>`.\n9. **Human gate — staging:** `hath0r promote to staging --gate`; after human review `hath0r pr merge <n> --human-approved`.\n10. **Human gate — production:** `hath0r promote to production --gate`; after human review `hath0r pr merge <n> --human-approved`.\n\nCheck t",
+      "properties": {
+        "path": "docs/procedures/git-promotion-workflow-procedure.md",
+        "category": "procedures",
+        "size_bytes": 1302
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__procedures__phoenix-feature-lifecycle-procedure_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -953,6 +1029,19 @@
         "path": "docs/strategies/phoenix-observability-strategy.md",
         "category": "strategies",
         "size_bytes": 733
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__strategies__git-promotion-workflow-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Git Promotion Workflow Strategy",
+      "content": "# Git Workflow & Environment Promotion — Strategy\n\n**Policy:** CR-BAI-001 · cr-branch-gov-001 · **Bot:** `GitWorkflowBot` (`src/hath0r_cli/bots/git_workflow_bot.py`)\n\n## Goal\nGive operators and agents one CLI surface for the whole branch → PR → promotion lifecycle that returns the\n**same verdict locally as CI** (`.github/workflows/enforce-promotion-path.yml`), before anything is pushed.\n\n## Design\n- **Single policy source in the CLI.** `GitWorkflowBot.check_path()` uses the same work/release regexes and\n  per-base rules as the CI job. `pr check`, `pr create`, `pr merge` and `promote to` all call it.\n- **Chain:** `development → testing → staging → master`; environments `testing`, `staging`, `production`.\n- **Human gates:** `staging` and `master`. `pr merge` refuses them without `--human-approved`; the CLI never\n  uses `--admin` bypass.\n- **Merge strategy is policy, not preference.** Work PRs squash into `development` (branch deleted).\n  Promotion PRs use a merge commit so the CI push gate (`origin/<prev>` is an ancestor of the target) holds.\n- **Non-destructive release cutting.** `promote release` pushes `origin/development:refs/heads/release/x.y.z`\n  without touching the operator's",
+      "properties": {
+        "path": "docs/strategies/git-promotion-workflow-strategy.md",
+        "category": "strategies",
+        "size_bytes": 1746
       },
       "is_current": true
     },
@@ -996,6 +1085,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__runbooks__git-promotion-workflow-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Git Promotion Workflow Runbook",
+      "content": "# Git Workflow & Environment Promotion — Runbook\n\n| Task | Command |\n|------|---------|\n| Pipeline snapshot (pending/drift/versions/open PRs) | `hath0r promote status` |\n| Validate a PR path before pushing | `hath0r pr check --head <branch> --base <base>` |\n| Start work | `hath0r branch start <type> <issue> <slug>` |\n| Update work branch | `hath0r branch sync [--rebase]` |\n| Open work PR | `hath0r pr create [--semver minor] [--draft]` |\n| PR checks | `hath0r pr status <n>` |\n| Merge (policy strategy) | `hath0r pr merge <n> [--human-approved]` |\n| Cut release | `hath0r promote release <x.y.z>` |\n| Promote | `hath0r promote to testing|staging|production [--from release/x.y.z] [--gate]` |\n\nReading `promote status`:\n- **Pending** — commits in the source stage not yet in the target (work to promote).\n- **Drift** — commits in the target not in the source (usually merge commits from earlier promotions or a hotfix\n  that needs back-merging into `development`).\n",
+      "properties": {
+        "path": "docs/runbooks/git-promotion-workflow-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 973
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__playbooks__hathor-eval-ci-playbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1005,6 +1107,19 @@
         "path": "docs/playbooks/hathor-eval-ci-playbook.md",
         "category": "playbooks",
         "size_bytes": 566
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__playbooks__git-promotion-workflow-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Git Promotion Workflow Playbook",
+      "content": "# Git Workflow & Environment Promotion — Playbook\n\n| Symptom | Cause | Response |\n|---------|-------|----------|\n| `validate-promotion-path` fails on a PR | Head/base not allowed | `hath0r pr check --head … --base …` shows the rule; retarget the PR or promote via the previous stage. |\n| `Invalid work branch` | Name lacks `<type>/<issue>-slug` | Create the issue, then `hath0r branch start`; push work there. |\n| Push to testing/staging/master rejected (ancestry) | Promotion PR was squashed | Re-promote from the previous stage with a merge commit (`hath0r pr merge` does this automatically). |\n| `branch sync` reports conflicts | Upstream changed the same files | Tree is restored. Run `git merge origin/development`, resolve, commit. |\n| `promote to` says *already contains everything* | Nothing pending | No action; check `hath0r promote status`. |\n| `pr merge` refuses staging/master | Human gate | Get human review/approval, then rerun with `--human-approved`. |\n| `promote release` warns VERSION mismatch | `VERSION` on development differs | Bump `VERSION`/`CHANGELOG.md` on development (or a release fix PR) before promoting. |\n| Large **drift** on a stage | Hotfix landed downstream | Open ",
+      "properties": {
+        "path": "docs/playbooks/git-promotion-workflow-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 1262
       },
       "is_current": true
     },
@@ -1160,7 +1275,7 @@
       "properties": {
         "path": "docs/governance/pr-workflow.md",
         "category": "governance",
-        "size_bytes": 4225
+        "size_bytes": 4839
       },
       "is_current": true
     },
@@ -1308,6 +1423,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__procedures__task-evals-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Task Evals Procedure",
+      "content": "# Procedure: Automatic Task Evaluation (`CR-TASK-EVAL-001`)\n\n> Canonical Governance Procedure · ID: `PROC-TASK-EVAL-001`  \n> Epic: #510 · Rule Compliance: `CR-TASK-EVAL-001`, `CR-CLI-FEATURE-STANDARD-001`, `CR-MEMORY-COMPOUND-001`\n\n---\n\n## 1. Purpose\n\nDefines the mandatory standard operating procedure for executing, verifying, and compounding 4-tier task evaluations prior to completing any task across the Hath0r OpenSource Suite.\n\n---\n\n## 2. Standard Operating Procedure\n\n### Step 1: Start Task & Initialize Trajectory Tracking\n```bash\nhath0r task start --issue <number> --slug <short-slug> --prefix feature\n```\n- Initializes `.hath0r/memory/sessions/current.json` to track micro-session reads, writes, and trajectory entries.\n\n### Step 2: Execute Work & Compound Task Knowledge\n```bash\nhath0r memory session read --note \"Reading context before compounding\"\nhath0r memory compound --id \"episode:issue-<number>\" --type episode --label \"...\" --content \"...\"\n```\n\n### Step 3: Run Automatic 4-Tier Task Evaluation\n```bash\nhath0r evals run --task-id \"issue-<number>\"\n```\n- Evaluates Tier 1 (Deterministic Rubrics), Tier 2 (Trajectory & FinOps), Tier 3 (Adversarial Diff Critics), and Tier 4 (Goal Alig",
+      "properties": {
+        "path": "docs/governance/procedures/task-evals-procedure.md",
+        "category": "procedures",
+        "size_bytes": 1817
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__procedures__phoenix-deployment-procedure_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1434,6 +1562,19 @@
         "path": "docs/governance/procedures/elt-pipeline-procedure.md",
         "category": "procedures",
         "size_bytes": 1902
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__procedures__decision-radar-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Decision Radar Procedure",
+      "content": "# Procedure: Integrating & Operating Hath0r Cruise Control\n\n> Canonical Procedure · ID: `PROC-DECISION-RADAR-001`  \n> Epic: #499 / #508 · Tasks: #500–#506\n\n---\n\n## 1. Purpose\n\nDefines the step-by-step procedure for autonomous agents and human operators to queue decisions, bind declarative wait facts, enforce input/output work boundaries, and resolve items via the Cruise Control Decision Radar.\n\n---\n\n## 2. Step-by-Step Procedure\n\n### Step 1: Register Task Dependency Edges (Optional DAG Enrichment)\nWhen multiple downstream tasks depend on upstream milestones, register edges so the transitive unblocking score $U(d)$ reflects the full cascade:\n```bash\nhath0r decision dep --from \"schema-v2\" --to \"api-resolvers\" --weight 1.5 --criticality 2.0\n```\n\n### Step 2: Enforce the Input Boundary Gate (\"What Goes In\")\nBefore starting a high-token multi-agent run, request or approve an Input Gate:\n```bash\nhath0r decision approve-in \"@a11152\" --intent \"Migrate Parts-API schema\" --budget 50000 --tools \"read_file,edit_file,run_command\"\n```\n\n### Step 3: Agent Requests a Decision or Waits on a Fact\nFrom any agent terminal needing human guidance:\n```bash\nhath0r decision wait \\\n  --question \"Confirm Parts-",
+      "properties": {
+        "path": "docs/governance/procedures/decision-radar-procedure.md",
+        "category": "procedures",
+        "size_bytes": 2406
       },
       "is_current": true
     },
@@ -1763,6 +1904,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__strategies__task-evals-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Task Evals Strategy",
+      "content": "# Strategy: Hath0r Automatic Task Evaluations (`CR-TASK-EVAL-001`)\n\n> Canonical Governance Strategy · ID: `STRAT-TASK-EVAL-001`  \n> Epic: #510 · Rule Compliance: `CR-TASK-EVAL-001`, `CR-CLI-FEATURE-STANDARD-001`, `CR-MEMORY-COMPOUND-001`, `CR-CLI-FINOPS-VERIFIER-002`\n\n---\n\n## 1. Architectural Rationale\n\nTraditional agent evaluation only inspects the final text or whether a test suite compiles. In autonomous multi-agent coding systems, output-only evaluation fails to detect trajectory regressions, redundant tool loops, swallowed exceptions, self-admitted technical debt (`TODO`/`FIXME`), uncompounded memory graphs, or FinOps budget overruns.\n\nThe **Hath0r Automatic Task Evaluation Architecture (`CR-TASK-EVAL-001`)** enforces a **4-Tier Hybrid Task Evaluation Pipeline** via `TaskEvaluatorBot` prior to every task completion (`hath0r task finish`, `EndOfTaskBot`, and `TaskAnnouncerBot.announce_complete`).\n\n---\n\n## 2. The 4-Tier Hybrid Evaluation Model\n\nEvery task is evaluated across four orthogonal tiers into a composite Multi-Objective Task Reward $R_{\\text{task}} \\in [0.0, 1.0]$:\n\n$$R_{\\text{task}} = w_{\\text{det}} \\cdot S_{\\text{det}} + w_{\\text{traj}} \\cdot S_{\\text{traj}} + w_{\\tex",
+      "properties": {
+        "path": "docs/governance/strategies/task-evals-strategy.md",
+        "category": "strategies",
+        "size_bytes": 3328
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__strategies__tree-sitter-ast-parser-strategy_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1772,6 +1926,19 @@
         "path": "docs/governance/strategies/tree-sitter-ast-parser-strategy.md",
         "category": "strategies",
         "size_bytes": 3326
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__strategies__decision-radar-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Decision Radar Strategy",
+      "content": "# Strategy: Hath0r Cruise Control (Agent Decision Control Layer)\n\n> Canonical Governance Strategy · ID: `STRAT-DECISION-RADAR-001`  \n> Epic: #499 / #508 · Tasks: #500–#506 · Rule Compliance: `CR-CLI-FEATURE-STANDARD-001`, `CR-MEMORY-COMPOUND-001`\n\n---\n\n## 1. Architectural Rationale\n\nWhen an operator coordinates 10 to 30 concurrent AI coding agent terminals, the agents are no longer the bottleneck—the human operator's attention is. Without a unified control plane:\n- High-leverage root decisions sit buried behind trivial leaf questions.\n- Timer-based snoozing (\"ask me again in 24 hours\") creates stale interruptions even after external events (PR merges, CI runs, sibling completions) have already resolved the blocker.\n- Unregulated input scopes waste token budgets, and unreviewed output deliveries risk branch integrity.\n\nThe **Hath0r Decision Radar** resolves these bottlenecks through four coupled mechanisms:\n\n1. **Graph-Theoretic Dependency & Transitive Unblocking Reranker (`DecisionGraph`)**:\n   Models waiting agents ($\\mathcal{A}$), decisions ($\\mathcal{D}$), and downstream tasks ($\\mathcal{T}$) as a directed acyclic graph (DAG). Ranks every waiting decision by its **Transitive Unb",
+      "properties": {
+        "path": "docs/governance/strategies/decision-radar-strategy.md",
+        "category": "strategies",
+        "size_bytes": 3066
       },
       "is_current": true
     },
@@ -2694,7 +2861,7 @@
       "properties": {
         "path": "docs/governance/runbooks/memorygraph-compounding-runbook.md",
         "category": "runbooks",
-        "size_bytes": 3871
+        "size_bytes": 4603
       },
       "is_current": true
     },
@@ -2734,6 +2901,19 @@
         "path": "docs/governance/runbooks/phoenix-lifecycle-runbook.md",
         "category": "runbooks",
         "size_bytes": 1574
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__runbooks__decision-radar-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Decision Radar Runbook",
+      "content": "# Runbook: Hath0r Cruise Control Operations\n\n> Canonical Runbook · ID: `RUNBOOK-DECISION-RADAR-001`  \n> Epic: #499 / #508 · Tasks: #500–#506\n\n---\n\n## 1. Quick Command Reference\n\n```bash\n# Launch Cruise Control Web Radar UI in a split-window browser display (http://127.0.0.1:38090/radar)\nhath0r cruise radar --port 38090 --split-window --split-side right\n\n# Seed the canonical 16-node Cruise Control reference topology and render TUI\nhath0r cruise tui --seed-demo\n\n# Queue a new decision from an agent (automatically opens/focuses split-window Cruise Control)\nhath0r cruise ask \\\n  --question \"Patch and reboot the Parts-API widget VMs\" \\\n  --category \"only_you_can_do_this\" \\\n  --agent \"@a11152\" \\\n  --unblocks \"vm-node-1,vm-node-2\" \\\n  --split-window\n```\n\n# Block agent terminal until answered or settled by fact\nhath0r decision wait \\\n  --question \"Catalog read-only tools at zero credit balance\" \\\n  --category \"only_you_can_do_this\" \\\n  --agent \"@a11062\" \\\n  --unblocks \"catalog-sync,mcp-ro-gate,billing-guard\" \\\n  --timeout 1.0\n\n# List open decisions ranked by U(d)\nhath0r decision list\n\n# Answer a decision\nhath0r decision answer <decision-id> --response \"Approved\"\n\n# Bind a decision to a fac",
+      "properties": {
+        "path": "docs/governance/runbooks/decision-radar-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 2425
       },
       "is_current": true
     },
@@ -2881,6 +3061,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__task-evals-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Task Evals Runbook",
+      "content": "# Runbook: Task Evaluation Service & Telemetry Operations\n\n> Canonical Operations Runbook · ID: `RB-TASK-EVAL-001`  \n> Epic: #510 · Suite: `hath0r-opensource`\n\n---\n\n## 1. Architecture & Endpoints\n\n| Component | Container | Local Endpoint | Role in Task Evals |\n|---|---|---|---|\n| **TaskEvaluatorBot** | Local CLI (`hath0r`) | `.hath0r/evals/latest.json` | Executes 4-tier evaluation and enforces pre-completion gate |\n| **Arize Phoenix** | `Hath0r-phoenix` | `http://localhost:36006/phoenix/` | Receives OTel `EVALUATOR` spans (`hath0r.eval.task`) |\n| **MLflow Tracking** | `Hathor-MLFLOW` | `http://localhost:35000/mlflow/` | Logs `hath0r-task-evals` experiment runs, params, and reward metrics |\n\n---\n\n## 2. Operational Checks\n\n### Verify Local Scorecard & Hash Integrity\n```bash\nhath0r evals verify\nhath0r memory hash verify\n```\n\n### Verify Phoenix & MLflow Connectivity\n```bash\nhath0r phoenix status --group hath0r\nhath0r phoenix evals --suite hath0r\nhath0r mlflow status --group hath0r\n```\n\n---\n\n## 3. Offline Telemetry Spooling & Recovery\n\nWhen `Hath0r-phoenix` or `Hathor-MLFLOW` containers are offline during local development:\n1. `TaskEvaluatorBot` records `\"observability_sync\": {\"mode\": \"",
+      "properties": {
+        "path": "docs/governance/runbooks/task-evals-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 1603
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__pr-lifecycle-runbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2950,11 +3143,11 @@
       "plane": "knowledge",
       "type": "knowledge_doc",
       "label": "Orient Workflow",
-      "content": "# Workflow: Repository Orientation Workflow\n\n> Canonical Workflow Definition · Hath0r Agentic Framework  \n> Updated: 2026-10-12 · Issue: #275 / CLI #463\n\n```mermaid\nflowchart TD\n    A[\"Operator / Agent Trigger: 'orient' (or 'hath0r orient')\"] --> B[\"Step 1: Read Agents & Rules from AgentGraph\"]\n    B --> C[\"Step 2: Read Project README & Architecture Summary\"]\n    C --> D[\"Step 3: Scan Codebase AST & Application Structure\"]\n    D --> E[\"Step 4: Run Agent Metrics (Observability, Telemetry & PMAT)\"]\n    E --> F[\"Step 5: Run Agent Calibration (CCCD Parameter Loop)\"]\n    F --> G[\"Aggregate into hath0r-orient-report-v1 Schema Contract\"]\n    G --> H{\"Terminal UI (TUI) Supported?\"}\n    H -- Yes --> I[\"Render Rich TUI Scorecards, Topology & Panels\"]\n    H -- No / Fallback --> J[\"Render Comprehensive GitHub-Flavored Markdown Report\"]\n    I & J --> K[\"Ingest Orientation Execution Node into AgentGraph ContextPlane\"]\n    K --> L[\"Return Orientation Report & Verdict to Operator\"]\n```\n\n## Supported Intent Triggers\n1. `\"orient\"`\n2. `\"hath0r orient\"`\n3. `\"run orient\"`\n4. `\"orient repository\"`\n5. `\"orientation report\"`\n6. `\"system orientation\"`\n\n## Six Core Execution Stages\n1. **AgentGraph Retrieval",
+      "content": "# Workflow: Repository Orientation Workflow\n\n> Canonical Workflow Definition · Hath0r Agentic Framework  \n> Updated: 2026-10-21 · Issue: #275 / CLI #463\n\n```mermaid\nflowchart TD\n    A[\"Operator / Agent Trigger: 'orient' (or 'hath0r orient')\"] --> B[\"Step 1: Read Agents & Rules from AgentGraph\"]\n    B --> C[\"Step 2: Read Project README & Architecture Summary\"]\n    C --> D[\"Step 3: Scan Codebase AST & Application Structure\"]\n    D --> E[\"Step 4: Run Agent Metrics (Observability, Telemetry & PMAT)\"]\n    E --> F[\"Step 5: Mandatory Agent Calibration for Repository (CCCD Loop)\"]\n    F --> G[\"Aggregate into hath0r-orient-report-v1 Schema Contract\"]\n    G --> H{\"Terminal UI (TUI) Supported?\"}\n    H -- Yes --> I[\"Render Rich TUI Scorecards, Topology & Panels\"]\n    H -- No / Fallback --> J[\"Render Comprehensive GitHub-Flavored Markdown Report\"]\n    I & J --> K[\"Ingest Orientation Execution Node into AgentGraph ContextPlane\"]\n    K --> L[\"Return Orientation Report & Verdict to Operator\"]\n```\n\n## Supported Intent Triggers\n1. `\"orient\"`\n2. `\"hath0r orient\"`\n3. `\"run orient\"`\n4. `\"orient repository\"`\n5. `\"orientation report\"`\n6. `\"system orientation\"`\n\n---\n\n## Mandatory Repository Calibration Ob",
       "properties": {
         "path": "docs/governance/workflows/orient-workflow.md",
         "category": "workflows",
-        "size_bytes": 2294
+        "size_bytes": 3793
       },
       "is_current": true
     },
@@ -3011,6 +3204,32 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__workflows__decision-radar-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Decision Radar Workflow",
+      "content": "# Workflow: Hath0r Cruise Control Lifecycle\n\n> Canonical Workflow · ID: `WORKFLOW-DECISION-RADAR-001`  \n> Config: `cfg/workflows/decision-radar-workflow.yaml` · Epic: #499 / #508\n\n---\n\n## 1. End-to-End Decision & Settlement Flow\n\n```mermaid\nflowchart TD\n    InGate[\"1. Input Boundary Gate\\n(Start or hold work)\"] --> Exec[\"2. Agent Execution across\\n10-30 Concurrent Terminals\"]\n    Exec --> Blocked[\"3. Agent Hits Decision Point\\n(hath0r cruise wait)\"]\n    Blocked --> Graph[\"4. DecisionGraph Computes\\nTransitive Unblock Score U(d)\"]\n    Graph --> Radar[\"5. Cruise Control Radial UI\\n7 Canonical Wedges\"]\n    Radar -->|Human Answers| Resolve[\"6a. RESOLVED_HUMAN\\nHMAC Sign + Unblock\"]\n    Radar -->|Snooze on Fact| FactWait[\"6b. WAITING_FACT\\nBind Predicate (Not Timer)\"]\n    FactWait -->|Probe Satisfied| AutoSettle[\"6c. SETTLED_BY_EVENT\\nZero-Touch Auto-Settle\"]\n    Resolve --> OutGate[\"7. Output Boundary Gate\\n(Accept delivered work)\"]\n    AutoSettle --> OutGate\n    OutGate --> Compound[\"8. MemoryGraph CAS Compounding\\n(.hath0r/memory/graph.json)\"]\n```\n\n---\n\n## 2. Stage Specifications\n\n1. **Stage 1 (`input_boundary_gate`)**: Validates prompt scope, token budget cap, and permitted tools be",
+      "properties": {
+        "path": "docs/governance/workflows/decision-radar-workflow.md",
+        "category": "workflows",
+        "size_bytes": 1749
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__workflows__task-evals-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Task Evals Workflow",
+      "content": "# Workflow: Automatic Task Evaluation Lifecycle (`CR-TASK-EVAL-001`)\n\n> Canonical Governance Workflow · ID: `WF-TASK-EVAL-001`  \n> Epic: #510 · Factory: `cfg/factories/end-of-task-factory.yaml`\n\n---\n\n## 1. State Machine Diagram\n\n```mermaid\nstateDiagram-v2\n    [*] --> TaskStart: hath0r task start\n    TaskStart --> ActiveSession: Micro-Session & OTel Span Initialized\n    ActiveSession --> CodeAndTests: Agent Executes Task & Writes Tests\n    CodeAndTests --> MemoryCompound: hath0r memory compound (CR-MEMORY-COMPOUND-001)\n    MemoryCompound --> TaskEvalRun: hath0r evals run (TaskEvaluatorBot)\n\n    state TaskEvalRun {\n        [*] --> Tier1_Deterministic\n        Tier1_Deterministic --> Tier2_Trajectory\n        Tier2_Trajectory --> Tier3_Adversarial\n        Tier3_Adversarial --> Tier4_GoalAlignment\n        Tier4_GoalAlignment --> ComputeReward\n    }\n\n    ComputeReward --> GateFailed: R_task < 0.80 or Hard Gate Failed\n    GateFailed --> CodeAndTests: Remediate Diagnostics\n\n    ComputeReward --> ScorecardPersisted: R_task >= 0.80 & Hard Gates Passed\n    ScorecardPersisted --> ObservabilitySynced: .hath0r/evals/latest.json + eval:<id> Node + Phoenix/MLflow\n    ObservabilitySynced --> Announc",
+      "properties": {
+        "path": "docs/governance/workflows/task-evals-workflow.md",
+        "category": "workflows",
+        "size_bytes": 1625
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__bot-specs__phoenix-manager-bot-spec_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3032,7 +3251,20 @@
       "properties": {
         "path": "docs/governance/bot-specs/memory-manager-bot-spec.md",
         "category": "bot-specs",
-        "size_bytes": 4834
+        "size_bytes": 5225
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__decision-radar-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Decision Radar Bot Spec",
+      "content": "# Bot Specification: DecisionRadarBot\n\n> Canonical Bot Specification · Hath0r Agentic Framework  \n> Updated: 2026-10-28 · Epic: #499 · Issues: #500–#506\n\n---\n\n## 1. Role & Identity\n\n- **Bot Name**: `decision-radar-bot` (`cruise-control-bot`)\n- **Class Name**: `DecisionRadarBot` (`CruiseControlBot`)\n- **Companion Engines**: `DecisionGraph`, `FactSettlementEngine`, `WorkBoundaryGate`\n- **Subsystem**: `HATH0R-CLI` (`src/hath0r_cli/bots/decision_radar_bot.py`)\n- **CLI Command**: `hath0r cruise` / `hath0r cruise-control` / `hath0r decision` / `hath0r radar`\n- **Contract Schema**: `contracts/hath0r-decision-spec-v1.schema.json`\n- **Primary Function**: Cybernetic Cruise Control layer between 10–30 concurrent AI coding agents and the human operator. Models work dependencies as a DAG, ranks decisions by transitive downstream work unblocked $U(d)$, replaces timer snoozing with event-driven fact settlement, enforces HMAC-signed input/output work boundary gates, and drives the Cruise Control Radial Sunburst UI.\n\n---\n\n## 2. Supported Conversational & CLI Intents\n\n1. `\"hath0r decision radar\"` / `\"hath0r radar\"`\n2. `\"hath0r decision tui\"`\n3. `\"hath0r decision wait\"`\n4. `\"hath0r decision ask\"`\n5. ",
+      "properties": {
+        "path": "docs/governance/bot-specs/decision-radar-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 1960
       },
       "is_current": true
     },
@@ -3085,6 +3317,19 @@
         "path": "docs/governance/bot-specs/upgrade-bot-spec.md",
         "category": "bot-specs",
         "size_bytes": 3076
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__task-evaluator-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Task Evaluator Bot Spec",
+      "content": "# Bot Specification: TaskEvaluatorBot\n\n> Canonical Bot Specification · Hath0r Agentic Framework  \n> Updated: 2026-10-28 · Epic: #510 · Rule: `CR-TASK-EVAL-001`\n\n---\n\n## 1. Role & Identity\n\n- **Bot Name**: `task-evaluator-bot`\n- **Class Name**: `TaskEvaluatorBot`\n- **Subsystem**: `HATH0R-CLI` (`src/hath0r_cli/bots/task_evaluator_bot.py`)\n- **CLI Command**: `hath0r evals run` / `hath0r evals status` / `hath0r evals verify` / `hath0r evals report`\n- **Declarative Config**: `cfg/evals/task-eval.json`\n- **Primary Function**: Executes the 4-tier hybrid task evaluation pipeline (Deterministic Engineering Rubrics, Trajectory & FinOps Efficiency, Adversarial Diff Critics, and Goal Alignment) prior to task completion, computes multi-objective reward $R_{\\text{task}}$ and Taguchi Quality Loss, persists `.hath0r/evals/latest.json`, compounds `eval:<task_id>` into `.hath0r/memory/graph.json`, and logs telemetry to Arize Phoenix and MLflow.\n\n---\n\n## 2. Supported Actions (`BotRegistry`)\n\n1. `run-eval` / `evaluate`: Execute the 4-tier evaluation pipeline and persist `.hath0r/evals/latest.json`.\n2. `verify-eval` / `verify`: Verify that a valid, passing evaluation scorecard exists for the current ta",
+      "properties": {
+        "path": "docs/governance/bot-specs/task-evaluator-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 1820
       },
       "is_current": true
     },
@@ -3176,6 +3421,32 @@
         "path": "docs/governance/playbooks/release-runbook.md",
         "category": "playbooks",
         "size_bytes": 1841
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__task-evals-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Task Evals Playbook",
+      "content": "# Playbook: Hath0r Automatic Task Evaluations (`CR-TASK-EVAL-001`)\n\n> Canonical Operator & Agent Playbook · ID: `PB-TASK-EVAL-001`  \n> Epic: #510 · CLI Entrypoint: `hath0r evals`\n\n---\n\n## 1. Quick Reference Commands\n\n```bash\n# Run full 4-tier evaluation on the current workspace and persist scorecard\nhath0r evals run\n\n# Run fast evaluation (skip full pytest suite re-run if already verified)\nhath0r evals run --skip-tests\n\n# Inspect the latest evaluation scorecard and tier breakdown\nhath0r evals status\n\n# Verify that the current workspace has a valid passing evaluation before announcing complete\nhath0r evals verify\n\n# Generate suite-wide evaluation summary across repositories and MLflow/Phoenix\nhath0r evals report\n```\n\n---\n\n## 2. Remediating Evaluation Gate Failures\n\n### Case A: Tier 1 Failure (`DeterministicRubric`)\n- **Symptom**: `Preflight`, `Tests`, `AgentGraph`, or `MemoryGate` failed.\n- **Remediation**:\n  1. Run `pytest` and `ruff check src` to fix unit test or lint errors.\n  2. Ensure `VERSION` and `CHANGELOG.md` are updated (`CR-SEMVER-BUMP-001`).\n  3. Run `hath0r agentgraph validate` and `hath0r memory verify` to ensure `.hath0r/memory/graph.json` and `hashes.json` are synchr",
+      "properties": {
+        "path": "docs/governance/playbooks/task-evals-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 1877
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__decision-radar-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Decision Radar Playbook",
+      "content": "# Playbook: Cruise Control Queue Triage & Bottleneck Recovery\n\n> Canonical Playbook · ID: `PLAYBOOK-DECISION-RADAR-001`  \n> Epic: #499 · Tasks: #500–#506, #508\n\n---\n\n## 1. Scenario A: Operator Queue Congestion (>20 Open Decisions Across Terminals)\n\n### Symptoms\n- 10–30 agent terminals are simultaneously waiting on human input.\n- Operator cannot tell which question matters most.\n\n### Resolution Steps\n1. Run `hath0r decision settle` first to clear out any questions whose underlying facts (`git.pr.merged`, `file.exists`, `agent.task.completed`, `memory.fact.asserted`) have already been settled by events.\n2. Run `hath0r decision list` or open `hath0r decision radar` to view decisions sorted descending by **Transitive Unblocking Impact Score $U(d)$**.\n3. Resolve `P0` and `P1` decisions with the highest `|| N` unblock badge first to free the maximum number of downstream workers.\n\n---\n\n## 2. Scenario B: Stalled Fact-Bound Questions\n\n### Symptoms\n- A decision remains in `WAITING_FACT` state even though an external deployment or PR completed outside local polling.\n\n### Resolution Steps\n1. Assert the verified external fact into the radar fact ledger:\n   ```bash\n   hath0r decision assert-fact",
+      "properties": {
+        "path": "docs/governance/playbooks/decision-radar-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 1874
       },
       "is_current": true
     },
@@ -4236,8 +4507,8 @@
       "content": "Implemented cryptographic SHA-256 file hashing (.hath0r/memory/hashes.json), source_files staleness tracking, atomic os.replace writes, optimistic CAS auto-merge, and hath0r memory hash CLI commands.",
       "properties": {
         "source_files": {
-          "src/hath0r_cli/bots/memory_manager.py": "sha256:6094787f1f360f20f473cd1f37add99f63fb4bdfe408a8c65cfc97b160310888",
-          "src/hath0r_cli/commands/memory.py": "sha256:32bb15d6d92f77da0d176764925e41cbb3e7f7c84b6ddb7bf49364fb3d777a5e"
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:52c9fa8fe7b79c163e7c5a042497e0743592a57506a5dc1f5760851c285d55eb",
+          "src/hath0r_cli/commands/memory.py": "sha256:6f9ad40d08d1ae7858216ccf1c55071411a936d488f9d165de43be79880c2419"
         },
         "source": "local_memory",
         "tags": [
@@ -4261,9 +4532,9 @@
       "content": "Added ensure_gitignore_unignores_graphs and verify_graphs_not_gitignored to MemoryManagerBot and RepoLayoutBot, sanitizing .gitignore across all 31 repositories and enforcing graphs_not_ignored in verify_compounded.",
       "properties": {
         "source_files": {
-          "src/hath0r_cli/bots/memory_manager.py": "sha256:6094787f1f360f20f473cd1f37add99f63fb4bdfe408a8c65cfc97b160310888",
-          "src/hath0r_cli/bots/onboarding.py": "sha256:e7f705cadb343baca742241133b3ead20679ccb6c1bf391b1d49211f765f3ee4",
-          ".gitignore": "sha256:1081973c974de85646cafeee9c4eaa45a789a8c481dd528a60e8cc4c68a2fa2b"
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:52c9fa8fe7b79c163e7c5a042497e0743592a57506a5dc1f5760851c285d55eb",
+          "src/hath0r_cli/bots/onboarding.py": "sha256:4bfa19af27df97c258b0a8339630d9318576196656d2be6709e32b0e13cf894e",
+          ".gitignore": "sha256:0975b54c52529c0d6a45217c8f84740ce241fab5d6caaa606656a010de03ae0f"
         },
         "source": "local_memory",
         "tags": [
@@ -4350,13 +4621,13 @@
       "content": "Updated HATH0R-CLI MCP resolution and added hath0r mcp init and hath0r mcp ensure-all so every repository resolves .hath0r/mcp.json first with its group Hath0r MCP server (mcp.hath0r-cli.com, mcp.baylyai.com, mcp.raymondbayly.com, mcp.1-nation.com) as Priority 1.",
       "properties": {
         "source_files": {
-          ".hath0r/mcp.json": "sha256:5eee26e3857e09b94a7921fef533ed83ef4bfa7c6b8cbf944016aceafedecefa",
+          ".hath0r/mcp.json": "sha256:196e8a9b14a31535abb8d6e32f03cc5ef767ea29ed5b5b0068c03994621c01ea",
           "cfg/mcp.servers.json": "sha256:95e6ce365170bd5afbaf408b3195fc15378b493827572c09f0e10538522f8e97",
           "cfg/mcp-connections.yaml": "sha256:ac7648df01ab8c93a6c548c90fd8a15faaac952e80e9b60cfedd9857eeee17d9",
-          "src/hath0r_cli/mcp.py": "sha256:ec4ee2b9e81ffb38a3c7392e0b6c425c49f4e3f8e4415d1e8264b44aa3d16a80",
+          "src/hath0r_cli/mcp.py": "sha256:64cf55377eb96461443e0c5d471b6fc8b044b54d82104edf74483331f57d69df",
           "src/hath0r_cli/commands/mcp.py": "sha256:9d79e9a77bd5e7048dc24a434b7021178d4ec1b024a16df2d416d3677890f965",
-          "src/hath0r_cli/bots/memory_manager.py": "sha256:6094787f1f360f20f473cd1f37add99f63fb4bdfe408a8c65cfc97b160310888",
-          "src/hath0r_cli/bots/onboarding.py": "sha256:e7f705cadb343baca742241133b3ead20679ccb6c1bf391b1d49211f765f3ee4",
+          "src/hath0r_cli/bots/memory_manager.py": "sha256:52c9fa8fe7b79c163e7c5a042497e0743592a57506a5dc1f5760851c285d55eb",
+          "src/hath0r_cli/bots/onboarding.py": "sha256:4bfa19af27df97c258b0a8339630d9318576196656d2be6709e32b0e13cf894e",
           "tests/unit/test_mcp.py": "sha256:86286b729fa650c6c4a89bcc062903fe3b2b2e328953ef4bcad6a5466d6f7c03"
         },
         "source": "local_memory",
@@ -4377,18 +4648,18 @@
       "id": "memory:episode:clean-repo-hathor-cli",
       "plane": "memory",
       "type": "episode",
-      "label": "Clean Repo Lifecycle (hathor-cli)",
-      "content": "Executed 13-step clean-repo hygiene and knowledge sync for hathor-cli.",
+      "label": "Clean Repo Development Sync (hathor-cli)",
+      "content": "Verified all changes merged into development and synced for hathor-cli.",
       "properties": {
         "source": "local_memory",
         "tags": [
           "clean-repo",
-          "hygiene",
+          "development",
           "hathor-cli",
           "episode",
           "compounded"
         ],
-        "importance": 0.75
+        "importance": 0.8
       },
       "is_current": true
     },
@@ -4426,7 +4697,7 @@
         "source_files": {
           "src/hath0r_cli/bots/kv_prewarmer.py": "sha256:c54dd8284f8c01b079ac09bd07ebb561a0d8ea3f632fe64b9dd15e0534640cd9",
           "src/hath0r_cli/bots/cag_engine.py": "sha256:1f844b8d633344d34b78df0a49d47a99d2056e520c3eaad9ead1aa1f18867727",
-          "src/hath0r_cli/commands/agent.py": "sha256:45a4ecd91e2d8e7e53de9f602d4d7de9b4404090a1c2c83da88ea6f835aa84d5",
+          "src/hath0r_cli/commands/agent.py": "sha256:a98d62293b3e3d3bbd29990596e8208c7258735ce03870cace9ed4bd0a6f0a9c",
           "tests/test_phase1_agent.py": "sha256:330ece3aa4a356d6ca460debb6d56ea7d7870bb947e1a5645eb27cf28f2f0eb4"
         },
         "source": "local_memory",
@@ -4444,24 +4715,902 @@
       "is_current": true
     },
     {
+      "id": "memory:episode:decision-radar-architecture-plan",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Hath0r Decision Radar Architecture Plan and GitHub Issues",
+      "content": "Formulated comprehensive architectural plan for the Hath0r Decision Radar (Minority Report Agent Decision Control Layer). Created GitHub issues #499 (Epic), #500 (Contracts/Storage), #501 (Decision Graph/Reranker), #502 (Fact Settlement Engine), #503 (Work Boundary Gates), #504 (Agent Hook/CLI), #505 (Radial Sunburst UI/SSE), and #506 (Hexad Docs/Tests).",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "decision-radar",
+          "minority-report",
+          "epic",
+          "architecture",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.95
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:decision-radar-v1-8-0-implementation",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Hath0r Decision Radar v1.8.0 Implementation (#499-#506)",
+      "content": "Implemented DecisionRadarBot, DecisionGraph, FactSettlementEngine, WorkBoundaryGate, HathorDecisionRadarServer, hath0r decision CLI group, contracts/hath0r-decision-spec-v1.schema.json, Governance Hexad documentation, and tests/unit/test_decision_radar.py with 92% coverage.",
+      "properties": {
+        "source_files": {
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:d512b687e2eaa6475dcdd287185411b168d3b32b59c96d4e8797281b46a83558",
+          "src/hath0r_cli/commands/decision.py": "sha256:9c490142c59675ce68e75611c43fd3b2dd785bd4509391fe47ffdcddb692b5bb",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:9a9a76fe9e342d482fe639d967f65f095a62d3be1362b02fa2dc442bc6f8c840"
+        },
+        "source": "local_memory",
+        "tags": [
+          "decision-radar",
+          "minority-report",
+          "v1.8.0",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.95
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:decision-radar",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on decision-radar",
+      "content": "Consolidated from 2 memory nodes tagged 'decision-radar'. Recurring themes: decision, radar, plan, github. Latest context: Implemented DecisionRadarBot, DecisionGraph, FactSettlementEngine, WorkBoundaryGate, HathorDecisionRadarServer, hath0r decision CLI group, contracts/hath0r-deci",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "decision-radar",
+        "source": "local_memory",
+        "tags": [
+          "decision-radar",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:minority-report",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on minority-report",
+      "content": "Consolidated from 2 memory nodes tagged 'minority-report'. Recurring themes: decision, radar, plan, github. Latest context: Implemented DecisionRadarBot, DecisionGraph, FactSettlementEngine, WorkBoundaryGate, HathorDecisionRadarServer, hath0r decision CLI group, contracts/hath0r-deci",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "minority-report",
+        "source": "local_memory",
+        "tags": [
+          "minority-report",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:decision:cruise-control-naming",
+      "plane": "memory",
+      "type": "decision",
+      "label": "Named Agent Decision Control Layer 'Cruise Control' (#508)",
+      "content": "Renamed feature from Minority Report to Cruise Control across CLI (hath0r cruise / hath0r cruise-control), Web/TUI radar, CruiseControlBot SDK, contracts schema, and Governance Hexad docs.",
+      "properties": {
+        "source_files": {
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:d512b687e2eaa6475dcdd287185411b168d3b32b59c96d4e8797281b46a83558",
+          "src/hath0r_cli/commands/decision.py": "sha256:9c490142c59675ce68e75611c43fd3b2dd785bd4509391fe47ffdcddb692b5bb",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:9a9a76fe9e342d482fe639d967f65f095a62d3be1362b02fa2dc442bc6f8c840"
+        },
+        "source": "local_memory",
+        "tags": [
+          "cruise-control",
+          "naming",
+          "v1.8.1",
+          "decision",
+          "compounded"
+        ],
+        "importance": 0.9
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:pr-509",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Completed PR #509 (feature)",
+      "content": "Merged PR #509 from branch feature into development.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "pr",
+          "pr-509",
+          "feature",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:pr",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on pr",
+      "content": "Consolidated from 2 memory nodes tagged 'pr'. Recurring themes: feature, completed, unignore, graph. Latest context: Merged PR #509 from branch feature into development.",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "pr",
+        "source": "local_memory",
+        "tags": [
+          "pr",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 0.95
+      },
+      "is_current": true
+    },
+    {
       "id": "memory:session:sess-20261017-145045-ed36da",
       "plane": "memory",
       "type": "session",
       "label": "Micro Session sess-20261017-145045-ed36da",
-      "content": "Micro Session sess-20261017-145045-ed36da [completed] | Focus: Active working session in hathor-cli | Reads: 1, Writes: 4 | Entries: Completed CLI KVCachePrewarmer and CAGEngine chunk-boundary alignment",
+      "content": "Micro Session sess-20261017-145045-ed36da [completed] | Focus: Orienting repository hathor-cli | Reads: 15, Writes: 24 | Entries: Completed PR #509 (feature) via EndOfTaskBot.",
       "properties": {
         "session_id": "sess-20261017-145045-ed36da",
         "prior_session_id": "sess-20261016-151409-a068f7",
         "parent_session_id": "sess-20261016-151409-a068f7",
-        "read_count": 1,
-        "write_count": 4,
+        "read_count": 15,
+        "write_count": 24,
         "status": "completed",
-        "byte_size": 1763,
+        "byte_size": 1828,
         "source": "local_memory",
         "tags": [
           "session",
           "micro-session",
           "completed"
+        ],
+        "importance": 0.75
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:pr-101",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation pr-101 (R=0.90, FAIL)",
+      "content": "4-Tier Task Evaluation for pr-101 on branch feature/510-automatic-task-evals: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "pr-101",
+          "failed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:pr-104",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation pr-104 (R=0.90, FAIL)",
+      "content": "4-Tier Task Evaluation for pr-104 on branch feature/510-automatic-task-evals: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "pr-104",
+          "failed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:issue-510-task-evals",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Implemented Automatic Task Evaluation Architecture (CR-TASK-EVAL-001)",
+      "content": "Delivered TaskEvaluatorBot 4-tier hybrid task evaluation pipeline, hath0r evals run/status/verify/report CLI commands, EndOfTaskBot and TaskAnnouncerBot pre-announcement gate integration, and Governance Documentation Hexad.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "evals",
+          "cr-task-eval-001",
+          "issue-510",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:issue-510",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation issue-510 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for issue-510 on branch feature/510-automatic-task-evals: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "issue-510",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:pr-516",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation pr-516 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for pr-516 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "pr-516",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:pr-516",
+      "plane": "memory",
+      "type": "episode",
+      "label": "PR #516 Merged: CR-TASK-EVAL-001 Automatic Task Evals",
+      "content": "Implemented TaskEvaluatorBot, CLI commands hath0r evals run|status|verify|report, EndOfTaskBot/TaskAnnouncerBot pre-completion gate, Governance Documentation Hexad, unit tests (90% coverage), bumped VERSION to 1.10.0, and merged PR #516 into development.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "evals",
+          "cr-task-eval-001",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:feature",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on feature",
+      "content": "Consolidated from 2 memory nodes tagged 'feature'. Recurring themes: feature, completed, merged, from. Latest context: Merged PR #516 from branch feature into development.",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "feature",
+        "source": "local_memory",
+        "tags": [
+          "feature",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 0.95
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:evals",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on evals",
+      "content": "Consolidated from 2 memory nodes tagged 'evals'. Recurring themes: task, evals, implemented, automatic. Latest context: Implemented TaskEvaluatorBot, CLI commands hath0r evals run|status|verify|report, EndOfTaskBot/TaskAnnouncerBot pre-completion gate, Governance Documentation He",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "evals",
+        "source": "local_memory",
+        "tags": [
+          "evals",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 0.95
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:cr-task-eval-001",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on cr-task-eval-001",
+      "content": "Consolidated from 2 memory nodes tagged 'cr-task-eval-001'. Recurring themes: task, evals, implemented, automatic. Latest context: Implemented TaskEvaluatorBot, CLI commands hath0r evals run|status|verify|report, EndOfTaskBot/TaskAnnouncerBot pre-completion gate, Governance Documentation He",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "cr-task-eval-001",
+        "source": "local_memory",
+        "tags": [
+          "cr-task-eval-001",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 0.95
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:pr-516-merged",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation pr-516-merged (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for pr-516-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "pr-516-merged",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:rule:cr-task-eval-001",
+      "plane": "memory",
+      "type": "rule",
+      "label": "Automatic Task Evaluation & Scorecard Summary Gate (CR-TASK-EVAL-001)",
+      "content": "Every task must execute and pass the 4-tier hybrid evaluation pipeline (R_task >= 0.80), persist .hath0r/evals/latest.json, and always return a structured summary of the Eval Scorecard in the completion response to the user.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "rule",
+          "governance",
+          "evals",
+          "cr-task-eval-001",
+          "scorecard",
+          "compounded"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:eval-baseline-hathor-cli",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation eval-baseline-hathor-cli (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for eval-baseline-hathor-cli on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "eval-baseline-hathor-cli",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:issue-518",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation issue-518 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for issue-518 on branch feature/518-evals-ensure-all-repos: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "issue-518",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:pr-519",
+      "plane": "memory",
+      "type": "episode",
+      "label": "PR #519 Merged: Enforced CR-TASK-EVAL-001 Across All ~/Development Repos",
+      "content": "Enforced CR-TASK-EVAL-001 across all 42 repositories under ~/Development via hath0r evals ensure-all, defaulted TaskAnnouncerBot.announce_complete(enforce_eval_gate=True), wired TaskEvaluatorBot into CleanReposWorkflowBot Step 13, and merged PR #519 into development.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "evals",
+          "cr-task-eval-001",
+          "ensure-all",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:pr-519",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation pr-519 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for pr-519 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "pr-519",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:pr-519-merged",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation pr-519-merged (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for pr-519-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "pr-519-merged",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:issue-520",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation issue-520 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for issue-520 on branch feature/520-detached-cruise-control: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "issue-520",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:pr-521",
+      "plane": "memory",
+      "type": "episode",
+      "label": "PR #521 Merged: Detached Cruise Control View & Stateless Agent Update API",
+      "content": "Implemented detached Cruise Control view with autonomous background fact-settlement monitor (_run_autonomous_monitor), DecisionRadarBot.update_decision(), HTTP POST /api/decisions/update & GET /api/decisions/status, automatic remote HTTP push sync (_sync_to_detached_server), and CLI commands hath0r cruise update|detach|status|stop (#520, PR #521).",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "cruise-control",
+          "detached",
+          "decision-radar",
+          "pr-521",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:pr-521",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation pr-521 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for pr-521 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "pr-521",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:insight:cruise-control",
+      "plane": "memory",
+      "type": "insight",
+      "label": "Synthesized Insight on cruise-control",
+      "content": "Consolidated from 2 memory nodes tagged 'cruise-control'. Recurring themes: cruise, control, update, agent. Latest context: Implemented detached Cruise Control view with autonomous background fact-settlement monitor (_run_autonomous_monitor), DecisionRadarBot.update_decision(), HTTP ",
+      "properties": {
+        "constituent_count": 2,
+        "source_tag": "cruise-control",
+        "source": "local_memory",
+        "tags": [
+          "cruise-control",
+          "insight",
+          "reflection",
+          "compounded"
+        ],
+        "importance": 1.0
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:pr-521-merged",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation pr-521-merged (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for pr-521-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "pr-521-merged",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:release-v1.11.0",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Released HATH0R CLI v1.11.0 & Installed Globally",
+      "content": "Validated, tagged, pushed, and published GitHub Release v1.11.0 of HATH0R-CLI (Automatic 4-tier Task Evaluations CR-TASK-EVAL-001, workspace-wide ensure-all, and Detached Cruise Control & Stateless Agent Update API) and installed v1.11.0 as the global hath0r CLI at /usr/local/bin/hath0r.",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "release",
+          "v1.11.0",
+          "cli",
+          "global-install",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:release-v1-11-0",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation release-v1.11.0 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for release-v1.11.0 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "release-v1-11-0",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:issue-522",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation issue-522 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for issue-522 on branch feature/522-clean-repo-branch-hygiene: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "issue-522",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:clean-repo-hathor-cli",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation clean-repo-hathor-cli (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for clean-repo-hathor-cli on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "clean-repo-hathor-cli",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:release-v1-12-0",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation release-v1-12-0 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for release-v1-12-0 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "release-v1-12-0",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:issue-524",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation issue-524 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for issue-524 on branch feature/524-eval-scorecard-summary-rule: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "issue-524",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:pr-525-scorecard-summary-rule",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation pr-525-scorecard-summary-rule (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for pr-525-scorecard-summary-rule on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "pr-525-scorecard-summary-rule",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:session:sess-20261028-130546-18a517",
+      "plane": "memory",
+      "type": "session",
+      "label": "Micro Session sess-20261028-130546-18a517",
+      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Orienting repository hathor-cli | Reads: 36, Writes: 69 | Entries: Completed PR #101 (feature/101-test) via EndOfTaskBot.",
+      "properties": {
+        "session_id": "sess-20261028-130546-18a517",
+        "prior_session_id": "sess-20261017-145045-ed36da",
+        "parent_session_id": "sess-20261017-145045-ed36da",
+        "read_count": 36,
+        "write_count": 69,
+        "status": "completed",
+        "byte_size": 2022,
+        "source": "local_memory",
+        "tags": [
+          "session",
+          "micro-session",
+          "completed"
+        ],
+        "importance": 0.75
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:episode:sft-lora-peft-coordinator",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Completed SFT/LoRA/PEFT Training Coordinator & Evals",
+      "content": "Updated CCCDTTrainingCoordinator and SecuritySASTScanner in hathor-cli to execute real SFT/LoRA/QLoRA/PEFT low-rank matrix optimization, persist adapter checkpoints, and run post-training benchmark Evals.",
+      "properties": {
+        "source_files": {
+          "src/hath0r_cli/cccd/training_coordinator.py": "sha256:87bed1accc3b7962874c3205e508cd7c4aff28d13bfc1d1cf2604287c03e6d5a",
+          "src/hath0r_cli/bots/cicccd_bot.py": "sha256:f4fb44c1f14440e2aca7345c83c685d1e344a9651e94d2825212c7635b7a0aab"
+        },
+        "source": "local_memory",
+        "tags": [
+          "sft",
+          "lora",
+          "peft",
+          "evals",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:sft-lora-peft-evals",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation sft-lora-peft-evals (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for sft-lora-peft-evals on branch feature/530-git-workflows: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ed2cad48db33ea36336cf6f05f05be9c1026f60f75aa098575174efa71dc881c"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "sft-lora-peft-evals",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:release-v1.13.0",
+      "plane": "memory",
+      "type": "episode",
+      "label": "Release HATH0R-CLI v1.13.0 with SFT/LoRA/QLoRA/PEFT Coordinator & Git Workflows",
+      "content": "Released v1.13.0 of HATH0R-CLI adding CCCDTTrainingCoordinator SFT/LoRA/QLoRA/PEFT subspace training and benchmark evals, SecuritySASTScanner AST-aware eval/exec detection, and GitWorkflowBot.",
+      "properties": {
+        "source_files": {
+          "VERSION": "sha256:b4a9545a385e9701482be56a0efee678d467d9c586ec476f2c5986cfaa24e96c",
+          "pyproject.toml": "sha256:8bd2596df2b08f73635b4d0131849bc644fbf49ffdc56088d6ae3b7639a505ea",
+          "CHANGELOG.md": "sha256:13c93c617389c3c31554c2d6d206e60570a1bd3f5fa458dff8d382885a7dd0b6",
+          "src/hath0r_cli/cccd/training_coordinator.py": "sha256:87bed1accc3b7962874c3205e508cd7c4aff28d13bfc1d1cf2604287c03e6d5a",
+          "src/hath0r_cli/bots/cicccd_bot.py": "sha256:f4fb44c1f14440e2aca7345c83c685d1e344a9651e94d2825212c7635b7a0aab"
+        },
+        "source": "local_memory",
+        "tags": [
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:release-v1-13-0",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation release-v1-13-0 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for release-v1-13-0 on branch feature/530-git-workflows: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:51620a06639fb6b46555015d3d7571cde0a1b35687d4ee8901799e19b17705e0"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "release-v1-13-0",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:session:sess-20261029-114902-5d1208",
+      "plane": "memory",
+      "type": "session",
+      "label": "Micro Session sess-20261029-114902-5d1208",
+      "content": "Micro Session sess-20261029-114902-5d1208 [active] | Focus: SFT/LoRA/PEFT training coordinator and evals | Reads: 1, Writes: 5 | Entries: Compounded eval:release-v1-13-0: Task Evaluation release-v1-13-0 (R=1.00, PASS)",
+      "properties": {
+        "session_id": "sess-20261029-114902-5d1208",
+        "prior_session_id": "sess-20261028-130546-18a517",
+        "parent_session_id": "sess-20261028-130546-18a517",
+        "read_count": 1,
+        "write_count": 5,
+        "status": "active",
+        "byte_size": 1910,
+        "source": "local_memory",
+        "tags": [
+          "session",
+          "micro-session",
+          "active"
         ],
         "importance": 0.75
       },
@@ -4822,6 +5971,774 @@
       "is_current": true
     },
     {
+      "source": "memory:episode:decision-radar-architecture-plan",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:decision-radar-architecture-plan",
+      "target": "memory:session:sess-20261017-145045-ed36da",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:decision-radar-v1-8-0-implementation",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:decision-radar-v1-8-0-implementation",
+      "target": "memory:session:sess-20261017-145045-ed36da",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:decision-radar",
+      "target": "memory:episode:decision-radar-architecture-plan",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:decision-radar",
+      "target": "memory:episode:decision-radar-v1-8-0-implementation",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:minority-report",
+      "target": "memory:episode:decision-radar-architecture-plan",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:minority-report",
+      "target": "memory:episode:decision-radar-v1-8-0-implementation",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:decision:cruise-control-naming",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:decision:cruise-control-naming",
+      "target": "memory:session:sess-20261017-145045-ed36da",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-509",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-509",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-509",
+      "target": "memory:session:sess-20261017-145045-ed36da",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:pr",
+      "target": "memory:episode:pr-479",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:pr",
+      "target": "memory:episode:pr-509",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261017-145045-ed36da",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "PRECEDES",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261028-130546-18a517",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-101",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-101",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-101",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-101",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-104",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-104",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-104",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-104",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-510-task-evals",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-510-task-evals",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-510",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-510",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-510",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-510",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-516",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-516",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-516",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-516",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-516",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-516",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-516",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:feature",
+      "target": "memory:episode:pr-509",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:feature",
+      "target": "memory:episode:pr-516",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:evals",
+      "target": "memory:episode:issue-510-task-evals",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:evals",
+      "target": "memory:episode:pr-516",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cr-task-eval-001",
+      "target": "memory:episode:issue-510-task-evals",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cr-task-eval-001",
+      "target": "memory:episode:pr-516",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-516-merged",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-516-merged",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-516-merged",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-516-merged",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:rule:cr-task-eval-001",
+      "target": "concept:tri-graph",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:rule:cr-task-eval-001",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:rule:cr-task-eval-001",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:eval-baseline-hathor-cli",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:eval-baseline-hathor-cli",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:eval-baseline-hathor-cli",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:eval-baseline-hathor-cli",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-518",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-518",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-518",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-518",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-519",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-519",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-519",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-519",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-519",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-519",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-519",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-519-merged",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-519-merged",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-519-merged",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-519-merged",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-520",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-520",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-520",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-520",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-521",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-521",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-521",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-521",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-521",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-521",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-521",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cruise-control",
+      "target": "memory:decision:cruise-control-naming",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cruise-control",
+      "target": "memory:episode:pr-521",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-521-merged",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-521-merged",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-521-merged",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-521-merged",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:release-v1.11.0",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:release-v1.11.0",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-11-0",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-11-0",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-11-0",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-11-0",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-522",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-522",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-522",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-522",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:clean-repo-hathor-cli",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:clean-repo-hathor-cli",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:clean-repo-hathor-cli",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:clean-repo-hathor-cli",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:clean-repo-hathor-cli",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-12-0",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-12-0",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-12-0",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-12-0",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-524",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-524",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-524",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-524",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-525-scorecard-summary-rule",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-525-scorecard-summary-rule",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-525-scorecard-summary-rule",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-525-scorecard-summary-rule",
+      "target": "memory:session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261028-130546-18a517",
+      "target": "memory:session:sess-20261029-114902-5d1208",
+      "relation": "PRECEDES",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261029-114902-5d1208",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:sft-lora-peft-coordinator",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:sft-lora-peft-coordinator",
+      "target": "memory:session:sess-20261029-114902-5d1208",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:sft-lora-peft-evals",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:sft-lora-peft-evals",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:sft-lora-peft-evals",
+      "target": "memory:session:sess-20261029-114902-5d1208",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:sft-lora-peft-evals",
+      "target": "memory:session:sess-20261029-114902-5d1208",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:release-v1.13.0",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:release-v1.13.0",
+      "target": "memory:session:sess-20261029-114902-5d1208",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-13-0",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-13-0",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-13-0",
+      "target": "memory:session:sess-20261029-114902-5d1208",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-13-0",
+      "target": "memory:session:sess-20261029-114902-5d1208",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
       "source": "rule:rules",
       "target": "role:developer",
       "relation": "GOVERNS",
@@ -4907,6 +6824,24 @@
     },
     {
       "source": "rule:cr-hath0r-init-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-semver-bump-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-sonar-preannounce-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-task-eval-001",
       "target": "role:developer",
       "relation": "GOVERNS",
       "is_current": true
@@ -5074,7 +7009,253 @@
       "is_current": true
     },
     {
+      "source": "memory:episode:decision-radar-architecture-plan",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:decision-radar-v1-8-0-implementation",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:decision-radar",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:minority-report",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:decision:cruise-control-naming",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-509",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:pr",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
       "source": "memory:session:sess-20261017-145045-ed36da",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-101",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-104",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:issue-510-task-evals",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-510",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-516",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-516",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:feature",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:evals",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cr-task-eval-001",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-516-merged",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:rule:cr-task-eval-001",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:eval-baseline-hathor-cli",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-518",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-519",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-519",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-519-merged",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-520",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:pr-521",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-521",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:insight:cruise-control",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-521-merged",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:release-v1.11.0",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-11-0",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-522",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:clean-repo-hathor-cli",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-12-0",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-524",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:pr-525-scorecard-summary-rule",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261028-130546-18a517",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:episode:sft-lora-peft-coordinator",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:sft-lora-peft-evals",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:release-v1.13.0",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-13-0",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261029-114902-5d1208",
       "target": "role:developer",
       "relation": "INFORMS",
       "is_current": true
@@ -5082,6 +7263,6 @@
   ],
   "metadata": {
     "repo_root": "/Users/raybayly/Development/OpenSource/hathor-cli",
-    "synced_sources": 292
+    "synced_sources": 310
   }
 }

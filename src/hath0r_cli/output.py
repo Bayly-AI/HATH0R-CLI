@@ -23,6 +23,20 @@ def resolve_output_mode(mode: str, *, stdout: TextIO | None = None) -> str:
     return "text" if isatty() else "json"
 
 
+def global_json_requested() -> bool:
+    """True when the root ``--output`` option resolves to json for the current invocation.
+
+    Usable as a Click ``default=`` callable so legacy ``--json``/``--format`` options follow ``-o``.
+    """
+    import click
+
+    ctx = click.get_current_context(silent=True)
+    obj = ctx.obj if ctx is not None else None
+    if not isinstance(obj, dict) or "output" not in obj:
+        return False
+    return resolve_output_mode(obj["output"]) == "json"
+
+
 def emit_json(response: CliResponse, *, stream: TextIO | None = None) -> None:
     """Write one UTF-8 JSON document plus final newline to stdout (no ANSI)."""
     from hath0r_cli.mcp_security import SecretSanitizer

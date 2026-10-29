@@ -34,6 +34,73 @@ def branch_validate(ctx: click.Context, name: str) -> None:
     _emit_response(ctx, response, text_renderer=_text)
 
 
+@branch.command("start")
+@click.argument("work_type", type=click.Choice(["feature", "bugfix", "hotfix", "enhancement", "research", "fix", "chore"]))
+@click.argument("issue_number", type=int)
+@click.argument("slug")
+@click.option("--base", default="development", show_default=True, help="Branch to cut from (origin/<base>).")
+@click.option("--no-issue-check", is_flag=True, default=False, help="Skip verifying the GitHub issue is open.")
+@click.option("--repo", default=None, help="GitHub repository (owner/repo) for the issue check.")
+@click.option("--dry-run", is_flag=True, default=False, help="Show the plan without creating the branch.")
+@click.pass_context
+def branch_start(
+    ctx: click.Context,
+    work_type: str,
+    issue_number: int,
+    slug: str,
+    base: str,
+    no_issue_check: bool,
+    repo: str | None,
+    dry_run: bool,
+) -> None:
+    """Start issue-driven work: create <type>/<issue>-<slug> from origin/development."""
+    from hath0r_cli.bots.git_workflow_bot import GitWorkflowBot
+
+    res = GitWorkflowBot().start_branch(
+        work_type, issue_number, slug, base=base, verify_issue=not no_issue_check, repo=repo, dry_run=dry_run
+    )
+    response = _build_response(ctx, command="branch.start", state="ok" if res.get("success") else "error", data=res, dry_run=dry_run)
+
+    def _text() -> None:
+        if res.get("success"):
+            verb = "Would create" if dry_run else "Created"
+            click.echo(click.style(f"✓ {verb} {res.get('branch')} from {base}", fg="green"))
+            click.echo("  Next: commit work, then `hath0r pr create` (targets development).")
+        else:
+            click.echo(click.style(f"✗ {res.get('error') or res.get('output')}", fg="red"))
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
+@branch.command("sync")
+@click.option("--base", default="development", show_default=True, help="Branch to pull updates from.")
+@click.option("--rebase", is_flag=True, default=False, help="Rebase instead of merge.")
+@click.option("--dry-run", is_flag=True, default=False, help="Show the plan without changing the branch.")
+@click.pass_context
+def branch_sync(ctx: click.Context, base: str, rebase: bool, dry_run: bool) -> None:
+    """Update the current work branch with origin/<base>; aborts cleanly on conflicts."""
+    from hath0r_cli.bots.git_workflow_bot import GitWorkflowBot
+
+    res = GitWorkflowBot().sync_branch(base=base, rebase=rebase, dry_run=dry_run)
+    response = _build_response(ctx, command="branch.sync", state="ok" if res.get("success") else "error", data=res, dry_run=dry_run)
+
+    def _text() -> None:
+        if res.get("success"):
+            click.echo(click.style(f"✓ {res.get('branch')} synced with origin/{base} ({res['strategy']})", fg="green"))
+            if res.get("action"):
+                click.echo(f"  {res['action']}")
+        else:
+            click.echo(click.style(f"✗ {res.get('error')}", fg="red"))
+            for path in res.get("conflicts", []):
+                click.echo(f"  conflict: {path}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
 @branch.group("worktree")
 def branch_worktree() -> None:
     """Manage isolated Git Worktree sandboxes for background agent concurrency."""

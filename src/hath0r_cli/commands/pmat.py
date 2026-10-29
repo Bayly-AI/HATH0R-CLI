@@ -11,6 +11,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from ..bots.pmat_bot import pmat_bot
+from ..output import global_json_requested
 
 console = Console()
 
@@ -48,7 +49,13 @@ def pmat_doctor(target: Optional[str], as_json: bool) -> None:
 @pmat_cmd.command("stats", help="Query multi-dimensional Code Churn, Provability, and Complexity stats.")
 @click.option("--target", default=None, help="Target repository path.")
 @click.option("--window", default=30, type=int, help="Churn analysis window in days.")
-@click.option("--format", "out_format", type=click.Choice(["table", "json", "markdown"]), default="table", help="Output format.")
+@click.option(
+    "--format",
+    "out_format",
+    type=click.Choice(["table", "json", "markdown"]),
+    default=lambda: "json" if global_json_requested() else "table",
+    help="Output format (defaults to json under -o json / non-TTY, else table).",
+)
 @click.option("--threshold", default=0.0, type=float, help="Filter hotspots exceeding minimum risk threshold.")
 @click.option("--provability", is_flag=True, help="Include formal provability breakdown.")
 @click.option("--complexity", is_flag=True, help="Include AST complexity metrics breakdown.")

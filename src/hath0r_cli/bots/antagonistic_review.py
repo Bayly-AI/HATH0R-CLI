@@ -34,7 +34,7 @@ class AntagonisticReviewBot:
         added_text = "\n".join([line[1:].strip() for line in lines if line.startswith("+")])
 
         # Check swallowed exceptions across single or multi-line blocks
-        if re.search(r"except\s*(?:Exception|BaseException)?\s*:\s*pass\b", added_text):
+        if re.search(r"except(?:\s+(?:Exception|BaseException))?\s*:\s*pass\b", added_text):
             flaws.append({
                 "type": "SwallowedException",
                 "severity": "critical",
@@ -46,8 +46,8 @@ class AntagonisticReviewBot:
             if not line.startswith("+"):
                 continue
 
-            # Ignore regex pattern definitions or self-referential review bot patterns
-            if "re.search" in line or "re.compile" in line or "r\"\\b(" in line:
+            # Ignore regex pattern definitions, backtick-quoted prose references, or self-referential review bot patterns
+            if "re.search" in line or "re.compile" in line or "r\"\\b(" in line or "`TODO`" in line or "`FIXME`" in line:
                 continue
 
             # Check self-admitted tech debt (CR-CLI-TECH-DEBT-001)
