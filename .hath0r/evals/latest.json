@@ -1,13 +1,13 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261029-132658-3e902a",
-  "task_id": "task-hathor-cli",
+  "eval_id": "eval-20261029-135855-26919d",
+  "task_id": "eval-baseline-hathor-cli",
   "issue_number": null,
   "repo_name": "hathor-cli",
   "branch": "development",
-  "evaluated_at": "2026-10-29T13:26:58.733755+00:00",
-  "duration_ms": 254.53,
+  "evaluated_at": "2026-10-29T13:58:55.718638+00:00",
+  "duration_ms": 261.79,
   "passed_gate": true,
   "r_task": 1.0,
   "min_reward_threshold": 0.8,
@@ -32,7 +32,7 @@
       "checks": {
         "version_valid": {
           "passed": true,
-          "version": "1.15.0",
+          "version": "1.15.1",
           "error": null
         },
         "agentgraph_valid": {
@@ -64,13 +64,13 @@
       "estimated_usd": 0.0,
       "max_usd": 0.25,
       "session_id": "sess-20261029-132655-5b44e9",
-      "session_reads": 1,
-      "session_writes": 1,
-      "session_bytes": 1920,
+      "session_reads": 3,
+      "session_writes": 5,
+      "session_bytes": 1897,
       "within_capsule_budget": true,
-      "latency_ms": 92.96,
+      "latency_ms": 94.3,
       "taguchi_quality_loss": 0.0001,
-      "snr_db": 26.65
+      "snr_db": 26.53
     },
     "adversarial": {
       "score": 1.0,
@@ -85,9 +85,9 @@
     "goal_alignment": {
       "score": 1.0,
       "passed": true,
-      "task_id": "task-hathor-cli",
+      "task_id": "eval-baseline-hathor-cli",
       "issue_number": null,
-      "active_focus": "Active working session in hathor-cli",
+      "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
       "compounded_nodes_count": 55,
       "consensus_score": 1.0
     }
@@ -99,47 +99,33 @@
         ".hath0r/evals/latest.json"
       ],
       "STATIC_AST_ANALYSIS": [
-        "src/hath0r_cli/bots/agentgraph_bot.py",
-        "src/hath0r_cli/bots/bite_verifier_bot.py",
-        "src/hath0r_cli/bots/dependency_guard_bot.py",
-        "src/hath0r_cli/bots/memory_manager.py",
-        "src/hath0r_cli/bots/repo_clean.py",
-        "tests/unit/test_agentic_security_suite.py",
-        ".agents/skills/clean-repos/SKILL.md",
-        ".agents/skills/orient/SKILL.md",
+        "src/hath0r_cli/bots/task_evaluator_bot.py",
+        ".hath0r/evals/post-task-hook.sh",
         ".hath0r/agentgraph/snapshot.json",
+        ".hath0r/evals/history/eval-eval-baseline-hathor-cli.json",
+        ".hath0r/evals/latest.json",
         ".hath0r/memory/graph.json",
         ".hath0r/memory/hashes.json",
         ".hath0r/memory/sessions/current.json",
         ".hath0r/memory/sessions/latest.json",
-        ".hath0r/security/bite_manifest.json",
-        "AGENTS.md",
-        "CHANGELOG.md",
-        "cfg/group/AGENTS.md",
-        "cfg/group/WARP.md",
-        "cfg/workflows/git-promotion-workflow.yaml",
-        "plugin/skills/hath0r/SKILL.md",
-        "pyproject.toml",
         ".hath0r/memory/sessions/sess-20261029-132655-5b44e9.json",
-        "CLAUDE.md",
-        "cfg/group/CLAUDE.md"
+        "CHANGELOG.md",
+        "cfg/evals/task-eval.json",
+        "pyproject.toml"
       ],
       "UNVERIFIED_FILE_PRESENCE": [
-        ".hath0r/agentgraph/snapshot.ttl",
         "VERSION"
       ]
     },
     "counts": {
       "VERIFIED_EXECUTION": 1,
-      "STATIC_AST_ANALYSIS": 24,
-      "UNVERIFIED_FILE_PRESENCE": 2
+      "STATIC_AST_ANALYSIS": 13,
+      "UNVERIFIED_FILE_PRESENCE": 1
     }
   },
   "blocking_reasons": [],
   "observability_sync": {
-    "mode": "live_synced",
-    "phoenix_logged": true,
-    "mlflow_run_id": "576348949c084c5abdc92058cd4be2f7"
+    "mode": "pending"
   },
-  "content_hash": "sha256:e229997bf31b7089550afe80819d47922a0d6f66cf72106f4c8c73648eb1284e"
+  "content_hash": "sha256:9270b0f6fadd78a2fa0b0656ba8ae3d883ef076e571806b2eb5f52decc2f4a10"
 }

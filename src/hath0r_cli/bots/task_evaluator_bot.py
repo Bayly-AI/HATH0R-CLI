@@ -45,6 +45,8 @@ DEFAULT_TASK_EVAL_CONFIG: Dict[str, Any] = {
         "require_zero_critical_flaws": True,
         "require_finops_budget": True,
         "require_memory_compounded": True,
+        "auto_run_after_every_task": True,
+        "require_scorecard_summary": True,
     },
     "observability": {
         "phoenix_enabled": True,
@@ -799,19 +801,25 @@ class TaskEvaluatorBot:
 
     @staticmethod
     def _discover_repos(base: Path) -> List[Path]:
-        """Discover all Git repositories under base directory."""
+        """Discover all unique Git repositories under base directory (deduplicating symlinks)."""
         skip_parts = {"node_modules", ".venv", "ARCHIVE", "archive", ".terraform", "__pycache__"}
         if not base.is_dir():
             return []
         if (base / ".git").exists():
-            return [base]
-        direct = sorted(p for p in base.iterdir() if p.is_dir() and (p / ".git").exists())
+            return [base.resolve()]
+        seen_resolved: set[Path] = set()
         recursive: List[Path] = []
         for git_entry in sorted(base.rglob(".git")):
             if any(part in git_entry.parts for part in skip_parts):
                 continue
-            recursive.append(git_entry.parent)
-        return recursive if len(recursive) > len(direct) else direct
+            repo_dir = git_entry.parent
+            if repo_dir.is_symlink():
+                continue
+            resolved = repo_dir.resolve()
+            if resolved not in seen_resolved:
+                seen_resolved.add(resolved)
+                recursive.append(resolved)
+        return recursive
 
     def _ensure_doc_has_eval_rule(self, filename: str, *, dry_run: bool = False) -> bool:
         """Ensure AGENTS.md or WARP.md in self.cwd contains the canonical CR-TASK-EVAL-001 rule section (including Eval Scorecard summary rule)."""
@@ -868,12 +876,46 @@ class TaskEvaluatorBot:
         slug = re.sub(r"[^a-z0-9]+", "-", self.cwd.name.lower()).strip("-") or "repo"
         cfg_file = (self.cwd / "cfg" / "evals" / "task-eval.json").resolve()
         cfg_created = False
-        if cfg_file.is_relative_to(self.cwd) and not cfg_file.is_file():
-            cfg_created = True
-            if not dry_run:
-                cfg_payload = json.loads(json.dumps(DEFAULT_TASK_EVAL_CONFIG))
-                cfg_payload["product_id"] = slug
-                MemoryManagerBot._atomic_write_text(cfg_file, json.dumps(cfg_payload, indent=2) + "\n")
+        if cfg_file.is_relative_to(self.cwd):
+            if not cfg_file.is_file():
+                cfg_created = True
+                if not dry_run:
+                    cfg_payload = json.loads(json.dumps(DEFAULT_TASK_EVAL_CONFIG))
+                    cfg_payload["product_id"] = slug
+                    MemoryManagerBot._atomic_write_text(cfg_file, json.dumps(cfg_payload, indent=2) + "\n")
+            elif not dry_run:
+                try:
+                    existing_cfg = json.loads(cfg_file.read_text(encoding="utf-8"))
+                    gates = existing_cfg.setdefault("hard_gates", {})
+                    if not gates.get("auto_run_after_every_task") or not gates.get("require_scorecard_summary"):
+                        gates["auto_run_after_every_task"] = True
+                        gates["require_scorecard_summary"] = True
+                        MemoryManagerBot._atomic_write_text(cfg_file, json.dumps(existing_cfg, indent=2) + "\n")
+                except (OSError, json.JSONDecodeError):
+                    cfg_payload = json.loads(json.dumps(DEFAULT_TASK_EVAL_CONFIG))
+                    cfg_payload["product_id"] = slug
+                    MemoryManagerBot._atomic_write_text(cfg_file, json.dumps(cfg_payload, indent=2) + "\n")
+
+        # Provision post-task hook script (.hath0r/evals/post-task-hook.sh) and .git/hooks/pre-push gate
+        hook_script = (
+            "#!/usr/bin/env bash\n"
+            "# Canonical CR-TASK-EVAL-001 post-task evaluation & pre-push verification hook\n"
+            "set -euo pipefail\n"
+            "export OTEL_SDK_DISABLED=true\n"
+            "if command -v hath0r >/dev/null 2>&1; then\n"
+            "  hath0r evals verify --auto-run\n"
+            "fi\n"
+        )
+        if not dry_run:
+            post_hook_path = self.evals_dir / "post-task-hook.sh"
+            MemoryManagerBot._atomic_write_text(post_hook_path, hook_script)
+            post_hook_path.chmod(0o755)
+            git_hooks_dir = self.cwd / ".git" / "hooks"
+            if git_hooks_dir.is_dir():
+                pre_push_path = git_hooks_dir / "pre-push"
+                if not pre_push_path.exists() or "CR-TASK-EVAL-001" in pre_push_path.read_text(encoding="utf-8", errors="ignore"):
+                    MemoryManagerBot._atomic_write_text(pre_push_path, hook_script)
+                    pre_push_path.chmod(0o755)
 
         mbot = MemoryManagerBot(cwd=self.cwd)
         mbot.ensure_gitignore_unignores_graphs(dry_run=dry_run, create_if_missing=True)
@@ -904,6 +946,10 @@ class TaskEvaluatorBot:
             agents_updated = self._ensure_doc_has_eval_rule("AGENTS.md", dry_run=dry_run)
             if (self.cwd / "WARP.md").is_file():
                 warp_updated = self._ensure_doc_has_eval_rule("WARP.md", dry_run=dry_run)
+            if not dry_run:
+                from hath0r_cli.bots.agentgraph_bot import AgentGraphBot
+
+                AgentGraphBot(cwd=self.cwd).sync_claude_md(root=self.cwd, dry_run=dry_run)
 
         if not dry_run:
             mbot.session_read(focus=f"Provisioning CR-TASK-EVAL-001 for {self.cwd.name}", dry_run=False)

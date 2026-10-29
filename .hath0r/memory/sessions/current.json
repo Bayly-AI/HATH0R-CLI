@@ -3,48 +3,50 @@
   "session_id": "sess-20261029-132655-5b44e9",
   "prior_session_id": "sess-20261029-124722-424d8e",
   "parent_session_id": "sess-20261029-124722-424d8e",
-  "revision": 3,
-  "content_hash": "sha256:76afaa70677f93c23f5f6dd63892b49aa79947e57bcd8aaf5b054bf12aee8983",
-  "base_graph_hash": "sha256:aa614e5d966b1128478680b23208b4f7161ce9034e58e69a9a70b244022d0c58",
+  "revision": 9,
+  "content_hash": "sha256:249817191b134a46233e45dfc138929781ecef17fc1aa186d357df3e579b203d",
+  "base_graph_hash": "sha256:1e9a8cb15d8d3e2a6850d2dedd429c7073870f2a1a3d187364e5a9556c430c10",
   "task_id": "rule-sync-and-workflow-upgrade",
   "role": null,
   "repo_name": "hathor-cli",
   "status": "active",
   "started_at": "2026-10-29T13:26:55.789091+00:00",
-  "updated_at": "2026-10-29T13:26:59.525130+00:00",
+  "updated_at": "2026-10-29T13:58:56.113421+00:00",
   "ended_at": null,
-  "read_count": 1,
-  "write_count": 2,
-  "last_read_at": "2026-10-29T13:26:55.789091+00:00",
-  "last_write_at": "2026-10-29T13:26:59.525130+00:00",
-  "active_focus": "Active working session in hathor-cli",
-  "prior_summary": "ompounded eval:task-hathor-cli: Task Evaluation task-hathor-cli (R=1.00, PASS); Eliminated conflicting rules in AGENTS.m",
+  "read_count": 3,
+  "write_count": 6,
+  "last_read_at": "2026-10-29T13:58:55.321961+00:00",
+  "last_write_at": "2026-10-29T13:58:56.113421+00:00",
+  "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
+  "prior_summary": "ounded rule:cr-task-eval-001: Automa; Compounded eval:eval-baseline-hathor-cli; Compounded rule:cr-task-eval-001: Automa",
   "recalled_nodes": [
     {
-      "id": "rule:cr-task-eval-001",
-      "type": "rule",
-      "label": "Automatic Task Evaluation & Scorecard Summary Gate (CR-TASK-",
-      "snippet": "Every task must execute and pass the 4-tier hybrid evaluation pipeline (R_task >= 0.80), p"
+      "id": "eval:eval-baseline-hathor-cli",
+      "type": "eval",
+      "label": "Task Evaluation eval-baseline-hathor-cli (R=1.00, PASS)",
+      "snippet": "4-Tier Task Evaluation for eval-baseline-hathor-cli on branch development: R_task=1.0000 ("
     }
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-29T13:26:59.525130+00:00",
+      "timestamp": "2026-10-29T13:58:56.113421+00:00",
       "kind": "compound",
-      "summary": "Compounded eval:task-hathor-cli: Task Evaluation task-hathor-cli (R=1.00, PASS)",
+      "summary": "Compounded eval:eval-baseline-hathor-cli: Task Evaluation eval-baseline-hathor-cli (R=1.00, PASS)",
       "tags": [
         "eval",
         "cr-task-eval-001",
-        "task-hathor-cli",
+        "eval-baseline-hathor-cli",
         "passed",
         "compounded"
       ],
-      "node_id": "eval:task-hathor-cli"
+      "node_id": "eval:eval-baseline-hathor-cli"
     }
   ],
   "next_steps": [],
   "compounded_node_ids": [
-    "eval:task-hathor-cli"
+    "eval:task-hathor-cli",
+    "rule:cr-task-eval-001",
+    "eval:eval-baseline-hathor-cli"
   ],
-  "capsule_bytes": 1780
+  "capsule_bytes": 1893
 }

@@ -1,13 +1,13 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261028-174533-960ec8",
+  "eval_id": "eval-20261029-135855-26919d",
   "task_id": "eval-baseline-hathor-cli",
   "issue_number": null,
   "repo_name": "hathor-cli",
   "branch": "development",
-  "evaluated_at": "2026-10-28T17:45:33.082530+00:00",
-  "duration_ms": 281.63,
+  "evaluated_at": "2026-10-29T13:58:55.718638+00:00",
+  "duration_ms": 261.79,
   "passed_gate": true,
   "r_task": 1.0,
   "min_reward_threshold": 0.8,
@@ -32,7 +32,7 @@
       "checks": {
         "version_valid": {
           "passed": true,
-          "version": "1.12.1",
+          "version": "1.15.1",
           "error": null
         },
         "agentgraph_valid": {
@@ -42,7 +42,7 @@
         },
         "memory_compounded": {
           "passed": true,
-          "compounded_nodes_count": 49,
+          "compounded_nodes_count": 55,
           "session_read_verified": true,
           "session_write_verified": true,
           "hashes_verified": true,
@@ -63,14 +63,14 @@
       "max_tokens": 50000,
       "estimated_usd": 0.0,
       "max_usd": 0.25,
-      "session_id": "sess-20261028-130546-18a517",
-      "session_reads": 15,
-      "session_writes": 50,
-      "session_bytes": 1962,
+      "session_id": "sess-20261029-132655-5b44e9",
+      "session_reads": 3,
+      "session_writes": 5,
+      "session_bytes": 1897,
       "within_capsule_budget": true,
-      "latency_ms": 94.47,
+      "latency_ms": 94.3,
       "taguchi_quality_loss": 0.0001,
-      "snr_db": 26.51
+      "snr_db": 26.53
     },
     "adversarial": {
       "score": 1.0,
@@ -88,13 +88,44 @@
       "task_id": "eval-baseline-hathor-cli",
       "issue_number": null,
       "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
-      "compounded_nodes_count": 49,
+      "compounded_nodes_count": 55,
       "consensus_score": 1.0
+    }
+  },
+  "evidence_trust_report": {
+    "schema": "hath0r.security.evidence_trust_report/1",
+    "tiers": {
+      "VERIFIED_EXECUTION": [
+        ".hath0r/evals/latest.json"
+      ],
+      "STATIC_AST_ANALYSIS": [
+        "src/hath0r_cli/bots/task_evaluator_bot.py",
+        ".hath0r/evals/post-task-hook.sh",
+        ".hath0r/agentgraph/snapshot.json",
+        ".hath0r/evals/history/eval-eval-baseline-hathor-cli.json",
+        ".hath0r/evals/latest.json",
+        ".hath0r/memory/graph.json",
+        ".hath0r/memory/hashes.json",
+        ".hath0r/memory/sessions/current.json",
+        ".hath0r/memory/sessions/latest.json",
+        ".hath0r/memory/sessions/sess-20261029-132655-5b44e9.json",
+        "CHANGELOG.md",
+        "cfg/evals/task-eval.json",
+        "pyproject.toml"
+      ],
+      "UNVERIFIED_FILE_PRESENCE": [
+        "VERSION"
+      ]
+    },
+    "counts": {
+      "VERIFIED_EXECUTION": 1,
+      "STATIC_AST_ANALYSIS": 13,
+      "UNVERIFIED_FILE_PRESENCE": 1
     }
   },
   "blocking_reasons": [],
   "observability_sync": {
     "mode": "pending"
   },
-  "content_hash": "sha256:d8e499d03e85ca90765ed0a63dc582b916f15c414ff99ab410883d6403eeede4"
+  "content_hash": "sha256:9270b0f6fadd78a2fa0b0656ba8ae3d883ef076e571806b2eb5f52decc2f4a10"
 }
