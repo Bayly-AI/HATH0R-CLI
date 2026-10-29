@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
   "graph_id": "agentgraph-hathor-cli",
-  "timestamp": "2026-10-29T14:17:59.171261+00:00",
+  "timestamp": "2026-10-29T14:32:23.621815+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -48,6 +48,18 @@
       "properties": {
         "path": "release/hath0r-fileset-1.7.0/AGENTS.md",
         "subsystem": "hath0r-fileset-1.7.0"
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:agents-hath0r-fileset-1.15.2",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "AGENTS.md (hath0r-fileset-1.15.2)",
+      "content": "# AGENTS.md — HATH0R CLI (OpenSource Control Tower)\n\n> Role: **OpenSource Project control tower + operator/developer CLI (`hath0r`)** · group `hath0r-opensource`  \n> Updated: 2026-09-23\n\n## Group membership (CRITICAL)\n\n| Field | Value |\n|-------|-------|\n| Group | `hath0r-opensource` |\n| Project | **OpenSource Project** |\n| Group root | `/Users/raybayly/Development/OpenSource` |\n| **Control tower** | **this repo** (`HATH0R-CLI`) |\n| This product | `HATH0R-CLI` |\n| GitHub | `Bayly-AI/HATH0R-CLI` |\n| Local path | `/Users/raybayly/Development/OpenSource/HATH0R-CLI` |\n| Canonical KB | `/Users/raybayly/Development/OpenSource/.hath0r/knowledgebase` |\n| Operator CLI | `hath0r` |\n| KB mode | stub → group hub |\n| Tower flag | `is_control_tower: true` |\n\n### Canonical siblings (OpenSource Project members)\n\nEvery git repo under the group root is part of the OpenSource Project. Current canonical set:\n\n- **Control tower / CLI**: `/Users/raybayly/Development/OpenSource/HATH0R-CLI` → `Bayly-AI/HATH0R",
+      "properties": {
+        "path": "release/hath0r-fileset-1.15.2/AGENTS.md",
+        "subsystem": "hath0r-fileset-1.15.2"
       },
       "is_current": true
     },
@@ -5071,7 +5083,7 @@
       "content": "4-Tier Task Evaluation for pr-101 on branch feature/510-automatic-task-evals: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5093,7 +5105,7 @@
       "content": "4-Tier Task Evaluation for pr-104 on branch feature/510-automatic-task-evals: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5134,7 +5146,7 @@
       "content": "4-Tier Task Evaluation for issue-510 on branch feature/510-automatic-task-evals: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5156,7 +5168,7 @@
       "content": "4-Tier Task Evaluation for pr-516 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5256,7 +5268,7 @@
       "content": "4-Tier Task Evaluation for pr-516-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5298,7 +5310,7 @@
       "content": "4-Tier Task Evaluation for eval-baseline-hathor-cli on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5320,7 +5332,7 @@
       "content": "4-Tier Task Evaluation for issue-518 on branch feature/518-evals-ensure-all-repos: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5361,7 +5373,7 @@
       "content": "4-Tier Task Evaluation for pr-519 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5383,7 +5395,7 @@
       "content": "4-Tier Task Evaluation for pr-519-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5405,7 +5417,7 @@
       "content": "4-Tier Task Evaluation for issue-520 on branch feature/520-detached-cruise-control: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5447,7 +5459,7 @@
       "content": "4-Tier Task Evaluation for pr-521 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5489,7 +5501,7 @@
       "content": "4-Tier Task Evaluation for pr-521-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5531,7 +5543,7 @@
       "content": "4-Tier Task Evaluation for release-v1.11.0 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5553,7 +5565,7 @@
       "content": "4-Tier Task Evaluation for issue-522 on branch feature/522-clean-repo-branch-hygiene: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5597,7 +5609,7 @@
       "content": "4-Tier Task Evaluation for release-v1-12-0 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5619,7 +5631,7 @@
       "content": "4-Tier Task Evaluation for issue-524 on branch feature/524-eval-scorecard-summary-rule: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5641,7 +5653,7 @@
       "content": "4-Tier Task Evaluation for pr-525-scorecard-summary-rule on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5663,7 +5675,7 @@
       "content": "Added RuleRolloutBot and hath0r rules list/status/ensure-all to roll a canonical CR-* AGENTS.md section to every repo remote: scratch worktree off origin/development, patch SemVer bump, ReleaseBot check, optional issue + PR. Acceptance: CR-CLI-ENTRY-001 preview reports 23 pending PRs, 9 compliant, 0 missing.",
       "properties": {
         "source_files": {
-          "src/hath0r_cli/bots/rule_rollout_bot.py": "sha256:bb952669a6e32c39a349a17c98ab905c40d87f0c0e8a4021dd5d0e1553ccfdfb"
+          "src/hath0r_cli/bots/rule_rollout_bot.py": "sha256:c34b4d807b45bfa5fbe4525469f9332c56dc8b4d481fed8797b919a4fac2a036"
         },
         "source": "local_memory",
         "tags": [
@@ -5705,7 +5717,7 @@
       "content": "4-Tier Task Evaluation for issue-528 on branch feature/528-rules-ensure-all: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:74599e1992710a912f63683e7336614ef7afcfe9ec3c522e9ca6baea4a6d98c7"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5769,7 +5781,7 @@
       "content": "4-Tier Task Evaluation for issue-532 on branch fix/532-cruise-sync: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:dc9acf8510f8861fd969d0e199cb70fe835fb065a274415c92299992b11a85da"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5839,7 +5851,7 @@
       "content": "4-Tier Task Evaluation for sft-lora-peft-evals on branch feature/530-git-workflows: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5861,9 +5873,9 @@
       "content": "Released v1.13.0 of HATH0R-CLI adding CCCDTTrainingCoordinator SFT/LoRA/QLoRA/PEFT subspace training and benchmark evals, SecuritySASTScanner AST-aware eval/exec detection, and GitWorkflowBot.",
       "properties": {
         "source_files": {
-          "VERSION": "sha256:3a1d1ce0e8ef392e0cebe5f16555a12b8c6f035af8996a59992c42f617264050",
-          "pyproject.toml": "sha256:ae16bf5a4e42757c3ffe34a2f618fe452c87843b2d17cfba6fe5f7e6a966faa7",
-          "CHANGELOG.md": "sha256:042f1ab247dc7111c02ea0f93162266dd49b11c6876f34c32ec8fd31fe9d0365",
+          "VERSION": "sha256:5b3b856387e5cc4a532311478029ff0b111e8348fc05b2f70d30f15aa15783e0",
+          "pyproject.toml": "sha256:00893d9a632ad378a0bca9c22c3e0ef167c0bbded5b684565e07b5d479640d33",
+          "CHANGELOG.md": "sha256:64963802cf43692488a6d9c2e854064315cb556bc5581d04db692d7d80c229be",
           "src/hath0r_cli/cccd/training_coordinator.py": "sha256:87bed1accc3b7962874c3205e508cd7c4aff28d13bfc1d1cf2604287c03e6d5a",
           "src/hath0r_cli/bots/cicccd_bot.py": "sha256:f4fb44c1f14440e2aca7345c83c685d1e344a9651e94d2825212c7635b7a0aab"
         },
@@ -5884,7 +5896,7 @@
       "content": "4-Tier Task Evaluation for release-v1-13-0 on branch feature/530-git-workflows: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -5954,7 +5966,7 @@
       "content": "4-Tier Task Evaluation for task-hathor-cli on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:9f82212e08bdf03698c293a45c37603170a104ce5b1f9898242aaf73d1b0fec0"
+          ".hath0r/evals/latest.json": "sha256:5352a3ba91f227124117c5ebf0e1299d1f9928403d30746348584913382fcc99"
         },
         "source": "local_memory",
         "tags": [
@@ -6033,19 +6045,41 @@
       "is_current": true
     },
     {
+      "id": "memory:eval:release-v1-15-2",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation release-v1.15.2 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for release-v1.15.2 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:8c64c0324edd0bd7c14bf4c3559e6e5e86d5f02ed1857329df61a82112fcbc30"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "release-v1-15-2",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
       "id": "memory:session:sess-20261029-132655-5b44e9",
       "plane": "memory",
       "type": "session",
       "label": "Micro Session sess-20261029-132655-5b44e9",
-      "content": "Micro Session sess-20261029-132655-5b44e9 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 4, Writes: 9 | Entries: Compounded eval:clean-repo-hathor-cli: Task Evaluation clean-repo-hathor-cli (R=0.90, FAIL)",
+      "content": "Micro Session sess-20261029-132655-5b44e9 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 4, Writes: 10 | Entries: Compounded eval:release-v1-15-2: Task Evaluation release-v1.15.2 (R=1.00, PASS)",
       "properties": {
         "session_id": "sess-20261029-132655-5b44e9",
         "prior_session_id": "sess-20261029-124722-424d8e",
         "parent_session_id": "sess-20261029-124722-424d8e",
         "read_count": 4,
-        "write_count": 9,
+        "write_count": 10,
         "status": "completed",
-        "byte_size": 2005,
+        "byte_size": 2010,
         "source": "local_memory",
         "tags": [
           "session",
@@ -7317,6 +7351,30 @@
       "is_current": true
     },
     {
+      "source": "memory:eval:release-v1-15-2",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-15-2",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-15-2",
+      "target": "memory:session:sess-20261029-132655-5b44e9",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:release-v1-15-2",
+      "target": "memory:session:sess-20261029-132655-5b44e9",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
       "source": "rule:rules",
       "target": "role:developer",
       "relation": "GOVERNS",
@@ -7929,6 +7987,12 @@
       "is_current": true
     },
     {
+      "source": "memory:eval:release-v1-15-2",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
       "source": "memory:session:sess-20261029-132655-5b44e9",
       "target": "role:developer",
       "relation": "INFORMS",
@@ -7937,6 +8001,6 @@
   ],
   "metadata": {
     "repo_root": "/Users/raybayly/Development/OpenSource/hathor-cli",
-    "synced_sources": 321
+    "synced_sources": 322
   }
 }

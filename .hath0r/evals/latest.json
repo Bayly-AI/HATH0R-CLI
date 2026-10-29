@@ -1,15 +1,15 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261029-141758-ba79f1",
-  "task_id": "clean-repo-hathor-cli",
+  "eval_id": "eval-20261029-143221-b7381b",
+  "task_id": "release-v1.15.2",
   "issue_number": null,
   "repo_name": "hathor-cli",
   "branch": "development",
-  "evaluated_at": "2026-10-29T14:17:58.132722+00:00",
-  "duration_ms": 434.88,
-  "passed_gate": false,
-  "r_task": 0.9,
+  "evaluated_at": "2026-10-29T14:32:21.813895+00:00",
+  "duration_ms": 932.7,
+  "passed_gate": true,
+  "r_task": 1.0,
   "min_reward_threshold": 0.8,
   "weights": {
     "deterministic": 0.4,
@@ -18,16 +18,16 @@
     "goal_alignment": 0.15
   },
   "tier_scores": {
-    "deterministic": 0.75,
+    "deterministic": 1.0,
     "trajectory": 1.0,
     "adversarial": 1.0,
     "goal_alignment": 1.0
   },
   "tiers": {
     "deterministic": {
-      "score": 0.75,
-      "passed": false,
-      "passed_checks": 3,
+      "score": 1.0,
+      "passed": true,
+      "passed_checks": 4,
       "total_checks": 4,
       "checks": {
         "version_valid": {
@@ -41,13 +41,13 @@
           "contradictions": 0
         },
         "memory_compounded": {
-          "passed": false,
+          "passed": true,
           "compounded_nodes_count": 63,
           "session_read_verified": true,
           "session_write_verified": true,
-          "hashes_verified": false,
+          "hashes_verified": true,
           "graphs_not_ignored": true,
-          "error": "CR-MEMORY-COMPOUND-001: Memory file hash verification failed (mismatched=0, missing=0, stale_source_files=5). Run 'hath0r memory hash --sync' or re-compound stale knowledge nodes."
+          "error": null
         },
         "test_suite": {
           "passed": true,
@@ -65,12 +65,12 @@
       "max_usd": 0.25,
       "session_id": "sess-20261029-132655-5b44e9",
       "session_reads": 4,
-      "session_writes": 8,
-      "session_bytes": 1809,
+      "session_writes": 9,
+      "session_bytes": 2005,
       "within_capsule_budget": true,
-      "latency_ms": 182.86,
-      "taguchi_quality_loss": 0.0004,
-      "snr_db": 20.78
+      "latency_ms": 132.56,
+      "taguchi_quality_loss": 0.0002,
+      "snr_db": 23.57
     },
     "adversarial": {
       "score": 1.0,
@@ -85,7 +85,7 @@
     "goal_alignment": {
       "score": 1.0,
       "passed": true,
-      "task_id": "clean-repo-hathor-cli",
+      "task_id": "release-v1.15.2",
       "issue_number": null,
       "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
       "compounded_nodes_count": 63,
@@ -98,28 +98,25 @@
       "VERIFIED_EXECUTION": [
         ".hath0r/evals/latest.json"
       ],
-      "STATIC_AST_ANALYSIS": [
-        ".hath0r/agentgraph/snapshot.json",
-        ".hath0r/memory/graph.json",
-        ".hath0r/memory/hashes.json",
-        ".hath0r/memory/sessions/current.json",
-        ".hath0r/memory/sessions/latest.json",
-        ".hath0r/memory/sessions/sess-20261029-132655-5b44e9.json",
-        "CLAUDE.md"
-      ],
-      "UNVERIFIED_FILE_PRESENCE": []
+      "STATIC_AST_ANALYSIS": [],
+      "UNVERIFIED_FILE_PRESENCE": [
+        "release/CHECKSUMS.sha256",
+        "release/hath0r-linux-arm64",
+        "release/hath0r-linux-x86_64",
+        "release/previous/1.7.0/"
+      ]
     },
     "counts": {
       "VERIFIED_EXECUTION": 1,
-      "STATIC_AST_ANALYSIS": 7,
-      "UNVERIFIED_FILE_PRESENCE": 0
+      "STATIC_AST_ANALYSIS": 0,
+      "UNVERIFIED_FILE_PRESENCE": 4
     }
   },
-  "blocking_reasons": [
-    "Tier 1 deterministic gate failed: memory_compounded"
-  ],
+  "blocking_reasons": [],
   "observability_sync": {
-    "mode": "pending"
+    "mode": "live_synced",
+    "phoenix_logged": true,
+    "mlflow_run_id": "dcad9ddbbd054a9ea16918f8d9090d0b"
   },
-  "content_hash": "sha256:5b1c3d1e0722c2467de2825e0fcc8486eca5edddc8e6975e67255caab7fb6df7"
+  "content_hash": "sha256:aedfd92a7ca0eb4dc1ad2ec0d48832f93c9e8ad68f7e2258fad9127e42c5a8b3"
 }

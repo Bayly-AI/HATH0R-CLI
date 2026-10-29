@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 426,
-  "content_hash": "sha256:706661345ff6ed7d0e97ce6603be8b38a51f9bc5c5b2a1344cb8897df442c0a5",
-  "updated_at": "2026-10-29T14:17:59.201036+00:00",
+  "revision": 429,
+  "content_hash": "sha256:ec6e7f3760675418c05ec4b9fb71810a61907efd91c4e8284fcaa6ba731f9689",
+  "updated_at": "2026-10-29T14:32:23.231884+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -1775,10 +1775,34 @@
       }
     },
     {
+      "id": "eval:release-v1-15-2",
+      "type": "eval",
+      "label": "Task Evaluation release-v1.15.2 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for release-v1.15.2 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "release-v1-15-2",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-29T14:32:23.153719+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-29T14:32:23.153719+00:00",
+      "updated_at": "2026-10-29T14:32:23.153719+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:8c64c0324edd0bd7c14bf4c3559e6e5e86d5f02ed1857329df61a82112fcbc30"
+        }
+      }
+    },
+    {
       "id": "session:sess-20261029-132655-5b44e9",
       "type": "session",
       "label": "Micro Session sess-20261029-132655-5b44e9",
-      "content": "Micro Session sess-20261029-132655-5b44e9 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 4, Writes: 9 | Entries: Compounded eval:clean-repo-hathor-cli: Task Evaluation clean-repo-hathor-cli (R=0.90, FAIL)",
+      "content": "Micro Session sess-20261029-132655-5b44e9 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 4, Writes: 10 | Entries: Compounded eval:release-v1-15-2: Task Evaluation release-v1.15.2 (R=1.00, PASS)",
       "importance": 0.75,
       "tags": [
         "session",
@@ -1789,15 +1813,15 @@
       "valid_to": "2026-10-29T14:17:53.504362+00:00",
       "is_current": true,
       "created_at": "2026-10-29T13:26:55.789091+00:00",
-      "updated_at": "2026-10-29T14:17:58.665842+00:00",
+      "updated_at": "2026-10-29T14:32:23.225938+00:00",
       "metadata": {
         "session_id": "sess-20261029-132655-5b44e9",
         "prior_session_id": "sess-20261029-124722-424d8e",
         "parent_session_id": "sess-20261029-124722-424d8e",
         "read_count": 4,
-        "write_count": 9,
+        "write_count": 10,
         "status": "completed",
-        "byte_size": 2005
+        "byte_size": 2010
       }
     }
   ],
@@ -3744,6 +3768,38 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-29T14:17:58.668030+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:release-v1-15-2",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T14:32:23.153719+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:release-v1-15-2",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T14:32:23.153719+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:release-v1-15-2",
+      "target": "session:sess-20261029-132655-5b44e9",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T14:32:23.153719+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:release-v1-15-2",
+      "target": "session:sess-20261029-132655-5b44e9",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T14:32:23.227870+00:00",
       "is_current": true
     }
   ]
