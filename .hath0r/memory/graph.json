@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 318,
-  "content_hash": "sha256:8843e19a23c5e5047ec12e580114bf2b01945704292c1e3ddbb0b35c9905591e",
-  "updated_at": "2026-10-29T10:07:17.378470+00:00",
+  "revision": 333,
+  "content_hash": "sha256:f8f1c32dd383d4ce0ed93708fd0a16913bae8dc688841d0e7b59acb5a15e44dd",
+  "updated_at": "2026-10-29T10:12:49.681568+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -873,6 +873,7 @@
         "compounded"
       ],
       "valid_from": "2026-10-28T14:05:45.487984+00:00",
+      "valid_to": null,
       "is_current": true,
       "created_at": "2026-10-28T14:05:45.487984+00:00",
       "updated_at": "2026-10-28T14:05:45.487984+00:00",
@@ -894,6 +895,7 @@
         "compounded"
       ],
       "valid_from": "2026-10-28T14:05:48.036075+00:00",
+      "valid_to": null,
       "is_current": true,
       "created_at": "2026-10-28T14:05:48.036075+00:00",
       "updated_at": "2026-10-28T14:05:48.036075+00:00",
@@ -915,6 +917,7 @@
         "compounded"
       ],
       "valid_from": "2026-10-28T14:05:48.036075+00:00",
+      "valid_to": null,
       "is_current": true,
       "created_at": "2026-10-28T14:05:48.036075+00:00",
       "updated_at": "2026-10-28T14:05:48.036075+00:00",
@@ -1166,6 +1169,7 @@
         "compounded"
       ],
       "valid_from": "2026-10-28T14:51:43.307433+00:00",
+      "valid_to": null,
       "is_current": true,
       "created_at": "2026-10-28T14:51:43.307433+00:00",
       "updated_at": "2026-10-28T14:51:43.307433+00:00",
@@ -1389,10 +1393,54 @@
       }
     },
     {
+      "id": "fact:repo-hcli2-orientation",
+      "type": "fact",
+      "label": "hcli2 Repository Orientation Memory",
+      "content": "hcli2: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" /> </p>",
+      "importance": 0.85,
+      "tags": [
+        "orientation",
+        "repository",
+        "hcli2",
+        "fact",
+        "compounded"
+      ],
+      "valid_from": "2026-10-29T10:09:57.153090+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-29T10:09:57.153090+00:00",
+      "updated_at": "2026-10-29T10:09:57.153125+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "eval:issue-532",
+      "type": "eval",
+      "label": "Task Evaluation issue-532 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for issue-532 on branch fix/532-cruise-sync: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "issue-532",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-29T10:12:49.607556+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-29T10:12:49.607556+00:00",
+      "updated_at": "2026-10-29T10:12:49.607556+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:dc9acf8510f8861fd969d0e199cb70fe835fb065a274415c92299992b11a85da"
+        }
+      }
+    },
+    {
       "id": "session:sess-20261028-130546-18a517",
       "type": "session",
       "label": "Micro Session sess-20261028-130546-18a517",
-      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 18, Writes: 55 | Entries: Completed PR #101 (feature/101-test) via EndOfTaskBot.",
+      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Orienting repository hcli2 | Reads: 22, Writes: 60 | Entries: Compounded eval:issue-532: Task Evaluation issue-532 (R=1.00, PASS)",
       "importance": 0.75,
       "tags": [
         "session",
@@ -1400,18 +1448,60 @@
         "completed"
       ],
       "valid_from": "2026-10-28T13:05:46.197056+00:00",
-      "valid_to": "2026-10-29T10:07:17.371625+00:00",
+      "valid_to": "2026-10-29T10:11:36.951052+00:00",
       "is_current": true,
       "created_at": "2026-10-28T13:05:46.197056+00:00",
-      "updated_at": "2026-10-29T10:07:17.371625+00:00",
+      "updated_at": "2026-10-29T10:12:49.654856+00:00",
       "metadata": {
         "session_id": "sess-20261028-130546-18a517",
         "prior_session_id": "sess-20261017-145045-ed36da",
         "parent_session_id": "sess-20261017-145045-ed36da",
-        "read_count": 18,
-        "write_count": 55,
+        "read_count": 22,
+        "write_count": 60,
         "status": "completed",
-        "byte_size": 1834
+        "byte_size": 1922
+      }
+    },
+    {
+      "id": "insight:orientation",
+      "type": "insight",
+      "label": "Synthesized Insight on orientation",
+      "content": "Consolidated from 2 memory nodes tagged 'orientation'. Recurring themes: hathor, logo, repository, memory. Latest context: hcli2: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" /> </p>",
+      "importance": 1.0,
+      "tags": [
+        "orientation",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-29T10:12:49.680365+00:00",
+      "is_current": true,
+      "created_at": "2026-10-29T10:12:49.680365+00:00",
+      "updated_at": "2026-10-29T10:12:49.680365+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "orientation"
+      }
+    },
+    {
+      "id": "insight:repository",
+      "type": "insight",
+      "label": "Synthesized Insight on repository",
+      "content": "Consolidated from 2 memory nodes tagged 'repository'. Recurring themes: hathor, logo, repository, memory. Latest context: hcli2: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" /> </p>",
+      "importance": 1.0,
+      "tags": [
+        "repository",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-10-29T10:12:49.680365+00:00",
+      "is_current": true,
+      "created_at": "2026-10-29T10:12:49.680365+00:00",
+      "updated_at": "2026-10-29T10:12:49.680365+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "repository"
       }
     }
   ],
@@ -2092,7 +2182,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:23:14.632392+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-101",
@@ -2100,7 +2192,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:23:14.632392+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-101",
@@ -2108,7 +2202,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:23:14.632392+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-101",
@@ -2116,7 +2212,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:23:14.906799+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-104",
@@ -2124,7 +2222,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:23:21.538822+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-104",
@@ -2132,7 +2232,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:23:21.538822+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-104",
@@ -2140,7 +2242,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:23:21.538822+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-104",
@@ -2148,7 +2252,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:23:21.748037+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:issue-510-task-evals",
@@ -2156,7 +2262,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:30:19.202740+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:issue-510-task-evals",
@@ -2164,7 +2272,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:30:19.282219+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-510",
@@ -2172,7 +2282,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:30:26.608472+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-510",
@@ -2180,7 +2292,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:30:26.608472+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-510",
@@ -2188,7 +2302,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:30:26.608472+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-510",
@@ -2196,7 +2312,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:30:26.786452+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-516",
@@ -2204,7 +2322,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:53:51.569625+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-516",
@@ -2212,7 +2332,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:53:51.569625+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-516",
@@ -2220,7 +2342,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:53:51.569625+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-516",
@@ -2228,7 +2352,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T13:53:51.634086+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:pr-516",
@@ -2236,7 +2362,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:05:45.051494+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:pr-516",
@@ -2244,7 +2372,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:05:45.051494+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:pr-516",
@@ -2252,7 +2382,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:05:45.095060+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "insight:feature",
@@ -2260,7 +2392,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:05:45.487984+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "insight:feature",
@@ -2268,7 +2402,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:05:45.487984+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "insight:evals",
@@ -2276,7 +2412,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:05:48.036075+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "insight:evals",
@@ -2284,7 +2422,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:05:48.036075+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "insight:cr-task-eval-001",
@@ -2292,7 +2432,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:05:48.036075+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "insight:cr-task-eval-001",
@@ -2300,7 +2442,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:05:48.036075+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-516-merged",
@@ -2308,7 +2452,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:05:49.726259+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-516-merged",
@@ -2316,7 +2462,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:05:49.726259+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-516-merged",
@@ -2324,7 +2472,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:05:49.726259+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-516-merged",
@@ -2332,7 +2482,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:05:49.762562+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "rule:cr-task-eval-001",
@@ -2340,7 +2492,9 @@
       "relation": "INFORMS",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:21:14.778441+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "rule:cr-task-eval-001",
@@ -2348,7 +2502,9 @@
       "relation": "INFORMS",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:21:14.778441+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "rule:cr-task-eval-001",
@@ -2356,7 +2512,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:21:14.810459+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:eval-baseline-hathor-cli",
@@ -2364,7 +2522,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:21:15.312334+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:eval-baseline-hathor-cli",
@@ -2372,7 +2532,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:21:15.312334+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:eval-baseline-hathor-cli",
@@ -2380,7 +2542,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:21:15.312334+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:eval-baseline-hathor-cli",
@@ -2388,7 +2552,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:21:15.350977+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-518",
@@ -2396,7 +2562,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:22:02.710039+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-518",
@@ -2404,7 +2572,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:22:02.710039+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-518",
@@ -2412,7 +2582,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:22:02.710039+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-518",
@@ -2420,7 +2592,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:22:02.750093+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:pr-519",
@@ -2428,7 +2602,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:38:19.794771+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:pr-519",
@@ -2436,7 +2612,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:38:19.794771+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:pr-519",
@@ -2444,7 +2622,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:38:19.843502+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-519",
@@ -2452,7 +2632,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:38:21.109040+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-519",
@@ -2460,7 +2642,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:38:21.109040+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-519",
@@ -2468,7 +2652,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:38:21.109040+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-519",
@@ -2476,7 +2662,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:38:21.139365+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-519-merged",
@@ -2484,7 +2672,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:38:23.473566+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-519-merged",
@@ -2492,7 +2682,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:38:23.473566+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-519-merged",
@@ -2500,7 +2692,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:38:23.473566+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-519-merged",
@@ -2508,7 +2702,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:38:23.528471+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-520",
@@ -2516,7 +2712,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:50:08.689089+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-520",
@@ -2524,7 +2722,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:50:08.689089+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-520",
@@ -2532,7 +2732,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:50:08.689089+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-520",
@@ -2540,7 +2742,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:50:08.729079+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:pr-521",
@@ -2548,7 +2752,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:51:40.937440+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:pr-521",
@@ -2556,7 +2762,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:51:40.937440+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:pr-521",
@@ -2564,7 +2772,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:51:40.982302+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-521",
@@ -2572,7 +2782,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:51:42.220727+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-521",
@@ -2580,7 +2792,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:51:42.220727+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-521",
@@ -2588,7 +2802,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:51:42.220727+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-521",
@@ -2596,7 +2812,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:51:42.261213+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "insight:cruise-control",
@@ -2604,7 +2822,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:51:43.307433+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "insight:cruise-control",
@@ -2612,7 +2832,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:51:43.307433+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-521-merged",
@@ -2620,7 +2842,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:51:44.744643+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-521-merged",
@@ -2628,7 +2852,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:51:44.744643+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-521-merged",
@@ -2636,7 +2862,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:51:44.744643+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-521-merged",
@@ -2644,7 +2872,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:51:44.785586+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:release-v1.11.0",
@@ -2652,7 +2882,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:59:37.235624+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:release-v1.11.0",
@@ -2660,7 +2892,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:59:37.286253+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:release-v1-11-0",
@@ -2668,7 +2902,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:59:38.749656+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:release-v1-11-0",
@@ -2676,7 +2912,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:59:38.749656+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:release-v1-11-0",
@@ -2684,7 +2922,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:59:38.749656+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:release-v1-11-0",
@@ -2692,7 +2932,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T14:59:38.795774+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-522",
@@ -2700,7 +2942,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T15:17:38.394753+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-522",
@@ -2708,7 +2952,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T15:17:38.394753+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-522",
@@ -2716,7 +2962,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T15:17:38.394753+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-522",
@@ -2724,7 +2972,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T15:17:38.430813+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:clean-repo-hathor-cli",
@@ -2732,7 +2982,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T15:32:30.660500+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:clean-repo-hathor-cli",
@@ -2740,7 +2992,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T15:32:33.522286+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:clean-repo-hathor-cli",
@@ -2748,7 +3002,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T15:32:33.522286+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:clean-repo-hathor-cli",
@@ -2756,7 +3012,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T15:32:33.522286+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:clean-repo-hathor-cli",
@@ -2764,7 +3022,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T15:32:33.557200+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:release-v1-12-0",
@@ -2772,7 +3032,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T17:30:26.311044+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:release-v1-12-0",
@@ -2780,7 +3042,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T17:30:26.311044+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:release-v1-12-0",
@@ -2788,7 +3052,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T17:30:26.311044+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:release-v1-12-0",
@@ -2796,7 +3062,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T17:30:26.353587+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-524",
@@ -2804,7 +3072,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T17:37:06.843311+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-524",
@@ -2812,7 +3082,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T17:37:06.843311+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-524",
@@ -2820,7 +3092,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T17:37:06.843311+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-524",
@@ -2828,7 +3102,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T17:37:06.888640+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-525-scorecard-summary-rule",
@@ -2836,7 +3112,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T17:42:47.222209+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-525-scorecard-summary-rule",
@@ -2844,7 +3122,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T17:42:47.222209+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-525-scorecard-summary-rule",
@@ -2852,7 +3132,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-28T17:42:47.222209+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:pr-525-scorecard-summary-rule",
@@ -2860,7 +3142,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T17:42:47.267264+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:issue-532-cruise-sync",
@@ -2868,7 +3152,9 @@
       "relation": "RELATES_TO",
       "weight": 1.0,
       "valid_from": "2026-10-29T10:05:11.981713+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:issue-532-cruise-sync",
@@ -2876,6 +3162,92 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-29T10:05:12.024216+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "fact:repo-hcli2-orientation",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T10:09:57.153090+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "fact:repo-hcli2-orientation",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "RELATES_TO",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T10:09:57.153090+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "eval:issue-532",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T10:12:49.607556+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-532",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T10:12:49.607556+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-532",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T10:12:49.607556+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-532",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T10:12:49.657096+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:orientation",
+      "target": "fact:repo-hathor-cli-orientation",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T10:12:49.680365+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:orientation",
+      "target": "fact:repo-hcli2-orientation",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T10:12:49.680365+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:repository",
+      "target": "fact:repo-hathor-cli-orientation",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T10:12:49.680365+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:repository",
+      "target": "fact:repo-hcli2-orientation",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T10:12:49.680365+00:00",
       "is_current": true
     }
   ]

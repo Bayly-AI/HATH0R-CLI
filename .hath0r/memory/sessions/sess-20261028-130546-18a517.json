@@ -5,17 +5,17 @@
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-28T13:05:46.197056+00:00",
-  "updated_at": "2026-10-29T10:07:17.371625+00:00",
-  "ended_at": "2026-10-29T10:07:17.371625+00:00",
-  "read_count": 18,
-  "write_count": 55,
-  "revision": 72,
-  "content_hash": "sha256:a50a0f5f01e2c2533dc85bcb77a8b3c5ae9ab979cdfe42a5a082ff9032d60fec",
-  "base_graph_hash": "sha256:a22282295a51013bea800aa813ccda04de44e4b300125d828e381e5168e30461",
-  "last_read_at": "2026-10-29T10:07:17.326594+00:00",
-  "last_write_at": "2026-10-29T10:07:17.371625+00:00",
-  "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
-  "prior_summary": "ounded episode:clean-repo-hathor-cli; Compounded eval:clean-repo-hathor-cli: T; Compounded episode:issue-532-cruise-sync",
+  "updated_at": "2026-10-29T10:12:49.654856+00:00",
+  "ended_at": "2026-10-29T10:11:36.951052+00:00",
+  "read_count": 22,
+  "write_count": 60,
+  "revision": 81,
+  "content_hash": "sha256:60caca60e44d3752cfb3f64c54ed5f8064044205b79fb7ba74a5c8b6b33e7134",
+  "base_graph_hash": "sha256:87d990dd28cce9ea8b9db13f7d6e8a9f2112bb1df329190696c7bb31cbe8f37b",
+  "last_read_at": "2026-10-29T10:11:36.918810+00:00",
+  "last_write_at": "2026-10-29T10:12:49.654856+00:00",
+  "active_focus": "Orienting repository hcli2",
+  "prior_summary": "leted AgentGraph orientation for hcl; Completed AgentGraph orientation for hcl; Completed PR #101 (feature/101-test) via",
   "recalled_nodes": [
     {
       "id": "decision:issue-474-micro-memory-session",
@@ -26,24 +26,28 @@
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-29T10:07:17.371625+00:00",
-      "kind": "milestone",
-      "summary": "Completed PR #101 (feature/101-test) via EndOfTaskBot.",
+      "timestamp": "2026-10-29T10:12:49.654856+00:00",
+      "kind": "compound",
+      "summary": "Compounded eval:issue-532: Task Evaluation issue-532 (R=1.00, PASS)",
       "tags": [
-        "session-end"
+        "eval",
+        "cr-task-eval-001",
+        "issue-532",
+        "passed",
+        "compounded"
       ],
-      "node_id": null
+      "node_id": "eval:issue-532"
     }
   ],
   "next_steps": [],
   "compounded_node_ids": [
-    "eval:issue-524",
     "eval:pr-525-scorecard-summary-rule",
     "eval:eval-baseline-hathor-cli",
     "episode:clean-repo-hathor-cli",
     "eval:clean-repo-hathor-cli",
-    "episode:issue-532-cruise-sync"
+    "episode:issue-532-cruise-sync",
+    "eval:issue-532"
   ],
   "parent_session_id": "sess-20261017-145045-ed36da",
-  "capsule_bytes": 1834
+  "capsule_bytes": 1922
 }
