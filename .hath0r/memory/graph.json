@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 311,
-  "content_hash": "sha256:8049fbbdd0669a54d1d6ddd0cf16c891da2d43d66fe2b97ecceef7f20c7818d9",
-  "updated_at": "2026-10-28T18:13:53.954786+00:00",
+  "revision": 318,
+  "content_hash": "sha256:8843e19a23c5e5047ec12e580114bf2b01945704292c1e3ddbb0b35c9905591e",
+  "updated_at": "2026-10-29T10:07:17.378470+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -581,9 +581,9 @@
       "updated_at": "2026-10-28T12:29:58.673969+00:00",
       "metadata": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:d512b687e2eaa6475dcdd287185411b168d3b32b59c96d4e8797281b46a83558",
-          "src/hath0r_cli/commands/decision.py": "sha256:9c490142c59675ce68e75611c43fd3b2dd785bd4509391fe47ffdcddb692b5bb",
-          "src/hath0r_cli/server/decision_radar_server.py": "sha256:9a9a76fe9e342d482fe639d967f65f095a62d3be1362b02fa2dc442bc6f8c840"
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:8117dbf6b0a9bca58ee166719166e4abe18fe1b2f783b1aff4ee976c1f7f3d7b",
+          "src/hath0r_cli/commands/decision.py": "sha256:275fb92d46061c2c5b15d5cef210936b8d6f7ef972cf773692eb21e8d9adea4b",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:62d23b6b9d877b25af14b11f672387d3eabca565809f17bc2b8c11c1c83d70bb"
         }
       }
     },
@@ -651,9 +651,9 @@
       "updated_at": "2026-10-28T12:59:58.010370+00:00",
       "metadata": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:d512b687e2eaa6475dcdd287185411b168d3b32b59c96d4e8797281b46a83558",
-          "src/hath0r_cli/commands/decision.py": "sha256:9c490142c59675ce68e75611c43fd3b2dd785bd4509391fe47ffdcddb692b5bb",
-          "src/hath0r_cli/server/decision_radar_server.py": "sha256:9a9a76fe9e342d482fe639d967f65f095a62d3be1362b02fa2dc442bc6f8c840"
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:8117dbf6b0a9bca58ee166719166e4abe18fe1b2f783b1aff4ee976c1f7f3d7b",
+          "src/hath0r_cli/commands/decision.py": "sha256:275fb92d46061c2c5b15d5cef210936b8d6f7ef972cf773692eb21e8d9adea4b",
+          "src/hath0r_cli/server/decision_radar_server.py": "sha256:62d23b6b9d877b25af14b11f672387d3eabca565809f17bc2b8c11c1c83d70bb"
         }
       }
     },
@@ -1364,10 +1364,35 @@
       }
     },
     {
+      "id": "episode:issue-532-cruise-sync",
+      "type": "episode",
+      "label": "Cruise Control CLI-to-radar sync fix (#532)",
+      "content": "CLI decisions never reached the radar: the Hath0r-Cruise-Control container ran an image older than the /api/decisions/update API (404 dropped silently) and --seed-demo wiped its store on every start; --detached spawned python -m hath0r_cli.cli which has no __main__. Fixed with remote_sync reporting, hath0r cruise sync, API version checks in status, a -m hath0r_cli spawn, and honest stop results.",
+      "importance": 0.8,
+      "tags": [
+        "cruise",
+        "decision-radar",
+        "sync",
+        "issue-532",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-29T10:05:11.981713+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-29T10:05:11.981713+00:00",
+      "updated_at": "2026-10-29T10:05:11.981713+00:00",
+      "metadata": {
+        "source_files": {
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:8117dbf6b0a9bca58ee166719166e4abe18fe1b2f783b1aff4ee976c1f7f3d7b"
+        }
+      }
+    },
+    {
       "id": "session:sess-20261028-130546-18a517",
       "type": "session",
       "label": "Micro Session sess-20261028-130546-18a517",
-      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 16, Writes: 53 | Entries: Compounded eval:clean-repo-hathor-cli: Task Evaluation clean-repo-hathor-cli (R=1.00, PASS)",
+      "content": "Micro Session sess-20261028-130546-18a517 [completed] | Focus: Provisioning CR-TASK-EVAL-001 for hathor-cli | Reads: 18, Writes: 55 | Entries: Completed PR #101 (feature/101-test) via EndOfTaskBot.",
       "importance": 0.75,
       "tags": [
         "session",
@@ -1375,18 +1400,18 @@
         "completed"
       ],
       "valid_from": "2026-10-28T13:05:46.197056+00:00",
-      "valid_to": "2026-10-28T15:32:30.683620+00:00",
+      "valid_to": "2026-10-29T10:07:17.371625+00:00",
       "is_current": true,
       "created_at": "2026-10-28T13:05:46.197056+00:00",
-      "updated_at": "2026-10-28T18:13:53.552967+00:00",
+      "updated_at": "2026-10-29T10:07:17.371625+00:00",
       "metadata": {
         "session_id": "sess-20261028-130546-18a517",
         "prior_session_id": "sess-20261017-145045-ed36da",
         "parent_session_id": "sess-20261017-145045-ed36da",
-        "read_count": 16,
-        "write_count": 53,
+        "read_count": 18,
+        "write_count": 55,
         "status": "completed",
-        "byte_size": 1955
+        "byte_size": 1834
       }
     }
   ],
@@ -2835,6 +2860,22 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-28T17:42:47.267264+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-532-cruise-sync",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "RELATES_TO",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T10:05:11.981713+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-532-cruise-sync",
+      "target": "session:sess-20261028-130546-18a517",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-29T10:05:12.024216+00:00",
       "is_current": true
     }
   ]

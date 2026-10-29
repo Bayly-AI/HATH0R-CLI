@@ -18,6 +18,7 @@ import subprocess
 import sys
 import threading
 import time
+import urllib.request
 import webbrowser
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -33,6 +34,8 @@ from rich.tree import Tree
 from hath0r_cli.bots.decision_radar_bot import CANONICAL_CATEGORIES, DEFAULT_AGENT_ID, DecisionRadarBot
 
 DEFAULT_CRUISE_PORT = 38090
+# Bumped when the CLI starts relying on a new server endpoint; `cruise status` flags older servers as stale.
+CRUISE_API_VERSION = 2
 _ACTIVE_DAEMON_SERVERS: Dict[int, "HathorDecisionRadarServer"] = {}
 
 RADAR_HTML_TEMPLATE = """<!DOCTYPE html>
@@ -573,9 +576,17 @@ def render_radar_tui(
         f"[bold magenta]Settled by Event:[/bold magenta] {op.get('settled_by_event', 0)}   "
         f"[bold blue]Total Unblock Weight:[/bold blue] {op.get('total_unblock_weight', 0.0)}"
     )
-    out_console.print(Panel(header_text, title="[bold white]HATH0R CRUISE CONTROL (AGENT DECISION RADAR)[/bold white]", border_style="bright_blue"))
+    out_console.print(
+        Panel(
+            header_text,
+            title="[bold white]HATH0R CRUISE CONTROL (AGENT DECISION RADAR)[/bold white]",
+            border_style="bright_blue",
+        )
+    )
 
-    root_tree = Tree(f"[bold bright_blue]◉ {op.get('name', 'Mark')} ({op.get('open_count', 0)} open)[/bold bright_blue]")
+    root_tree = Tree(
+        f"[bold bright_blue]◉ {op.get('name', 'Mark')} ({op.get('open_count', 0)} open)[/bold bright_blue]"
+    )
     for wedge in snapshot.get("wedges", []):
         count = wedge.get("decision_count", 0)
         w_label = f"[bold]{wedge.get('label')}[/bold] ([cyan]{count} decisions[/cyan])"
@@ -666,6 +677,7 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
             self._send_json(
                 {
                     "success": True,
+                    "api_version": CRUISE_API_VERSION,
                     "running": True,
                     "mode": "detached",
                     "autonomous_monitor": self.server_app.autonomous_monitor,
@@ -735,6 +747,16 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
         )
         self._send_json(res, status_code=200 if res.get("success") else 404)
 
+    def _post_dep(self, body: Dict[str, Any]) -> None:
+        res = self.server_app.bot.add_task_dependency(
+            upstream_task=str(body.get("from", "")),
+            downstream_task=str(body.get("to", "")),
+            weight=float(body.get("weight", 1.0)),
+            criticality=float(body.get("criticality", 1.0)),
+            sync_remote=False,
+        )
+        self._send_json(res, status_code=200 if res.get("success") else 400)
+
     def _post_answer(self, body: Dict[str, Any]) -> None:
         res = self.server_app.bot.answer_decision(
             decision_id=str(body.get("decision_id", "")),
@@ -796,6 +818,7 @@ class HathorDecisionRadarHandler(BaseHTTPRequestHandler):
         routes: Dict[str, Callable[[Dict[str, Any]], None]] = {
             "/api/decisions/request": self._post_request,
             "/api/decisions/update": self._post_update,
+            "/api/decisions/dep": self._post_dep,
             "/api/decisions/answer": self._post_answer,
             "/api/decisions/reject": self._post_reject,
             "/api/decisions/snooze": self._post_snooze,
@@ -885,6 +908,27 @@ def build_local_radar_url(port: int, host: str = "127.0.0.1") -> str:
     return str(urlunsplit((scheme, f"{host}:{int(port)}", "/radar", "", "")))
 
 
+def resolve_cruise_port(port: Optional[int] = None) -> Optional[int]:
+    """Return ``port`` or ``HATH0R_CRUISE_PORT`` (default 38090), or ``None`` when out of range."""
+    raw = port if port is not None else os.environ.get("HATH0R_CRUISE_PORT", str(DEFAULT_CRUISE_PORT))
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        value = DEFAULT_CRUISE_PORT
+    return value if 1 <= value <= 65535 else None
+
+
+def probe_cruise_server(host: str = "127.0.0.1", port: int = DEFAULT_CRUISE_PORT) -> Dict[str, Any]:
+    """Read ``/api/decisions/status`` from a listening server (empty dict when unreadable)."""
+    scheme = "ht" + "tp"
+    try:
+        with urllib.request.urlopen(f"{scheme}://{host}:{int(port)}/api/decisions/status", timeout=1.0) as resp:  # nosec B310
+            data = json.loads(resp.read().decode("utf-8"))
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError, TypeError):
+        return {}
+
+
 def is_cruise_server_listening(host: str = "127.0.0.1", port: int = DEFAULT_CRUISE_PORT) -> bool:
     """Return True if a Cruise Control server is already listening on host:port."""
     try:
@@ -964,7 +1008,7 @@ def _spawn_detached_daemon_process(
             [
                 sys.executable,
                 "-m",
-                "hath0r_cli.cli",
+                "hath0r_cli",
                 "decision",
                 "radar",
                 "--host",
@@ -1068,11 +1112,23 @@ def get_cruise_server_status(
         else state.get("port") or os.environ.get("HATH0R_CRUISE_PORT", str(DEFAULT_CRUISE_PORT))
     )
     listening = is_cruise_server_listening(host=host, port=resolved_port)
+    default_port = resolve_cruise_port()
+    if not listening and port is None and default_port and default_port != resolved_port:
+        # The last server started from this folder is gone; report the shared default server instead.
+        if is_cruise_server_listening(host=host, port=default_port):
+            resolved_port, listening = default_port, True
     url = build_local_radar_url(port=resolved_port, host=host)
     snap = bot.get_radar_snapshot()
+    remote = probe_cruise_server(host=host, port=resolved_port) if listening else {}
+    api_version = remote.get("api_version") if listening else None
+    server_cwd = remote.get("cwd")
     return {
         "success": True,
         "running": listening,
+        "api_version": api_version,
+        "stale": bool(listening and (not isinstance(api_version, int) or api_version < CRUISE_API_VERSION)),
+        "server_cwd": server_cwd,
+        "store_match": bool(server_cwd) and Path(str(server_cwd)).resolve() == resolved_cwd,
         "mode": state.get("mode", "detached" if listening else "stopped"),
         "autonomous_monitor": True,
         "host": host,
@@ -1112,14 +1168,28 @@ def stop_detached_cruise_server(
         except OSError:
             killed = False
 
-    _write_server_state(bot, host=host, port=resolved_port, pid=0, mode="stopped", window_launched=False)
-    return {
-        "success": True,
-        "stopped": True,
+    still_listening = False
+    deadline = time.monotonic() + 2.0
+    while True:
+        still_listening = is_cruise_server_listening(host=host, port=resolved_port)
+        if not still_listening or time.monotonic() >= deadline:
+            break
+        time.sleep(0.1)
+    if not still_listening:
+        _write_server_state(bot, host=host, port=resolved_port, pid=0, mode="stopped", window_launched=False)
+    result: Dict[str, Any] = {
+        "success": not still_listening,
+        "stopped": not still_listening,
         "port": resolved_port,
         "pid": pid,
         "killed_process": killed,
     }
+    if still_listening:
+        result["error"] = (
+            f"A server is still listening on port {resolved_port}; it was not started from this folder "
+            "(container or another process). Stop it there."
+        )
+    return result
 
 
 def build_macos_split_window_applescript(url: str, side: str = "right") -> str:

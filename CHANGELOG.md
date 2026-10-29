@@ -5,6 +5,18 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.2] - 2026-10-29
+
+### Fixed
+- **Cruise Control CLI decisions now reach the radar (`#532`)**:
+  - `cruise ask` / `update` / `dep` report a `remote_sync` result and warn when the running server rejects the update (e.g. a stale container image answering 404), instead of dropping it silently.
+  - New `hath0r cruise sync` pushes this folder's open decisions and dependency edges to the running server; re-syncing replaces records instead of duplicating notes or edges.
+  - `cruise status` reads the server's Cruise API version (`api_version`, now 2), flags stale servers, shows which store it serves, and falls back to the default port when the last server started here is gone.
+  - `cruise radar --detached` now spawns `python -m hath0r_cli`; it spawned `hath0r_cli.cli`, which has no `__main__`, so the child exited and the server died with the CLI.
+  - `cruise stop` no longer reports success while a server is still listening.
+  - Server: `POST /api/decisions/dep`; dependency edges are idempotent per from/to pair.
+  - Runbook: sync and troubleshooting section in `docs/governance/runbooks/decision-radar-runbook.md`.
+
 ## [1.12.1] - 2026-10-28
 
 ### Added

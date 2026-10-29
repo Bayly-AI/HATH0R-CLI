@@ -5,11 +5,6 @@
 hath0r: a owl:Ontology ;
     rdfs:label "Hath0r AgentGraph Policy Ontology" .
 
-<https://hath0r.dev/ontology/v1#concept:tri-graph> a hath0r:Plane ;
-    rdfs:label "Tri-Graph Substrate" ;
-    hath0r:inPlane "memory" ;
-    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
-
 <https://hath0r.dev/ontology/v1#contract:hath0r-agent-role-v1.schema.json> a hath0r:Plane ;
     rdfs:label "Hath0rAgentRoleNode" ;
     hath0r:inPlane "knowledge" .
@@ -128,18 +123,6 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "AGENTS.md (group)" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:agents-hath0r-fileset-1.5.0> a hath0r:Plane ;
-    rdfs:label "AGENTS.md (hath0r-fileset-1.5.0)" ;
-    hath0r:inPlane "knowledge" .
-
-<https://hath0r.dev/ontology/v1#doc:agents-hath0r-fileset-1.6.0> a hath0r:Plane ;
-    rdfs:label "AGENTS.md (hath0r-fileset-1.6.0)" ;
-    hath0r:inPlane "knowledge" .
-
-<https://hath0r.dev/ontology/v1#doc:agents-hath0r-fileset-1.7.0> a hath0r:Plane ;
-    rdfs:label "AGENTS.md (hath0r-fileset-1.7.0)" ;
-    hath0r:inPlane "knowledge" .
-
 <https://hath0r.dev/ontology/v1#doc:agents-hath0r_cli> a hath0r:Plane ;
     rdfs:label "AGENTS.md (hath0r_cli)" ;
     hath0r:inPlane "knowledge" .
@@ -216,6 +199,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__phoenix-manager-bot-spec_md> a hath0r:Plane ;
     rdfs:label "Phoenix Manager Bot Spec" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__task-evaluator-bot-spec_md> a hath0r:Plane ;
+    rdfs:label "Task Evaluator Bot Spec" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__tlp-bots-spec_md> a hath0r:Plane ;
@@ -558,6 +545,10 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Supercompress Playbook" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__task-evals-playbook_md> a hath0r:Plane ;
+    rdfs:label "Task Evals Playbook" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__task-lifecycle-playbook_md> a hath0r:Plane ;
     rdfs:label "Task Lifecycle Playbook" ;
     hath0r:inPlane "knowledge" .
@@ -702,6 +693,10 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Repo Clean Procedure" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__task-evals-procedure_md> a hath0r:Plane ;
+    rdfs:label "Task Evals Procedure" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__task-finish-procedure_md> a hath0r:Plane ;
     rdfs:label "Task Finish Procedure" ;
     hath0r:inPlane "knowledge" .
@@ -832,6 +827,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__runbook-cli-update_md> a hath0r:Plane ;
     rdfs:label "Runbook Cli Update" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__task-evals-runbook_md> a hath0r:Plane ;
+    rdfs:label "Task Evals Runbook" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__task-lifecycle-runbook_md> a hath0r:Plane ;
@@ -1006,6 +1005,10 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Supercompress Integration Strategy" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__task-evals-strategy_md> a hath0r:Plane ;
+    rdfs:label "Task Evals Strategy" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__task-lifecycle-strategy_md> a hath0r:Plane ;
     rdfs:label "Task Lifecycle Strategy" ;
     hath0r:inPlane "knowledge" .
@@ -1072,6 +1075,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__phoenix-telemetry-workflow_md> a hath0r:Plane ;
     rdfs:label "Phoenix Telemetry Workflow" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__task-evals-workflow_md> a hath0r:Plane ;
+    rdfs:label "Task Evals Workflow" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__tlp-orchestration-workflow_md> a hath0r:Plane ;
@@ -1198,7 +1205,7 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
 <https://hath0r.dev/ontology/v1#memory:episode:clean-repo-hathor-cli> a hath0r:Plane ;
-    rdfs:label "Clean Repo Lifecycle (hathor-cli)" ;
+    rdfs:label "Clean Repo Development Sync (hathor-cli)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -1232,6 +1239,16 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:episode:issue-510-task-evals> a hath0r:Plane ;
+    rdfs:label "Implemented Automatic Task Evaluation Architecture (CR-TASK-EVAL-001)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:episode:issue-532-cruise-sync> a hath0r:Plane ;
+    rdfs:label "Cruise Control CLI-to-radar sync fix (#532)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:episode:pr-479> a hath0r:Plane ;
     rdfs:label "Completed PR #479 (feature/478-unignore-graph-folders)" ;
     hath0r:inPlane "memory" ;
@@ -1239,6 +1256,116 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:episode:pr-509> a hath0r:Plane ;
     rdfs:label "Completed PR #509 (feature)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:episode:pr-516> a hath0r:Plane ;
+    rdfs:label "PR #516 Merged: CR-TASK-EVAL-001 Automatic Task Evals" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:episode:pr-519> a hath0r:Plane ;
+    rdfs:label "PR #519 Merged: Enforced CR-TASK-EVAL-001 Across All ~/Development Repos" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:episode:pr-521> a hath0r:Plane ;
+    rdfs:label "PR #521 Merged: Detached Cruise Control View & Stateless Agent Update API" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:episode:release-v1.11.0> a hath0r:Plane ;
+    rdfs:label "Released HATH0R CLI v1.11.0 & Installed Globally" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:clean-repo-hathor-cli> a hath0r:Plane ;
+    rdfs:label "Task Evaluation clean-repo-hathor-cli (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:eval-baseline-hathor-cli> a hath0r:Plane ;
+    rdfs:label "Task Evaluation eval-baseline-hathor-cli (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-510> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-510 (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-518> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-518 (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-520> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-520 (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-522> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-522 (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-524> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-524 (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:pr-101> a hath0r:Plane ;
+    rdfs:label "Task Evaluation pr-101 (R=0.90, FAIL)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:pr-104> a hath0r:Plane ;
+    rdfs:label "Task Evaluation pr-104 (R=0.90, FAIL)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:pr-516> a hath0r:Plane ;
+    rdfs:label "Task Evaluation pr-516 (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:pr-516-merged> a hath0r:Plane ;
+    rdfs:label "Task Evaluation pr-516-merged (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:pr-519> a hath0r:Plane ;
+    rdfs:label "Task Evaluation pr-519 (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:pr-519-merged> a hath0r:Plane ;
+    rdfs:label "Task Evaluation pr-519-merged (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:pr-521> a hath0r:Plane ;
+    rdfs:label "Task Evaluation pr-521 (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:pr-521-merged> a hath0r:Plane ;
+    rdfs:label "Task Evaluation pr-521-merged (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:pr-525-scorecard-summary-rule> a hath0r:Plane ;
+    rdfs:label "Task Evaluation pr-525-scorecard-summary-rule (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:release-v1-11-0> a hath0r:Plane ;
+    rdfs:label "Task Evaluation release-v1.11.0 (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:release-v1-12-0> a hath0r:Plane ;
+    rdfs:label "Task Evaluation release-v1-12-0 (R=1.00, PASS)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -1257,8 +1384,28 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:insight:cr-task-eval-001> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on cr-task-eval-001" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:insight:cruise-control> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on cruise-control" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:insight:decision-radar> a hath0r:Plane ;
     rdfs:label "Synthesized Insight on decision-radar" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:insight:evals> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on evals" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:insight:feature> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on feature" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -1297,10 +1444,12 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
-<https://hath0r.dev/ontology/v1#memory:rule:cr-memory-compound-001> a hath0r:Rule ;
-    rdfs:label "Mandatory MemoryGraph Compounding Rule" ;
+<https://hath0r.dev/ontology/v1#memory:rule:cr-task-eval-001> a hath0r:Rule ;
+    rdfs:label "Automatic Task Evaluation & Scorecard Summary Gate (CR-TASK-EVAL-001)" ;
     hath0r:inPlane "memory" ;
-    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+    hath0r:informs <https://hath0r.dev/ontology/v1#concept:tri-graph>,
+        <https://hath0r.dev/ontology/v1#memory:rule:cr-memory-compound-001>,
+        <https://hath0r.dev/ontology/v1#role:developer> .
 
 <https://hath0r.dev/ontology/v1#memory:session:sess-20261016-123051-cbad2e> a hath0r:Plane ;
     rdfs:label "Micro Session sess-20261016-123051-cbad2e" ;
@@ -1329,6 +1478,11 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:session:sess-20261017-145045-ed36da> a hath0r:Plane ;
     rdfs:label "Micro Session sess-20261017-145045-ed36da" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:session:sess-20261028-130546-18a517> a hath0r:Plane ;
+    rdfs:label "Micro Session sess-20261028-130546-18a517" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -1411,10 +1565,25 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:governs <https://hath0r.dev/ontology/v1#role:developer> ;
     hath0r:inPlane "rules" .
 
+<https://hath0r.dev/ontology/v1#rule:cr-task-eval-001> a hath0r:Plane ;
+    rdfs:label "Rule CR-TASK-EVAL-001" ;
+    hath0r:governs <https://hath0r.dev/ontology/v1#role:developer> ;
+    hath0r:inPlane "rules" .
+
 <https://hath0r.dev/ontology/v1#rule:rules> a hath0r:Plane ;
     rdfs:label "Rule rules" ;
     hath0r:governs <https://hath0r.dev/ontology/v1#role:developer> ;
     hath0r:inPlane "rules" .
+
+<https://hath0r.dev/ontology/v1#concept:tri-graph> a hath0r:Plane ;
+    rdfs:label "Tri-Graph Substrate" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:rule:cr-memory-compound-001> a hath0r:Rule ;
+    rdfs:label "Mandatory MemoryGraph Compounding Rule" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
 <https://hath0r.dev/ontology/v1#role:control_tower_%26_forge_%28%60is_control_tower:_true%60%29> a hath0r:AgentRole ;
     rdfs:label "Control Tower & Forge (`is_control_tower: true`)" ;
