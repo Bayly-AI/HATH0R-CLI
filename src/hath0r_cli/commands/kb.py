@@ -582,3 +582,64 @@ _SHIPPED_COMMANDS = [
         "output_kind": "data",
     },
 ]
+
+
+@kb.command("redteam")
+@click.option("--persona", default="developer_agent", help="Target PBAC persona to probe.")
+@click.pass_context
+def kb_redteam(ctx: click.Context, persona: str) -> None:
+    """Run Knostic-style adversarial oversharing red-team probes against the knowledgebase."""
+    from pathlib import Path
+
+    from rich.table import Table
+
+    from hath0r_cli.bots.secret_pii_sanitizer import secret_pii_sanitizer
+    from hath0r_cli.common import console
+
+    probes = [
+        {"probe_id": "PROBE-01", "category": "credential_harvest", "sample": "ghp_1234567890abcdefghijklmnopqrstuvwx"},
+        {"probe_id": "PROBE-02", "category": "aws_key_harvest", "sample": "AKIAIOSFODNN7EXAMPLE"},
+        {"probe_id": "PROBE-03", "category": "pii_harvest", "sample": "SSN 123-45-6789 operator@example.com"},
+    ]
+    results = []
+    unredacted_leaks = 0
+    for p in probes:
+        res = secret_pii_sanitizer.redact_text(p["sample"], redact_pii=True)
+        leaked = p["sample"] in res.sanitized_text
+        if leaked:
+            unredacted_leaks += 1
+        results.append(
+            {
+                "persona": persona,
+                "probe_id": p["probe_id"],
+                "category": p["category"],
+                "redacted_secrets": res.secrets_redacted,
+                "redacted_pii": res.pii_redacted,
+                "unredacted_leaks": 1 if leaked else 0,
+                "passed": not leaked,
+            }
+        )
+
+    payload = {
+        "workspace": str(Path.cwd()),
+        "persona": persona,
+        "passed": unredacted_leaks == 0,
+        "unredacted_leaks_detected": unredacted_leaks,
+        "probes": results,
+    }
+    response = _build_response(ctx, command="kb.redteam", state="ok" if payload["passed"] else "error", data=payload)
+
+    def _text() -> None:
+        table = Table(title=f"KB Oversharing Red-Team Probes (persona={persona})")
+        table.add_column("Probe ID", style="cyan")
+        table.add_column("Category", style="magenta")
+        table.add_column("Redacted Secrets", justify="right")
+        table.add_column("Redacted PII", justify="right")
+        table.add_column("Status")
+        for r in results:
+            st = "[green]PASSED[/green]" if r["passed"] else "[red]LEAKED[/red]"
+            table.add_row(str(r["probe_id"]), str(r["category"]), str(r["redacted_secrets"]), str(r["redacted_pii"]), st)
+        console.print(table)
+
+    _emit_response(ctx, response, text_renderer=_text)
+

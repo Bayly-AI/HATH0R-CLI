@@ -804,6 +804,40 @@ def mcp_container(
         ctx.exit(1)
 
 
+@mcp.command("audit")
+@click.option("--config", "config_path", type=click.Path(), default=None, help="Optional MCP servers JSON path.")
+@click.pass_context
+def mcp_audit(ctx: click.Context, config_path: str | None) -> None:
+    """Run BITE (Behavioral Integrity & Transparency Evaluation) audit on MCP server definitions."""
+    from pathlib import Path
+
+    from hath0r_cli.bots.bite_verifier_bot import BITEVerifierBot
+
+    bot = BITEVerifierBot(workspace_root=Path.cwd())
+    res = bot.audit_mcp_servers(Path(config_path) if config_path else None)
+    state = "ok" if res.get("passed") else "error"
+    response = _build_response(ctx, command="mcp.audit", state=state, data=res)
+
+    def _text() -> None:
+        table = Table(title="BITE MCP Supply-Chain Audit")
+        table.add_column("Artifact", style="bold cyan")
+        table.add_column("Verdict", style="bold")
+        table.add_column("SHA-256", style="dim")
+        table.add_column("Findings", justify="right")
+        for art in res.get("artifacts", []):
+            v = art.get("verdict", "CLEAN")
+            color = "green" if v == "CLEAN" else ("yellow" if v == "RISKY" else "red")
+            table.add_row(
+                str(art.get("path", "")),
+                f"[{color}]{v}[/{color}]",
+                str(art.get("sha256", ""))[:16],
+                str(len(art.get("behaviors", []))),
+            )
+        console.print(table)
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("passed"):
+        ctx.exit(1)
 
 
 # ============================================================================

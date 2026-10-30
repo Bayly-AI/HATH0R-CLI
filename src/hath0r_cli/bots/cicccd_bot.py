@@ -206,7 +206,7 @@ class CICCCDManagingBot:
         batch_size: int = 4,
         register_mlflow: bool = True,
     ) -> Dict[str, Any]:
-        """Dispatch Continuous Training job and register candidate model."""
+        """Request a Continuous Training job; reports unavailable until a backend exists."""
         return self.training_coordinator.run_training_job(
             target=target,
             method=method,

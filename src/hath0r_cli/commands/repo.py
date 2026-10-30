@@ -21,18 +21,27 @@ def repo() -> None:
     """Repository Hygiene & Organization: audit and clean root files and configs."""
 
 
-def _resolve_target_repos(target_repo: str | None, all_repos: bool) -> list[Path]:
+def _resolve_target_repos(target_repo: str | None, all_repos: bool, root_dir: str | None = None) -> list[Path]:
     """Resolve list of target repositories for repo hygiene commands."""
     if target_repo:
         p = Path(target_repo).expanduser().resolve()
         if not p.is_dir():
             raise click.ClickException(f"Specified repository directory does not exist: {target_repo}")
         return [p]
+    if root_dir:
+        from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot
+
+        base = Path(root_dir).expanduser().resolve()
+        return TaskEvaluatorBot._discover_repos(base)
     if all_repos:
         root = _group_root()
+        if root.resolve() == Path("/Users/raybayly/Development"):
+            from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot
+
+            return TaskEvaluatorBot._discover_repos(root.resolve())
         repos = []
         for d in sorted(root.iterdir()):
-            if d.is_dir() and (d / ".git").is_dir():
+            if d.is_dir() and not d.is_symlink() and (d / ".git").is_dir():
                 repos.append(d.resolve())
         # Deduplicate symlinks
         seen = set()
@@ -201,14 +210,17 @@ def repo_clean(
 
 @repo.command("workflow")
 @click.option("--repo", "target_repo", default=None, help="Target specific repository directory.")
+@click.option("--root", "root_dir", default=None, help="Workspace root directory to recursively discover repositories.")
 @click.option("--all-repos", is_flag=True, default=False, help="Run clean workflow across all sibling repositories.")
 @click.option("--no-commit", is_flag=True, default=False, help="Disable auto-committing uncommitted changes.")
 @click.pass_context
-def repo_workflow(ctx: click.Context, target_repo: str | None, all_repos: bool, no_commit: bool) -> None:
+def repo_workflow(
+    ctx: click.Context, target_repo: str | None, root_dir: str | None, all_repos: bool, no_commit: bool
+) -> None:
     """Execute the full 13-step Clean Repos Standard Operating Procedure."""
     from hath0r_cli.bots.repo_clean import CleanReposWorkflowBot
 
-    repos = _resolve_target_repos(target_repo, all_repos)
+    repos = _resolve_target_repos(target_repo, all_repos, root_dir=root_dir)
     bot = CleanReposWorkflowBot()
     results = bot.run_clean_repo_workflow(target_repos=repos, auto_commit=not no_commit)
 
@@ -235,12 +247,15 @@ def repo_workflow(ctx: click.Context, target_repo: str | None, all_repos: bool, 
 
 @click.command("clean-repos")
 @click.option("--repo", "target_repo", default=None, help="Target specific repository directory.")
+@click.option("--root", "root_dir", default=None, help="Workspace root directory to recursively discover repositories.")
 @click.option("--all-repos", is_flag=True, default=True, help="Run clean workflow across all sibling repositories.")
 @click.option("--no-commit", is_flag=True, default=False, help="Disable auto-committing uncommitted changes.")
 @click.pass_context
-def clean_repos_cmd(ctx: click.Context, target_repo: str | None, all_repos: bool, no_commit: bool) -> None:
+def clean_repos_cmd(
+    ctx: click.Context, target_repo: str | None, root_dir: str | None, all_repos: bool, no_commit: bool
+) -> None:
     """Top-level command to execute the 13-step Clean Repos SOP."""
-    ctx.invoke(repo_workflow, target_repo=target_repo, all_repos=all_repos, no_commit=no_commit)
+    ctx.invoke(repo_workflow, target_repo=target_repo, root_dir=root_dir, all_repos=all_repos, no_commit=no_commit)
 
 
 @click.command("clean-repo")

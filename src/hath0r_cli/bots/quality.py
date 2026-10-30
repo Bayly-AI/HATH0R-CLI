@@ -510,6 +510,12 @@ class PreflightBot:
         checks.append(self._version_ok())
         checks.append(self._agentgraph_ok())
         checks.append(self._sonar_config_ok())
+        try:
+            from hath0r_cli.bots.dependency_guard_bot import DependencyGuardBot
+
+            checks.append(DependencyGuardBot(workspace_root=self.cwd).run_audit())
+        except Exception as exc:
+            checks.append({"ok": False, "check": "dependency_and_rule_guard", "error": str(exc)})
 
         # Dirty tree warning (not hard fail by default)
         rc, out, _ = run_cmd(["git", "status", "--porcelain"], cwd=self.cwd)

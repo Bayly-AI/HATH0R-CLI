@@ -27,6 +27,18 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 from hath0r_cli.bots.memory_manager import MemoryManagerBot
 
 SCHEMA_VERSION = "hath0r.decision.spec/1"
+REMOTE_SYNC_ROUTES = frozenset(
+    {
+        "/api/decisions/request",
+        "/api/decisions/update",
+        "/api/decisions/answer",
+        "/api/decisions/reject",
+        "/api/decisions/snooze",
+        "/api/decisions/assert-fact",
+        "/api/decisions/dep",
+    }
+)
+REMOTE_SYNC_TIMEOUT_S = 2.0
 DEFAULT_AGENT_ID = "@agent"
 
 CANONICAL_CATEGORIES: Dict[str, Dict[str, Any]] = {
@@ -589,10 +601,12 @@ class DecisionRadarBot:
         downstream_task: str,
         weight: float = 1.0,
         criticality: float = 1.0,
+        sync_remote: bool = True,
     ) -> Dict[str, Any]:
-        """Add a task-to-task dependency edge in the decision graph."""
+        """Add a task-to-task dependency edge in the decision graph (idempotent per from/to pair)."""
         store = self._load_store(self.active_path)
         edges: List[Dict[str, Any]] = store.get("task_edges", [])
+        edges[:] = [e for e in edges if (e.get("from"), e.get("to")) != (upstream_task, downstream_task)]
         edges.append(
             {
                 "from": upstream_task,
@@ -608,15 +622,29 @@ class DecisionRadarBot:
             return {"success": False, "error": f"Cycle detected adding edge {upstream_task} -> {downstream_task}"}
         self._refresh_impact_scores(store)
         self._save_store(self.active_path, store)
-        return {"success": True, "edge": {"from": upstream_task, "to": downstream_task}}
+        result: Dict[str, Any] = {"success": True, "edge": {"from": upstream_task, "to": downstream_task}}
+        remote = self._sync_to_detached_server(
+            "/api/decisions/dep",
+            {"from": upstream_task, "to": downstream_task, "weight": float(weight), "criticality": float(criticality)},
+            sync_remote=sync_remote,
+        )
+        if remote is not None:
+            result["remote_sync"] = remote
+        return result
 
     def _sync_to_detached_server(
         self,
         endpoint: str,
         payload: Dict[str, Any],
         sync_remote: bool = True,
+        port: Optional[int] = None,
     ) -> Optional[Dict[str, Any]]:
-        """Forward decision state updates to any running detached Cruise Control server."""
+        """Forward a decision mutation to the running Cruise Control server.
+
+        Returns ``None`` when no forwarding applies (disabled, same in-process server, nothing
+        listening) and otherwise ``{"synced": bool, "port", "endpoint", ...}`` so callers can
+        surface failures such as a stale server image answering 404 (#532).
+        """
         if not sync_remote:
             return None
         if os.environ.get("PYTEST_CURRENT_TEST") and os.environ.get("HATH0R_CRUISE_REMOTE_SYNC") != "1":
@@ -624,38 +652,27 @@ class DecisionRadarBot:
 
         from hath0r_cli.server.decision_radar_server import (
             _ACTIVE_DAEMON_SERVERS,
-            DEFAULT_CRUISE_PORT,
             is_cruise_server_listening,
+            resolve_cruise_port,
         )
 
-        raw_port = os.environ.get("HATH0R_CRUISE_PORT", str(DEFAULT_CRUISE_PORT))
-        try:
-            port = int(raw_port)
-        except ValueError:
-            port = DEFAULT_CRUISE_PORT
-        if port < 1 or port > 65535:
+        resolved_port = resolve_cruise_port(port)
+        if resolved_port is None:
             return None
 
-        in_proc = _ACTIVE_DAEMON_SERVERS.get(port)
+        in_proc = _ACTIVE_DAEMON_SERVERS.get(resolved_port)
         if in_proc is not None and in_proc.cwd == self.cwd:
             return None
 
-        if not is_cruise_server_listening(host="127.0.0.1", port=port):
+        if not is_cruise_server_listening(host="127.0.0.1", port=resolved_port):
             return None
 
-        safe_routes = {
-            "/api/decisions/request",
-            "/api/decisions/update",
-            "/api/decisions/answer",
-            "/api/decisions/reject",
-            "/api/decisions/snooze",
-            "/api/decisions/assert-fact",
-        }
-        if endpoint not in safe_routes:
+        if endpoint not in REMOTE_SYNC_ROUTES:
             return None
 
+        result: Dict[str, Any] = {"synced": False, "port": resolved_port, "endpoint": endpoint}
         scheme = "ht" + "tp"
-        url = f"{scheme}://127.0.0.1:{port}{endpoint}"
+        url = f"{scheme}://127.0.0.1:{resolved_port}{endpoint}"
         try:
             req = urllib.request.Request(
                 url,
@@ -666,11 +683,81 @@ class DecisionRadarBot:
                 },
                 method="POST",
             )
-            with urllib.request.urlopen(req, timeout=0.6) as resp:  # nosec B310
+            with urllib.request.urlopen(req, timeout=REMOTE_SYNC_TIMEOUT_S) as resp:  # nosec B310
                 body = json.loads(resp.read().decode("utf-8"))
-                return body if isinstance(body, dict) else None
-        except (OSError, ValueError, TypeError, urllib.error.URLError):
-            return None
+            result["synced"] = bool(isinstance(body, dict) and body.get("success", True))
+            if not result["synced"]:
+                result["error"] = str(body.get("error", "server rejected the update"))
+        except urllib.error.HTTPError as exc:
+            result["status"] = exc.code
+            result["error"] = (
+                f"server on port {resolved_port} has no {endpoint} endpoint (stale Cruise Control image?)"
+                if exc.code == 404
+                else f"HTTP {exc.code} from {endpoint}"
+            )
+        except (OSError, ValueError, TypeError, urllib.error.URLError) as exc:
+            result["error"] = str(exc)
+        return result
+
+    def sync_store_to_server(self, port: Optional[int] = None) -> Dict[str, Any]:
+        """Push every open decision and dependency edge in this store to the running server (#532)."""
+        from hath0r_cli.server.decision_radar_server import is_cruise_server_listening, resolve_cruise_port
+
+        resolved_port = resolve_cruise_port(port)
+        if resolved_port is None or not is_cruise_server_listening(host="127.0.0.1", port=resolved_port):
+            return {"success": False, "port": resolved_port, "error": "No Cruise Control server is listening."}
+
+        store = self._load_store(self.active_path)
+        pushed: List[str] = []
+        failed: List[Dict[str, Any]] = []
+        for item in store.get("items", []):
+            if not str(item.get("status", "")).startswith("WAITING"):
+                continue
+            notes = item.get("notes") or []
+            payload = {
+                "decision_id": item["decision_id"],
+                "question": item.get("question"),
+                "category": item.get("category"),
+                "agent_id": item.get("agent_id"),
+                "unblocks": item.get("unblocks") or [],
+                "options": item.get("options") or [],
+                "wait_for_fact": item.get("fact_predicate"),
+                "criticality": item.get("criticality", 1.0),
+                "work_boundary": item.get("work_boundary", "DECISION"),
+                "note": notes[-1].get("note") if notes and isinstance(notes[-1], dict) else None,
+                "context": item.get("context") or None,
+            }
+            res = self._sync_to_detached_server("/api/decisions/request", payload, port=resolved_port, sync_remote=True)
+            if res is not None and res.get("synced"):
+                pushed.append(item["decision_id"])
+            else:
+                failed.append({"id": item["decision_id"], "error": (res or {}).get("error", "not forwarded")})
+        edges_pushed = 0
+        for edge in store.get("task_edges", []):
+            res = self._sync_to_detached_server(
+                "/api/decisions/dep",
+                {
+                    "from": edge.get("from"),
+                    "to": edge.get("to"),
+                    "weight": edge.get("weight", 1.0),
+                    "criticality": edge.get("criticality", 1.0),
+                },
+                port=resolved_port,
+                sync_remote=True,
+            )
+            if res is not None and res.get("synced"):
+                edges_pushed += 1
+            else:
+                failed.append(
+                    {"id": f"{edge.get('from')}->{edge.get('to')}", "error": (res or {}).get("error", "not forwarded")}
+                )
+        return {
+            "success": not failed,
+            "port": resolved_port,
+            "pushed": pushed,
+            "edges_pushed": edges_pushed,
+            "failed": failed,
+        }
 
     def open_split_window_for_decision(
         self,
@@ -770,7 +857,7 @@ class DecisionRadarBot:
         self._refresh_impact_scores(store)
         self._save_store(self.active_path, store, expected_hash=expected_hash)
         updated = next(it for it in store["items"] if it["decision_id"] == dec_id)
-        self._sync_to_detached_server(
+        remote = self._sync_to_detached_server(
             "/api/decisions/request",
             {
                 "decision_id": dec_id,
@@ -788,6 +875,8 @@ class DecisionRadarBot:
             sync_remote=sync_remote,
         )
         result: Dict[str, Any] = {"success": True, "decision": updated, "store_revision": store["revision"]}
+        if remote is not None:
+            result["remote_sync"] = remote
         if split_window:
             result["browser_window"] = self.open_split_window_for_decision(decision_id=dec_id, side=split_side)
         return result
@@ -931,7 +1020,7 @@ class DecisionRadarBot:
         else:
             res = {"success": True, "decision": target, "store_revision": store["revision"]}
 
-        self._sync_to_detached_server(
+        remote = self._sync_to_detached_server(
             "/api/decisions/update",
             {
                 "decision_id": clean_id,
@@ -951,6 +1040,8 @@ class DecisionRadarBot:
             },
             sync_remote=sync_remote,
         )
+        if remote is not None:
+            res["remote_sync"] = remote
         if split_window:
             res["browser_window"] = self.open_split_window_for_decision(decision_id=clean_id, side=split_side)
         return res
