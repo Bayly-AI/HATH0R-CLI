@@ -5,6 +5,11 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.4] - 2026-10-30
+
+### Added
+- **CLI tests for CR-AGENTIC-SEC-001 commands** (`tests/unit/test_agentic_security_cli.py`): `skills audit`, `mcp audit`, `kb redteam`, `finops tokens verify-ledger`, and `observe shadow-ai` are exercised in text and JSON modes, including dangerous skill/MCP definitions and a tampered telemetry ledger. Raises SonarCloud new-code coverage for the release from 75.2% to above the 80% gate (#545).
+
 ## [1.15.3] - 2026-10-30
 
 ### Fixed
