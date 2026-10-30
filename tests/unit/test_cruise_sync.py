@@ -162,7 +162,8 @@ def test_cli_sync_command(live_server, tmp_path: Path, monkeypatch: pytest.Monke
     as_json = runner.invoke(decision_cmd, ["sync", "--port", str(port), "--json"])
     assert json.loads(as_json.output)["pushed"] == ["cli-1"]
     status = runner.invoke(decision_cmd, ["status"])
-    assert "not this folder" in status.output
+    # Rich wraps at terminal width, so compare with whitespace collapsed.
+    assert "not this folder" in " ".join(status.output.split())
 
 
 def test_sync_without_server(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):

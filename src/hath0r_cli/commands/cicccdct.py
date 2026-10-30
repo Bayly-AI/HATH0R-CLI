@@ -12,6 +12,7 @@ from rich.table import Table
 
 from hath0r_cli.bots.cicccd_bot import CICCCDCTManagingBot
 from hath0r_cli.common import _build_response, _emit_response, console
+from hath0r_cli.envelope import Diagnostic
 
 
 @click.group(name="cicccdct", invoke_without_command=True)
@@ -282,7 +283,12 @@ def train_group() -> None:
 
 @train_group.command(name="run")
 @click.option("--target", type=str, default="reasoning_slm", help="Target architecture or prompt module.")
-@click.option("--method", type=str, default="lora", help="Training method (lora, qlora, dspy_mipro, dspy_fewshot).")
+@click.option(
+    "--method",
+    type=str,
+    default="lora",
+    help="Training method (lora, qlora, peft, sft, full_finetune, dpo, miprov2, bootstrap, dspy_mipro, dspy_fewshot).",
+)
 @click.option("--dataset", "-d", type=str, default=None, help="Path to training dataset JSONL.")
 @click.option("--epochs", "-e", type=int, default=3, help="Number of training epochs.")
 @click.option("--lr", type=float, default=0.0002, help="Learning rate.")
@@ -297,7 +303,7 @@ def train_run(
     lr: float,
     batch_size: int,
 ) -> None:
-    """Execute Continuous Training job, evaluate candidate model, and log to MLflow."""
+    """Request a Continuous Training job (no backend yet: reports unavailable and exits 1)."""
     bot = CICCCDCTManagingBot()
     res = bot.train_model(
         target=target,
@@ -308,29 +314,41 @@ def train_run(
         batch_size=batch_size,
     )
 
+    missing = res.get("missing_dependencies") or []
+    remediation = "Implement a training backend (see the local-reasoning-adapters playbook) before running CT jobs."
+    if missing:
+        remediation += f" Missing Python modules: {', '.join(missing)}."
+
     response = _build_response(
         ctx,
         command="cicccdct train run",
         state="ok" if res.get("status") == "completed" else "error",
         data=res,
+        diagnostics=[
+            Diagnostic(
+                severity="error",
+                code="TRAINING_BACKEND_UNAVAILABLE",
+                message=res.get("reason", "Training backend unavailable."),
+                remediation=remediation,
+            )
+        ]
+        if res.get("status") != "completed"
+        else None,
     )
 
     def _text() -> None:
-        console.print("\n[bold green]✓ Continuous Training Job Completed[/bold green]")
-        console.print(f"Job ID: [bold cyan]{res['job_id']}[/bold cyan]")
+        console.print("\n[bold red]✗ Continuous Training Unavailable[/bold red]")
         console.print(f"Target: [bold white]{res['target']}[/bold white] (Method: [yellow]{res['method']}[/yellow])")
-        console.print(f"MLflow Run ID: [bold magenta]{res['mlflow_run_id']}[/bold magenta]")
-        console.print(f"Artifact URI: [bold white]{res['model_artifact_uri']}[/bold white]")
-
-        metrics = res.get("metrics", {})
-        console.print("\n[bold cyan]Post-Training Benchmark Evaluation:[/bold cyan]")
-        console.print(f"  • Final Train Loss: [green]{metrics.get('train_loss')}[/green]")
-        console.print(f"  • Evaluation Reward: [bold green]{metrics.get('eval_reward')}[/bold green]")
-        console.print(f"  • Candidate Improvement: [bold yellow]{metrics.get('accuracy_improvement'):+.4f}[/bold yellow]")
-        console.print(f"  • Taguchi S/N Ratio: [cyan]{metrics.get('snr_db')} dB[/cyan]")
-        console.print(f"  • Promotable to Staging: {'[bold green]YES[/bold green]' if metrics.get('promotable') else '[bold yellow]NO[/bold yellow]'}\n")
+        console.print(res.get("reason", ""))
+        samples = res.get("dataset_samples")
+        console.print(f"Dataset: {res['dataset_path']} ({'missing' if samples is None else f'{samples} samples'})")
+        if missing:
+            console.print(f"Missing dependencies: [yellow]{', '.join(missing)}[/yellow]")
+        console.print()
 
     _emit_response(ctx, response, text_renderer=_text)
+    if res.get("status") != "completed":
+        ctx.exit(1)
 
 
 @cicccdct.group(name="model")

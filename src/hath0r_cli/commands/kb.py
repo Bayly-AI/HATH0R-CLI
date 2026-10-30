@@ -638,7 +638,7 @@ def kb_redteam(ctx: click.Context, persona: str) -> None:
         table.add_column("Status")
         for r in results:
             st = "[green]PASSED[/green]" if r["passed"] else "[red]LEAKED[/red]"
-            table.add_row(r["probe_id"], r["category"], str(r["redacted_secrets"]), str(r["redacted_pii"]), st)
+            table.add_row(str(r["probe_id"]), str(r["category"]), str(r["redacted_secrets"]), str(r["redacted_pii"]), st)
         console.print(table)
 
     _emit_response(ctx, response, text_renderer=_text)
