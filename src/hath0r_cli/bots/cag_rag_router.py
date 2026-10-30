@@ -156,6 +156,11 @@ class HybridCAGRAGRouter:
             return {**base, "rag_status": "error", "message": f"Knowledgebase index could not be searched: {exc}"}
 
         matches = [h.to_dict() for h in hits[: max(1, top_k)]]
+        from hath0r_cli.bots.secret_pii_sanitizer import secret_pii_sanitizer
+
+        for m in matches:
+            if isinstance(m.get("snippet"), str):
+                m["snippet"] = secret_pii_sanitizer.redact_text(m["snippet"]).sanitized_text
         return {**base, "rag_status": "ok", "matches": matches}
 
     def route_query(

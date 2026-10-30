@@ -210,6 +210,7 @@ class ChangeValidationBot:
                     "text_files": len(classification["text"]),
                     "other_files": len(classification["other"]),
                 },
+                "evidence_trust_report": self.generate_evidence_trust_report(files=files),
                 "details": all_details,
                 "message": "All changes verified successfully. Ready for task completion announcement.",
             }
@@ -221,7 +222,40 @@ class ChangeValidationBot:
                     "total_files": total_files,
                     "error_count": len(all_errors),
                 },
+                "evidence_trust_report": self.generate_evidence_trust_report(files=files),
                 "errors": all_errors,
                 "details": all_details,
                 "remediation_hint": "Please review the validation errors and resolve syntax/structural issues before announcing task completion.",
             }
+
+    def generate_evidence_trust_report(self, files: Optional[List[str]] = None) -> Dict[str, Any]:
+        """Classify validation evidence into VERIFIED_EXECUTION, STATIC_AST_ANALYSIS, or UNVERIFIED_FILE_PRESENCE."""
+        classification = self.classify_changes(files=files)
+        verified_execution: List[str] = []
+        static_ast_analysis: List[str] = []
+        unverified_presence: List[str] = []
+
+        eval_latest = self.cwd / ".hath0r" / "evals" / "latest.json"
+        if eval_latest.exists():
+            verified_execution.append(".hath0r/evals/latest.json")
+
+        for f_rel in classification["script"]:
+            static_ast_analysis.append(f_rel)
+        for f_rel in classification["ui"] + classification["text"]:
+            static_ast_analysis.append(f_rel)
+        for f_rel in classification["other"]:
+            unverified_presence.append(f_rel)
+
+        return {
+            "schema": "hath0r.security.evidence_trust_report/1",
+            "tiers": {
+                "VERIFIED_EXECUTION": verified_execution,
+                "STATIC_AST_ANALYSIS": static_ast_analysis,
+                "UNVERIFIED_FILE_PRESENCE": unverified_presence,
+            },
+            "counts": {
+                "VERIFIED_EXECUTION": len(verified_execution),
+                "STATIC_AST_ANALYSIS": len(static_ast_analysis),
+                "UNVERIFIED_FILE_PRESENCE": len(unverified_presence),
+            },
+        }

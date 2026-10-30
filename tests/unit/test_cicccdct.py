@@ -52,16 +52,30 @@ def test_cccd_training_coordinator(temp_workspace: Path) -> None:
     assert Path(curation_res["dataset_path"]).is_file()
     assert curation_res["statistics"]["mean_reward"] >= 0.80
 
-    # Test running training job
+    # Training has no backend: it must report unavailable without fabricating results
+    state_file = temp_workspace / ".hath0r" / "cccd_state.json"
+    state_before = state_file.read_text(encoding="utf-8")
     job_res = coordinator.run_training_job(
         target="test_slm",
         method="lora",
+        dataset_path=curation_res["dataset_path"],
         epochs=2,
     )
-    assert job_res["status"] == "completed"
+    assert job_res["status"] == "unavailable"
     assert job_res["target"] == "test_slm"
-    assert job_res["metrics"]["promotable"] is True
-    assert Path(job_res["model_artifact_uri"]).is_file()
+    assert job_res["dataset_samples"] == curation_res["samples_curated"]
+    assert job_res["metrics"] is None
+    assert job_res["mlflow_run_id"] is None
+    assert job_res["model_artifact_uri"] is None
+    assert set(job_res["missing_dependencies"]) <= {"torch", "transformers", "peft"}
+    assert not any(coordinator.artifacts_dir.iterdir())
+    assert state_file.read_text(encoding="utf-8") == state_before
+
+    for method in ("qlora", "sft", "dpo", "dspy_fewshot"):
+        assert coordinator.run_training_job(method=method)["status"] == "unavailable"
+
+    with pytest.raises(ValueError):
+        coordinator.run_training_job(method="not_a_method")
 
     # Test promoting model
     promo_res = coordinator.promote_model("test_slm", version=1, stage="Production")
@@ -119,9 +133,16 @@ def test_cicccdct_cli_commands(temp_workspace: Path, monkeypatch) -> None:
 
     # Test train run
     result = runner.invoke(main, ["-o", "text", "cicccdct", "train", "run", "--target", "test_model", "--epochs", "1"])
-    assert result.exit_code == 0
-    assert "Continuous Training Job Completed" in result.output
+    assert result.exit_code == 1
+    assert "Continuous Training Unavailable" in result.output
     assert "test_model" in result.output
+
+    result = runner.invoke(main, ["-o", "json", "cicccdct", "train", "run", "--target", "test_model"])
+    assert result.exit_code == 1
+    payload = json.loads(result.output)
+    assert payload["state"] == "error"
+    assert payload["data"]["status"] == "unavailable"
+    assert payload["diagnostics"][0]["code"] == "TRAINING_BACKEND_UNAVAILABLE"
 
     # Test model list and promote
     result = runner.invoke(main, ["-o", "text", "cicccdct", "model", "list"])

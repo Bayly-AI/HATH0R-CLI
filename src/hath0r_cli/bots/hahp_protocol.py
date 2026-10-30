@@ -44,13 +44,15 @@ class HAHPProtocolManager:
         tool_outputs: Optional[List[Dict[str, Any]]] = None,
         kv_cache_pointer: Optional[str] = None,
     ) -> HAHPEnvelope:
-        """Create a new validated HAHP envelope."""
+        """Create a new validated HAHP envelope (pre-persist L2 secret/PII sanitized)."""
+        from hath0r_cli.bots.secret_pii_sanitizer import secret_pii_sanitizer
+
         envelope = HAHPEnvelope(
             sender_agent=sender_agent,
             recipient_agent=recipient_agent,
-            scratchpad_delta=scratchpad_delta,
-            state_variables=state_variables or {},
-            tool_outputs=tool_outputs or [],
+            scratchpad_delta=secret_pii_sanitizer.redact_text(scratchpad_delta).sanitized_text,
+            state_variables=secret_pii_sanitizer.redact_payload(state_variables or {}),
+            tool_outputs=secret_pii_sanitizer.redact_payload(tool_outputs or []),
             kv_cache_pointer=kv_cache_pointer,
         )
         self._journal.append(envelope)

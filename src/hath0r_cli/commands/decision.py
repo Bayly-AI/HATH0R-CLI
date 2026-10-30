@@ -20,6 +20,7 @@ from rich.table import Table
 
 from hath0r_cli.bots.decision_radar_bot import CANONICAL_CATEGORIES, DecisionRadarBot
 from hath0r_cli.server.decision_radar_server import (
+    CRUISE_API_VERSION,
     DEFAULT_CRUISE_PORT,
     HathorDecisionRadarServer,
     build_local_radar_url,
@@ -52,6 +53,16 @@ def _parse_json_context(raw: Optional[str]) -> Optional[Dict[str, Any]]:
         return parsed if isinstance(parsed, dict) else {"value": parsed}
     except (ValueError, TypeError):
         return {"raw": raw.strip()}
+
+
+def _warn_remote_sync(res: Dict[str, Any]) -> None:
+    """Tell the operator when forwarding to the running Cruise Control server failed (#532)."""
+    remote = res.get("remote_sync")
+    if isinstance(remote, dict) and not remote.get("synced"):
+        console.print(
+            f"[bold yellow]⚠ Saved locally, but the radar on port {remote.get('port')} did not take the update:[/bold yellow] "
+            f"{remote.get('error')}. See [cyan]hath0r cruise status[/cyan], then [cyan]hath0r cruise sync[/cyan]."
+        )
 
 
 @click.group("decision")
@@ -124,6 +135,7 @@ def decision_ask(
         console.print(
             f"[bold blue]◫ Split-window Cruise Control ({win.get('layout')}):[/bold blue] [cyan]{win['url']}[/cyan]"
         )
+    _warn_remote_sync(res)
 
 
 @decision_cmd.command("update")
@@ -202,6 +214,7 @@ def decision_update(
         f"[bold green]✓ Updated {dec['decision_id']} ({dec['status']}):[/bold green] "
         f"{dec['question']} [yellow](|| {dec.get('unblock_badge', 1)} · U={dec.get('unblock_weight', 0.0)})[/yellow]"
     )
+    _warn_remote_sync(res)
 
 
 @decision_cmd.command("wait")
@@ -498,7 +511,9 @@ def decision_approve_in(
 
 @decision_cmd.command("approve-out")
 @click.argument("agent_id")
-@click.option("--summary", "-s", default="Deliverable artifact & diff ready", show_default=True, help="Delivery summary.")
+@click.option(
+    "--summary", "-s", default="Deliverable artifact & diff ready", show_default=True, help="Delivery summary."
+)
 @click.option("--diff", "diff_summary", default="", help="Unified diff summary.")
 @click.option("--pr-draft", default="", help="PR title/body draft.")
 @click.option("--unblocks", "-u", default="", help="Downstream release tasks unblocked.")
@@ -572,6 +587,7 @@ def decision_dep(
         console.print(f"[bold red]✗ {res.get('error')}[/bold red]")
         raise click.exceptions.Exit(1)
     console.print(f"[bold green]✓ Added DAG dependency:[/bold green] {upstream_task} -> {downstream_task}")
+    _warn_remote_sync(res)
 
 
 @decision_cmd.command("tui")
@@ -590,7 +606,9 @@ def decision_tui(operator: str, seed_demo: bool, as_json: bool) -> None:
 
 @decision_cmd.command("detach")
 @click.option("--host", "-h", default="127.0.0.1", show_default=True, help="Host interface to bind HTTP server.")
-@click.option("--port", "-p", default=DEFAULT_CRUISE_PORT, type=int, show_default=True, help="Port to bind HTTP server.")
+@click.option(
+    "--port", "-p", default=DEFAULT_CRUISE_PORT, type=int, show_default=True, help="Port to bind HTTP server."
+)
 @click.option("--operator", default="Mark", show_default=True, help="Operator identity in center hub.")
 @click.option("--seed-demo", is_flag=True, default=False, help="Seed canonical Cruise Control reference topology.")
 @click.option(_SPLIT_WINDOW_FLAG, default=True, show_default=True, help=_SPLIT_WINDOW_HELP)
@@ -652,6 +670,40 @@ def decision_status(host: str, port: Optional[int], as_json: bool) -> None:
         f"Open Decisions: [bold yellow]{status['open_count']}[/bold yellow] · "
         f"Autonomous Monitor: [green]{status['autonomous_monitor']}[/green]"
     )
+    if status.get("stale"):
+        console.print(
+            f"[bold yellow]⚠ The server on port {status['port']} speaks Cruise API "
+            f"v{status.get('api_version') or '1'}; this CLI needs v{CRUISE_API_VERSION}. "
+            "CLI updates will not reach it — rebuild or restart the server.[/bold yellow]"
+        )
+    elif status["running"] and not status.get("store_match"):
+        console.print(
+            f"Server store: [cyan]{status.get('server_cwd') or 'unknown'}[/cyan] (not this folder) — "
+            "push this folder's open decisions with [cyan]hath0r cruise sync[/cyan]."
+        )
+
+
+@decision_cmd.command("sync")
+@click.option(
+    "--port", "-p", default=None, type=int, help="Cruise Control server port (default HATH0R_CRUISE_PORT or 38090)."
+)
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit machine-readable JSON.")
+def decision_sync(port: Optional[int], as_json: bool) -> None:
+    """Push this folder's open decisions and dependency edges to the running Cruise Control server."""
+    res = DecisionRadarBot(cwd=Path.cwd()).sync_store_to_server(port=port)
+    if as_json:
+        click.echo(json.dumps(res, indent=2))
+    elif res.get("error"):
+        console.print(f"[bold red]✗ {res['error']}[/bold red]")
+    else:
+        console.print(
+            f"[bold green]✓ Synced {len(res['pushed'])} decisions and {res['edges_pushed']} dependency edges "
+            f"to port {res['port']}.[/bold green]"
+        )
+        for fail in res["failed"]:
+            console.print(f"[bold yellow]⚠ {fail['id']}:[/bold yellow] {fail['error']}")
+    if not res.get("success"):
+        raise click.exceptions.Exit(1)
 
 
 @decision_cmd.command("stop")
@@ -663,13 +715,19 @@ def decision_stop(host: str, port: Optional[int], as_json: bool) -> None:
     res = stop_detached_cruise_server(cwd=Path.cwd(), host=host, port=port)
     if as_json:
         click.echo(json.dumps(res, indent=2))
-        return
-    console.print(f"[bold green]✓ Stopped detached Cruise Control server on port {res['port']}.[/bold green]")
+    elif res.get("stopped"):
+        console.print(f"[bold green]✓ Stopped detached Cruise Control server on port {res['port']}.[/bold green]")
+    else:
+        console.print(f"[bold red]✗ {res.get('error')}[/bold red]")
+    if not res.get("stopped"):
+        raise click.exceptions.Exit(1)
 
 
 @decision_cmd.command("radar")
 @click.option("--host", "-h", default="127.0.0.1", show_default=True, help="Host interface to bind HTTP server.")
-@click.option("--port", "-p", default=DEFAULT_CRUISE_PORT, type=int, show_default=True, help="Port to bind HTTP server.")
+@click.option(
+    "--port", "-p", default=DEFAULT_CRUISE_PORT, type=int, show_default=True, help="Port to bind HTTP server."
+)
 @click.option("--operator", default="Mark", show_default=True, help="Operator identity in center hub.")
 @click.option("--seed-demo", is_flag=True, default=False, help="Seed canonical Cruise Control reference topology.")
 @click.option(_SPLIT_WINDOW_FLAG, default=True, show_default=True, help=_SPLIT_WINDOW_HELP)

@@ -8,6 +8,7 @@ Includes:
 
 from __future__ import annotations
 
+import os
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -17,6 +18,9 @@ from typing import Any, Dict, List, Set
 ALLOWED_ROOT_FILES: Set[str] = {
     # Core Hath0r / UPL files
     "AGENTS.md",
+    "CLAUDE.md",
+    "Claude.md",
+    "THREATMODEL.md",
     "WARP.md",
     "README.md",
     "TECH_README.md",
@@ -301,8 +305,16 @@ class KnowledgeOrganizerBot:
             # Check root of documentation / knowledge directory for stray non-index markdown
             for item in base.iterdir():
                 if item.is_file() and item.suffix.lower() == ".md":
-                    # Single top-level files (apart from README, INDEX, WARP, AGENTS)
-                    if item.name.upper() not in {"README.MD", "INDEX.MD", "WARP.MD", "AGENTS.MD", "LLMS.TXT"}:
+                    # Single top-level files (apart from README, INDEX, WARP, AGENTS, CLAUDE, THREATMODEL)
+                    if item.name.upper() not in {
+                        "README.MD",
+                        "INDEX.MD",
+                        "WARP.MD",
+                        "AGENTS.MD",
+                        "CLAUDE.MD",
+                        "THREATMODEL.MD",
+                        "LLMS.TXT",
+                    }:
                         line_count = len(item.read_text(encoding="utf-8", errors="ignore").splitlines())
                         scanned_files += 1
                         if line_count > MAX_MONOLITHIC_LINES:
@@ -384,7 +396,9 @@ class CleanReposWorkflowBot:
 
     @classmethod
     def _has_origin(cls, repo_path: Path) -> bool:
-        """Return True when the repository has an origin remote configured."""
+        """Return True when the repository has an origin remote configured (and is not a local archive)."""
+        if "archive" in repo_path.name.lower():
+            return False
         remotes = cls._git_out(repo_path, ["remote"]).splitlines()
         return "origin" in [r.strip() for r in remotes if r.strip()]
 
@@ -424,16 +438,21 @@ class CleanReposWorkflowBot:
 
     @classmethod
     def _cleanup_artifacts(cls, repo_path: Path) -> List[str]:
-        """Remove development and coverage artifacts from repo_path."""
+        """Remove development and coverage artifacts from repo_path (skipping node_modules/.venv)."""
         cleaned_artifacts: List[str] = []
-        for p in list(repo_path.rglob(".DS_Store")):
-            if p.exists():
-                p.unlink(missing_ok=True)
-                cleaned_artifacts.append(str(p.relative_to(repo_path)))
-        for p in list(repo_path.rglob("__pycache__")):
-            if p.exists():
-                shutil.rmtree(p, ignore_errors=True)
-                cleaned_artifacts.append(str(p.relative_to(repo_path)))
+        skip_dirs = {"node_modules", ".venv", ".git", "venv"}
+        for root, dirs, files in os.walk(repo_path):
+            dirs[:] = [d for d in dirs if d not in skip_dirs]
+            root_p = Path(root)
+            if ".DS_Store" in files:
+                ds_p = root_p / ".DS_Store"
+                ds_p.unlink(missing_ok=True)
+                cleaned_artifacts.append(str(ds_p.relative_to(repo_path)))
+            if "__pycache__" in dirs:
+                pc_p = root_p / "__pycache__"
+                shutil.rmtree(pc_p, ignore_errors=True)
+                dirs.remove("__pycache__")
+                cleaned_artifacts.append(str(pc_p.relative_to(repo_path)))
         for cache_dir in [".pytest_cache", ".coverage", "coverage.xml"]:
             target = repo_path / cache_dir
             if target.exists():
@@ -793,6 +812,7 @@ class CleanReposWorkflowBot:
                 from hath0r_cli.bots.churn_manager_bot import churn_manager_bot
 
                 ag_bot = AgentGraphBot(cwd=repo_path)
+                ag_bot.sync_claude_md(repo_path)
                 ag_sync = ag_bot.sync(persist=True)
                 ag_val = ag_bot.validate()
                 ag_valid = bool(ag_val.get("validation", {}).get("valid", False))
@@ -803,6 +823,7 @@ class CleanReposWorkflowBot:
 
                 repo_res["steps"]["7_update_documentation"] = {
                     "agents_md": (repo_path / "AGENTS.md").exists(),
+                    "claude_md": (repo_path / "CLAUDE.md").exists(),
                     "readme_md": (repo_path / "README.md").exists(),
                     "agentgraph_synced": ag_sync.get("success", False),
                     "agentgraph_valid": ag_valid,
