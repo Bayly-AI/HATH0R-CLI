@@ -1267,6 +1267,7 @@ class BotRegistry:
             res = bot.generate_notes(version=args.get("version"))
         elif action in ("tag-release", "release", "publish"):
             res = bot.tag_and_release(
+                ref=str(args.get("ref") or "origin/master"),
                 repo=args.get("repo") or repo,
                 dry_run=dry_run,
                 skip_github_release=bool(args.get("skip_github_release", False)),

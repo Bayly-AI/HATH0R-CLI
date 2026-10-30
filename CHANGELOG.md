@@ -5,6 +5,15 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.5] - 2026-10-30
+
+### Fixed
+- **`hath0r release publish` tags the promoted commit, not the checkout** (#550):
+  - `ReleaseBot.tag_and_release()` fetches and resolves a release ref (default `origin/master`, `--ref` to override), reads `VERSION` and `CHANGELOG.md` from that commit, and creates the annotated tag on it. Previously it ran `git tag` on the checkout's HEAD with the checkout's version, so publishing from `development` tagged unpromoted code.
+  - An existing tag on a different commit now fails the publish instead of being ignored; an existing tag on the same commit is accepted, so re-runs are safe.
+  - Dry runs report the resolved `ref` and `sha`. The factory `release-bot` publish step accepts a `ref` argument.
+  - Documented the publish step in `docs/procedures/git-promotion-workflow-procedure.md` and the quality/release runbook.
+
 ## [1.15.4] - 2026-10-30
 
 ### Added
