@@ -5,6 +5,13 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.3] - 2026-10-30
+
+### Fixed
+- **Continuous Training no longer fabricates results (`hath0r cicccdct train run` · `hath0r_cicccdct_train`)**:
+  - `CCCDTTrainingCoordinator.run_training_job()` now returns `status: "unavailable"` with a reason and the missing backend dependencies per method (`lora`/`peft`: torch, transformers, peft; `qlora`: + bitsandbytes; `sft`/`dpo`: + trl; DSPy methods: dspy). Removed the 16-dim hash-vector "LoRA subspace" optimizer, floored candidate reward, constant latencies, invented MLflow run IDs, placeholder adapter files, and the `cccd_state.json` "Staging" write introduced in 1.13.0.
+  - `cicccdct train run` emits a `TRAINING_BACKEND_UNAVAILABLE` error diagnostic and exits 1; the MCP tool description states that no backend exists.
+
 ## [1.15.2] - 2026-10-29
 
 ### Added
