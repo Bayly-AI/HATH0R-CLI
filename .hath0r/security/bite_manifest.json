@@ -1,0 +1,74 @@
+{
+  "schema": "hath0r.security.bite_manifest/1",
+  "scope": "skills_and_rules",
+  "generated_at": "2026-10-29T13:26:53.365987+00:00",
+  "passed": true,
+  "summary": {
+    "total_audited": 6,
+    "clean": 6,
+    "risky": 0,
+    "dangerous": 0
+  },
+  "artifacts": [
+    {
+      "artifact_id": ".agents/skills/clean-repos/SKILL.md",
+      "artifact_type": "skill",
+      "path": ".agents/skills/clean-repos/SKILL.md",
+      "sha256": "d6a908561b50ce12c20ed2ded24ea309c148fece48387b502e171a8e393b096d",
+      "stated_purpose": "comprehensive standard operating procedure for cleaning repositories across the suite. activates whenever the user says \"clean repo\", \"clean repos\", \"clean repository\", \"clean repositories\", or reques",
+      "verdict": "CLEAN",
+      "behaviors": [],
+      "invisible_unicode_count": 0
+    },
+    {
+      "artifact_id": ".agents/skills/orient/SKILL.md",
+      "artifact_type": "skill",
+      "path": ".agents/skills/orient/SKILL.md",
+      "sha256": "823de19538265b54d114f7947dc57c2c0ddbfffb9837ba16460424d83211ae06",
+      "stated_purpose": "standard operating procedure for repository orientation. activates whenever the operator runs \"orient\", \"run orient\", \"orient repo\", \"orient repository\", or requests full repository orientation. cli c",
+      "verdict": "CLEAN",
+      "behaviors": [],
+      "invisible_unicode_count": 0
+    },
+    {
+      "artifact_id": ".agents/skills/paper-design/SKILL.md",
+      "artifact_type": "skill",
+      "path": ".agents/skills/paper-design/SKILL.md",
+      "sha256": "efba732d6a70ca52c055f606797bf4b0a52327f77f1575245949e2e4a7142d1a",
+      "stated_purpose": "direct integration with paper.design mcp server for website ui/ux design, bi-directional canvas-to-code synthesis, artboard staging, token extraction, and web accessibility audits. activates when desi",
+      "verdict": "CLEAN",
+      "behaviors": [],
+      "invisible_unicode_count": 0
+    },
+    {
+      "artifact_id": "AGENTS.md",
+      "artifact_type": "rule_file",
+      "path": "AGENTS.md",
+      "sha256": "85a35a89ef6daa7cf9388fd8c84f6cd2f071a85c7e2f00bef28516480581bfec",
+      "stated_purpose": "# agents.md \u2014 hath0r-cli (control tower & operator cli) > **canonical control tower and operator cli** for the **hath0r opensource suite** (`hath0r-opensource`). > roles: **governance control tower** ",
+      "verdict": "CLEAN",
+      "behaviors": [],
+      "invisible_unicode_count": 0
+    },
+    {
+      "artifact_id": "CLAUDE.md",
+      "artifact_type": "rule_file",
+      "path": "CLAUDE.md",
+      "sha256": "85a35a89ef6daa7cf9388fd8c84f6cd2f071a85c7e2f00bef28516480581bfec",
+      "stated_purpose": "# agents.md \u2014 hath0r-cli (control tower & operator cli) > **canonical control tower and operator cli** for the **hath0r opensource suite** (`hath0r-opensource`). > roles: **governance control tower** ",
+      "verdict": "CLEAN",
+      "behaviors": [],
+      "invisible_unicode_count": 0
+    },
+    {
+      "artifact_id": "plugin/skills/hath0r/SKILL.md",
+      "artifact_type": "skill",
+      "path": "plugin/skills/hath0r/SKILL.md",
+      "sha256": "9b2f94062fba1fe02b5f82707192cdbc7e847ad3cafca9141e0315ccd57b7f62",
+      "stated_purpose": "control tower, governance, agentgraph + claude.md sync, bite supply-chain security, pbac/rbac red-teaming, sft/lora/peft continuous training, taguchi optimization, finops hash-chained token ledger, an",
+      "verdict": "CLEAN",
+      "behaviors": [],
+      "invisible_unicode_count": 0
+    }
+  ]
+}

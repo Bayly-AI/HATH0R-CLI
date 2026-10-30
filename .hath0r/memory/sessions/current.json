@@ -1,53 +1,55 @@
 {
   "schema_version": "hath0r.micro_session/1",
-  "session_id": "sess-20261029-114902-5d1208",
-  "prior_session_id": "sess-20261028-130546-18a517",
-  "parent_session_id": "sess-20261028-130546-18a517",
-  "revision": 6,
-  "content_hash": "sha256:6d3238e4c3b8e988b56a1c3b5b1f575d302b87a79a138608d277eb5857a7b9cd",
-  "base_graph_hash": "sha256:4d007f644543c98d784b42872864607c6c94cf8a6a7279ab73f50ced536efdfb",
-  "task_id": "Finish SFT, LoRA, PEFT and Evals in training_coordinator",
+  "session_id": "sess-20261029-132655-5b44e9",
+  "prior_session_id": "sess-20261029-124722-424d8e",
+  "parent_session_id": "sess-20261029-124722-424d8e",
+  "revision": 14,
+  "content_hash": "sha256:c5b12152c08664e18b24445452ba5f4b27cbbe37e6bfc9388d7e32980e1ea116",
+  "base_graph_hash": "sha256:82b15e3b53d6e7b835b0e3fac7bb118af7470b5dd1db87278a4144f6cef1e98c",
+  "task_id": "rule-sync-and-workflow-upgrade",
   "role": null,
   "repo_name": "hathor-cli",
-  "status": "active",
-  "started_at": "2026-10-29T11:49:02.568855+00:00",
-  "updated_at": "2026-10-29T11:57:17.398828+00:00",
-  "ended_at": null,
-  "read_count": 1,
-  "write_count": 5,
-  "last_read_at": "2026-10-29T11:49:02.568855+00:00",
-  "last_write_at": "2026-10-29T11:57:17.398828+00:00",
-  "active_focus": "SFT/LoRA/PEFT training coordinator and evals",
-  "prior_summary": "ounded episode:sft-lora-peft-coordin; Compounded eval:sft-lora-peft-evals: Tas; Compounded release-v1.13.0: Release HATH",
+  "status": "completed",
+  "started_at": "2026-10-29T13:26:55.789091+00:00",
+  "updated_at": "2026-10-29T14:32:23.225938+00:00",
+  "ended_at": "2026-10-29T14:17:53.504362+00:00",
+  "read_count": 4,
+  "write_count": 10,
+  "last_read_at": "2026-10-29T14:17:53.260944+00:00",
+  "last_write_at": "2026-10-29T14:32:23.225938+00:00",
+  "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
+  "prior_summary": "ounded episode:clean-repo-hathor-cli; Clean Repo Lifecycle completed for hatho; Compounded eval:clean-repo-hathor-cli: T",
   "recalled_nodes": [
     {
-      "id": "rule:cr-task-eval-001",
-      "type": "rule",
-      "label": "Automatic Task Evaluation & Scorecard Summary Gate (CR-TASK-",
-      "snippet": "Every task must execute and pass the 4-tier hybrid evaluation pipeline (R_task >= 0.80), p"
+      "id": "decision:issue-474-micro-memory-session",
+      "type": "decision",
+      "label": "True Micro Memory Session CLI & Bot Enforcement (Issue #474)",
+      "snippet": "Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task st"
     }
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-29T11:57:17.398828+00:00",
+      "timestamp": "2026-10-29T14:32:23.225938+00:00",
       "kind": "compound",
-      "summary": "Compounded eval:release-v1-13-0: Task Evaluation release-v1-13-0 (R=1.00, PASS)",
+      "summary": "Compounded eval:release-v1-15-2: Task Evaluation release-v1.15.2 (R=1.00, PASS)",
       "tags": [
         "eval",
         "cr-task-eval-001",
-        "release-v1-13-0",
+        "release-v1-15-2",
         "passed",
         "compounded"
       ],
-      "node_id": "eval:release-v1-13-0"
+      "node_id": "eval:release-v1-15-2"
     }
   ],
   "next_steps": [],
   "compounded_node_ids": [
-    "episode:sft-lora-peft-coordinator",
-    "eval:sft-lora-peft-evals",
-    "release-v1.13.0",
-    "eval:release-v1-13-0"
+    "eval:task-hathor-cli",
+    "rule:cr-task-eval-001",
+    "eval:eval-baseline-hathor-cli",
+    "episode:clean-repo-hathor-cli",
+    "eval:clean-repo-hathor-cli",
+    "eval:release-v1-15-2"
   ],
-  "capsule_bytes": 1910
+  "capsule_bytes": 2010
 }

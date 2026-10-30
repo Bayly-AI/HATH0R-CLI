@@ -43,12 +43,12 @@
   ],
   "next_steps": [],
   "compounded_node_ids": [
-    "rule:cr-task-eval-001",
-    "eval:issue-524",
     "eval:pr-525-scorecard-summary-rule",
     "eval:eval-baseline-hathor-cli",
     "episode:clean-repo-hathor-cli",
-    "eval:clean-repo-hathor-cli"
+    "eval:clean-repo-hathor-cli",
+    "episode:issue-528-rules-ensure-all",
+    "eval:issue-528"
   ],
   "parent_session_id": "sess-20261017-145045-ed36da",
   "capsule_bytes": 2022

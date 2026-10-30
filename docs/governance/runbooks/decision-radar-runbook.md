@@ -64,3 +64,30 @@ hath0r decision settle
 | `POST` | `/api/decisions/assert-fact` | Assert a fact and auto-settle matching decisions |
 | `POST` | `/api/decisions/settle` | Evaluate all pending fact predicates |
 | `POST` | `/api/decisions/seed` | Seed reference topology |
+| `POST` | `/api/decisions/update` | Upsert or update a decision (stateless agent update, #520) |
+| `POST` | `/api/decisions/dep` | Register a task dependency edge (#532) |
+
+---
+
+## 3. Keeping the Radar in Sync with the CLI (#532)
+
+Each CLI command writes to the decision store of the folder it runs in (`<cwd>/.hath0r/decisions/`) and forwards the change to the server on `HATH0R_CRUISE_PORT` (default `38090`). That server is usually the `Hath0r-Cruise-Control` container, which keeps its own store.
+
+```bash
+# Is the server reachable, current, and serving which store?
+hath0r cruise status
+
+# Push every open decision and dependency edge in this folder's store to the running server
+hath0r cruise sync [--port 38090]
+```
+
+`cruise ask` / `cruise update` / `cruise dep` print a warning when forwarding fails, instead of failing silently.
+
+### Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `cruise status` shows `stale: true`, or sync warns `404` | The container image predates the API the CLI uses | Rebuild: `docker compose -f hath0r-atc/deploy/docker/docker-compose.yml up -d --build cruise-control`, then `hath0r cruise sync` |
+| Radar shows the `@p4010`-style reference topology | The server was started with `--seed-demo`, which wipes its store on every start | Remove `--seed-demo` from the service command; seed on demand with `POST /api/decisions/seed` |
+| `cruise radar --detached` returns but nothing listens | Spawned child failed to start | `hath0r cruise status`; run `hath0r cruise radar --foreground` to see the error |
+

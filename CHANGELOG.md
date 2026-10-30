@@ -5,6 +5,51 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.4] - 2026-10-30
+
+### Added
+- **CLI tests for CR-AGENTIC-SEC-001 commands** (`tests/unit/test_agentic_security_cli.py`): `skills audit`, `mcp audit`, `kb redteam`, `finops tokens verify-ledger`, and `observe shadow-ai` are exercised in text and JSON modes, including dangerous skill/MCP definitions and a tampered telemetry ledger. Raises SonarCloud new-code coverage for the release from 75.2% to above the 80% gate (#545).
+
+## [1.15.3] - 2026-10-30
+
+### Fixed
+- **Continuous Training no longer fabricates results (`hath0r cicccdct train run` · `hath0r_cicccdct_train`)**:
+  - `CCCDTTrainingCoordinator.run_training_job()` now returns `status: "unavailable"` with a reason and the missing backend dependencies per method (`lora`/`peft`: torch, transformers, peft; `qlora`: + bitsandbytes; `sft`/`dpo`: + trl; DSPy methods: dspy). Removed the 16-dim hash-vector "LoRA subspace" optimizer, floored candidate reward, constant latencies, invented MLflow run IDs, placeholder adapter files, and the `cccd_state.json` "Staging" write introduced in 1.13.0.
+  - `cicccdct train run` emits a `TRAINING_BACKEND_UNAVAILABLE` error diagnostic and exits 1; the MCP tool description states that no backend exists.
+- **`hath0r kb redteam` passes mypy**: probe ID and category cells are passed to `Table.add_row` as strings, fixing the `arg-type` errors that failed CI `mypy src/hath0r_cli`.
+- **`test_cli_sync_command` no longer depends on terminal width**: the `cruise status` assertion collapses whitespace so Rich line wrapping on narrow CI runners cannot split "not this folder".
+
+## [1.15.2] - 2026-10-29
+
+### Added
+- **Workspace-Wide `hath0r clean-repos --root` Discovery & Fast Artifact Cleanup**:
+  - Added `--root` option to `hath0r clean-repos` and `hath0r repo workflow` to recursively discover and clean all unique git repositories across `/Users/raybayly/Development`, skipping `node_modules`/`.venv` during artifact cleanup and protecting local archive clones.
+
+## [1.15.1] - 2026-10-29
+
+### Added
+- **Automatic Post-Task Evaluation & Pre-Push Verification Hooks (`CR-TASK-EVAL-001` · `hath0r evals ensure-all`)**:
+  - Enhanced `TaskEvaluatorBot.ensure_repo_eval_setup()` to provision `cfg/evals/task-eval.json` (`auto_run_after_every_task: true`, `require_scorecard_summary: true`), `.hath0r/evals/post-task-hook.sh`, `.git/hooks/pre-push` (`hath0r evals verify --auto-run`), and automatic `CLAUDE.md` ↔ `AGENTS.md` synchronization across all 39 workspace repositories.
+
+## [1.15.0] - 2026-10-29
+
+### Added
+- **Mandatory `CLAUDE.md` ↔ `AGENTS.md` 1:1 Synchronization & Rule Conflict Detection (`CR-CLAUDE-SYNC-001`)**:
+  - Added `AgentGraphBot.sync_claude_md()` and wired automatic `CLAUDE.md` synchronization into `hath0r agentgraph sync`, `hath0r memory hash --sync` (`MemoryManagerBot.sync_file_hashes`), and `hath0r clean-repos` (`CleanReposWorkflowBot`).
+  - Enhanced `AgentGraphBot.validate()`, `DependencyGuardBot.check_rule_file_drift()`, and `BITEVerifierBot.audit_skills_and_rules()` to verify `CLAUDE.md == AGENTS.md` and detect rule contradictions (such as `CR-SEMVER-BUMP-001` vs legacy `Version Impact: none`).
+  - Updated `.agents/skills/clean-repos/SKILL.md`, `.agents/skills/orient/SKILL.md`, `plugin/skills/hath0r/SKILL.md`, and `cfg/workflows/git-promotion-workflow.yaml` to leverage the latest CLI workflows.
+
+## [1.14.0] - 2026-10-29
+
+### Added
+- **Agentic Supply-Chain Security, BITE Verification & Knowledge Curation Suite (`CR-AGENTIC-SEC-001`)** (#537, #538, #539, #540, #541):
+  - **WS1 (`BITEVerifierBot`, `hath0r skills audit`, `hath0r mcp audit`)**: Added [`src/hath0r_cli/bots/bite_verifier_bot.py`](src/hath0r_cli/bots/bite_verifier_bot.py) and [`src/hath0r_cli/commands/skills.py`](src/hath0r_cli/commands/skills.py) evaluating `SKILL.md`, `AGENTS.md`, `WARP.md`, and MCP configs against the 3 BITE questions (`is_reachable`, `is_unnecessary`, `is_concealed`), detecting invisible Unicode variation selectors (`\uFE00-\uFE0F`) and prompt overrides, and persisting `.hath0r/security/bite_manifest.json` (#538).
+  - **WS2 (`SecretPIISanitizerBot` & Hash-Chained Token Telemetry Ledger)**: Added [`src/hath0r_cli/bots/secret_pii_sanitizer.py`](src/hath0r_cli/bots/secret_pii_sanitizer.py) wired into `MemoryManagerBot`, `HAHPProtocolManager`, and `TokenTelemetryCLIBot`, plus SHA-256 hash chaining (`prev_hash`, `hash`), token-bucket rate limiting, and `hath0r finops tokens verify-ledger` (#539).
+  - **WS3 & WS4 CLI (`hath0r kb redteam` & OpenAnt Red-Team Reachability)**: Added `hath0r kb redteam` in `src/hath0r_cli/commands/kb.py`, L2 snippet sanitization in `HybridCAGRAGRouter`, and OpenAnt static reachability + constrained attacker persona verification in `MultiAgentRedTeamEngine`.
+  - **WS5 (`THREATMODEL.md` & Evidence Trust Tiers)**: Added [`src/hath0r_cli/commands/threatmodel.py`](src/hath0r_cli/commands/threatmodel.py) (`hath0r threatmodel init|validate` with fail-closed validation) and `ChangeValidationBot.generate_evidence_trust_report()` wired into `TaskEvaluatorBot` (#540).
+  - **WS6 (`DependencyGuardBot` & `ShadowAIClassifierBot`)**: Added [`src/hath0r_cli/bots/dependency_guard_bot.py`](src/hath0r_cli/bots/dependency_guard_bot.py) (slopsquatting & rule-drift guard wired into `PreflightBot`) and [`src/hath0r_cli/bots/shadow_ai_classifier.py`](src/hath0r_cli/bots/shadow_ai_classifier.py) (`hath0r observe shadow-ai` AgentSonar commit scoring) (#541).
+  - Delivered the `CR-CLI-FEATURE-STANDARD-001` Governance Documentation Hexad (`docs/strategies/bite-supply-chain-strategy.md`, `docs/procedures/bite-supply-chain-procedure.md`, `docs/playbooks/bite-supply-chain-playbook.md`, `docs/runbooks/bite-supply-chain-runbook.md`, `cfg/workflows/bite-supply-chain-workflow.yaml`, `docs/bots/bite-verifier-bot-spec.md`).
+
 ## [1.13.0] - 2026-10-29
 
 ### Added

@@ -1,0 +1,17 @@
+schema: "hath0r.workflow/1"
+id: "bite-supply-chain-workflow"
+name: "Agentic Supply-Chain Security & BITE Verification Workflow"
+rule_id: "CR-AGENTIC-SEC-001"
+steps:
+  - id: "skills_bite_audit"
+    command: ["hath0r", "skills", "audit"]
+  - id: "mcp_bite_audit"
+    command: ["hath0r", "mcp", "audit"]
+  - id: "threatmodel_validate"
+    command: ["hath0r", "threatmodel", "validate"]
+  - id: "telemetry_verify_ledger"
+    command: ["hath0r", "finops", "tokens", "verify-ledger"]
+  - id: "kb_redteam_probe"
+    command: ["hath0r", "kb", "redteam"]
+  - id: "shadow_ai_scan"
+    command: ["hath0r", "observe", "shadow-ai", "--limit", "5"]

@@ -198,3 +198,33 @@ def observe_anomalies(threshold: Optional[float], as_json: bool) -> None:
         for rec in report.anomalous_records:
             console.print(f"  • [red]{rec.span_id}[/red] (Loss: {rec.reconstruction_loss:.2f}) -> [bold green]{rec.root_cause}[/bold green]")
 
+
+@observe_cmd.command("shadow-ai", help="Run AgentSonar behavioral classifier over recent Git commits and workspace footprints.")
+@click.option("--limit", "-n", default=10, type=int, help="Number of recent commits to classify.")
+@click.option("--json", "as_json", is_flag=True, help="Output report in JSON format.")
+def observe_shadow_ai(limit: int, as_json: bool) -> None:
+    """Classify recent Git commits into AUTONOMOUS_AGENT, AI_ASSISTED_HYBRID, or HUMAN_AUTHORED."""
+    from pathlib import Path
+
+    from hath0r_cli.bots.shadow_ai_classifier import ShadowAIClassifierBot
+
+    bot = ShadowAIClassifierBot(workspace_root=Path.cwd())
+    report = bot.scan_recent_commits(limit=limit)
+    if as_json:
+        click.echo(json.dumps(report, indent=2))
+        return
+
+    console.print("[bold cyan]HATH0R AgentSonar Shadow-AI & Commit Behavioral Classification:[/bold cyan]")
+    dist = report["distribution"]
+    console.print(
+        f"  • Commits Analyzed: {report['commits_analyzed']} "
+        f"(Autonomous: [magenta]{dist['AUTONOMOUS_AGENT']}[/magenta], "
+        f"Hybrid: [yellow]{dist['AI_ASSISTED_HYBRID']}[/yellow], "
+        f"Human: [green]{dist['HUMAN_AUTHORED']}[/green])"
+    )
+    for c in report["commits"]:
+        console.print(
+            f"  • [cyan]{c['commit_sha']}[/cyan] [{c['classification']} score={c['score']}] {c['subject']}"
+        )
+
+

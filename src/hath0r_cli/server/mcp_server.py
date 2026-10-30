@@ -829,11 +829,17 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         lr: float = 0.0002,
         batch_size: int = 4,
     ) -> Dict[str, Any]:
-        """Execute Continuous Training (CT) job, evaluate candidate model, and log to MLflow.
+        """Request a Continuous Training (CT) job.
+
+        No training backend is implemented yet: this always returns status
+        'unavailable' with the reason and missing dependencies. No model is
+        trained, no metrics or artifacts are produced, nothing is logged to
+        MLflow, and CT state is not changed.
 
         Args:
             target: Target architecture or prompt module (default: 'reasoning_slm').
-            method: Training method ('lora', 'qlora', 'dspy_mipro', 'dspy_fewshot').
+            method: Training method ('lora', 'qlora', 'peft', 'sft', 'full_finetune', 'dpo',
+                'miprov2', 'bootstrap', 'dspy_mipro', 'dspy_fewshot').
             dataset_path: Optional path to JSONL training dataset.
             epochs: Training epochs count (default: 3).
             lr: Learning rate (default: 0.0002).
