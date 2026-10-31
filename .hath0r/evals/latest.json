@@ -1,15 +1,15 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261031-115737-bb7952",
+  "eval_id": "eval-20261031-131029-86d2e0",
   "task_id": "issue-551",
   "issue_number": 551,
   "repo_name": "hathor-cli",
   "branch": "feature/551-register-69-bots-4h-calibration-supersqueeze",
-  "evaluated_at": "2026-10-31T11:57:37.528408+00:00",
-  "duration_ms": 462.14,
+  "evaluated_at": "2026-10-31T13:10:29.291842+00:00",
+  "duration_ms": 287.61,
   "passed_gate": true,
-  "r_task": 0.9349,
+  "r_task": 1.0,
   "min_reward_threshold": 0.8,
   "weights": {
     "deterministic": 0.4,
@@ -18,36 +18,27 @@
     "goal_alignment": 0.15
   },
   "tier_scores": {
-    "deterministic": 0.9601,
-    "trajectory": 0.9348,
-    "adversarial": 0.8982,
-    "goal_alignment": 0.9287
+    "deterministic": 1.0,
+    "trajectory": 1.0,
+    "adversarial": 1.0,
+    "goal_alignment": 1.0
   },
   "tiers": {
     "deterministic": {
-      "score": 0.9601,
+      "score": 1.0,
       "passed": true,
-      "passed_checks": 5,
-      "total_checks": 5,
-      "sub_scores": {
-        "version_valid": 1.0,
-        "agentgraph_valid": 1.0,
-        "memory_compounded": 0.98,
-        "test_suite": 0.88,
-        "calibration_4h": 0.9892
-      },
+      "passed_checks": 4,
+      "total_checks": 4,
       "checks": {
         "version_valid": {
           "passed": true,
           "version": "1.16.0",
-          "changelog_aligned": true,
           "error": null
         },
         "agentgraph_valid": {
           "passed": true,
           "cycles": 0,
-          "contradictions": 0,
-          "claude_md_synced": true
+          "contradictions": 0
         },
         "memory_compounded": {
           "passed": true,
@@ -61,88 +52,44 @@
         "test_suite": {
           "passed": true,
           "skipped": true,
-          "message": "Test execution skipped via flag or dry-run (-0.12 confidence deduction)."
-        },
-        "calibration_4h": {
-          "passed": true,
-          "is_fresh": true,
-          "age_hours": 0.03,
-          "max_age_hours": 4.0
+          "message": "Test execution skipped via flag or dry-run."
         }
       }
     },
     "trajectory": {
-      "score": 0.9348,
+      "score": 1.0,
       "passed": true,
-      "tokens_used": 286,
+      "tokens_used": 0,
       "max_tokens": 50000,
-      "estimated_usd": 0.005682,
+      "estimated_usd": 0.0,
       "max_usd": 0.25,
       "session_id": "sess-20261031-114426-90b427",
       "session_reads": 2,
-      "session_writes": 4,
-      "session_bytes": 1903,
-      "capsule_fill_ratio": 0.9292,
+      "session_writes": 5,
+      "session_bytes": 1721,
       "within_capsule_budget": true,
-      "latency_ms": 130.14,
-      "taguchi_quality_loss": 0.0003,
-      "taguchi_score": 0.9792,
-      "snr_db": 23.73
+      "latency_ms": 114.96,
+      "taguchi_quality_loss": 0.0002,
+      "snr_db": 24.81
     },
     "adversarial": {
-      "score": 0.8982,
+      "score": 1.0,
       "passed": true,
       "adversarial_flaws_count": 0,
       "adversarial_flaws": [],
       "tech_debts_count": 0,
       "auto_created_issues": [],
-      "minor_findings": [
-        "High diff addition volume (877 lines, -0.0418)"
-      ],
-      "added_lines_count": 877,
-      "change_categories": {
-        "ui": [],
-        "script": [
-          "src/hath0r_cli/bots/agentgraph_bot.py",
-          "src/hath0r_cli/bots/cag_engine.py",
-          "src/hath0r_cli/bots/cag_rag_router.py",
-          "src/hath0r_cli/bots/cicccd_bot.py",
-          "src/hath0r_cli/bots/hahp_protocol.py",
-          "src/hath0r_cli/bots/supercompress_bot.py",
-          "src/hath0r_cli/bots/task_evaluator_bot.py",
-          "src/hath0r_cli/cccd/calibration_loop.py",
-          "src/hath0r_cli/cli.py",
-          "src/hath0r_cli/commands/context.py",
-          "src/hath0r_cli/commands/task.py",
-          "src/hath0r_cli/lazy_group.py",
-          "src/hath0r_cli/step_runner.py",
-          "tests/unit/test_task_evaluator_bot.py",
-          "src/hath0r_cli/bots/ci_cccd_bot.py",
-          "tests/unit/test_issue551_bot_registry_calibration_supersqueeze.py"
-        ],
-        "text": [
-          "CHANGELOG.md",
-          "cfg/factories/start-of-task-factory.yaml",
-          "cfg/observability/otel.json",
-          "pyproject.toml"
-        ],
-        "other": [
-          "VERSION",
-          "src/hath0r_cli/factories/"
-        ]
-      },
-      "changed_files_count": 22
+      "change_categories": {},
+      "changed_files_count": 0
     },
     "goal_alignment": {
-      "score": 0.9287,
+      "score": 1.0,
       "passed": true,
       "task_id": "issue-551",
       "issue_number": 551,
       "active_focus": "Active working session in hathor-cli",
-      "goal_keywords_count": 5,
-      "goal_overlap_score": 0.98,
       "compounded_nodes_count": 67,
-      "consensus_score": 0.826
+      "consensus_score": 1.0
     }
   },
   "evidence_trust_report": {
@@ -153,51 +100,22 @@
       ],
       "STATIC_AST_ANALYSIS": [
         "src/hath0r_cli/bots/agentgraph_bot.py",
-        "src/hath0r_cli/bots/cag_engine.py",
-        "src/hath0r_cli/bots/cag_rag_router.py",
-        "src/hath0r_cli/bots/cicccd_bot.py",
-        "src/hath0r_cli/bots/hahp_protocol.py",
-        "src/hath0r_cli/bots/supercompress_bot.py",
-        "src/hath0r_cli/bots/task_evaluator_bot.py",
-        "src/hath0r_cli/cccd/calibration_loop.py",
-        "src/hath0r_cli/cli.py",
-        "src/hath0r_cli/commands/context.py",
-        "src/hath0r_cli/commands/task.py",
-        "src/hath0r_cli/lazy_group.py",
-        "src/hath0r_cli/step_runner.py",
-        "tests/unit/test_task_evaluator_bot.py",
-        "src/hath0r_cli/bots/ci_cccd_bot.py",
-        "tests/unit/test_issue551_bot_registry_calibration_supersqueeze.py",
-        ".hath0r/agentgraph/snapshot.json",
-        ".hath0r/evals/latest.json",
-        ".hath0r/memory/graph.json",
-        ".hath0r/memory/hashes.json",
-        ".hath0r/memory/sessions/current.json",
-        ".hath0r/memory/sessions/latest.json",
-        "CHANGELOG.md",
-        "cfg/factories/start-of-task-factory.yaml",
-        "cfg/observability/otel.json",
-        "pyproject.toml",
-        ".hath0r/evals/history/eval-issue-551.json",
-        ".hath0r/memory/sessions/sess-20261031-114426-90b427.json"
+        "tests/unit/test_bots.py",
+        ".hath0r/memory/hashes.json"
       ],
-      "UNVERIFIED_FILE_PRESENCE": [
-        ".hath0r/agentgraph/snapshot.ttl",
-        "VERSION",
-        "src/hath0r_cli/factories/"
-      ]
+      "UNVERIFIED_FILE_PRESENCE": []
     },
     "counts": {
       "VERIFIED_EXECUTION": 1,
-      "STATIC_AST_ANALYSIS": 28,
-      "UNVERIFIED_FILE_PRESENCE": 3
+      "STATIC_AST_ANALYSIS": 3,
+      "UNVERIFIED_FILE_PRESENCE": 0
     }
   },
   "blocking_reasons": [],
   "observability_sync": {
     "mode": "live_synced",
     "phoenix_logged": true,
-    "mlflow_run_id": "b4bf5a0aa03941dabbb55e8b7757aa0d"
+    "mlflow_run_id": "f7e775b7a2e04315b81a8e64b7daf954"
   },
-  "content_hash": "sha256:0a86746ba2a08c53ff1c006033e38298d6d8a8b1ce958edcb5da907eb0728acc"
+  "content_hash": "sha256:a3042f5f85d876338e1e54001db3826bfd7a814dea2e71c3c042822c6e49cc50"
 }
