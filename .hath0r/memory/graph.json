@@ -5088,6 +5088,70 @@
       "weight": 1.0,
       "valid_from": "2026-10-31T12:09:20.918084+00:00",
       "is_current": true
+    },
+    {
+      "source": "session:sess-20261031-120611-9011e9",
+      "target": "session:sess-20261031-121013-c06d97",
+      "relation": "PRECEDES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:10:13.629191+00:00",
+      "is_current": true
+    },
+    {
+      "source": "session:sess-20261031-121013-c06d97",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 0.8,
+      "valid_from": "2026-10-31T12:10:13.629191+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-554-arch-substrate-verifier-bots",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:13:34.819534+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-554-arch-substrate-verifier-bots",
+      "target": "session:sess-20261031-121013-c06d97",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:13:34.890409+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-554",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:13:39.431791+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-554",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:13:39.431791+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-554",
+      "target": "session:sess-20261031-121013-c06d97",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:13:39.431791+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-554",
+      "target": "session:sess-20261031-121013-c06d97",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:13:39.501203+00:00",
+      "is_current": true
     }
   ]
 }
