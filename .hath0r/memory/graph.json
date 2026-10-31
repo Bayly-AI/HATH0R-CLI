@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 481,
-  "content_hash": "sha256:5e1051f50a6257fc3badd787fe6178e153c3829c14fc12e3bde96278babb5ab0",
-  "updated_at": "2026-10-31T11:57:39.799088+00:00",
+  "revision": 493,
+  "content_hash": "sha256:d0e8dde828e481a1053ddb9de822e742f355a55874078eee0a61b6dd02025e78",
+  "updated_at": "2026-10-31T12:05:07.287905+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -458,7 +458,7 @@
           "cfg/mcp.servers.json": "sha256:95e6ce365170bd5afbaf408b3195fc15378b493827572c09f0e10538522f8e97",
           "cfg/mcp-connections.yaml": "sha256:ac7648df01ab8c93a6c548c90fd8a15faaac952e80e9b60cfedd9857eeee17d9",
           "src/hath0r_cli/mcp.py": "sha256:64cf55377eb96461443e0c5d471b6fc8b044b54d82104edf74483331f57d69df",
-          "src/hath0r_cli/commands/mcp.py": "sha256:3a786701b21b67d514f1e14475839c6b42176a75f4e11f61b66727cfd4881496",
+          "src/hath0r_cli/commands/mcp.py": "sha256:6d5070dbf8ee4faba5217866d1e5c786f524979846921a966692980133c20c2b",
           "src/hath0r_cli/bots/memory_manager.py": "sha256:c555a32efc03955e5046d76004f9c01e16f7466c75d9c37f95019c40b48acf68",
           "src/hath0r_cli/bots/onboarding.py": "sha256:4bfa19af27df97c258b0a8339630d9318576196656d2be6709e32b0e13cf894e",
           "tests/unit/test_mcp.py": "sha256:86286b729fa650c6c4a89bcc062903fe3b2b2e328953ef4bcad6a5466d6f7c03"
@@ -745,7 +745,7 @@
       "updated_at": "2026-10-28T13:23:14.632392+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -769,7 +769,7 @@
       "updated_at": "2026-10-28T13:23:21.538822+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -813,7 +813,7 @@
       "updated_at": "2026-10-28T13:31:54.915874+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -837,7 +837,7 @@
       "updated_at": "2026-10-28T14:05:46.606003+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -946,7 +946,7 @@
       "updated_at": "2026-10-28T14:05:49.726259+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -991,7 +991,7 @@
       "updated_at": "2026-10-29T13:58:56.031518+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1015,7 +1015,7 @@
       "updated_at": "2026-10-28T14:22:02.710039+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1059,7 +1059,7 @@
       "updated_at": "2026-10-28T14:38:21.109040+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1083,7 +1083,7 @@
       "updated_at": "2026-10-28T14:38:23.473566+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1107,7 +1107,7 @@
       "updated_at": "2026-10-28T14:50:50.899901+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1152,7 +1152,7 @@
       "updated_at": "2026-10-28T14:51:42.220727+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1198,7 +1198,7 @@
       "updated_at": "2026-10-28T14:51:44.744643+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1243,7 +1243,7 @@
       "updated_at": "2026-10-28T14:59:38.749656+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1267,7 +1267,7 @@
       "updated_at": "2026-10-28T15:21:58.314539+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1291,7 +1291,7 @@
       "updated_at": "2026-10-29T14:17:58.583579+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1315,7 +1315,7 @@
       "updated_at": "2026-10-28T17:30:26.311044+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1339,7 +1339,7 @@
       "updated_at": "2026-10-28T17:37:06.843311+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1363,7 +1363,7 @@
       "updated_at": "2026-10-28T17:42:47.222209+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1432,7 +1432,7 @@
       "updated_at": "2026-10-28T20:55:27.567714+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1501,7 +1501,7 @@
       "updated_at": "2026-10-29T10:12:49.607556+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1577,7 +1577,7 @@
       "updated_at": "2026-10-29T11:49:05.964763+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1598,9 +1598,9 @@
       "updated_at": "2026-10-29T11:57:13.069488+00:00",
       "metadata": {
         "source_files": {
-          "VERSION": "sha256:46081fd90571a274160408ebc81fc91b78ffca4049d477998e3b6909ac245e05",
-          "pyproject.toml": "sha256:1a8c8f7f99bba637cbf0a3e7570a36c0dc1cbd50d65ecea0b6cb6d4e981e3e14",
-          "CHANGELOG.md": "sha256:cd8159e61c1dbc2f606cd9173b182c941cae40872933ef93a7deca8e634168da",
+          "VERSION": "sha256:00afc49f1599e59129a59b64c2b019de3fe35300c05bb9d96cb25002576ff43b",
+          "pyproject.toml": "sha256:ce6aebafbc90e940710b8503144ccb77608ab4957beb4ddf0e26cd4f1256a659",
+          "CHANGELOG.md": "sha256:e9d79d556afde38e5a5711e73ecb50a70d48c4b2830fcdf33bd8e0d997f811fd",
           "src/hath0r_cli/cccd/training_coordinator.py": "sha256:b1fed8465db95f4d72188ed58404f2c4e88040c7f06ca818df8c354e6aa29366",
           "src/hath0r_cli/bots/cicccd_bot.py": "sha256:4a5f72f02a0b3eb5de382608cd5aa5e643f5eaca0472e9061e122f02a774e972"
         }
@@ -1626,7 +1626,7 @@
       "updated_at": "2026-10-29T11:57:17.342810+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1702,7 +1702,7 @@
       "updated_at": "2026-10-29T13:26:59.461378+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1796,7 +1796,7 @@
       "updated_at": "2026-10-29T14:32:23.153719+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1890,7 +1890,7 @@
       "updated_at": "2026-10-31T11:57:38.418877+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e1ae1f8fa8ed384887252907be187c1f76f9f9c0c0da13a7a10b6d28a75d685a"
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
         }
       }
     },
@@ -1918,6 +1918,73 @@
         "write_count": 5,
         "status": "completed",
         "byte_size": 1721
+      }
+    },
+    {
+      "id": "episode:issue-552-mcp-centralization-workflow-engine-bots",
+      "type": "episode",
+      "label": "Issue #552: MCPCentralizationBot & MCPWorkflowEngineBot",
+      "content": "Implemented MCPCentralizationBot and MCPWorkflowEngineBot, enforced Workflow-First Missing-Workflow Offer with original request as acceptance test, added hath0r workflow and hath0r mcp parity|pin-schemas commands, and synced Level 1/2 AgentGraph.",
+      "importance": 0.8,
+      "tags": [
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-31T12:05:01.319105+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-31T12:05:01.319105+00:00",
+      "updated_at": "2026-10-31T12:05:01.319105+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "eval:issue-552",
+      "type": "eval",
+      "label": "Task Evaluation issue-552 (R=0.94, PASS)",
+      "content": "4-Tier Task Evaluation for issue-552 on branch feature/552-mcp-centralization-workflow-engine-bots: R_task=0.9450 (det=0.96, traj=0.94, adv=0.94, goal=0.93). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "issue-552",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-31T12:05:06.169496+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-31T12:05:06.169496+00:00",
+      "updated_at": "2026-10-31T12:05:06.169496+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+        }
+      }
+    },
+    {
+      "id": "session:sess-20261031-120025-509be2",
+      "type": "session",
+      "label": "Micro Session sess-20261031-120025-509be2",
+      "content": "Micro Session sess-20261031-120025-509be2 [completed] | Focus: Active working session in hathor-cli | Reads: 2, Writes: 4 | Entries: Compounded eval:issue-552: Task Evaluation issue-552 (R=0.94, PASS)",
+      "importance": 0.75,
+      "tags": [
+        "session",
+        "micro-session",
+        "completed"
+      ],
+      "valid_from": "2026-10-31T12:00:25.541230+00:00",
+      "valid_to": "2026-10-31T12:05:02.660866+00:00",
+      "is_current": true,
+      "created_at": "2026-10-31T12:00:25.541230+00:00",
+      "updated_at": "2026-10-31T12:05:06.241504+00:00",
+      "metadata": {
+        "session_id": "sess-20261031-120025-509be2",
+        "prior_session_id": "sess-20261031-114426-90b427",
+        "parent_session_id": "sess-20261031-114426-90b427",
+        "read_count": 2,
+        "write_count": 4,
+        "status": "completed",
+        "byte_size": 2014
       }
     }
   ],
@@ -4060,6 +4127,70 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T11:56:43.186104+00:00",
+      "is_current": true
+    },
+    {
+      "source": "session:sess-20261031-114426-90b427",
+      "target": "session:sess-20261031-120025-509be2",
+      "relation": "PRECEDES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:00:25.549743+00:00",
+      "is_current": true
+    },
+    {
+      "source": "session:sess-20261031-120025-509be2",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 0.8,
+      "valid_from": "2026-10-31T12:00:25.549743+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-552-mcp-centralization-workflow-engine-bots",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:05:01.319105+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-552-mcp-centralization-workflow-engine-bots",
+      "target": "session:sess-20261031-120025-509be2",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:05:01.408641+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-552",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:05:06.169496+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-552",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:05:06.169496+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-552",
+      "target": "session:sess-20261031-120025-509be2",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:05:06.169496+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-552",
+      "target": "session:sess-20261031-120025-509be2",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:05:06.243791+00:00",
       "is_current": true
     }
   ]

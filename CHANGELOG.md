@@ -5,6 +5,14 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0] - 2026-10-31
+
+### Added
+- **`MCPCentralizationBot` & `MCPWorkflowEngineBot`, Workflow-First Missing-Workflow Offer, and Level 1/2 `AgentGraph` Bridge (`CR-FEATURE-WORKFLOW-STANDARD-001`)** (#552):
+  - Added `MCPCentralizationBot` (`src/hath0r_cli/bots/mcp_centralization_bot.py`) auditing tool, workflow, and knowledge parity between Level 1 (`HATH0R-MCP`) and Level 2 (`HATH0R-CLI` & `.hath0r/memory/`) across `AgentGraph`, verifying `>= 1` owning Bot per service in `BotRegistry`, pruning schemas via `SchemaPruner`, and pinning SHA-256 digests in `.hath0r/security/mcp-schema-pins.json`.
+  - Added `MCPWorkflowEngineBot` (`src/hath0r_cli/bots/mcp_workflow_engine_bot.py`) enforcing `CR-FEATURE-WORKFLOW-STANDARD-001` ("Everything We Do Is a Workflow"), generating deterministic Missing-Workflow Offers (`hath0r workflow offer` / `hath0r workflow scaffold`) with the original request bound as the acceptance test, enforcing pre-task 4-hour agent calibration (`ensure_calibrated(max_age_hours=4.0)`), propagating W3C `traceparent` to `Hath0r-phoenix`, and syncing boundary gates with `Hath0r-Cruise-Control`.
+  - Added `hath0r workflow list|match|offer|scaffold|run` (`src/hath0r_cli/commands/workflow.py`) and `hath0r mcp parity|pin-schemas` (`src/hath0r_cli/commands/mcp.py`), plus `cfg/factories/workflow-first-offer-factory.yaml` and `docs/governance/mcp-centralization-workflow-first-standard.md`.
+
 ## [1.16.0] - 2026-10-31
 
 ### Added

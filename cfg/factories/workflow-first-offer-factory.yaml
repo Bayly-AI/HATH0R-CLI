@@ -1,0 +1,41 @@
+factory_id: workflow-first-offer-factory
+name: Workflow-First Engine & Missing-Workflow Offer Factory
+version: "1.0.0"
+description: >
+  Enforces CR-FEATURE-WORKFLOW-STANDARD-001 ("Everything We Do Is a Workflow").
+  Matches incoming task intents to declarative workflows across Level 1 (HATH0R-MCP)
+  and Level 2 (HATH0R-CLI / .hath0r/memory/) on AgentGraph, or generates a
+  Missing-Workflow Offer using the original request as its acceptance test.
+bots:
+  - id: cicccd-managing-bot
+    name: CI/CC/CD 4-Hour Calibration Gate Bot
+    capabilities:
+      - ensure-calibrated
+  - id: mcp-centralization-bot
+    name: MCP Level 1/2 Centralization & Parity Bot
+    capabilities:
+      - audit_parity
+      - prune_and_pin_schemas
+  - id: mcp-workflow-engine-bot
+    name: MCP Workflow-First Engine & Offer Bot
+    capabilities:
+      - list_workflows
+      - match_workflow
+      - offer_missing_workflow
+      - scaffold_workflow
+      - execute_workflow_first
+workflows:
+  - id: workflow-first-gate
+    name: Workflow-First Pre-Task Gate & Missing-Workflow Offer
+    steps:
+      - bot: cicccd-managing-bot
+        action: ensure-calibrated
+        args:
+          max_age_hours: 4.0
+        on_failure: continue
+      - bot: mcp-centralization-bot
+        action: audit_parity
+        on_failure: abort
+      - bot: mcp-workflow-engine-bot
+        action: status
+        on_failure: abort
