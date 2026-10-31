@@ -73,6 +73,18 @@ ALLOWED_ROOT_FILES: Set[str] = {
     # IaC & Deployment
     "fargate-profile.yaml",
     # Toolchain configs & standard OSS docs
+    "thresholds.json",
+    "Cargo.toml",
+    "Cargo.lock",
+    "pubspec.yaml",
+    "pubspec.lock",
+    "analysis_options.yaml",
+    "amplify.yml",
+    "pnpm-workspace.yaml",
+    "go.mod",
+    "go.sum",
+    "MetroDrift.sln",
+    "test-results.xml",
     ".sonarcloud.properties",
     ".mcp.json",
     "setup.py",
@@ -117,6 +129,17 @@ CONFIG_EXTENSIONS: Set[str] = {".yaml", ".yml", ".json", ".toml", ".ini", ".conf
 
 # Root configs that are permitted to remain at root if required by tools
 ROOT_ESSENTIAL_CONFIGS: Set[str] = {
+    "thresholds.json",
+    "Cargo.toml",
+    "Cargo.lock",
+    "pubspec.yaml",
+    "pubspec.lock",
+    "analysis_options.yaml",
+    "amplify.yml",
+    "pnpm-workspace.yaml",
+    "go.mod",
+    "go.sum",
+    "test-results.xml",
     "pyproject.toml",
     "pytest.ini",
     "sonar-project.properties",
@@ -438,9 +461,28 @@ class CleanReposWorkflowBot:
 
     @classmethod
     def _cleanup_artifacts(cls, repo_path: Path) -> List[str]:
-        """Remove development and coverage artifacts from repo_path (skipping node_modules/.venv)."""
+        """Remove development and coverage artifacts from repo_path (skipping node_modules/.venv/target)."""
         cleaned_artifacts: List[str] = []
-        skip_dirs = {"node_modules", ".venv", ".git", "venv"}
+        skip_dirs = {
+            "node_modules",
+            ".venv",
+            ".git",
+            "venv",
+            "target",
+            "Library",
+            "Temp",
+            "Logs",
+            "Packages",
+            "UserSettings",
+            "assets",
+            "dist",
+            "build",
+            "release",
+            "vendor",
+            "out",
+            "obj",
+            "bin",
+        }
         for root, dirs, files in os.walk(repo_path):
             dirs[:] = [d for d in dirs if d not in skip_dirs]
             root_p = Path(root)
@@ -756,16 +798,21 @@ class CleanReposWorkflowBot:
 
                 # Step 5: PRs verification
                 pr_count = 0
-                try:
-                    pr_out = subprocess.check_output(
-                        ["gh", "pr", "list", "--json", "number,title,state"], cwd=repo_path, stderr=subprocess.DEVNULL
-                    ).decode()
-                    import json
+                has_origin = self._has_origin(repo_path)
+                if has_origin:
+                    try:
+                        pr_out = subprocess.check_output(
+                            ["gh", "pr", "list", "--json", "number,title,state"],
+                            cwd=repo_path,
+                            stderr=subprocess.DEVNULL,
+                            timeout=5,
+                        ).decode()
+                        import json
 
-                    prs = json.loads(pr_out)
-                    pr_count = len(prs)
-                except Exception:
-                    prs = []
+                        prs = json.loads(pr_out)
+                        pr_count = len(prs)
+                    except (OSError, subprocess.SubprocessError, ValueError):
+                        prs = []
                 repo_res["steps"]["5_verify_prs"] = {"open_prs": pr_count}
 
                 # Review branches, merge branches with changes, fix conflicts, remove stale local/remote branches
@@ -778,6 +825,10 @@ class CleanReposWorkflowBot:
                 from hath0r_cli.bots.memory_manager import MemoryManagerBot
 
                 mem_bot = MemoryManagerBot(cwd=repo_path)
+                mem_bot.session_start(
+                    focus=f"clean-repo-{repo_path.name}",
+                    dry_run=False,
+                )
                 mem_bot.session_read(
                     note=f"CleanReposWorkflowBot reading micro-session for {repo_path.name}",
                     dry_run=False,
@@ -818,7 +869,7 @@ class CleanReposWorkflowBot:
                 ag_valid = bool(ag_val.get("validation", {}).get("valid", False))
                 try:
                     churn_summary = churn_manager_bot.analyze(repo_path, days=30).get("summary", {})
-                except Exception:
+                except (OSError, ValueError, RuntimeError):
                     churn_summary = {}
 
                 repo_res["steps"]["7_update_documentation"] = {
@@ -855,6 +906,7 @@ class CleanReposWorkflowBot:
                 # Step 13: Verify MemoryGraph Gate, Task Evaluation Gate & Announce Complete
                 from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot
 
+                mem_bot.sync_file_hashes(refresh_source_files=True, dry_run=False)
                 eval_bot = TaskEvaluatorBot(cwd=repo_path)
                 eval_run = eval_bot.evaluate_task(
                     task_id=f"clean-repo-{repo_path.name.lower().replace(' ', '-')}",
@@ -882,7 +934,7 @@ class CleanReposWorkflowBot:
                     )
                 repo_res["steps"]["8_commit_docs"] = {"committed": bool(status_post_docs)}
 
-                # Step 12: Switch back to development (base_branch) and pull/push origin
+                # Step 12: Switch back to development (base_branch) and push origin
                 current_after = self._git_out(repo_path, ["branch", "--show-current"])
                 if current_after != base_branch:
                     subprocess.run(
@@ -893,17 +945,15 @@ class CleanReposWorkflowBot:
                         stderr=subprocess.DEVNULL,
                     )
                 pushed_origin = False
-                if self._has_origin(repo_path):
-                    self._pull_base_branch(repo_path, base_branch)
-                    if auto_commit:
-                        push_res = subprocess.run(
-                            ["git", "push", "origin", base_branch],
-                            cwd=repo_path,
-                            check=False,
-                            stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL,
-                        )
-                        pushed_origin = push_res.returncode == 0
+                if has_origin and auto_commit:
+                    push_res = subprocess.run(
+                        ["git", "push", "origin", base_branch],
+                        cwd=repo_path,
+                        check=False,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    pushed_origin = push_res.returncode == 0
                 repo_res["steps"]["12_return_to_development"] = {
                     "branch": base_branch,
                     "synced": True,

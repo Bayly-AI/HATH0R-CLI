@@ -107,11 +107,12 @@ def quality_local(
 @quality.command("ensure-all")
 @click.option("--workspace-root", type=click.Path(path_type=Path), default=None, help="Workspace parent directory.")
 @click.option("--install-missing", is_flag=True, default=False, help="Install missing supporting libraries.")
+@click.option("--recursive", is_flag=True, default=False, help="Recursively discover all Git repositories under workspace-root.")
 @click.pass_context
 def quality_ensure_all(
-    ctx: click.Context, workspace_root: Path | None, install_missing: bool
+    ctx: click.Context, workspace_root: Path | None, install_missing: bool, recursive: bool
 ) -> None:
-    """Provision thresholds.json and evaluate Local Quality Gates across all 5 suite repositories."""
+    """Provision thresholds.json and evaluate Local Quality Gates across workspace repositories."""
     from hath0r_cli.bots.local_quality_gate_bot import LocalQualityGateBot
 
     bot = LocalQualityGateBot(cwd=Path.cwd())
@@ -119,6 +120,7 @@ def quality_ensure_all(
         workspace_root=workspace_root,
         install_missing=install_missing,
         scaffold_missing=True,
+        recursive=recursive,
     )
     state = "ok" if res.get("success") else "error"
     response = _build_response(ctx, command="quality.ensure_all", state=state, data=res)

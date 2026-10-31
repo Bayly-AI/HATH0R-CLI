@@ -1,15 +1,15 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261031-140937-251c67",
-  "task_id": "issue-561",
-  "issue_number": 561,
+  "eval_id": "eval-20261031-160149-78c879",
+  "task_id": "setup-local-qgates-36-repos",
+  "issue_number": null,
   "repo_name": "hathor-cli",
-  "branch": "feature/561-local-qgates-thresholds-evals",
-  "evaluated_at": "2026-10-31T14:09:37.610229+00:00",
-  "duration_ms": 1114.45,
+  "branch": "development",
+  "evaluated_at": "2026-10-31T16:01:49.996176+00:00",
+  "duration_ms": 1891.48,
   "passed_gate": true,
-  "r_task": 0.9386,
+  "r_task": 0.9328,
   "min_reward_threshold": 0.8,
   "weights": {
     "deterministic": 0.4,
@@ -18,14 +18,14 @@
     "goal_alignment": 0.15
   },
   "tier_scores": {
-    "deterministic": 0.9586,
-    "trajectory": 0.9321,
-    "adversarial": 0.9176,
+    "deterministic": 0.9518,
+    "trajectory": 0.9374,
+    "adversarial": 0.9012,
     "goal_alignment": 0.9287
   },
   "tiers": {
     "deterministic": {
-      "score": 0.9586,
+      "score": 0.9518,
       "passed": true,
       "passed_checks": 6,
       "total_checks": 6,
@@ -34,8 +34,8 @@
         "agentgraph_valid": 1.0,
         "memory_compounded": 0.98,
         "test_suite": 0.88,
-        "calibration_4h": 0.9632,
-        "local_quality_gates": 0.9632
+        "calibration_4h": 0.9165,
+        "local_quality_gates": 0.9569
       },
       "checks": {
         "version_valid": {
@@ -52,7 +52,7 @@
         },
         "memory_compounded": {
           "passed": true,
-          "compounded_nodes_count": 77,
+          "compounded_nodes_count": 81,
           "session_read_verified": true,
           "session_write_verified": true,
           "hashes_verified": true,
@@ -67,14 +67,14 @@
         "calibration_4h": {
           "passed": true,
           "is_fresh": true,
-          "age_hours": 1.07,
+          "age_hours": 2.94,
           "max_age_hours": 4.0
         },
         "local_quality_gates": {
           "passed": true,
           "technology": "python",
           "thresholds_file": "/Users/raybayly/Development/OpenSource/hathor-cli/thresholds.json",
-          "qgate_score": 0.9632,
+          "qgate_score": 0.9569,
           "failing_gates": [],
           "gates": {
             "errors": {
@@ -89,20 +89,20 @@
             "coverage": {
               "gate": "coverage",
               "passed": true,
-              "actual_coverage_pct": 97.5,
+              "actual_coverage_pct": 93.54,
               "min_coverage_pct": 80.0,
               "comparator": ">=",
               "source": "test_suite_symbol_verification",
-              "score": 0.9763
+              "score": 0.9545
             },
             "complexity": {
               "gate": "complexity",
               "passed": true,
               "max_observed_complexity": 114,
-              "avg_complexity": 6.98,
+              "avg_complexity": 7.05,
               "max_complexity": 15,
               "comparator": "<=",
-              "functions_scanned": 360,
+              "functions_scanned": 364,
               "offending_functions": [
                 {
                   "function": "src/hath0r_cli/bots/__init__.py:process_dependabot",
@@ -155,27 +155,18 @@
                   "complexity": 25
                 }
               ],
-              "score": 0.8635
+              "score": 0.863
             },
             "duplication": {
               "gate": "duplication",
               "passed": true,
-              "duplicated_lines_pct": 0.19,
+              "duplicated_lines_pct": 0.0,
               "max_duplicated_lines_pct": 3.0,
               "comparator": "<=",
-              "duplicated_lines": 16,
-              "total_analyzed_lines": 8587,
-              "duplicated_blocks": [
-                {
-                  "first": "src/hath0r_cli/step_runner.py:1750",
-                  "duplicate": "src/hath0r_cli/step_runner.py:1794"
-                },
-                {
-                  "first": "src/hath0r_cli/step_runner.py:1750",
-                  "duplicate": "src/hath0r_cli/step_runner.py:1843"
-                }
-              ],
-              "score": 0.9881
+              "duplicated_lines": 0,
+              "total_analyzed_lines": 12196,
+              "duplicated_blocks": [],
+              "score": 0.99
             }
           },
           "report": {
@@ -197,7 +188,7 @@
               "min_security_hotspots_reviewed_pct": 100.0
             },
             "files_analyzed": 36,
-            "qgate_score": 0.9632,
+            "qgate_score": 0.9569,
             "failing_gates": [],
             "gates": {
               "errors": {
@@ -212,20 +203,20 @@
               "coverage": {
                 "gate": "coverage",
                 "passed": true,
-                "actual_coverage_pct": 97.5,
+                "actual_coverage_pct": 93.54,
                 "min_coverage_pct": 80.0,
                 "comparator": ">=",
                 "source": "test_suite_symbol_verification",
-                "score": 0.9763
+                "score": 0.9545
               },
               "complexity": {
                 "gate": "complexity",
                 "passed": true,
                 "max_observed_complexity": 114,
-                "avg_complexity": 6.98,
+                "avg_complexity": 7.05,
                 "max_complexity": 15,
                 "comparator": "<=",
-                "functions_scanned": 360,
+                "functions_scanned": 364,
                 "offending_functions": [
                   {
                     "function": "src/hath0r_cli/bots/__init__.py:process_dependabot",
@@ -278,27 +269,18 @@
                     "complexity": 25
                   }
                 ],
-                "score": 0.8635
+                "score": 0.863
               },
               "duplication": {
                 "gate": "duplication",
                 "passed": true,
-                "duplicated_lines_pct": 0.19,
+                "duplicated_lines_pct": 0.0,
                 "max_duplicated_lines_pct": 3.0,
                 "comparator": "<=",
-                "duplicated_lines": 16,
-                "total_analyzed_lines": 8587,
-                "duplicated_blocks": [
-                  {
-                    "first": "src/hath0r_cli/step_runner.py:1750",
-                    "duplicate": "src/hath0r_cli/step_runner.py:1794"
-                  },
-                  {
-                    "first": "src/hath0r_cli/step_runner.py:1750",
-                    "duplicate": "src/hath0r_cli/step_runner.py:1843"
-                  }
-                ],
-                "score": 0.9881
+                "duplicated_lines": 0,
+                "total_analyzed_lines": 12196,
+                "duplicated_blocks": [],
+                "score": 0.99
               }
             }
           }
@@ -306,59 +288,64 @@
       }
     },
     "trajectory": {
-      "score": 0.9321,
+      "score": 0.9374,
       "passed": true,
-      "tokens_used": 147,
+      "tokens_used": 142,
       "max_tokens": 50000,
-      "estimated_usd": 0.000441,
+      "estimated_usd": 0.000426,
       "max_usd": 0.25,
       "session_id": "sess-20261031-121502-ecbafb",
       "session_reads": 6,
-      "session_writes": 17,
-      "session_bytes": 1898,
-      "capsule_fill_ratio": 0.9268,
+      "session_writes": 22,
+      "session_bytes": 1803,
+      "capsule_fill_ratio": 0.8804,
       "within_capsule_budget": true,
-      "latency_ms": 818.78,
-      "taguchi_quality_loss": 0.0101,
-      "taguchi_score": 0.9547,
-      "snr_db": 7.76
+      "latency_ms": 917.81,
+      "taguchi_quality_loss": 0.0126,
+      "taguchi_score": 0.9485,
+      "snr_db": 6.77
     },
     "adversarial": {
-      "score": 0.9176,
+      "score": 0.9012,
       "passed": true,
       "adversarial_flaws_count": 0,
       "adversarial_flaws": [],
       "tech_debts_count": 0,
       "auto_created_issues": [],
       "minor_findings": [
-        "High diff addition volume (346 lines, -0.0064)",
-        "Cognitive complexity hotspot observed (avg 6.98, max 114, -0.0400)"
+        "High diff addition volume (292 lines, -0.0028)",
+        "Cognitive complexity hotspot observed (avg 7.05, max 114, -0.0400)"
       ],
-      "added_lines_count": 346,
+      "added_lines_count": 292,
       "change_categories": {
         "ui": [],
         "script": [
           "src/hath0r_cli/bots/local_quality_gate_bot.py",
+          "src/hath0r_cli/commands/quality.py",
           "tests/unit/test_issue561_local_quality_gates_and_evals.py"
         ],
         "text": [
-          "cfg/factories/local-qgates-factory.yaml"
+          "thresholds.json"
         ],
         "other": [
-          ".coverage"
+          "release/CHECKSUMS.sha256",
+          "release/hath0r-linux-arm64",
+          "release/hath0r-linux-x86_64",
+          ".coverage",
+          "release/previous/1.15.2/"
         ]
       },
-      "changed_files_count": 4
+      "changed_files_count": 9
     },
     "goal_alignment": {
       "score": 0.9287,
       "passed": true,
-      "task_id": "issue-561",
-      "issue_number": 561,
+      "task_id": "setup-local-qgates-36-repos",
+      "issue_number": null,
       "active_focus": "Issue #561 Local Quality Gates (thresholds.json) and TaskEvaluatorBot integration",
-      "goal_keywords_count": 7,
+      "goal_keywords_count": 10,
       "goal_overlap_score": 0.98,
-      "compounded_nodes_count": 77,
+      "compounded_nodes_count": 81,
       "consensus_score": 0.826
     }
   },
@@ -381,7 +368,7 @@
       "min_security_hotspots_reviewed_pct": 100.0
     },
     "files_analyzed": 36,
-    "qgate_score": 0.9632,
+    "qgate_score": 0.9569,
     "failing_gates": [],
     "gates": {
       "errors": {
@@ -396,20 +383,20 @@
       "coverage": {
         "gate": "coverage",
         "passed": true,
-        "actual_coverage_pct": 97.5,
+        "actual_coverage_pct": 93.54,
         "min_coverage_pct": 80.0,
         "comparator": ">=",
         "source": "test_suite_symbol_verification",
-        "score": 0.9763
+        "score": 0.9545
       },
       "complexity": {
         "gate": "complexity",
         "passed": true,
         "max_observed_complexity": 114,
-        "avg_complexity": 6.98,
+        "avg_complexity": 7.05,
         "max_complexity": 15,
         "comparator": "<=",
-        "functions_scanned": 360,
+        "functions_scanned": 364,
         "offending_functions": [
           {
             "function": "src/hath0r_cli/bots/__init__.py:process_dependabot",
@@ -462,27 +449,18 @@
             "complexity": 25
           }
         ],
-        "score": 0.8635
+        "score": 0.863
       },
       "duplication": {
         "gate": "duplication",
         "passed": true,
-        "duplicated_lines_pct": 0.19,
+        "duplicated_lines_pct": 0.0,
         "max_duplicated_lines_pct": 3.0,
         "comparator": "<=",
-        "duplicated_lines": 16,
-        "total_analyzed_lines": 8587,
-        "duplicated_blocks": [
-          {
-            "first": "src/hath0r_cli/step_runner.py:1750",
-            "duplicate": "src/hath0r_cli/step_runner.py:1794"
-          },
-          {
-            "first": "src/hath0r_cli/step_runner.py:1750",
-            "duplicate": "src/hath0r_cli/step_runner.py:1843"
-          }
-        ],
-        "score": 0.9881
+        "duplicated_lines": 0,
+        "total_analyzed_lines": 12196,
+        "duplicated_blocks": [],
+        "score": 0.99
       }
     }
   },
@@ -494,26 +472,39 @@
       ],
       "STATIC_AST_ANALYSIS": [
         "src/hath0r_cli/bots/local_quality_gate_bot.py",
+        "src/hath0r_cli/commands/quality.py",
         "tests/unit/test_issue561_local_quality_gates_and_evals.py",
+        ".hath0r/agentgraph/snapshot.json",
+        ".hath0r/evals/latest.json",
         ".hath0r/memory/graph.json",
         ".hath0r/memory/hashes.json",
-        "cfg/factories/local-qgates-factory.yaml"
+        ".hath0r/memory/sessions/current.json",
+        ".hath0r/memory/sessions/latest.json",
+        ".hath0r/memory/sessions/sess-20261031-121502-ecbafb.json",
+        "thresholds.json",
+        ".hath0r/evals/history/eval-global-install-hath0r-cli-1-21-0.json",
+        ".hath0r/evals/history/eval-release-deploy-hath0r-mcp-1-13-0-cli-1-21-0.json",
+        ".hath0r/evals/history/eval-setup-local-qgates-36-repos.json"
       ],
       "UNVERIFIED_FILE_PRESENCE": [
-        ".coverage"
+        "release/CHECKSUMS.sha256",
+        "release/hath0r-linux-arm64",
+        "release/hath0r-linux-x86_64",
+        ".coverage",
+        "release/previous/1.15.2/"
       ]
     },
     "counts": {
       "VERIFIED_EXECUTION": 1,
-      "STATIC_AST_ANALYSIS": 5,
-      "UNVERIFIED_FILE_PRESENCE": 1
+      "STATIC_AST_ANALYSIS": 14,
+      "UNVERIFIED_FILE_PRESENCE": 5
     }
   },
   "blocking_reasons": [],
   "observability_sync": {
     "mode": "live_synced",
     "phoenix_logged": true,
-    "mlflow_run_id": "490999fd06c9430c924b217bf2e0a248"
+    "mlflow_run_id": "85c2792f7bf44fe4a67d2ccfc1cb4698"
   },
-  "content_hash": "sha256:4fa99fbbb5b6f2c55c3392463609f871cf64254fe10ec240b38d3566b0637a6e"
+  "content_hash": "sha256:a1d9852d03d53d9dba57a2da4495907ccf187f2fefbfd9a8e4b783e3429481e1"
 }
