@@ -47,8 +47,7 @@
         "agentgraph_valid": {
           "passed": true,
           "cycles": 0,
-          "contradictions": 0,
-          "claude_md_synced": true
+          "contradictions": 0
         },
         "memory_compounded": {
           "passed": true,
@@ -338,7 +337,7 @@
       "changed_files_count": 9
     },
     "goal_alignment": {
-      "score": 0.9287,
+      "score": 1.0,
       "passed": true,
       "task_id": "setup-local-qgates-36-repos",
       "issue_number": null,
