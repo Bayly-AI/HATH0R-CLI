@@ -1,0 +1,45 @@
+factory_id: orient-factory
+name: Suite Orientation & Tri-Graph Verification Factory
+version: "1.0.0"
+description: >
+  Executes repository orientation, 4-hour pre-task calibration check, AgentGraph & MemoryGraph
+  synchronization, and CR-FEATURE-WORKFLOW-STANDARD-001 architecture verification.
+bots:
+  - id: cicccd-managing-bot
+    name: CICCCD Managing Bot
+    capabilities:
+      - ensure-calibrated
+  - id: orient-bot
+    name: Orient Bot
+    capabilities:
+      - status
+  - id: agentgraph-bot
+    name: AgentGraph Bot
+    capabilities:
+      - sync
+      - status
+  - id: architecture-preservation-bot
+    name: Architecture Preservation Bot
+    capabilities:
+      - verify_repo
+      - status
+  - id: substrate-utilization-bot
+    name: Substrate Utilization Bot
+    capabilities:
+      - audit_substrate
+      - status
+workflows:
+  - id: orient-repo
+    name: Orient Repository & Verify Architecture
+    steps:
+      - bot: cicccd-managing-bot
+        action: ensure-calibrated
+        args:
+          max_age_hours: 4.0
+        on_failure: continue
+      - bot: architecture-preservation-bot
+        action: verify_repo
+        on_failure: abort
+      - bot: substrate-utilization-bot
+        action: audit_substrate
+        on_failure: abort

@@ -81,6 +81,7 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "radar": ("hath0r_cli.commands.decision", "decision_radar"),
     "skills": ("hath0r_cli.commands.skills", "skills"),
     "threatmodel": ("hath0r_cli.commands.threatmodel", "threatmodel_cmd"),
+    "arch": ("hath0r_cli.commands.arch", "arch_cmd"),
 }
 
 

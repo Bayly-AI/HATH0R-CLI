@@ -5,6 +5,15 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.19.0] - 2026-10-31
+
+### Added
+- **`ArchitecturePreservationBot`, `SubstrateUtilizationBot` & `TaskCompletionVerifierBot` (`CR-FEATURE-WORKFLOW-STANDARD-001`)** (#554):
+  - Added `ArchitecturePreservationBot` (`src/hath0r_cli/bots/architecture_preservation_bot.py`) verifying Service-Bot ownership (`>= 1` Bot), Level 1/2 `AgentGraph` parity, Workflow-First bindings, `.hath0r/` hidden-root exclusivity, `CLAUDE.md == AGENTS.md` sync, and Phoenix OTel configuration across all 5 suite repositories.
+  - Added `SubstrateUtilizationBot` (`src/hath0r_cli/bots/substrate_utilization_bot.py`) auditing AST and runtime usage of `SuperCompressBot` (`SuperSqueeze`), `trace_span`, `OpenFeature`, `PBAC`/`Sanitizer`, and `.hath0r/spool/` OpenObservation telemetry while flagging legacy `ddtrace` imports.
+  - Added `TaskCompletionVerifierBot` (`src/hath0r_cli/bots/task_completion_verifier_bot.py`) enforcing `FactSettlementEngine` probes (`cccd.calibration.fresh:4h`, `eval.gate.passed`, `mlflow.run.logged`, `phoenix.trace.verified`, `workflow.first.verified`) and continuous 4-tier eval scores (`0.80 <= R_task < 1.00`).
+  - Added `hath0r arch verify|substrate|completion` (`src/hath0r_cli/commands/arch.py`) and wired all 3 bots into `start-of-task-factory.yaml`, `end-of-task-factory.yaml`, `clean-repos-factory.yaml`, and `orient-factory.yaml`.
+
 ## [1.18.0] - 2026-10-31
 
 ### Added

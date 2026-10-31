@@ -1,15 +1,15 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261031-120920-0473a3",
-  "task_id": "issue-553",
-  "issue_number": 553,
+  "eval_id": "eval-20261031-121338-b14f57",
+  "task_id": "issue-554",
+  "issue_number": 554,
   "repo_name": "hathor-cli",
-  "branch": "feature/553-iteration-cascade-bot",
-  "evaluated_at": "2026-10-31T12:09:20.054027+00:00",
-  "duration_ms": 399.41,
+  "branch": "feature/554-arch-preservation-substrate-verifier-bots",
+  "evaluated_at": "2026-10-31T12:13:38.572037+00:00",
+  "duration_ms": 417.5,
   "passed_gate": true,
-  "r_task": 0.9451,
+  "r_task": 0.9452,
   "min_reward_threshold": 0.8,
   "weights": {
     "deterministic": 0.4,
@@ -18,14 +18,14 @@
     "goal_alignment": 0.15
   },
   "tier_scores": {
-    "deterministic": 0.9594,
-    "trajectory": 0.9408,
-    "adversarial": 0.9355,
+    "deterministic": 0.9592,
+    "trajectory": 0.9426,
+    "adversarial": 0.9349,
     "goal_alignment": 0.9287
   },
   "tiers": {
     "deterministic": {
-      "score": 0.9594,
+      "score": 0.9592,
       "passed": true,
       "passed_checks": 5,
       "total_checks": 5,
@@ -34,12 +34,12 @@
         "agentgraph_valid": 1.0,
         "memory_compounded": 0.98,
         "test_suite": 0.88,
-        "calibration_4h": 0.9845
+        "calibration_4h": 0.9828
       },
       "checks": {
         "version_valid": {
           "passed": true,
-          "version": "1.18.0",
+          "version": "1.19.0",
           "changelog_aligned": true,
           "error": null
         },
@@ -51,7 +51,7 @@
         },
         "memory_compounded": {
           "passed": true,
-          "compounded_nodes_count": 70,
+          "compounded_nodes_count": 72,
           "session_read_verified": true,
           "session_write_verified": true,
           "hashes_verified": true,
@@ -66,71 +66,76 @@
         "calibration_4h": {
           "passed": true,
           "is_fresh": true,
-          "age_hours": 0.22,
+          "age_hours": 0.29,
           "max_age_hours": 4.0
         }
       }
     },
     "trajectory": {
-      "score": 0.9408,
+      "score": 0.9426,
       "passed": true,
       "tokens_used": 143,
       "max_tokens": 50000,
       "estimated_usd": 0.000429,
       "max_usd": 0.25,
-      "session_id": "sess-20261031-120611-9011e9",
+      "session_id": "sess-20261031-121013-c06d97",
       "session_reads": 2,
       "session_writes": 3,
-      "session_bytes": 1843,
-      "capsule_fill_ratio": 0.8999,
+      "session_bytes": 1817,
+      "capsule_fill_ratio": 0.8872,
       "within_capsule_budget": true,
-      "latency_ms": 104.27,
+      "latency_ms": 115.27,
       "taguchi_quality_loss": 0.0002,
       "taguchi_score": 0.9795,
-      "snr_db": 25.66
+      "snr_db": 24.79
     },
     "adversarial": {
-      "score": 0.9355,
+      "score": 0.9349,
       "passed": true,
       "adversarial_flaws_count": 0,
       "adversarial_flaws": [],
       "tech_debts_count": 0,
       "auto_created_issues": [],
       "minor_findings": [
-        "High diff addition volume (318 lines, -0.0045)"
+        "High diff addition volume (327 lines, -0.0051)"
       ],
-      "added_lines_count": 318,
+      "added_lines_count": 327,
       "change_categories": {
         "ui": [],
         "script": [
-          "src/hath0r_cli/bots/mcp_workflow_engine_bot.py",
           "src/hath0r_cli/bots/task_evaluator_bot.py",
-          "src/hath0r_cli/commands/workflow.py",
+          "src/hath0r_cli/lazy_group.py",
           "src/hath0r_cli/step_runner.py",
           "tests/unit/test_task_evaluator_bot.py",
-          "src/hath0r_cli/bots/iteration_cascade_bot.py",
-          "tests/unit/test_issue553_iteration_cascade_bot.py"
+          "src/hath0r_cli/bots/architecture_preservation_bot.py",
+          "src/hath0r_cli/bots/substrate_utilization_bot.py",
+          "src/hath0r_cli/bots/task_completion_verifier_bot.py",
+          "src/hath0r_cli/commands/arch.py",
+          "tests/unit/test_issue554_arch_substrate_verifier_bots.py"
         ],
         "text": [
           "CHANGELOG.md",
+          "cfg/factories/end-of-task-factory.yaml",
+          "cfg/factories/start-of-task-factory.yaml",
           "pyproject.toml",
-          "cfg/factories/iteration-cascade-factory.yaml"
+          "cfg/factories/clean-repos-factory.yaml",
+          "cfg/factories/orient-factory.yaml"
         ],
         "other": [
           "VERSION"
         ]
       },
-      "changed_files_count": 11
+      "changed_files_count": 16
     },
     "goal_alignment": {
       "score": 0.9287,
       "passed": true,
-      "task_id": "issue-553",
-      "issue_number": 553,
+      "task_id": "issue-554",
+      "issue_number": 554,
       "active_focus": "Active working session in hathor-cli",
       "goal_keywords_count": 5,
       "goal_overlap_score": 0.98,
-      "compounded_nodes_count": 70,
+      "compounded_nodes_count": 72,
       "consensus_score": 0.826
     }
   },
@@ -141,22 +146,27 @@
         ".hath0r/evals/latest.json"
       ],
       "STATIC_AST_ANALYSIS": [
-        "src/hath0r_cli/bots/mcp_workflow_engine_bot.py",
         "src/hath0r_cli/bots/task_evaluator_bot.py",
-        "src/hath0r_cli/commands/workflow.py",
+        "src/hath0r_cli/lazy_group.py",
         "src/hath0r_cli/step_runner.py",
         "tests/unit/test_task_evaluator_bot.py",
-        "src/hath0r_cli/bots/iteration_cascade_bot.py",
-        "tests/unit/test_issue553_iteration_cascade_bot.py",
+        "src/hath0r_cli/bots/architecture_preservation_bot.py",
+        "src/hath0r_cli/bots/substrate_utilization_bot.py",
+        "src/hath0r_cli/bots/task_completion_verifier_bot.py",
+        "src/hath0r_cli/commands/arch.py",
+        "tests/unit/test_issue554_arch_substrate_verifier_bots.py",
         ".hath0r/agentgraph/snapshot.json",
         ".hath0r/memory/graph.json",
         ".hath0r/memory/hashes.json",
         ".hath0r/memory/sessions/current.json",
         ".hath0r/memory/sessions/latest.json",
         "CHANGELOG.md",
+        "cfg/factories/end-of-task-factory.yaml",
+        "cfg/factories/start-of-task-factory.yaml",
         "pyproject.toml",
-        ".hath0r/memory/sessions/sess-20261031-120611-9011e9.json",
-        "cfg/factories/iteration-cascade-factory.yaml"
+        ".hath0r/memory/sessions/sess-20261031-121013-c06d97.json",
+        "cfg/factories/clean-repos-factory.yaml",
+        "cfg/factories/orient-factory.yaml"
       ],
       "UNVERIFIED_FILE_PRESENCE": [
         ".hath0r/agentgraph/snapshot.ttl",
@@ -165,7 +175,7 @@
     },
     "counts": {
       "VERIFIED_EXECUTION": 1,
-      "STATIC_AST_ANALYSIS": 16,
+      "STATIC_AST_ANALYSIS": 21,
       "UNVERIFIED_FILE_PRESENCE": 2
     }
   },
@@ -173,7 +183,7 @@
   "observability_sync": {
     "mode": "live_synced",
     "phoenix_logged": true,
-    "mlflow_run_id": "786feac5447c4c11afacdc3644401fe0"
+    "mlflow_run_id": "d98c8d5eb30746bc8275320813da0731"
   },
-  "content_hash": "sha256:81541cc064592e92916aa61b80aa3543918bcce08b63dcf51580a30a3de60d8a"
+  "content_hash": "sha256:a6edbead871302a3a68f37741ace5fbe65edeb7496e18280c1b3a3a004f720bc"
 }

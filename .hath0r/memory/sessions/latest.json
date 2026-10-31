@@ -1,24 +1,24 @@
 {
   "schema_version": "hath0r.micro_session/1",
-  "session_id": "sess-20261031-120611-9011e9",
-  "prior_session_id": "sess-20261031-120025-509be2",
-  "parent_session_id": "sess-20261031-120025-509be2",
+  "session_id": "sess-20261031-121013-c06d97",
+  "prior_session_id": "sess-20261031-120611-9011e9",
+  "parent_session_id": "sess-20261031-120611-9011e9",
   "revision": 6,
-  "content_hash": "sha256:e0b5fa19a6e6dd12f4b51424e2196e5c86885712aaada2bcbc523e9f1925bedb",
-  "base_graph_hash": "sha256:f8779afe827dd80b5c2dd75b6ce493388916dfbff25aa10c521b2476793822b2",
-  "task_id": "Issue #553: implement IterationCascadeBot to enforce Workflow-First Stage 1 (Task + 4h Calibration) -> Stage 2 (Level 1 MCP + Level 2 CLI/Memory on AgentGraph) -> Stage 3 (Computer) -> Stage 4 (Web)",
+  "content_hash": "sha256:95633d8395a49c0c3a01fa446efd4387e81e29a7fabcc45d3af6802a51a00c91",
+  "base_graph_hash": "sha256:3165adfbe484156770aa5eb5e965059234e7f7095d42d420f88541026ebc88ed",
+  "task_id": "Issue #554: implement ArchitecturePreservationBot, SubstrateUtilizationBot & TaskCompletionVerifierBot to enforce CR-FEATURE-WORKFLOW-STANDARD-001 across all 5 repos",
   "role": null,
   "repo_name": "hathor-cli",
   "status": "completed",
-  "started_at": "2026-10-31T12:06:11.187988+00:00",
-  "updated_at": "2026-10-31T12:09:20.915499+00:00",
-  "ended_at": "2026-10-31T12:09:17.358275+00:00",
+  "started_at": "2026-10-31T12:10:13.620963+00:00",
+  "updated_at": "2026-10-31T12:13:39.498554+00:00",
+  "ended_at": "2026-10-31T12:13:35.898012+00:00",
   "read_count": 2,
   "write_count": 4,
-  "last_read_at": "2026-10-31T12:06:12.123720+00:00",
-  "last_write_at": "2026-10-31T12:09:20.915499+00:00",
+  "last_read_at": "2026-10-31T12:10:14.450104+00:00",
+  "last_write_at": "2026-10-31T12:13:39.498554+00:00",
   "active_focus": "Active working session in hathor-cli",
-  "prior_summary": "(R=0.94, PASS); Implemented IterationCascadeBot enforcin; Compounded episode:issue-553-iteration-c; Completed Issue #553",
+  "prior_summary": "(R=0.95, PASS); Implemented ArchitecturePreservationBot,; Compounded episode:issue-554-arch-substr; Completed Issue #554",
   "recalled_nodes": [
     {
       "id": "episode:sft-lora-peft-coordinator",
@@ -29,23 +29,23 @@
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-31T12:09:20.915499+00:00",
+      "timestamp": "2026-10-31T12:13:39.498554+00:00",
       "kind": "compound",
-      "summary": "Compounded eval:issue-553: Task Evaluation issue-553 (R=0.95, PASS)",
+      "summary": "Compounded eval:issue-554: Task Evaluation issue-554 (R=0.95, PASS)",
       "tags": [
         "eval",
         "cr-task-eval-001",
-        "issue-553",
+        "issue-554",
         "passed",
         "compounded"
       ],
-      "node_id": "eval:issue-553"
+      "node_id": "eval:issue-554"
     }
   ],
   "next_steps": [],
   "compounded_node_ids": [
-    "episode:issue-553-iteration-cascade-bot",
-    "eval:issue-553"
+    "episode:issue-554-arch-substrate-verifier-bots",
+    "eval:issue-554"
   ],
-  "capsule_bytes": 2005
+  "capsule_bytes": 1979
 }

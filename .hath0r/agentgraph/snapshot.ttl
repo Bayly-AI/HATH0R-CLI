@@ -21,6 +21,10 @@ hath0r: a owl:Ontology ;
     rdfs:label "api-bot" ;
     hath0r:inPlane "context" .
 
+<https://hath0r.dev/ontology/v1#bot:architecture-preservation-bot> a hath0r:Plane ;
+    rdfs:label "architecture-preservation-bot" ;
+    hath0r:inPlane "context" .
+
 <https://hath0r.dev/ontology/v1#bot:bite-verifier-bot> a hath0r:Plane ;
     rdfs:label "bite-verifier-bot" ;
     hath0r:inPlane "context" .
@@ -261,6 +265,10 @@ hath0r: a owl:Ontology ;
     rdfs:label "spoken-notification-service-bot" ;
     hath0r:inPlane "context" .
 
+<https://hath0r.dev/ontology/v1#bot:substrate-utilization-bot> a hath0r:Plane ;
+    rdfs:label "substrate-utilization-bot" ;
+    hath0r:inPlane "context" .
+
 <https://hath0r.dev/ontology/v1#bot:supercompress-bot> a hath0r:Plane ;
     rdfs:label "supercompress-bot" ;
     hath0r:inPlane "context" .
@@ -275,6 +283,10 @@ hath0r: a owl:Ontology ;
 
 <https://hath0r.dev/ontology/v1#bot:task-announcer-bot> a hath0r:Plane ;
     rdfs:label "task-announcer-bot" ;
+    hath0r:inPlane "context" .
+
+<https://hath0r.dev/ontology/v1#bot:task-completion-verifier-bot> a hath0r:Plane ;
+    rdfs:label "task-completion-verifier-bot" ;
     hath0r:inPlane "context" .
 
 <https://hath0r.dev/ontology/v1#bot:task-evaluator-bot> a hath0r:Plane ;
@@ -1695,6 +1707,11 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:episode:issue-553-iteration-cascade-bot> a hath0r:Plane ;
+    rdfs:label "Issue #553: IterationCascadeBot 4-Stage Cascade" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:episode:pr-479> a hath0r:Plane ;
     rdfs:label "Completed PR #479 (feature/478-unignore-graph-folders)" ;
     hath0r:inPlane "memory" ;
@@ -1782,6 +1799,11 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:eval:issue-552> a hath0r:Plane ;
     rdfs:label "Task Evaluation issue-552 (R=0.94, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-553> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-553 (R=0.95, PASS)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -2042,6 +2064,11 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:session:sess-20261031-121013-c06d97> a hath0r:Plane ;
+    rdfs:label "Micro Session sess-20261031-121013-c06d97" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#role:reader> a hath0r:AgentRole ;
     rdfs:label "Read-Only Agent" ;
     hath0r:inPlane "rules" .
@@ -2157,6 +2184,10 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#service:agentgraph> a hath0r:Plane ;
     rdfs:label "Two-Level AgentGraph Governance & Routing Service" ;
+    hath0r:inPlane "context" .
+
+<https://hath0r.dev/ontology/v1#service:arch> a hath0r:Plane ;
+    rdfs:label "Suite Architecture, Substrate & Completion Verification Service" ;
     hath0r:inPlane "context" .
 
 <https://hath0r.dev/ontology/v1#service:atc> a hath0r:Plane ;

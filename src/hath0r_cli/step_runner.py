@@ -186,6 +186,7 @@ SERVICE_BOT_MAP: dict[str, dict[str, Any]] = {
     "radar": {"service": "Decision Radar Unblocking Wedge Service", "owning_bots": ["decision-radar-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"},
     "skills": {"service": "BITE Skill & Prompt Supply-Chain Audit Service", "owning_bots": ["bite-verifier-bot", "secret-pii-sanitizer-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/mcp-security-audit-workflow.yaml"},
     "threatmodel": {"service": "Fail-Closed THREATMODEL.md Validation Service", "owning_bots": ["dependency-guard-bot", "bite-verifier-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/mcp-security-audit-workflow.yaml"},
+    "arch": {"service": "Suite Architecture, Substrate & Completion Verification Service", "owning_bots": ["architecture-preservation-bot", "substrate-utilization-bot", "task-completion-verifier-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
 }
 
 
@@ -197,6 +198,7 @@ class BotRegistry:
         from hath0r_cli.bots import ApiBot, PostgresBot
         from hath0r_cli.bots.agent_dag_runner import AgentDAGRunner
         from hath0r_cli.bots.antagonistic_review import AntagonisticReviewBot
+        from hath0r_cli.bots.architecture_preservation_bot import ArchitecturePreservationBot
         from hath0r_cli.bots.bite_verifier_bot import BITEVerifierBot
         from hath0r_cli.bots.cag_engine import CAGEngine
         from hath0r_cli.bots.cag_rag_router import HybridCAGRAGRouter
@@ -231,8 +233,10 @@ class BotRegistry:
         from hath0r_cli.bots.secret_pii_sanitizer import SecretPIISanitizerBot
         from hath0r_cli.bots.shadow_ai_classifier import ShadowAIClassifierBot
         from hath0r_cli.bots.sibling_bot import SiblingManagerBot
+        from hath0r_cli.bots.substrate_utilization_bot import SubstrateUtilizationBot
         from hath0r_cli.bots.supercompress_bot import SuperCompressBot
         from hath0r_cli.bots.taguchi_bot import TaguchiBot
+        from hath0r_cli.bots.task_completion_verifier_bot import TaskCompletionVerifierBot
         from hath0r_cli.bots.task_level_planner_bot import TaskLevelPlannerBot
         from hath0r_cli.bots.temporal_logic_planner_bot import TemporalLogicPlannerBot
         from hath0r_cli.bots.thread_parallelism_bot import ThreadLevelParallelismBot
@@ -369,6 +373,9 @@ class BotRegistry:
             "mcp-centralization-bot": _init_bot(MCPCentralizationBot),
             "mcp-workflow-engine-bot": _init_bot(MCPWorkflowEngineBot),
             "iteration-cascade-bot": _init_bot(IterationCascadeBot),
+            "architecture-preservation-bot": _init_bot(ArchitecturePreservationBot),
+            "substrate-utilization-bot": _init_bot(SubstrateUtilizationBot),
+            "task-completion-verifier-bot": _init_bot(TaskCompletionVerifierBot),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:

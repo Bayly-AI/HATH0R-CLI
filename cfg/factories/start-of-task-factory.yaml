@@ -52,6 +52,14 @@ bots:
       - check-active-branch
       - ensure-work-branch
 
+  - id: architecture-preservation-bot
+    name: Architecture Preservation Bot
+    role: cr-feature-workflow-standard-001-preservation
+    description: Verifies Service-Bot ownership, Level 1/2 AgentGraph parity, and Workflow-First coverage.
+    capabilities:
+      - verify_repo
+      - status
+
 # Declarative workflows
 workflows:
   - id: start-of-task
@@ -63,6 +71,10 @@ workflows:
         on_failure: continue
         args:
           max_age_hours: 4.0
+
+      - bot: architecture-preservation-bot
+        action: status
+        on_failure: continue
 
       - bot: issue-guard-bot
         action: verify-issue
