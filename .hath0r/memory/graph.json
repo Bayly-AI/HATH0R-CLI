@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 496,
-  "content_hash": "sha256:3f2d8dcdc6d6a3a001eae578be90ccecce116b8acacb5742d59d4113f6339e53",
-  "updated_at": "2026-10-31T13:10:36.086904+00:00",
+  "revision": 500,
+  "content_hash": "sha256:af007c1a25a5954b4b4f79528d667526382cdd6e448d94ce05ceb7a1a2d1bc63",
+  "updated_at": "2026-10-31T13:16:25.534014+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -745,7 +745,7 @@
       "updated_at": "2026-10-28T13:23:14.632392+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -769,7 +769,7 @@
       "updated_at": "2026-10-28T13:23:21.538822+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -813,7 +813,7 @@
       "updated_at": "2026-10-28T13:31:54.915874+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -837,7 +837,7 @@
       "updated_at": "2026-10-28T14:05:46.606003+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -946,7 +946,7 @@
       "updated_at": "2026-10-28T14:05:49.726259+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -991,7 +991,7 @@
       "updated_at": "2026-10-29T13:58:56.031518+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1015,7 +1015,7 @@
       "updated_at": "2026-10-28T14:22:02.710039+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1059,7 +1059,7 @@
       "updated_at": "2026-10-28T14:38:21.109040+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1083,7 +1083,7 @@
       "updated_at": "2026-10-28T14:38:23.473566+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1107,7 +1107,7 @@
       "updated_at": "2026-10-28T14:50:50.899901+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1152,7 +1152,7 @@
       "updated_at": "2026-10-28T14:51:42.220727+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1198,7 +1198,7 @@
       "updated_at": "2026-10-28T14:51:44.744643+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1243,7 +1243,7 @@
       "updated_at": "2026-10-28T14:59:38.749656+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1267,7 +1267,7 @@
       "updated_at": "2026-10-28T15:21:58.314539+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1291,7 +1291,7 @@
       "updated_at": "2026-10-29T14:17:58.583579+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1315,7 +1315,7 @@
       "updated_at": "2026-10-28T17:30:26.311044+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1339,7 +1339,7 @@
       "updated_at": "2026-10-28T17:37:06.843311+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1363,7 +1363,7 @@
       "updated_at": "2026-10-28T17:42:47.222209+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1432,7 +1432,7 @@
       "updated_at": "2026-10-28T20:55:27.567714+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1501,7 +1501,7 @@
       "updated_at": "2026-10-29T10:12:49.607556+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1577,7 +1577,7 @@
       "updated_at": "2026-10-29T11:49:05.964763+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1626,7 +1626,7 @@
       "updated_at": "2026-10-29T11:57:17.342810+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1702,7 +1702,7 @@
       "updated_at": "2026-10-29T13:26:59.461378+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1796,7 +1796,7 @@
       "updated_at": "2026-10-29T14:32:23.153719+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1890,7 +1890,7 @@
       "updated_at": "2026-10-31T11:57:38.418877+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
         }
       }
     },
@@ -1950,14 +1950,14 @@
         "passed",
         "compounded"
       ],
-      "valid_from": "2026-10-31T13:10:36.001266+00:00",
+      "valid_from": "2026-10-31T13:16:25.468720+00:00",
       "valid_to": null,
       "is_current": true,
       "created_at": "2026-10-31T12:05:06.169496+00:00",
-      "updated_at": "2026-10-31T13:10:36.001266+00:00",
+      "updated_at": "2026-10-31T13:16:25.468720+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:2f2e0d44048763cffa0ce1ca7253519a86f46864a612f0b5739227ed1102decb"
+          ".hath0r/evals/latest.json": "sha256:4788b2cfd181d556aea6988ee948443b57e8d93858af42bc689f4865257da1a0"
         }
       }
     },
@@ -1965,7 +1965,7 @@
       "id": "session:sess-20261031-120025-509be2",
       "type": "session",
       "label": "Micro Session sess-20261031-120025-509be2",
-      "content": "Micro Session sess-20261031-120025-509be2 [completed] | Focus: Active working session in hathor-cli | Reads: 2, Writes: 5 | Entries: Compounded eval:issue-552: Task Evaluation issue-552 (R=1.00, PASS)",
+      "content": "Micro Session sess-20261031-120025-509be2 [completed] | Focus: Active working session in hathor-cli | Reads: 2, Writes: 6 | Entries: Compounded eval:issue-552: Task Evaluation issue-552 (R=1.00, PASS)",
       "importance": 0.75,
       "tags": [
         "session",
@@ -1976,13 +1976,13 @@
       "valid_to": "2026-10-31T12:05:02.660866+00:00",
       "is_current": true,
       "created_at": "2026-10-31T12:00:25.541230+00:00",
-      "updated_at": "2026-10-31T13:10:36.080675+00:00",
+      "updated_at": "2026-10-31T13:16:25.528292+00:00",
       "metadata": {
         "session_id": "sess-20261031-120025-509be2",
         "prior_session_id": "sess-20261031-114426-90b427",
         "parent_session_id": "sess-20261031-114426-90b427",
         "read_count": 2,
-        "write_count": 5,
+        "write_count": 6,
         "status": "completed",
         "byte_size": 2014
       }

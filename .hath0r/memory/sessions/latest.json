@@ -3,22 +3,22 @@
   "session_id": "sess-20261031-120025-509be2",
   "prior_session_id": "sess-20261031-114426-90b427",
   "parent_session_id": "sess-20261031-114426-90b427",
-  "revision": 7,
-  "content_hash": "sha256:c763b5e6c135a4ba008464f14e5ca728cba3077d609f6696732d90ef1a1d992e",
+  "revision": 8,
+  "content_hash": "sha256:2fb9f8abe2db1fd5341e7695619a71df288e5e685899742fa54e0ee33fbe1e9b",
   "base_graph_hash": "sha256:ad5e91db5d69607cbabd83b23d9c20c13195a99350f2d9b7a1bdc134d1684fa9",
   "task_id": "Issue #552: implement MCPCentralizationBot & MCPWorkflowEngineBot, enforce Workflow-First missing-workflow offer, and bridge Level 1 (HATH0R-MCP) & Level 2 (HATH0R-CLI/Memory) on AgentGraph",
   "role": null,
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-31T12:00:25.541230+00:00",
-  "updated_at": "2026-10-31T13:10:36.080675+00:00",
+  "updated_at": "2026-10-31T13:16:25.528292+00:00",
   "ended_at": "2026-10-31T12:05:02.660866+00:00",
   "read_count": 2,
-  "write_count": 5,
+  "write_count": 6,
   "last_read_at": "2026-10-31T12:00:26.350680+00:00",
-  "last_write_at": "2026-10-31T13:10:36.080675+00:00",
+  "last_write_at": "2026-10-31T13:16:25.528292+00:00",
   "active_focus": "Active working session in hathor-cli",
-  "prior_summary": "ionBot, MCPWor; Compounded episode:issue-552-mcp-central; Completed Issue #552; Compounded eval:issue-552: Task Evaluati",
+  "prior_summary": "52-mcp-central; Completed Issue #552; Compounded eval:issue-552: Task Evaluati; Compounded eval:issue-552: Task Evaluati",
   "recalled_nodes": [
     {
       "id": "episode:sft-lora-peft-coordinator",
@@ -29,7 +29,7 @@
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-31T13:10:36.080675+00:00",
+      "timestamp": "2026-10-31T13:16:25.528292+00:00",
       "kind": "compound",
       "summary": "Compounded eval:issue-552: Task Evaluation issue-552 (R=1.00, PASS)",
       "tags": [
