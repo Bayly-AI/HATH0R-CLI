@@ -5024,6 +5024,70 @@
       "weight": 1.0,
       "valid_from": "2026-10-31T12:05:06.243791+00:00",
       "is_current": true
+    },
+    {
+      "source": "session:sess-20261031-120025-509be2",
+      "target": "session:sess-20261031-120611-9011e9",
+      "relation": "PRECEDES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:06:11.195198+00:00",
+      "is_current": true
+    },
+    {
+      "source": "session:sess-20261031-120611-9011e9",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 0.8,
+      "valid_from": "2026-10-31T12:06:11.195198+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-553-iteration-cascade-bot",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:09:16.197979+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-553-iteration-cascade-bot",
+      "target": "session:sess-20261031-120611-9011e9",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:09:16.272767+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-553",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:09:20.844346+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-553",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:09:20.844346+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-553",
+      "target": "session:sess-20261031-120611-9011e9",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:09:20.844346+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-553",
+      "target": "session:sess-20261031-120611-9011e9",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:09:20.918084+00:00",
+      "is_current": true
     }
   ]
 }
