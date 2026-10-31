@@ -4967,7 +4967,9 @@
       "relation": "PRECEDES",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:00:25.549743+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "session:sess-20261031-120025-509be2",
@@ -4975,7 +4977,9 @@
       "relation": "RELATES_TO",
       "weight": 0.8,
       "valid_from": "2026-10-31T12:00:25.549743+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:issue-552-mcp-centralization-workflow-engine-bots",
@@ -4983,7 +4987,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:05:01.319105+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:issue-552-mcp-centralization-workflow-engine-bots",
@@ -4991,7 +4997,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:05:01.408641+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-552",
@@ -4999,7 +5007,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:05:06.169496+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-552",
@@ -5007,7 +5017,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:05:06.169496+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-552",
@@ -5015,7 +5027,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:05:06.169496+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-552",
@@ -5023,7 +5037,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:05:06.243791+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "session:sess-20261031-120025-509be2",
@@ -5031,7 +5047,9 @@
       "relation": "PRECEDES",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:06:11.195198+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "session:sess-20261031-120611-9011e9",
@@ -5039,7 +5057,9 @@
       "relation": "RELATES_TO",
       "weight": 0.8,
       "valid_from": "2026-10-31T12:06:11.195198+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:issue-553-iteration-cascade-bot",
@@ -5047,7 +5067,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:09:16.197979+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:issue-553-iteration-cascade-bot",
@@ -5055,7 +5077,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:09:16.272767+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-553",
@@ -5063,7 +5087,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:09:20.844346+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-553",
@@ -5071,7 +5097,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:09:20.844346+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-553",
@@ -5079,7 +5107,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:09:20.844346+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-553",
@@ -5087,7 +5117,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:09:20.918084+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "session:sess-20261031-120611-9011e9",
@@ -5095,7 +5127,9 @@
       "relation": "PRECEDES",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:10:13.629191+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "session:sess-20261031-121013-c06d97",
@@ -5103,7 +5137,9 @@
       "relation": "RELATES_TO",
       "weight": 0.8,
       "valid_from": "2026-10-31T12:10:13.629191+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:issue-554-arch-substrate-verifier-bots",
@@ -5111,7 +5147,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:13:34.819534+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "episode:issue-554-arch-substrate-verifier-bots",
@@ -5119,7 +5157,9 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:13:34.890409+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-554",
@@ -5127,7 +5167,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:13:39.431791+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-554",
@@ -5135,7 +5177,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:13:39.431791+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-554",
@@ -5143,7 +5187,9 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:13:39.431791+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     },
     {
       "source": "eval:issue-554",
@@ -5151,7 +5197,89 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:13:39.501203+00:00",
-      "is_current": true
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261031-121013-c06d97",
+      "target": "session:sess-20261031-121502-ecbafb",
+      "relation": "PRECEDES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:15:02.422172+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "session:sess-20261031-121502-ecbafb",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 0.8,
+      "valid_from": "2026-10-31T12:15:02.422172+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-555-continuous-task-evaluator-bot",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:15:07.429102+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-555-continuous-task-evaluator-bot",
+      "target": "session:sess-20261031-121502-ecbafb",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:15:07.509863+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "eval:issue-555",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:15:12.554447+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "eval:issue-555",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:15:12.554447+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "eval:issue-555",
+      "target": "session:sess-20261031-121502-ecbafb",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:15:12.554447+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "eval:issue-555",
+      "target": "session:sess-20261031-121502-ecbafb",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:15:12.624611+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
     }
   ]
 }
