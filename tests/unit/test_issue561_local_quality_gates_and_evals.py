@@ -10,6 +10,7 @@ from click.testing import CliRunner
 from hath0r_cli.bots.local_quality_gate_bot import (
     SONARCLOUD_CANONICAL_THRESHOLDS,
     LocalQualityGateBot,
+    _detect_stack_key,
 )
 from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot
 from hath0r_cli.cli import main as cli
@@ -34,6 +35,12 @@ def test_canonical_sonarcloud_thresholds_defaults(tmp_path: Path) -> None:
     assert persisted["thresholds"]["max_duplicated_lines_pct"] == 3.0
     assert cfg["thresholds"] == SONARCLOUD_CANONICAL_THRESHOLDS
 
+    # Reload existing thresholds.json and verify custom threshold merge
+    persisted["thresholds"]["min_coverage_pct"] = 85.0
+    t_file.write_text(json.dumps(persisted), encoding="utf-8")
+    reloaded = bot.load_or_init_thresholds(tmp_path, create_if_missing=False)
+    assert reloaded["thresholds"]["min_coverage_pct"] == 85.0
+
 
 def test_technology_detection_and_missing_test_harness_scaffolding(tmp_path: Path) -> None:
     """Verify Hath0r detects repo technology and creates the testing system if missing."""
@@ -51,18 +58,72 @@ def test_technology_detection_and_missing_test_harness_scaffolding(tmp_path: Pat
     assert (py_repo / "tests" / "test_qgate_smoke.py").is_file()
     assert "tests/test_qgate_smoke.py" in res_py["scaffolded_files"]
 
+    # Second run should detect existing test files and not re-scaffold
+    res_py_again = bot.ensure_supporting_system(py_repo, install_missing=False, scaffold_missing=True)
+    assert res_py_again["scaffolded_files"] == []
+
     # 2. Node-TS repo without test/ directory
     ts_repo = tmp_path / "ts_repo"
     ts_repo.mkdir()
     (ts_repo / "package.json").write_text('{"name": "ts-repo"}', encoding="utf-8")
     (ts_repo / "tsconfig.json").write_text('{"compilerOptions": {}}', encoding="utf-8")
     (ts_repo / "src").mkdir()
-    (ts_repo / "src" / "index.ts").write_text("export const greet = (name: string) => `hi ${name}`;\n", encoding="utf-8")
+    (ts_repo / "src" / "index.ts").write_text(
+        "export function greet(name: string): string {\n"
+        "  if (name && name.length > 0) {\n"
+        "    return `hi ${name}`;\n"
+        "  }\n"
+        "  return 'hello';\n"
+        "}\n",
+        encoding="utf-8",
+    )
 
     res_ts = bot.ensure_supporting_system(ts_repo, install_missing=False, scaffold_missing=True)
     assert res_ts["technology"] == "node-ts"
     assert (ts_repo / "thresholds.json").is_file()
     assert (ts_repo / "test" / "qgate.smoke.test.ts").is_file()
+    eval_ts = bot.evaluate_local_gates(ts_repo, changed_only=False, auto_init=True)
+    assert eval_ts["gates"]["complexity"]["functions_scanned"] >= 1
+
+    # 3. Rust, Go, and Infra-Python stack detection
+    rust_repo = tmp_path / "rust_repo"
+    rust_repo.mkdir()
+    (rust_repo / "Cargo.toml").write_text('[package]\nname = "demo"\n', encoding="utf-8")
+    assert _detect_stack_key(rust_repo) == "rust"
+
+    go_repo = tmp_path / "go_repo"
+    go_repo.mkdir()
+    (go_repo / "go.mod").write_text("module example.com/demo\n", encoding="utf-8")
+    assert _detect_stack_key(go_repo) == "go"
+
+    infra_repo = tmp_path / "infra_repo"
+    infra_repo.mkdir()
+    (infra_repo / "deploy" / "docker").mkdir(parents=True)
+    assert _detect_stack_key(infra_repo) == "infra-python"
+
+
+def test_coverage_xml_summary_and_lcov_parsing(tmp_path: Path) -> None:
+    """Verify coverage gate parses coverage.xml, coverage-summary.json, and lcov.info."""
+    bot = LocalQualityGateBot(cwd=tmp_path)
+
+    # 1. coverage.xml
+    (tmp_path / "coverage.xml").write_text('<coverage line-rate="0.9125"></coverage>', encoding="utf-8")
+    assert bot._read_existing_coverage_pct(tmp_path) == 91.25
+    (tmp_path / "coverage.xml").unlink()
+
+    # 2. coverage/coverage-summary.json
+    cov_dir = tmp_path / "coverage"
+    cov_dir.mkdir()
+    (cov_dir / "coverage-summary.json").write_text(
+        json.dumps({"total": {"lines": {"pct": 86.4}}}),
+        encoding="utf-8",
+    )
+    assert bot._read_existing_coverage_pct(tmp_path) == 86.4
+    (cov_dir / "coverage-summary.json").unlink()
+
+    # 3. coverage/lcov.info
+    (cov_dir / "lcov.info").write_text("TN:\nLF:100\nLH:88\nend_of_record\n", encoding="utf-8")
+    assert bot._read_existing_coverage_pct(tmp_path) == 88.0
 
 
 def test_local_gates_pass_on_clean_repo(tmp_path: Path) -> None:
@@ -76,6 +137,8 @@ def test_local_gates_pass_on_clean_repo(tmp_path: Path) -> None:
         "    for item in values:\n"
         "        if item > 0:\n"
         "            total += item\n"
+        "        elif item == 0:\n"
+        "            total += 0\n"
         "    return total\n",
         encoding="utf-8",
     )
@@ -105,7 +168,6 @@ def test_local_gates_detect_errors_complexity_and_duplication_failures(tmp_path:
     src = tmp_path / "src"
     src.mkdir()
 
-    # Create a deeply nested function exceeding cognitive complexity 15 + duplicated 10-line block
     dup_block = "\n".join(
         [f"    normalized_metric_value_{i} = (base_input + {i}) * 42 - {i * 3}" for i in range(12)]
     )
@@ -160,28 +222,40 @@ def test_task_evaluator_bot_includes_local_quality_gates(tmp_path: Path) -> None
     assert "Local Q-Gates (`thresholds.json`)" in res["scorecard_summary_markdown"]
 
 
-def test_cli_quality_init_and_local_and_bot_registry(tmp_path: Path, monkeypatch) -> None:
-    """Verify hath0r quality init, hath0r quality local, and BotRegistry local-quality-gate-bot."""
-    (tmp_path / "pyproject.toml").write_text('[project]\nname = "cli-qgate"\n', encoding="utf-8")
-    src = tmp_path / "src"
+def test_cli_quality_init_local_ensure_all_and_bot_registry(tmp_path: Path, monkeypatch) -> None:
+    """Verify hath0r quality init, local, ensure-all, and BotRegistry local-quality-gate-bot."""
+    ws = tmp_path / "ws"
+    ws.mkdir()
+    repo_dir = ws / "hath0r-atc"
+    repo_dir.mkdir()
+    (repo_dir / "pyproject.toml").write_text('[project]\nname = "cli-qgate"\n', encoding="utf-8")
+    src = repo_dir / "src"
     src.mkdir()
     (src / "mod.py").write_text("def hello() -> str:\n    return 'world'\n", encoding="utf-8")
-    tests = tmp_path / "tests"
+    tests = repo_dir / "tests"
     tests.mkdir()
     (tests / "test_mod.py").write_text("def test_mod() -> None:\n    assert True\n", encoding="utf-8")
 
-    monkeypatch.chdir(tmp_path)
+    monkeypatch.chdir(repo_dir)
     runner = CliRunner()
 
-    init_res = runner.invoke(cli, ["quality", "init"])
+    init_res = runner.invoke(cli, ["-o", "text", "quality", "init"])
     assert init_res.exit_code == 0
-    assert (tmp_path / "thresholds.json").is_file()
+    assert (repo_dir / "thresholds.json").is_file()
 
     local_res = runner.invoke(cli, ["-o", "text", "quality", "local", "--all-files"])
     assert local_res.exit_code == 0
     assert "PASSED" in local_res.output
 
-    reg = BotRegistry(cwd=tmp_path)
+    ensure_res = runner.invoke(cli, ["-o", "text", "quality", "ensure-all", "--workspace-root", str(ws)])
+    assert ensure_res.exit_code == 0
+    assert "1/1 PASSED" in ensure_res.output
+
+    reg = BotRegistry(cwd=repo_dir)
     assert "local-quality-gate-bot" in reg.registered_bot_ids()
-    step = reg.invoke("local-quality-gate-bot", "evaluate", {"changed_only": False})
-    assert step.success is True
+    assert reg.invoke("local-quality-gate-bot", "init", {}).success is True
+    assert reg.invoke("local-quality-gate-bot", "init", {}, dry_run=True).success is True
+    assert reg.invoke("local-quality-gate-bot", "evaluate", {"changed_only": False}).success is True
+    assert reg.invoke("local-quality-gate-bot", "detect-technology", {}).success is True
+    assert reg.invoke("local-quality-gate-bot", "ensure-all", {}, dry_run=True).success is True
+    assert reg.invoke("local-quality-gate-bot", "unknown-action", {}).success is False

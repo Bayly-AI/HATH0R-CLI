@@ -7,11 +7,27 @@ description: >
   Errors, Test Coverage, Complexity, and Repeated Code locally, and feeds TaskEvaluatorBot.
 bots:
   - id: cicccd-managing-bot
+    name: CICCCD Managing Bot
     role: Enforces 4-hour pre-task agent calibration freshness
+    capabilities:
+      - ensure-calibrated
+      - calibrate
+      - status
   - id: local-quality-gate-bot
+    name: Local Quality Gate Bot
     role: Manages per-repo thresholds.json, tech-specific test harness, and 4 local Q-Gates
+    capabilities:
+      - init
+      - evaluate
+      - ensure-all
+      - detect-technology
   - id: task-evaluator-bot
+    name: Task Evaluator Bot
     role: Integrates local Q-Gates into the 4-tier continuous task evaluation scorecard
+    capabilities:
+      - evaluate
+      - verify
+      - status
 workflows:
   - id: local-quality-gates
     name: Execute Local Quality Gates & Continuous Evaluation

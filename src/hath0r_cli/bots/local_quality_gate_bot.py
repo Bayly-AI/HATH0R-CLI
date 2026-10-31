@@ -27,6 +27,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+GO_RECURSIVE_PKG = "./..."
+
 SONARCLOUD_CANONICAL_THRESHOLDS: Dict[str, Any] = {
     "max_errors": 0,
     "min_coverage_pct": 80.0,
@@ -93,10 +95,10 @@ STACK_PROFILES: Dict[str, Dict[str, Any]] = {
         "source_dirs": ["."],
         "test_dirs": ["."],
         "commands": {
-            "errors": ["go", "vet", "./..."],
-            "typecheck": ["go", "build", "./..."],
-            "tests": ["go", "test", "./..."],
-            "coverage": ["go", "test", "-coverprofile=coverage.out", "./..."],
+            "errors": ["go", "vet", GO_RECURSIVE_PKG],
+            "typecheck": ["go", "build", GO_RECURSIVE_PKG],
+            "tests": ["go", "test", GO_RECURSIVE_PKG],
+            "coverage": ["go", "test", "-coverprofile=coverage.out", GO_RECURSIVE_PKG],
         },
     },
 }
@@ -104,14 +106,12 @@ STACK_PROFILES: Dict[str, Dict[str, Any]] = {
 
 def _detect_stack_key(repo_root: Path) -> str:
     """Detect canonical technology stack key for a repository root."""
-    if (repo_root / "package.json").is_file() and (
-        (repo_root / "tsconfig.json").is_file() or (repo_root / "vite.config.ts").is_file()
-    ):
+    has_pkg_json = (repo_root / "package.json").is_file()
+    has_ts_cfg = (repo_root / "tsconfig.json").is_file() or (repo_root / "vite.config.ts").is_file()
+    if has_pkg_json and has_ts_cfg:
         return "node-ts"
     if (repo_root / "pyproject.toml").is_file() or (repo_root / "setup.py").is_file():
-        if (repo_root / "src").is_dir():
-            return "python"
-        return "infra-python"
+        return "python" if (repo_root / "src").is_dir() else "infra-python"
     if (repo_root / "Cargo.toml").is_file():
         return "rust"
     if (repo_root / "go.mod").is_file():
@@ -133,33 +133,51 @@ def _node_branch_increment(node: ast.AST, depth: int) -> Tuple[int, bool]:
     return 0, False
 
 
+def _collect_elif_node_ids(func_node: ast.AST) -> set[int]:
+    """Return object IDs for `elif` AST nodes (which add +1 flat without increasing nesting depth)."""
+    elif_ids: set[int] = set()
+    for node in ast.walk(func_node):
+        if isinstance(node, ast.If) and len(node.orelse) == 1 and isinstance(node.orelse[0], ast.If):
+            elif_ids.add(id(node.orelse[0]))
+    return elif_ids
+
+
 def _ast_cognitive_complexity(func_node: ast.AST) -> int:
     """Compute SonarCloud-style S3776 cognitive complexity for a Python function AST node."""
     total = 0
-    elif_nodes: set[int] = set()
-    for node in ast.walk(func_node):
-        if isinstance(node, ast.If) and len(node.orelse) == 1 and isinstance(node.orelse[0], ast.If):
-            elif_nodes.add(id(node.orelse[0]))
-
+    elif_nodes = _collect_elif_node_ids(func_node)
     stack: List[Tuple[ast.AST, int]] = [(child, 0) for child in ast.iter_child_nodes(func_node)]
     while stack:
         current, depth = stack.pop()
         if isinstance(current, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            for child in ast.iter_child_nodes(current):
-                stack.append((child, depth + 1))
+            stack.extend((child, depth + 1) for child in ast.iter_child_nodes(current))
             continue
         if id(current) in elif_nodes:
-            # In SonarCloud Cognitive Complexity, `elif` increments by +1 without increasing nesting depth
             total += 1
-            for child in ast.iter_child_nodes(current):
-                stack.append((child, depth))
+            stack.extend((child, depth) for child in ast.iter_child_nodes(current))
             continue
         inc, nests = _node_branch_increment(current, depth)
         total += inc
         next_depth = depth + 1 if nests else depth
-        for child in ast.iter_child_nodes(current):
-            stack.append((child, next_depth))
+        stack.extend((child, next_depth) for child in ast.iter_child_nodes(current))
     return total
+
+
+def _extract_ts_function_body(lines: List[str], start_idx: int) -> str:
+    """Extract lines of a TypeScript/JavaScript function bounded by brace depth."""
+    brace_depth = 0
+    started = False
+    body_lines: List[str] = []
+    for scan_line in lines[start_idx : min(len(lines), start_idx + 120)]:
+        body_lines.append(scan_line)
+        opens = scan_line.count("{")
+        closes = scan_line.count("}")
+        if opens > 0:
+            started = True
+        brace_depth += opens - closes
+        if started and brace_depth <= 0:
+            break
+    return "\n".join(body_lines)
 
 
 def _compute_ts_functions_complexity(content: str, rel_path: str) -> List[Dict[str, Any]]:
@@ -175,19 +193,7 @@ def _compute_ts_functions_complexity(content: str, rel_path: str) -> List[Dict[s
         if not m:
             continue
         fn_name = m.group(1) or m.group(2) or "anonymous"
-        brace_depth = 0
-        started = False
-        body_lines: List[str] = []
-        for scan_line in lines[idx : min(len(lines), idx + 120)]:
-            body_lines.append(scan_line)
-            opens = scan_line.count("{")
-            closes = scan_line.count("}")
-            if opens > 0:
-                started = True
-            brace_depth += opens - closes
-            if started and brace_depth <= 0:
-                break
-        window = "\n".join(body_lines)
+        window = _extract_ts_function_body(lines, idx)
         branches = len(re.findall(r"\b(?:if|else\s+if|for|while|case|catch)\b|\&\&|\|\|", window))
         results.append({"function": f"{rel_path}:{fn_name}", "line": idx + 1, "complexity": max(1, branches)})
     return results
@@ -205,6 +211,18 @@ def _normalize_code_line(line: str) -> Optional[str]:
     if re.match(r'^["\'][A-Za-z0-9_.-]+["\'],?$', stripped):
         return None
     return re.sub(r"\s+", " ", stripped)
+
+
+def _resolve_existing_dirs(root: Path, dirs: List[str], fallback: str) -> List[str]:
+    """Return subset of dirs that exist under root, or a sensible fallback."""
+    existing = [d for d in dirs if (root / d).exists()]
+    if existing:
+        return existing
+    if (root / "src").exists():
+        return ["src"]
+    if (root / "tests").exists():
+        return ["tests"]
+    return [fallback]
 
 
 @dataclass
@@ -226,14 +244,9 @@ class LocalQualityGateBot:
         root = (repo_root or self.cwd).resolve()
         stack_key = _detect_stack_key(root)
         profile = json.loads(json.dumps(STACK_PROFILES.get(stack_key, STACK_PROFILES["python"])))
-        src_dirs = [d for d in profile["source_dirs"] if (root / d).exists()]
-        if not src_dirs:
-            src_dirs = ["src"] if (root / "src").exists() else ["tests"] if (root / "tests").exists() else ["."]
-        test_dirs = [d for d in profile["test_dirs"] if (root / d).exists()]
-        if not test_dirs:
-            test_dirs = [profile["test_dirs"][0]]
-        profile["source_dirs"] = src_dirs
-        profile["test_dirs"] = test_dirs
+        profile["source_dirs"] = _resolve_existing_dirs(root, profile["source_dirs"], ".")
+        test_existing = [d for d in profile["test_dirs"] if (root / d).exists()]
+        profile["test_dirs"] = test_existing if test_existing else [profile["test_dirs"][0]]
         return {"technology": stack_key, "stack": profile}
 
     def build_default_thresholds_payload(self, repo_root: Optional[Path] = None) -> Dict[str, Any]:
@@ -250,6 +263,16 @@ class LocalQualityGateBot:
             "stack": detected["stack"],
         }
 
+    def _merge_loaded_thresholds(self, loaded: Dict[str, Any], default_payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Merge loaded thresholds.json over canonical defaults."""
+        merged_thresh = dict(SONARCLOUD_CANONICAL_THRESHOLDS)
+        if isinstance(loaded.get("thresholds"), dict):
+            merged_thresh.update(loaded["thresholds"])
+        loaded["thresholds"] = merged_thresh
+        if "stack" not in loaded or not isinstance(loaded["stack"], dict):
+            loaded["stack"] = default_payload["stack"]
+        return loaded
+
     def load_or_init_thresholds(
         self,
         repo_root: Optional[Path] = None,
@@ -265,13 +288,7 @@ class LocalQualityGateBot:
             try:
                 loaded = json.loads(t_path.read_text(encoding="utf-8"))
                 if isinstance(loaded, dict):
-                    merged_thresh = dict(SONARCLOUD_CANONICAL_THRESHOLDS)
-                    if isinstance(loaded.get("thresholds"), dict):
-                        merged_thresh.update(loaded["thresholds"])
-                    loaded["thresholds"] = merged_thresh
-                    if "stack" not in loaded or not isinstance(loaded["stack"], dict):
-                        loaded["stack"] = default_payload["stack"]
-                    return loaded
+                    return self._merge_loaded_thresholds(loaded, default_payload)
             except Exception:
                 pass
         if create_if_missing or overwrite:
@@ -280,71 +297,63 @@ class LocalQualityGateBot:
                 fh.write("\n")
         return default_payload
 
+    def _has_existing_test_files(self, test_dir: Path) -> bool:
+        """Check whether test_dir already contains at least one test or spec file."""
+        if not test_dir.is_dir():
+            return False
+        return any(
+            p.is_file() and ("test" in p.name.lower() or "spec" in p.name.lower())
+            for p in test_dir.rglob("*")
+        )
+
     def _scaffold_missing_test_harness(self, root: Path, tech: str, stack: Dict[str, Any]) -> List[str]:
         """Create test directory and baseline smoke test if the repository lacks a testing system."""
-        created: List[str] = []
         test_dirs = stack.get("test_dirs", ["tests"])
         primary_test_dir = root / (test_dirs[0] if test_dirs else "tests")
-        has_tests = False
-        if primary_test_dir.is_dir():
-            has_tests = any(
-                p.is_file() and ("test" in p.name.lower() or "spec" in p.name.lower())
-                for p in primary_test_dir.rglob("*")
-            )
-        if has_tests:
-            return created
+        if self._has_existing_test_files(primary_test_dir):
+            return []
 
         primary_test_dir.mkdir(parents=True, exist_ok=True)
         if tech == "node-ts":
             smoke_file = primary_test_dir / "qgate.smoke.test.ts"
-            if not smoke_file.exists():
-                smoke_file.write_text(
-                    'import { describe, expect, it } from "vitest";\n\n'
-                    'describe("Local Quality Gate Smoke", () => {\n'
-                    '  it("verifies thresholds.json exists", () => {\n'
-                    "    expect(true).toBe(true);\n"
-                    "  });\n"
-                    "});\n",
-                    encoding="utf-8",
-                )
-                created.append(str(smoke_file.relative_to(root)))
+            content = (
+                'import { describe, expect, it } from "vitest";\n\n'
+                'describe("Local Quality Gate Smoke", () => {\n'
+                '  it("verifies thresholds.json exists", () => {\n'
+                "    expect(true).toBe(true);\n"
+                "  });\n"
+                "});\n"
+            )
         else:
             smoke_file = primary_test_dir / "test_qgate_smoke.py"
-            if not smoke_file.exists():
-                smoke_file.write_text(
-                    '"""Baseline Local Quality Gate smoke test scaffolded by Hath0r CLI."""\n\n'
-                    "from pathlib import Path\n\n\n"
-                    "def test_thresholds_json_present() -> None:\n"
-                    '    repo_root = Path(__file__).resolve().parents[1]\n'
-                    '    assert (repo_root / "thresholds.json").is_file()\n',
-                    encoding="utf-8",
-                )
-                created.append(str(smoke_file.relative_to(root)))
-        return created
+            content = (
+                '"""Baseline Local Quality Gate smoke test scaffolded by Hath0r CLI."""\n\n'
+                "from pathlib import Path\n\n\n"
+                "def test_thresholds_json_present() -> None:\n"
+                "    repo_root = Path(__file__).resolve().parents[1]\n"
+                '    assert (repo_root / "thresholds.json").is_file()\n'
+            )
+        if not smoke_file.exists():
+            smoke_file.write_text(content, encoding="utf-8")
+            return [str(smoke_file.relative_to(root))]
+        return []
+
+    def _is_library_installed(self, root: Path, tech: str, lib: str) -> bool:
+        """Check whether a supporting library is installed for the given technology stack."""
+        module_map = {"pytest-cov": "pytest_cov", "pyyaml": "yaml"}
+        if tech in ("python", "infra-python"):
+            mod_name = module_map.get(lib, lib.replace("-", "_"))
+            return importlib.util.find_spec(mod_name) is not None or shutil.which(lib) is not None
+        if tech == "node-ts":
+            return (root / "node_modules" / lib).exists() or shutil.which(lib) is not None
+        return True
 
     def _verify_or_install_libraries(
         self, root: Path, tech: str, libraries: List[str], *, install_missing: bool = False
     ) -> Dict[str, Any]:
         """Verify supporting libraries for the repo's technology stack and optionally install missing ones."""
-        installed: List[str] = []
-        missing: List[str] = []
-        module_map = {"pytest-cov": "pytest_cov", "pyyaml": "yaml"}
-
-        for lib in libraries:
-            if tech in ("python", "infra-python"):
-                mod_name = module_map.get(lib, lib.replace("-", "_"))
-                if importlib.util.find_spec(mod_name) is not None or shutil.which(lib) is not None:
-                    installed.append(lib)
-                else:
-                    missing.append(lib)
-            elif tech == "node-ts":
-                pkg_dir = root / "node_modules" / lib
-                if pkg_dir.exists() or shutil.which(lib) is not None:
-                    installed.append(lib)
-                else:
-                    missing.append(lib)
-            else:
-                installed.append(lib)
+        installed = [lib for lib in libraries if self._is_library_installed(root, tech, lib)]
+        missing = [lib for lib in libraries if lib not in installed]
 
         install_attempted = False
         if missing and install_missing:
@@ -398,16 +407,12 @@ class LocalQualityGateBot:
             "scaffolded_files": scaffolded,
         }
 
-    def _collect_source_files(self, root: Path, stack: Dict[str, Any], *, changed_only: bool = True) -> List[Path]:
-        """Collect source files to analyze (changed files first when available, otherwise stack source_dirs)."""
-        exts = {".py", ".ts", ".tsx", ".js", ".jsx", ".rs", ".go"}
-        ignore_parts = {".git", ".hath0r", "node_modules", "dist", "build", "__pycache__", ".venv", "venv"}
-        candidates: List[Path] = []
-
-        if changed_only:
+    def _git_changed_source_files(self, root: Path, exts: set[str], ignore_parts: set[str]) -> List[Path]:
+        """Return changed source files from git diff against origin/development or HEAD~1."""
+        for ref in ("origin/development...HEAD", "HEAD~1"):
             try:
                 proc = subprocess.run(
-                    ["git", "diff", "--name-only", "origin/development...HEAD"],
+                    ["git", "diff", "--name-only", ref],
                     cwd=root,
                     capture_output=True,
                     text=True,
@@ -415,26 +420,30 @@ class LocalQualityGateBot:
                     check=False,
                 )
                 lines = [ln.strip() for ln in proc.stdout.splitlines() if ln.strip()]
-                if not lines:
-                    proc_head = subprocess.run(
-                        ["git", "diff", "--name-only", "HEAD~1"],
-                        cwd=root,
-                        capture_output=True,
-                        text=True,
-                        timeout=5,
-                        check=False,
-                    )
-                    lines = [ln.strip() for ln in proc_head.stdout.splitlines() if ln.strip()]
-                for rel in lines:
-                    p = root / rel
-                    if p.is_file() and p.suffix in exts and not (set(p.parts) & ignore_parts):
-                        candidates.append(p)
+                if lines:
+                    found = [
+                        root / rel
+                        for rel in lines
+                        if (root / rel).is_file()
+                        and (root / rel).suffix in exts
+                        and not (set((root / rel).parts) & ignore_parts)
+                    ]
+                    if found:
+                        return found[:60]
             except Exception:
-                candidates = []
+                continue
+        return []
 
-        if candidates:
-            return candidates[:60]
+    def _collect_source_files(self, root: Path, stack: Dict[str, Any], *, changed_only: bool = True) -> List[Path]:
+        """Collect source files to analyze (changed files first when available, otherwise stack source_dirs)."""
+        exts = {".py", ".ts", ".tsx", ".js", ".jsx", ".rs", ".go"}
+        ignore_parts = {".git", ".hath0r", "node_modules", "dist", "build", "__pycache__", ".venv", "venv"}
+        if changed_only:
+            changed = self._git_changed_source_files(root, exts, ignore_parts)
+            if changed:
+                return changed
 
+        candidates: List[Path] = []
         for sdir in stack.get("source_dirs", ["src"]):
             base = root / sdir
             if not base.exists():
@@ -446,24 +455,27 @@ class LocalQualityGateBot:
                     return candidates
         return candidates
 
-    def _eval_errors_gate(self, root: Path, files: List[Path], max_errors: int) -> Dict[str, Any]:
-        """Gate 1: Evaluate syntax and static lint errors against max_errors (default 0)."""
-        errors_found: List[str] = []
+    def _check_python_syntax(self, root: Path, files: List[Path]) -> Tuple[List[str], List[str]]:
+        """Parse Python files with ast.parse and return (py_relative_paths, syntax_errors)."""
         py_files: List[str] = []
-
+        errors_found: List[str] = []
         for f in files:
+            if f.suffix != ".py":
+                continue
             rel = str(f.relative_to(root))
+            py_files.append(rel)
             try:
                 text = f.read_text(encoding="utf-8", errors="ignore")
+                ast.parse(text, filename=rel)
+            except SyntaxError as exc:
+                errors_found.append(f"{rel}:{exc.lineno}: SyntaxError: {exc.msg}")
             except Exception:
                 continue
-            if f.suffix == ".py":
-                py_files.append(rel)
-                try:
-                    ast.parse(text, filename=rel)
-                except SyntaxError as exc:
-                    errors_found.append(f"{rel}:{exc.lineno}: SyntaxError: {exc.msg}")
+        return py_files, errors_found
 
+    def _eval_errors_gate(self, root: Path, files: List[Path], max_errors: int) -> Dict[str, Any]:
+        """Gate 1: Evaluate syntax and static lint errors against max_errors (default 0)."""
+        py_files, errors_found = self._check_python_syntax(root, files)
         if py_files and shutil.which("ruff"):
             try:
                 proc = subprocess.run(
@@ -475,8 +487,7 @@ class LocalQualityGateBot:
                     check=False,
                 )
                 if proc.returncode != 0 and proc.stdout.strip():
-                    for ln in proc.stdout.strip().splitlines()[:10]:
-                        errors_found.append(ln.strip())
+                    errors_found.extend(ln.strip() for ln in proc.stdout.strip().splitlines()[:10])
             except Exception:
                 pass
 
@@ -493,13 +504,27 @@ class LocalQualityGateBot:
             "findings": errors_found[:10],
         }
 
+    def _parse_lcov_pct(self, lcov: Path) -> Optional[float]:
+        """Parse line coverage percentage from an lcov.info file."""
+        if not lcov.is_file():
+            return None
+        try:
+            lf = lh = 0
+            for ln in lcov.read_text(encoding="utf-8", errors="ignore").splitlines():
+                if ln.startswith("LF:"):
+                    lf += int(ln.split(":", 1)[1])
+                elif ln.startswith("LH:"):
+                    lh += int(ln.split(":", 1)[1])
+            return round((lh / lf) * 100.0, 2) if lf > 0 else None
+        except Exception:
+            return None
+
     def _read_existing_coverage_pct(self, root: Path) -> Optional[float]:
         """Read coverage percentage from coverage.xml, coverage-summary.json, or lcov.info if present."""
         cov_xml = root / "coverage.xml"
         if cov_xml.is_file():
             try:
-                tree = ET.parse(cov_xml)
-                rate = tree.getroot().attrib.get("line-rate")
+                rate = ET.parse(cov_xml).getroot().attrib.get("line-rate")
                 if rate is not None:
                     return round(float(rate) * 100.0, 2)
             except Exception:
@@ -515,20 +540,32 @@ class LocalQualityGateBot:
             except Exception:
                 pass
 
-        lcov = root / "coverage" / "lcov.info"
-        if lcov.is_file():
-            try:
-                lf = lh = 0
-                for ln in lcov.read_text(encoding="utf-8", errors="ignore").splitlines():
-                    if ln.startswith("LF:"):
-                        lf += int(ln.split(":", 1)[1])
-                    elif ln.startswith("LH:"):
-                        lh += int(ln.split(":", 1)[1])
-                if lf > 0:
-                    return round((lh / lf) * 100.0, 2)
-            except Exception:
-                pass
-        return None
+        return self._parse_lcov_pct(root / "coverage" / "lcov.info")
+
+    def _estimate_symbol_coverage_pct(self, root: Path, stack: Dict[str, Any], files: List[Path]) -> float:
+        """Estimate coverage percentage from test files referencing source module stems."""
+        test_files: List[Path] = []
+        for tdir in stack.get("test_dirs", ["tests", "test"]):
+            tp = root / tdir
+            if tp.is_dir():
+                test_files.extend(
+                    p for p in tp.rglob("*") if p.is_file() and p.suffix in {".py", ".ts", ".tsx", ".js"}
+                )
+        if not test_files:
+            return 0.0
+        non_test_src = [f for f in files if "test" not in f.name.lower()]
+        if not non_test_src:
+            return 88.5
+        test_corpus = "\n".join(p.read_text(encoding="utf-8", errors="ignore") for p in test_files[:80])
+        compact_corpus = test_corpus.replace("_", "")
+        covered_units = sum(
+            1
+            for sf in non_test_src[:25]
+            if sf.stem in test_corpus or sf.stem.replace("_", "") in compact_corpus
+        )
+        ratio = covered_units / max(1, len(non_test_src[:25]))
+        test_density = min(1.0, len(test_files) / max(1, len(non_test_src)))
+        return round(min(98.5, 81.0 + 11.0 * ratio + 5.5 * test_density), 2)
 
     def _eval_coverage_gate(
         self, root: Path, stack: Dict[str, Any], files: List[Path], min_coverage_pct: float
@@ -538,32 +575,7 @@ class LocalQualityGateBot:
         measurement_source = "coverage_report"
         if reported_pct is None:
             measurement_source = "test_suite_symbol_verification"
-            test_files: List[Path] = []
-            for tdir in stack.get("test_dirs", ["tests", "test"]):
-                tp = root / tdir
-                if tp.is_dir():
-                    test_files.extend(
-                        p for p in tp.rglob("*") if p.is_file() and p.suffix in {".py", ".ts", ".tsx", ".js"}
-                    )
-            test_corpus = "\n".join(
-                p.read_text(encoding="utf-8", errors="ignore") for p in test_files[:80]
-            )
-            non_test_src = [f for f in files if "test" not in f.name.lower()]
-            if not test_files:
-                reported_pct = 0.0
-            elif not non_test_src:
-                reported_pct = 88.5
-            else:
-                covered_units = 0
-                total_units = 0
-                for sf in non_test_src[:25]:
-                    stem = sf.stem
-                    total_units += 1
-                    if stem in test_corpus or stem.replace("_", "") in test_corpus.replace("_", ""):
-                        covered_units += 1
-                ratio = covered_units / max(1, total_units)
-                test_density = min(1.0, len(test_files) / max(1, len(non_test_src)))
-                reported_pct = round(min(98.5, 81.0 + 11.0 * ratio + 5.5 * test_density), 2)
+            reported_pct = self._estimate_symbol_coverage_pct(root, stack, files)
 
         passed = reported_pct >= min_coverage_pct
         if not passed:
@@ -581,33 +593,38 @@ class LocalQualityGateBot:
             "score": round(score, 4),
         }
 
+    def _extract_file_complexities(self, root: Path, f: Path) -> List[Dict[str, Any]]:
+        """Extract per-function cognitive complexity entries for a single source file."""
+        if "test" in f.name.lower():
+            return []
+        rel = str(f.relative_to(root))
+        try:
+            text = f.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            return []
+        if f.suffix == ".py":
+            try:
+                tree = ast.parse(text, filename=rel)
+                return [
+                    {"function": f"{rel}:{node.name}", "line": node.lineno, "complexity": _ast_cognitive_complexity(node)}
+                    for node in ast.walk(tree)
+                    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                ]
+            except Exception:
+                return []
+        if f.suffix in {".ts", ".tsx", ".js", ".jsx"}:
+            return _compute_ts_functions_complexity(text, rel)
+        return []
+
     def _eval_complexity_gate(self, root: Path, files: List[Path], max_complexity: int) -> Dict[str, Any]:
         """Gate 3: Evaluate per-function cognitive complexity against max_complexity (default 15)."""
         all_funcs: List[Dict[str, Any]] = []
         for f in files:
-            if "test" in f.name.lower():
-                continue
-            rel = str(f.relative_to(root))
-            try:
-                text = f.read_text(encoding="utf-8", errors="ignore")
-            except Exception:
-                continue
-            if f.suffix == ".py":
-                try:
-                    tree = ast.parse(text, filename=rel)
-                    for node in ast.walk(tree):
-                        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                            comp = _ast_cognitive_complexity(node)
-                            all_funcs.append({"function": f"{rel}:{node.name}", "line": node.lineno, "complexity": comp})
-                except Exception:
-                    continue
-            elif f.suffix in {".ts", ".tsx", ".js", ".jsx"}:
-                all_funcs.extend(_compute_ts_functions_complexity(text, rel))
+            all_funcs.extend(self._extract_file_complexities(root, f))
 
         max_obs = max((fn["complexity"] for fn in all_funcs), default=1)
         avg_comp = round(sum(fn["complexity"] for fn in all_funcs) / max(1, len(all_funcs)), 2)
         offending = [fn for fn in all_funcs if fn["complexity"] > max_complexity]
-        # Gate passes if average cognitive complexity <= max_complexity (15) and hotspots do not dominate (>25% of functions)
         hotspot_ratio = len(offending) / max(1, len(all_funcs))
         passed = avg_comp <= max_complexity and hotspot_ratio <= 0.25 and (len(all_funcs) > 1 or len(offending) == 0)
         if not passed:
@@ -628,6 +645,30 @@ class LocalQualityGateBot:
             "score": round(score, 4),
         }
 
+    def _scan_file_duplication(
+        self,
+        rel: str,
+        norm_lines: List[str],
+        window_size: int,
+        seen_blocks: Dict[str, str],
+    ) -> Tuple[int, List[Dict[str, Any]]]:
+        """Scan normalized lines of a single file for 8-line duplicate blocks."""
+        dup_lines = 0
+        dup_blocks: List[Dict[str, Any]] = []
+        idx = 0
+        while idx <= len(norm_lines) - window_size:
+            block = "\n".join(norm_lines[idx : idx + window_size])
+            digest = hashlib.sha256(block.encode("utf-8")).hexdigest()[:16]
+            loc = f"{rel}:{idx + 1}"
+            if digest in seen_blocks and seen_blocks[digest] != loc:
+                dup_lines += window_size
+                dup_blocks.append({"first": seen_blocks[digest], "duplicate": loc})
+                idx += window_size
+            else:
+                seen_blocks[digest] = loc
+                idx += 1
+        return dup_lines, dup_blocks
+
     def _eval_duplication_gate(self, root: Path, files: List[Path], max_dup_pct: float) -> Dict[str, Any]:
         """Gate 4: Evaluate duplicated code block density against max_duplicated_lines_pct (default 3.0%)."""
         window_size = 8
@@ -646,20 +687,10 @@ class LocalQualityGateBot:
                 continue
             norm_lines = [nl for nl in (_normalize_code_line(ln) for ln in raw_lines) if nl is not None]
             total_lines += len(norm_lines)
-            if len(norm_lines) < window_size:
-                continue
-            idx = 0
-            while idx <= len(norm_lines) - window_size:
-                block = "\n".join(norm_lines[idx : idx + window_size])
-                digest = hashlib.sha256(block.encode("utf-8")).hexdigest()[:16]
-                loc = f"{rel}:{idx + 1}"
-                if digest in seen_blocks and seen_blocks[digest] != loc:
-                    duplicated_lines += window_size
-                    duplicated_blocks.append({"first": seen_blocks[digest], "duplicate": loc})
-                    idx += window_size
-                else:
-                    seen_blocks[digest] = loc
-                    idx += 1
+            if len(norm_lines) >= window_size:
+                d_lines, d_blocks = self._scan_file_duplication(rel, norm_lines, window_size, seen_blocks)
+                duplicated_lines += d_lines
+                duplicated_blocks.extend(d_blocks)
 
         dup_pct = round((duplicated_lines / max(1, total_lines)) * 100.0, 2) if total_lines > 0 else 0.0
         passed = dup_pct <= max_dup_pct

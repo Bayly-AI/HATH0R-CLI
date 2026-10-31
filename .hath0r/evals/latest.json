@@ -1,15 +1,15 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261031-133730-5fa08c",
+  "eval_id": "eval-20261031-140937-251c67",
   "task_id": "issue-561",
   "issue_number": 561,
   "repo_name": "hathor-cli",
   "branch": "feature/561-local-qgates-thresholds-evals",
-  "evaluated_at": "2026-10-31T13:37:30.226767+00:00",
-  "duration_ms": 1016.69,
+  "evaluated_at": "2026-10-31T14:09:37.610229+00:00",
+  "duration_ms": 1114.45,
   "passed_gate": true,
-  "r_task": 0.9332,
+  "r_task": 0.9386,
   "min_reward_threshold": 0.8,
   "weights": {
     "deterministic": 0.4,
@@ -18,14 +18,14 @@
     "goal_alignment": 0.15
   },
   "tier_scores": {
-    "deterministic": 0.9601,
-    "trajectory": 0.9331,
-    "adversarial": 0.8928,
+    "deterministic": 0.9586,
+    "trajectory": 0.9321,
+    "adversarial": 0.9176,
     "goal_alignment": 0.9287
   },
   "tiers": {
     "deterministic": {
-      "score": 0.9601,
+      "score": 0.9586,
       "passed": true,
       "passed_checks": 6,
       "total_checks": 6,
@@ -34,8 +34,8 @@
         "agentgraph_valid": 1.0,
         "memory_compounded": 0.98,
         "test_suite": 0.88,
-        "calibration_4h": 0.9765,
-        "local_quality_gates": 0.9627
+        "calibration_4h": 0.9632,
+        "local_quality_gates": 0.9632
       },
       "checks": {
         "version_valid": {
@@ -67,14 +67,14 @@
         "calibration_4h": {
           "passed": true,
           "is_fresh": true,
-          "age_hours": 0.54,
+          "age_hours": 1.07,
           "max_age_hours": 4.0
         },
         "local_quality_gates": {
           "passed": true,
           "technology": "python",
           "thresholds_file": "/Users/raybayly/Development/OpenSource/hathor-cli/thresholds.json",
-          "qgate_score": 0.9627,
+          "qgate_score": 0.9632,
           "failing_gates": [],
           "gates": {
             "errors": {
@@ -99,11 +99,36 @@
               "gate": "complexity",
               "passed": true,
               "max_observed_complexity": 114,
-              "avg_complexity": 7.28,
+              "avg_complexity": 6.98,
               "max_complexity": 15,
               "comparator": "<=",
-              "functions_scanned": 264,
+              "functions_scanned": 360,
               "offending_functions": [
+                {
+                  "function": "src/hath0r_cli/bots/__init__.py:process_dependabot",
+                  "line": 183,
+                  "complexity": 16
+                },
+                {
+                  "function": "src/hath0r_cli/bots/__init__.py:create_pr",
+                  "line": 261,
+                  "complexity": 24
+                },
+                {
+                  "function": "src/hath0r_cli/bots/__init__.py:scan_stale_branches",
+                  "line": 461,
+                  "complexity": 16
+                },
+                {
+                  "function": "src/hath0r_cli/bots/__init__.py:sync_to_wiki",
+                  "line": 601,
+                  "complexity": 17
+                },
+                {
+                  "function": "src/hath0r_cli/bots/__init__.py:share_knowledge",
+                  "line": 683,
+                  "complexity": 36
+                },
                 {
                   "function": "src/hath0r_cli/bots/agentgraph_bot.py:query",
                   "line": 110,
@@ -128,43 +153,18 @@
                   "function": "src/hath0r_cli/bots/agentgraph_bot.py:heal",
                   "line": 817,
                   "complexity": 25
-                },
-                {
-                  "function": "src/hath0r_cli/bots/agentgraph_bot.py:audit_cross_repo",
-                  "line": 886,
-                  "complexity": 25
-                },
-                {
-                  "function": "src/hath0r_cli/bots/agentgraph_bot.py:migrate_repo",
-                  "line": 1000,
-                  "complexity": 16
-                },
-                {
-                  "function": "src/hath0r_cli/bots/architecture_preservation_bot.py:verify_repo",
-                  "line": 29,
-                  "complexity": 18
-                },
-                {
-                  "function": "src/hath0r_cli/bots/mcp_centralization_bot.py:audit_parity",
-                  "line": 154,
-                  "complexity": 19
-                },
-                {
-                  "function": "src/hath0r_cli/bots/mcp_workflow_engine_bot.py:list_workflows",
-                  "line": 43,
-                  "complexity": 23
                 }
               ],
-              "score": 0.8615
+              "score": 0.8635
             },
             "duplication": {
               "gate": "duplication",
               "passed": true,
-              "duplicated_lines_pct": 0.23,
+              "duplicated_lines_pct": 0.19,
               "max_duplicated_lines_pct": 3.0,
               "comparator": "<=",
               "duplicated_lines": 16,
-              "total_analyzed_lines": 6960,
+              "total_analyzed_lines": 8587,
               "duplicated_blocks": [
                 {
                   "first": "src/hath0r_cli/step_runner.py:1750",
@@ -175,7 +175,7 @@
                   "duplicate": "src/hath0r_cli/step_runner.py:1843"
                 }
               ],
-              "score": 0.9877
+              "score": 0.9881
             }
           },
           "report": {
@@ -196,8 +196,8 @@
               "new_maintainability_rating": 1,
               "min_security_hotspots_reviewed_pct": 100.0
             },
-            "files_analyzed": 31,
-            "qgate_score": 0.9627,
+            "files_analyzed": 36,
+            "qgate_score": 0.9632,
             "failing_gates": [],
             "gates": {
               "errors": {
@@ -222,11 +222,36 @@
                 "gate": "complexity",
                 "passed": true,
                 "max_observed_complexity": 114,
-                "avg_complexity": 7.28,
+                "avg_complexity": 6.98,
                 "max_complexity": 15,
                 "comparator": "<=",
-                "functions_scanned": 264,
+                "functions_scanned": 360,
                 "offending_functions": [
+                  {
+                    "function": "src/hath0r_cli/bots/__init__.py:process_dependabot",
+                    "line": 183,
+                    "complexity": 16
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/__init__.py:create_pr",
+                    "line": 261,
+                    "complexity": 24
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/__init__.py:scan_stale_branches",
+                    "line": 461,
+                    "complexity": 16
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/__init__.py:sync_to_wiki",
+                    "line": 601,
+                    "complexity": 17
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/__init__.py:share_knowledge",
+                    "line": 683,
+                    "complexity": 36
+                  },
                   {
                     "function": "src/hath0r_cli/bots/agentgraph_bot.py:query",
                     "line": 110,
@@ -251,43 +276,18 @@
                     "function": "src/hath0r_cli/bots/agentgraph_bot.py:heal",
                     "line": 817,
                     "complexity": 25
-                  },
-                  {
-                    "function": "src/hath0r_cli/bots/agentgraph_bot.py:audit_cross_repo",
-                    "line": 886,
-                    "complexity": 25
-                  },
-                  {
-                    "function": "src/hath0r_cli/bots/agentgraph_bot.py:migrate_repo",
-                    "line": 1000,
-                    "complexity": 16
-                  },
-                  {
-                    "function": "src/hath0r_cli/bots/architecture_preservation_bot.py:verify_repo",
-                    "line": 29,
-                    "complexity": 18
-                  },
-                  {
-                    "function": "src/hath0r_cli/bots/mcp_centralization_bot.py:audit_parity",
-                    "line": 154,
-                    "complexity": 19
-                  },
-                  {
-                    "function": "src/hath0r_cli/bots/mcp_workflow_engine_bot.py:list_workflows",
-                    "line": 43,
-                    "complexity": 23
                   }
                 ],
-                "score": 0.8615
+                "score": 0.8635
               },
               "duplication": {
                 "gate": "duplication",
                 "passed": true,
-                "duplicated_lines_pct": 0.23,
+                "duplicated_lines_pct": 0.19,
                 "max_duplicated_lines_pct": 3.0,
                 "comparator": "<=",
                 "duplicated_lines": 16,
-                "total_analyzed_lines": 6960,
+                "total_analyzed_lines": 8587,
                 "duplicated_blocks": [
                   {
                     "first": "src/hath0r_cli/step_runner.py:1750",
@@ -298,7 +298,7 @@
                     "duplicate": "src/hath0r_cli/step_runner.py:1843"
                   }
                 ],
-                "score": 0.9877
+                "score": 0.9881
               }
             }
           }
@@ -306,67 +306,49 @@
       }
     },
     "trajectory": {
-      "score": 0.9331,
+      "score": 0.9321,
       "passed": true,
-      "tokens_used": 144,
+      "tokens_used": 147,
       "max_tokens": 50000,
-      "estimated_usd": 0.000432,
+      "estimated_usd": 0.000441,
       "max_usd": 0.25,
       "session_id": "sess-20261031-121502-ecbafb",
       "session_reads": 6,
-      "session_writes": 16,
+      "session_writes": 17,
       "session_bytes": 1898,
       "capsule_fill_ratio": 0.9268,
       "within_capsule_budget": true,
-      "latency_ms": 735.46,
-      "taguchi_quality_loss": 0.0081,
-      "taguchi_score": 0.9597,
-      "snr_db": 8.69
+      "latency_ms": 818.78,
+      "taguchi_quality_loss": 0.0101,
+      "taguchi_score": 0.9547,
+      "snr_db": 7.76
     },
     "adversarial": {
-      "score": 0.8928,
+      "score": 0.9176,
       "passed": true,
       "adversarial_flaws_count": 0,
       "adversarial_flaws": [],
       "tech_debts_count": 0,
       "auto_created_issues": [],
       "minor_findings": [
-        "High diff addition volume (324 lines, -0.0049)",
-        "Cognitive complexity hotspot observed (avg 7.28, max 114, -0.0400)",
-        "Repeated code blocks detected (0.23%, -0.0023)"
+        "High diff addition volume (346 lines, -0.0064)",
+        "Cognitive complexity hotspot observed (avg 6.98, max 114, -0.0400)"
       ],
-      "added_lines_count": 324,
+      "added_lines_count": 346,
       "change_categories": {
         "ui": [],
         "script": [
-          "src/hath0r_cli/bots/__init__.py",
-          "src/hath0r_cli/bots/task_evaluator_bot.py",
-          "src/hath0r_cli/commands/evals.py",
-          "src/hath0r_cli/commands/quality.py",
-          "src/hath0r_cli/step_runner.py",
           "src/hath0r_cli/bots/local_quality_gate_bot.py",
           "tests/unit/test_issue561_local_quality_gates_and_evals.py"
         ],
         "text": [
-          "AGENTS.md",
-          "CHANGELOG.md",
-          "CLAUDE.md",
-          "pyproject.toml",
-          "cfg/factories/local-qgates-factory.yaml",
-          "docs/governance/bot-specs/local-quality-gate-bot-spec.md",
-          "docs/governance/local-quality-gates.md",
-          "docs/governance/playbooks/local-quality-gates-playbook.md",
-          "docs/governance/procedures/local-quality-gates-procedure.md",
-          "docs/governance/runbooks/local-quality-gates-runbook.md",
-          "docs/governance/strategies/local-quality-gates-strategy.md",
-          "docs/governance/workflows/local-quality-gates-workflow.md",
-          "thresholds.json"
+          "cfg/factories/local-qgates-factory.yaml"
         ],
         "other": [
-          "VERSION"
+          ".coverage"
         ]
       },
-      "changed_files_count": 21
+      "changed_files_count": 4
     },
     "goal_alignment": {
       "score": 0.9287,
@@ -398,8 +380,8 @@
       "new_maintainability_rating": 1,
       "min_security_hotspots_reviewed_pct": 100.0
     },
-    "files_analyzed": 31,
-    "qgate_score": 0.9627,
+    "files_analyzed": 36,
+    "qgate_score": 0.9632,
     "failing_gates": [],
     "gates": {
       "errors": {
@@ -424,11 +406,36 @@
         "gate": "complexity",
         "passed": true,
         "max_observed_complexity": 114,
-        "avg_complexity": 7.28,
+        "avg_complexity": 6.98,
         "max_complexity": 15,
         "comparator": "<=",
-        "functions_scanned": 264,
+        "functions_scanned": 360,
         "offending_functions": [
+          {
+            "function": "src/hath0r_cli/bots/__init__.py:process_dependabot",
+            "line": 183,
+            "complexity": 16
+          },
+          {
+            "function": "src/hath0r_cli/bots/__init__.py:create_pr",
+            "line": 261,
+            "complexity": 24
+          },
+          {
+            "function": "src/hath0r_cli/bots/__init__.py:scan_stale_branches",
+            "line": 461,
+            "complexity": 16
+          },
+          {
+            "function": "src/hath0r_cli/bots/__init__.py:sync_to_wiki",
+            "line": 601,
+            "complexity": 17
+          },
+          {
+            "function": "src/hath0r_cli/bots/__init__.py:share_knowledge",
+            "line": 683,
+            "complexity": 36
+          },
           {
             "function": "src/hath0r_cli/bots/agentgraph_bot.py:query",
             "line": 110,
@@ -453,43 +460,18 @@
             "function": "src/hath0r_cli/bots/agentgraph_bot.py:heal",
             "line": 817,
             "complexity": 25
-          },
-          {
-            "function": "src/hath0r_cli/bots/agentgraph_bot.py:audit_cross_repo",
-            "line": 886,
-            "complexity": 25
-          },
-          {
-            "function": "src/hath0r_cli/bots/agentgraph_bot.py:migrate_repo",
-            "line": 1000,
-            "complexity": 16
-          },
-          {
-            "function": "src/hath0r_cli/bots/architecture_preservation_bot.py:verify_repo",
-            "line": 29,
-            "complexity": 18
-          },
-          {
-            "function": "src/hath0r_cli/bots/mcp_centralization_bot.py:audit_parity",
-            "line": 154,
-            "complexity": 19
-          },
-          {
-            "function": "src/hath0r_cli/bots/mcp_workflow_engine_bot.py:list_workflows",
-            "line": 43,
-            "complexity": 23
           }
         ],
-        "score": 0.8615
+        "score": 0.8635
       },
       "duplication": {
         "gate": "duplication",
         "passed": true,
-        "duplicated_lines_pct": 0.23,
+        "duplicated_lines_pct": 0.19,
         "max_duplicated_lines_pct": 3.0,
         "comparator": "<=",
         "duplicated_lines": 16,
-        "total_analyzed_lines": 6960,
+        "total_analyzed_lines": 8587,
         "duplicated_blocks": [
           {
             "first": "src/hath0r_cli/step_runner.py:1750",
@@ -500,7 +482,7 @@
             "duplicate": "src/hath0r_cli/step_runner.py:1843"
           }
         ],
-        "score": 0.9877
+        "score": 0.9881
       }
     }
   },
@@ -511,43 +493,19 @@
         ".hath0r/evals/latest.json"
       ],
       "STATIC_AST_ANALYSIS": [
-        "src/hath0r_cli/bots/__init__.py",
-        "src/hath0r_cli/bots/task_evaluator_bot.py",
-        "src/hath0r_cli/commands/evals.py",
-        "src/hath0r_cli/commands/quality.py",
-        "src/hath0r_cli/step_runner.py",
         "src/hath0r_cli/bots/local_quality_gate_bot.py",
         "tests/unit/test_issue561_local_quality_gates_and_evals.py",
-        ".hath0r/agentgraph/snapshot.json",
-        ".hath0r/evals/history/eval-issue-555.json",
-        ".hath0r/evals/latest.json",
         ".hath0r/memory/graph.json",
         ".hath0r/memory/hashes.json",
-        ".hath0r/memory/sessions/current.json",
-        ".hath0r/memory/sessions/latest.json",
-        ".hath0r/memory/sessions/sess-20261031-121502-ecbafb.json",
-        "AGENTS.md",
-        "CHANGELOG.md",
-        "CLAUDE.md",
-        "pyproject.toml",
-        ".hath0r/evals/history/eval-issue-561.json",
-        "cfg/factories/local-qgates-factory.yaml",
-        "docs/governance/bot-specs/local-quality-gate-bot-spec.md",
-        "docs/governance/local-quality-gates.md",
-        "docs/governance/playbooks/local-quality-gates-playbook.md",
-        "docs/governance/procedures/local-quality-gates-procedure.md",
-        "docs/governance/runbooks/local-quality-gates-runbook.md",
-        "docs/governance/strategies/local-quality-gates-strategy.md",
-        "docs/governance/workflows/local-quality-gates-workflow.md",
-        "thresholds.json"
+        "cfg/factories/local-qgates-factory.yaml"
       ],
       "UNVERIFIED_FILE_PRESENCE": [
-        "VERSION"
+        ".coverage"
       ]
     },
     "counts": {
       "VERIFIED_EXECUTION": 1,
-      "STATIC_AST_ANALYSIS": 29,
+      "STATIC_AST_ANALYSIS": 5,
       "UNVERIFIED_FILE_PRESENCE": 1
     }
   },
@@ -555,7 +513,7 @@
   "observability_sync": {
     "mode": "live_synced",
     "phoenix_logged": true,
-    "mlflow_run_id": "9a9ff6376d4646838b0c01f59d2fdca6"
+    "mlflow_run_id": "490999fd06c9430c924b217bf2e0a248"
   },
-  "content_hash": "sha256:587264543e1c93ff655d3b698f7069904fb93ce37de76f7f6bd25b112daf29d5"
+  "content_hash": "sha256:4fa99fbbb5b6f2c55c3392463609f871cf64254fe10ec240b38d3566b0637a6e"
 }

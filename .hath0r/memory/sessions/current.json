@@ -5,17 +5,17 @@
   "repo_name": "hathor-cli",
   "status": "completed",
   "started_at": "2026-10-31T12:15:02.413525+00:00",
-  "updated_at": "2026-10-31T13:37:31.732938+00:00",
+  "updated_at": "2026-10-31T14:09:39.270520+00:00",
   "ended_at": "2026-10-31T13:05:35.867341+00:00",
   "read_count": 6,
-  "write_count": 17,
-  "revision": 23,
-  "content_hash": "sha256:23064aa42f3a7d8396ed67f99ac3d96193f8fbe2d6b0bfef717e420ad788b561",
+  "write_count": 18,
+  "revision": 24,
+  "content_hash": "sha256:3e534a6842be43a04b410cbedf8911f76d6cb446e63e57a86376ad734d88d402",
   "base_graph_hash": "sha256:bec980c887d5555962461c54eb3f38ae2fc81899b27b67c461bcfc3bc478f2d7",
   "last_read_at": "2026-10-31T13:05:35.813298+00:00",
-  "last_write_at": "2026-10-31T13:37:31.732938+00:00",
+  "last_write_at": "2026-10-31T14:09:39.270520+00:00",
   "active_focus": "Issue #561 Local Quality Gates (thresholds.json) and TaskEvaluatorBot integration",
-  "prior_summary": "d LocalQualityGateBot enforcing Erro; Compounded feature:local-qgates-561: Loc; Compounded eval:issue-561: Task Evaluati",
+  "prior_summary": "ounded feature:local-qgates-561: Loc; Compounded eval:issue-561: Task Evaluati; Compounded eval:issue-561: Task Evaluati",
   "recalled_nodes": [
     {
       "id": "decision:issue-474-micro-memory-session",
@@ -26,9 +26,9 @@
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-31T13:37:31.732938+00:00",
+      "timestamp": "2026-10-31T14:09:39.270520+00:00",
       "kind": "compound",
-      "summary": "Compounded eval:issue-561: Task Evaluation issue-561 (R=0.93, PASS)",
+      "summary": "Compounded eval:issue-561: Task Evaluation issue-561 (R=0.94, PASS)",
       "tags": [
         "eval",
         "cr-task-eval-001",
