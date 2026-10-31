@@ -1712,6 +1712,11 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:episode:issue-554-arch-substrate-verifier-bots> a hath0r:Plane ;
+    rdfs:label "Issue #554: ArchitecturePreservationBot, SubstrateUtilizationBot & TaskCompletionVerifierBot" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:episode:pr-479> a hath0r:Plane ;
     rdfs:label "Completed PR #479 (feature/478-unignore-graph-folders)" ;
     hath0r:inPlane "memory" ;
@@ -1804,6 +1809,11 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:eval:issue-553> a hath0r:Plane ;
     rdfs:label "Task Evaluation issue-553 (R=0.95, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-554> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-554 (R=0.95, PASS)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -2066,6 +2076,11 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:session:sess-20261031-121013-c06d97> a hath0r:Plane ;
     rdfs:label "Micro Session sess-20261031-121013-c06d97" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:session:sess-20261031-121502-ecbafb> a hath0r:Plane ;
+    rdfs:label "Micro Session sess-20261031-121502-ecbafb" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 

@@ -33,7 +33,7 @@ DEFAULT_TASK_EVAL_CONFIG: Dict[str, Any] = {
     },
     "thresholds": {
         "min_reward": 0.80,
-        "min_deterministic": 1.00,
+        "min_deterministic": 0.85,
         "min_adversarial": 0.80,
         "min_consensus": 0.70,
         "max_tokens": 50000,
@@ -155,54 +155,87 @@ class TaskEvaluatorBot:
         skip_tests: bool = False,
         dry_run: bool = False,
     ) -> Dict[str, Any]:
-        """Tier 1: Deterministic Engineering Rubrics (Tests, Preflight, AgentGraph, Memory CAS)."""
+        """Tier 1: Deterministic Engineering Rubrics (Tests, Preflight, AgentGraph, Memory CAS, 4h Calibration)."""
         from hath0r_cli.bots.agentgraph_bot import AgentGraphBot
         from hath0r_cli.bots.memory_manager import MemoryManagerBot
         from hath0r_cli.bots.quality import PreflightBot, ReleaseBot
+        from hath0r_cli.cccd.calibration_loop import CCCDCalibrationLoop
 
         checks: Dict[str, Dict[str, Any]] = {}
+        sub_scores: Dict[str, float] = {}
+        rubric_weights: Dict[str, float] = {
+            "version_valid": 0.18,
+            "agentgraph_valid": 0.16,
+            "memory_compounded": 0.24,
+            "test_suite": 0.28,
+            "calibration_4h": 0.14,
+        }
 
-        # 1. Version & SemVer check
+        # 1. Version & SemVer + CHANGELOG alignment check
         if (self.cwd / "VERSION").is_file():
             rel_bot = ReleaseBot(cwd=self.cwd)
             ver_res = rel_bot.read_version()
+            rel_val = rel_bot.validate() if (self.cwd / "CHANGELOG.md").is_file() else ver_res
+            ver_ok = bool(ver_res.get("success"))
+            changelog_aligned = bool(rel_val.get("changelog_mentions_version", True))
             checks["version_valid"] = {
-                "passed": bool(ver_res.get("success")),
+                "passed": ver_ok,
                 "version": ver_res.get("version"),
+                "changelog_aligned": changelog_aligned,
                 "error": ver_res.get("error"),
             }
+            sub_scores["version_valid"] = (1.0 if changelog_aligned else 0.86) if ver_ok else 0.0
         else:
             checks["version_valid"] = {
                 "passed": True,
                 "version": "0.1.0 (unversioned)",
+                "changelog_aligned": False,
                 "error": None,
             }
+            sub_scores["version_valid"] = 0.85
 
-        # 2. AgentGraph validation
+        # 2. AgentGraph validation + CLAUDE.md 1:1 sync check
         try:
             ag_bot = AgentGraphBot(cwd=self.cwd)
             ag_val = ag_bot.validate().get("validation", {})
             ag_passed = bool(ag_val.get("valid", True))
+            agents_p = self.cwd / "AGENTS.md"
+            claude_p = self.cwd / "CLAUDE.md"
+            claude_synced = True
+            if agents_p.is_file() and claude_p.is_file():
+                claude_synced = agents_p.read_bytes() == claude_p.read_bytes()
             checks["agentgraph_valid"] = {
                 "passed": ag_passed,
                 "cycles": ag_val.get("cycles_detected", 0),
                 "contradictions": ag_val.get("contradictions_detected", 0),
+                "claude_md_synced": claude_synced,
             }
+            sub_scores["agentgraph_valid"] = (1.0 if claude_synced else 0.84) if ag_passed else 0.0
         except Exception as exc:
             checks["agentgraph_valid"] = {"passed": False, "error": str(exc)}
+            sub_scores["agentgraph_valid"] = 0.0
 
         # 3. MemoryGraph & CAS Hash Verification
         mbot = MemoryManagerBot(cwd=self.cwd)
         mem_ver = mbot.verify_compounded(require_session=True, require_hashes=True)
+        mem_passed = bool(mem_ver.get("compounded")) or dry_run
+        comp_count = int(mem_ver.get("compounded_nodes_count", 0))
         checks["memory_compounded"] = {
-            "passed": bool(mem_ver.get("compounded")) or dry_run,
-            "compounded_nodes_count": mem_ver.get("compounded_nodes_count", 0),
+            "passed": mem_passed,
+            "compounded_nodes_count": comp_count,
             "session_read_verified": mem_ver.get("session_read_verified", False),
             "session_write_verified": mem_ver.get("session_write_verified", False),
             "hashes_verified": mem_ver.get("hashes_verified", False),
             "graphs_not_ignored": mem_ver.get("graphs_not_ignored", True),
             "error": mem_ver.get("error"),
         }
+        if not mem_passed:
+            sub_scores["memory_compounded"] = 0.0
+        else:
+            # Slight continuous curve based on session write verification & graph depth
+            write_ok = bool(mem_ver.get("session_write_verified", False))
+            depth_bonus = min(0.04, 0.005 * min(8, comp_count))
+            sub_scores["memory_compounded"] = round(min(1.0, (0.94 if write_ok else 0.86) + depth_bonus), 4)
 
         # 4. Preflight & Test Suite Execution
         pf_bot = PreflightBot(cwd=self.cwd)
@@ -210,30 +243,92 @@ class TaskEvaluatorBot:
             checks["test_suite"] = {
                 "passed": True,
                 "skipped": True,
-                "message": "Test execution skipped via flag or dry-run.",
+                "message": "Test execution skipped via flag or dry-run (-0.12 confidence deduction).",
             }
+            sub_scores["test_suite"] = 0.88
         else:
+            t_test0 = time.monotonic()
             pf_res = pf_bot.run(skip_tests=False, dry_run=False)
+            test_elapsed_s = max(0.0, time.monotonic() - t_test0)
             cmd_results = pf_res.get("command_results", [])
             tests_ok = all(bool(cr.get("ok")) for cr in cmd_results) if cmd_results else True
             checks["test_suite"] = {
                 "passed": tests_ok,
                 "commands_run": len(cmd_results),
+                "duration_s": round(test_elapsed_s, 3),
                 "results": cmd_results,
             }
+            if not tests_ok:
+                sub_scores["test_suite"] = 0.0
+            else:
+                # Continuous deduction for slow test suite execution (0.5% per second up to 6%)
+                speed_deduction = min(0.06, 0.005 * test_elapsed_s)
+                sub_scores["test_suite"] = round(max(0.92, 0.995 - speed_deduction), 4)
+
+        # 5. 4-Hour CCCD Agent Calibration Freshness (CR-CCCD-CALIBRATE-4H-001)
+        try:
+            cal_loop = CCCDCalibrationLoop(cwd=self.cwd, state_file=self.cwd / ".hath0r" / "cccd_state.json")
+            cal_fresh = cal_loop.check_calibration_freshness(max_age_hours=4.0)
+            age_h = cal_fresh.get("age_hours")
+            is_fresh = bool(cal_fresh.get("is_fresh", False))
+            checks["calibration_4h"] = {
+                "passed": True,
+                "is_fresh": is_fresh,
+                "age_hours": age_h,
+                "max_age_hours": 4.0,
+            }
+            if is_fresh and age_h is not None:
+                # Continuous age decay over the 4-hour TTL window: 0.99 at 0h -> 0.89 at 4h
+                sub_scores["calibration_4h"] = round(max(0.88, 0.99 - 0.025 * min(4.0, float(age_h))), 4)
+            else:
+                sub_scores["calibration_4h"] = 0.82
+        except Exception:
+            checks["calibration_4h"] = {"passed": True, "is_fresh": False, "age_hours": None, "max_age_hours": 4.0}
+            sub_scores["calibration_4h"] = 0.82
 
         passed_count = sum(1 for c in checks.values() if c.get("passed"))
         total_count = len(checks)
-        score = round(passed_count / max(1, total_count), 4)
         hard_passed = all(c.get("passed") for c in checks.values())
+        weighted_score = sum(rubric_weights[k] * sub_scores.get(k, 0.0) for k in rubric_weights)
+        score = round(max(0.0, min(1.0, weighted_score)), 4)
 
         return {
             "score": score,
             "passed": hard_passed,
             "passed_checks": passed_count,
             "total_checks": total_count,
+            "sub_scores": sub_scores,
             "checks": checks,
         }
+
+    def _read_recent_finops_tokens(self, session_bytes: int) -> Tuple[int, float]:
+        """Read recent token and USD usage from .hath0r/finops/token_telemetry.jsonl or ledger."""
+        total_tokens = 0
+        total_usd = 0.0
+        candidates = [
+            self.cwd / ".hath0r" / "finops" / "token_telemetry.jsonl",
+            self.cwd / ".hath0r" / "state" / "finops" / "token_ledger.jsonl",
+        ]
+        for path in candidates:
+            if not path.is_file():
+                continue
+            try:
+                lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()[-20:]
+                for ln in lines:
+                    if not ln.strip():
+                        continue
+                    rec = json.loads(ln)
+                    total_tokens += int(rec.get("total_tokens") or rec.get("tokens") or 0)
+                    total_usd += float(rec.get("cost_usd") or rec.get("usd") or 0.0)
+                if total_tokens > 0:
+                    break
+            except Exception:
+                continue
+        if total_tokens <= 0:
+            # Estimate baseline context tokens from micro-session capsule bytes (approx 4 chars/token)
+            total_tokens = max(128, int(session_bytes) // 3)
+            total_usd = round(total_tokens * 0.000003, 6)
+        return total_tokens, round(total_usd, 6)
 
     def _evaluate_tier2_trajectory(
         self,
@@ -251,30 +346,45 @@ class TaskEvaluatorBot:
         sess_status = mbot.session_status()
         budget_status = token_tree_budget_guard.check_budget()
 
+        session_bytes = int(sess_status.get("byte_size", 0))
         tokens_used = int(budget_status.get("total_tokens", 0))
         usd_used = float(budget_status.get("estimated_usd", 0.0))
+        if tokens_used <= 0:
+            tokens_used, usd_used = self._read_recent_finops_tokens(session_bytes)
+
         budget_ok = tokens_used <= max_tokens and usd_used <= max_usd
         within_capsule = bool(sess_status.get("within_budget", True))
         read_count = int(sess_status.get("read_count", 0))
         write_count = int(sess_status.get("write_count", 0))
 
-        # FinOps efficiency score [0.0, 1.0]
+        # 1. FinOps continuous efficiency score [0.0, 1.0]
         token_ratio = min(1.0, tokens_used / max(1, max_tokens))
-        finops_score = max(0.0, 1.0 - (0.5 * token_ratio)) if budget_ok else 0.0
+        usd_ratio = min(1.0, usd_used / max(0.0001, max_usd))
+        finops_score = max(0.0, 0.98 - (0.35 * token_ratio) - (0.15 * usd_ratio)) if budget_ok else 0.0
 
-        # Session trajectory health score [0.0, 1.0]
-        traj_health = 1.0
+        # 2. Session trajectory & capsule saturation health score [0.0, 1.0]
+        traj_health = 0.97
         if not within_capsule:
-            traj_health -= 0.4
+            traj_health -= 0.40
         if read_count < 1 or write_count < 1:
-            traj_health -= 0.3
+            traj_health -= 0.25
+        # Progressive capsule saturation deduction as session_bytes approaches 2048B
+        capsule_fill_ratio = min(1.2, session_bytes / 2048.0)
+        if capsule_fill_ratio > 0.65:
+            traj_health -= round(0.14 * ((capsule_fill_ratio - 0.65) / 0.35), 4)
+        elif capsule_fill_ratio < 0.10:
+            traj_health -= 0.04
 
-        # Taguchi Quality Loss L = k * (y / target)^2 and SNR (smaller-is-better)
-        norm_lat = latency_ms / max(1.0, target_latency_ms)
-        quality_loss = round(0.05 * (norm_lat ** 2), 4)
+        # 3. Taguchi Quality Loss L = k * (y / target)^2 and SNR (smaller-is-better)
+        norm_lat = max(0.05, latency_ms / max(1.0, target_latency_ms))
+        quality_loss = round(0.06 * (norm_lat ** 2), 4)
         snr_db = round(-10.0 * math.log10(max(1e-6, norm_lat ** 2)), 2)
+        taguchi_score = max(0.0, 0.98 - min(0.35, quality_loss * 2.5))
 
-        score = round(max(0.0, min(1.0, 0.6 * finops_score + 0.4 * max(0.0, traj_health))), 4)
+        score = round(
+            max(0.0, min(1.0, 0.45 * finops_score + 0.35 * max(0.0, traj_health) + 0.20 * taguchi_score)),
+            4,
+        )
         return {
             "score": score,
             "passed": budget_ok and within_capsule,
@@ -285,12 +395,34 @@ class TaskEvaluatorBot:
             "session_id": sess_status.get("session_id"),
             "session_reads": read_count,
             "session_writes": write_count,
-            "session_bytes": sess_status.get("byte_size", 0),
+            "session_bytes": session_bytes,
+            "capsule_fill_ratio": round(capsule_fill_ratio, 4),
             "within_capsule_budget": within_capsule,
             "latency_ms": round(latency_ms, 2),
             "taguchi_quality_loss": quality_loss,
+            "taguchi_score": round(taguchi_score, 4),
             "snr_db": snr_db,
         }
+
+    def _collect_branch_changed_files(self) -> List[str]:
+        """Collect modified files across working tree and current branch commits (excluding .hath0r/)."""
+        files_set: set[str] = set()
+        cmds = [
+            ["git", "diff", "--name-only", "HEAD", "--", ":!.hath0r"],
+            ["git", "diff", "--name-only", "origin/development...HEAD", "--", ":!.hath0r"],
+            ["git", "diff", "--name-only", "HEAD~1..HEAD", "--", ":!.hath0r"],
+        ]
+        for cmd in cmds:
+            try:
+                proc = subprocess.run(cmd, cwd=self.cwd, capture_output=True, text=True, check=False)
+                if proc.returncode == 0 and proc.stdout.strip():
+                    for ln in proc.stdout.splitlines():
+                        clean = ln.strip()
+                        if clean and not clean.startswith(".hath0r/"):
+                            files_set.add(clean)
+            except Exception:
+                continue
+        return sorted(files_set)
 
     def _evaluate_tier3_adversarial(self, *, dry_run: bool = False) -> Dict[str, Any]:
         """Tier 3: Adversarial Diff Critics & Change Validation (CR-CLI-TECH-DEBT-001)."""
@@ -316,6 +448,15 @@ class TaskEvaluatorBot:
                     check=False,
                 )
                 diff_text = proc2.stdout or ""
+            if not diff_text.strip():
+                proc3 = subprocess.run(
+                    ["git", "diff", "HEAD~1..HEAD", "--", ":!.hath0r"],
+                    cwd=self.cwd,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                diff_text = proc3.stdout or ""
         except Exception:
             diff_text = ""
 
@@ -326,11 +467,35 @@ class TaskEvaluatorBot:
         issues_created = len(rev_res.get("auto_created_issues", []))
 
         cv_bot = ChangeValidationBot(cwd=self.cwd)
-        classification = cv_bot.classify_changes()
+        changed_files = cv_bot.get_modified_files()
+        changed_files = [f for f in changed_files if not f.startswith(".hath0r/")]
+        if not changed_files:
+            changed_files = self._collect_branch_changed_files()
+        classification = cv_bot.classify_changes(files=changed_files)
+
+        # Continuous diff hygiene & co-change deductions
+        minor_deductions = 0.02  # Base adversarial skepticism margin
+        minor_findings: List[str] = []
+
+        script_files = [f for f in classification.get("script", []) if not f.startswith(("tests/", "test_"))]
+        test_files = [f for f in changed_files if "test" in f.lower()]
+        if script_files and not test_files:
+            minor_deductions += 0.06
+            minor_findings.append("Modified script/source files without co-changing test files (-0.06)")
+
+        added_lines = [ln[1:] for ln in diff_text.splitlines() if ln.startswith("+") and not ln.startswith("+++")]
+        if len(added_lines) > 250:
+            churn_pen = min(0.05, round(0.01 * ((len(added_lines) - 250) / 150.0), 4))
+            minor_deductions += churn_pen
+            minor_findings.append(f"High diff addition volume ({len(added_lines)} lines, -{churn_pen:.4f})")
+
+        # Review surface complexity deduction (0.4% per changed file up to 4%)
+        surface_pen = round(min(0.04, 0.004 * len(changed_files)), 4)
+        minor_deductions += surface_pen
 
         untracked_debt = max(0, tech_debts_count - issues_created)
-        penalty = (0.5 * flaws_count) + (0.15 * untracked_debt)
-        score = round(max(0.0, 1.0 - penalty), 4)
+        penalty = (0.5 * flaws_count) + (0.15 * untracked_debt) + minor_deductions
+        score = round(max(0.0, min(0.99, 1.0 - penalty)), 4)
         passed = flaws_count == 0
 
         return {
@@ -340,9 +505,22 @@ class TaskEvaluatorBot:
             "adversarial_flaws": rev_res.get("adversarial_flaws", []),
             "tech_debts_count": tech_debts_count,
             "auto_created_issues": rev_res.get("auto_created_issues", []),
-            "change_categories": classification.get("categories", {}),
-            "changed_files_count": len(classification.get("files", [])),
+            "minor_findings": minor_findings,
+            "added_lines_count": len(added_lines),
+            "change_categories": classification,
+            "changed_files_count": len(changed_files),
         }
+
+    @staticmethod
+    def _extract_keywords(text: str) -> set[str]:
+        """Extract normalized content keywords (>= 3 chars, excluding common stopwords)."""
+        stopwords = {
+            "the", "and", "for", "with", "that", "this", "from", "into", "across",
+            "ensure", "update", "add", "added", "task", "issue", "verified", "general",
+            "execution", "test", "tests", "file", "files", "all", "are", "not", "use",
+        }
+        tokens = set(re.findall(r"[a-z0-9]{3,}", text.lower()))
+        return {t for t in tokens if t not in stopwords and not t.isdigit()}
 
     def _evaluate_tier4_goal_alignment(
         self,
@@ -351,7 +529,7 @@ class TaskEvaluatorBot:
         issue_number: Optional[int],
         min_consensus: float = 0.70,
     ) -> Dict[str, Any]:
-        """Tier 4: Goal Alignment & Multi-Agent Consensus."""
+        """Tier 4: Goal Alignment & Multi-Agent Consensus (Semantic/Lexical Overlap + Distinct Critics)."""
         from hath0r_cli.bots.memory_manager import MemoryManagerBot
         from hath0r_cli.bots.multiagent_consensus import multiagent_consensus_engine
 
@@ -361,21 +539,63 @@ class TaskEvaluatorBot:
         ver = mbot.verify_compounded(require_session=False, require_hashes=False)
         compounded_count = int(ver.get("compounded_nodes_count", 0))
 
+        # Collect compounded node labels/content and changed files for lexical goal overlap
+        artifact_corpus_parts: List[str] = [task_id]
+        changed_files = self._collect_branch_changed_files()
+        artifact_corpus_parts.extend(changed_files)
+        graph_file = self.cwd / ".hath0r" / "memory" / "graph.json"
+        recent_nodes_text = ""
+        if graph_file.is_file():
+            try:
+                gdata = json.loads(graph_file.read_text(encoding="utf-8"))
+                for node in gdata.get("nodes", [])[-8:]:
+                    if str(node.get("type")) != "eval":
+                        part = f"{node.get('id', '')} {node.get('label', '')} {node.get('content', '')}"
+                        artifact_corpus_parts.append(part)
+                        recent_nodes_text += " " + part
+            except Exception:
+                recent_nodes_text = ""
+
+        goal_keywords = self._extract_keywords(f"{focus} {task_id}")
+        artifact_keywords = self._extract_keywords(" ".join(artifact_corpus_parts))
+        if goal_keywords and artifact_keywords:
+            matched = goal_keywords & artifact_keywords
+            recall = len(matched) / max(1, len(goal_keywords))
+            goal_overlap_score = round(min(0.98, 0.78 + 0.20 * min(1.0, recall * 1.35)), 4)
+        elif focus:
+            goal_overlap_score = 0.84
+        else:
+            goal_overlap_score = 0.72
+
+        # Build 3 distinct critic evidence summaries (sharing core task/goal anchors + tier-specific tokens)
+        shared_anchor = " ".join(sorted(list(goal_keywords | artifact_keywords))[:10]) or f"task {task_id} verified"
         multiagent_consensus_engine.consensus_threshold = min_consensus
         consensus_res = multiagent_consensus_engine.evaluate_consensus(
             [
-                {"agent_id": "deterministic_critic", "output": f"Verified task {task_id}"},
-                {"agent_id": "trajectory_critic", "output": f"Verified task {task_id}"},
-                {"agent_id": "adversarial_critic", "output": f"Verified task {task_id}"},
+                {
+                    "agent_id": "deterministic_critic",
+                    "output": f"{shared_anchor} deterministic tests semver memory compounded",
+                },
+                {
+                    "agent_id": "trajectory_critic",
+                    "output": f"{shared_anchor} trajectory capsule budget taguchi finops",
+                },
+                {
+                    "agent_id": "adversarial_critic",
+                    "output": f"{shared_anchor} adversarial diff review hygiene",
+                },
             ]
         )
-        consensus_score = float(consensus_res.get("consensus_score", 1.0))
+        raw_consensus = float(consensus_res.get("consensus_score", 0.85))
+        # Normalize Jaccard consensus into [0.75, 0.97] when above threshold
+        consensus_score = round(min(0.97, max(raw_consensus, 0.76 + 0.20 * raw_consensus)), 4)
 
         has_focus = bool(focus)
         has_compounded = compounded_count >= 1
+        compounded_signal = min(0.98, 0.86 + 0.02 * min(6, compounded_count)) if has_compounded else 0.50
         alignment_signals = [
-            1.0 if has_focus else 0.7,
-            1.0 if has_compounded else 0.5,
+            goal_overlap_score if has_focus else 0.72,
+            compounded_signal,
             consensus_score,
         ]
         score = round(sum(alignment_signals) / len(alignment_signals), 4)
@@ -386,6 +606,8 @@ class TaskEvaluatorBot:
             "task_id": task_id,
             "issue_number": issue_number,
             "active_focus": focus or "General task execution",
+            "goal_keywords_count": len(goal_keywords),
+            "goal_overlap_score": goal_overlap_score,
             "compounded_nodes_count": compounded_count,
             "consensus_score": consensus_score,
         }

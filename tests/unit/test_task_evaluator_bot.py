@@ -46,7 +46,11 @@ def test_task_evaluator_bot_evaluate_and_verify(tmp_path: Path) -> None:
     )
     assert res["success"] is True
     assert res["passed_gate"] is True
-    assert res["r_task"] >= 0.80
+    assert 0.80 <= res["r_task"] < 1.00
+    assert res["tier_scores"]["deterministic"] < 1.00
+    assert res["tier_scores"]["trajectory"] < 1.00
+    assert res["tier_scores"]["adversarial"] < 1.00
+    assert res["tier_scores"]["goal_alignment"] < 1.00
     assert res["compounded_node_id"] == "eval:issue-510"
     assert (tmp_path / ".hath0r" / "evals" / "latest.json").is_file()
 

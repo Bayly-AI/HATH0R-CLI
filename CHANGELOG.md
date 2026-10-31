@@ -5,6 +5,17 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.0] - 2026-10-31
+
+### Added
+- **Continuous 4-Tier `TaskEvaluatorBot` Replacing Binary `1.00` Score Inflation (`CR-TASK-EVAL-001` & `CR-FEATURE-WORKFLOW-STANDARD-001`)** (#555):
+  - Upgraded `TaskEvaluatorBot` (`src/hath0r_cli/bots/task_evaluator_bot.py`) to compute continuous, non-binary sub-scores across all 4 tiers (`0.80 <= R_task < 1.00`, capping at `0.9900`):
+    - **Tier 1 (Deterministic Rubrics)**: Taguchi continuous latency/duration loss, 4-hour agent calibration freshness decay (`exp(-0.04 * age_hours)`), Workflow-First & Service-Bot coverage, and Level 1/2 `AgentGraph` parity.
+    - **Tier 2 (Trajectory & FinOps Efficiency)**: Continuous step-efficiency decay, Level 1 MCP + `SuperSqueeze` utilization ratio, and micro-session read/write balance.
+    - **Tier 3 (Adversarial & Diff Critic)**: Continuous AST line/cyclomatic complexity penalty, diff size penalty, and test-to-code ratio.
+    - **Tier 4 (Goal Alignment & Consensus)**: Continuous TF-IDF semantic cosine overlap between task objective, git diff symbols, and `MemoryGraph` nodes.
+  - Updated `tests/unit/test_task_evaluator_bot.py` to assert continuous non-1.00 grading (`0.80 <= R_task < 1.00`).
+
 ## [1.19.0] - 2026-10-31
 
 ### Added

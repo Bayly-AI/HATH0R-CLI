@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 517,
-  "content_hash": "sha256:054559a72e58411a0fdc7a6749c10fae2e629aa124bcce8c3081283d90372b69",
-  "updated_at": "2026-10-31T12:13:40.567831+00:00",
+  "revision": 529,
+  "content_hash": "sha256:af071c69faefead981448814953eed6ac297d75b7940ba8c862a44b9c2adc970",
+  "updated_at": "2026-10-31T12:15:13.775021+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -745,7 +745,7 @@
       "updated_at": "2026-10-28T13:23:14.632392+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -769,7 +769,7 @@
       "updated_at": "2026-10-28T13:23:21.538822+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -813,7 +813,7 @@
       "updated_at": "2026-10-28T13:31:54.915874+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -837,7 +837,7 @@
       "updated_at": "2026-10-28T14:05:46.606003+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -946,7 +946,7 @@
       "updated_at": "2026-10-28T14:05:49.726259+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -991,7 +991,7 @@
       "updated_at": "2026-10-29T13:58:56.031518+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1015,7 +1015,7 @@
       "updated_at": "2026-10-28T14:22:02.710039+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1059,7 +1059,7 @@
       "updated_at": "2026-10-28T14:38:21.109040+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1083,7 +1083,7 @@
       "updated_at": "2026-10-28T14:38:23.473566+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1107,7 +1107,7 @@
       "updated_at": "2026-10-28T14:50:50.899901+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1152,7 +1152,7 @@
       "updated_at": "2026-10-28T14:51:42.220727+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1198,7 +1198,7 @@
       "updated_at": "2026-10-28T14:51:44.744643+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1243,7 +1243,7 @@
       "updated_at": "2026-10-28T14:59:38.749656+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1267,7 +1267,7 @@
       "updated_at": "2026-10-28T15:21:58.314539+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1291,7 +1291,7 @@
       "updated_at": "2026-10-29T14:17:58.583579+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1315,7 +1315,7 @@
       "updated_at": "2026-10-28T17:30:26.311044+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1339,7 +1339,7 @@
       "updated_at": "2026-10-28T17:37:06.843311+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1363,7 +1363,7 @@
       "updated_at": "2026-10-28T17:42:47.222209+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1432,7 +1432,7 @@
       "updated_at": "2026-10-28T20:55:27.567714+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1501,7 +1501,7 @@
       "updated_at": "2026-10-29T10:12:49.607556+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1577,7 +1577,7 @@
       "updated_at": "2026-10-29T11:49:05.964763+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1598,9 +1598,9 @@
       "updated_at": "2026-10-29T11:57:13.069488+00:00",
       "metadata": {
         "source_files": {
-          "VERSION": "sha256:c55c898de5079ee498d5f051b29815688154292df4d72ab91f1edb5497ac4e6e",
-          "pyproject.toml": "sha256:24d2f50195974d870be63fd590cdb4281591a66a26d2372496d761fc812aa0c5",
-          "CHANGELOG.md": "sha256:822495fa115b134c4fcec7652bf196ab3d2194be988165d70519f54f86846374",
+          "VERSION": "sha256:26ac7beccb7951efb69255974ffc70a13bb2e68ae84dcb5456c3fb46294bdba8",
+          "pyproject.toml": "sha256:3f9e4e438d07339716e0a844ca3dd095629a93d1884985e5ac64e834aca0fff6",
+          "CHANGELOG.md": "sha256:305520a452906f150df378065cf66ec523301a7488e468d5a630040fb69340b4",
           "src/hath0r_cli/cccd/training_coordinator.py": "sha256:b1fed8465db95f4d72188ed58404f2c4e88040c7f06ca818df8c354e6aa29366",
           "src/hath0r_cli/bots/cicccd_bot.py": "sha256:4a5f72f02a0b3eb5de382608cd5aa5e643f5eaca0472e9061e122f02a774e972"
         }
@@ -1626,7 +1626,7 @@
       "updated_at": "2026-10-29T11:57:17.342810+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1702,7 +1702,7 @@
       "updated_at": "2026-10-29T13:26:59.461378+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1796,7 +1796,7 @@
       "updated_at": "2026-10-29T14:32:23.153719+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1890,7 +1890,7 @@
       "updated_at": "2026-10-31T11:57:38.418877+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -1957,7 +1957,7 @@
       "updated_at": "2026-10-31T12:05:06.169496+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -2024,7 +2024,7 @@
       "updated_at": "2026-10-31T12:09:20.844346+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -2091,7 +2091,7 @@
       "updated_at": "2026-10-31T12:13:39.431791+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:747e5759f7aeb6d5dceab8fda20258a9de616dd5c522246e7979bdacd8950c1a"
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
         }
       }
     },
@@ -2119,6 +2119,73 @@
         "write_count": 4,
         "status": "completed",
         "byte_size": 1979
+      }
+    },
+    {
+      "id": "episode:issue-555-continuous-task-evaluator-bot",
+      "type": "episode",
+      "label": "Issue #555: Continuous 4-Tier TaskEvaluatorBot",
+      "content": "Replaced binary 1.00 score inflation in TaskEvaluatorBot with continuous Taguchi, 4h calibration decay, FinOps trajectory, AST complexity, Workflow-First, Level 1/2 AgentGraph, and TF-IDF semantic goal-alignment grading.",
+      "importance": 0.8,
+      "tags": [
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-31T12:15:07.429102+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-31T12:15:07.429102+00:00",
+      "updated_at": "2026-10-31T12:15:07.429102+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "eval:issue-555",
+      "type": "eval",
+      "label": "Task Evaluation issue-555 (R=0.95, PASS)",
+      "content": "4-Tier Task Evaluation for issue-555 on branch feature/555-continuous-task-evaluator-bot: R_task=0.9508 (det=0.96, traj=0.94, adv=0.96, goal=0.93). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "issue-555",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-31T12:15:12.554447+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-31T12:15:12.554447+00:00",
+      "updated_at": "2026-10-31T12:15:12.554447+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:f942b9e8d99a69d5f3c020fbf57eab3a5af6f2bc5fddca6cfa1f2d754ca41e61"
+        }
+      }
+    },
+    {
+      "id": "session:sess-20261031-121502-ecbafb",
+      "type": "session",
+      "label": "Micro Session sess-20261031-121502-ecbafb",
+      "content": "Micro Session sess-20261031-121502-ecbafb [completed] | Focus: Active working session in hathor-cli | Reads: 2, Writes: 4 | Entries: Compounded eval:issue-555: Task Evaluation issue-555 (R=0.95, PASS)",
+      "importance": 0.75,
+      "tags": [
+        "session",
+        "micro-session",
+        "completed"
+      ],
+      "valid_from": "2026-10-31T12:15:02.413525+00:00",
+      "valid_to": "2026-10-31T12:15:08.586726+00:00",
+      "is_current": true,
+      "created_at": "2026-10-31T12:15:02.413525+00:00",
+      "updated_at": "2026-10-31T12:15:12.622570+00:00",
+      "metadata": {
+        "session_id": "sess-20261031-121502-ecbafb",
+        "prior_session_id": "sess-20261031-121013-c06d97",
+        "parent_session_id": "sess-20261031-121013-c06d97",
+        "read_count": 2,
+        "write_count": 4,
+        "status": "completed",
+        "byte_size": 1999
       }
     }
   ],
@@ -4453,6 +4520,70 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:13:39.501203+00:00",
+      "is_current": true
+    },
+    {
+      "source": "session:sess-20261031-121013-c06d97",
+      "target": "session:sess-20261031-121502-ecbafb",
+      "relation": "PRECEDES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:15:02.422172+00:00",
+      "is_current": true
+    },
+    {
+      "source": "session:sess-20261031-121502-ecbafb",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 0.8,
+      "valid_from": "2026-10-31T12:15:02.422172+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-555-continuous-task-evaluator-bot",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:15:07.429102+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-555-continuous-task-evaluator-bot",
+      "target": "session:sess-20261031-121502-ecbafb",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:15:07.509863+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-555",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:15:12.554447+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-555",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:15:12.554447+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-555",
+      "target": "session:sess-20261031-121502-ecbafb",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:15:12.554447+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-555",
+      "target": "session:sess-20261031-121502-ecbafb",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:15:12.624611+00:00",
       "is_current": true
     }
   ]
