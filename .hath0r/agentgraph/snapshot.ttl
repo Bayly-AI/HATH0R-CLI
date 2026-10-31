@@ -1717,6 +1717,11 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:episode:issue-555-continuous-task-evaluator-bot> a hath0r:Plane ;
+    rdfs:label "Issue #555: Continuous 4-Tier TaskEvaluatorBot" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:episode:pr-479> a hath0r:Plane ;
     rdfs:label "Completed PR #479 (feature/478-unignore-graph-folders)" ;
     hath0r:inPlane "memory" ;
@@ -1814,6 +1819,11 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:eval:issue-554> a hath0r:Plane ;
     rdfs:label "Task Evaluation issue-554 (R=0.95, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-555> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-555 (R=0.95, PASS)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
