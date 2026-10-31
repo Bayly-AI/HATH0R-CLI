@@ -1,24 +1,21 @@
 {
   "schema_version": "hath0r.micro_session/1",
-  "session_id": "sess-20261029-132655-5b44e9",
-  "prior_session_id": "sess-20261029-124722-424d8e",
-  "parent_session_id": "sess-20261029-124722-424d8e",
-  "revision": 14,
-  "content_hash": "sha256:c5b12152c08664e18b24445452ba5f4b27cbbe37e6bfc9388d7e32980e1ea116",
-  "base_graph_hash": "sha256:82b15e3b53d6e7b835b0e3fac7bb118af7470b5dd1db87278a4144f6cef1e98c",
-  "task_id": "rule-sync-and-workflow-upgrade",
-  "role": null,
+  "session_id": "sess-20261031-121502-ecbafb",
+  "prior_session_id": "sess-20261031-121013-c06d97",
   "repo_name": "hathor-cli",
   "status": "completed",
-  "started_at": "2026-10-29T13:26:55.789091+00:00",
-  "updated_at": "2026-10-29T14:32:23.225938+00:00",
-  "ended_at": "2026-10-29T14:17:53.504362+00:00",
-  "read_count": 4,
-  "write_count": 10,
-  "last_read_at": "2026-10-29T14:17:53.260944+00:00",
-  "last_write_at": "2026-10-29T14:32:23.225938+00:00",
-  "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
-  "prior_summary": "ounded episode:clean-repo-hathor-cli; Clean Repo Lifecycle completed for hatho; Compounded eval:clean-repo-hathor-cli: T",
+  "started_at": "2026-10-31T12:15:02.413525+00:00",
+  "updated_at": "2026-10-31T14:27:10.506343+00:00",
+  "ended_at": "2026-10-31T13:05:35.867341+00:00",
+  "read_count": 6,
+  "write_count": 19,
+  "revision": 25,
+  "content_hash": "sha256:581fecaadb3b4f84381795525d1eebc4ae8e353dc04acf55f2c9f1d43403b786",
+  "base_graph_hash": "sha256:bec980c887d5555962461c54eb3f38ae2fc81899b27b67c461bcfc3bc478f2d7",
+  "last_read_at": "2026-10-31T13:05:35.813298+00:00",
+  "last_write_at": "2026-10-31T14:27:10.506343+00:00",
+  "active_focus": "Issue #561 Local Quality Gates (thresholds.json) and TaskEvaluatorBot integration",
+  "prior_summary": "ounded eval:issue-561: Task Evaluati; Compounded eval:issue-561: Task Evaluati; Compounded eval:issue-561: Task Evaluati",
   "recalled_nodes": [
     {
       "id": "decision:issue-474-micro-memory-session",
@@ -29,27 +26,24 @@
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-10-29T14:32:23.225938+00:00",
+      "timestamp": "2026-10-31T14:27:10.506343+00:00",
       "kind": "compound",
-      "summary": "Compounded eval:release-v1-15-2: Task Evaluation release-v1.15.2 (R=1.00, PASS)",
+      "summary": "Compounded knowledge:suite-arch-and-local-qgates-20261031: Suite MCP-Central Architecture & Local Quality Gates (CR-LOCAL-QGATES-001)",
       "tags": [
-        "eval",
-        "cr-task-eval-001",
-        "release-v1-15-2",
-        "passed",
+        "concept",
         "compounded"
       ],
-      "node_id": "eval:release-v1-15-2"
+      "node_id": "knowledge:suite-arch-and-local-qgates-20261031"
     }
   ],
   "next_steps": [],
   "compounded_node_ids": [
-    "eval:task-hathor-cli",
-    "rule:cr-task-eval-001",
-    "eval:eval-baseline-hathor-cli",
-    "episode:clean-repo-hathor-cli",
-    "eval:clean-repo-hathor-cli",
-    "eval:release-v1-15-2"
+    "episode:issue-555-continuous-task-evaluator-bot",
+    "eval:issue-555",
+    "feature:local-qgates-561",
+    "eval:issue-561",
+    "knowledge:suite-arch-and-local-qgates-20261031"
   ],
-  "capsule_bytes": 2010
+  "parent_session_id": "sess-20261031-121013-c06d97",
+  "capsule_bytes": 1986
 }

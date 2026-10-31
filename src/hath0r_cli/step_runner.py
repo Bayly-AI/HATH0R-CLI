@@ -113,11 +113,162 @@ class WorkflowExecutionResult:
         return res
 
 
+# Canonical CLI Service -> Owning Bot(s) Registry (CR-FEATURE-WORKFLOW-STANDARD-001)
+SERVICE_BOT_MAP: dict[str, dict[str, Any]] = {
+    "doctor": {"service": "Doctor Diagnostic Service", "owning_bots": ["preflight-bot", "quality-gate-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/preflight-factory.yaml"},
+    "init": {"service": "Repository Initialization Service", "owning_bots": ["repo-layout-bot", "governance-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/repo-init-factory.yaml"},
+    "kb": {"service": "Knowledgebase & Hybrid Search Service", "owning_bots": ["cag-rag-router-bot", "knowledge-organizer-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/mcp-kb-retrieval-workflow.yaml"},
+    "planes": {"service": "Architecture Planes Service", "owning_bots": ["agentgraph-bot", "governance-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/memory-agentgraph-sync-factory.yaml"},
+    "schema": {"service": "Contract Schema Validation Service", "owning_bots": ["contracts-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/preflight-factory.yaml"},
+    "mcp": {"service": "Central Level 1 MCP Orchestration Service", "owning_bots": ["mcp-centralization-bot", "bite-verifier-bot"], "agentgraph_level": "L1_MCP", "workflow_id": "cfg/factories/mcp-tool-dispatch-workflow.yaml"},
+    "portraits": {"service": "Portrait Asset Sync Service", "owning_bots": ["portrait-sync-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/portrait-sync-factory.yaml"},
+    "factory": {"service": "Declarative Workflow & Factory Execution Service", "owning_bots": ["factory-manager-bot", "mcp-workflow-engine-bot", "iteration-cascade-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/workflow-first-offer-factory.yaml"},
+    "workflow": {"service": "Workflow-First Engine & Missing-Workflow Offer Service", "owning_bots": ["mcp-workflow-engine-bot", "factory-manager-bot", "iteration-cascade-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/workflow-first-offer-factory.yaml"},
+    "branch": {"service": "Canonical Branch Governance Service", "owning_bots": ["branch-bot", "branch-guard-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/start-of-task-factory.yaml"},
+    "pr": {"service": "Pull Request Lifecycle & Antagonistic Review Service", "owning_bots": ["pr-bot", "antagonistic-review-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
+    "promote": {"service": "Environment Promotion Path Service", "owning_bots": ["release-bot", "branch-guard-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/release-promotion-factory.yaml"},
+    "janitor": {"service": "Git Branch Reaping & Hygiene Service", "owning_bots": ["git-janitor-bot", "repo-hygiene-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/clean-repos-factory.yaml"},
+    "task": {"service": "Canonical Task Lifecycle Service", "owning_bots": ["end-of-task-bot", "task-announcer-bot", "cicccd-managing-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/start-of-task-factory.yaml"},
+    "jev": {"service": "JEV Tool Guard & Consequential Action Service", "owning_bots": ["governance-bot", "bite-verifier-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/mcp-security-audit-workflow.yaml"},
+    "docker": {"service": "Hath0r Docker Group Lifecycle Service", "owning_bots": ["docker-bot", "docker-monitor-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/docker-group-factory.yaml"},
+    "quality": {"service": "SonarCloud & Local Quality Gate Service", "owning_bots": ["quality-gate-bot", "local-quality-gate-bot", "shadow-ai-classifier-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/local-qgates-factory.yaml"},
+    "preflight": {"service": "Pre-Flight Validation Service", "owning_bots": ["preflight-bot", "dependency-guard-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/preflight-factory.yaml"},
+    "deploy": {"service": "Deployment Verification Service", "owning_bots": ["deploy-test-bot", "docker-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/deploy-factory.yaml"},
+    "release": {"service": "SemVer Release & Changelog Service", "owning_bots": ["release-bot", "version-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/release-promotion-factory.yaml"},
+    "docs": {"service": "Documentation Hexad & MCP Publish Service", "owning_bots": ["documentation-bot", "doc-refactor-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/docs-publish-factory.yaml"},
+    "issue": {"service": "GitHub Issue Governance Service", "owning_bots": ["issue-guard-bot", "issue-manager-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/start-of-task-factory.yaml"},
+    "repo": {"service": "Multi-Repo Fleet Management Service", "owning_bots": ["repo-hygiene-bot", "sibling-manager-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/clean-repos-factory.yaml"},
+    "clean-repos": {"service": "Clean Repos Fleet Workflow Service", "owning_bots": ["clean-repos-workflow-bot", "git-janitor-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/clean-repos-factory.yaml"},
+    "clean-repo": {"service": "Single Repo Clean Workflow Service", "owning_bots": ["clean-repos-workflow-bot", "repo-hygiene-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/clean-repos-factory.yaml"},
+    "voice": {"service": "Bidirectional Neural Voice Service", "owning_bots": ["voice-service-bot", "voice-daemon-bot", "speech-listener-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/voice-converse-factory.yaml"},
+    "speak": {"service": "Spoken Notification & Synthesis Service", "owning_bots": ["voice-speaker-bot", "spoken-notification-service-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/voice-converse-factory.yaml"},
+    "playbook": {"service": "Operational Playbook Execution Service", "owning_bots": ["factory-manager-bot", "documentation-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/workflow-first-offer-factory.yaml"},
+    "context": {"service": "Hyper Context, CAG & SuperSqueeze Service", "owning_bots": ["context-manager-bot", "hyper-context-bot", "supercompress-bot", "cag-engine-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/supersqueeze-context-workflow.yaml"},
+    "squeeze": {"service": "SuperSqueeze Context Compression Service", "owning_bots": ["supercompress-bot", "supersqueeze-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/supersqueeze-context-workflow.yaml"},
+    "memory": {"service": "Level 2 MemoryGraph & Micro-Session Service", "owning_bots": ["memory-manager-bot", "tri-graph-ingest-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/memory-agentgraph-sync-factory.yaml"},
+    "contracts": {"service": "Contract Pinning & Schema Service", "owning_bots": ["contracts-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/preflight-factory.yaml"},
+    "local": {"service": "Local Model Runtime Service", "owning_bots": ["local-model-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/local-model-factory.yaml"},
+    "wasm": {"service": "Wasm Sandbox Execution Service", "owning_bots": ["wasm-runtime-bot", "wasm-sandbox-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/wasm-sandbox-factory.yaml"},
+    "tui": {"service": "Operator Terminal UI Service", "owning_bots": ["decision-radar-bot", "phoenix-observer-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"},
+    "serve": {"service": "Local Control Plane Server Service", "owning_bots": ["api-bot", "decision-radar-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"},
+    "validate-change": {"service": "Change Validation Gate Service", "owning_bots": ["change-validation-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
+    "vision": {"service": "ColPali Vision & Multimodal Grounding Service", "owning_bots": ["vision-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/vision-grounding-factory.yaml"},
+    "code": {"service": "AST Code Parser & Transformation Service", "owning_bots": ["transformation-pipeline-bot", "tri-graph-ingest-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/code-analysis-factory.yaml"},
+    "optimize": {"service": "Taguchi Robust Parameter Optimization Service", "owning_bots": ["taguchi-bot", "cicccd-managing-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/cccd-4h-calibration-factory.yaml"},
+    "finops": {"service": "FinOps Token Ledger, Budget & Tokenizer Tax Service", "owning_bots": ["token-telemetry-bot", "token-tree-budget-bot", "tokenizer-tax-bot", "token-check-workflow-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/finops-budget-factory.yaml"},
+    "agentgraph": {"service": "Two-Level AgentGraph Governance & Routing Service", "owning_bots": ["agentgraph-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/memory-agentgraph-sync-factory.yaml"},
+    "design": {"service": "Paper.design Bi-Directional UI Synthesis Service", "owning_bots": ["paper-design-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/paper-design-factory.yaml"},
+    "observe": {"service": "OpenObservation & Suite Telemetry Service", "owning_bots": ["phoenix-observer-bot", "reporting-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"},
+    "phoenix": {"service": "Arize Phoenix (Hath0r-phoenix) OTel Trace Service", "owning_bots": ["phoenix-manager-bot", "phoenix-observer-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"},
+    "cccd": {"service": "4-Hour Automated Pre-Task Calibration Service", "owning_bots": ["cicccd-managing-bot", "calibration-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/cccd-4h-calibration-factory.yaml"},
+    "cicccd": {"service": "Continuous Integration, Calibration & Development Service", "owning_bots": ["cicccd-managing-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/cccd-4h-calibration-factory.yaml"},
+    "cicccdct": {"service": "4-Pillar CICCCDCT & Continuous Training Service", "owning_bots": ["cicccd-managing-bot", "mlflow-manager-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/cccd-4h-calibration-factory.yaml"},
+    "cic3dct": {"service": "4-Pillar CICCCDCT Alias Service", "owning_bots": ["cicccd-managing-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/cccd-4h-calibration-factory.yaml"},
+    "cicqubedct": {"service": "4-Pillar CICCCDCT Alias Service", "owning_bots": ["cicccd-managing-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/cccd-4h-calibration-factory.yaml"},
+    "upgrade": {"service": "Zero-Downtime CLI Upgrade & Rollback Service", "owning_bots": ["upgrade-bot", "upgrade-verifier-bot", "upgrade-announcer-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/upgrade-factory.yaml"},
+    "churn": {"service": "Code Churn & Hotspot Refactor Service", "owning_bots": ["churn-manager-bot", "hotspot-refactor-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/churn-refactor-factory.yaml"},
+    "pmat": {"service": "PMAT Complexity & Maintainability Service", "owning_bots": ["pmat-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/quality-gate-factory.yaml"},
+    "mesh": {"service": "Agent Mesh & HAHP Handoff Service", "owning_bots": ["mesh-manager-bot", "hahp-protocol-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/mesh-handoff-factory.yaml"},
+    "agent": {"service": "Multi-Agent DAG & Consensus Service", "owning_bots": ["agent-dag-runner-bot", "multiagent-consensus-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/multiagent-consensus-factory.yaml"},
+    "evals": {"service": "Continuous 4-Tier Task Evaluation, Local Q-Gates & Red-Team Service", "owning_bots": ["task-evaluator-bot", "local-quality-gate-bot", "redteam-engine-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
+    "rules": {"service": "Cross-Repo Rule Rollout & Sync Service", "owning_bots": ["rule-rollout-bot", "governance-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/rule-rollout-factory.yaml"},
+    "mlflow": {"service": "Hathor-MLFLOW Experiment & Model Registry Service", "owning_bots": ["mlflow-manager-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"},
+    "atc": {"service": "HATH0R-ATC Control Tower & Suite Status Service", "owning_bots": ["docker-bot", "decision-radar-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/docker-group-factory.yaml"},
+    "tlp": {"service": "Task/Temporal/Thread Parallelism Planner Service", "owning_bots": ["task-level-planner-bot", "temporal-logic-planner-bot", "thread-parallelism-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/tlp-planner-factory.yaml"},
+    "elt": {"service": "Embedded ELT DuckDB/Polars Pipeline Service", "owning_bots": ["embedded-elt-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/elt-pipeline-factory.yaml"},
+    "iac": {"service": "Hardened Container & EKS Fargate IaC Service", "owning_bots": ["iac-managing-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/iac-hardening-factory.yaml"},
+    "infra": {"service": "Hardened Container & EKS Fargate IaC Alias Service", "owning_bots": ["iac-managing-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/iac-hardening-factory.yaml"},
+    "orient": {"service": "Suite Orientation & Tri-Graph Bootstrap Service", "owning_bots": ["orient-bot", "agentgraph-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/start-of-task-factory.yaml"},
+    "gameshow": {"service": "Hath0r Gameshow Evaluation Benchmark Service", "owning_bots": ["gameshow-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/gameshow-eval-factory.yaml"},
+    "decision": {"service": "Hath0r-Cruise-Control Decision Radar & FactSettlement Service", "owning_bots": ["decision-radar-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"},
+    "cruise": {"service": "Hath0r-Cruise-Control Autonomous Runtime Service", "owning_bots": ["decision-radar-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"},
+    "cruise-control": {"service": "Hath0r-Cruise-Control Autonomous Runtime Alias Service", "owning_bots": ["decision-radar-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"},
+    "radar": {"service": "Decision Radar Unblocking Wedge Service", "owning_bots": ["decision-radar-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"},
+    "skills": {"service": "BITE Skill & Prompt Supply-Chain Audit Service", "owning_bots": ["bite-verifier-bot", "secret-pii-sanitizer-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/mcp-security-audit-workflow.yaml"},
+    "threatmodel": {"service": "Fail-Closed THREATMODEL.md Validation Service", "owning_bots": ["dependency-guard-bot", "bite-verifier-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/mcp-security-audit-workflow.yaml"},
+    "arch": {"service": "Suite Architecture, Substrate & Completion Verification Service", "owning_bots": ["architecture-preservation-bot", "substrate-utilization-bot", "task-completion-verifier-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
+}
+
+
 class BotRegistry:
-    """Registry maintaining active bots and dynamic dispatch mappings."""
+    """Registry maintaining active bots and dynamic dispatch mappings (100% 69+ Bot coverage)."""
 
     def __init__(self, cwd: Path | None = None) -> None:
         self.cwd = cwd or Path.cwd()
+        from hath0r_cli.bots import ApiBot, PostgresBot
+        from hath0r_cli.bots.agent_dag_runner import AgentDAGRunner
+        from hath0r_cli.bots.antagonistic_review import AntagonisticReviewBot
+        from hath0r_cli.bots.architecture_preservation_bot import ArchitecturePreservationBot
+        from hath0r_cli.bots.bite_verifier_bot import BITEVerifierBot
+        from hath0r_cli.bots.cag_engine import CAGEngine
+        from hath0r_cli.bots.cag_rag_router import HybridCAGRAGRouter
+        from hath0r_cli.bots.churn_manager_bot import ChurnManagerBot, HotspotRefactorBot
+        from hath0r_cli.bots.cicccd_bot import CICCCDManagingBot
+        from hath0r_cli.bots.context_manager import ContextManagerBot
+        from hath0r_cli.bots.contracts_bot import ContractsBot
+        from hath0r_cli.bots.decision_radar_bot import DecisionRadarBot
+        from hath0r_cli.bots.dependency_guard_bot import DependencyGuardBot
+        from hath0r_cli.bots.embedded_elt_bot import EmbeddedELTBot
+        from hath0r_cli.bots.gameshow_bot import HathorGameshowBot
+        from hath0r_cli.bots.git_workflow_bot import GitWorkflowBot
+        from hath0r_cli.bots.hahp_protocol import HAHPProtocolManager
+        from hath0r_cli.bots.hyper_context import HyperContextBot
+        from hath0r_cli.bots.iac_bot import IaCManagingBot
+        from hath0r_cli.bots.iteration_cascade_bot import IterationCascadeBot
+        from hath0r_cli.bots.kv_prewarmer import KVCachePrewarmer
+        from hath0r_cli.bots.local_model_bot import LocalModelBot
+        from hath0r_cli.bots.local_quality_gate_bot import LocalQualityGateBot
+        from hath0r_cli.bots.mcp_centralization_bot import MCPCentralizationBot
+        from hath0r_cli.bots.mcp_workflow_engine_bot import MCPWorkflowEngineBot
+        from hath0r_cli.bots.mesh_manager_bot import MeshManagerBot
+        from hath0r_cli.bots.mlflow_manager_bot import MLflowManagerBot
+        from hath0r_cli.bots.multiagent_consensus import MultiAgentConsensusEngine
+        from hath0r_cli.bots.paper_design_bot import PaperDesignBot
+        from hath0r_cli.bots.phoenix_manager_bot import PhoenixManagerBot
+        from hath0r_cli.bots.phoenix_observer_bot import PhoenixObserverBot
+        from hath0r_cli.bots.pmat_bot import PmatBot
+        from hath0r_cli.bots.portrait_sync import PortraitSyncBot
+        from hath0r_cli.bots.redteam_engine import MultiAgentRedTeamEngine
+        from hath0r_cli.bots.repo_clean import CleanReposWorkflowBot
+        from hath0r_cli.bots.rule_rollout_bot import RuleRolloutBot
+        from hath0r_cli.bots.secret_pii_sanitizer import SecretPIISanitizerBot
+        from hath0r_cli.bots.shadow_ai_classifier import ShadowAIClassifierBot
+        from hath0r_cli.bots.sibling_bot import SiblingManagerBot
+        from hath0r_cli.bots.substrate_utilization_bot import SubstrateUtilizationBot
+        from hath0r_cli.bots.supercompress_bot import SuperCompressBot
+        from hath0r_cli.bots.taguchi_bot import TaguchiBot
+        from hath0r_cli.bots.task_completion_verifier_bot import TaskCompletionVerifierBot
+        from hath0r_cli.bots.task_level_planner_bot import TaskLevelPlannerBot
+        from hath0r_cli.bots.temporal_logic_planner_bot import TemporalLogicPlannerBot
+        from hath0r_cli.bots.thread_parallelism_bot import ThreadLevelParallelismBot
+        from hath0r_cli.bots.token_check_bot import TokenCheckWorkflowBot
+        from hath0r_cli.bots.token_telemetry_bot import TokenTelemetryCLIBot
+        from hath0r_cli.bots.token_tree_budget import TokenTreeBudgetGuard
+        from hath0r_cli.bots.tokenizer_tax_bot import TokenizerTaxBot
+        from hath0r_cli.bots.transformation_pipeline_bot import TransformationPipelineBot
+        from hath0r_cli.bots.vision_bot import VisionBot
+        from hath0r_cli.bots.voice_daemon import VoiceDaemonBot
+        from hath0r_cli.bots.wasm_runtime_bot import WasmRuntimeBot
+        from hath0r_cli.bots.wasm_sandbox import WasmSandboxBot
+
+        def _init_bot(bot_cls: Any) -> Any:
+            for kwargs in ({"cwd": self.cwd}, {"workspace_root": self.cwd}, {"root_dir": str(self.cwd)}, {}):
+                try:
+                    return bot_cls(**kwargs)
+                except TypeError:
+                    continue
+            return bot_cls()
+
+        try:
+            from hath0r_cli.bots.orient_bot import OrientBot
+
+            orient_instance: Any = _init_bot(OrientBot)
+        except Exception:
+            orient_instance = TriGraphIngestBot(cwd=self.cwd)
+
+        cicccd_instance = _init_bot(CICCCDManagingBot)
+        supercompress_instance = _init_bot(SuperCompressBot)
+
         self._bots: dict[str, Any] = {
             "branch-bot": BranchBot(cwd=self.cwd),
             "branch-guard-bot": BranchGuardBot(cwd=self.cwd),
@@ -166,6 +317,67 @@ class BotRegistry:
             "upgrade-bot": UpgradeBot(cwd=self.cwd),
             "upgrade-verifier-bot": UpgradeVerifierBot(cwd=self.cwd),
             "upgrade-announcer-bot": UpgradeAnnouncerBot(cwd=self.cwd),
+            # Newly registered bots completing 100% 69+ BotRegistry coverage (Issue #551)
+            "cicccd-managing-bot": cicccd_instance,
+            "calibration-bot": cicccd_instance,
+            "supercompress-bot": supercompress_instance,
+            "supersqueeze-bot": supercompress_instance,
+            "decision-radar-bot": _init_bot(DecisionRadarBot),
+            "phoenix-manager-bot": _init_bot(PhoenixManagerBot),
+            "phoenix-observer-bot": _init_bot(PhoenixObserverBot),
+            "mlflow-manager-bot": _init_bot(MLflowManagerBot),
+            "clean-repos-workflow-bot": _init_bot(CleanReposWorkflowBot),
+            "orient-bot": orient_instance,
+            "multiagent-consensus-bot": _init_bot(MultiAgentConsensusEngine),
+            "redteam-engine-bot": _init_bot(MultiAgentRedTeamEngine),
+            "paper-design-bot": _init_bot(PaperDesignBot),
+            "iac-managing-bot": _init_bot(IaCManagingBot),
+            "cag-engine-bot": _init_bot(CAGEngine),
+            "cag-rag-router-bot": _init_bot(HybridCAGRAGRouter),
+            "hahp-protocol-bot": _init_bot(HAHPProtocolManager),
+            "hyper-context-bot": _init_bot(HyperContextBot),
+            "context-manager-bot": _init_bot(ContextManagerBot),
+            "contracts-bot": _init_bot(ContractsBot),
+            "dependency-guard-bot": _init_bot(DependencyGuardBot),
+            "embedded-elt-bot": _init_bot(EmbeddedELTBot),
+            "gameshow-bot": _init_bot(HathorGameshowBot),
+            "git-workflow-bot": _init_bot(GitWorkflowBot),
+            "kv-prewarmer-bot": _init_bot(KVCachePrewarmer),
+            "local-model-bot": _init_bot(LocalModelBot),
+            "mesh-manager-bot": _init_bot(MeshManagerBot),
+            "pmat-bot": _init_bot(PmatBot),
+            "portrait-sync-bot": _init_bot(PortraitSyncBot),
+            "rule-rollout-bot": _init_bot(RuleRolloutBot),
+            "secret-pii-sanitizer-bot": _init_bot(SecretPIISanitizerBot),
+            "shadow-ai-classifier-bot": _init_bot(ShadowAIClassifierBot),
+            "sibling-manager-bot": _init_bot(SiblingManagerBot),
+            "taguchi-bot": _init_bot(TaguchiBot),
+            "task-level-planner-bot": _init_bot(TaskLevelPlannerBot),
+            "temporal-logic-planner-bot": _init_bot(TemporalLogicPlannerBot),
+            "thread-parallelism-bot": _init_bot(ThreadLevelParallelismBot),
+            "token-check-workflow-bot": _init_bot(TokenCheckWorkflowBot),
+            "token-telemetry-bot": _init_bot(TokenTelemetryCLIBot),
+            "token-tree-budget-bot": _init_bot(TokenTreeBudgetGuard),
+            "tokenizer-tax-bot": _init_bot(TokenizerTaxBot),
+            "transformation-pipeline-bot": _init_bot(TransformationPipelineBot),
+            "vision-bot": _init_bot(VisionBot),
+            "voice-daemon-bot": _init_bot(VoiceDaemonBot),
+            "wasm-runtime-bot": _init_bot(WasmRuntimeBot),
+            "wasm-sandbox-bot": _init_bot(WasmSandboxBot),
+            "bite-verifier-bot": _init_bot(BITEVerifierBot),
+            "antagonistic-review-bot": _init_bot(AntagonisticReviewBot),
+            "churn-manager-bot": _init_bot(ChurnManagerBot),
+            "hotspot-refactor-bot": _init_bot(HotspotRefactorBot),
+            "agent-dag-runner-bot": _init_bot(AgentDAGRunner),
+            "postgres-bot": _init_bot(PostgresBot),
+            "api-bot": _init_bot(ApiBot),
+            "mcp-centralization-bot": _init_bot(MCPCentralizationBot),
+            "mcp-workflow-engine-bot": _init_bot(MCPWorkflowEngineBot),
+            "iteration-cascade-bot": _init_bot(IterationCascadeBot),
+            "architecture-preservation-bot": _init_bot(ArchitecturePreservationBot),
+            "substrate-utilization-bot": _init_bot(SubstrateUtilizationBot),
+            "task-completion-verifier-bot": _init_bot(TaskCompletionVerifierBot),
+            "local-quality-gate-bot": _init_bot(LocalQualityGateBot),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -284,16 +496,16 @@ class BotRegistry:
                 return self._dispatch_agentgraph_bot(bot, action, args, dry_run=dry_run)
             elif bot_id == "task-evaluator-bot":
                 return self._dispatch_task_evaluator_bot(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "local-quality-gate-bot":
+                return self._dispatch_local_quality_gate_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id in ("upgrade-bot", "upgrade-verifier-bot", "upgrade-announcer-bot"):
                 return self._dispatch_upgrade_bots(bot_id, bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id in ("cicccd-managing-bot", "calibration-bot"):
+                return self._dispatch_cicccd_bot(bot_id, bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id in ("supercompress-bot", "supersqueeze-bot"):
+                return self._dispatch_supercompress_bot(bot_id, bot, action, args, dry_run=dry_run, context=ctx)
             else:
-                return StepExecutionResult(
-                    bot_id=bot_id,
-                    action=action,
-                    success=False,
-                    error=f"No dispatcher implemented for bot '{bot_id}'.",
-                    dry_run=dry_run,
-                )
+                return self._dispatch_generic_bot(bot_id, bot, action, args, dry_run=dry_run)
         except Exception as exc:
             return StepExecutionResult(
                 bot_id=bot_id,
@@ -302,6 +514,140 @@ class BotRegistry:
                 error=f"Exception during step execution: {exc}",
                 dry_run=dry_run,
             )
+
+    def service_bot_map(self) -> dict[str, dict[str, Any]]:
+        """Return canonical mapping of CLI services to their owning Bot(s)."""
+        return dict(SERVICE_BOT_MAP)
+
+    def _dispatch_cicccd_bot(
+        self,
+        bot_id: str,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if dry_run:
+            return StepExecutionResult(
+                bot_id=bot_id,
+                action=action,
+                success=True,
+                data={"dry_run": True, "action": action, "max_age_hours": float(args.get("max_age_hours", 4.0))},
+                dry_run=True,
+            )
+        if action in ("ensure-calibrated", "ensure_calibrated"):
+            res = bot.ensure_calibrated(
+                max_age_hours=float(args.get("max_age_hours", 4.0)),
+                trigger_source=str(args.get("trigger_source", "workflow")),
+            )
+            context["calibration_gate"] = res
+            return StepExecutionResult(
+                bot_id=bot_id,
+                action=action,
+                success=bool(res.get("success", True)),
+                data=res,
+                dry_run=dry_run,
+            )
+        if action in ("calibrate", "run-calibration"):
+            res = bot.calibrate(
+                iterations=int(args.get("iterations", 3)),
+                signature=str(args.get("signature", "default_agent_signature")),
+            )
+            return StepExecutionResult(
+                bot_id=bot_id,
+                action=action,
+                success=bool(res.get("success", True)),
+                data=res,
+                dry_run=dry_run,
+            )
+        if action == "status":
+            res = bot.status()
+            return StepExecutionResult(
+                bot_id=bot_id,
+                action=action,
+                success=bool(res.get("success", True)),
+                data=res,
+                dry_run=dry_run,
+            )
+        return self._dispatch_generic_bot(bot_id, bot, action, args, dry_run=dry_run)
+
+    def _dispatch_supercompress_bot(
+        self,
+        bot_id: str,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("compress", "squeeze"):
+            query = str(args.get("query", context.get("query", "architecture")))
+            text = str(args.get("context", args.get("text", "")))
+            threshold = float(args.get("threshold", 0.5))
+            if dry_run:
+                return StepExecutionResult(
+                    bot_id=bot_id,
+                    action=action,
+                    success=True,
+                    data={"dry_run": True, "query": query},
+                    dry_run=True,
+                )
+            res = bot.compress(query=query, context=text, threshold=threshold, force_local=bool(args.get("force_local", True)))
+            return StepExecutionResult(
+                bot_id=bot_id,
+                action=action,
+                success=bool(res.get("success", True)),
+                data=res,
+                dry_run=dry_run,
+            )
+        return self._dispatch_generic_bot(bot_id, bot, action, args, dry_run=dry_run)
+
+    def _dispatch_generic_bot(
+        self,
+        bot_id: str,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> StepExecutionResult:
+        method_name = action.replace("-", "_")
+        if dry_run:
+            return StepExecutionResult(
+                bot_id=bot_id,
+                action=action,
+                success=True,
+                data={"dry_run": True, "bot": bot_id, "action": action},
+                dry_run=True,
+            )
+        if hasattr(bot, method_name) and callable(getattr(bot, method_name)):
+            fn = getattr(bot, method_name)
+            res = fn(**args) if args else fn()
+            return StepExecutionResult(
+                bot_id=bot_id,
+                action=action,
+                success=res.get("success", True) if isinstance(res, dict) else True,
+                data=res,
+                dry_run=dry_run,
+            )
+        if action in ("status", "health", "ping"):
+            return StepExecutionResult(
+                bot_id=bot_id,
+                action=action,
+                success=True,
+                data={"bot_id": bot_id, "bot_class": type(bot).__name__, "status": "healthy"},
+                dry_run=dry_run,
+            )
+        return StepExecutionResult(
+            bot_id=bot_id,
+            action=action,
+            success=False,
+            error=f"No dispatcher implemented for bot '{bot_id}' action '{action}'.",
+            dry_run=dry_run,
+        )
 
     def _dispatch_issue_guard_bot(
         self,
@@ -928,6 +1274,86 @@ class BotRegistry:
             dry_run=dry_run,
         )
 
+    def _dispatch_local_quality_gate_bot(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("init", "ensure-supporting-system"):
+            if dry_run:
+                res = {
+                    "success": True,
+                    "dry_run": True,
+                    "thresholds_file": str(bot.thresholds_path()),
+                }
+            else:
+                res = bot.ensure_supporting_system(
+                    install_missing=bool(args.get("install_missing", False)),
+                    scaffold_missing=bool(args.get("scaffold_missing", True)),
+                    overwrite_thresholds=bool(args.get("overwrite", False)),
+                )
+            context["local_qgates_init"] = res
+            return StepExecutionResult(
+                bot_id="local-quality-gate-bot",
+                action=action,
+                success=bool(res.get("success", True)),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("evaluate", "local", "check"):
+            res = bot.evaluate_local_gates(
+                changed_only=bool(args.get("changed_only", True)),
+                auto_init=not dry_run,
+            )
+            context["local_quality_gates"] = res
+            return StepExecutionResult(
+                bot_id="local-quality-gate-bot",
+                action=action,
+                success=bool(res.get("passed", False)),
+                data=res,
+                error=f"Local Quality Gates failed: {', '.join(res.get('failing_gates', []))}"
+                if not res.get("passed", False)
+                else None,
+                dry_run=dry_run,
+            )
+        elif action in ("ensure-all", "ensure-all-repos"):
+            res = (
+                {"success": True, "dry_run": True}
+                if dry_run
+                else bot.ensure_all_repos(
+                    install_missing=bool(args.get("install_missing", False)),
+                    scaffold_missing=bool(args.get("scaffold_missing", True)),
+                )
+            )
+            return StepExecutionResult(
+                bot_id="local-quality-gate-bot",
+                action=action,
+                success=bool(res.get("success", True)),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("detect-technology", "detect"):
+            res = bot.detect_technology()
+            return StepExecutionResult(
+                bot_id="local-quality-gate-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
+
+        return StepExecutionResult(
+            bot_id="local-quality-gate-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for local-quality-gate-bot.",
+            dry_run=dry_run,
+        )
+
     def _dispatch_end_of_task_bot(
         self,
         bot: EndOfTaskBot,
@@ -1267,6 +1693,7 @@ class BotRegistry:
             res = bot.generate_notes(version=args.get("version"))
         elif action in ("tag-release", "release", "publish"):
             res = bot.tag_and_release(
+                ref=str(args.get("ref") or "origin/master"),
                 repo=args.get("repo") or repo,
                 dry_run=dry_run,
                 skip_github_release=bool(args.get("skip_github_release", False)),

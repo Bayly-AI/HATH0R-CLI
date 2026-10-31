@@ -100,7 +100,14 @@ def task_start(
     clean_slug = (slug or title or "task").lower()
     clean_slug = "".join(c if c.isalnum() else "-" for c in clean_slug).strip("-")[:30]
 
-    steps = []
+    steps = [
+        {
+            "bot": "cicccd-managing-bot",
+            "action": "ensure-calibrated",
+            "args": {"max_age_hours": 4.0, "trigger_source": "task.start"},
+            "on_failure": "continue",
+        }
+    ]
     if not issue_number and title:
         # Step 1: create issue
         steps.append(

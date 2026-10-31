@@ -109,8 +109,8 @@ class CICCCDManagingBot:
         """Validate CICCCDCT state: CI contracts/SAST, CC calibration freshness, CD docs, and CT model SLA."""
         from .quality import QualityGateBot
 
-        freshness = self.calibration_loop.check_calibration_freshness(max_age_hours=24.0)
-        state_wrap = self.calibration_loop.get_status()
+        freshness = self.calibration_loop.check_calibration_freshness(max_age_hours=4.0)
+        state_wrap = self.calibration_loop.get_status(max_age_hours=4.0)
         state = state_wrap.get("state", {})
         sast_res = self.sast_scanner.scan_security_hotspots()
         sonar_res = QualityGateBot(cwd=self.root_path).check_sonar()
@@ -196,6 +196,17 @@ class CICCCDManagingBot:
             else "Calibration failed.",
         }
 
+    def ensure_calibrated(
+        self,
+        max_age_hours: float = 4.0,
+        trigger_source: str = "pre_task",
+    ) -> Dict[str, Any]:
+        """Ensure calibration is fresh within max_age_hours (4.0h default); auto-calibrate if expired."""
+        return self.calibration_loop.ensure_calibrated(
+            max_age_hours=max_age_hours,
+            trigger_source=trigger_source,
+        )
+
     def train_model(
         self,
         target: str = "reasoning_slm",
@@ -264,6 +275,8 @@ class CICCCDManagingBot:
         }
 
 
-# Canonical alias for explicit 4-pillar imports
+# Canonical aliases for explicit 4-pillar and calibration imports
 CICCCDCTManagingBot = CICCCDManagingBot
+CalibrationBot = CICCCDManagingBot
+
 

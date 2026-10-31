@@ -132,7 +132,7 @@ def _ensure_automatic_agent_monitors(ctx: click.Context) -> None:
 
 
 def _check_cccd_freshness_gate(ctx: click.Context) -> None:
-    """Canonical Entry Gate: Verify CCCD calibration age is <= 24 hours."""
+    """Canonical Entry Gate: Verify CCCD calibration age is <= 4.0 hours and auto-calibrate when expired."""
     if (
         _quiet(ctx)
         or _output_mode(ctx) == "json"
@@ -150,11 +150,16 @@ def _check_cccd_freshness_gate(ctx: click.Context) -> None:
 
         from hath0r_cli.cccd.calibration_loop import CCCDCalibrationLoop
 
-        freshness = CCCDCalibrationLoop().check_calibration_freshness(max_age_hours=24.0)
+        loop = CCCDCalibrationLoop()
+        freshness = loop.check_calibration_freshness(max_age_hours=4.0)
         if freshness.get("stale"):
+            auto_cal = os.environ.get("HATH0R_AUTO_CALIBRATE_PRE_TASK", "true").lower() not in ("0", "false", "no")
+            if auto_cal:
+                loop.ensure_calibrated(max_age_hours=4.0, trigger_source=f"cli:{ctx.invoked_subcommand or 'main'}")
+                return
             age_msg = f"{freshness['age_hours']:.1f} hours ago" if freshness.get("age_hours") is not None else "Never"
             msg = (
-                f"[bold yellow]⚠️ [CRITICAL ENTRY GATE] CCCD Calibration is Stale (>24h Limit)[/bold yellow]\n\n"
+                f"[bold yellow]⚠️ [CRITICAL ENTRY GATE] CCCD Calibration is Stale (>4h Limit)[/bold yellow]\n\n"
                 f"Last Calibration Run: [bold white]{age_msg}[/bold white]\n"
                 f"Status: Prompt signatures and runtime parameters require re-calibration.\n\n"
                 f"[bold cyan]Offer:[/bold cyan] Run [bold green]hath0r cccd calibrate[/bold green] to re-calibrate parameters."

@@ -46,12 +46,31 @@ class HAHPProtocolManager:
     ) -> HAHPEnvelope:
         """Create a new validated HAHP envelope (pre-persist L2 secret/PII sanitized)."""
         from hath0r_cli.bots.secret_pii_sanitizer import secret_pii_sanitizer
+        from hath0r_cli.bots.supercompress_bot import supercompress_bot
+
+        sanitized_delta = secret_pii_sanitizer.redact_text(scratchpad_delta).sanitized_text
+        redacted_vars = dict(secret_pii_sanitizer.redact_payload(state_variables or {}))
+        if len(sanitized_delta.split()) > 150:
+            sq = supercompress_bot.compress(
+                query=f"{sender_agent} {recipient_agent}",
+                context=sanitized_delta,
+                threshold=0.5,
+                force_local=True,
+            )
+            sanitized_delta = sq.get("compressed_text", sanitized_delta)
+            redacted_vars["_supersqueeze"] = {
+                "squeezed": True,
+                "original_tokens": sq.get("original_tokens", 0),
+                "compressed_tokens": sq.get("compressed_tokens", 0),
+                "savings_pct": sq.get("savings_pct", 0.0),
+                "owning_bot": "SuperSqueezeBot",
+            }
 
         envelope = HAHPEnvelope(
             sender_agent=sender_agent,
             recipient_agent=recipient_agent,
-            scratchpad_delta=secret_pii_sanitizer.redact_text(scratchpad_delta).sanitized_text,
-            state_variables=secret_pii_sanitizer.redact_payload(state_variables or {}),
+            scratchpad_delta=sanitized_delta,
+            state_variables=redacted_vars,
             tool_outputs=secret_pii_sanitizer.redact_payload(tool_outputs or []),
             kv_cache_pointer=kv_cache_pointer,
         )

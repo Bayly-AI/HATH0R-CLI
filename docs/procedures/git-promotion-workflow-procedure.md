@@ -11,5 +11,8 @@
 8. **Promote to testing:** `hath0r promote to testing [--from release/1.13.0] [--gate]` → merge with `hath0r pr merge <n>`.
 9. **Human gate — staging:** `hath0r promote to staging --gate`; after human review `hath0r pr merge <n> --human-approved`.
 10. **Human gate — production:** `hath0r promote to production --gate`; after human review `hath0r pr merge <n> --human-approved`.
+11. **Publish:** `hath0r release publish --dry-run`, then `hath0r release publish`. It fetches and tags `origin/master`
+    (override with `--ref`), reading `VERSION` and `CHANGELOG.md` from that commit, not from your checkout, so it can
+    run from any branch. It refuses to continue if the tag already exists on a different commit.
 
 Check the pipeline at any time with `hath0r promote status`. Every command supports `-o json`.

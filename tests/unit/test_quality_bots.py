@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 
+import pytest
 from click.testing import CliRunner
 
 from hath0r_cli import cli
@@ -63,14 +65,95 @@ def test_release_bot_read_version(tmp_path: Path) -> None:
     assert "item" in notes["notes"]
 
 
-def test_release_bot_dry_run_publish(tmp_path: Path) -> None:
-    (tmp_path / "VERSION").write_text("0.9.0\n", encoding="utf-8")
-    (tmp_path / "CHANGELOG.md").write_text("## [0.9.0]\n\nnotes\n", encoding="utf-8")
-    bot = ReleaseBot(cwd=tmp_path)
-    res = bot.tag_and_release(dry_run=True)
+def _git(cwd: Path, *args: str) -> str:
+    proc = subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True, text=True)
+    return proc.stdout.strip()
+
+
+def _commit_version(clone: Path, version: str) -> None:
+    (clone / "VERSION").write_text(f"{version}\n", encoding="utf-8")
+    (clone / "CHANGELOG.md").write_text(f"## [{version}]\n\n- notes for {version}\n", encoding="utf-8")
+    _git(clone, "add", "VERSION", "CHANGELOG.md")
+    _git(clone, "commit", "-q", "-m", f"release {version}")
+
+
+@pytest.fixture
+def release_repo(tmp_path: Path) -> tuple[Path, Path]:
+    """Bare origin plus a clone: master at 1.0.0, development (checked out) at 1.1.0."""
+    origin = tmp_path / "origin.git"
+    clone = tmp_path / "clone"
+    _git(tmp_path, "init", "-q", "--bare", "-b", "master", str(origin))
+    _git(tmp_path, "clone", "-q", str(origin), str(clone))
+    _git(clone, "config", "user.email", "dev@example.com")
+    _git(clone, "config", "user.name", "Dev")
+    _git(clone, "checkout", "-q", "-b", "master")
+    _commit_version(clone, "1.0.0")
+    _git(clone, "push", "-q", "origin", "master")
+    _git(clone, "checkout", "-q", "-b", "development")
+    _commit_version(clone, "1.1.0")
+    _git(clone, "push", "-q", "origin", "development")
+    return origin, clone
+
+
+def test_release_publish_dry_run_targets_master_not_checkout(release_repo: tuple[Path, Path]) -> None:
+    _origin, clone = release_repo
+    master_sha = _git(clone, "rev-parse", "origin/master")
+    res = ReleaseBot(cwd=clone).tag_and_release(dry_run=True)
     assert res["success"] is True
     assert res["dry_run"] is True
-    assert res["tag"] == "v0.9.0"
+    assert res["sha"] == master_sha
+    assert res["version"] == "1.0.0"
+    assert res["tag"] == "v1.0.0"
+    assert "notes for 1.0.0" in res["notes_preview"]
+    assert _git(clone, "tag", "-l") == ""
+
+
+def test_release_publish_tags_master_commit_and_pushes(release_repo: tuple[Path, Path]) -> None:
+    origin, clone = release_repo
+    master_sha = _git(clone, "rev-parse", "origin/master")
+    res = ReleaseBot(cwd=clone).tag_and_release(skip_github_release=True)
+    assert res["success"] is True, res
+    assert res["tag_pushed"] is True
+    assert _git(clone, "rev-parse", "v1.0.0^{commit}") == master_sha
+    assert _git(clone, "cat-file", "-t", "v1.0.0") == "tag"
+    assert _git(origin, "rev-parse", "v1.0.0^{commit}") == master_sha
+    assert _git(clone, "rev-parse", "--abbrev-ref", "HEAD") == "development"
+
+    # Re-running with the tag already on the same commit is safe
+    again = ReleaseBot(cwd=clone).tag_and_release(skip_github_release=True)
+    assert again["success"] is True, again
+
+
+def test_release_publish_refuses_tag_on_different_commit(release_repo: tuple[Path, Path]) -> None:
+    origin, clone = release_repo
+    _git(clone, "tag", "-a", "v1.0.0", "development", "-m", "wrong commit")
+    res = ReleaseBot(cwd=clone).tag_and_release(skip_github_release=True)
+    assert res["success"] is False
+    assert "already exists" in res["error"]
+    assert _git(origin, "tag", "-l") == ""
+
+
+def test_release_publish_explicit_ref_and_bad_ref(release_repo: tuple[Path, Path]) -> None:
+    _origin, clone = release_repo
+    res = ReleaseBot(cwd=clone).tag_and_release(ref="origin/development", dry_run=True)
+    assert res["success"] is True
+    assert res["version"] == "1.1.0"
+    assert res["sha"] == _git(clone, "rev-parse", "origin/development")
+
+    bad = ReleaseBot(cwd=clone).tag_and_release(ref="origin/no-such-branch", dry_run=True)
+    assert bad["success"] is False
+    assert "no-such-branch" in bad["error"]
+
+
+def test_cli_release_publish_dry_run_reports_ref(release_repo: tuple[Path, Path], monkeypatch) -> None:
+    _origin, clone = release_repo
+    monkeypatch.chdir(clone)
+    result = CliRunner().invoke(cli.main, ["-o", "json", "release", "publish", "--dry-run"])
+    assert result.exit_code == 0, result.output
+    data = json.loads(result.output)["data"]
+    assert data["ref"] == "origin/master"
+    assert data["sha"] == _git(clone, "rev-parse", "origin/master")
+    assert data["tag"] == "v1.0.0"
 
 
 def test_factory_manager_crud(tmp_path: Path) -> None:

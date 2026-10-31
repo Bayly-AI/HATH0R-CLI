@@ -4,8 +4,8 @@
   "metadata": {
     "name": "control-tower-otel-defaults",
     "control_tower": "Bayly-AI/HATH0R-CLI",
-    "updated": "2026-09-24",
-    "issue": 60
+    "updated": "2026-10-31",
+    "issue": 551
   },
   "resource": {
     "service_name": "hath0r-cli",
@@ -17,7 +17,24 @@
       "protocol": "http/protobuf",
       "endpoint_env": "OTEL_EXPORTER_OTLP_ENDPOINT",
       "headers_env": "OTEL_EXPORTER_OTLP_HEADERS",
-      "default_endpoint": "http://localhost:58000/phoenix"
+      "default_endpoint": "http://localhost:38000/phoenix"
+    }
+  },
+  "network_services": {
+    "phoenix": {
+      "container": "Hath0r-phoenix",
+      "host_endpoint": "http://localhost:38000/phoenix",
+      "internal_endpoint": "http://Hath0r-phoenix:6006"
+    },
+    "mlflow": {
+      "container": "Hathor-MLFLOW",
+      "host_endpoint": "http://localhost:35000",
+      "internal_endpoint": "http://Hathor-MLFLOW:5000"
+    },
+    "cruise_control": {
+      "container": "Hath0r-Cruise-Control",
+      "host_endpoint": "http://localhost:38090",
+      "internal_endpoint": "http://Hath0r-Cruise-Control:8090"
     }
   },
   "traces": {

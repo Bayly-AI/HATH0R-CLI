@@ -254,3 +254,7 @@ def context_pack(ctx: click.Context, cag: bool, path: str) -> None:
         console.print(f"KV Pre-Warm Hash: [bold yellow]{res['context_hash']}[/bold yellow]")
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
+context.add_command(context_compress, name="squeeze")
+

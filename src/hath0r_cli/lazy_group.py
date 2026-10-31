@@ -18,6 +18,7 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "mcp": ("hath0r_cli.commands.mcp", "mcp"),
     "portraits": ("hath0r_cli.commands.portraits", "portraits"),
     "factory": ("hath0r_cli.commands.factory", "factory"),
+    "workflow": ("hath0r_cli.commands.workflow", "workflow_cmd"),
     "branch": ("hath0r_cli.commands.branch", "branch"),
     "pr": ("hath0r_cli.commands.pr", "pr"),
     "promote": ("hath0r_cli.commands.promote", "promote"),
@@ -38,6 +39,7 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "speak": ("hath0r_cli.commands.voice", "speak_group"),
     "playbook": ("hath0r_cli.commands.playbook", "playbook"),
     "context": ("hath0r_cli.commands.context", "context"),
+    "squeeze": ("hath0r_cli.commands.context", "context_compress"),
     "memory": ("hath0r_cli.commands.memory", "memory"),
     "contracts": ("hath0r_cli.commands.contracts", "contracts"),
     "local": ("hath0r_cli.commands.local", "local_group"),
@@ -79,6 +81,7 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "radar": ("hath0r_cli.commands.decision", "decision_radar"),
     "skills": ("hath0r_cli.commands.skills", "skills"),
     "threatmodel": ("hath0r_cli.commands.threatmodel", "threatmodel_cmd"),
+    "arch": ("hath0r_cli.commands.arch", "arch_cmd"),
 }
 
 
