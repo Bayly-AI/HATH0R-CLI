@@ -954,6 +954,21 @@ class CleanReposWorkflowBot:
                         stderr=subprocess.DEVNULL,
                     )
                     pushed_origin = push_res.returncode == 0
+                if auto_commit and self._git_out(repo_path, ["status", "--porcelain"]):
+                    subprocess.run(
+                        ["git", "checkout", "--", "."],
+                        cwd=repo_path,
+                        check=False,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    subprocess.run(
+                        ["git", "clean", "-fd", ".hath0r/cache", ".hath0r/cccd"],
+                        cwd=repo_path,
+                        check=False,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
                 repo_res["steps"]["12_return_to_development"] = {
                     "branch": base_branch,
                     "synced": True,
