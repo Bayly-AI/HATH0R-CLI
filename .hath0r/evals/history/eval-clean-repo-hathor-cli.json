@@ -1,15 +1,15 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261031-161741-cbb566",
+  "eval_id": "eval-20261031-162752-fc998e",
   "task_id": "clean-repo-hathor-cli",
   "issue_number": null,
   "repo_name": "hathor-cli",
   "branch": "development",
-  "evaluated_at": "2026-10-31T16:17:41.880399+00:00",
-  "duration_ms": 1357.15,
+  "evaluated_at": "2026-10-31T16:27:52.422174+00:00",
+  "duration_ms": 719.38,
   "passed_gate": true,
-  "r_task": 0.9287,
+  "r_task": 0.9249,
   "min_reward_threshold": 0.8,
   "weights": {
     "deterministic": 0.4,
@@ -18,14 +18,14 @@
     "goal_alignment": 0.15
   },
   "tier_scores": {
-    "deterministic": 0.9525,
-    "trajectory": 0.9274,
-    "adversarial": 0.8915,
+    "deterministic": 0.9526,
+    "trajectory": 0.9277,
+    "adversarial": 0.876,
     "goal_alignment": 0.9287
   },
   "tiers": {
     "deterministic": {
-      "score": 0.9525,
+      "score": 0.9526,
       "passed": true,
       "passed_checks": 6,
       "total_checks": 6,
@@ -34,8 +34,8 @@
         "agentgraph_valid": 1.0,
         "memory_compounded": 0.98,
         "test_suite": 0.88,
-        "calibration_4h": 0.9097,
-        "local_quality_gates": 0.965
+        "calibration_4h": 0.9055,
+        "local_quality_gates": 0.9685
       },
       "checks": {
         "version_valid": {
@@ -52,7 +52,7 @@
         },
         "memory_compounded": {
           "passed": true,
-          "compounded_nodes_count": 81,
+          "compounded_nodes_count": 82,
           "session_read_verified": true,
           "session_write_verified": true,
           "hashes_verified": true,
@@ -67,14 +67,14 @@
         "calibration_4h": {
           "passed": true,
           "is_fresh": true,
-          "age_hours": 3.21,
+          "age_hours": 3.38,
           "max_age_hours": 4.0
         },
         "local_quality_gates": {
           "passed": true,
           "technology": "python",
           "thresholds_file": "/Users/raybayly/Development/OpenSource/hathor-cli/thresholds.json",
-          "qgate_score": 0.965,
+          "qgate_score": 0.9685,
           "failing_gates": [],
           "gates": {
             "errors": {
@@ -89,20 +89,20 @@
             "coverage": {
               "gate": "coverage",
               "passed": true,
-              "actual_coverage_pct": 93.83,
+              "actual_coverage_pct": 97.5,
               "min_coverage_pct": 80.0,
               "comparator": ">=",
               "source": "test_suite_symbol_verification",
-              "score": 0.9561
+              "score": 0.9763
             },
             "complexity": {
               "gate": "complexity",
               "passed": true,
-              "max_observed_complexity": 34,
-              "avg_complexity": 7.33,
+              "max_observed_complexity": 36,
+              "avg_complexity": 10.81,
               "max_complexity": 15,
               "comparator": "<=",
-              "functions_scanned": 67,
+              "functions_scanned": 16,
               "offending_functions": [
                 {
                   "function": "src/hath0r_cli/bots/repo_clean.py:audit_knowledge_structure",
@@ -117,15 +117,10 @@
                 {
                   "function": "src/hath0r_cli/bots/repo_clean.py:run_clean_repo_workflow",
                   "line": 756,
-                  "complexity": 33
-                },
-                {
-                  "function": "src/hath0r_cli/commands/quality.py:quality_sonar",
-                  "line": 174,
-                  "complexity": 18
+                  "complexity": 36
                 }
               ],
-              "score": 0.9011
+              "score": 0.8879
             },
             "duplication": {
               "gate": "duplication",
@@ -134,7 +129,7 @@
               "max_duplicated_lines_pct": 3.0,
               "comparator": "<=",
               "duplicated_lines": 0,
-              "total_analyzed_lines": 2007,
+              "total_analyzed_lines": 875,
               "duplicated_blocks": [],
               "score": 0.99
             }
@@ -157,8 +152,8 @@
               "new_maintainability_rating": 1,
               "min_security_hotspots_reviewed_pct": 100.0
             },
-            "files_analyzed": 4,
-            "qgate_score": 0.965,
+            "files_analyzed": 1,
+            "qgate_score": 0.9685,
             "failing_gates": [],
             "gates": {
               "errors": {
@@ -173,20 +168,20 @@
               "coverage": {
                 "gate": "coverage",
                 "passed": true,
-                "actual_coverage_pct": 93.83,
+                "actual_coverage_pct": 97.5,
                 "min_coverage_pct": 80.0,
                 "comparator": ">=",
                 "source": "test_suite_symbol_verification",
-                "score": 0.9561
+                "score": 0.9763
               },
               "complexity": {
                 "gate": "complexity",
                 "passed": true,
-                "max_observed_complexity": 34,
-                "avg_complexity": 7.33,
+                "max_observed_complexity": 36,
+                "avg_complexity": 10.81,
                 "max_complexity": 15,
                 "comparator": "<=",
-                "functions_scanned": 67,
+                "functions_scanned": 16,
                 "offending_functions": [
                   {
                     "function": "src/hath0r_cli/bots/repo_clean.py:audit_knowledge_structure",
@@ -201,15 +196,10 @@
                   {
                     "function": "src/hath0r_cli/bots/repo_clean.py:run_clean_repo_workflow",
                     "line": 756,
-                    "complexity": 33
-                  },
-                  {
-                    "function": "src/hath0r_cli/commands/quality.py:quality_sonar",
-                    "line": 174,
-                    "complexity": 18
+                    "complexity": 36
                   }
                 ],
-                "score": 0.9011
+                "score": 0.8879
               },
               "duplication": {
                 "gate": "duplication",
@@ -218,7 +208,7 @@
                 "max_duplicated_lines_pct": 3.0,
                 "comparator": "<=",
                 "duplicated_lines": 0,
-                "total_analyzed_lines": 2007,
+                "total_analyzed_lines": 875,
                 "duplicated_blocks": [],
                 "score": 0.99
               }
@@ -228,61 +218,44 @@
       }
     },
     "trajectory": {
-      "score": 0.9274,
+      "score": 0.9277,
       "passed": true,
       "tokens_used": 142,
       "max_tokens": 50000,
       "estimated_usd": 0.000426,
       "max_usd": 0.25,
-      "session_id": "sess-20261031-161737-5169cf",
+      "session_id": "sess-20261031-162748-37dc07",
       "session_reads": 2,
       "session_writes": 3,
       "session_bytes": 2030,
       "capsule_fill_ratio": 0.9912,
       "within_capsule_budget": true,
-      "latency_ms": 311.61,
-      "taguchi_quality_loss": 0.0015,
-      "taguchi_score": 0.9762,
-      "snr_db": 16.15
+      "latency_ms": 239.61,
+      "taguchi_quality_loss": 0.0009,
+      "taguchi_score": 0.9778,
+      "snr_db": 18.43
     },
     "adversarial": {
-      "score": 0.8915,
+      "score": 0.876,
       "passed": true,
       "adversarial_flaws_count": 0,
       "adversarial_flaws": [],
       "tech_debts_count": 0,
       "auto_created_issues": [],
       "minor_findings": [
-        "High diff addition volume (377 lines, -0.0085)",
-        "Cognitive complexity hotspot observed (avg 7.33, max 34, -0.0400)"
+        "Modified script/source files without co-changing test files (-0.06)",
+        "Cognitive complexity hotspot observed (avg 10.81, max 36, -0.0400)"
       ],
-      "added_lines_count": 377,
+      "added_lines_count": 15,
       "change_categories": {
         "ui": [],
         "script": [
-          "src/hath0r_cli/bots/local_quality_gate_bot.py",
-          "src/hath0r_cli/bots/repo_clean.py",
-          "src/hath0r_cli/commands/quality.py",
-          "tests/unit/test_issue561_local_quality_gates_and_evals.py"
+          "src/hath0r_cli/bots/repo_clean.py"
         ],
-        "text": [
-          "thresholds.json"
-        ],
-        "other": [
-          "release/CHECKSUMS.sha256",
-          "release/hath0r-linux-arm64",
-          "release/hath0r-linux-x86_64",
-          "release/previous/1.15.2/CHECKSUMS.sha256",
-          "release/previous/1.15.2/hath0r-darwin-arm64",
-          "release/previous/1.15.2/hath0r-darwin-x86_64",
-          "release/previous/1.15.2/hath0r-fileset-1.15.2.tar.gz",
-          "release/previous/1.15.2/hath0r-fileset-1.15.2.tar.gz.sha256",
-          "release/previous/1.15.2/hath0r-linux-arm64",
-          "release/previous/1.15.2/hath0r-linux-x86_64",
-          "release/previous/1.15.2/hath0r-windows-x64.cmd"
-        ]
+        "text": [],
+        "other": []
       },
-      "changed_files_count": 16
+      "changed_files_count": 1
     },
     "goal_alignment": {
       "score": 0.9287,
@@ -292,7 +265,7 @@
       "active_focus": "clean-repo-hathor-cli",
       "goal_keywords_count": 4,
       "goal_overlap_score": 0.98,
-      "compounded_nodes_count": 81,
+      "compounded_nodes_count": 82,
       "consensus_score": 0.826
     }
   },
@@ -314,8 +287,8 @@
       "new_maintainability_rating": 1,
       "min_security_hotspots_reviewed_pct": 100.0
     },
-    "files_analyzed": 4,
-    "qgate_score": 0.965,
+    "files_analyzed": 1,
+    "qgate_score": 0.9685,
     "failing_gates": [],
     "gates": {
       "errors": {
@@ -330,20 +303,20 @@
       "coverage": {
         "gate": "coverage",
         "passed": true,
-        "actual_coverage_pct": 93.83,
+        "actual_coverage_pct": 97.5,
         "min_coverage_pct": 80.0,
         "comparator": ">=",
         "source": "test_suite_symbol_verification",
-        "score": 0.9561
+        "score": 0.9763
       },
       "complexity": {
         "gate": "complexity",
         "passed": true,
-        "max_observed_complexity": 34,
-        "avg_complexity": 7.33,
+        "max_observed_complexity": 36,
+        "avg_complexity": 10.81,
         "max_complexity": 15,
         "comparator": "<=",
-        "functions_scanned": 67,
+        "functions_scanned": 16,
         "offending_functions": [
           {
             "function": "src/hath0r_cli/bots/repo_clean.py:audit_knowledge_structure",
@@ -358,15 +331,10 @@
           {
             "function": "src/hath0r_cli/bots/repo_clean.py:run_clean_repo_workflow",
             "line": 756,
-            "complexity": 33
-          },
-          {
-            "function": "src/hath0r_cli/commands/quality.py:quality_sonar",
-            "line": 174,
-            "complexity": 18
+            "complexity": 36
           }
         ],
-        "score": 0.9011
+        "score": 0.8879
       },
       "duplication": {
         "gate": "duplication",
@@ -375,7 +343,7 @@
         "max_duplicated_lines_pct": 3.0,
         "comparator": "<=",
         "duplicated_lines": 0,
-        "total_analyzed_lines": 2007,
+        "total_analyzed_lines": 875,
         "duplicated_blocks": [],
         "score": 0.99
       }
@@ -393,7 +361,7 @@
         ".hath0r/memory/hashes.json",
         ".hath0r/memory/sessions/current.json",
         ".hath0r/memory/sessions/latest.json",
-        ".hath0r/memory/sessions/sess-20261031-161737-5169cf.json"
+        ".hath0r/memory/sessions/sess-20261031-162748-37dc07.json"
       ],
       "UNVERIFIED_FILE_PRESENCE": []
     },
@@ -407,5 +375,5 @@
   "observability_sync": {
     "mode": "pending"
   },
-  "content_hash": "sha256:2fabd1eb4686c582912a6dc99cf0681a0254b87c860119203f63b813cd13646f"
+  "content_hash": "sha256:82eaa4132634e6beb4eb95e22f75d3113113d8806d5ec11d73bba334c5ade1ba"
 }
