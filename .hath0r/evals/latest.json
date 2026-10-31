@@ -1,13 +1,13 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261031-131029-86d2e0",
+  "eval_id": "eval-20261031-131615-621e31",
   "task_id": "issue-551",
   "issue_number": 551,
   "repo_name": "hathor-cli",
   "branch": "feature/551-register-69-bots-4h-calibration-supersqueeze",
-  "evaluated_at": "2026-10-31T13:10:29.291842+00:00",
-  "duration_ms": 287.61,
+  "evaluated_at": "2026-10-31T13:16:15.600867+00:00",
+  "duration_ms": 310.36,
   "passed_gate": true,
   "r_task": 1.0,
   "min_reward_threshold": 0.8,
@@ -65,12 +65,12 @@
       "max_usd": 0.25,
       "session_id": "sess-20261031-114426-90b427",
       "session_reads": 2,
-      "session_writes": 5,
+      "session_writes": 6,
       "session_bytes": 1721,
       "within_capsule_budget": true,
-      "latency_ms": 114.96,
-      "taguchi_quality_loss": 0.0002,
-      "snr_db": 24.81
+      "latency_ms": 150.17,
+      "taguchi_quality_loss": 0.0003,
+      "snr_db": 22.49
     },
     "adversarial": {
       "score": 1.0,
@@ -99,15 +99,16 @@
         ".hath0r/evals/latest.json"
       ],
       "STATIC_AST_ANALYSIS": [
-        "src/hath0r_cli/bots/agentgraph_bot.py",
-        "tests/unit/test_bots.py",
+        "src/hath0r_cli/bots/ci_cccd_bot.py",
+        "tests/unit/test_issue551_bot_registry_calibration_supersqueeze.py",
+        ".hath0r/memory/graph.json",
         ".hath0r/memory/hashes.json"
       ],
       "UNVERIFIED_FILE_PRESENCE": []
     },
     "counts": {
       "VERIFIED_EXECUTION": 1,
-      "STATIC_AST_ANALYSIS": 3,
+      "STATIC_AST_ANALYSIS": 4,
       "UNVERIFIED_FILE_PRESENCE": 0
     }
   },
@@ -115,7 +116,7 @@
   "observability_sync": {
     "mode": "live_synced",
     "phoenix_logged": true,
-    "mlflow_run_id": "f7e775b7a2e04315b81a8e64b7daf954"
+    "mlflow_run_id": "388b1d1bfb564a0f8d81063d7abb09b9"
   },
-  "content_hash": "sha256:a3042f5f85d876338e1e54001db3826bfd7a814dea2e71c3c042822c6e49cc50"
+  "content_hash": "sha256:666a24e55d8ef2227b4ff4234e1ec334c51cd98824bda3371bb0ef0956f6e68e"
 }
