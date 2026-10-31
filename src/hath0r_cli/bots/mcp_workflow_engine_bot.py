@@ -13,10 +13,8 @@ Enforces CR-FEATURE-WORKFLOW-STANDARD-001 ("Everything We Do Is a Workflow"):
 
 from __future__ import annotations
 
-import json
 import re
 import uuid
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -58,11 +56,11 @@ class MCPWorkflowEngineBot:
                 if not isinstance(doc, dict):
                     continue
                 factory_id = str(doc.get("factory_id", yaml_path.stem))
-                bots = [b.get("id") for b in doc.get("bots", []) if isinstance(b, dict) and b.get("id")]
+                bots = [str(b.get("id")) for b in doc.get("bots", []) if isinstance(b, dict) and b.get("id")]
                 for wf in doc.get("workflows", []):
                     if not isinstance(wf, dict):
                         continue
-                    step_bots = [s.get("bot") for s in wf.get("steps", []) if isinstance(s, dict) and s.get("bot")]
+                    step_bots = [str(s.get("bot")) for s in wf.get("steps", []) if isinstance(s, dict) and s.get("bot")]
                     owning_bots = sorted(set(bots + step_bots))
                     workflows.append(
                         {
@@ -314,7 +312,7 @@ class MCPWorkflowEngineBot:
             },
         ):
             # 1. Enforce 4-hour pre-task auto-calibration
-            cccd_bot = CICCCDManagingBot(root_dir=self.cwd)
+            cccd_bot = CICCCDManagingBot(root_dir=str(self.cwd))
             calibration_gate = cccd_bot.ensure_calibrated(
                 max_age_hours=max_age_hours,
                 trigger_source=f"workflow:{intent_or_workflow_id}",

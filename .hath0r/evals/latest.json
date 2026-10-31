@@ -1,13 +1,13 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261031-131040-c98319",
+  "eval_id": "eval-20261031-131632-049e64",
   "task_id": "issue-553",
   "issue_number": 553,
   "repo_name": "hathor-cli",
   "branch": "feature/553-iteration-cascade-bot",
-  "evaluated_at": "2026-10-31T13:10:40.743610+00:00",
-  "duration_ms": 230.95,
+  "evaluated_at": "2026-10-31T13:16:32.708731+00:00",
+  "duration_ms": 268.35,
   "passed_gate": true,
   "r_task": 1.0,
   "min_reward_threshold": 0.8,
@@ -65,12 +65,12 @@
       "max_usd": 0.25,
       "session_id": "sess-20261031-120611-9011e9",
       "session_reads": 2,
-      "session_writes": 4,
+      "session_writes": 5,
       "session_bytes": 2005,
       "within_capsule_budget": true,
-      "latency_ms": 93.95,
-      "taguchi_quality_loss": 0.0001,
-      "snr_db": 26.56
+      "latency_ms": 113.25,
+      "taguchi_quality_loss": 0.0002,
+      "snr_db": 24.94
     },
     "adversarial": {
       "score": 1.0,
@@ -99,15 +99,19 @@
         ".hath0r/evals/latest.json"
       ],
       "STATIC_AST_ANALYSIS": [
-        "src/hath0r_cli/bots/agentgraph_bot.py",
-        "tests/unit/test_bots.py",
+        "src/hath0r_cli/bots/ci_cccd_bot.py",
+        "src/hath0r_cli/bots/iteration_cascade_bot.py",
+        "src/hath0r_cli/bots/mcp_centralization_bot.py",
+        "src/hath0r_cli/bots/mcp_workflow_engine_bot.py",
+        "tests/unit/test_issue551_bot_registry_calibration_supersqueeze.py",
+        ".hath0r/memory/graph.json",
         ".hath0r/memory/hashes.json"
       ],
       "UNVERIFIED_FILE_PRESENCE": []
     },
     "counts": {
       "VERIFIED_EXECUTION": 1,
-      "STATIC_AST_ANALYSIS": 3,
+      "STATIC_AST_ANALYSIS": 7,
       "UNVERIFIED_FILE_PRESENCE": 0
     }
   },
@@ -115,7 +119,7 @@
   "observability_sync": {
     "mode": "live_synced",
     "phoenix_logged": true,
-    "mlflow_run_id": "97d566372ecd4670abc61f45df4d0564"
+    "mlflow_run_id": "338d6af14d584ec5858b191df7309aec"
   },
-  "content_hash": "sha256:d7cdde9cf467101b15c32c236681da2edd84e1c2fb4e7a764b94b8f2fa1c26e8"
+  "content_hash": "sha256:6b57d715b355eae98d7765b5f79e56e7638dd3655922c732e67d09c059dc8eca"
 }
