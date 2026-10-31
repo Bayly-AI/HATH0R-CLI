@@ -1,15 +1,15 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261029-141758-ba79f1",
+  "eval_id": "eval-20261031-161741-cbb566",
   "task_id": "clean-repo-hathor-cli",
   "issue_number": null,
   "repo_name": "hathor-cli",
   "branch": "development",
-  "evaluated_at": "2026-10-29T14:17:58.132722+00:00",
-  "duration_ms": 434.88,
-  "passed_gate": false,
-  "r_task": 0.9,
+  "evaluated_at": "2026-10-31T16:17:41.880399+00:00",
+  "duration_ms": 1357.15,
+  "passed_gate": true,
+  "r_task": 0.9287,
   "min_reward_threshold": 0.8,
   "weights": {
     "deterministic": 0.4,
@@ -18,78 +18,367 @@
     "goal_alignment": 0.15
   },
   "tier_scores": {
-    "deterministic": 0.75,
-    "trajectory": 1.0,
-    "adversarial": 1.0,
-    "goal_alignment": 1.0
+    "deterministic": 0.9525,
+    "trajectory": 0.9274,
+    "adversarial": 0.8915,
+    "goal_alignment": 0.9287
   },
   "tiers": {
     "deterministic": {
-      "score": 0.75,
-      "passed": false,
-      "passed_checks": 3,
-      "total_checks": 4,
+      "score": 0.9525,
+      "passed": true,
+      "passed_checks": 6,
+      "total_checks": 6,
+      "sub_scores": {
+        "version_valid": 1.0,
+        "agentgraph_valid": 1.0,
+        "memory_compounded": 0.98,
+        "test_suite": 0.88,
+        "calibration_4h": 0.9097,
+        "local_quality_gates": 0.965
+      },
       "checks": {
         "version_valid": {
           "passed": true,
-          "version": "1.15.2",
+          "version": "1.21.0",
+          "changelog_aligned": true,
           "error": null
         },
         "agentgraph_valid": {
           "passed": true,
           "cycles": 0,
-          "contradictions": 0
+          "contradictions": 0,
+          "claude_md_synced": true
         },
         "memory_compounded": {
-          "passed": false,
-          "compounded_nodes_count": 63,
+          "passed": true,
+          "compounded_nodes_count": 81,
           "session_read_verified": true,
           "session_write_verified": true,
-          "hashes_verified": false,
+          "hashes_verified": true,
           "graphs_not_ignored": true,
-          "error": "CR-MEMORY-COMPOUND-001: Memory file hash verification failed (mismatched=0, missing=0, stale_source_files=5). Run 'hath0r memory hash --sync' or re-compound stale knowledge nodes."
+          "error": null
         },
         "test_suite": {
           "passed": true,
           "skipped": true,
-          "message": "Test execution skipped via flag or dry-run."
+          "message": "Test execution skipped via flag or dry-run (-0.12 confidence deduction)."
+        },
+        "calibration_4h": {
+          "passed": true,
+          "is_fresh": true,
+          "age_hours": 3.21,
+          "max_age_hours": 4.0
+        },
+        "local_quality_gates": {
+          "passed": true,
+          "technology": "python",
+          "thresholds_file": "/Users/raybayly/Development/OpenSource/hathor-cli/thresholds.json",
+          "qgate_score": 0.965,
+          "failing_gates": [],
+          "gates": {
+            "errors": {
+              "gate": "errors",
+              "passed": true,
+              "actual_errors": 0,
+              "max_errors": 0,
+              "comparator": "<=",
+              "score": 1.0,
+              "findings": []
+            },
+            "coverage": {
+              "gate": "coverage",
+              "passed": true,
+              "actual_coverage_pct": 93.83,
+              "min_coverage_pct": 80.0,
+              "comparator": ">=",
+              "source": "test_suite_symbol_verification",
+              "score": 0.9561
+            },
+            "complexity": {
+              "gate": "complexity",
+              "passed": true,
+              "max_observed_complexity": 34,
+              "avg_complexity": 7.33,
+              "max_complexity": 15,
+              "comparator": "<=",
+              "functions_scanned": 67,
+              "offending_functions": [
+                {
+                  "function": "src/hath0r_cli/bots/repo_clean.py:audit_knowledge_structure",
+                  "line": 313,
+                  "complexity": 31
+                },
+                {
+                  "function": "src/hath0r_cli/bots/repo_clean.py:_review_merge_and_prune_branches",
+                  "line": 646,
+                  "complexity": 34
+                },
+                {
+                  "function": "src/hath0r_cli/bots/repo_clean.py:run_clean_repo_workflow",
+                  "line": 756,
+                  "complexity": 33
+                },
+                {
+                  "function": "src/hath0r_cli/commands/quality.py:quality_sonar",
+                  "line": 174,
+                  "complexity": 18
+                }
+              ],
+              "score": 0.9011
+            },
+            "duplication": {
+              "gate": "duplication",
+              "passed": true,
+              "duplicated_lines_pct": 0.0,
+              "max_duplicated_lines_pct": 3.0,
+              "comparator": "<=",
+              "duplicated_lines": 0,
+              "total_analyzed_lines": 2007,
+              "duplicated_blocks": [],
+              "score": 0.99
+            }
+          },
+          "report": {
+            "success": true,
+            "passed": true,
+            "rule_id": "CR-LOCAL-QGATES-001",
+            "repo_name": "hathor-cli",
+            "technology": "python",
+            "thresholds_file": "/Users/raybayly/Development/OpenSource/hathor-cli/thresholds.json",
+            "thresholds_file_exists": true,
+            "thresholds": {
+              "max_errors": 0,
+              "min_coverage_pct": 80.0,
+              "max_complexity": 15,
+              "max_duplicated_lines_pct": 3.0,
+              "new_reliability_rating": 1,
+              "new_security_rating": 1,
+              "new_maintainability_rating": 1,
+              "min_security_hotspots_reviewed_pct": 100.0
+            },
+            "files_analyzed": 4,
+            "qgate_score": 0.965,
+            "failing_gates": [],
+            "gates": {
+              "errors": {
+                "gate": "errors",
+                "passed": true,
+                "actual_errors": 0,
+                "max_errors": 0,
+                "comparator": "<=",
+                "score": 1.0,
+                "findings": []
+              },
+              "coverage": {
+                "gate": "coverage",
+                "passed": true,
+                "actual_coverage_pct": 93.83,
+                "min_coverage_pct": 80.0,
+                "comparator": ">=",
+                "source": "test_suite_symbol_verification",
+                "score": 0.9561
+              },
+              "complexity": {
+                "gate": "complexity",
+                "passed": true,
+                "max_observed_complexity": 34,
+                "avg_complexity": 7.33,
+                "max_complexity": 15,
+                "comparator": "<=",
+                "functions_scanned": 67,
+                "offending_functions": [
+                  {
+                    "function": "src/hath0r_cli/bots/repo_clean.py:audit_knowledge_structure",
+                    "line": 313,
+                    "complexity": 31
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/repo_clean.py:_review_merge_and_prune_branches",
+                    "line": 646,
+                    "complexity": 34
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/repo_clean.py:run_clean_repo_workflow",
+                    "line": 756,
+                    "complexity": 33
+                  },
+                  {
+                    "function": "src/hath0r_cli/commands/quality.py:quality_sonar",
+                    "line": 174,
+                    "complexity": 18
+                  }
+                ],
+                "score": 0.9011
+              },
+              "duplication": {
+                "gate": "duplication",
+                "passed": true,
+                "duplicated_lines_pct": 0.0,
+                "max_duplicated_lines_pct": 3.0,
+                "comparator": "<=",
+                "duplicated_lines": 0,
+                "total_analyzed_lines": 2007,
+                "duplicated_blocks": [],
+                "score": 0.99
+              }
+            }
+          }
         }
       }
     },
     "trajectory": {
-      "score": 1.0,
+      "score": 0.9274,
       "passed": true,
-      "tokens_used": 0,
+      "tokens_used": 142,
       "max_tokens": 50000,
-      "estimated_usd": 0.0,
+      "estimated_usd": 0.000426,
       "max_usd": 0.25,
-      "session_id": "sess-20261029-132655-5b44e9",
-      "session_reads": 4,
-      "session_writes": 8,
-      "session_bytes": 1809,
+      "session_id": "sess-20261031-161737-5169cf",
+      "session_reads": 2,
+      "session_writes": 3,
+      "session_bytes": 2030,
+      "capsule_fill_ratio": 0.9912,
       "within_capsule_budget": true,
-      "latency_ms": 182.86,
-      "taguchi_quality_loss": 0.0004,
-      "snr_db": 20.78
+      "latency_ms": 311.61,
+      "taguchi_quality_loss": 0.0015,
+      "taguchi_score": 0.9762,
+      "snr_db": 16.15
     },
     "adversarial": {
-      "score": 1.0,
+      "score": 0.8915,
       "passed": true,
       "adversarial_flaws_count": 0,
       "adversarial_flaws": [],
       "tech_debts_count": 0,
       "auto_created_issues": [],
-      "change_categories": {},
-      "changed_files_count": 0
+      "minor_findings": [
+        "High diff addition volume (377 lines, -0.0085)",
+        "Cognitive complexity hotspot observed (avg 7.33, max 34, -0.0400)"
+      ],
+      "added_lines_count": 377,
+      "change_categories": {
+        "ui": [],
+        "script": [
+          "src/hath0r_cli/bots/local_quality_gate_bot.py",
+          "src/hath0r_cli/bots/repo_clean.py",
+          "src/hath0r_cli/commands/quality.py",
+          "tests/unit/test_issue561_local_quality_gates_and_evals.py"
+        ],
+        "text": [
+          "thresholds.json"
+        ],
+        "other": [
+          "release/CHECKSUMS.sha256",
+          "release/hath0r-linux-arm64",
+          "release/hath0r-linux-x86_64",
+          "release/previous/1.15.2/CHECKSUMS.sha256",
+          "release/previous/1.15.2/hath0r-darwin-arm64",
+          "release/previous/1.15.2/hath0r-darwin-x86_64",
+          "release/previous/1.15.2/hath0r-fileset-1.15.2.tar.gz",
+          "release/previous/1.15.2/hath0r-fileset-1.15.2.tar.gz.sha256",
+          "release/previous/1.15.2/hath0r-linux-arm64",
+          "release/previous/1.15.2/hath0r-linux-x86_64",
+          "release/previous/1.15.2/hath0r-windows-x64.cmd"
+        ]
+      },
+      "changed_files_count": 16
     },
     "goal_alignment": {
-      "score": 1.0,
+      "score": 0.9287,
       "passed": true,
       "task_id": "clean-repo-hathor-cli",
       "issue_number": null,
-      "active_focus": "Provisioning CR-TASK-EVAL-001 for hathor-cli",
-      "compounded_nodes_count": 63,
-      "consensus_score": 1.0
+      "active_focus": "clean-repo-hathor-cli",
+      "goal_keywords_count": 4,
+      "goal_overlap_score": 0.98,
+      "compounded_nodes_count": 81,
+      "consensus_score": 0.826
+    }
+  },
+  "local_quality_gates": {
+    "success": true,
+    "passed": true,
+    "rule_id": "CR-LOCAL-QGATES-001",
+    "repo_name": "hathor-cli",
+    "technology": "python",
+    "thresholds_file": "/Users/raybayly/Development/OpenSource/hathor-cli/thresholds.json",
+    "thresholds_file_exists": true,
+    "thresholds": {
+      "max_errors": 0,
+      "min_coverage_pct": 80.0,
+      "max_complexity": 15,
+      "max_duplicated_lines_pct": 3.0,
+      "new_reliability_rating": 1,
+      "new_security_rating": 1,
+      "new_maintainability_rating": 1,
+      "min_security_hotspots_reviewed_pct": 100.0
+    },
+    "files_analyzed": 4,
+    "qgate_score": 0.965,
+    "failing_gates": [],
+    "gates": {
+      "errors": {
+        "gate": "errors",
+        "passed": true,
+        "actual_errors": 0,
+        "max_errors": 0,
+        "comparator": "<=",
+        "score": 1.0,
+        "findings": []
+      },
+      "coverage": {
+        "gate": "coverage",
+        "passed": true,
+        "actual_coverage_pct": 93.83,
+        "min_coverage_pct": 80.0,
+        "comparator": ">=",
+        "source": "test_suite_symbol_verification",
+        "score": 0.9561
+      },
+      "complexity": {
+        "gate": "complexity",
+        "passed": true,
+        "max_observed_complexity": 34,
+        "avg_complexity": 7.33,
+        "max_complexity": 15,
+        "comparator": "<=",
+        "functions_scanned": 67,
+        "offending_functions": [
+          {
+            "function": "src/hath0r_cli/bots/repo_clean.py:audit_knowledge_structure",
+            "line": 313,
+            "complexity": 31
+          },
+          {
+            "function": "src/hath0r_cli/bots/repo_clean.py:_review_merge_and_prune_branches",
+            "line": 646,
+            "complexity": 34
+          },
+          {
+            "function": "src/hath0r_cli/bots/repo_clean.py:run_clean_repo_workflow",
+            "line": 756,
+            "complexity": 33
+          },
+          {
+            "function": "src/hath0r_cli/commands/quality.py:quality_sonar",
+            "line": 174,
+            "complexity": 18
+          }
+        ],
+        "score": 0.9011
+      },
+      "duplication": {
+        "gate": "duplication",
+        "passed": true,
+        "duplicated_lines_pct": 0.0,
+        "max_duplicated_lines_pct": 3.0,
+        "comparator": "<=",
+        "duplicated_lines": 0,
+        "total_analyzed_lines": 2007,
+        "duplicated_blocks": [],
+        "score": 0.99
+      }
     }
   },
   "evidence_trust_report": {
@@ -104,22 +393,19 @@
         ".hath0r/memory/hashes.json",
         ".hath0r/memory/sessions/current.json",
         ".hath0r/memory/sessions/latest.json",
-        ".hath0r/memory/sessions/sess-20261029-132655-5b44e9.json",
-        "CLAUDE.md"
+        ".hath0r/memory/sessions/sess-20261031-161737-5169cf.json"
       ],
       "UNVERIFIED_FILE_PRESENCE": []
     },
     "counts": {
       "VERIFIED_EXECUTION": 1,
-      "STATIC_AST_ANALYSIS": 7,
+      "STATIC_AST_ANALYSIS": 6,
       "UNVERIFIED_FILE_PRESENCE": 0
     }
   },
-  "blocking_reasons": [
-    "Tier 1 deterministic gate failed: memory_compounded"
-  ],
+  "blocking_reasons": [],
   "observability_sync": {
     "mode": "pending"
   },
-  "content_hash": "sha256:5b1c3d1e0722c2467de2825e0fcc8486eca5edddc8e6975e67255caab7fb6df7"
+  "content_hash": "sha256:2fabd1eb4686c582912a6dc99cf0681a0254b87c860119203f63b813cd13646f"
 }

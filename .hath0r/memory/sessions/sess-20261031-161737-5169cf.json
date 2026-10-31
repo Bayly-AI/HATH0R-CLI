@@ -1,0 +1,51 @@
+{
+  "schema_version": "hath0r.micro_session/1",
+  "session_id": "sess-20261031-161737-5169cf",
+  "prior_session_id": "sess-20261031-121502-ecbafb",
+  "parent_session_id": "sess-20261031-121502-ecbafb",
+  "revision": 5,
+  "content_hash": "sha256:79f85fc2f47756a440fdb5c7ed700fcdea7aaae9a24f24dc2a060bb7a2016c50",
+  "base_graph_hash": "sha256:7fa490639d5f020752f357b77402eaa1c20712e1af99252f16d36d6a6088263a",
+  "task_id": null,
+  "role": null,
+  "repo_name": "hathor-cli",
+  "status": "completed",
+  "started_at": "2026-10-31T16:17:37.752566+00:00",
+  "updated_at": "2026-10-31T16:17:43.318121+00:00",
+  "ended_at": "2026-10-31T16:17:38.005808+00:00",
+  "read_count": 2,
+  "write_count": 4,
+  "last_read_at": "2026-10-31T16:17:37.821104+00:00",
+  "last_write_at": "2026-10-31T16:17:43.318121+00:00",
+  "active_focus": "clean-repo-hathor-cli",
+  "prior_summary": "ted session focus: clean-repo-hathor; Compounded episode:clean-repo-hathor-cli; Clean Repo Lifecycle completed for hatho",
+  "recalled_nodes": [
+    {
+      "id": "decision:issue-474-micro-memory-session",
+      "type": "decision",
+      "label": "True Micro Memory Session CLI & Bot Enforcement (Issue #474)",
+      "snippet": "Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task st"
+    }
+  ],
+  "micro_entries": [
+    {
+      "timestamp": "2026-10-31T16:17:43.318121+00:00",
+      "kind": "compound",
+      "summary": "Compounded eval:clean-repo-hathor-cli: Task Evaluation clean-repo-hathor-cli (R=0.93, PASS)",
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "clean-repo-hathor-cli",
+        "passed",
+        "compounded"
+      ],
+      "node_id": "eval:clean-repo-hathor-cli"
+    }
+  ],
+  "next_steps": [],
+  "compounded_node_ids": [
+    "episode:clean-repo-hathor-cli",
+    "eval:clean-repo-hathor-cli"
+  ],
+  "capsule_bytes": 1859
+}
