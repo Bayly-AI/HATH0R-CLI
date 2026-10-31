@@ -1,0 +1,55 @@
+factory_id: local-qgates-factory
+name: Local Quality Gates & Thresholds Factory (CR-LOCAL-QGATES-001)
+version: "1.0.0"
+description: >
+  Provisions per-repository canonical thresholds.json (seeded with SonarCloud thresholds),
+  ensures technology-specific test/lint/coverage libraries and harnesses exist, evaluates
+  Errors, Test Coverage, Complexity, and Repeated Code locally, and feeds TaskEvaluatorBot.
+bots:
+  - id: cicccd-managing-bot
+    name: CICCCD Managing Bot
+    role: Enforces 4-hour pre-task agent calibration freshness
+    capabilities:
+      - ensure-calibrated
+      - calibrate
+      - status
+  - id: local-quality-gate-bot
+    name: Local Quality Gate Bot
+    role: Manages per-repo thresholds.json, tech-specific test harness, and 4 local Q-Gates
+    capabilities:
+      - init
+      - evaluate
+      - ensure-all
+      - detect-technology
+  - id: task-evaluator-bot
+    name: Task Evaluator Bot
+    role: Integrates local Q-Gates into the 4-tier continuous task evaluation scorecard
+    capabilities:
+      - evaluate
+      - verify
+      - status
+workflows:
+  - id: local-quality-gates
+    name: Execute Local Quality Gates & Continuous Evaluation
+    acceptance_test: >
+      Verify thresholds.json exists at repo root and evaluate Errors (<=0), Coverage (>=80%),
+      Complexity (<=15), and Repeated Code (<=3%) locally within hath0r quality local and hath0r evals run.
+    steps:
+      - id: ensure-4h-calibration
+        bot: cicccd-managing-bot
+        action: ensure-calibrated
+        failure_policy: continue
+        args:
+          max_age_hours: 4.0
+      - id: ensure-thresholds
+        bot: local-quality-gate-bot
+        action: init
+        failure_policy: abort
+      - id: run-local-qgates
+        bot: local-quality-gate-bot
+        action: evaluate
+        failure_policy: abort
+      - id: run-4tier-eval
+        bot: task-evaluator-bot
+        action: evaluate
+        failure_policy: abort

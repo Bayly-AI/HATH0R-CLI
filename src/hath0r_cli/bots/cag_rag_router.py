@@ -157,11 +157,22 @@ class HybridCAGRAGRouter:
 
         matches = [h.to_dict() for h in hits[: max(1, top_k)]]
         from hath0r_cli.bots.secret_pii_sanitizer import secret_pii_sanitizer
+        from hath0r_cli.bots.supercompress_bot import supercompress_bot
 
         for m in matches:
             if isinstance(m.get("snippet"), str):
-                m["snippet"] = secret_pii_sanitizer.redact_text(m["snippet"]).sanitized_text
-        return {**base, "rag_status": "ok", "matches": matches}
+                sanitized = secret_pii_sanitizer.redact_text(m["snippet"]).sanitized_text
+                if len(sanitized.split()) > 120:
+                    sq = supercompress_bot.compress(query=query, context=sanitized, threshold=0.5, force_local=True)
+                    m["snippet"] = sq.get("compressed_text", sanitized)
+                    m["supersqueeze"] = {
+                        "squeezed": True,
+                        "savings_pct": sq.get("savings_pct", 0.0),
+                        "owning_bot": "SuperSqueezeBot",
+                    }
+                else:
+                    m["snippet"] = sanitized
+        return {**base, "rag_status": "ok", "matches": matches, "owning_bot": "SuperSqueezeBot"}
 
     def route_query(
         self,
