@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
   "graph_id": "agentgraph-hathor-cli",
-  "timestamp": "2026-10-31T13:16:07.903809+00:00",
+  "timestamp": "2026-10-31T13:37:32.298977+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -443,6 +443,19 @@
       "content": "Governance policy rule CR-HATH0R-INIT-001 referenced in AGENTS.md",
       "properties": {
         "rule_code": "CR-HATH0R-INIT-001",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-local-qgates-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule CR-LOCAL-QGATES-001",
+      "content": "Governance policy rule CR-LOCAL-QGATES-001 referenced in AGENTS.md",
+      "properties": {
+        "rule_code": "CR-LOCAL-QGATES-001",
         "priority": 4,
         "restricted_actions": []
       },
@@ -1496,6 +1509,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__local-quality-gates_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Local Quality Gates",
+      "content": "# Local Quality Gates & Per-Repository `thresholds.json` (`CR-LOCAL-QGATES-001`)\n\n> **Rule ID**: `CR-LOCAL-QGATES-001`  \n> **Control Tower**: `Bayly-AI/HATH0R-CLI`  \n> **Owning Bot**: `LocalQualityGateBot` (`local-quality-gate-bot` in `BotRegistry`)  \n> **Canonical Workflow**: [`cfg/factories/local-qgates-factory.yaml`](../../cfg/factories/local-qgates-factory.yaml)  \n> **Evaluation Integration**: `TaskEvaluatorBot` (`hath0r evals run` · `CR-TASK-EVAL-001`)\n\n---\n\n## 1. Overview & Purpose\n\nEvery repository in the Hath0r ecosystem enforces **Local Quality Gates (`CR-LOCAL-QGATES-001`)** during local development and task evaluations (`hath0r evals run` and `hath0r quality local`).\n\nInstead of calling the remote SonarCloud HTTP API during local evaluations, Hath0r provisions a canonical **`thresholds.json`** file at the root of each repository (`<repo>/thresholds.json`) seeded with **SonarCloud's canonical Quality Gate thresholds**:\n\n| Gate Dimension | Metric Key in `thresholds.json` | Canonical Default (SonarCloud Standard) | Comparator |\n|---|---|---|---|\n| **1. Errors** | `max_errors` | **`0`** (`new_reliability_rating = 1`, `new_security_rating = 1`) | `<=` |\n| **2. Test Coverage**",
+      "properties": {
+        "path": "docs/governance/local-quality-gates.md",
+        "category": "governance",
+        "size_bytes": 6167
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__branch-rules_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1609,6 +1635,19 @@
         "path": "docs/governance/procedures/orient-procedure.md",
         "category": "procedures",
         "size_bytes": 2752
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__procedures__local-quality-gates-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Local Quality Gates Procedure",
+      "content": "# Procedure: Local Quality Gates Setup & Evaluation (`CR-LOCAL-QGATES-001`)\n\n> **Procedure ID**: `PROC-LOCAL-QGATES-001`  \n> **Owning Bot**: `LocalQualityGateBot` (`local-quality-gate-bot`)\n\n## Steps\n1. **Initialize Per-Repo `thresholds.json`**:\n   - Run `hath0r quality init` in the repository root (or `hath0r quality ensure-all` across the workspace).\n   - Verify `<repo>/thresholds.json` is created with `max_errors: 0`, `min_coverage_pct: 80.0`, `max_complexity: 15`, and `max_duplicated_lines_pct: 3.0`.\n2. **Provision Supporting Libraries & Test System**:\n   - Run `hath0r quality init --install --scaffold` to ensure technology-specific test/coverage/lint/complexity libraries and test directories exist.\n3. **Execute Local Quality Gates**:\n   - Run `hath0r quality local` to evaluate Errors, Test Coverage, Complexity, and Repeated Code locally against `thresholds.json`.\n4. **Verify in 4-Tier Task Evaluations**:\n   - Run `hath0r evals run` and `hath0r evals verify` to confirm `local_quality_gates` passes in `.hath0r/evals/latest.json`.\n",
+      "properties": {
+        "path": "docs/governance/procedures/local-quality-gates-procedure.md",
+        "category": "procedures",
+        "size_bytes": 1049
       },
       "is_current": true
     },
@@ -2181,6 +2220,19 @@
         "path": "docs/governance/strategies/quality-release-strategy.md",
         "category": "strategies",
         "size_bytes": 169
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__strategies__local-quality-gates-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Local Quality Gates Strategy",
+      "content": "# Strategy: Local Quality Gates (`CR-LOCAL-QGATES-001`)\n\n> **Strategy ID**: `STRAT-LOCAL-QGATES-001`  \n> **Owning Bot**: `LocalQualityGateBot` (`local-quality-gate-bot`)  \n> **Canonical Doc**: [`docs/governance/local-quality-gates.md`](../local-quality-gates.md)\n\n## Objective\nEnforce SonarCloud's canonical quality thresholds (`max_errors: 0`, `min_coverage_pct: 80.0`, `max_complexity: 15`, `max_duplicated_lines_pct: 3.0`) locally inside every repository via a canonical `thresholds.json` file and technology-aware static/coverage analyzers, integrated directly into `TaskEvaluatorBot` (`hath0r evals run`) with zero direct dependency on remote SonarCloud API calls.\n\n## Key Pillars\n1. **Per-Repository Canonical `thresholds.json`**: Every repo maintains its own `thresholds.json` at the repo root, seeded with SonarCloud thresholds and customizable per repo.\n2. **Technology-Aware Provisioning & Auto-Scaffolding**: `hath0r quality init` detects Python, Node/TypeScript, Infra/Control-Tower, Rust, or Go stacks, installs missing supporting libraries, and scaffolds a test harness if none exists.\n3. **Continuous Evaluation Integration**: `TaskEvaluatorBot` incorporates all 4 local gates into Tie",
+      "properties": {
+        "path": "docs/governance/strategies/local-quality-gates-strategy.md",
+        "category": "strategies",
+        "size_bytes": 1260
       },
       "is_current": true
     },
@@ -3069,6 +3121,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__local-quality-gates-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Local Quality Gates Runbook",
+      "content": "# Runbook: Local Quality Gates (`CR-LOCAL-QGATES-001`)\n\n> **Runbook ID**: `RB-LOCAL-QGATES-001`  \n> **Owning Bot**: `LocalQualityGateBot` (`local-quality-gate-bot`)\n\n## Commands\n```bash\n# Provision thresholds.json and scaffold missing test harness\nhath0r quality init --scaffold\n\n# Run local quality gates against thresholds.json\nhath0r quality local\n\n# Fleet rollout across all workspace repos\nhath0r quality ensure-all\n\n# Full 4-tier task evaluation with local quality gates\nhath0r evals run --task-id \"issue-561\"\nhath0r evals verify\n```\n\n## Diagnostics\n- **`thresholds.json` missing**: Run `hath0r quality init` to generate the canonical file for the repo's detected technology stack.\n- **Complexity / Duplication failure**: Run `hath0r -o json quality local` and inspect `gates.complexity.offending_functions` and `gates.duplication.duplicated_blocks`.\n",
+      "properties": {
+        "path": "docs/governance/runbooks/local-quality-gates-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 857
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__elt-runtime-runbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3286,6 +3351,19 @@
         "path": "docs/governance/runbooks/memory-space-runbook.md",
         "category": "runbooks",
         "size_bytes": 235
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__workflows__local-quality-gates-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Local Quality Gates Workflow",
+      "content": "# Workflow: Local Quality Gates (`cfg/factories/local-qgates-factory.yaml`)\n\n> **Workflow ID**: `cfg/factories/local-qgates-factory.yaml`  \n> **Owning Bots**: `local-quality-gate-bot`, `task-evaluator-bot`\n\n## Declarative Pipeline Steps\n1. **`ensure-calibrated` (`cicccd-managing-bot`)**: Verify 4-hour agent calibration freshness (`max_age_hours: 4.0`).\n2. **`init-thresholds` (`local-quality-gate-bot`)**: Detect repository technology stack, ensure `thresholds.json` exists, and scaffold/install missing test harness support if needed.\n3. **`evaluate-local-gates` (`local-quality-gate-bot`)**: Evaluate Errors (`<= 0`), Test Coverage (`>= 80.0%`), Complexity (`<= 15`), and Repeated Code (`<= 3.0%`) locally against `thresholds.json`.\n4. **`evaluate-task` (`task-evaluator-bot`)**: Incorporate local Q-Gate metrics into the 4-tier evaluation scorecard (`.hath0r/evals/latest.json`).\n",
+      "properties": {
+        "path": "docs/governance/workflows/local-quality-gates-workflow.md",
+        "category": "workflows",
+        "size_bytes": 885
       },
       "is_current": true
     },
@@ -3533,6 +3611,19 @@
         "path": "docs/governance/bot-specs/cicccd-bot-spec.md",
         "category": "bot-specs",
         "size_bytes": 1495
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__local-quality-gate-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Local Quality Gate Bot Spec",
+      "content": "# Bot Specification: `LocalQualityGateBot` (`local-quality-gate-bot`)\n\n> **Bot ID**: `local-quality-gate-bot`  \n> **Class**: `hath0r_cli.bots.local_quality_gate_bot.LocalQualityGateBot`  \n> **Level 2 CLI**: `hath0r quality init|local|ensure-all`  \n> **Level 1 MCP**: `mcp_quality_local_gates`, `mcp_quality_init_thresholds`\n\n## Responsibilities\n1. Detect repository technology stack (`python`, `node-ts`, `infra-python`, `rust`, `go`).\n2. Manage per-repository canonical `thresholds.json` seeded with SonarCloud's canonical thresholds (`max_errors: 0`, `min_coverage_pct: 80.0`, `max_complexity: 15`, `max_duplicated_lines_pct: 3.0`).\n3. Verify and install technology-specific supporting libraries (`pytest`, `pytest-cov`, `ruff`, `vitest`, `eslint`, `typescript`, etc.) and scaffold missing test harnesses automatically.\n4. Execute local static and coverage gates for Errors, Test Coverage, Cognitive/Cyclomatic Complexity, and Repeated Code without calling SonarCloud's remote API.\n5. Supply continuous `qgate_score` and detailed gate telemetry to `TaskEvaluatorBot` (`CR-TASK-EVAL-001`).\n",
+      "properties": {
+        "path": "docs/governance/bot-specs/local-quality-gate-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 1091
       },
       "is_current": true
     },
@@ -4092,6 +4183,19 @@
         "path": "docs/governance/playbooks/release-binaries-sync-playbook.md",
         "category": "playbooks",
         "size_bytes": 1651
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__local-quality-gates-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Local Quality Gates Playbook",
+      "content": "# Playbook: Local Quality Gates (`CR-LOCAL-QGATES-001`)\n\n> **Playbook ID**: `PB-LOCAL-QGATES-001`  \n> **Owning Bot**: `LocalQualityGateBot` (`local-quality-gate-bot`)\n\n## Scenario 1: Onboarding a New or Existing Repository\n1. Run `hath0r quality init --install --scaffold`.\n2. Inspect the generated `thresholds.json` at the repository root.\n3. Run `hath0r quality local` and confirm all 4 gates (`errors`, `coverage`, `complexity`, `duplication`) pass.\n\n## Scenario 2: Remediating a Failing Local Gate During `hath0r evals run`\n- **Errors Gate (`actual_errors > max_errors`)**: Run the repo's lint/typecheck command from `thresholds.json` and resolve all reported syntax/lint/type errors.\n- **Test Coverage Gate (`actual_coverage_pct < min_coverage_pct`)**: Add unit tests for uncovered modules/functions or generate fresh `coverage.xml` / `coverage/coverage-summary.json`.\n- **Complexity Gate (`max_observed_complexity > max_complexity`)**: Refactor functions listed in `offending_functions` into smaller helper functions with cognitive complexity `<= 15`.\n- **Repeated Code Gate (`duplicated_lines_pct > max_duplicated_lines_pct`)**: Extract duplicated 6+ line blocks into shared helper functions o",
+      "properties": {
+        "path": "docs/governance/playbooks/local-quality-gates-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 1225
       },
       "is_current": true
     },
@@ -5096,7 +5200,7 @@
       "content": "4-Tier Task Evaluation for pr-101 on branch feature/510-automatic-task-evals: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5118,7 +5222,7 @@
       "content": "4-Tier Task Evaluation for pr-104 on branch feature/510-automatic-task-evals: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5159,7 +5263,7 @@
       "content": "4-Tier Task Evaluation for issue-510 on branch feature/510-automatic-task-evals: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5181,7 +5285,7 @@
       "content": "4-Tier Task Evaluation for pr-516 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5281,7 +5385,7 @@
       "content": "4-Tier Task Evaluation for pr-516-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5323,7 +5427,7 @@
       "content": "4-Tier Task Evaluation for eval-baseline-hathor-cli on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5345,7 +5449,7 @@
       "content": "4-Tier Task Evaluation for issue-518 on branch feature/518-evals-ensure-all-repos: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5386,7 +5490,7 @@
       "content": "4-Tier Task Evaluation for pr-519 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5408,7 +5512,7 @@
       "content": "4-Tier Task Evaluation for pr-519-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5430,7 +5534,7 @@
       "content": "4-Tier Task Evaluation for issue-520 on branch feature/520-detached-cruise-control: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5472,7 +5576,7 @@
       "content": "4-Tier Task Evaluation for pr-521 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5514,7 +5618,7 @@
       "content": "4-Tier Task Evaluation for pr-521-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5556,7 +5660,7 @@
       "content": "4-Tier Task Evaluation for release-v1.11.0 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5578,7 +5682,7 @@
       "content": "4-Tier Task Evaluation for issue-522 on branch feature/522-clean-repo-branch-hygiene: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5600,7 +5704,7 @@
       "content": "4-Tier Task Evaluation for clean-repo-hathor-cli on branch development: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5622,7 +5726,7 @@
       "content": "4-Tier Task Evaluation for release-v1-12-0 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5644,7 +5748,7 @@
       "content": "4-Tier Task Evaluation for issue-524 on branch feature/524-eval-scorecard-summary-rule: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5666,7 +5770,7 @@
       "content": "4-Tier Task Evaluation for pr-525-scorecard-summary-rule on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5730,7 +5834,7 @@
       "content": "4-Tier Task Evaluation for issue-528 on branch feature/528-rules-ensure-all: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5794,7 +5898,7 @@
       "content": "4-Tier Task Evaluation for issue-532 on branch fix/532-cruise-sync: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5864,7 +5968,7 @@
       "content": "4-Tier Task Evaluation for sft-lora-peft-evals on branch feature/530-git-workflows: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5886,9 +5990,9 @@
       "content": "Released v1.13.0 of HATH0R-CLI adding CCCDTTrainingCoordinator SFT/LoRA/QLoRA/PEFT subspace training and benchmark evals, SecuritySASTScanner AST-aware eval/exec detection, and GitWorkflowBot.",
       "properties": {
         "source_files": {
-          "VERSION": "sha256:26ac7beccb7951efb69255974ffc70a13bb2e68ae84dcb5456c3fb46294bdba8",
-          "pyproject.toml": "sha256:3f9e4e438d07339716e0a844ca3dd095629a93d1884985e5ac64e834aca0fff6",
-          "CHANGELOG.md": "sha256:305520a452906f150df378065cf66ec523301a7488e468d5a630040fb69340b4",
+          "VERSION": "sha256:65a6bd97a4a6b72911ae6c3d45991f4326c95f792e196f8bf74857a557b27585",
+          "pyproject.toml": "sha256:c8bee7be7709491a3afa09241f0a0351c8a6eed4e4628ddac89c764975980233",
+          "CHANGELOG.md": "sha256:d200413a55326b9b67a98d00f436a4a15e9017a9f7a5797b463e74c7d90461c0",
           "src/hath0r_cli/cccd/training_coordinator.py": "sha256:b1fed8465db95f4d72188ed58404f2c4e88040c7f06ca818df8c354e6aa29366",
           "src/hath0r_cli/bots/cicccd_bot.py": "sha256:4a5f72f02a0b3eb5de382608cd5aa5e643f5eaca0472e9061e122f02a774e972"
         },
@@ -5909,7 +6013,7 @@
       "content": "4-Tier Task Evaluation for release-v1-13-0 on branch feature/530-git-workflows: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -5979,7 +6083,7 @@
       "content": "4-Tier Task Evaluation for task-hathor-cli on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -6065,7 +6169,7 @@
       "content": "4-Tier Task Evaluation for release-v1.15.2 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -6153,7 +6257,7 @@
       "content": "4-Tier Task Evaluation for issue-551 on branch feature/551-register-69-bots-4h-calibration-supersqueeze: R_task=0.9349 (det=0.96, traj=0.93, adv=0.90, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -6215,7 +6319,7 @@
       "content": "4-Tier Task Evaluation for issue-552 on branch feature/552-mcp-centralization-workflow-engine-bots: R_task=0.9450 (det=0.96, traj=0.94, adv=0.94, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -6277,7 +6381,7 @@
       "content": "4-Tier Task Evaluation for issue-553 on branch feature/553-iteration-cascade-bot: R_task=0.9451 (det=0.96, traj=0.94, adv=0.94, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -6339,7 +6443,7 @@
       "content": "4-Tier Task Evaluation for issue-554 on branch feature/554-arch-preservation-substrate-verifier-bots: R_task=0.9452 (det=0.96, traj=0.94, adv=0.93, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e08c94c46543a546686d0b8e3c674170b1c06dd3f6fe18b5d8333a7bebbc08a7"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -6397,11 +6501,11 @@
       "id": "memory:eval:issue-555",
       "plane": "memory",
       "type": "eval",
-      "label": "Task Evaluation issue-555 (R=0.95, PASS)",
-      "content": "4-Tier Task Evaluation for issue-555 on branch feature/555-continuous-task-evaluator-bot: R_task=0.9500 (det=0.96, traj=0.94, adv=0.95, goal=0.93). Gate=PASSED.",
+      "label": "Task Evaluation issue-555 (R=0.93, PASS)",
+      "content": "4-Tier Task Evaluation for issue-555 on branch feature/555-continuous-task-evaluator-bot: R_task=0.9344 (det=0.96, traj=0.94, adv=0.89, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:96540bb0f076ef1ea0b27b60d050fd6fcd5625fd80a91268040275cdc510d952"
+          ".hath0r/evals/latest.json": "sha256:dcad6cee896222d4e33bc1af337154b81eb2cf60f675eb84a9b693bfd12dfbdf"
         },
         "source": "local_memory",
         "tags": [
@@ -6416,19 +6520,57 @@
       "is_current": true
     },
     {
+      "id": "memory:feature:local-qgates-561",
+      "plane": "memory",
+      "type": "concept",
+      "label": "Local Quality Gates & thresholds.json (CR-LOCAL-QGATES-001)",
+      "content": "LocalQualityGateBot enforces SonarCloud canonical thresholds locally via thresholds.json and integrates into TaskEvaluatorBot",
+      "properties": {
+        "source": "local_memory",
+        "tags": [
+          "concept",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:issue-561",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation issue-561 (R=0.93, PASS)",
+      "content": "4-Tier Task Evaluation for issue-561 on branch feature/561-local-qgates-thresholds-evals: R_task=0.9332 (det=0.96, traj=0.93, adv=0.89, goal=0.93). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:24bb6352fd064731e0fd410d0e3b9abd0db51e615e98a59082e8b96a27ce0864"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "issue-561",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
       "id": "memory:session:sess-20261031-121502-ecbafb",
       "plane": "memory",
       "type": "session",
       "label": "Micro Session sess-20261031-121502-ecbafb",
-      "content": "Micro Session sess-20261031-121502-ecbafb [completed] | Focus: Orienting repository hathor-cli | Reads: 6, Writes: 12 | Entries: Compounded eval:issue-555: Task Evaluation issue-555 (R=0.95, PASS)",
+      "content": "Micro Session sess-20261031-121502-ecbafb [completed] | Focus: Issue #561 Local Quality Gates (thresholds.json) and TaskEvaluatorBot integration | Reads: 6, Writes: 17 | Entries: Compounded eval:issue-561: Task Evaluation issue-561 (R=0.93, PASS)",
       "properties": {
         "session_id": "sess-20261031-121502-ecbafb",
         "prior_session_id": "sess-20261031-121013-c06d97",
         "parent_session_id": "sess-20261031-121013-c06d97",
         "read_count": 6,
-        "write_count": 12,
+        "write_count": 17,
         "status": "completed",
-        "byte_size": 1794,
+        "byte_size": 1898,
         "source": "local_memory",
         "tags": [
           "session",
@@ -7042,16 +7184,28 @@
       "id": "service:quality",
       "plane": "context",
       "type": "service",
-      "label": "SonarCloud & Quality Gate Service",
-      "content": "Service 'SonarCloud & Quality Gate Service' for CLI command `hath0r quality` on L2_CLI_MEMORY",
+      "label": "SonarCloud & Local Quality Gate Service",
+      "content": "Service 'SonarCloud & Local Quality Gate Service' for CLI command `hath0r quality` on L2_CLI_MEMORY",
       "properties": {
         "command": "quality",
         "owning_bots": [
           "quality-gate-bot",
+          "local-quality-gate-bot",
           "shadow-ai-classifier-bot"
         ],
         "agentgraph_level": "L2_CLI_MEMORY",
-        "workflow_id": "cfg/factories/end-of-task-factory.yaml"
+        "workflow_id": "cfg/factories/local-qgates-factory.yaml"
+      },
+      "is_current": true
+    },
+    {
+      "id": "bot:local-quality-gate-bot",
+      "plane": "context",
+      "type": "bot",
+      "label": "local-quality-gate-bot",
+      "content": "Registered Bot 'local-quality-gate-bot' in BotRegistry",
+      "properties": {
+        "bot_id": "local-quality-gate-bot"
       },
       "is_current": true
     },
@@ -8262,12 +8416,13 @@
       "id": "service:evals",
       "plane": "context",
       "type": "service",
-      "label": "Continuous 4-Tier Task Evaluation & Red-Team Service",
-      "content": "Service 'Continuous 4-Tier Task Evaluation & Red-Team Service' for CLI command `hath0r evals` on L1_MCP_AND_L2_CLI_MEMORY",
+      "label": "Continuous 4-Tier Task Evaluation, Local Q-Gates & Red-Team Service",
+      "content": "Service 'Continuous 4-Tier Task Evaluation, Local Q-Gates & Red-Team Service' for CLI command `hath0r evals` on L1_MCP_AND_L2_CLI_MEMORY",
       "properties": {
         "command": "evals",
         "owning_bots": [
           "task-evaluator-bot",
+          "local-quality-gate-bot",
           "redteam-engine-bot"
         ],
         "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
@@ -10191,6 +10346,42 @@
       "is_current": true
     },
     {
+      "source": "memory:feature:local-qgates-561",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:feature:local-qgates-561",
+      "target": "memory:session:sess-20261031-121502-ecbafb",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-561",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-561",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-561",
+      "target": "memory:session:sess-20261031-121502-ecbafb",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-561",
+      "target": "memory:session:sess-20261031-121502-ecbafb",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
       "source": "rule:rules",
       "target": "role:developer",
       "relation": "GOVERNS",
@@ -10306,6 +10497,12 @@
     },
     {
       "source": "rule:cr-hath0r-init-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-local-qgates-001",
       "target": "role:developer",
       "relation": "GOVERNS",
       "is_current": true
@@ -10905,6 +11102,18 @@
       "is_current": true
     },
     {
+      "source": "memory:feature:local-qgates-561",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-561",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
       "source": "memory:session:sess-20261031-121502-ecbafb",
       "target": "role:developer",
       "relation": "INFORMS",
@@ -11111,6 +11320,12 @@
     {
       "source": "service:quality",
       "target": "bot:quality-gate-bot",
+      "relation": "OWNED_BY_BOT",
+      "is_current": true
+    },
+    {
+      "source": "service:quality",
+      "target": "bot:local-quality-gate-bot",
       "relation": "OWNED_BY_BOT",
       "is_current": true
     },
@@ -11560,6 +11775,12 @@
     },
     {
       "source": "service:evals",
+      "target": "bot:local-quality-gate-bot",
+      "relation": "OWNED_BY_BOT",
+      "is_current": true
+    },
+    {
+      "source": "service:evals",
       "target": "bot:redteam-engine-bot",
       "relation": "OWNED_BY_BOT",
       "is_current": true
@@ -11717,6 +11938,6 @@
   ],
   "metadata": {
     "repo_root": "/Users/raybayly/Development/OpenSource/hathor-cli",
-    "synced_sources": 323
+    "synced_sources": 330
   }
 }

@@ -5,6 +5,16 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.0] - 2026-10-31
+
+### Added
+- **Local Quality Gates (`Q-Gates`), Per-Repo `thresholds.json` & `TaskEvaluatorBot` Integration (`CR-LOCAL-QGATES-001`)** (#561):
+  - Added `LocalQualityGateBot` (`src/hath0r_cli/bots/local_quality_gate_bot.py`) enforcing SonarCloud's canonical thresholds locally (`max_errors: 0`, `min_coverage_pct: 80.0`, `max_complexity: 15`, `max_duplicated_lines_pct: 3.0`) without calling SonarCloud's remote API directly.
+  - Provisions canonical `<repo>/thresholds.json` per repository, detects technology stack (`python`, `node-ts`, `infra-python`, `rust`, `go`), verifies/installs supporting test/lint/coverage libraries, and automatically scaffolds a baseline test harness if one does not exist.
+  - Added `hath0r quality init`, `hath0r quality local`, and `hath0r quality ensure-all` commands (`src/hath0r_cli/commands/quality.py`) and registered `local-quality-gate-bot` in `BotRegistry` (`src/hath0r_cli/step_runner.py`).
+  - Integrated Local Q-Gates directly into `TaskEvaluatorBot` (`src/hath0r_cli/bots/task_evaluator_bot.py` and `src/hath0r_cli/commands/evals.py`) across Tier 1 (`local_quality_gates`), Tier 3 (complexity and duplication deductions), `.hath0r/evals/latest.json`, and the Markdown Eval Scorecard Summary.
+  - Added full Governance Documentation Hexad under `docs/governance/` (`local-quality-gates.md`, strategy, procedure, playbook, runbook, workflow, bot spec) and `cfg/factories/local-qgates-factory.yaml`.
+
 ## [1.20.0] - 2026-10-31
 
 ### Added

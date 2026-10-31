@@ -42,6 +42,7 @@ DEFAULT_TASK_EVAL_CONFIG: Dict[str, Any] = {
     },
     "hard_gates": {
         "require_deterministic_pass": True,
+        "require_local_qgates_pass": True,
         "require_zero_critical_flaws": True,
         "require_finops_budget": True,
         "require_memory_compounded": True,
@@ -157,6 +158,7 @@ class TaskEvaluatorBot:
     ) -> Dict[str, Any]:
         """Tier 1: Deterministic Engineering Rubrics (Tests, Preflight, AgentGraph, Memory CAS, 4h Calibration)."""
         from hath0r_cli.bots.agentgraph_bot import AgentGraphBot
+        from hath0r_cli.bots.local_quality_gate_bot import LocalQualityGateBot
         from hath0r_cli.bots.memory_manager import MemoryManagerBot
         from hath0r_cli.bots.quality import PreflightBot, ReleaseBot
         from hath0r_cli.cccd.calibration_loop import CCCDCalibrationLoop
@@ -164,11 +166,12 @@ class TaskEvaluatorBot:
         checks: Dict[str, Dict[str, Any]] = {}
         sub_scores: Dict[str, float] = {}
         rubric_weights: Dict[str, float] = {
-            "version_valid": 0.18,
-            "agentgraph_valid": 0.16,
-            "memory_compounded": 0.24,
-            "test_suite": 0.28,
-            "calibration_4h": 0.14,
+            "version_valid": 0.14,
+            "agentgraph_valid": 0.14,
+            "memory_compounded": 0.20,
+            "test_suite": 0.22,
+            "local_quality_gates": 0.18,
+            "calibration_4h": 0.12,
         }
 
         # 1. Version & SemVer + CHANGELOG alignment check
@@ -285,6 +288,27 @@ class TaskEvaluatorBot:
         except Exception:
             checks["calibration_4h"] = {"passed": True, "is_fresh": False, "age_hours": None, "max_age_hours": 4.0}
             sub_scores["calibration_4h"] = 0.82
+
+        # 6. Local Quality Gates (CR-LOCAL-QGATES-001: Errors, Coverage, Complexity, Duplication via thresholds.json)
+        try:
+            lqg_bot = LocalQualityGateBot(cwd=self.cwd)
+            if not dry_run:
+                lqg_bot.ensure_supporting_system(self.cwd, install_missing=False, scaffold_missing=True)
+            lqg_res = lqg_bot.evaluate_local_gates(self.cwd, changed_only=True, auto_init=not dry_run)
+            lqg_passed = bool(lqg_res.get("passed", False)) or (dry_run and bool(lqg_res.get("gates", {}).get("errors", {}).get("passed", True)))
+            checks["local_quality_gates"] = {
+                "passed": lqg_passed,
+                "technology": lqg_res.get("technology"),
+                "thresholds_file": lqg_res.get("thresholds_file"),
+                "qgate_score": lqg_res.get("qgate_score", 0.0),
+                "failing_gates": lqg_res.get("failing_gates", []),
+                "gates": lqg_res.get("gates", {}),
+                "report": lqg_res,
+            }
+            sub_scores["local_quality_gates"] = float(lqg_res.get("qgate_score", 0.90)) if lqg_passed else 0.0
+        except Exception as exc:
+            checks["local_quality_gates"] = {"passed": False, "error": str(exc), "failing_gates": ["exception"]}
+            sub_scores["local_quality_gates"] = 0.0
 
         passed_count = sum(1 for c in checks.values() if c.get("passed"))
         total_count = len(checks)
@@ -424,8 +448,13 @@ class TaskEvaluatorBot:
                 continue
         return sorted(files_set)
 
-    def _evaluate_tier3_adversarial(self, *, dry_run: bool = False) -> Dict[str, Any]:
-        """Tier 3: Adversarial Diff Critics & Change Validation (CR-CLI-TECH-DEBT-001)."""
+    def _evaluate_tier3_adversarial(
+        self,
+        *,
+        dry_run: bool = False,
+        local_qgates: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Tier 3: Adversarial Diff Critics, Local Q-Gate Complexity/Duplication & Change Validation."""
         from hath0r_cli.bots.antagonistic_review import AntagonisticReviewBot
         from hath0r_cli.bots.change_validation import ChangeValidationBot
 
@@ -492,6 +521,38 @@ class TaskEvaluatorBot:
         # Review surface complexity deduction (0.4% per changed file up to 4%)
         surface_pen = round(min(0.04, 0.004 * len(changed_files)), 4)
         minor_deductions += surface_pen
+
+        # Local Q-Gates Complexity & Duplication critic signals (CR-LOCAL-QGATES-001)
+        if isinstance(local_qgates, dict):
+            gates = local_qgates.get("gates", {})
+            comp_g = gates.get("complexity", {})
+            dup_g = gates.get("duplication", {})
+            avg_comp = float(comp_g.get("avg_complexity", 1.0))
+            max_obs_comp = int(comp_g.get("max_observed_complexity", 1))
+            max_comp_thresh = int(comp_g.get("max_complexity", 15))
+            if not comp_g.get("passed", True):
+                flaws_count += len(comp_g.get("offending_functions", [])) or 1
+                minor_findings.append(
+                    f"Local Q-Gate Complexity failed: avg {avg_comp:.2f} (max {max_obs_comp}) > {max_comp_thresh}"
+                )
+            elif max_obs_comp >= 10:
+                comp_ded = round(min(0.04, 0.004 * min(10, max_obs_comp - 9)), 4)
+                minor_deductions += comp_ded
+                minor_findings.append(
+                    f"Cognitive complexity hotspot observed (avg {avg_comp:.2f}, max {max_obs_comp}, -{comp_ded:.4f})"
+                )
+
+            dup_pct = float(dup_g.get("duplicated_lines_pct", 0.0))
+            max_dup_thresh = float(dup_g.get("max_duplicated_lines_pct", 3.0))
+            if not dup_g.get("passed", True):
+                flaws_count += 1
+                minor_findings.append(
+                    f"Local Q-Gate Duplication exceeded: {dup_pct:.2f}% > {max_dup_thresh:.2f}%"
+                )
+            elif dup_pct > 0.2:
+                dup_ded = round(min(0.03, 0.01 * dup_pct), 4)
+                minor_deductions += dup_ded
+                minor_findings.append(f"Repeated code blocks detected ({dup_pct:.2f}%, -{dup_ded:.4f})")
 
         untracked_debt = max(0, tech_debts_count - issues_created)
         penalty = (0.5 * flaws_count) + (0.15 * untracked_debt) + minor_deductions
@@ -705,6 +766,7 @@ class TaskEvaluatorBot:
         eval_id = f"eval-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:6]}"
 
         tier1 = self._evaluate_tier1_deterministic(skip_tests=skip_tests, dry_run=dry_run)
+        local_qgates = tier1.get("checks", {}).get("local_quality_gates", {}).get("report", {})
         elapsed_ms = (time.monotonic() - t0) * 1000.0
         tier2 = self._evaluate_tier2_trajectory(
             latency_ms=elapsed_ms,
@@ -712,7 +774,7 @@ class TaskEvaluatorBot:
             max_tokens=int(thresholds.get("max_tokens", 50000)),
             max_usd=float(thresholds.get("max_usd", 0.25)),
         )
-        tier3 = self._evaluate_tier3_adversarial(dry_run=dry_run)
+        tier3 = self._evaluate_tier3_adversarial(dry_run=dry_run, local_qgates=local_qgates)
         tier4 = self._evaluate_tier4_goal_alignment(
             task_id=resolved_task_id,
             issue_number=issue_num,
@@ -784,6 +846,7 @@ class TaskEvaluatorBot:
                 "adversarial": tier3,
                 "goal_alignment": tier4,
             },
+            "local_quality_gates": local_qgates,
             "evidence_trust_report": evidence_trust_report,
             "blocking_reasons": blocking_reasons,
             "observability_sync": {"mode": "pending"},
@@ -846,6 +909,7 @@ class TaskEvaluatorBot:
             "r_task": r_task,
             "min_reward_threshold": min_reward,
             "tier_scores": scorecard["tier_scores"],
+            "local_quality_gates": local_qgates,
             "blocking_reasons": blocking_reasons,
             "latest_file": str(latest_file),
             "history_file": str(history_file),
@@ -876,15 +940,26 @@ class TaskEvaluatorBot:
         s_traj = float(t_scores.get("trajectory", 0.0))
         s_adv = float(t_scores.get("adversarial", 0.0))
         s_goal = float(t_scores.get("goal_alignment", 0.0))
+        lqg = sc.get("local_quality_gates") or {}
+        lqg_gates = lqg.get("gates") or {}
+        lqg_str = (
+            f"Errors: `{lqg_gates.get('errors', {}).get('actual_errors', 0)}<=0` · "
+            f"Cov: `{lqg_gates.get('coverage', {}).get('actual_coverage_pct', 0.0)}%>=80%` · "
+            f"Comp: `avg {lqg_gates.get('complexity', {}).get('avg_complexity', 0.0)}<=15` · "
+            f"Dup: `{lqg_gates.get('duplication', {}).get('duplicated_lines_pct', 0.0)}%<=3%`"
+            if lqg_gates
+            else "N/A"
+        )
         latest_path = str(self.evals_dir / "latest.json")
         return (
-            "### Eval Scorecard Summary (`CR-TASK-EVAL-001`)\n"
+            "### Eval Scorecard Summary (`CR-TASK-EVAL-001` & `CR-LOCAL-QGATES-001`)\n"
             "| Field | Value |\n"
             "| :--- | :--- |\n"
             f"| **Task ID / Eval ID** | `{task_id}` (`{eval_id}`) |\n"
             f"| **Gate Status** | **`{gate_str}`** |\n"
             f"| **Composite Reward (`R_task`)** | **`{r_task:.4f}`** (Threshold `>= 0.80`) |\n"
             f"| **Tier Breakdown** | Tier 1 (Deterministic): `{s_det:.2f}` · Tier 2 (Trajectory): `{s_traj:.2f}` · Tier 3 (Adversarial): `{s_adv:.2f}` · Tier 4 (Goal Align): `{s_goal:.2f}` |\n"
+            f"| **Local Q-Gates (`thresholds.json`)** | {lqg_str} |\n"
             f"| **Scorecard Artifact** | `{latest_path}` |"
         )
 

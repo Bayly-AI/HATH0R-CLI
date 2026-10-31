@@ -131,7 +131,7 @@ SERVICE_BOT_MAP: dict[str, dict[str, Any]] = {
     "task": {"service": "Canonical Task Lifecycle Service", "owning_bots": ["end-of-task-bot", "task-announcer-bot", "cicccd-managing-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/start-of-task-factory.yaml"},
     "jev": {"service": "JEV Tool Guard & Consequential Action Service", "owning_bots": ["governance-bot", "bite-verifier-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/mcp-security-audit-workflow.yaml"},
     "docker": {"service": "Hath0r Docker Group Lifecycle Service", "owning_bots": ["docker-bot", "docker-monitor-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/docker-group-factory.yaml"},
-    "quality": {"service": "SonarCloud & Quality Gate Service", "owning_bots": ["quality-gate-bot", "shadow-ai-classifier-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
+    "quality": {"service": "SonarCloud & Local Quality Gate Service", "owning_bots": ["quality-gate-bot", "local-quality-gate-bot", "shadow-ai-classifier-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/local-qgates-factory.yaml"},
     "preflight": {"service": "Pre-Flight Validation Service", "owning_bots": ["preflight-bot", "dependency-guard-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/preflight-factory.yaml"},
     "deploy": {"service": "Deployment Verification Service", "owning_bots": ["deploy-test-bot", "docker-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/deploy-factory.yaml"},
     "release": {"service": "SemVer Release & Changelog Service", "owning_bots": ["release-bot", "version-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/release-promotion-factory.yaml"},
@@ -170,7 +170,7 @@ SERVICE_BOT_MAP: dict[str, dict[str, Any]] = {
     "pmat": {"service": "PMAT Complexity & Maintainability Service", "owning_bots": ["pmat-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/quality-gate-factory.yaml"},
     "mesh": {"service": "Agent Mesh & HAHP Handoff Service", "owning_bots": ["mesh-manager-bot", "hahp-protocol-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/mesh-handoff-factory.yaml"},
     "agent": {"service": "Multi-Agent DAG & Consensus Service", "owning_bots": ["agent-dag-runner-bot", "multiagent-consensus-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/multiagent-consensus-factory.yaml"},
-    "evals": {"service": "Continuous 4-Tier Task Evaluation & Red-Team Service", "owning_bots": ["task-evaluator-bot", "redteam-engine-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
+    "evals": {"service": "Continuous 4-Tier Task Evaluation, Local Q-Gates & Red-Team Service", "owning_bots": ["task-evaluator-bot", "local-quality-gate-bot", "redteam-engine-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
     "rules": {"service": "Cross-Repo Rule Rollout & Sync Service", "owning_bots": ["rule-rollout-bot", "governance-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/rule-rollout-factory.yaml"},
     "mlflow": {"service": "Hathor-MLFLOW Experiment & Model Registry Service", "owning_bots": ["mlflow-manager-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"},
     "atc": {"service": "HATH0R-ATC Control Tower & Suite Status Service", "owning_bots": ["docker-bot", "decision-radar-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/docker-group-factory.yaml"},
@@ -217,6 +217,7 @@ class BotRegistry:
         from hath0r_cli.bots.iteration_cascade_bot import IterationCascadeBot
         from hath0r_cli.bots.kv_prewarmer import KVCachePrewarmer
         from hath0r_cli.bots.local_model_bot import LocalModelBot
+        from hath0r_cli.bots.local_quality_gate_bot import LocalQualityGateBot
         from hath0r_cli.bots.mcp_centralization_bot import MCPCentralizationBot
         from hath0r_cli.bots.mcp_workflow_engine_bot import MCPWorkflowEngineBot
         from hath0r_cli.bots.mesh_manager_bot import MeshManagerBot
@@ -376,6 +377,7 @@ class BotRegistry:
             "architecture-preservation-bot": _init_bot(ArchitecturePreservationBot),
             "substrate-utilization-bot": _init_bot(SubstrateUtilizationBot),
             "task-completion-verifier-bot": _init_bot(TaskCompletionVerifierBot),
+            "local-quality-gate-bot": _init_bot(LocalQualityGateBot),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -494,6 +496,8 @@ class BotRegistry:
                 return self._dispatch_agentgraph_bot(bot, action, args, dry_run=dry_run)
             elif bot_id == "task-evaluator-bot":
                 return self._dispatch_task_evaluator_bot(bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "local-quality-gate-bot":
+                return self._dispatch_local_quality_gate_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id in ("upgrade-bot", "upgrade-verifier-bot", "upgrade-announcer-bot"):
                 return self._dispatch_upgrade_bots(bot_id, bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id in ("cicccd-managing-bot", "calibration-bot"):
@@ -1267,6 +1271,86 @@ class BotRegistry:
             action=action,
             success=False,
             error=f"Unknown action '{action}' for task-evaluator-bot.",
+            dry_run=dry_run,
+        )
+
+    def _dispatch_local_quality_gate_bot(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        if action in ("init", "ensure-supporting-system"):
+            if dry_run:
+                res = {
+                    "success": True,
+                    "dry_run": True,
+                    "thresholds_file": str(bot.thresholds_path()),
+                }
+            else:
+                res = bot.ensure_supporting_system(
+                    install_missing=bool(args.get("install_missing", False)),
+                    scaffold_missing=bool(args.get("scaffold_missing", True)),
+                    overwrite_thresholds=bool(args.get("overwrite", False)),
+                )
+            context["local_qgates_init"] = res
+            return StepExecutionResult(
+                bot_id="local-quality-gate-bot",
+                action=action,
+                success=bool(res.get("success", True)),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("evaluate", "local", "check"):
+            res = bot.evaluate_local_gates(
+                changed_only=bool(args.get("changed_only", True)),
+                auto_init=not dry_run,
+            )
+            context["local_quality_gates"] = res
+            return StepExecutionResult(
+                bot_id="local-quality-gate-bot",
+                action=action,
+                success=bool(res.get("passed", False)),
+                data=res,
+                error=f"Local Quality Gates failed: {', '.join(res.get('failing_gates', []))}"
+                if not res.get("passed", False)
+                else None,
+                dry_run=dry_run,
+            )
+        elif action in ("ensure-all", "ensure-all-repos"):
+            res = (
+                {"success": True, "dry_run": True}
+                if dry_run
+                else bot.ensure_all_repos(
+                    install_missing=bool(args.get("install_missing", False)),
+                    scaffold_missing=bool(args.get("scaffold_missing", True)),
+                )
+            )
+            return StepExecutionResult(
+                bot_id="local-quality-gate-bot",
+                action=action,
+                success=bool(res.get("success", True)),
+                data=res,
+                dry_run=dry_run,
+            )
+        elif action in ("detect-technology", "detect"):
+            res = bot.detect_technology()
+            return StepExecutionResult(
+                bot_id="local-quality-gate-bot",
+                action=action,
+                success=True,
+                data=res,
+                dry_run=dry_run,
+            )
+
+        return StepExecutionResult(
+            bot_id="local-quality-gate-bot",
+            action=action,
+            success=False,
+            error=f"Unknown action '{action}' for local-quality-gate-bot.",
             dry_run=dry_run,
         )
 
