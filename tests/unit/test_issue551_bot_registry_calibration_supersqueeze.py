@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
 import json
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from hath0r_cli.bots.cag_engine import CAGEngine

@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from hath0r_cli.bots.cicccd_bot import (
+    CalibrationBot,
     CICCCDCTManagingBot,
     CICCCDManagingBot,
-    CalibrationBot,
     SecuritySASTScanner,
 )
 from hath0r_cli.cccd.calibration_loop import CCCDCalibrationLoop

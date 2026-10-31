@@ -1,13 +1,13 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261031-131045-9b3eb3",
+  "eval_id": "eval-20261031-131640-d9b6f3",
   "task_id": "issue-554",
   "issue_number": 554,
   "repo_name": "hathor-cli",
   "branch": "feature/554-arch-preservation-substrate-verifier-bots",
-  "evaluated_at": "2026-10-31T13:10:45.826390+00:00",
-  "duration_ms": 232.74,
+  "evaluated_at": "2026-10-31T13:16:40.871480+00:00",
+  "duration_ms": 270.06,
   "passed_gate": true,
   "r_task": 1.0,
   "min_reward_threshold": 0.8,
@@ -65,12 +65,12 @@
       "max_usd": 0.25,
       "session_id": "sess-20261031-121013-c06d97",
       "session_reads": 2,
-      "session_writes": 4,
+      "session_writes": 5,
       "session_bytes": 1979,
       "within_capsule_budget": true,
-      "latency_ms": 92.84,
+      "latency_ms": 102.11,
       "taguchi_quality_loss": 0.0001,
-      "snr_db": 26.67
+      "snr_db": 25.84
     },
     "adversarial": {
       "score": 1.0,
@@ -99,15 +99,21 @@
         ".hath0r/evals/latest.json"
       ],
       "STATIC_AST_ANALYSIS": [
-        "src/hath0r_cli/bots/agentgraph_bot.py",
-        "tests/unit/test_bots.py",
+        "src/hath0r_cli/bots/architecture_preservation_bot.py",
+        "src/hath0r_cli/bots/ci_cccd_bot.py",
+        "src/hath0r_cli/bots/iteration_cascade_bot.py",
+        "src/hath0r_cli/bots/mcp_centralization_bot.py",
+        "src/hath0r_cli/bots/mcp_workflow_engine_bot.py",
+        "src/hath0r_cli/bots/task_completion_verifier_bot.py",
+        "tests/unit/test_issue551_bot_registry_calibration_supersqueeze.py",
+        ".hath0r/memory/graph.json",
         ".hath0r/memory/hashes.json"
       ],
       "UNVERIFIED_FILE_PRESENCE": []
     },
     "counts": {
       "VERIFIED_EXECUTION": 1,
-      "STATIC_AST_ANALYSIS": 3,
+      "STATIC_AST_ANALYSIS": 9,
       "UNVERIFIED_FILE_PRESENCE": 0
     }
   },
@@ -115,7 +121,7 @@
   "observability_sync": {
     "mode": "live_synced",
     "phoenix_logged": true,
-    "mlflow_run_id": "5e1ffa7202f7402384b27f062000b624"
+    "mlflow_run_id": "e5821ab5c161472499b9a83a7e99fef8"
   },
-  "content_hash": "sha256:1a5a2390456a125704e9e4b0b96163b37e3d9fe156edb1535f31881d8a1a6281"
+  "content_hash": "sha256:807f895e990fb4b361f0a51c0b45111ec622f94e7c641d8508109996e84eac0b"
 }

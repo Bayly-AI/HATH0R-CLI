@@ -18,7 +18,6 @@ from typing import Any
 
 from hath0r_cli.bots.cicccd_bot import CICCCDManagingBot
 
-
 REQUIRED_FACT_PROBES = (
     "cccd.calibration.fresh:4h",
     "eval.gate.passed",
@@ -42,7 +41,7 @@ class TaskCompletionVerifierBot:
     ) -> dict[str, Any]:
         """Run all completion probes and return structured FactSettlement verification."""
         # 1. 4-hour agent calibration freshness probe
-        cccd_bot = CICCCDManagingBot(root_dir=self.cwd)
+        cccd_bot = CICCCDManagingBot(root_dir=str(self.cwd))
         cal_gate = cccd_bot.ensure_calibrated(max_age_hours=max_age_hours, trigger_source="completion_verifier")
         cal_fresh = bool(cal_gate.get("is_fresh", True))
 

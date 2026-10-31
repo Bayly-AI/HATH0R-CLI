@@ -16,7 +16,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-
 FORBIDDEN_HIDDEN_DIRS = (".ai", ".aegis", ".infraOS", ".customerSystem")
 SUITE_REPOS = ("hath0r-atc", "hath0r-mcp", "hathor-cli", "hath0r-framework", "hath0r-poc")
 
