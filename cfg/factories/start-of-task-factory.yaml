@@ -16,6 +16,15 @@ category: governance-and-automation
 
 # Participating bots
 bots:
+  - id: cicccd-managing-bot
+    name: CICCCD Managing Bot
+    role: 4-hour-automated-pre-task-calibration
+    description: Checks 4-hour calibration freshness and automatically calibrates prior to a task when expired.
+    capabilities:
+      - ensure-calibrated
+      - calibrate
+      - status
+
   - id: issue-guard-bot
     name: Issue Guard Bot
     role: ticket-and-issue-governance
@@ -49,6 +58,12 @@ workflows:
     name: Canonical Start of Task Lifecycle
     description: Verify issue existence, validate description & dependencies, check branch status, and switch to work branch.
     steps:
+      - bot: cicccd-managing-bot
+        action: ensure-calibrated
+        on_failure: continue
+        args:
+          max_age_hours: 4.0
+
       - bot: issue-guard-bot
         action: verify-issue
         on_failure: abort

@@ -1,49 +1,44 @@
 {
   "schema_version": "hath0r.micro_session/1",
-  "session_id": "sess-20261029-132655-5b44e9",
-  "prior_session_id": "sess-20261029-124722-424d8e",
+  "session_id": "sess-20261031-114426-90b427",
+  "prior_session_id": "sess-20261029-132655-5b44e9",
+  "parent_session_id": "sess-20261029-132655-5b44e9",
+  "revision": 7,
+  "content_hash": "sha256:73da6511ae88a9e9b0da6119c27f119c92acb5e33eea91382fe3c240becac833",
+  "base_graph_hash": "sha256:05b8ff0acef51c6d7c6c6d638090800e0e7f89b52fe1e63694ffbbdb30c9afb8",
+  "task_id": "Issue #551: register all 69 bots as feature service owners in BotRegistry, enforce 4-hour pre-task auto-calibration, and wire SuperSqueeze across Level 1/2 AgentGraph",
+  "role": null,
   "repo_name": "hathor-cli",
   "status": "completed",
-  "started_at": "2026-10-29T13:26:55.789091+00:00",
-  "updated_at": "2026-10-30T18:23:01.364443+00:00",
-  "ended_at": "2026-10-30T18:23:01.364443+00:00",
-  "read_count": 16,
-  "write_count": 22,
-  "revision": 38,
-  "content_hash": "sha256:7ce39e43eb1c5eec54f53268dbfb4ff15801a3f45d42792e2102defbfa272323",
-  "base_graph_hash": "sha256:8542aabdee41ef05148341a0035675b8e8d0d6551a4cbb51b6c5587ba9a81434",
-  "last_read_at": "2026-10-30T18:23:01.318505+00:00",
-  "last_write_at": "2026-10-30T18:23:01.364443+00:00",
-  "active_focus": "Orienting repository hathor-cli",
-  "prior_summary": "leted AgentGraph orientation for hat; Completed AgentGraph orientation for hat; Completed AgentGraph orientation for hat",
-  "recalled_nodes": [
-    {
-      "id": "decision:issue-474-micro-memory-session",
-      "type": "decision",
-      "label": "True Micro Memory Session CLI & Bot Enforcement (Issue #474)",
-      "snippet": "Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task st"
-    }
-  ],
+  "started_at": "2026-10-31T11:44:26.986765+00:00",
+  "updated_at": "2026-10-31T11:57:38.491858+00:00",
+  "ended_at": "2026-10-31T11:56:21.015842+00:00",
+  "read_count": 2,
+  "write_count": 5,
+  "last_read_at": "2026-10-31T11:44:28.237118+00:00",
+  "last_write_at": "2026-10-31T11:57:38.491858+00:00",
+  "active_focus": "Active working session in hathor-cli",
+  "prior_summary": " Compounded episode:issue-551-botregistry; Completed Issue #551 in hathor-cli.; Compounded eval:issue-551: Task Evaluati",
+  "recalled_nodes": [],
   "micro_entries": [
     {
-      "timestamp": "2026-10-30T18:23:01.364443+00:00",
-      "kind": "milestone",
-      "summary": "Completed PR #101 (feature/101-test) via EndOfTaskBot.",
+      "timestamp": "2026-10-31T11:57:38.491858+00:00",
+      "kind": "compound",
+      "summary": "Compounded eval:issue-551: Task Evaluation issue-551 (R=0.93, PASS)",
       "tags": [
-        "session-end"
+        "eval",
+        "cr-task-eval-001",
+        "issue-551",
+        "passed",
+        "compounded"
       ],
-      "node_id": null
+      "node_id": "eval:issue-551"
     }
   ],
   "next_steps": [],
   "compounded_node_ids": [
-    "eval:task-hathor-cli",
-    "rule:cr-task-eval-001",
-    "eval:eval-baseline-hathor-cli",
-    "episode:clean-repo-hathor-cli",
-    "eval:clean-repo-hathor-cli",
-    "eval:release-v1-15-2"
+    "episode:issue-551-botregistry-4h-calibration-supersqueeze",
+    "eval:issue-551"
   ],
-  "parent_session_id": "sess-20261029-124722-424d8e",
-  "capsule_bytes": 1805
+  "capsule_bytes": 1721
 }

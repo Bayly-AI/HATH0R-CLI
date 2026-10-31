@@ -38,6 +38,7 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "speak": ("hath0r_cli.commands.voice", "speak_group"),
     "playbook": ("hath0r_cli.commands.playbook", "playbook"),
     "context": ("hath0r_cli.commands.context", "context"),
+    "squeeze": ("hath0r_cli.commands.context", "context_compress"),
     "memory": ("hath0r_cli.commands.memory", "memory"),
     "contracts": ("hath0r_cli.commands.contracts", "contracts"),
     "local": ("hath0r_cli.commands.local", "local_group"),

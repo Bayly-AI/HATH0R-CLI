@@ -5,6 +5,15 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0] - 2026-10-31
+
+### Added
+- **Universal 69+ `BotRegistry` Service-Bot Ownership, 4-Hour Pre-Task Auto-Calibration, `SuperSqueeze` Wiring & `hath0r-net` OTel Alignment (`CR-FEATURE-WORKFLOW-STANDARD-001`)** (#551):
+  - Registered all 69+ bots in `BotRegistry` (`src/hath0r_cli/step_runner.py` and `src/hath0r_cli/factories/step_runner.py`) and added `SERVICE_BOT_MAP` mapping every `hath0r` CLI command group to its owning Bot(s) (`>= 1` Bot), `agentgraph_level`, and `workflow_id`, ingested into `.hath0r/agentgraph/snapshot.json` via `AgentGraphBot.sync()`.
+  - Updated `CCCDCalibrationLoop` (`src/hath0r_cli/cccd/calibration_loop.py`) and `CICCCDManagingBot` / `CalibrationBot` (`src/hath0r_cli/bots/cicccd_bot.py`, `src/hath0r_cli/bots/ci_cccd_bot.py`) from 24h to a 4-hour freshness TTL (`max_age_hours = 4.0`) and added `ensure_calibrated(max_age_hours=4.0, trigger_source="pre_task")`, wired into `cli.py`, `hath0r task start`, and `cfg/factories/start-of-task-factory.yaml`.
+  - Wired `SuperSqueezeBot` (`SuperCompressBot` in `src/hath0r_cli/bots/supercompress_bot.py`) across `CAGEngine.pack_context()`, `HybridCAGRAGRouter.rag_search()`, `HAHPProtocolManager.create_envelope()`, `BotRegistry`, and `hath0r squeeze`.
+  - Updated `cfg/observability/otel.json` to target `http://localhost:38000/phoenix` (`Hath0r-phoenix`), `Hathor-MLFLOW` (`:35000`), and `Hath0r-Cruise-Control` (`:38090`).
+
 ## [1.15.5] - 2026-10-30
 
 ### Fixed
