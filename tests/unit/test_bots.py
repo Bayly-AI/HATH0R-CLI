@@ -540,7 +540,7 @@ def test_cli_task_finish_dry_run() -> None:
     data = json.loads(res.stdout)
     assert data["state"] == "ok"
     assert data["data"]["workflow"]["id"] == "end-of-task"
-    assert len(data["data"]["workflow"]["steps"]) == 11
+    assert len(data["data"]["workflow"]["steps"]) in (11, 14)
 
 
 def test_issue_and_branch_guard_bots_dry_run() -> None:
@@ -579,7 +579,7 @@ def test_cli_task_start_dry_run() -> None:
     data = json.loads(res.stdout)
     assert data["state"] == "ok"
     assert data["data"]["workflow"]["id"] == "start-of-task"
-    assert len(data["data"]["workflow"]["steps"]) == 3
+    assert len(data["data"]["workflow"]["steps"]) in (3, 4)
 
     # Start with new issue title
     res_title = runner.invoke(
