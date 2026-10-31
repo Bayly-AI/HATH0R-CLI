@@ -701,7 +701,7 @@ class AgentGraphBot:
                         }
                     )
         except Exception as err:
-            sources_scanned += 0 if err else 0
+            _ = str(err)
 
         new_graph = {
             "schema_version": "hath0r.agentgraph/1",

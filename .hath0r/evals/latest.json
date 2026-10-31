@@ -1,15 +1,15 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261031-120920-0473a3",
+  "eval_id": "eval-20261031-131040-c98319",
   "task_id": "issue-553",
   "issue_number": 553,
   "repo_name": "hathor-cli",
   "branch": "feature/553-iteration-cascade-bot",
-  "evaluated_at": "2026-10-31T12:09:20.054027+00:00",
-  "duration_ms": 399.41,
+  "evaluated_at": "2026-10-31T13:10:40.743610+00:00",
+  "duration_ms": 230.95,
   "passed_gate": true,
-  "r_task": 0.9451,
+  "r_task": 1.0,
   "min_reward_threshold": 0.8,
   "weights": {
     "deterministic": 0.4,
@@ -18,40 +18,31 @@
     "goal_alignment": 0.15
   },
   "tier_scores": {
-    "deterministic": 0.9594,
-    "trajectory": 0.9408,
-    "adversarial": 0.9355,
-    "goal_alignment": 0.9287
+    "deterministic": 1.0,
+    "trajectory": 1.0,
+    "adversarial": 1.0,
+    "goal_alignment": 1.0
   },
   "tiers": {
     "deterministic": {
-      "score": 0.9594,
+      "score": 1.0,
       "passed": true,
-      "passed_checks": 5,
-      "total_checks": 5,
-      "sub_scores": {
-        "version_valid": 1.0,
-        "agentgraph_valid": 1.0,
-        "memory_compounded": 0.98,
-        "test_suite": 0.88,
-        "calibration_4h": 0.9845
-      },
+      "passed_checks": 4,
+      "total_checks": 4,
       "checks": {
         "version_valid": {
           "passed": true,
           "version": "1.18.0",
-          "changelog_aligned": true,
           "error": null
         },
         "agentgraph_valid": {
           "passed": true,
           "cycles": 0,
-          "contradictions": 0,
-          "claude_md_synced": true
+          "contradictions": 0
         },
         "memory_compounded": {
           "passed": true,
-          "compounded_nodes_count": 70,
+          "compounded_nodes_count": 71,
           "session_read_verified": true,
           "session_write_verified": true,
           "hashes_verified": true,
@@ -61,77 +52,44 @@
         "test_suite": {
           "passed": true,
           "skipped": true,
-          "message": "Test execution skipped via flag or dry-run (-0.12 confidence deduction)."
-        },
-        "calibration_4h": {
-          "passed": true,
-          "is_fresh": true,
-          "age_hours": 0.22,
-          "max_age_hours": 4.0
+          "message": "Test execution skipped via flag or dry-run."
         }
       }
     },
     "trajectory": {
-      "score": 0.9408,
+      "score": 1.0,
       "passed": true,
-      "tokens_used": 143,
+      "tokens_used": 0,
       "max_tokens": 50000,
-      "estimated_usd": 0.000429,
+      "estimated_usd": 0.0,
       "max_usd": 0.25,
       "session_id": "sess-20261031-120611-9011e9",
       "session_reads": 2,
-      "session_writes": 3,
-      "session_bytes": 1843,
-      "capsule_fill_ratio": 0.8999,
+      "session_writes": 4,
+      "session_bytes": 2005,
       "within_capsule_budget": true,
-      "latency_ms": 104.27,
-      "taguchi_quality_loss": 0.0002,
-      "taguchi_score": 0.9795,
-      "snr_db": 25.66
+      "latency_ms": 93.95,
+      "taguchi_quality_loss": 0.0001,
+      "snr_db": 26.56
     },
     "adversarial": {
-      "score": 0.9355,
+      "score": 1.0,
       "passed": true,
       "adversarial_flaws_count": 0,
       "adversarial_flaws": [],
       "tech_debts_count": 0,
       "auto_created_issues": [],
-      "minor_findings": [
-        "High diff addition volume (318 lines, -0.0045)"
-      ],
-      "added_lines_count": 318,
-      "change_categories": {
-        "ui": [],
-        "script": [
-          "src/hath0r_cli/bots/mcp_workflow_engine_bot.py",
-          "src/hath0r_cli/bots/task_evaluator_bot.py",
-          "src/hath0r_cli/commands/workflow.py",
-          "src/hath0r_cli/step_runner.py",
-          "tests/unit/test_task_evaluator_bot.py",
-          "src/hath0r_cli/bots/iteration_cascade_bot.py",
-          "tests/unit/test_issue553_iteration_cascade_bot.py"
-        ],
-        "text": [
-          "CHANGELOG.md",
-          "pyproject.toml",
-          "cfg/factories/iteration-cascade-factory.yaml"
-        ],
-        "other": [
-          "VERSION"
-        ]
-      },
-      "changed_files_count": 11
+      "change_categories": {},
+      "changed_files_count": 0
     },
     "goal_alignment": {
-      "score": 0.9287,
+      "score": 1.0,
       "passed": true,
       "task_id": "issue-553",
       "issue_number": 553,
       "active_focus": "Active working session in hathor-cli",
-      "goal_keywords_count": 5,
-      "goal_overlap_score": 0.98,
-      "compounded_nodes_count": 70,
-      "consensus_score": 0.826
+      "compounded_nodes_count": 71,
+      "consensus_score": 1.0
     }
   },
   "evidence_trust_report": {
@@ -141,39 +99,23 @@
         ".hath0r/evals/latest.json"
       ],
       "STATIC_AST_ANALYSIS": [
-        "src/hath0r_cli/bots/mcp_workflow_engine_bot.py",
-        "src/hath0r_cli/bots/task_evaluator_bot.py",
-        "src/hath0r_cli/commands/workflow.py",
-        "src/hath0r_cli/step_runner.py",
-        "tests/unit/test_task_evaluator_bot.py",
-        "src/hath0r_cli/bots/iteration_cascade_bot.py",
-        "tests/unit/test_issue553_iteration_cascade_bot.py",
-        ".hath0r/agentgraph/snapshot.json",
-        ".hath0r/memory/graph.json",
-        ".hath0r/memory/hashes.json",
-        ".hath0r/memory/sessions/current.json",
-        ".hath0r/memory/sessions/latest.json",
-        "CHANGELOG.md",
-        "pyproject.toml",
-        ".hath0r/memory/sessions/sess-20261031-120611-9011e9.json",
-        "cfg/factories/iteration-cascade-factory.yaml"
+        "src/hath0r_cli/bots/agentgraph_bot.py",
+        "tests/unit/test_bots.py",
+        ".hath0r/memory/hashes.json"
       ],
-      "UNVERIFIED_FILE_PRESENCE": [
-        ".hath0r/agentgraph/snapshot.ttl",
-        "VERSION"
-      ]
+      "UNVERIFIED_FILE_PRESENCE": []
     },
     "counts": {
       "VERIFIED_EXECUTION": 1,
-      "STATIC_AST_ANALYSIS": 16,
-      "UNVERIFIED_FILE_PRESENCE": 2
+      "STATIC_AST_ANALYSIS": 3,
+      "UNVERIFIED_FILE_PRESENCE": 0
     }
   },
   "blocking_reasons": [],
   "observability_sync": {
     "mode": "live_synced",
     "phoenix_logged": true,
-    "mlflow_run_id": "786feac5447c4c11afacdc3644401fe0"
+    "mlflow_run_id": "97d566372ecd4670abc61f45df4d0564"
   },
-  "content_hash": "sha256:81541cc064592e92916aa61b80aa3543918bcce08b63dcf51580a30a3de60d8a"
+  "content_hash": "sha256:d7cdde9cf467101b15c32c236681da2edd84e1c2fb4e7a764b94b8f2fa1c26e8"
 }

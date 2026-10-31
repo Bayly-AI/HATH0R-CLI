@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 505,
-  "content_hash": "sha256:7c6c2592932d42abca1b6205e8b6ba858c0fc005b9ffcd45930c485b7f05a0a8",
-  "updated_at": "2026-10-31T12:09:22.130072+00:00",
+  "revision": 508,
+  "content_hash": "sha256:74cdcab0cd1f08d25c6fc509f89bbccbf5c6ae6735dec2fc7f5eae6dda0c26d4",
+  "updated_at": "2026-10-31T13:10:41.388927+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -2007,8 +2007,8 @@
     {
       "id": "eval:issue-553",
       "type": "eval",
-      "label": "Task Evaluation issue-553 (R=0.95, PASS)",
-      "content": "4-Tier Task Evaluation for issue-553 on branch feature/553-iteration-cascade-bot: R_task=0.9451 (det=0.96, traj=0.94, adv=0.94, goal=0.93). Gate=PASSED.",
+      "label": "Task Evaluation issue-553 (R=1.00, PASS)",
+      "content": "4-Tier Task Evaluation for issue-553 on branch feature/553-iteration-cascade-bot: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "importance": 0.85,
       "tags": [
         "eval",
@@ -2017,14 +2017,14 @@
         "passed",
         "compounded"
       ],
-      "valid_from": "2026-10-31T12:09:20.844346+00:00",
+      "valid_from": "2026-10-31T13:10:41.321762+00:00",
       "valid_to": null,
       "is_current": true,
       "created_at": "2026-10-31T12:09:20.844346+00:00",
-      "updated_at": "2026-10-31T12:09:20.844346+00:00",
+      "updated_at": "2026-10-31T13:10:41.321762+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
+          ".hath0r/evals/latest.json": "sha256:2f6d31d54844c13717f24f5b688e72cd40348debe39882029c616da5a5036534"
         }
       }
     },
@@ -2032,7 +2032,7 @@
       "id": "session:sess-20261031-120611-9011e9",
       "type": "session",
       "label": "Micro Session sess-20261031-120611-9011e9",
-      "content": "Micro Session sess-20261031-120611-9011e9 [completed] | Focus: Active working session in hathor-cli | Reads: 2, Writes: 4 | Entries: Compounded eval:issue-553: Task Evaluation issue-553 (R=0.95, PASS)",
+      "content": "Micro Session sess-20261031-120611-9011e9 [completed] | Focus: Active working session in hathor-cli | Reads: 2, Writes: 5 | Entries: Compounded eval:issue-553: Task Evaluation issue-553 (R=1.00, PASS)",
       "importance": 0.75,
       "tags": [
         "session",
@@ -2043,13 +2043,13 @@
       "valid_to": "2026-10-31T12:09:17.358275+00:00",
       "is_current": true,
       "created_at": "2026-10-31T12:06:11.187988+00:00",
-      "updated_at": "2026-10-31T12:09:20.915499+00:00",
+      "updated_at": "2026-10-31T13:10:41.382325+00:00",
       "metadata": {
         "session_id": "sess-20261031-120611-9011e9",
         "prior_session_id": "sess-20261031-120025-509be2",
         "parent_session_id": "sess-20261031-120025-509be2",
         "read_count": 2,
-        "write_count": 4,
+        "write_count": 5,
         "status": "completed",
         "byte_size": 2005
       }
