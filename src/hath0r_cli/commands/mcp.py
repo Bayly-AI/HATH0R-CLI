@@ -840,6 +840,55 @@ def mcp_audit(ctx: click.Context, config_path: str | None) -> None:
         ctx.exit(1)
 
 
+@mcp.command("parity")
+@click.pass_context
+def mcp_parity(ctx: click.Context) -> None:
+    """Audit Level 1 (HATH0R-MCP) & Level 2 (HATH0R-CLI/Memory) parity and Service-Bot ownership on AgentGraph."""
+    from pathlib import Path
+
+    from hath0r_cli.bots.mcp_centralization_bot import MCPCentralizationBot
+
+    bot = MCPCentralizationBot(cwd=Path.cwd())
+    res = bot.audit_parity()
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="mcp.parity", state=state, data=res)
+
+    def _text() -> None:
+        console.print(
+            f"[bold cyan]MCP Level 1 / Level 2 Parity Audit ({res['standard']}):[/bold cyan] "
+            f"{'[green]PASS[/green]' if res['success'] else '[red]FAIL[/red]'}"
+        )
+        console.print(f"  • Level 1 MCP Tools Mapped: {res['level1_mcp_tools_count']}")
+        console.print(f"  • Level 2 CLI Commands Mapped: {res['level2_cli_commands_count']}")
+        console.print(f"  • Registered Bots in BotRegistry: {res['registered_bots_count']}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
+@mcp.command("pin-schemas")
+@click.option("--dry-run", is_flag=True, default=False, help="Preview without writing .hath0r/security/mcp-schema-pins.json.")
+@click.pass_context
+def mcp_pin_schemas(ctx: click.Context, dry_run: bool) -> None:
+    """Prune Level 1 MCP tool schemas and pin SHA-256 digests in .hath0r/security/mcp-schema-pins.json."""
+    from pathlib import Path
+
+    from hath0r_cli.bots.mcp_centralization_bot import MCPCentralizationBot
+
+    bot = MCPCentralizationBot(cwd=Path.cwd())
+    res = bot.prune_and_pin_schemas(dry_run=dry_run)
+    response = _build_response(ctx, command="mcp.pin-schemas", state="ok", dry_run=dry_run, data=res)
+
+    def _text() -> None:
+        console.print(
+            f"[bold green]✓ Pinned {res['tools_pinned']} MCP Tool Schemas:[/bold green] {res['pin_file']} "
+            f"({res['reduction_percent']}% schema pruning reduction)"
+        )
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
 # ============================================================================
 # Factory & Bot Suite Commands
 # ============================================================================

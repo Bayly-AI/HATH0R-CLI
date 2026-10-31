@@ -1,0 +1,49 @@
+factory_id: clean-repos-factory
+name: Clean Repos Fleet Hygiene & Architecture Verification Factory
+version: "1.0.0"
+description: >
+  Executes fleet repository hygiene, branch reaping, CLAUDE.md <-> AGENTS.md synchronization,
+  and CR-FEATURE-WORKFLOW-STANDARD-001 verification across all 5 Hath0r repositories.
+bots:
+  - id: cicccd-managing-bot
+    name: CICCCD Managing Bot
+    capabilities:
+      - ensure-calibrated
+  - id: clean-repos-workflow-bot
+    name: Clean Repos Workflow Bot
+    capabilities:
+      - status
+  - id: architecture-preservation-bot
+    name: Architecture Preservation Bot
+    capabilities:
+      - verify_repo
+      - verify_fleet
+      - status
+  - id: substrate-utilization-bot
+    name: Substrate Utilization Bot
+    capabilities:
+      - audit_substrate
+      - status
+  - id: task-completion-verifier-bot
+    name: Task Completion Verifier Bot
+    capabilities:
+      - verify_completion
+      - status
+workflows:
+  - id: clean-repos
+    name: Clean & Verify Suite Repositories
+    steps:
+      - bot: cicccd-managing-bot
+        action: ensure-calibrated
+        args:
+          max_age_hours: 4.0
+        on_failure: continue
+      - bot: architecture-preservation-bot
+        action: verify_fleet
+        on_failure: abort
+      - bot: substrate-utilization-bot
+        action: audit_substrate
+        on_failure: abort
+      - bot: task-completion-verifier-bot
+        action: status
+        on_failure: abort

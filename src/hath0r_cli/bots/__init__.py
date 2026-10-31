@@ -1325,6 +1325,10 @@ from hath0r_cli.bots.decision_radar_bot import (  # noqa: E402
     FactSettlementEngine,
     WorkBoundaryGate,
 )
+from hath0r_cli.bots.local_quality_gate_bot import (  # noqa: E402
+    SONARCLOUD_CANONICAL_THRESHOLDS,
+    LocalQualityGateBot,
+)
 from hath0r_cli.bots.mesh_manager_bot import MeshManagerBot, mesh_manager_bot  # noqa: E402
 from hath0r_cli.bots.paper_design_bot import PaperDesignBot  # noqa: E402
 from hath0r_cli.bots.pmat_bot import PmatBot, pmat_bot  # noqa: E402
@@ -1352,6 +1356,8 @@ __all__ = [
     "PostgresBot",
     "ApiBot",
     "PaperDesignBot",
+    "LocalQualityGateBot",
+    "SONARCLOUD_CANONICAL_THRESHOLDS",
     "MeshManagerBot",
     "mesh_manager_bot",
     "PmatBot",

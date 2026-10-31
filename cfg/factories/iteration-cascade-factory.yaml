@@ -1,0 +1,37 @@
+factory_id: iteration-cascade-factory
+name: 4-Stage Iteration Cascade Factory (Task -> CLI/MCP -> Computer -> Web)
+version: "1.0.0"
+description: >
+  Enforces the 4-Stage Iteration Cascade (Stage 1: Task + 4h Calibration + Workflow-First
+  + Cruise Control -> Stage 2: Level 1 HATH0R-MCP + Level 2 HATH0R-CLI/Memory on AgentGraph
+  + SuperSqueeze -> Stage 3: Computer -> Stage 4: External Web).
+bots:
+  - id: cicccd-managing-bot
+    name: CI/CC/CD 4-Hour Calibration Gate Bot
+    capabilities:
+      - ensure-calibrated
+  - id: iteration-cascade-bot
+    name: 4-Stage Iteration Cascade Enforcement Bot
+    capabilities:
+      - run_stage1_task
+      - run_stage2_cli_mcp
+      - run_stage3_computer
+      - run_stage4_web
+      - execute_cascade
+  - id: mcp-workflow-engine-bot
+    name: MCP Workflow-First Engine & Offer Bot
+    capabilities:
+      - match_workflow
+      - offer_missing_workflow
+workflows:
+  - id: iteration-cascade-verify
+    name: Verify 4-Stage Iteration Cascade Readiness
+    steps:
+      - bot: cicccd-managing-bot
+        action: ensure-calibrated
+        args:
+          max_age_hours: 4.0
+        on_failure: continue
+      - bot: iteration-cascade-bot
+        action: status
+        on_failure: abort

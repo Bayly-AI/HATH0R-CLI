@@ -1,0 +1,189 @@
+{
+  "pins": {
+    "hath0r_supersqueeze": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "supercompress-bot",
+        "supersqueeze-bot"
+      ],
+      "sha256": "899a182cce4d18fc5894759a9cb24ef7a80bbab8aa86d8de8ad9e8d3c4c68feb",
+      "workflow_id": "cfg/factories/supersqueeze-context-workflow.yaml"
+    },
+    "hath0r_workflow_offer": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "mcp-workflow-engine-bot",
+        "factory-manager-bot"
+      ],
+      "sha256": "a5a4e0debd69cd7a2ac315d2cf141da2248f041672ef60f42fe17d759e541986",
+      "workflow_id": "cfg/factories/workflow-first-offer-factory.yaml"
+    },
+    "kb_get": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "knowledge-organizer-bot",
+        "supersqueeze-bot"
+      ],
+      "sha256": "f861c9a2eaceb7292d508a6fd296bad8c81a94d4cb7c2d3f8b60d2b1148845a1",
+      "workflow_id": "cfg/factories/mcp-kb-retrieval-workflow.yaml"
+    },
+    "kb_search": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "cag-rag-router-bot",
+        "knowledge-organizer-bot",
+        "supersqueeze-bot"
+      ],
+      "sha256": "e445d8ee4fcb6e56f2e7855f74cb9975566f0a86ff9dff419e90b9cb5712fa4b",
+      "workflow_id": "cfg/factories/mcp-kb-retrieval-workflow.yaml"
+    },
+    "kb_status": {
+      "agentgraph_level": "L1_MCP",
+      "owning_bots": [
+        "knowledge-organizer-bot",
+        "preflight-bot"
+      ],
+      "sha256": "cc39e7a2d3b90eb6845eb2644b36a9175e055b6ea71e40fceda2a46d7748ec35",
+      "workflow_id": "cfg/factories/mcp-kb-retrieval-workflow.yaml"
+    },
+    "mcp_agentgraph_query": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "agentgraph-bot",
+        "mcp-centralization-bot"
+      ],
+      "sha256": "92fc7cbacb3904712f59055edae68739e42b6b5dbf8ec71268d81d5a6a0c41d4",
+      "workflow_id": "cfg/factories/memory-agentgraph-sync-factory.yaml"
+    },
+    "mcp_agentgraph_route": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "agentgraph-bot",
+        "mcp-workflow-engine-bot"
+      ],
+      "sha256": "d5e98b2202ded0e072afde62752371696a9e0d828f7746a595f2f1c156fda180",
+      "workflow_id": "cfg/factories/mcp-tool-dispatch-workflow.yaml"
+    },
+    "mcp_agentgraph_status": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "agentgraph-bot",
+        "mcp-centralization-bot"
+      ],
+      "sha256": "1d5fc362d82357604d242e3012e6552b09cbf380f39c968d5c21f53a6cb85efd",
+      "workflow_id": "cfg/factories/memory-agentgraph-sync-factory.yaml"
+    },
+    "mcp_agentgraph_sync": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "agentgraph-bot",
+        "mcp-centralization-bot"
+      ],
+      "sha256": "1d0adffc6a8dd823803c491c558f13ea9073dd67b0d8eb645a9a6d3006b4c2d3",
+      "workflow_id": "cfg/factories/memory-agentgraph-sync-factory.yaml"
+    },
+    "mcp_agentgraph_validate": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "agentgraph-bot",
+        "governance-bot"
+      ],
+      "sha256": "716b129588590e33cde60925bb2d5637ae07c4505c613ae85d4c778372d752c4",
+      "workflow_id": "cfg/factories/memory-agentgraph-sync-factory.yaml"
+    },
+    "mcp_bot_invoke": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "mcp-workflow-engine-bot",
+        "factory-manager-bot"
+      ],
+      "sha256": "4bca5baa573b05e97bf043cc44dc4f063d60a3d2b0fa4e512d196778e6b46b67",
+      "workflow_id": "cfg/factories/mcp-tool-dispatch-workflow.yaml"
+    },
+    "mcp_bot_list": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "mcp-centralization-bot",
+        "factory-manager-bot"
+      ],
+      "sha256": "ebb1e734a20209c6da016da30e5b4c9c21828ea27c690597aead4b316b33ba96",
+      "workflow_id": "cfg/factories/mcp-tool-dispatch-workflow.yaml"
+    },
+    "mcp_cccd_ensure_calibrated": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "cicccd-managing-bot",
+        "calibration-bot"
+      ],
+      "sha256": "fcf6f93056065decdc8359f3d5aeb860fd26c002c1c6754e931364325b0b07f6",
+      "workflow_id": "cfg/factories/cccd-4h-calibration-factory.yaml"
+    },
+    "mcp_cruise_status": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "decision-radar-bot"
+      ],
+      "sha256": "0ad0a17461c9a7c37fdb09f73b56ade35df4701ae918ac3ce71c4cf4444caf71",
+      "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"
+    },
+    "mcp_mlflow_log_eval": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "mlflow-manager-bot",
+        "task-evaluator-bot"
+      ],
+      "sha256": "79da70c7fec06656cb97e9e440492807164fe95294d93707294871c1212db695",
+      "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"
+    },
+    "mcp_phoenix_query_spans": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "phoenix-manager-bot",
+        "phoenix-observer-bot"
+      ],
+      "sha256": "5a97dea82777084558809f4ab44d464d5d15d2b4b0e2438fe6b5d154826f500e",
+      "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"
+    },
+    "mcp_workflow_list": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "mcp-workflow-engine-bot",
+        "factory-manager-bot"
+      ],
+      "sha256": "d9cdd90fb6dc200d13c7f49266db88307e162bdb29b37474985f1a178f97d789",
+      "workflow_id": "cfg/factories/workflow-first-offer-factory.yaml"
+    },
+    "mcp_workflow_match": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "mcp-workflow-engine-bot",
+        "factory-manager-bot"
+      ],
+      "sha256": "8e6f7a9c65a6a8c6fd68c90613e7c7e8bcd3f58422fac62aa878f565c1bd5afe",
+      "workflow_id": "cfg/factories/workflow-first-offer-factory.yaml"
+    },
+    "mcp_workflow_run": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "mcp-workflow-engine-bot",
+        "factory-manager-bot",
+        "cicccd-managing-bot"
+      ],
+      "sha256": "c4f530db527e84d987a98a417a823601ac6819e89e92390b433a24d203ea15d2",
+      "workflow_id": "cfg/factories/workflow-first-offer-factory.yaml"
+    },
+    "mcp_workflow_scaffold": {
+      "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+      "owning_bots": [
+        "mcp-workflow-engine-bot",
+        "factory-manager-bot"
+      ],
+      "sha256": "719c6f64fcf51642289b32c102784424ee42e7366287c835b6a8764070a9516c",
+      "workflow_id": "cfg/factories/workflow-first-offer-factory.yaml"
+    }
+  },
+  "schema_version": "1.0.0",
+  "standard": "CR-AGENTIC-SEC-001",
+  "tools_count": 20,
+  "updated_at": "2026-10-31T12:04:57.098282+00:00"
+}

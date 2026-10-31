@@ -198,10 +198,10 @@ class CCCDCalibrationLoop:
         except Exception:
             return None
 
-    def check_calibration_freshness(self, max_age_hours: float = 24.0) -> Dict[str, Any]:
-        """Check if CCCD calibration was run within the last max_age_hours (default 24h)."""
+    def check_calibration_freshness(self, max_age_hours: float = 4.0) -> Dict[str, Any]:
+        """Check if CCCD calibration was run within the last max_age_hours (default 4.0h)."""
         state = self.load_state()
-        last_ts = state.get("last_run_timestamp")
+        last_ts = state.get("last_run_timestamp") or state.get("last_run")
 
         if not last_ts:
             return {
@@ -251,11 +251,47 @@ class CCCDCalibrationLoop:
                 "message": f"Unable to verify calibration freshness timestamp: {err}. Calibration recommended.",
             }
 
-    def get_status(self) -> Dict[str, Any]:
-        """Inspect current calibration status, parameter values, drift metrics, and 24h freshness."""
+    def ensure_calibrated(
+        self,
+        max_age_hours: float = 4.0,
+        trigger_source: str = "pre_task",
+        iterations: int = 3,
+        signature_name: str = "default_agent_signature",
+    ) -> Dict[str, Any]:
+        """Check 4-hour agent calibration freshness and automatically run calibration if expired (> max_age_hours)."""
+        freshness = self.check_calibration_freshness(max_age_hours=max_age_hours)
+        if freshness.get("is_fresh"):
+            return {
+                "success": True,
+                "is_fresh": True,
+                "auto_calibrated": False,
+                "trigger_source": trigger_source,
+                "age_hours": freshness.get("age_hours", 0.0),
+                "max_age_hours": max_age_hours,
+                "last_run_timestamp": freshness.get("last_run_timestamp"),
+                "action_taken": "verified_fresh",
+            }
+
+        cal_res = self.run_calibration(iterations=iterations, signature_name=signature_name)
+        return {
+            "success": bool(cal_res.get("success", True)),
+            "is_fresh": True,
+            "auto_calibrated": True,
+            "trigger_source": trigger_source,
+            "previous_age_hours": freshness.get("age_hours"),
+            "age_hours": 0.0,
+            "max_age_hours": max_age_hours,
+            "calibration_id": cal_res.get("calibration_id"),
+            "timestamp": cal_res.get("timestamp"),
+            "updated_parameters": cal_res.get("updated_parameters", {}),
+            "action_taken": "auto_calibrated_expired_state",
+        }
+
+    def get_status(self, max_age_hours: float = 4.0) -> Dict[str, Any]:
+        """Inspect current calibration status, parameter values, drift metrics, and 4h freshness."""
         state = self.load_state()
         compiled = self.dspy_bridge.list_compiled_signatures()
-        freshness = self.check_calibration_freshness(max_age_hours=24.0)
+        freshness = self.check_calibration_freshness(max_age_hours=max_age_hours)
         return {
             "success": True,
             "state": state,

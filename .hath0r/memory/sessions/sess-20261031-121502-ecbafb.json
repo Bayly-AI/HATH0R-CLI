@@ -1,0 +1,49 @@
+{
+  "schema_version": "hath0r.micro_session/1",
+  "session_id": "sess-20261031-121502-ecbafb",
+  "prior_session_id": "sess-20261031-121013-c06d97",
+  "repo_name": "hathor-cli",
+  "status": "completed",
+  "started_at": "2026-10-31T12:15:02.413525+00:00",
+  "updated_at": "2026-10-31T14:27:10.506343+00:00",
+  "ended_at": "2026-10-31T13:05:35.867341+00:00",
+  "read_count": 6,
+  "write_count": 19,
+  "revision": 25,
+  "content_hash": "sha256:581fecaadb3b4f84381795525d1eebc4ae8e353dc04acf55f2c9f1d43403b786",
+  "base_graph_hash": "sha256:bec980c887d5555962461c54eb3f38ae2fc81899b27b67c461bcfc3bc478f2d7",
+  "last_read_at": "2026-10-31T13:05:35.813298+00:00",
+  "last_write_at": "2026-10-31T14:27:10.506343+00:00",
+  "active_focus": "Issue #561 Local Quality Gates (thresholds.json) and TaskEvaluatorBot integration",
+  "prior_summary": "ounded eval:issue-561: Task Evaluati; Compounded eval:issue-561: Task Evaluati; Compounded eval:issue-561: Task Evaluati",
+  "recalled_nodes": [
+    {
+      "id": "decision:issue-474-micro-memory-session",
+      "type": "decision",
+      "label": "True Micro Memory Session CLI & Bot Enforcement (Issue #474)",
+      "snippet": "Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task st"
+    }
+  ],
+  "micro_entries": [
+    {
+      "timestamp": "2026-10-31T14:27:10.506343+00:00",
+      "kind": "compound",
+      "summary": "Compounded knowledge:suite-arch-and-local-qgates-20261031: Suite MCP-Central Architecture & Local Quality Gates (CR-LOCAL-QGATES-001)",
+      "tags": [
+        "concept",
+        "compounded"
+      ],
+      "node_id": "knowledge:suite-arch-and-local-qgates-20261031"
+    }
+  ],
+  "next_steps": [],
+  "compounded_node_ids": [
+    "episode:issue-555-continuous-task-evaluator-bot",
+    "eval:issue-555",
+    "feature:local-qgates-561",
+    "eval:issue-561",
+    "knowledge:suite-arch-and-local-qgates-20261031"
+  ],
+  "parent_session_id": "sess-20261031-121013-c06d97",
+  "capsule_bytes": 1986
+}

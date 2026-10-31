@@ -60,16 +60,22 @@ def release_notes(ctx: click.Context, version: str | None) -> None:
 
 
 @release.command("publish")
+@click.option(
+    "--ref",
+    default="origin/master",
+    show_default=True,
+    help="Commit to tag; VERSION and CHANGELOG.md are read from it, not the checkout.",
+)
 @click.option("--repo", default=None)
 @click.option("--skip-github-release", is_flag=True, default=False)
 @click.option("--dry-run", is_flag=True, default=False)
 @click.pass_context
-def release_publish(ctx: click.Context, repo: str | None, skip_github_release: bool, dry_run: bool) -> None:
-    """Create annotated tag and optional GitHub Release."""
+def release_publish(ctx: click.Context, ref: str, repo: str | None, skip_github_release: bool, dry_run: bool) -> None:
+    """Create annotated tag on the release ref (default origin/master) and optional GitHub Release."""
     from hath0r_cli.bots.quality import ReleaseBot
 
     bot = ReleaseBot(cwd=Path.cwd())
-    res = bot.tag_and_release(repo=repo, dry_run=dry_run, skip_github_release=skip_github_release)
+    res = bot.tag_and_release(ref=ref, repo=repo, dry_run=dry_run, skip_github_release=skip_github_release)
     state = "ok" if res.get("success") else "error"
     response = _build_response(ctx, command="release.publish", state=state, dry_run=dry_run, data=res)
 

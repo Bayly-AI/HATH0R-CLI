@@ -84,6 +84,30 @@ bots:
     capabilities:
       - announce-complete
 
+  - id: architecture-preservation-bot
+    name: Architecture Preservation Bot
+    role: cr-feature-workflow-standard-001-preservation
+    description: Verifies Service-Bot ownership, Level 1/2 AgentGraph parity, and Workflow-First coverage.
+    capabilities:
+      - verify_repo
+      - status
+
+  - id: substrate-utilization-bot
+    name: Substrate Utilization Bot
+    role: ast-and-runtime-substrate-audit
+    description: Verifies SuperSqueeze, OTel/Phoenix, OpenFeature, and OpenObservation utilization.
+    capabilities:
+      - audit_substrate
+      - status
+
+  - id: task-completion-verifier-bot
+    name: Task Completion Verifier Bot
+    role: pre-announcement-and-pre-pr-gate
+    description: Enforces FactSettlementEngine probes, 4h calibration, MemoryGraph, and Continuous 4-Tier Eval.
+    capabilities:
+      - verify_completion
+      - status
+
 # Declarative workflows
 workflows:
   - id: end-of-task
@@ -142,6 +166,18 @@ workflows:
         on_failure: abort
         args:
           skip_tests: true
+
+      - bot: architecture-preservation-bot
+        action: status
+        on_failure: abort
+
+      - bot: substrate-utilization-bot
+        action: status
+        on_failure: abort
+
+      - bot: task-completion-verifier-bot
+        action: verify_completion
+        on_failure: abort
 
       - bot: task-announcer-bot
         action: announce-complete

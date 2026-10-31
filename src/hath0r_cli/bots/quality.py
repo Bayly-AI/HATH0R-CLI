@@ -750,22 +750,41 @@ class ReleaseBot:
 
     cwd: Path = field(default_factory=Path.cwd)
 
-    def read_version(self) -> Dict[str, Any]:
-        path = self.cwd / "VERSION"
-        if not path.is_file():
+    def _read_text(self, name: str, ref: Optional[str] = None) -> Optional[str]:
+        """Read a repo file from the working tree, or from commit ``ref`` when given."""
+        if ref is None:
+            path = self.cwd / name
+            return path.read_text(encoding="utf-8") if path.is_file() else None
+        rc, out, _err = run_cmd(["git", "show", f"{ref}:{name}"], cwd=self.cwd)
+        return out if rc == 0 else None
+
+    def resolve_ref(self, ref: str) -> Dict[str, Any]:
+        """Fetch ``origin/<branch>`` refs and resolve ``ref`` to a full commit SHA."""
+        if ref.startswith("origin/"):
+            rc, out, err = run_cmd(["git", "fetch", "origin", ref.split("/", 1)[1]], cwd=self.cwd)
+            if rc != 0:
+                return {"success": False, "error": f"Failed to fetch {ref}: {err or out}", "ref": ref}
+        rc, sha, err = run_cmd(["git", "rev-parse", "--verify", f"{ref}^{{commit}}"], cwd=self.cwd)
+        if rc != 0 or not sha:
+            return {"success": False, "error": f"Cannot resolve release ref {ref}: {err or sha}", "ref": ref}
+        return {"success": True, "ref": ref, "sha": sha}
+
+    def read_version(self, ref: Optional[str] = None) -> Dict[str, Any]:
+        text = self._read_text("VERSION", ref)
+        if text is None:
             return {"success": False, "error": "VERSION file missing"}
-        version = path.read_text(encoding="utf-8").strip()
+        version = text.strip()
         if not SEMVER_RE.match(version):
             return {"success": False, "error": f"Invalid SemVer in VERSION: {version}", "version": version}
         return {"success": True, "version": version, "tag": f"v{version}"}
 
-    def validate(self) -> Dict[str, Any]:
-        ver = self.read_version()
+    def validate(self, ref: Optional[str] = None) -> Dict[str, Any]:
+        ver = self.read_version(ref)
         if not ver.get("success"):
             return ver
-        changelog = self.cwd / "CHANGELOG.md"
-        has_cl = changelog.is_file()
-        notes_ok = has_cl and ver["version"] in changelog.read_text(encoding="utf-8")
+        changelog = self._read_text("CHANGELOG.md", ref)
+        has_cl = changelog is not None
+        notes_ok = has_cl and ver["version"] in (changelog or "")
         return {
             "success": bool(notes_ok),
             "version": ver["version"],
@@ -779,15 +798,14 @@ class ReleaseBot:
             ),
         }
 
-    def generate_notes(self, *, version: Optional[str] = None) -> Dict[str, Any]:
-        ver_info = self.read_version()
+    def generate_notes(self, *, version: Optional[str] = None, ref: Optional[str] = None) -> Dict[str, Any]:
+        ver_info = self.read_version(ref)
         if not ver_info.get("success"):
             return ver_info
         version = version or str(ver_info["version"])
-        changelog = self.cwd / "CHANGELOG.md"
+        text = self._read_text("CHANGELOG.md", ref)
         body = ""
-        if changelog.is_file():
-            text = changelog.read_text(encoding="utf-8")
+        if text is not None:
             # Extract section under ## [version] or ## version
             pattern = re.compile(
                 rf"^##\s*\[?{re.escape(version)}\]?[^\n]*\n(.*?)(?=^##\s|\Z)",
@@ -809,41 +827,66 @@ class ReleaseBot:
     def tag_and_release(
         self,
         *,
+        ref: str = "origin/master",
         repo: Optional[str] = None,
         dry_run: bool = False,
         skip_github_release: bool = False,
     ) -> Dict[str, Any]:
-        validation = self.validate()
-        if not validation.get("success") and not dry_run:
-            return {**validation, "success": False}
+        """Tag the commit at ``ref`` (default ``origin/master``) and create its GitHub release.
 
-        notes = self.generate_notes()
+        VERSION and CHANGELOG.md are read from that commit, never from the working tree,
+        so the release matches what was promoted regardless of the current checkout.
+        """
+        resolved = self.resolve_ref(ref)
+        if not resolved.get("success"):
+            return resolved
+        sha = str(resolved["sha"])
+
+        validation = self.validate(sha)
+        if not validation.get("success") and not dry_run:
+            return {**validation, "success": False, "ref": ref, "sha": sha}
+
+        notes = self.generate_notes(ref=sha)
+        if not notes.get("success"):
+            return {**notes, "ref": ref, "sha": sha}
         version = notes.get("version")
-        tag = notes.get("tag")
+        tag = str(notes.get("tag"))
         if dry_run:
             return {
                 "success": True,
                 "dry_run": True,
                 "version": version,
                 "tag": tag,
-                "action": f"[DRY-RUN] git tag {tag} && gh release create {tag}",
+                "ref": ref,
+                "sha": sha,
+                "action": f"[DRY-RUN] git tag -a {tag} {sha[:12]} ({ref}) && gh release create {tag}",
                 "notes_preview": (notes.get("notes") or "")[:400],
             }
 
-        # Annotated tag
-        rc, out, err = run_cmd(
-            ["git", "tag", "-a", str(tag), "-m", f"Release {version}"],
-            cwd=self.cwd,
-        )
-        if rc != 0 and "already exists" not in (err or out).lower():
-            return {"success": False, "error": err or out, "tag": tag}
+        # Annotated tag on the release commit; an existing tag must already point there
+        rc_existing, existing_sha, _ = run_cmd(["git", "rev-parse", "--verify", f"{tag}^{{commit}}"], cwd=self.cwd)
+        if rc_existing == 0 and existing_sha:
+            if existing_sha != sha:
+                return {
+                    "success": False,
+                    "error": f"Tag {tag} already exists on {existing_sha[:12]}, not {ref} ({sha[:12]}).",
+                    "tag": tag,
+                    "ref": ref,
+                    "sha": sha,
+                }
+        else:
+            rc, out, err = run_cmd(["git", "tag", "-a", tag, sha, "-m", f"Release {version}"], cwd=self.cwd)
+            if rc != 0:
+                return {"success": False, "error": err or out, "tag": tag, "ref": ref, "sha": sha}
 
-        rc_push, out_p, err_p = run_cmd(["git", "push", "origin", str(tag)], cwd=self.cwd)
+        rc_push, out_p, err_p = run_cmd(["git", "push", "origin", tag], cwd=self.cwd)
         if rc_push != 0:
             return {
                 "success": False,
                 "error": f"Failed to push tag: {err_p or out_p}",
                 "tag": tag,
+                "ref": ref,
+                "sha": sha,
                 "tagged_local": True,
             }
 
@@ -853,7 +896,7 @@ class ReleaseBot:
                 "gh",
                 "release",
                 "create",
-                str(tag),
+                tag,
                 "--title",
                 f"v{version}",
                 "--notes",
@@ -872,6 +915,8 @@ class ReleaseBot:
                     "success": False,
                     "version": version,
                     "tag": tag,
+                    "ref": ref,
+                    "sha": sha,
                     **release_result,
                     "error": err_rel or out_rel,
                 }
@@ -880,6 +925,8 @@ class ReleaseBot:
             "success": True,
             "version": version,
             "tag": tag,
+            "ref": ref,
+            "sha": sha,
             **release_result,
         }
 

@@ -3,3 +3,4 @@
 1. `hath0r preflight run`
 2. `hath0r quality check <pr>`
 3. `hath0r release validate` before `release publish`
+4. `hath0r release publish` after the production merge; it tags `origin/master` (or `--ref`), not your checkout
