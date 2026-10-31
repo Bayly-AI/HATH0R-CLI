@@ -122,8 +122,8 @@ SERVICE_BOT_MAP: dict[str, dict[str, Any]] = {
     "schema": {"service": "Contract Schema Validation Service", "owning_bots": ["contracts-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/preflight-factory.yaml"},
     "mcp": {"service": "Central Level 1 MCP Orchestration Service", "owning_bots": ["mcp-centralization-bot", "bite-verifier-bot"], "agentgraph_level": "L1_MCP", "workflow_id": "cfg/factories/mcp-tool-dispatch-workflow.yaml"},
     "portraits": {"service": "Portrait Asset Sync Service", "owning_bots": ["portrait-sync-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/portrait-sync-factory.yaml"},
-    "factory": {"service": "Declarative Workflow & Factory Execution Service", "owning_bots": ["factory-manager-bot", "mcp-workflow-engine-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/workflow-first-offer-factory.yaml"},
-    "workflow": {"service": "Workflow-First Engine & Missing-Workflow Offer Service", "owning_bots": ["mcp-workflow-engine-bot", "factory-manager-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/workflow-first-offer-factory.yaml"},
+    "factory": {"service": "Declarative Workflow & Factory Execution Service", "owning_bots": ["factory-manager-bot", "mcp-workflow-engine-bot", "iteration-cascade-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/workflow-first-offer-factory.yaml"},
+    "workflow": {"service": "Workflow-First Engine & Missing-Workflow Offer Service", "owning_bots": ["mcp-workflow-engine-bot", "factory-manager-bot", "iteration-cascade-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/workflow-first-offer-factory.yaml"},
     "branch": {"service": "Canonical Branch Governance Service", "owning_bots": ["branch-bot", "branch-guard-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/start-of-task-factory.yaml"},
     "pr": {"service": "Pull Request Lifecycle & Antagonistic Review Service", "owning_bots": ["pr-bot", "antagonistic-review-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
     "promote": {"service": "Environment Promotion Path Service", "owning_bots": ["release-bot", "branch-guard-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/release-promotion-factory.yaml"},
@@ -212,6 +212,7 @@ class BotRegistry:
         from hath0r_cli.bots.hahp_protocol import HAHPProtocolManager
         from hath0r_cli.bots.hyper_context import HyperContextBot
         from hath0r_cli.bots.iac_bot import IaCManagingBot
+        from hath0r_cli.bots.iteration_cascade_bot import IterationCascadeBot
         from hath0r_cli.bots.kv_prewarmer import KVCachePrewarmer
         from hath0r_cli.bots.local_model_bot import LocalModelBot
         from hath0r_cli.bots.mcp_centralization_bot import MCPCentralizationBot
@@ -367,6 +368,7 @@ class BotRegistry:
             "api-bot": _init_bot(ApiBot),
             "mcp-centralization-bot": _init_bot(MCPCentralizationBot),
             "mcp-workflow-engine-bot": _init_bot(MCPWorkflowEngineBot),
+            "iteration-cascade-bot": _init_bot(IterationCascadeBot),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:

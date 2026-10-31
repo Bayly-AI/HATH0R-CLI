@@ -79,14 +79,15 @@ class MCPWorkflowEngineBot:
                     )
 
         # Include canonical service-bot workflow bindings from SERVICE_BOT_MAP
-        seen_files = {w["file"] for w in workflows}
+        seen_ids = {w["workflow_id"] for w in workflows}
         for cmd_name, meta in sorted(SERVICE_BOT_MAP.items()):
             wf_file = str(meta.get("workflow_id", ""))
-            if wf_file and wf_file not in seen_files:
-                seen_files.add(wf_file)
+            wf_id = f"{cmd_name}-service-workflow"
+            if wf_file and wf_id not in seen_ids:
+                seen_ids.add(wf_id)
                 workflows.append(
                     {
-                        "workflow_id": Path(wf_file).stem,
+                        "workflow_id": wf_id,
                         "factory_id": Path(wf_file).stem,
                         "name": str(meta.get("service", cmd_name)),
                         "description": f"Declarative workflow for {meta.get('service', cmd_name)} (hath0r {cmd_name}).",

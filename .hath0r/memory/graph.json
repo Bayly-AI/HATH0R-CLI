@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 493,
-  "content_hash": "sha256:d0e8dde828e481a1053ddb9de822e742f355a55874078eee0a61b6dd02025e78",
-  "updated_at": "2026-10-31T12:05:07.287905+00:00",
+  "revision": 505,
+  "content_hash": "sha256:7c6c2592932d42abca1b6205e8b6ba858c0fc005b9ffcd45930c485b7f05a0a8",
+  "updated_at": "2026-10-31T12:09:22.130072+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -745,7 +745,7 @@
       "updated_at": "2026-10-28T13:23:14.632392+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -769,7 +769,7 @@
       "updated_at": "2026-10-28T13:23:21.538822+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -813,7 +813,7 @@
       "updated_at": "2026-10-28T13:31:54.915874+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -837,7 +837,7 @@
       "updated_at": "2026-10-28T14:05:46.606003+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -946,7 +946,7 @@
       "updated_at": "2026-10-28T14:05:49.726259+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -991,7 +991,7 @@
       "updated_at": "2026-10-29T13:58:56.031518+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1015,7 +1015,7 @@
       "updated_at": "2026-10-28T14:22:02.710039+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1059,7 +1059,7 @@
       "updated_at": "2026-10-28T14:38:21.109040+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1083,7 +1083,7 @@
       "updated_at": "2026-10-28T14:38:23.473566+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1107,7 +1107,7 @@
       "updated_at": "2026-10-28T14:50:50.899901+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1152,7 +1152,7 @@
       "updated_at": "2026-10-28T14:51:42.220727+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1198,7 +1198,7 @@
       "updated_at": "2026-10-28T14:51:44.744643+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1243,7 +1243,7 @@
       "updated_at": "2026-10-28T14:59:38.749656+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1267,7 +1267,7 @@
       "updated_at": "2026-10-28T15:21:58.314539+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1291,7 +1291,7 @@
       "updated_at": "2026-10-29T14:17:58.583579+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1315,7 +1315,7 @@
       "updated_at": "2026-10-28T17:30:26.311044+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1339,7 +1339,7 @@
       "updated_at": "2026-10-28T17:37:06.843311+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1363,7 +1363,7 @@
       "updated_at": "2026-10-28T17:42:47.222209+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1432,7 +1432,7 @@
       "updated_at": "2026-10-28T20:55:27.567714+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1501,7 +1501,7 @@
       "updated_at": "2026-10-29T10:12:49.607556+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1577,7 +1577,7 @@
       "updated_at": "2026-10-29T11:49:05.964763+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1598,9 +1598,9 @@
       "updated_at": "2026-10-29T11:57:13.069488+00:00",
       "metadata": {
         "source_files": {
-          "VERSION": "sha256:00afc49f1599e59129a59b64c2b019de3fe35300c05bb9d96cb25002576ff43b",
-          "pyproject.toml": "sha256:ce6aebafbc90e940710b8503144ccb77608ab4957beb4ddf0e26cd4f1256a659",
-          "CHANGELOG.md": "sha256:e9d79d556afde38e5a5711e73ecb50a70d48c4b2830fcdf33bd8e0d997f811fd",
+          "VERSION": "sha256:04d659518a1793d5396007fcabdc9211a8c1db8406bf4e0fa8069171fdb06518",
+          "pyproject.toml": "sha256:a8fa19b288cb8b16a0ef64a36f900f965e6e4e9642dc8fb12d245e942c5883b0",
+          "CHANGELOG.md": "sha256:79a8f6730890e4b36d2149784e415ff9c241c70b1a9c55d8d4f33fceeefffeb7",
           "src/hath0r_cli/cccd/training_coordinator.py": "sha256:b1fed8465db95f4d72188ed58404f2c4e88040c7f06ca818df8c354e6aa29366",
           "src/hath0r_cli/bots/cicccd_bot.py": "sha256:4a5f72f02a0b3eb5de382608cd5aa5e643f5eaca0472e9061e122f02a774e972"
         }
@@ -1626,7 +1626,7 @@
       "updated_at": "2026-10-29T11:57:17.342810+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1702,7 +1702,7 @@
       "updated_at": "2026-10-29T13:26:59.461378+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1796,7 +1796,7 @@
       "updated_at": "2026-10-29T14:32:23.153719+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1890,7 +1890,7 @@
       "updated_at": "2026-10-31T11:57:38.418877+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1957,7 +1957,7 @@
       "updated_at": "2026-10-31T12:05:06.169496+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:1a9d861a86ab4ffa80c3272b25bf9c7685ebaac892cd3c8391ccfae0d3727e44"
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
         }
       }
     },
@@ -1985,6 +1985,73 @@
         "write_count": 4,
         "status": "completed",
         "byte_size": 2014
+      }
+    },
+    {
+      "id": "episode:issue-553-iteration-cascade-bot",
+      "type": "episode",
+      "label": "Issue #553: IterationCascadeBot 4-Stage Cascade",
+      "content": "Implemented IterationCascadeBot enforcing Stage 1 (Task + 4h Calibration + Workflow-First) -> Stage 2 (Level 1 MCP + Level 2 CLI/Memory on AgentGraph + SuperSqueeze) -> Stage 3 (Computer) -> Stage 4 (Web), blocking out-of-order and premature web escalation.",
+      "importance": 0.8,
+      "tags": [
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-10-31T12:09:16.197979+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-31T12:09:16.197979+00:00",
+      "updated_at": "2026-10-31T12:09:16.197979+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "eval:issue-553",
+      "type": "eval",
+      "label": "Task Evaluation issue-553 (R=0.95, PASS)",
+      "content": "4-Tier Task Evaluation for issue-553 on branch feature/553-iteration-cascade-bot: R_task=0.9451 (det=0.96, traj=0.94, adv=0.94, goal=0.93). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "issue-553",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-10-31T12:09:20.844346+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-10-31T12:09:20.844346+00:00",
+      "updated_at": "2026-10-31T12:09:20.844346+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:e550461f9e778725b8fb47403ca375dce98bef7aa7063d1fa3a863f207336237"
+        }
+      }
+    },
+    {
+      "id": "session:sess-20261031-120611-9011e9",
+      "type": "session",
+      "label": "Micro Session sess-20261031-120611-9011e9",
+      "content": "Micro Session sess-20261031-120611-9011e9 [completed] | Focus: Active working session in hathor-cli | Reads: 2, Writes: 4 | Entries: Compounded eval:issue-553: Task Evaluation issue-553 (R=0.95, PASS)",
+      "importance": 0.75,
+      "tags": [
+        "session",
+        "micro-session",
+        "completed"
+      ],
+      "valid_from": "2026-10-31T12:06:11.187988+00:00",
+      "valid_to": "2026-10-31T12:09:17.358275+00:00",
+      "is_current": true,
+      "created_at": "2026-10-31T12:06:11.187988+00:00",
+      "updated_at": "2026-10-31T12:09:20.915499+00:00",
+      "metadata": {
+        "session_id": "sess-20261031-120611-9011e9",
+        "prior_session_id": "sess-20261031-120025-509be2",
+        "parent_session_id": "sess-20261031-120025-509be2",
+        "read_count": 2,
+        "write_count": 4,
+        "status": "completed",
+        "byte_size": 2005
       }
     }
   ],
@@ -4191,6 +4258,70 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T12:05:06.243791+00:00",
+      "is_current": true
+    },
+    {
+      "source": "session:sess-20261031-120025-509be2",
+      "target": "session:sess-20261031-120611-9011e9",
+      "relation": "PRECEDES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:06:11.195198+00:00",
+      "is_current": true
+    },
+    {
+      "source": "session:sess-20261031-120611-9011e9",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "weight": 0.8,
+      "valid_from": "2026-10-31T12:06:11.195198+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-553-iteration-cascade-bot",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:09:16.197979+00:00",
+      "is_current": true
+    },
+    {
+      "source": "episode:issue-553-iteration-cascade-bot",
+      "target": "session:sess-20261031-120611-9011e9",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:09:16.272767+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-553",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:09:20.844346+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-553",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:09:20.844346+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-553",
+      "target": "session:sess-20261031-120611-9011e9",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:09:20.844346+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-553",
+      "target": "session:sess-20261031-120611-9011e9",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-10-31T12:09:20.918084+00:00",
       "is_current": true
     }
   ]

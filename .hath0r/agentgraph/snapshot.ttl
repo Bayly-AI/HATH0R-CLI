@@ -145,6 +145,10 @@ hath0r: a owl:Ontology ;
     rdfs:label "issue-manager-bot" ;
     hath0r:inPlane "context" .
 
+<https://hath0r.dev/ontology/v1#bot:iteration-cascade-bot> a hath0r:Plane ;
+    rdfs:label "iteration-cascade-bot" ;
+    hath0r:inPlane "context" .
+
 <https://hath0r.dev/ontology/v1#bot:knowledge-organizer-bot> a hath0r:Plane ;
     rdfs:label "knowledge-organizer-bot" ;
     hath0r:inPlane "context" .
@@ -1686,6 +1690,11 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:episode:issue-552-mcp-centralization-workflow-engine-bots> a hath0r:Plane ;
+    rdfs:label "Issue #552: MCPCentralizationBot & MCPWorkflowEngineBot" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:episode:pr-479> a hath0r:Plane ;
     rdfs:label "Completed PR #479 (feature/478-unignore-graph-folders)" ;
     hath0r:inPlane "memory" ;
@@ -1768,6 +1777,11 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:eval:issue-551> a hath0r:Plane ;
     rdfs:label "Task Evaluation issue-551 (R=0.93, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-552> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-552 (R=0.94, PASS)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -2020,6 +2034,11 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:session:sess-20261031-120025-509be2> a hath0r:Plane ;
     rdfs:label "Micro Session sess-20261031-120025-509be2" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:session:sess-20261031-120611-9011e9> a hath0r:Plane ;
+    rdfs:label "Micro Session sess-20261031-120611-9011e9" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 

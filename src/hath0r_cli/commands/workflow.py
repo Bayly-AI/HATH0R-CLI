@@ -166,3 +166,42 @@ def workflow_run(
             console.print(f"[bold yellow]! Workflow Offer Required:[/bold yellow] {offer.get('message', '')}")
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
+@workflow_cmd.command("cascade")
+@click.option("--intent", "-i", required=True, help="Task intent to run through the 4-stage iteration cascade.")
+@click.option("--stage2-confidence", default=0.90, type=float, show_default=True)
+@click.option("--stage3-confidence", default=0.90, type=float, show_default=True)
+@click.option("--strict/--no-strict", default=True, help="Enforce strict Workflow-First check at Stage 1.")
+@click.pass_context
+def workflow_cascade(
+    ctx: click.Context,
+    intent: str,
+    stage2_confidence: float,
+    stage3_confidence: float,
+    strict: bool,
+) -> None:
+    """Execute the 4-Stage Iteration Cascade (Task -> CLI/MCP -> Computer -> Web) for a task intent."""
+    from hath0r_cli.bots.iteration_cascade_bot import IterationCascadeBot
+
+    bot = IterationCascadeBot(cwd=Path.cwd())
+    res = bot.execute_cascade(
+        intent,
+        stage2_confidence=stage2_confidence,
+        stage3_confidence=stage3_confidence,
+        strict_workflow_first=strict,
+    )
+    state = "ok" if res.get("success") else "degraded"
+    response = _build_response(ctx, command="workflow.cascade", state=state, data=res)
+
+    def _text() -> None:
+        if res.get("success"):
+            console.print(
+                f"[bold green]✓ 4-Stage Cascade Completed:[/bold green] stages={res['completed_stages']}, "
+                f"adherence={res['adherence_rate']}"
+            )
+        else:
+            console.print(f"[bold yellow]! Cascade Halted at Stage 1 (Missing-Workflow Offer):[/bold yellow] {intent}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+

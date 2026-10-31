@@ -5,6 +5,14 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.0] - 2026-10-31
+
+### Added
+- **`IterationCascadeBot` Enforcing the 4-Stage Execution Hierarchy (`Task -> Hath0r-CLI/MCP -> Computer -> Web`) & `CR-FEATURE-WORKFLOW-STANDARD-001`** (#553):
+  - Added `IterationCascadeBot` (`src/hath0r_cli/bots/iteration_cascade_bot.py`) enforcing `Stage 1: Task (Workflow-First + 4h Calibration + Cruise Control + Level 2 Micro-Memory)` → `Stage 2: Hath0r-CLI (Level 2) ⇄ Hath0r-MCP (Level 1) on AgentGraph + SuperSqueeze` → `Stage 3: Local Computer` → `Stage 4: External Web`.
+  - Blocks out-of-order stage escalation, halts at Stage 1 with a Missing-Workflow Offer when a task has no matching workflow, blocks Stage 4 (`web`) unless Stage 2 and Stage 3 return a verified knowledge miss (`confidence < 0.70`), and sanitizes/compresses/compounds external findings into `.hath0r/memory/graph.json`.
+  - Registered `iteration-cascade-bot` in `BotRegistry` (`src/hath0r_cli/step_runner.py`), added `hath0r workflow cascade` (`src/hath0r_cli/commands/workflow.py`), added `cfg/factories/iteration-cascade-factory.yaml`, and added unit tests in `tests/unit/test_issue553_iteration_cascade_bot.py`.
+
 ## [1.17.0] - 2026-10-31
 
 ### Added
