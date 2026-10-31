@@ -19,7 +19,6 @@ from typing import Any
 
 from hath0r_cli.mcp import SchemaPruner
 
-
 # Canonical Level 1 (HATH0R-MCP) tool catalog with owning bots & workflows
 CANONICAL_LEVEL1_MCP_TOOLS: dict[str, dict[str, Any]] = {
     "kb_search": {

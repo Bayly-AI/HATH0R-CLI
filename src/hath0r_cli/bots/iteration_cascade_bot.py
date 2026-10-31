@@ -25,7 +25,6 @@ from hath0r_cli.bots.secret_pii_sanitizer import SecretPIISanitizerBot
 from hath0r_cli.bots.supercompress_bot import SuperCompressBot
 from hath0r_cli.telemetry import get_current_trace_context, trace_span
 
-
 CASCADE_STAGES = ("task", "cli_mcp", "computer", "web")
 
 
@@ -52,7 +51,7 @@ class IterationCascadeBot:
     def __init__(self, cwd: Path | None = None) -> None:
         self.cwd = (cwd or Path.cwd()).resolve()
         self.workflow_bot = MCPWorkflowEngineBot(cwd=self.cwd)
-        self.cccd_bot = CICCCDManagingBot(root_dir=self.cwd)
+        self.cccd_bot = CICCCDManagingBot(root_dir=str(self.cwd))
         self.squeeze_bot = SuperCompressBot()
         self.sanitizer_bot = SecretPIISanitizerBot()
         self._sessions: dict[str, CascadeSessionState] = {}
@@ -309,10 +308,10 @@ class IterationCascadeBot:
                 sanitized_res = self.sanitizer_bot.sanitize(raw_finding)
             else:
                 sanitized_res = {"sanitized_text": raw_finding}
-            clean_text = (
+            clean_text = str(
                 sanitized_res.get("sanitized_text", sanitized_res.get("sanitized", raw_finding))
                 if isinstance(sanitized_res, dict)
-                else str(getattr(sanitized_res, "sanitized_text", raw_finding))
+                else getattr(sanitized_res, "sanitized_text", raw_finding)
             )
             squeezed = self.squeeze_bot.compress(
                 query=state.task_intent,
