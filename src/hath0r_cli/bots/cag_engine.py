@@ -58,6 +58,8 @@ class CAGEngine:
         workspace_root: Optional[Path] = None,
         include_agentgraph: bool = True,
         block_size: int = 16,
+        query: Optional[str] = None,
+        squeeze: bool = False,
     ) -> Dict[str, Any]:
         """Aggregate workspace source files, AGENTS.md, and AgentGraph into block-aligned CAG context envelope."""
         root = workspace_root or Path.cwd()
@@ -88,6 +90,24 @@ class CAGEngine:
             cag_buffer.append(" ".join(aligned_chunk_tokens))
         full_cag_text = "\n".join(cag_buffer)
 
+        squeeze_meta: Dict[str, Any] = {"squeezed": False, "owning_bot": "SuperSqueezeBot"}
+        if squeeze or query:
+            from .supercompress_bot import supercompress_bot
+
+            sq_res = supercompress_bot.compress(
+                query=query or "architecture contracts rules",
+                context=full_cag_text,
+                threshold=0.5,
+                force_local=True,
+            )
+            squeeze_meta = {
+                "squeezed": True,
+                "owning_bot": "SuperSqueezeBot",
+                "original_tokens": sq_res.get("original_tokens", total_tokens),
+                "compressed_tokens": sq_res.get("compressed_tokens", total_tokens),
+                "savings_pct": sq_res.get("savings_pct", 0.0),
+            }
+
         # Execute Princeton KV cache pre-warming on packed CAG context
         prewarm_res = kv_prewarmer.prewarm_context(
             shared_prompt=full_cag_text,
@@ -114,6 +134,7 @@ class CAGEngine:
             },
             "kv_prewarm": prewarm_res,
             "context_hash": prewarm_res["context_hash"],
+            "supersqueeze": squeeze_meta,
         }
         self._cag_cache[str(root)] = envelope
         return envelope

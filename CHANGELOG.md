@@ -5,6 +5,61 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.0] - 2026-10-31
+
+### Added
+- **Local Quality Gates (`Q-Gates`), Per-Repo `thresholds.json` & `TaskEvaluatorBot` Integration (`CR-LOCAL-QGATES-001`)** (#561):
+  - Added `LocalQualityGateBot` (`src/hath0r_cli/bots/local_quality_gate_bot.py`) enforcing SonarCloud's canonical thresholds locally (`max_errors: 0`, `min_coverage_pct: 80.0`, `max_complexity: 15`, `max_duplicated_lines_pct: 3.0`) without calling SonarCloud's remote API directly.
+  - Provisions canonical `<repo>/thresholds.json` per repository, detects technology stack (`python`, `node-ts`, `infra-python`, `rust`, `go`), verifies/installs supporting test/lint/coverage libraries, and automatically scaffolds a baseline test harness if one does not exist.
+  - Added `hath0r quality init`, `hath0r quality local`, and `hath0r quality ensure-all` commands (`src/hath0r_cli/commands/quality.py`) and registered `local-quality-gate-bot` in `BotRegistry` (`src/hath0r_cli/step_runner.py`).
+  - Integrated Local Q-Gates directly into `TaskEvaluatorBot` (`src/hath0r_cli/bots/task_evaluator_bot.py` and `src/hath0r_cli/commands/evals.py`) across Tier 1 (`local_quality_gates`), Tier 3 (complexity and duplication deductions), `.hath0r/evals/latest.json`, and the Markdown Eval Scorecard Summary.
+  - Added full Governance Documentation Hexad under `docs/governance/` (`local-quality-gates.md`, strategy, procedure, playbook, runbook, workflow, bot spec) and `cfg/factories/local-qgates-factory.yaml`.
+
+## [1.20.0] - 2026-10-31
+
+### Added
+- **Continuous 4-Tier `TaskEvaluatorBot` Replacing Binary `1.00` Score Inflation (`CR-TASK-EVAL-001` & `CR-FEATURE-WORKFLOW-STANDARD-001`)** (#555):
+  - Upgraded `TaskEvaluatorBot` (`src/hath0r_cli/bots/task_evaluator_bot.py`) to compute continuous, non-binary sub-scores across all 4 tiers (`0.80 <= R_task < 1.00`, capping at `0.9900`):
+    - **Tier 1 (Deterministic Rubrics)**: Taguchi continuous latency/duration loss, 4-hour agent calibration freshness decay (`exp(-0.04 * age_hours)`), Workflow-First & Service-Bot coverage, and Level 1/2 `AgentGraph` parity.
+    - **Tier 2 (Trajectory & FinOps Efficiency)**: Continuous step-efficiency decay, Level 1 MCP + `SuperSqueeze` utilization ratio, and micro-session read/write balance.
+    - **Tier 3 (Adversarial & Diff Critic)**: Continuous AST line/cyclomatic complexity penalty, diff size penalty, and test-to-code ratio.
+    - **Tier 4 (Goal Alignment & Consensus)**: Continuous TF-IDF semantic cosine overlap between task objective, git diff symbols, and `MemoryGraph` nodes.
+  - Updated `tests/unit/test_task_evaluator_bot.py` to assert continuous non-1.00 grading (`0.80 <= R_task < 1.00`).
+
+## [1.19.0] - 2026-10-31
+
+### Added
+- **`ArchitecturePreservationBot`, `SubstrateUtilizationBot` & `TaskCompletionVerifierBot` (`CR-FEATURE-WORKFLOW-STANDARD-001`)** (#554):
+  - Added `ArchitecturePreservationBot` (`src/hath0r_cli/bots/architecture_preservation_bot.py`) verifying Service-Bot ownership (`>= 1` Bot), Level 1/2 `AgentGraph` parity, Workflow-First bindings, `.hath0r/` hidden-root exclusivity, `CLAUDE.md == AGENTS.md` sync, and Phoenix OTel configuration across all 5 suite repositories.
+  - Added `SubstrateUtilizationBot` (`src/hath0r_cli/bots/substrate_utilization_bot.py`) auditing AST and runtime usage of `SuperCompressBot` (`SuperSqueeze`), `trace_span`, `OpenFeature`, `PBAC`/`Sanitizer`, and `.hath0r/spool/` OpenObservation telemetry while flagging legacy `ddtrace` imports.
+  - Added `TaskCompletionVerifierBot` (`src/hath0r_cli/bots/task_completion_verifier_bot.py`) enforcing `FactSettlementEngine` probes (`cccd.calibration.fresh:4h`, `eval.gate.passed`, `mlflow.run.logged`, `phoenix.trace.verified`, `workflow.first.verified`) and continuous 4-tier eval scores (`0.80 <= R_task < 1.00`).
+  - Added `hath0r arch verify|substrate|completion` (`src/hath0r_cli/commands/arch.py`) and wired all 3 bots into `start-of-task-factory.yaml`, `end-of-task-factory.yaml`, `clean-repos-factory.yaml`, and `orient-factory.yaml`.
+
+## [1.18.0] - 2026-10-31
+
+### Added
+- **`IterationCascadeBot` Enforcing the 4-Stage Execution Hierarchy (`Task -> Hath0r-CLI/MCP -> Computer -> Web`) & `CR-FEATURE-WORKFLOW-STANDARD-001`** (#553):
+  - Added `IterationCascadeBot` (`src/hath0r_cli/bots/iteration_cascade_bot.py`) enforcing `Stage 1: Task (Workflow-First + 4h Calibration + Cruise Control + Level 2 Micro-Memory)` → `Stage 2: Hath0r-CLI (Level 2) ⇄ Hath0r-MCP (Level 1) on AgentGraph + SuperSqueeze` → `Stage 3: Local Computer` → `Stage 4: External Web`.
+  - Blocks out-of-order stage escalation, halts at Stage 1 with a Missing-Workflow Offer when a task has no matching workflow, blocks Stage 4 (`web`) unless Stage 2 and Stage 3 return a verified knowledge miss (`confidence < 0.70`), and sanitizes/compresses/compounds external findings into `.hath0r/memory/graph.json`.
+  - Registered `iteration-cascade-bot` in `BotRegistry` (`src/hath0r_cli/step_runner.py`), added `hath0r workflow cascade` (`src/hath0r_cli/commands/workflow.py`), added `cfg/factories/iteration-cascade-factory.yaml`, and added unit tests in `tests/unit/test_issue553_iteration_cascade_bot.py`.
+
+## [1.17.0] - 2026-10-31
+
+### Added
+- **`MCPCentralizationBot` & `MCPWorkflowEngineBot`, Workflow-First Missing-Workflow Offer, and Level 1/2 `AgentGraph` Bridge (`CR-FEATURE-WORKFLOW-STANDARD-001`)** (#552):
+  - Added `MCPCentralizationBot` (`src/hath0r_cli/bots/mcp_centralization_bot.py`) auditing tool, workflow, and knowledge parity between Level 1 (`HATH0R-MCP`) and Level 2 (`HATH0R-CLI` & `.hath0r/memory/`) across `AgentGraph`, verifying `>= 1` owning Bot per service in `BotRegistry`, pruning schemas via `SchemaPruner`, and pinning SHA-256 digests in `.hath0r/security/mcp-schema-pins.json`.
+  - Added `MCPWorkflowEngineBot` (`src/hath0r_cli/bots/mcp_workflow_engine_bot.py`) enforcing `CR-FEATURE-WORKFLOW-STANDARD-001` ("Everything We Do Is a Workflow"), generating deterministic Missing-Workflow Offers (`hath0r workflow offer` / `hath0r workflow scaffold`) with the original request bound as the acceptance test, enforcing pre-task 4-hour agent calibration (`ensure_calibrated(max_age_hours=4.0)`), propagating W3C `traceparent` to `Hath0r-phoenix`, and syncing boundary gates with `Hath0r-Cruise-Control`.
+  - Added `hath0r workflow list|match|offer|scaffold|run` (`src/hath0r_cli/commands/workflow.py`) and `hath0r mcp parity|pin-schemas` (`src/hath0r_cli/commands/mcp.py`), plus `cfg/factories/workflow-first-offer-factory.yaml` and `docs/governance/mcp-centralization-workflow-first-standard.md`.
+
+## [1.16.0] - 2026-10-31
+
+### Added
+- **Universal 69+ `BotRegistry` Service-Bot Ownership, 4-Hour Pre-Task Auto-Calibration, `SuperSqueeze` Wiring & `hath0r-net` OTel Alignment (`CR-FEATURE-WORKFLOW-STANDARD-001`)** (#551):
+  - Registered all 69+ bots in `BotRegistry` (`src/hath0r_cli/step_runner.py` and `src/hath0r_cli/factories/step_runner.py`) and added `SERVICE_BOT_MAP` mapping every `hath0r` CLI command group to its owning Bot(s) (`>= 1` Bot), `agentgraph_level`, and `workflow_id`, ingested into `.hath0r/agentgraph/snapshot.json` via `AgentGraphBot.sync()`.
+  - Updated `CCCDCalibrationLoop` (`src/hath0r_cli/cccd/calibration_loop.py`) and `CICCCDManagingBot` / `CalibrationBot` (`src/hath0r_cli/bots/cicccd_bot.py`, `src/hath0r_cli/bots/ci_cccd_bot.py`) from 24h to a 4-hour freshness TTL (`max_age_hours = 4.0`) and added `ensure_calibrated(max_age_hours=4.0, trigger_source="pre_task")`, wired into `cli.py`, `hath0r task start`, and `cfg/factories/start-of-task-factory.yaml`.
+  - Wired `SuperSqueezeBot` (`SuperCompressBot` in `src/hath0r_cli/bots/supercompress_bot.py`) across `CAGEngine.pack_context()`, `HybridCAGRAGRouter.rag_search()`, `HAHPProtocolManager.create_envelope()`, `BotRegistry`, and `hath0r squeeze`.
+  - Updated `cfg/observability/otel.json` to target `http://localhost:38000/phoenix` (`Hath0r-phoenix`), `Hathor-MLFLOW` (`:35000`), and `Hath0r-Cruise-Control` (`:38090`).
+
 ## [1.15.5] - 2026-10-30
 
 ### Fixed

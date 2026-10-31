@@ -89,6 +89,17 @@ def evals_run(
         console.print(f"  • Tier 2 (Trajectory):    {t_scores.get('trajectory', 0.0):.2f}")
         console.print(f"  • Tier 3 (Adversarial):   {t_scores.get('adversarial', 0.0):.2f}")
         console.print(f"  • Tier 4 (Goal Align):    {t_scores.get('goal_alignment', 0.0):.2f}")
+        lqg = res.get("local_quality_gates") or {}
+        if lqg.get("gates"):
+            lg = lqg["gates"]
+            lqg_badge = "[green]PASS[/green]" if lqg.get("passed") else "[red]FAIL[/red]"
+            console.print(
+                f"  • Local Q-Gates ({lqg.get('technology')}): {lqg_badge} "
+                f"(Errors={lg.get('errors', {}).get('actual_errors', 0)}<=0, "
+                f"Cov={lg.get('coverage', {}).get('actual_coverage_pct', 0.0)}%>=80%, "
+                f"Comp=avg {lg.get('complexity', {}).get('avg_complexity', 0.0)}<=15, "
+                f"Dup={lg.get('duplication', {}).get('duplicated_lines_pct', 0.0)}%<=3%)"
+            )
         console.print(f"  • Scorecard:        {res['latest_file']}")
         if res.get("compounded_node_id"):
             console.print(f"  • MemoryGraph Node: [bold cyan]{res['compounded_node_id']}[/bold cyan]")

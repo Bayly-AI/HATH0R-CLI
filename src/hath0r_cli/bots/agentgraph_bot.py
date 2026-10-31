@@ -652,6 +652,57 @@ class AgentGraphBot:
                     }
                 )
 
+        # 7. Ingest SERVICE_BOT_MAP (CR-FEATURE-WORKFLOW-STANDARD-001: Every Feature is a Service run by >= 1 Bot)
+        try:
+            from hath0r_cli.step_runner import SERVICE_BOT_MAP
+
+            existing_ids = {n["id"] for n in nodes}
+            for cmd_key, meta in SERVICE_BOT_MAP.items():
+                svc_id = f"service:{cmd_key}"
+                if svc_id not in existing_ids:
+                    existing_ids.add(svc_id)
+                    nodes.append(
+                        {
+                            "id": svc_id,
+                            "plane": "context",
+                            "type": "service",
+                            "label": meta.get("service", cmd_key),
+                            "content": f"Service '{meta.get('service', cmd_key)}' for CLI command `hath0r {cmd_key}` on {meta.get('agentgraph_level')}",
+                            "properties": {
+                                "command": cmd_key,
+                                "owning_bots": meta.get("owning_bots", []),
+                                "agentgraph_level": meta.get("agentgraph_level", "L2_CLI_MEMORY"),
+                                "workflow_id": meta.get("workflow_id", ""),
+                            },
+                            "is_current": True,
+                        }
+                    )
+                for b_id in meta.get("owning_bots", []):
+                    bot_node_id = f"bot:{b_id}"
+                    if bot_node_id not in existing_ids:
+                        existing_ids.add(bot_node_id)
+                        nodes.append(
+                            {
+                                "id": bot_node_id,
+                                "plane": "context",
+                                "type": "bot",
+                                "label": b_id,
+                                "content": f"Registered Bot '{b_id}' in BotRegistry",
+                                "properties": {"bot_id": b_id},
+                                "is_current": True,
+                            }
+                        )
+                    edges.append(
+                        {
+                            "source": svc_id,
+                            "target": bot_node_id,
+                            "relation": "OWNED_BY_BOT",
+                            "is_current": True,
+                        }
+                    )
+        except Exception as err:
+            _ = str(err)
+
         new_graph = {
             "schema_version": "hath0r.agentgraph/1",
             "graph_id": f"agentgraph-{root.name}",

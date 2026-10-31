@@ -16,7 +16,127 @@ from hath0r_cli.common import (
 
 @click.group()
 def quality() -> None:
-    """PR Quality Gates bot — aggregate hard gates including SonarCloud."""
+    """PR & Local Quality Gates bot — enforce SonarCloud thresholds locally via thresholds.json."""
+
+
+@quality.command("init")
+@click.option("--repo-root", type=click.Path(path_type=Path), default=None, help="Target repository root.")
+@click.option("--install-missing", is_flag=True, default=False, help="Install missing test/lint/coverage libraries.")
+@click.option("--overwrite", is_flag=True, default=False, help="Overwrite existing thresholds.json with canonical defaults.")
+@click.pass_context
+def quality_init(
+    ctx: click.Context, repo_root: Path | None, install_missing: bool, overwrite: bool
+) -> None:
+    """Provision canonical <repo>/thresholds.json and verify/scaffold the repository testing system."""
+    from hath0r_cli.bots.local_quality_gate_bot import LocalQualityGateBot
+
+    bot = LocalQualityGateBot(cwd=repo_root or Path.cwd())
+    res = bot.ensure_supporting_system(
+        repo_root=repo_root,
+        install_missing=install_missing,
+        scaffold_missing=True,
+        overwrite_thresholds=overwrite,
+    )
+    response = _build_response(ctx, command="quality.init", state="ok", data=res)
+
+    def _text() -> None:
+        click.echo(f"✓ Local Quality Gates initialized for '{res['repo_name']}' ({res['technology']})")
+        click.echo(f"  • Thresholds file: {res['thresholds_file']}")
+        click.echo(f"  • Libraries ready: {', '.join(res['libraries']['installed']) or 'none'}")
+        if res["libraries"]["missing"]:
+            click.echo(f"  • Missing libs:    {', '.join(res['libraries']['missing'])}")
+        if res["scaffolded_files"]:
+            click.echo(f"  • Scaffolded:      {', '.join(res['scaffolded_files'])}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+@quality.command("local")
+@click.option("--repo-root", type=click.Path(path_type=Path), default=None, help="Target repository root.")
+@click.option("--all-files", is_flag=True, default=False, help="Analyze all source files instead of changed files only.")
+@click.option("--no-auto-init", is_flag=True, default=False, help="Do not auto-create thresholds.json if missing.")
+@click.pass_context
+def quality_local(
+    ctx: click.Context, repo_root: Path | None, all_files: bool, no_auto_init: bool
+) -> None:
+    """Evaluate Local Quality Gates (Errors, Coverage, Complexity, Duplication) against thresholds.json."""
+    from hath0r_cli.bots.local_quality_gate_bot import LocalQualityGateBot
+
+    bot = LocalQualityGateBot(cwd=repo_root or Path.cwd())
+    res = bot.evaluate_local_gates(
+        repo_root=repo_root,
+        changed_only=not all_files,
+        auto_init=not no_auto_init,
+    )
+    state = "ok" if res.get("passed") else "error"
+    response = _build_response(ctx, command="quality.local", state=state, data=res)
+
+    def _text() -> None:
+        status_str = "PASSED" if res.get("passed") else "FAILED"
+        click.echo(
+            f"{'✓' if res.get('passed') else '✗'} Local Quality Gates {status_str} "
+            f"for '{res.get('repo_name')}' (score={res.get('qgate_score'):.4f}, tech={res.get('technology')})"
+        )
+        gates = res.get("gates", {})
+        err_g = gates.get("errors", {})
+        cov_g = gates.get("coverage", {})
+        cmp_g = gates.get("complexity", {})
+        dup_g = gates.get("duplication", {})
+        click.echo(
+            f"  • Errors:      {err_g.get('actual_errors')} <= {err_g.get('max_errors')} "
+            f"[{'PASS' if err_g.get('passed') else 'FAIL'}]"
+        )
+        click.echo(
+            f"  • Coverage:    {cov_g.get('actual_coverage_pct')}% >= {cov_g.get('min_coverage_pct')}% "
+            f"[{'PASS' if cov_g.get('passed') else 'FAIL'}]"
+        )
+        click.echo(
+            f"  • Complexity:  max {cmp_g.get('max_observed_complexity')} <= {cmp_g.get('max_complexity')} "
+            f"[{'PASS' if cmp_g.get('passed') else 'FAIL'}]"
+        )
+        click.echo(
+            f"  • Duplication: {dup_g.get('duplicated_lines_pct')}% <= {dup_g.get('max_duplicated_lines_pct')}% "
+            f"[{'PASS' if dup_g.get('passed') else 'FAIL'}]"
+        )
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("passed"):
+        ctx.exit(1)
+
+
+@quality.command("ensure-all")
+@click.option("--workspace-root", type=click.Path(path_type=Path), default=None, help="Workspace parent directory.")
+@click.option("--install-missing", is_flag=True, default=False, help="Install missing supporting libraries.")
+@click.pass_context
+def quality_ensure_all(
+    ctx: click.Context, workspace_root: Path | None, install_missing: bool
+) -> None:
+    """Provision thresholds.json and evaluate Local Quality Gates across all 5 suite repositories."""
+    from hath0r_cli.bots.local_quality_gate_bot import LocalQualityGateBot
+
+    bot = LocalQualityGateBot(cwd=Path.cwd())
+    res = bot.ensure_all_repos(
+        workspace_root=workspace_root,
+        install_missing=install_missing,
+        scaffold_missing=True,
+    )
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="quality.ensure_all", state=state, data=res)
+
+    def _text() -> None:
+        click.echo(
+            f"Local Quality Gates Fleet Rollout ({res.get('passed_count')}/{res.get('repos_count')} PASSED):"
+        )
+        for item in res.get("results", []):
+            mark = "✓" if item.get("passed") else "✗"
+            click.echo(
+                f"  {mark} {item.get('repo_name')} ({item.get('technology')}): "
+                f"score={item.get('qgate_score'):.4f} -> {item.get('thresholds_file')}"
+            )
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
 
 
 @quality.command("check")
