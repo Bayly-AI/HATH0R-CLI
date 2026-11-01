@@ -1974,12 +1974,19 @@ int main(int argc, char *argv[]) {{
                         "Install PyInstaller (`pip install pyinstaller`) or MinGW-w64.",
                     )
             else:
-                raise InstallWizardError(
-                    "package_exe",
-                    "MINGW_COMPILER_MISSING",
-                    "x86_64-w64-mingw32-gcc is required on macOS/Linux to cross-compile the Windows .exe installer.",
-                    "Install MinGW-w64 via `brew install mingw-w64` or `sudo apt-get install mingw-w64`.",
-                )
+                prebuilt_exe = cli_root / "release" / "windows" / "Hath0r-Install-Wizard.exe"
+                if prebuilt_exe.is_file() and prebuilt_exe.resolve() != versioned_exe.resolve():
+                    compiler_used = "prebuilt-pe32plus"
+                    shutil.copy2(prebuilt_exe, versioned_exe)
+                elif versioned_exe.is_file():
+                    compiler_used = "prebuilt-pe32plus"
+                else:
+                    raise InstallWizardError(
+                        "package_exe",
+                        "MINGW_COMPILER_MISSING",
+                        "x86_64-w64-mingw32-gcc is required on macOS/Linux to cross-compile the Windows .exe installer.",
+                        "Install MinGW-w64 via `brew install mingw-w64` or `sudo apt-get install mingw-w64`.",
+                    )
 
         shutil.copy2(versioned_exe, canonical_exe)
         sha_digest = sha256_file(canonical_exe)

@@ -414,7 +414,10 @@ def rotate_previous_release(
             to_move_root.append(art)
 
     if to_move_root:
-        print(f"Rotating {len(to_move_root)} root release artifacts ({prev_ver}) into archive: {archive_target}")
+        print(
+            f"Rotating {len(to_move_root)} root release artifacts ({prev_ver}) into archive: {archive_target}",
+            file=sys.stderr,
+        )
         if not dry_run:
             archive_target.mkdir(parents=True, exist_ok=True)
             for art in to_move_root:
@@ -433,7 +436,7 @@ def rotate_previous_release(
         target_ver_for_plat = plat_older or prev_ver
         if target_ver_for_plat != current_version or force_clear:
             dest_plat_archive = previous_dir / target_ver_for_plat / plat
-            print(f"Clearing release/{plat} ({target_ver_for_plat}) -> {dest_plat_archive}")
+            print(f"Clearing release/{plat} ({target_ver_for_plat}) -> {dest_plat_archive}", file=sys.stderr)
             if not dry_run:
                 dest_plat_archive.parent.mkdir(parents=True, exist_ok=True)
                 if dest_plat_archive.exists():
@@ -484,7 +487,7 @@ def build_pyinstaller_binary(cli_root: Path, output_dir: Path, dry_run: bool = F
         str(entry_point),
     ]
 
-    print(f"Building standalone binary {bin_name} -> {target_path}...")
+    print(f"Building standalone binary {bin_name} -> {target_path}...", file=sys.stderr)
     if not dry_run:
         subprocess.run(cmd, cwd=cli_root, check=True)
         if work_dir.exists():
@@ -628,7 +631,7 @@ def sync_to_framework(
     dry_run: bool = False,
 ) -> bool:
     """Synchronize `release/{mac,windows,vscode,previous}` and root docs to the Framework repository."""
-    print(f"Synchronizing release folder: {cli_release_dir} -> {framework_release_dir}")
+    print(f"Synchronizing release folder: {cli_release_dir} -> {framework_release_dir}", file=sys.stderr)
     if not dry_run:
         framework_release_dir.mkdir(parents=True, exist_ok=True)
         framework_prev = framework_release_dir / "previous"
