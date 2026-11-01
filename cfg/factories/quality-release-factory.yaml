@@ -44,6 +44,9 @@ bots:
     role: semver-release
     capabilities:
       - validate
+      - rotate
+      - build-and-rotate
+      - sync
       - notes
       - tag-release
 
@@ -101,8 +104,15 @@ workflows:
         on_failure: continue
 
   - id: release-cut
-    name: Validate and publish release
+    name: Rotate previous release, build current artifacts, validate, and publish release
     steps:
+      - bot: release-bot
+        action: build-and-rotate
+        on_failure: abort
+        args:
+          rotate: true
+          sync_framework: true
+
       - bot: release-bot
         action: validate
         on_failure: abort

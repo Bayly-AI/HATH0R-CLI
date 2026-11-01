@@ -7,8 +7,16 @@ from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 PKG_DIR = ROOT_DIR / "packages" / "vscode-extension"
-RELEASE_DIR = ROOT_DIR / "release" / "vscode" / "plugin"
-VSIX_PATH = RELEASE_DIR / "hath0r-vscode-0.9.0.vsix"
+VSCODE_RELEASE_ROOT = ROOT_DIR / "release" / "vscode"
+RELEASE_DIR = VSCODE_RELEASE_ROOT / "plugin"
+
+
+def _expected_vsix_path() -> Path:
+    pkg = json.loads((PKG_DIR / "package.json").read_text(encoding="utf-8"))
+    vsix_name = f"{pkg['name']}-{pkg['version']}.vsix"
+    if (RELEASE_DIR / vsix_name).is_file():
+        return RELEASE_DIR / vsix_name
+    return VSCODE_RELEASE_ROOT / vsix_name
 
 
 class TestHath0rVSCodePlugin(unittest.TestCase):
@@ -34,9 +42,10 @@ class TestHath0rVSCodePlugin(unittest.TestCase):
 
     def test_vsix_packaging_and_contents(self):
         """Verify the generated .vsix package adheres to Open Packaging specifications."""
-        self.assertTrue(VSIX_PATH.exists(), f"VSIX artifact {VSIX_PATH} must exist")
+        vsix_path = _expected_vsix_path()
+        self.assertTrue(vsix_path.exists(), f"VSIX artifact {vsix_path} must exist")
 
-        with zipfile.ZipFile(VSIX_PATH, "r") as zf:
+        with zipfile.ZipFile(vsix_path, "r") as zf:
             namelist = [n.lower() for n in zf.namelist()]
             self.assertIn("[content_types].xml", namelist)
             self.assertIn("extension.vsixmanifest", namelist)

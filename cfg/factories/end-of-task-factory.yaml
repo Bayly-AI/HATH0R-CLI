@@ -108,6 +108,14 @@ bots:
       - verify_completion
       - status
 
+  - id: release-bot
+    name: Release Bot
+    role: canonical-release-rotation-and-validation
+    description: Enforces CR-RELEASE-ROTATION-001 by moving any non-current release artifacts out of release/ root into release/previous/<version>/.
+    capabilities:
+      - rotate
+      - validate
+
 # Declarative workflows
 workflows:
   - id: end-of-task
@@ -117,6 +125,12 @@ workflows:
       - bot: deploy-test-bot
         action: pre-deploy
         on_failure: abort
+
+      - bot: release-bot
+        action: rotate
+        on_failure: continue
+        args:
+          sync_framework: true
 
       - bot: pr-bot
         action: create-pr

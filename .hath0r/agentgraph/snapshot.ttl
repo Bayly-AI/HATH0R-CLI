@@ -491,22 +491,6 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "AGENTS.md (group)" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:agents-hath0r-fileset-1.15.2> a hath0r:Plane ;
-    rdfs:label "AGENTS.md (hath0r-fileset-1.15.2)" ;
-    hath0r:inPlane "knowledge" .
-
-<https://hath0r.dev/ontology/v1#doc:agents-hath0r-fileset-1.5.0> a hath0r:Plane ;
-    rdfs:label "AGENTS.md (hath0r-fileset-1.5.0)" ;
-    hath0r:inPlane "knowledge" .
-
-<https://hath0r.dev/ontology/v1#doc:agents-hath0r-fileset-1.6.0> a hath0r:Plane ;
-    rdfs:label "AGENTS.md (hath0r-fileset-1.6.0)" ;
-    hath0r:inPlane "knowledge" .
-
-<https://hath0r.dev/ontology/v1#doc:agents-hath0r-fileset-1.7.0> a hath0r:Plane ;
-    rdfs:label "AGENTS.md (hath0r-fileset-1.7.0)" ;
-    hath0r:inPlane "knowledge" .
-
 <https://hath0r.dev/ontology/v1#doc:agents-hath0r_cli> a hath0r:Plane ;
     rdfs:label "AGENTS.md (hath0r_cli)" ;
     hath0r:inPlane "knowledge" .
@@ -570,6 +554,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__embedded-elt-bots-spec_md> a hath0r:Plane ;
     rdfs:label "Embedded Elt Bots Spec" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__install-wizard-bot-spec_md> a hath0r:Plane ;
+    rdfs:label "Install Wizard Bot Spec" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__local-quality-gate-bot-spec_md> a hath0r:Plane ;
@@ -836,6 +824,10 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Hyper Context Playbook" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__install-wizard-playbook_md> a hath0r:Plane ;
+    rdfs:label "Install Wizard Playbook" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__instruction-aware-reranker-playbook_md> a hath0r:Plane ;
     rdfs:label "Instruction Aware Reranker Playbook" ;
     hath0r:inPlane "knowledge" .
@@ -1064,6 +1056,10 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Hyper Context Procedure" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__install-wizard-procedure_md> a hath0r:Plane ;
+    rdfs:label "Install Wizard Procedure" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__local-quality-gates-procedure_md> a hath0r:Plane ;
     rdfs:label "Local Quality Gates Procedure" ;
     hath0r:inPlane "knowledge" .
@@ -1190,6 +1186,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__hyper-context-runbook_md> a hath0r:Plane ;
     rdfs:label "Hyper Context Runbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__install-wizard-runbook_md> a hath0r:Plane ;
+    rdfs:label "Install Wizard Runbook" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__local-quality-gates-runbook_md> a hath0r:Plane ;
@@ -1346,6 +1346,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__hyper-context-strategy_md> a hath0r:Plane ;
     rdfs:label "Hyper Context Strategy" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__install-wizard-strategy_md> a hath0r:Plane ;
+    rdfs:label "Install Wizard Strategy" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__instruction-aware-reranker-strategy_md> a hath0r:Plane ;
@@ -1754,6 +1758,21 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:episode:issue-566-dmg-exe-installers> a hath0r:Plane ;
+    rdfs:label "macOS DMG & Windows EXE Install Wizard Launchers (#566)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:episode:issue-566-install-wizard> a hath0r:Plane ;
+    rdfs:label "Hath0r CLI + MCP Docker Install Wizard (#566)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:episode:issue-566-release-cleanup> a hath0r:Plane ;
+    rdfs:label "Release Directory Cleanup & Previous Version Archiving (#566)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:episode:pr-479> a hath0r:Plane ;
     rdfs:label "Completed PR #479 (feature/478-unignore-graph-folders)" ;
     hath0r:inPlane "memory" ;
@@ -1789,13 +1808,23 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:eval:clean-all-repos-development> a hath0r:Plane ;
+    rdfs:label "Task Evaluation clean-all-repos-development (R=0.94, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:eval:clean-repo-hathor-cli> a hath0r:Plane ;
-    rdfs:label "Task Evaluation clean-repo-hathor-cli (R=0.90, FAIL)" ;
+    rdfs:label "Task Evaluation clean-repo-hathor-cli (R=0.92, PASS)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
 <https://hath0r.dev/ontology/v1#memory:eval:eval-baseline-hathor-cli> a hath0r:Plane ;
     rdfs:label "Task Evaluation eval-baseline-hathor-cli (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:global-install-hath0r-cli-1-21-0> a hath0r:Plane ;
+    rdfs:label "Task Evaluation global-install-hath0r-cli-1.21.0 (R=0.94, PASS)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -1864,6 +1893,26 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:eval:issue-566> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-566 (R=0.92, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-566-dmg-exe-installers> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-566-dmg-exe-installers (R=0.93, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-566-install-wizard> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-566-install-wizard (R=0.93, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-566-release-cleanup> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-566-release-cleanup (R=0.93, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:eval:pr-101> a hath0r:Plane ;
     rdfs:label "Task Evaluation pr-101 (R=0.90, FAIL)" ;
     hath0r:inPlane "memory" ;
@@ -1909,6 +1958,11 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:eval:release-deploy-hath0r-mcp-1-13-0-cli-1-21-0> a hath0r:Plane ;
+    rdfs:label "Task Evaluation release-deploy-hath0r-mcp-1.13.0-cli-1.21.0 (R=0.94, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:eval:release-v1-11-0> a hath0r:Plane ;
     rdfs:label "Task Evaluation release-v1.11.0 (R=1.00, PASS)" ;
     hath0r:inPlane "memory" ;
@@ -1926,6 +1980,11 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:eval:release-v1-15-2> a hath0r:Plane ;
     rdfs:label "Task Evaluation release-v1.15.2 (R=1.00, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:setup-local-qgates-36-repos> a hath0r:Plane ;
+    rdfs:label "Task Evaluation setup-local-qgates-36-repos (R=0.93, PASS)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -1994,8 +2053,18 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:insight:dmg> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on dmg" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:insight:evals> a hath0r:Plane ;
     rdfs:label "Synthesized Insight on evals" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:insight:exe> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on exe" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -2011,6 +2080,16 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:insight:hathor-cli> a hath0r:Plane ;
     rdfs:label "Synthesized Insight on hathor-cli" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:insight:install-wizard> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on install-wizard" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:insight:mcp> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on mcp" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -2034,8 +2113,18 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:insight:release> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on release" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:insight:repository> a hath0r:Plane ;
     rdfs:label "Synthesized Insight on repository" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:knowledge:suite-arch-and-local-qgates-20261031> a hath0r:Plane ;
+    rdfs:label "Suite MCP-Central Architecture & Local Quality Gates (CR-LOCAL-QGATES-001)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -2051,6 +2140,11 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:rule:cr-cli-entry-001> a hath0r:Rule ;
     rdfs:label "Start with CLI Rule" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:rule:cr-release-rotation-001> a hath0r:Rule ;
+    rdfs:label "CR-RELEASE-ROTATION-001 Canonical release/{mac,windows,vscode} & previous/ Rotation" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -2133,6 +2227,21 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:session:sess-20261031-121502-ecbafb> a hath0r:Plane ;
     rdfs:label "Micro Session sess-20261031-121502-ecbafb" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:session:sess-20261031-161737-5169cf> a hath0r:Plane ;
+    rdfs:label "Micro Session sess-20261031-161737-5169cf" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:session:sess-20261031-162748-37dc07> a hath0r:Plane ;
+    rdfs:label "Micro Session sess-20261031-162748-37dc07" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:session:sess-20261101-160736-c73550> a hath0r:Plane ;
+    rdfs:label "Micro Session sess-20261101-160736-c73550" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -2227,6 +2336,11 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#rule:cr-memory-compound-001> a hath0r:Plane ;
     rdfs:label "Rule cr-memory-compound-001" ;
+    hath0r:governs <https://hath0r.dev/ontology/v1#role:developer> ;
+    hath0r:inPlane "rules" .
+
+<https://hath0r.dev/ontology/v1#rule:cr-release-rotation-001> a hath0r:Plane ;
+    rdfs:label "Rule CR-RELEASE-ROTATION-001" ;
     hath0r:governs <https://hath0r.dev/ontology/v1#role:developer> ;
     hath0r:inPlane "rules" .
 

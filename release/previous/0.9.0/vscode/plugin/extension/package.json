@@ -1,0 +1,154 @@
+{
+  "name": "hath0r-vscode",
+  "displayName": "Hath0r - Enterprise Autonomous AI Agent Orchestration and Control Plane",
+  "type": "module",
+  "description": "Enterprise control plane, autonomous agent execution, Taguchi parameter optimization, Tri-Graph cognitive substrate, and FinOps token analytics for Visual Studio Code.",
+  "version": "0.9.0",
+  "publisher": "BaylyAI",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Machine Learning",
+    "Programming Languages",
+    "Testing",
+    "Visualization",
+    "Other"
+  ],
+  "keywords": [
+    "hath0r",
+    "ai-agents",
+    "agentic-ai",
+    "taguchi",
+    "finops",
+    "tri-graph",
+    "mcp",
+    "control-plane"
+  ],
+  "main": "./dist/extension.js",
+  "icon": "media/hath0r.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bayly-AI/HATH0R-CLI"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "hath0r-explorer",
+          "title": "HATH0R Control Plane",
+          "icon": "media/hath0r.svg"
+        }
+      ]
+    },
+    "views": {
+      "hath0r-explorer": [
+        {
+          "id": "hath0r-control",
+          "name": "Autonomous Control Tower"
+        },
+        {
+          "id": "hath0r-agents",
+          "name": "Agent Roles & Contracts"
+        },
+        {
+          "id": "hath0r-quality",
+          "name": "Quality Gates & Preflight"
+        },
+        {
+          "id": "hath0r-finops",
+          "name": "FinOps Token Telemetry"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "hath0r.doctor",
+        "title": "Hath0r: Run System Doctor & Diagnostics",
+        "category": "Hath0r",
+        "icon": "$(heart)"
+      },
+      {
+        "command": "hath0r.preflight",
+        "title": "Hath0r: Run Preflight Environmental Check",
+        "category": "Hath0r",
+        "icon": "$(checklist)"
+      },
+      {
+        "command": "hath0r.qualityGate",
+        "title": "Hath0r: Run Quality Gates Suite",
+        "category": "Hath0r",
+        "icon": "$(shield)"
+      },
+      {
+        "command": "hath0r.init",
+        "title": "Hath0r: Initialize Workspace Scaffolding",
+        "category": "Hath0r"
+      },
+      {
+        "command": "hath0r.taguchi",
+        "title": "Hath0r: Run Taguchi Robust Parameter Optimization",
+        "category": "Hath0r"
+      },
+      {
+        "command": "hath0r.finops",
+        "title": "Hath0r: Run Multilingual Tokenizer Tax Audit",
+        "category": "Hath0r"
+      },
+      {
+        "command": "hath0r.kbIndex",
+        "title": "Hath0r: Query Knowledge Base Index",
+        "category": "Hath0r"
+      },
+      {
+        "command": "hath0r.visualize",
+        "title": "Hath0r: Open Architecture Control Canvas",
+        "category": "Hath0r",
+        "icon": "$(preview)"
+      },
+      {
+        "command": "hath0r.refresh",
+        "title": "Hath0r: Refresh Views",
+        "category": "Hath0r",
+        "icon": "$(refresh)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "hath0r.refresh",
+          "when": "view == hath0r-control || view == hath0r-agents || view == hath0r-quality || view == hath0r-finops",
+          "group": "navigation"
+        },
+        {
+          "command": "hath0r.visualize",
+          "when": "view == hath0r-control",
+          "group": "navigation"
+        },
+        {
+          "command": "hath0r.doctor",
+          "when": "view == hath0r-control",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Hath0r",
+      "properties": {
+        "hath0r.executablePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to hath0r binary or python environment."
+        },
+        "hath0r.autoPreflightOnStartup": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run Hath0r preflight check upon workspace initialization."
+        }
+      }
+    }
+  }
+}

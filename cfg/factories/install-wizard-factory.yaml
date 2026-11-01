@@ -1,0 +1,110 @@
+# Hath0r Factory Specification v1
+# Group: hath0r-opensource
+# Factory: install-wizard-factory
+
+factory_id: install-wizard-factory
+name: Hath0r CLI & Hath0r MCP Docker Install Wizard Factory
+version: 1.0.0
+description: >
+  Declarative workflow factory for the Hath0r Install Wizard. Inspects and installs
+  host dependencies (Python 3.10+, pipx, Git, curl, Docker, Docker Compose v2), installs
+  the hath0r CLI globally on PATH with SHA-256 verification, stages the Hath0r MCP
+  Dockerfile, docker-compose.yml, and canonical seed knowledgebase, provisions the
+  hath0r-net Docker network, launches Hath0r-MCP via Docker on port 38083, and verifies
+  end-to-end health.
+author: "@somesayray"
+category: cli-lifecycle
+standard: CR-FEATURE-WORKFLOW-STANDARD-001
+agentgraph_level: L1_MCP_AND_L2_CLI_MEMORY
+acceptance_test: "hath0r install-wizard check"
+
+documentation:
+  strategy: docs/governance/strategies/install-wizard-strategy.md
+  procedure: docs/governance/procedures/install-wizard-procedure.md
+  playbook: docs/governance/playbooks/install-wizard-playbook.md
+  runbook: docs/governance/runbooks/install-wizard-runbook.md
+  bot_spec: docs/governance/bot-specs/install-wizard-bot-spec.md
+  guide: docs/hathor-guide-047-install-and-release-20260918.md
+  test_doc: tests/unit/test_install_wizard_bot.py
+
+bots:
+  - id: install-wizard-bot
+    name: Install Wizard Bot
+    role: cli-and-mcp-docker-installer
+    description: Downloads dependencies, installs Hath0r CLI globally, stages Hath0r MCP Docker assets, and launches Hath0r-MCP on hath0r-net.
+    capabilities:
+      - check
+      - run
+      - status
+      - repair
+      - uninstall
+      - package
+  - id: upgrade-verifier-bot
+    name: Upgrade Verifier Bot
+    role: install-verification
+    description: Verifies the installed CLI binary and command imports in a fresh subprocess.
+    capabilities:
+      - verify
+  - id: release-bot
+    name: Release Bot
+    role: canonical-release-rotation-and-sync
+    description: Rotates previous releases into release/previous/<version>/ and synchronizes current release artifacts with Framework.
+    capabilities:
+      - rotate
+      - build-and-rotate
+      - sync
+      - validate
+
+workflows:
+  - id: install-wizard-check
+    name: Pre-flight check of CLI, dependencies, and MCP Docker environment
+    description: Inspect system dependencies, global CLI PATH, Docker daemon, hath0r-net, and Hath0r-MCP readiness.
+    acceptance_test: "hath0r install-wizard check"
+    steps:
+      - bot: install-wizard-bot
+        action: check
+        on_failure: abort
+
+  - id: install-wizard-run
+    name: Full Hath0r CLI + Hath0r MCP (Docker) Install Wizard
+    description: Install dependencies, install CLI globally, stage MCP Dockerfile/compose, and launch Hath0r-MCP container.
+    acceptance_test: "hath0r install-wizard run --dry-run"
+    steps:
+      - bot: install-wizard-bot
+        action: run
+        on_failure: abort
+        args:
+          auto_approve: true
+      - bot: upgrade-verifier-bot
+        action: verify
+        on_failure: abort
+        args:
+          test_level: smoke
+
+  - id: install-wizard-repair
+    name: Repair Hath0r CLI PATH and Hath0r-MCP Docker Container
+    description: Re-provision hath0r-net, rebuild/restart Hath0r-MCP, and verify readiness.
+    acceptance_test: "hath0r install-wizard repair --dry-run"
+    steps:
+      - bot: install-wizard-bot
+        action: repair
+        on_failure: abort
+
+  - id: install-wizard-package
+    name: Rotate Previous Releases, Build Native DMG/EXE Launchers, and Sync Release Root
+    description: Moves any previous release files out of release/ root into release/previous/<version>/, builds current macOS .dmg and Windows .exe Install Wizard launchers in release/ root, and synchronizes with Framework.
+    acceptance_test: "hath0r install-wizard package --dry-run"
+    steps:
+      - bot: release-bot
+        action: rotate
+        on_failure: abort
+        args:
+          sync_framework: false
+      - bot: install-wizard-bot
+        action: package
+        on_failure: abort
+        args:
+          target: all
+      - bot: release-bot
+        action: sync
+        on_failure: abort
