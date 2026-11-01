@@ -1,7 +1,7 @@
 {
   "schema": "hath0r.security.bite_manifest/1",
   "scope": "skills_and_rules",
-  "generated_at": "2026-10-29T13:26:53.365987+00:00",
+  "generated_at": "2026-11-01T17:18:04.894098+00:00",
   "passed": true,
   "summary": {
     "total_audited": 6,
@@ -44,7 +44,7 @@
       "artifact_id": "AGENTS.md",
       "artifact_type": "rule_file",
       "path": "AGENTS.md",
-      "sha256": "85a35a89ef6daa7cf9388fd8c84f6cd2f071a85c7e2f00bef28516480581bfec",
+      "sha256": "a4d0c1c3431b771f82d4b81a1080a3a6f280fe44863debed91e8f30db4b6f3e8",
       "stated_purpose": "# agents.md \u2014 hath0r-cli (control tower & operator cli) > **canonical control tower and operator cli** for the **hath0r opensource suite** (`hath0r-opensource`). > roles: **governance control tower** ",
       "verdict": "CLEAN",
       "behaviors": [],
@@ -54,7 +54,7 @@
       "artifact_id": "CLAUDE.md",
       "artifact_type": "rule_file",
       "path": "CLAUDE.md",
-      "sha256": "85a35a89ef6daa7cf9388fd8c84f6cd2f071a85c7e2f00bef28516480581bfec",
+      "sha256": "a4d0c1c3431b771f82d4b81a1080a3a6f280fe44863debed91e8f30db4b6f3e8",
       "stated_purpose": "# agents.md \u2014 hath0r-cli (control tower & operator cli) > **canonical control tower and operator cli** for the **hath0r opensource suite** (`hath0r-opensource`). > roles: **governance control tower** ",
       "verdict": "CLEAN",
       "behaviors": [],

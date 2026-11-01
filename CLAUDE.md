@@ -116,6 +116,13 @@ Canonical: [HATH0R-CLI `docs/governance/cli-first-rules.md`](https://github.com/
 
 ---
 
+## CR-RELEASE-ROTATION-001 (Canonical `release/{mac,windows,vscode}` & `release/previous/<version>/` Archive Rotation — CANONICAL)
+- **Canonical Platform Subfolders (`release/mac`, `release/windows`, `release/vscode`)**: Under `release/` reside the three active platform folders: `release/mac/` (Mac `.dmg` Install Wizard, Darwin binaries, fileset, wizard scripts), `release/windows/` (Windows `.exe` Install Wizard, Windows wrapper, fileset, wizard scripts), and `release/vscode/` (VSCode `.vsix` extension package).
+- **Automatic Clear & Rotation to `release/previous/<version>/`**: Before building a new release (`hath0r release build` / `hath0r release rotate` / `ReleaseBot`), `release/mac/`, `release/windows/`, and `release/vscode/` are cleared out and their previous release items are moved into `release/previous/<prev_version>/{mac,windows,vscode}/` (with per-version `CHECKSUMS.sha256`), and then the new releases are built into `release/mac/`, `release/windows/`, and `release/vscode/` and synchronized with `hath0r-framework/release/`.
+- **Canonical Workflow Enforcement**: Enforced across `quality-release-factory.yaml` (`release-cut`), `update-cli-factory.yaml` (`update-cli`), `end-of-task-factory.yaml` (`end-of-task`), `clean-repos-factory.yaml` (`clean-repos`), and `install-wizard-factory.yaml` (`install-wizard-package`). Verify with `hath0r release rotate` and `hath0r release validate`.
+
+---
+
 ## Branch & Promotion Governance (`CR-BRANCH-GOV-001` · `CR-BAI-001`)
 
 ```text

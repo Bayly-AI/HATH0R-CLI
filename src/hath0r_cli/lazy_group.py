@@ -82,6 +82,8 @@ COMMAND_REGISTRY: Dict[str, Tuple[str, str]] = {
     "skills": ("hath0r_cli.commands.skills", "skills"),
     "threatmodel": ("hath0r_cli.commands.threatmodel", "threatmodel_cmd"),
     "arch": ("hath0r_cli.commands.arch", "arch_cmd"),
+    "install-wizard": ("hath0r_cli.commands.install_wizard", "install_wizard"),
+    "setup": ("hath0r_cli.commands.install_wizard", "install_wizard"),
 }
 
 

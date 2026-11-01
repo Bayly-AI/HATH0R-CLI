@@ -1,15 +1,15 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261101-172704-d1a49c",
-  "task_id": "task-HATH0R-CLI",
-  "issue_number": null,
-  "repo_name": "HATH0R-CLI",
-  "branch": "development",
-  "evaluated_at": "2026-11-01T17:27:04.185912+00:00",
-  "duration_ms": 1625.0,
+  "eval_id": "eval-20261101-172831-a8945f",
+  "task_id": "issue-566",
+  "issue_number": 566,
+  "repo_name": "hathor-cli",
+  "branch": "feature/566-cli-mcp-install-wizard",
+  "evaluated_at": "2026-11-01T17:28:31.303113+00:00",
+  "duration_ms": 2505.08,
   "passed_gate": true,
-  "r_task": 0.9331,
+  "r_task": 0.935,
   "min_reward_threshold": 0.8,
   "weights": {
     "deterministic": 0.4,
@@ -18,14 +18,14 @@
     "goal_alignment": 0.15
   },
   "tier_scores": {
-    "deterministic": 0.9407,
-    "trajectory": 0.9214,
-    "adversarial": 0.933,
+    "deterministic": 0.9558,
+    "trajectory": 0.9121,
+    "adversarial": 0.924,
     "goal_alignment": 0.9287
   },
   "tiers": {
     "deterministic": {
-      "score": 0.9407,
+      "score": 0.9558,
       "passed": true,
       "passed_checks": 6,
       "total_checks": 6,
@@ -34,13 +34,13 @@
         "agentgraph_valid": 1.0,
         "memory_compounded": 0.98,
         "test_suite": 0.88,
-        "calibration_4h": 0.82,
-        "local_quality_gates": 0.9596
+        "calibration_4h": 0.956,
+        "local_quality_gates": 0.9525
       },
       "checks": {
         "version_valid": {
           "passed": true,
-          "version": "1.21.0",
+          "version": "1.22.0",
           "changelog_aligned": true,
           "error": null
         },
@@ -52,7 +52,7 @@
         },
         "memory_compounded": {
           "passed": true,
-          "compounded_nodes_count": 84,
+          "compounded_nodes_count": 95,
           "session_read_verified": true,
           "session_write_verified": true,
           "hashes_verified": true,
@@ -66,15 +66,15 @@
         },
         "calibration_4h": {
           "passed": true,
-          "is_fresh": false,
-          "age_hours": null,
+          "is_fresh": true,
+          "age_hours": 1.36,
           "max_age_hours": 4.0
         },
         "local_quality_gates": {
           "passed": true,
           "technology": "python",
-          "thresholds_file": "C:\\Users\\RaymondBayly\\Documents\\HATH0R-CLI\\thresholds.json",
-          "qgate_score": 0.9596,
+          "thresholds_file": "/Users/raybayly/Development/OpenSource/hathor-cli/thresholds.json",
+          "qgate_score": 0.9525,
           "failing_gates": [],
           "gates": {
             "errors": {
@@ -89,73 +89,73 @@
             "coverage": {
               "gate": "coverage",
               "passed": true,
-              "actual_coverage_pct": 95.3,
+              "actual_coverage_pct": 92.0,
               "min_coverage_pct": 80.0,
               "comparator": ">=",
               "source": "test_suite_symbol_verification",
-              "score": 0.9641
+              "score": 0.946
             },
             "complexity": {
               "gate": "complexity",
               "passed": true,
-              "max_observed_complexity": 114,
-              "avg_complexity": 6.78,
+              "max_observed_complexity": 182,
+              "avg_complexity": 8.5,
               "max_complexity": 15,
               "comparator": "<=",
-              "functions_scanned": 856,
+              "functions_scanned": 247,
               "offending_functions": [
                 {
-                  "function": "src\\hath0r_cli\\catalog.py:parse_catalog",
-                  "line": 39,
-                  "complexity": 29
+                  "function": "scripts/build_fileset.py:copy_contracts",
+                  "line": 40,
+                  "complexity": 16
                 },
                 {
-                  "function": "src\\hath0r_cli\\code_parser.py:parse_python_ast",
-                  "line": 53,
+                  "function": "scripts/build_release_binaries.py:generate_checksums",
+                  "line": 57,
+                  "complexity": 25
+                },
+                {
+                  "function": "scripts/build_release_binaries.py:_route_artifact_to_platform_folders",
+                  "line": 108,
+                  "complexity": 23
+                },
+                {
+                  "function": "scripts/build_release_binaries.py:cleanup_and_archive_release_dir",
+                  "line": 168,
+                  "complexity": 182
+                },
+                {
+                  "function": "scripts/build_release_binaries.py:rotate_previous_release",
+                  "line": 358,
+                  "complexity": 50
+                },
+                {
+                  "function": "scripts/build_release_binaries.py:populate_platform_release_dirs",
+                  "line": 500,
+                  "complexity": 70
+                },
+                {
+                  "function": "scripts/build_release_binaries.py:sync_to_framework",
+                  "line": 627,
+                  "complexity": 36
+                },
+                {
+                  "function": "scripts/build_release_binaries.py:execute_release_build",
+                  "line": 690,
                   "complexity": 30
                 },
                 {
-                  "function": "src\\hath0r_cli\\code_parser.py:parse_generic_symbols",
-                  "line": 104,
+                  "function": "scripts/build_vscode_plugin.py:rotate_existing_vscode_release",
+                  "line": 57,
                   "complexity": 27
                 },
                 {
-                  "function": "src\\hath0r_cli\\code_parser.py:generate_outline",
-                  "line": 223,
-                  "complexity": 24
-                },
-                {
-                  "function": "src\\hath0r_cli\\code_parser.py:validate_syntax",
-                  "line": 253,
-                  "complexity": 17
-                },
-                {
-                  "function": "src\\hath0r_cli\\doctor.py:run_checks",
-                  "line": 156,
-                  "complexity": 81
-                },
-                {
-                  "function": "src\\hath0r_cli\\factory_validation.py:validate_factory_file",
-                  "line": 49,
-                  "complexity": 52
-                },
-                {
-                  "function": "src\\hath0r_cli\\mcp.py:detect_repo_mcp_group",
-                  "line": 242,
-                  "complexity": 30
-                },
-                {
-                  "function": "src\\hath0r_cli\\mcp.py:ensure_repo_mcp_config",
-                  "line": 325,
-                  "complexity": 18
-                },
-                {
-                  "function": "src\\hath0r_cli\\mcp.py:validate_mcp_config",
-                  "line": 486,
-                  "complexity": 18
+                  "function": "scripts/build_vscode_plugin.py:build_vscode_package",
+                  "line": 221,
+                  "complexity": 16
                 }
               ],
-              "score": 0.8648
+              "score": 0.8533
             },
             "duplication": {
               "gate": "duplication",
@@ -163,43 +163,10 @@
               "duplicated_lines_pct": 0.3,
               "max_duplicated_lines_pct": 3.0,
               "comparator": "<=",
-              "duplicated_lines": 80,
-              "total_analyzed_lines": 26502,
-              "duplicated_blocks": [
-                {
-                  "first": "src\\hath0r_cli\\elt_store.py:95",
-                  "duplicate": "src\\hath0r_cli\\elt_store.py:112"
-                },
-                {
-                  "first": "src\\hath0r_cli\\elt_store.py:143",
-                  "duplicate": "src\\hath0r_cli\\elt_store.py:178"
-                },
-                {
-                  "first": "src\\hath0r_cli\\bots\\memory_manager.py:796",
-                  "duplicate": "src\\hath0r_cli\\bots\\memory_manager.py:878"
-                },
-                {
-                  "first": "src\\hath0r_cli\\bots\\memory_manager.py:806",
-                  "duplicate": "src\\hath0r_cli\\bots\\memory_manager.py:888"
-                },
-                {
-                  "first": "src\\hath0r_cli\\bots\\mlflow_manager_bot.py:28",
-                  "duplicate": "src\\hath0r_cli\\bots\\phoenix_manager_bot.py:23"
-                },
-                {
-                  "first": "src\\hath0r_cli\\bots\\mlflow_manager_bot.py:48",
-                  "duplicate": "src\\hath0r_cli\\bots\\phoenix_manager_bot.py:43"
-                },
-                {
-                  "first": "src\\hath0r_cli\\bots\\mlflow_manager_bot.py:58",
-                  "duplicate": "src\\hath0r_cli\\bots\\phoenix_manager_bot.py:53"
-                },
-                {
-                  "first": "src\\hath0r_cli\\bots\\phoenix_observer_bot.py:52",
-                  "duplicate": "src\\hath0r_cli\\bots\\phoenix_observer_bot.py:85"
-                }
-              ],
-              "score": 0.987
+              "duplicated_lines": 0,
+              "total_analyzed_lines": 8670,
+              "duplicated_blocks": [],
+              "score": 0.99
             }
           },
           "report": {
@@ -220,8 +187,8 @@
               "new_maintainability_rating": 1,
               "min_security_hotspots_reviewed_pct": 100.0
             },
-            "files_analyzed": 80,
-            "qgate_score": 0.9596,
+            "files_analyzed": 15,
+            "qgate_score": 0.9525,
             "failing_gates": [],
             "gates": {
               "errors": {
@@ -236,73 +203,73 @@
               "coverage": {
                 "gate": "coverage",
                 "passed": true,
-                "actual_coverage_pct": 95.3,
+                "actual_coverage_pct": 92.0,
                 "min_coverage_pct": 80.0,
                 "comparator": ">=",
                 "source": "test_suite_symbol_verification",
-                "score": 0.9641
+                "score": 0.946
               },
               "complexity": {
                 "gate": "complexity",
                 "passed": true,
-                "max_observed_complexity": 114,
-                "avg_complexity": 6.78,
+                "max_observed_complexity": 182,
+                "avg_complexity": 8.5,
                 "max_complexity": 15,
                 "comparator": "<=",
-                "functions_scanned": 856,
+                "functions_scanned": 247,
                 "offending_functions": [
                   {
-                    "function": "src\\hath0r_cli\\catalog.py:parse_catalog",
-                    "line": 39,
-                    "complexity": 29
+                    "function": "scripts/build_fileset.py:copy_contracts",
+                    "line": 40,
+                    "complexity": 16
                   },
                   {
-                    "function": "src\\hath0r_cli\\code_parser.py:parse_python_ast",
-                    "line": 53,
+                    "function": "scripts/build_release_binaries.py:generate_checksums",
+                    "line": 57,
+                    "complexity": 25
+                  },
+                  {
+                    "function": "scripts/build_release_binaries.py:_route_artifact_to_platform_folders",
+                    "line": 108,
+                    "complexity": 23
+                  },
+                  {
+                    "function": "scripts/build_release_binaries.py:cleanup_and_archive_release_dir",
+                    "line": 168,
+                    "complexity": 182
+                  },
+                  {
+                    "function": "scripts/build_release_binaries.py:rotate_previous_release",
+                    "line": 358,
+                    "complexity": 50
+                  },
+                  {
+                    "function": "scripts/build_release_binaries.py:populate_platform_release_dirs",
+                    "line": 500,
+                    "complexity": 70
+                  },
+                  {
+                    "function": "scripts/build_release_binaries.py:sync_to_framework",
+                    "line": 627,
+                    "complexity": 36
+                  },
+                  {
+                    "function": "scripts/build_release_binaries.py:execute_release_build",
+                    "line": 690,
                     "complexity": 30
                   },
                   {
-                    "function": "src\\hath0r_cli\\code_parser.py:parse_generic_symbols",
-                    "line": 104,
+                    "function": "scripts/build_vscode_plugin.py:rotate_existing_vscode_release",
+                    "line": 57,
                     "complexity": 27
                   },
                   {
-                    "function": "src\\hath0r_cli\\code_parser.py:generate_outline",
-                    "line": 223,
-                    "complexity": 24
-                  },
-                  {
-                    "function": "src\\hath0r_cli\\code_parser.py:validate_syntax",
-                    "line": 253,
-                    "complexity": 17
-                  },
-                  {
-                    "function": "src\\hath0r_cli\\doctor.py:run_checks",
-                    "line": 156,
-                    "complexity": 81
-                  },
-                  {
-                    "function": "src\\hath0r_cli\\factory_validation.py:validate_factory_file",
-                    "line": 49,
-                    "complexity": 52
-                  },
-                  {
-                    "function": "src\\hath0r_cli\\mcp.py:detect_repo_mcp_group",
-                    "line": 242,
-                    "complexity": 30
-                  },
-                  {
-                    "function": "src\\hath0r_cli\\mcp.py:ensure_repo_mcp_config",
-                    "line": 325,
-                    "complexity": 18
-                  },
-                  {
-                    "function": "src\\hath0r_cli\\mcp.py:validate_mcp_config",
-                    "line": 486,
-                    "complexity": 18
+                    "function": "scripts/build_vscode_plugin.py:build_vscode_package",
+                    "line": 221,
+                    "complexity": 16
                   }
                 ],
-                "score": 0.8648
+                "score": 0.8533
               },
               "duplication": {
                 "gate": "duplication",
@@ -310,43 +277,10 @@
                 "duplicated_lines_pct": 0.3,
                 "max_duplicated_lines_pct": 3.0,
                 "comparator": "<=",
-                "duplicated_lines": 80,
-                "total_analyzed_lines": 26502,
-                "duplicated_blocks": [
-                  {
-                    "first": "src\\hath0r_cli\\elt_store.py:95",
-                    "duplicate": "src\\hath0r_cli\\elt_store.py:112"
-                  },
-                  {
-                    "first": "src\\hath0r_cli\\elt_store.py:143",
-                    "duplicate": "src\\hath0r_cli\\elt_store.py:178"
-                  },
-                  {
-                    "first": "src\\hath0r_cli\\bots\\memory_manager.py:796",
-                    "duplicate": "src\\hath0r_cli\\bots\\memory_manager.py:878"
-                  },
-                  {
-                    "first": "src\\hath0r_cli\\bots\\memory_manager.py:806",
-                    "duplicate": "src\\hath0r_cli\\bots\\memory_manager.py:888"
-                  },
-                  {
-                    "first": "src\\hath0r_cli\\bots\\mlflow_manager_bot.py:28",
-                    "duplicate": "src\\hath0r_cli\\bots\\phoenix_manager_bot.py:23"
-                  },
-                  {
-                    "first": "src\\hath0r_cli\\bots\\mlflow_manager_bot.py:48",
-                    "duplicate": "src\\hath0r_cli\\bots\\phoenix_manager_bot.py:43"
-                  },
-                  {
-                    "first": "src\\hath0r_cli\\bots\\mlflow_manager_bot.py:58",
-                    "duplicate": "src\\hath0r_cli\\bots\\phoenix_manager_bot.py:53"
-                  },
-                  {
-                    "first": "src\\hath0r_cli\\bots\\phoenix_observer_bot.py:52",
-                    "duplicate": "src\\hath0r_cli\\bots\\phoenix_observer_bot.py:85"
-                  }
-                ],
-                "score": 0.987
+                "duplicated_lines": 0,
+                "total_analyzed_lines": 8670,
+                "duplicated_blocks": [],
+                "score": 0.99
               }
             }
           }
@@ -354,54 +288,55 @@
       }
     },
     "trajectory": {
-      "score": 0.9214,
+      "score": 0.9121,
       "passed": true,
-      "tokens_used": 21,
+      "tokens_used": 145,
       "max_tokens": 50000,
-      "estimated_usd": 6.3e-05,
+      "estimated_usd": 0.000435,
       "max_usd": 0.25,
-      "session_id": "sess-20261031-162748-37dc07",
-      "session_reads": 4,
-      "session_writes": 7,
-      "session_bytes": 1977,
-      "capsule_fill_ratio": 0.9653,
+      "session_id": "sess-20261101-160736-c73550",
+      "session_reads": 2,
+      "session_writes": 19,
+      "session_bytes": 1931,
+      "capsule_fill_ratio": 0.9429,
       "within_capsule_budget": true,
-      "latency_ms": 1203.0,
-      "taguchi_quality_loss": 0.0217,
-      "taguchi_score": 0.9257,
-      "snr_db": 4.42
+      "latency_ms": 1742.69,
+      "taguchi_quality_loss": 0.0456,
+      "taguchi_score": 0.866,
+      "snr_db": 1.2
     },
     "adversarial": {
-      "score": 0.933,
+      "score": 0.924,
       "passed": true,
       "adversarial_flaws_count": 0,
       "adversarial_flaws": [],
       "tech_debts_count": 0,
       "auto_created_issues": [],
       "minor_findings": [
-        "Cognitive complexity hotspot observed (avg 6.78, max 114, -0.0400)",
-        "Repeated code blocks detected (0.30%, -0.0030)"
+        "Cognitive complexity hotspot observed (avg 8.50, max 182, -0.0400)"
       ],
-      "added_lines_count": 20,
+      "added_lines_count": 22,
       "change_categories": {
         "ui": [],
-        "script": [],
-        "text": [
-          "cfg/mcp.servers.json"
+        "script": [
+          "scripts/build_release_binaries.py",
+          "src/hath0r_cli/bots/install_wizard_bot.py",
+          "tests/test_update_cli_factory.py",
+          "tests/unit/test_bots.py"
         ],
         "other": []
       },
-      "changed_files_count": 1
+      "changed_files_count": 4
     },
     "goal_alignment": {
       "score": 0.9287,
       "passed": true,
-      "task_id": "task-HATH0R-CLI",
-      "issue_number": null,
-      "active_focus": "Repository orientation verified for HATH0R-CLI",
-      "goal_keywords_count": 4,
+      "task_id": "issue-566",
+      "issue_number": 566,
+      "active_focus": "Active working session in hathor-cli",
+      "goal_keywords_count": 5,
       "goal_overlap_score": 0.98,
-      "compounded_nodes_count": 84,
+      "compounded_nodes_count": 95,
       "consensus_score": 0.826
     }
   },
@@ -423,8 +358,8 @@
       "new_maintainability_rating": 1,
       "min_security_hotspots_reviewed_pct": 100.0
     },
-    "files_analyzed": 80,
-    "qgate_score": 0.9596,
+    "files_analyzed": 15,
+    "qgate_score": 0.9525,
     "failing_gates": [],
     "gates": {
       "errors": {
@@ -439,73 +374,73 @@
       "coverage": {
         "gate": "coverage",
         "passed": true,
-        "actual_coverage_pct": 95.3,
+        "actual_coverage_pct": 92.0,
         "min_coverage_pct": 80.0,
         "comparator": ">=",
         "source": "test_suite_symbol_verification",
-        "score": 0.9641
+        "score": 0.946
       },
       "complexity": {
         "gate": "complexity",
         "passed": true,
-        "max_observed_complexity": 114,
-        "avg_complexity": 6.78,
+        "max_observed_complexity": 182,
+        "avg_complexity": 8.5,
         "max_complexity": 15,
         "comparator": "<=",
-        "functions_scanned": 856,
+        "functions_scanned": 247,
         "offending_functions": [
           {
-            "function": "src\\hath0r_cli\\catalog.py:parse_catalog",
-            "line": 39,
-            "complexity": 29
+            "function": "scripts/build_fileset.py:copy_contracts",
+            "line": 40,
+            "complexity": 16
           },
           {
-            "function": "src\\hath0r_cli\\code_parser.py:parse_python_ast",
-            "line": 53,
+            "function": "scripts/build_release_binaries.py:generate_checksums",
+            "line": 57,
+            "complexity": 25
+          },
+          {
+            "function": "scripts/build_release_binaries.py:_route_artifact_to_platform_folders",
+            "line": 108,
+            "complexity": 23
+          },
+          {
+            "function": "scripts/build_release_binaries.py:cleanup_and_archive_release_dir",
+            "line": 168,
+            "complexity": 182
+          },
+          {
+            "function": "scripts/build_release_binaries.py:rotate_previous_release",
+            "line": 358,
+            "complexity": 50
+          },
+          {
+            "function": "scripts/build_release_binaries.py:populate_platform_release_dirs",
+            "line": 500,
+            "complexity": 70
+          },
+          {
+            "function": "scripts/build_release_binaries.py:sync_to_framework",
+            "line": 627,
+            "complexity": 36
+          },
+          {
+            "function": "scripts/build_release_binaries.py:execute_release_build",
+            "line": 690,
             "complexity": 30
           },
           {
-            "function": "src\\hath0r_cli\\code_parser.py:parse_generic_symbols",
-            "line": 104,
+            "function": "scripts/build_vscode_plugin.py:rotate_existing_vscode_release",
+            "line": 57,
             "complexity": 27
           },
           {
-            "function": "src\\hath0r_cli\\code_parser.py:generate_outline",
-            "line": 223,
-            "complexity": 24
-          },
-          {
-            "function": "src\\hath0r_cli\\code_parser.py:validate_syntax",
-            "line": 253,
-            "complexity": 17
-          },
-          {
-            "function": "src\\hath0r_cli\\doctor.py:run_checks",
-            "line": 156,
-            "complexity": 81
-          },
-          {
-            "function": "src\\hath0r_cli\\factory_validation.py:validate_factory_file",
-            "line": 49,
-            "complexity": 52
-          },
-          {
-            "function": "src\\hath0r_cli\\mcp.py:detect_repo_mcp_group",
-            "line": 242,
-            "complexity": 30
-          },
-          {
-            "function": "src\\hath0r_cli\\mcp.py:ensure_repo_mcp_config",
-            "line": 325,
-            "complexity": 18
-          },
-          {
-            "function": "src\\hath0r_cli\\mcp.py:validate_mcp_config",
-            "line": 486,
-            "complexity": 18
+            "function": "scripts/build_vscode_plugin.py:build_vscode_package",
+            "line": 221,
+            "complexity": 16
           }
         ],
-        "score": 0.8648
+        "score": 0.8533
       },
       "duplication": {
         "gate": "duplication",
@@ -513,43 +448,10 @@
         "duplicated_lines_pct": 0.3,
         "max_duplicated_lines_pct": 3.0,
         "comparator": "<=",
-        "duplicated_lines": 80,
-        "total_analyzed_lines": 26502,
-        "duplicated_blocks": [
-          {
-            "first": "src\\hath0r_cli\\elt_store.py:95",
-            "duplicate": "src\\hath0r_cli\\elt_store.py:112"
-          },
-          {
-            "first": "src\\hath0r_cli\\elt_store.py:143",
-            "duplicate": "src\\hath0r_cli\\elt_store.py:178"
-          },
-          {
-            "first": "src\\hath0r_cli\\bots\\memory_manager.py:796",
-            "duplicate": "src\\hath0r_cli\\bots\\memory_manager.py:878"
-          },
-          {
-            "first": "src\\hath0r_cli\\bots\\memory_manager.py:806",
-            "duplicate": "src\\hath0r_cli\\bots\\memory_manager.py:888"
-          },
-          {
-            "first": "src\\hath0r_cli\\bots\\mlflow_manager_bot.py:28",
-            "duplicate": "src\\hath0r_cli\\bots\\phoenix_manager_bot.py:23"
-          },
-          {
-            "first": "src\\hath0r_cli\\bots\\mlflow_manager_bot.py:48",
-            "duplicate": "src\\hath0r_cli\\bots\\phoenix_manager_bot.py:43"
-          },
-          {
-            "first": "src\\hath0r_cli\\bots\\mlflow_manager_bot.py:58",
-            "duplicate": "src\\hath0r_cli\\bots\\phoenix_manager_bot.py:53"
-          },
-          {
-            "first": "src\\hath0r_cli\\bots\\phoenix_observer_bot.py:52",
-            "duplicate": "src\\hath0r_cli\\bots\\phoenix_observer_bot.py:85"
-          }
-        ],
-        "score": 0.987
+        "duplicated_lines": 0,
+        "total_analyzed_lines": 8670,
+        "duplicated_blocks": [],
+        "score": 0.99
       }
     }
   },
@@ -559,18 +461,33 @@
       "VERIFIED_EXECUTION": [
         ".hath0r/evals/latest.json"
       ],
-      "STATIC_AST_ANALYSIS": [],
+      "STATIC_AST_ANALYSIS": [
+        "scripts/build_release_binaries.py",
+        "src/hath0r_cli/bots/install_wizard_bot.py",
+        "tests/test_update_cli_factory.py",
+        "tests/unit/test_bots.py",
+        ".hath0r/agentgraph/snapshot.json",
+        ".hath0r/evals/history/eval-issue-566.json",
+        ".hath0r/evals/latest.json",
+        ".hath0r/memory/graph.json",
+        ".hath0r/memory/hashes.json",
+        ".hath0r/memory/sessions/current.json",
+        ".hath0r/memory/sessions/latest.json",
+        ".hath0r/memory/sessions/sess-20261101-160736-c73550.json"
+      ],
       "UNVERIFIED_FILE_PRESENCE": []
     },
     "counts": {
       "VERIFIED_EXECUTION": 1,
-      "STATIC_AST_ANALYSIS": 0,
+      "STATIC_AST_ANALYSIS": 12,
       "UNVERIFIED_FILE_PRESENCE": 0
     }
   },
   "blocking_reasons": [],
   "observability_sync": {
-    "mode": "pending"
+    "mode": "live_synced",
+    "phoenix_logged": true,
+    "mlflow_run_id": "59bb6ac6160d412a9fbddabc7f2ab045"
   },
-  "content_hash": "sha256:9dd37e119c445fa79fe2e4106263b2d3435bdc40c39f5a73454ec43f84c4da57"
+  "content_hash": "sha256:30d697dde38cc177531f5af22b8f8165c937e414b1602191caf0919beffe6d27"
 }

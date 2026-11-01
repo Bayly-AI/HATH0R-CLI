@@ -5,6 +5,20 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.22.0] - 2026-11-01
+
+### Added
+- **Official Hath0r Install Wizard for CLI & Hath0r MCP via Docker (`CR-FEATURE-WORKFLOW-STANDARD-001` & `CR-DOCKER-HATH0R-GROUP-001`)** (#566):
+  - Added `InstallWizardBot` (`src/hath0r_cli/bots/install_wizard_bot.py`) orchestrating the 5-stage installation pipeline:
+    1. **Dependency Inspection & Installation**: Detects and installs missing Python >= 3.10, `pipx`/`pip`, Git, `curl`, Docker Engine, and Docker Compose v2 across `brew`, `apt`, and `dnf`, and starts the Docker daemon.
+    2. **Global Hath0r CLI Installation**: Installs `hath0r` globally via `pipx`, standalone binary (`release/` or GitHub Releases), or `pip` with SHA-256 checksum verification and automatic `PATH` profile persistence.
+    3. **Hath0r MCP Docker Staging**: Stages the hardened non-root `Dockerfile` (`USER 10001:10001`), `docker-compose.yml` (`name: hath0r`, `Hath0r-MCP`, `127.0.0.1:38083:8083`, `read_only: true`, `cap_drop: [ALL]`), `requirements.txt`, and canonical knowledgebase (`~/.hath0r/mcp` or workspace sibling `hath0r-mcp`).
+    4. **Docker Network & Container Launch**: Provisions external network `hath0r-net` with `com.hath0r.*` labels and launches `Hath0r-MCP` via Docker Compose.
+    5. **End-to-End Verification & Receipt**: Probes `http://127.0.0.1:38083/health` and `/ready`, runs `UpgradeVerifierBot.verify()`, configures `~/.hath0r/mcp.json` and `.hath0r/mcp.json`, and writes `~/.hath0r/install/INSTALL_RECEIPT.json`.
+  - Added `hath0r install-wizard` (and alias `hath0r setup`) with `run`, `check`, `status`, `repair`, and `uninstall` subcommands (`src/hath0r_cli/commands/install_wizard.py`), registered `install-wizard-bot` in `BotRegistry` (`src/hath0r_cli/step_runner.py`), and exposed the `hath0r_install_wizard` MCP tool (`src/hath0r_cli/server/mcp_server.py`).
+  - Upgraded `scripts/install_hath0r.py` and added `release/install-wizard.sh` as the zero-dependency release bootstrap entrypoints bundled into `release/` (`scripts/build_release_binaries.py` and `.github/workflows/release.yml`).
+  - Added full Governance Documentation Hexad (`docs/governance/*/install-wizard-*.md`), declarative factory `cfg/factories/install-wizard-factory.yaml`, and unit test suite `tests/unit/test_install_wizard_bot.py`.
+
 ## [1.21.0] - 2026-10-31
 
 ### Added

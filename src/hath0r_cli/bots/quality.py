@@ -785,17 +785,54 @@ class ReleaseBot:
         changelog = self._read_text("CHANGELOG.md", ref)
         has_cl = changelog is not None
         notes_ok = has_cl and ver["version"] in (changelog or "")
+
+        release_root_clean = True
+        stale_release_items: List[str] = []
+        release_dir = self.cwd / "release"
+        if ref is None and release_dir.is_dir() and (release_dir / "previous").is_dir():
+            ver_re = re.compile(r"[-_](\d+\.\d+\.\d+)(?:[-._]|$)")
+            for item in sorted(release_dir.iterdir()):
+                if item.name in ("previous", "mac", "windows", "vscode", "prompts", "README.md", "AGENTS.md", "CHECKSUMS.sha256", ".DS_Store", ".gitkeep", ".work"):
+                    continue
+                if item.is_dir() and item.name.startswith("hath0r-fileset-"):
+                    release_root_clean = False
+                    stale_release_items.append(item.name)
+                elif item.is_file():
+                    m = ver_re.search(item.name)
+                    if m and m.group(1) != ver["version"]:
+                        release_root_clean = False
+                        stale_release_items.append(item.name)
+
+            for plat in ("mac", "windows", "vscode"):
+                plat_dir = release_dir / plat
+                if plat_dir.is_dir():
+                    for f in sorted(plat_dir.iterdir()):
+                        if f.is_file():
+                            m = ver_re.search(f.name)
+                            if m and m.group(1) != ver["version"]:
+                                release_root_clean = False
+                                stale_release_items.append(f"{plat}/{f.name}")
+
+        all_ok = bool(notes_ok and release_root_clean)
+        if not notes_ok:
+            msg = "CHANGELOG.md must exist and mention the VERSION string before release."
+        elif not release_root_clean:
+            msg = (
+                f"release/ root contains non-current artifacts ({', '.join(stale_release_items)}); "
+                "run 'hath0r release rotate' to move previous releases into release/previous/<version>/."
+            )
+        else:
+            msg = "VERSION, CHANGELOG, and release/ root rotation aligned."
+
         return {
-            "success": bool(notes_ok),
+            "success": all_ok,
             "version": ver["version"],
             "tag": ver["tag"],
             "changelog_present": has_cl,
             "changelog_mentions_version": notes_ok,
-            "message": (
-                "VERSION and CHANGELOG aligned."
-                if notes_ok
-                else "CHANGELOG.md must exist and mention the VERSION string before release."
-            ),
+            "release_root_clean": release_root_clean,
+            "stale_release_items": stale_release_items,
+            "message": msg,
         }
 
     def generate_notes(self, *, version: Optional[str] = None, ref: Optional[str] = None) -> Dict[str, Any]:
@@ -968,3 +1005,88 @@ class ReleaseBot:
         finally:
             if sys_path_added and scripts_dir in sys.path:
                 sys.path.remove(scripts_dir)
+
+    def rotate_previous(
+        self,
+        *,
+        out_dir: Optional[Path] = None,
+        previous_dir: Optional[Path] = None,
+        framework_dir: Optional[Path] = None,
+        sync_framework: bool = True,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Ensure all non-current release files in `release/` root are moved into `release/previous/<version>/`."""
+        release_dir = (out_dir or (self.cwd / "release")).resolve()
+        if not release_dir.is_dir():
+            return {
+                "success": True,
+                "skipped": True,
+                "release_dir": str(release_dir),
+                "message": "No release/ directory present in this repository; rotation not required.",
+            }
+
+        cli_scripts = self.cwd / "scripts"
+        if not (cli_scripts / "build_release_binaries.py").is_file():
+            fallback_scripts = Path(__file__).resolve().parents[3] / "scripts"
+            if (fallback_scripts / "build_release_binaries.py").is_file():
+                cli_scripts = fallback_scripts
+
+        sys_path_added = False
+        scripts_str = str(cli_scripts)
+        try:
+            if scripts_str not in sys.path:
+                sys.path.insert(0, scripts_str)
+                sys_path_added = True
+
+            from build_release_binaries import (
+                cleanup_and_archive_release_dir,
+                generate_checksums,
+                read_version,
+                rotate_previous_release,
+                sync_to_framework,
+            )
+
+            current_ver = read_version(self.cwd)
+            prev_dir = (previous_dir or (release_dir / "previous")).resolve()
+            archived_path = rotate_previous_release(release_dir, prev_dir, current_ver, dry_run=dry_run)
+            cleanup_info = cleanup_and_archive_release_dir(release_dir, prev_dir, current_ver, dry_run=dry_run)
+            if not dry_run:
+                for plat in ("mac", "windows", "vscode"):
+                    pdir = release_dir / plat
+                    if pdir.is_dir():
+                        generate_checksums(pdir)
+            chk = generate_checksums(release_dir) if not dry_run else (release_dir / "CHECKSUMS.sha256")
+            if not dry_run and prev_dir.is_dir():
+                for sub in prev_dir.iterdir():
+                    if sub.is_dir():
+                        generate_checksums(sub)
+
+            framework_synced = False
+            if sync_framework and (self.cwd / "scripts" / "build_release_binaries.py").is_file():
+                fw_target = framework_dir or (self.cwd.parent / "hath0r-framework" / "release")
+                if fw_target.parent.is_dir():
+                    framework_synced = sync_to_framework(
+                        release_dir, fw_target, current_version=current_ver, dry_run=dry_run
+                    )
+
+            return {
+                "success": True,
+                "version": current_ver,
+                "release_dir": str(release_dir),
+                "previous_dir": str(prev_dir),
+                "archived_path": str(archived_path) if archived_path else None,
+                "archived_versions": cleanup_info.get("archived_versions", []),
+                "moved_files": cleanup_info.get("moved_files", []),
+                "removed_temp_dirs": cleanup_info.get("removed_temp_dirs", []),
+                "checksums": str(chk),
+                "framework_synced": framework_synced,
+                "message": (
+                    f"Release directory rotated cleanly; active root version is v{current_ver} "
+                    f"({len(cleanup_info.get('archived_versions', []))} previous versions in release/previous/)."
+                ),
+            }
+        except Exception as ex:
+            return {"success": False, "error": str(ex)}
+        finally:
+            if sys_path_added and scripts_str in sys.path:
+                sys.path.remove(scripts_str)

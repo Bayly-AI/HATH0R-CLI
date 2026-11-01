@@ -187,6 +187,8 @@ SERVICE_BOT_MAP: dict[str, dict[str, Any]] = {
     "skills": {"service": "BITE Skill & Prompt Supply-Chain Audit Service", "owning_bots": ["bite-verifier-bot", "secret-pii-sanitizer-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/mcp-security-audit-workflow.yaml"},
     "threatmodel": {"service": "Fail-Closed THREATMODEL.md Validation Service", "owning_bots": ["dependency-guard-bot", "bite-verifier-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/mcp-security-audit-workflow.yaml"},
     "arch": {"service": "Suite Architecture, Substrate & Completion Verification Service", "owning_bots": ["architecture-preservation-bot", "substrate-utilization-bot", "task-completion-verifier-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
+    "install-wizard": {"service": "Hath0r CLI & Hath0r MCP Docker Install Wizard Service", "owning_bots": ["install-wizard-bot", "upgrade-verifier-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/install-wizard-factory.yaml"},
+    "setup": {"service": "Hath0r CLI & Hath0r MCP Docker Install Wizard Alias Service", "owning_bots": ["install-wizard-bot", "upgrade-verifier-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/install-wizard-factory.yaml"},
 }
 
 
@@ -214,6 +216,7 @@ class BotRegistry:
         from hath0r_cli.bots.hahp_protocol import HAHPProtocolManager
         from hath0r_cli.bots.hyper_context import HyperContextBot
         from hath0r_cli.bots.iac_bot import IaCManagingBot
+        from hath0r_cli.bots.install_wizard_bot import InstallWizardBot
         from hath0r_cli.bots.iteration_cascade_bot import IterationCascadeBot
         from hath0r_cli.bots.kv_prewarmer import KVCachePrewarmer
         from hath0r_cli.bots.local_model_bot import LocalModelBot
@@ -378,6 +381,7 @@ class BotRegistry:
             "substrate-utilization-bot": _init_bot(SubstrateUtilizationBot),
             "task-completion-verifier-bot": _init_bot(TaskCompletionVerifierBot),
             "local-quality-gate-bot": _init_bot(LocalQualityGateBot),
+            "install-wizard-bot": _init_bot(InstallWizardBot),
         }
 
     def get_bot(self, bot_id: str) -> Any | None:
@@ -500,6 +504,8 @@ class BotRegistry:
                 return self._dispatch_local_quality_gate_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id in ("upgrade-bot", "upgrade-verifier-bot", "upgrade-announcer-bot"):
                 return self._dispatch_upgrade_bots(bot_id, bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "install-wizard-bot":
+                return self._dispatch_install_wizard_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id in ("cicccd-managing-bot", "calibration-bot"):
                 return self._dispatch_cicccd_bot(bot_id, bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id in ("supercompress-bot", "supersqueeze-bot"):
@@ -1691,6 +1697,25 @@ class BotRegistry:
             res = bot.validate()
         elif action in ("notes", "generate-notes"):
             res = bot.generate_notes(version=args.get("version"))
+        elif action in ("rotate", "rotate-previous", "cleanup-release"):
+            res = bot.rotate_previous(
+                sync_framework=bool(args.get("sync_framework", True)),
+                dry_run=dry_run,
+            )
+        elif action in ("build", "build-and-rotate"):
+            res = bot.build_and_rotate_artifacts(
+                rotate=bool(args.get("rotate", True)),
+                sync_framework=bool(args.get("sync_framework", True)),
+                checksums_only=bool(args.get("checksums_only", False)),
+                dry_run=dry_run,
+            )
+        elif action in ("sync", "sync-framework"):
+            res = bot.build_and_rotate_artifacts(
+                rotate=False,
+                sync_framework=True,
+                checksums_only=True,
+                dry_run=dry_run,
+            )
         elif action in ("tag-release", "release", "publish"):
             res = bot.tag_and_release(
                 ref=str(args.get("ref") or "origin/master"),
@@ -2932,6 +2957,67 @@ class BotRegistry:
                 # Announcing succeeded, but the step reports the upgrade outcome so the workflow fails visibly.
                 return result(bool(res.get("success")), res, None if res.get("success") else res.get("message"))
         return result(False, None, f"Unknown action '{action}' for {bot_id}.")
+
+    def _dispatch_install_wizard_bot(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        dry_run: bool = False,
+        context: dict[str, Any] | None = None,
+    ) -> StepExecutionResult:
+        """Dispatch install-wizard-bot actions."""
+        ctx = context if context is not None else {}
+        if action in ("check", "check-environment", "check_environment"):
+            res = bot.check_environment(mcp_port=int(args.get("mcp_port", 38083)))
+            ctx["install_wizard_check"] = res
+            return StepExecutionResult(bot_id="install-wizard-bot", action=action, success=True, data=res, dry_run=dry_run)
+        if action in ("run", "run-wizard", "run_wizard", "install"):
+            res = bot.run_wizard(
+                version=args.get("version"),
+                method=args.get("method"),
+                mcp_port=int(args.get("mcp_port", 38083)),
+                image_url=args.get("image_url"),
+                skip_docker=bool(args.get("skip_docker", False)),
+                install_claude=bool(args.get("install_claude", False)),
+                auto_approve=bool(args.get("auto_approve", True)),
+                dry_run=dry_run,
+            )
+            ctx["install_wizard_receipt"] = res
+            err = (res.get("failure") or {}).get("message") if not res.get("success") else None
+            return StepExecutionResult(
+                bot_id="install-wizard-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=err,
+                dry_run=dry_run,
+            )
+        if action == "status":
+            res = bot.status(mcp_port=int(args.get("mcp_port", 38083)))
+            return StepExecutionResult(bot_id="install-wizard-bot", action=action, success=True, data=res, dry_run=dry_run)
+        if action == "repair":
+            res = bot.repair(mcp_port=int(args.get("mcp_port", 38083)), dry_run=dry_run)
+            return StepExecutionResult(
+                bot_id="install-wizard-bot",
+                action=action,
+                success=bool(res.get("success")),
+                data=res,
+                error=None if res.get("success") else res.get("message"),
+                dry_run=dry_run,
+            )
+        if action == "uninstall":
+            res = bot.uninstall(purge_data=bool(args.get("purge_data", False)), dry_run=dry_run)
+            return StepExecutionResult(bot_id="install-wizard-bot", action=action, success=True, data=res, dry_run=dry_run)
+        if action in ("package", "build_installers", "build-installers"):
+            res = bot.build_installers(
+                version=args.get("version"),
+                target=str(args.get("target", "all")),
+                dry_run=dry_run,
+            )
+            return StepExecutionResult(bot_id="install-wizard-bot", action=action, success=bool(res.get("success")), data=res, dry_run=dry_run)
+        return self._dispatch_generic_bot("install-wizard-bot", bot, action, args, dry_run=dry_run)
 
 
 def execute_workflow(

@@ -26,6 +26,6 @@ def test_update_cli_factory_dry_run():
 
     assert wf_res.workflow_id == "update-cli"
     assert wf_res.success is True
-    assert len(wf_res.steps) == 11
+    assert len(wf_res.steps) == 12
     for step in wf_res.steps:
         assert step.success is True
