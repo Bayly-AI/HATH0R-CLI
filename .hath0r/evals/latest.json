@@ -160,7 +160,7 @@
             "duplication": {
               "gate": "duplication",
               "passed": true,
-              "duplicated_lines_pct": 0.0,
+              "duplicated_lines_pct": 0.3,
               "max_duplicated_lines_pct": 3.0,
               "comparator": "<=",
               "duplicated_lines": 0,
@@ -173,9 +173,9 @@
             "success": true,
             "passed": true,
             "rule_id": "CR-LOCAL-QGATES-001",
-            "repo_name": "hathor-cli",
+            "repo_name": "HATH0R-CLI",
             "technology": "python",
-            "thresholds_file": "/Users/raybayly/Development/OpenSource/hathor-cli/thresholds.json",
+            "thresholds_file": "C:\\Users\\RaymondBayly\\Documents\\HATH0R-CLI\\thresholds.json",
             "thresholds_file_exists": true,
             "thresholds": {
               "max_errors": 0,
@@ -274,7 +274,7 @@
               "duplication": {
                 "gate": "duplication",
                 "passed": true,
-                "duplicated_lines_pct": 0.0,
+                "duplicated_lines_pct": 0.3,
                 "max_duplicated_lines_pct": 3.0,
                 "comparator": "<=",
                 "duplicated_lines": 0,
@@ -324,7 +324,6 @@
           "tests/test_update_cli_factory.py",
           "tests/unit/test_bots.py"
         ],
-        "text": [],
         "other": []
       },
       "changed_files_count": 4
@@ -345,9 +344,9 @@
     "success": true,
     "passed": true,
     "rule_id": "CR-LOCAL-QGATES-001",
-    "repo_name": "hathor-cli",
+    "repo_name": "HATH0R-CLI",
     "technology": "python",
-    "thresholds_file": "/Users/raybayly/Development/OpenSource/hathor-cli/thresholds.json",
+    "thresholds_file": "C:\\Users\\RaymondBayly\\Documents\\HATH0R-CLI\\thresholds.json",
     "thresholds_file_exists": true,
     "thresholds": {
       "max_errors": 0,
@@ -446,7 +445,7 @@
       "duplication": {
         "gate": "duplication",
         "passed": true,
-        "duplicated_lines_pct": 0.0,
+        "duplicated_lines_pct": 0.3,
         "max_duplicated_lines_pct": 3.0,
         "comparator": "<=",
         "duplicated_lines": 0,
