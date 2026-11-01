@@ -1,15 +1,15 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261101-172831-a8945f",
-  "task_id": "issue-566",
-  "issue_number": 566,
-  "repo_name": "hathor-cli",
-  "branch": "feature/566-cli-mcp-install-wizard",
-  "evaluated_at": "2026-11-01T17:28:31.303113+00:00",
-  "duration_ms": 2505.08,
-  "passed_gate": true,
-  "r_task": 0.935,
+  "eval_id": "eval-20261101-181502-9b544a",
+  "task_id": "task-HATH0R-CLI",
+  "issue_number": null,
+  "repo_name": "HATH0R-CLI",
+  "branch": "development",
+  "evaluated_at": "2026-11-01T18:15:02.288299+00:00",
+  "duration_ms": 9171.0,
+  "passed_gate": false,
+  "r_task": 0.7448,
   "min_reward_threshold": 0.8,
   "weights": {
     "deterministic": 0.4,
@@ -18,23 +18,23 @@
     "goal_alignment": 0.15
   },
   "tier_scores": {
-    "deterministic": 0.9558,
-    "trajectory": 0.9121,
-    "adversarial": 0.924,
+    "deterministic": 0.5498,
+    "trajectory": 0.8653,
+    "adversarial": 0.85,
     "goal_alignment": 0.9287
   },
   "tiers": {
     "deterministic": {
-      "score": 0.9558,
-      "passed": true,
-      "passed_checks": 6,
+      "score": 0.5498,
+      "passed": false,
+      "passed_checks": 4,
       "total_checks": 6,
       "sub_scores": {
         "version_valid": 1.0,
         "agentgraph_valid": 1.0,
-        "memory_compounded": 0.98,
-        "test_suite": 0.88,
-        "calibration_4h": 0.956,
+        "memory_compounded": 0.0,
+        "test_suite": 0.0,
+        "calibration_4h": 0.82,
         "local_quality_gates": 0.9525
       },
       "checks": {
@@ -51,29 +51,56 @@
           "claude_md_synced": true
         },
         "memory_compounded": {
-          "passed": true,
-          "compounded_nodes_count": 95,
+          "passed": false,
+          "compounded_nodes_count": 98,
           "session_read_verified": true,
           "session_write_verified": true,
-          "hashes_verified": true,
+          "hashes_verified": false,
           "graphs_not_ignored": true,
-          "error": null
+          "error": "CR-MEMORY-COMPOUND-001: Memory file hash verification failed (mismatched=23, missing=0, stale_source_files=30). Run 'hath0r memory hash --sync' or re-compound stale knowledge nodes."
         },
         "test_suite": {
-          "passed": true,
-          "skipped": true,
-          "message": "Test execution skipped via flag or dry-run (-0.12 confidence deduction)."
+          "passed": false,
+          "commands_run": 2,
+          "duration_s": 6.938,
+          "results": [
+            {
+              "command": [
+                "python",
+                "-m",
+                "pytest",
+                "-q"
+              ],
+              "ok": false,
+              "exit_code": 2,
+              "stdout_tail": "th0r-framework.\n=========================== short test summary info ===========================\nERROR tests/cli/test_doctor.py - FileNotFoundError: Framework schemas not fou...\nERROR tests/cli/test_kb_path.py - FileNotFoundError: Framework schemas not fo...\nERROR tests/cli/test_kb_products.py - FileNotFoundError: Framework schemas no...\nERROR tests/cli/test_version.py - FileNotFoundError: Framework schemas not fo...\n!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!\n",
+              "stderr_tail": ""
+            },
+            {
+              "command": [
+                "python",
+                "-m",
+                "ruff",
+                "check",
+                "src"
+              ],
+              "ok": true,
+              "exit_code": 0,
+              "stdout_tail": "All checks passed!\n",
+              "stderr_tail": ""
+            }
+          ]
         },
         "calibration_4h": {
           "passed": true,
-          "is_fresh": true,
-          "age_hours": 1.36,
+          "is_fresh": false,
+          "age_hours": null,
           "max_age_hours": 4.0
         },
         "local_quality_gates": {
           "passed": true,
           "technology": "python",
-          "thresholds_file": "/Users/raybayly/Development/OpenSource/hathor-cli/thresholds.json",
+          "thresholds_file": "C:\\Users\\RaymondBayly\\Documents\\HATH0R-CLI\\thresholds.json",
           "qgate_score": 0.9525,
           "failing_gates": [],
           "gates": {
@@ -105,52 +132,52 @@
               "functions_scanned": 247,
               "offending_functions": [
                 {
-                  "function": "scripts/build_fileset.py:copy_contracts",
+                  "function": "scripts\\build_fileset.py:copy_contracts",
                   "line": 40,
                   "complexity": 16
                 },
                 {
-                  "function": "scripts/build_release_binaries.py:generate_checksums",
+                  "function": "scripts\\build_release_binaries.py:generate_checksums",
                   "line": 57,
                   "complexity": 25
                 },
                 {
-                  "function": "scripts/build_release_binaries.py:_route_artifact_to_platform_folders",
+                  "function": "scripts\\build_release_binaries.py:_route_artifact_to_platform_folders",
                   "line": 108,
                   "complexity": 23
                 },
                 {
-                  "function": "scripts/build_release_binaries.py:cleanup_and_archive_release_dir",
+                  "function": "scripts\\build_release_binaries.py:cleanup_and_archive_release_dir",
                   "line": 168,
                   "complexity": 182
                 },
                 {
-                  "function": "scripts/build_release_binaries.py:rotate_previous_release",
+                  "function": "scripts\\build_release_binaries.py:rotate_previous_release",
                   "line": 358,
                   "complexity": 50
                 },
                 {
-                  "function": "scripts/build_release_binaries.py:populate_platform_release_dirs",
+                  "function": "scripts\\build_release_binaries.py:populate_platform_release_dirs",
                   "line": 500,
                   "complexity": 70
                 },
                 {
-                  "function": "scripts/build_release_binaries.py:sync_to_framework",
+                  "function": "scripts\\build_release_binaries.py:sync_to_framework",
                   "line": 627,
                   "complexity": 36
                 },
                 {
-                  "function": "scripts/build_release_binaries.py:execute_release_build",
+                  "function": "scripts\\build_release_binaries.py:execute_release_build",
                   "line": 690,
                   "complexity": 30
                 },
                 {
-                  "function": "scripts/build_vscode_plugin.py:rotate_existing_vscode_release",
+                  "function": "scripts\\build_vscode_plugin.py:rotate_existing_vscode_release",
                   "line": 57,
                   "complexity": 27
                 },
                 {
-                  "function": "scripts/build_vscode_plugin.py:build_vscode_package",
+                  "function": "scripts\\build_vscode_plugin.py:build_vscode_package",
                   "line": 221,
                   "complexity": 16
                 }
@@ -160,7 +187,7 @@
             "duplication": {
               "gate": "duplication",
               "passed": true,
-              "duplicated_lines_pct": 0.3,
+              "duplicated_lines_pct": 0.0,
               "max_duplicated_lines_pct": 3.0,
               "comparator": "<=",
               "duplicated_lines": 0,
@@ -187,7 +214,7 @@
               "new_maintainability_rating": 1,
               "min_security_hotspots_reviewed_pct": 100.0
             },
-            "files_analyzed": 15,
+            "files_analyzed": 17,
             "qgate_score": 0.9525,
             "failing_gates": [],
             "gates": {
@@ -219,52 +246,52 @@
                 "functions_scanned": 247,
                 "offending_functions": [
                   {
-                    "function": "scripts/build_fileset.py:copy_contracts",
+                    "function": "scripts\\build_fileset.py:copy_contracts",
                     "line": 40,
                     "complexity": 16
                   },
                   {
-                    "function": "scripts/build_release_binaries.py:generate_checksums",
+                    "function": "scripts\\build_release_binaries.py:generate_checksums",
                     "line": 57,
                     "complexity": 25
                   },
                   {
-                    "function": "scripts/build_release_binaries.py:_route_artifact_to_platform_folders",
+                    "function": "scripts\\build_release_binaries.py:_route_artifact_to_platform_folders",
                     "line": 108,
                     "complexity": 23
                   },
                   {
-                    "function": "scripts/build_release_binaries.py:cleanup_and_archive_release_dir",
+                    "function": "scripts\\build_release_binaries.py:cleanup_and_archive_release_dir",
                     "line": 168,
                     "complexity": 182
                   },
                   {
-                    "function": "scripts/build_release_binaries.py:rotate_previous_release",
+                    "function": "scripts\\build_release_binaries.py:rotate_previous_release",
                     "line": 358,
                     "complexity": 50
                   },
                   {
-                    "function": "scripts/build_release_binaries.py:populate_platform_release_dirs",
+                    "function": "scripts\\build_release_binaries.py:populate_platform_release_dirs",
                     "line": 500,
                     "complexity": 70
                   },
                   {
-                    "function": "scripts/build_release_binaries.py:sync_to_framework",
+                    "function": "scripts\\build_release_binaries.py:sync_to_framework",
                     "line": 627,
                     "complexity": 36
                   },
                   {
-                    "function": "scripts/build_release_binaries.py:execute_release_build",
+                    "function": "scripts\\build_release_binaries.py:execute_release_build",
                     "line": 690,
                     "complexity": 30
                   },
                   {
-                    "function": "scripts/build_vscode_plugin.py:rotate_existing_vscode_release",
+                    "function": "scripts\\build_vscode_plugin.py:rotate_existing_vscode_release",
                     "line": 57,
                     "complexity": 27
                   },
                   {
-                    "function": "scripts/build_vscode_plugin.py:build_vscode_package",
+                    "function": "scripts\\build_vscode_plugin.py:build_vscode_package",
                     "line": 221,
                     "complexity": 16
                   }
@@ -274,7 +301,7 @@
               "duplication": {
                 "gate": "duplication",
                 "passed": true,
-                "duplicated_lines_pct": 0.3,
+                "duplicated_lines_pct": 0.0,
                 "max_duplicated_lines_pct": 3.0,
                 "comparator": "<=",
                 "duplicated_lines": 0,
@@ -288,55 +315,356 @@
       }
     },
     "trajectory": {
-      "score": 0.9121,
+      "score": 0.8653,
       "passed": true,
-      "tokens_used": 145,
+      "tokens_used": 50,
       "max_tokens": 50000,
-      "estimated_usd": 0.000435,
+      "estimated_usd": 0.00015,
       "max_usd": 0.25,
       "session_id": "sess-20261101-160736-c73550",
       "session_reads": 2,
-      "session_writes": 19,
+      "session_writes": 20,
       "session_bytes": 1931,
       "capsule_fill_ratio": 0.9429,
       "within_capsule_budget": true,
-      "latency_ms": 1742.69,
-      "taguchi_quality_loss": 0.0456,
-      "taguchi_score": 0.866,
-      "snr_db": 1.2
+      "latency_ms": 8265.0,
+      "taguchi_quality_loss": 1.0247,
+      "taguchi_score": 0.63,
+      "snr_db": -12.32
     },
     "adversarial": {
-      "score": 0.924,
+      "score": 0.85,
       "passed": true,
       "adversarial_flaws_count": 0,
       "adversarial_flaws": [],
       "tech_debts_count": 0,
       "auto_created_issues": [],
       "minor_findings": [
+        "High diff addition volume (18938 lines, -0.0500)",
         "Cognitive complexity hotspot observed (avg 8.50, max 182, -0.0400)"
       ],
-      "added_lines_count": 22,
+      "added_lines_count": 18938,
       "change_categories": {
-        "ui": [],
-        "script": [
-          "scripts/build_release_binaries.py",
-          "src/hath0r_cli/bots/install_wizard_bot.py",
-          "tests/test_update_cli_factory.py",
-          "tests/unit/test_bots.py"
+        "ui": [
+          "release/previous/0.9.0/vscode/plugin/extension/media/hath0r.svg"
         ],
-        "other": []
+        "script": [
+          "release/mac/install-wizard.sh",
+          "release/mac/install_hath0r.py",
+          "release/previous/0.9.0/vscode/plugin/extension/src/client.ts",
+          "release/previous/0.9.0/vscode/plugin/extension/src/commands.ts",
+          "release/previous/0.9.0/vscode/plugin/extension/src/extension.ts",
+          "release/previous/0.9.0/vscode/plugin/extension/src/graphWebview.ts",
+          "release/previous/0.9.0/vscode/plugin/extension/src/treeViews/agentsTreeProvider.ts",
+          "release/previous/0.9.0/vscode/plugin/extension/src/treeViews/controlTreeProvider.ts",
+          "release/previous/0.9.0/vscode/plugin/extension/src/treeViews/finopsTreeProvider.ts",
+          "release/previous/0.9.0/vscode/plugin/extension/src/treeViews/qualityTreeProvider.ts",
+          "release/previous/0.9.0/vscode/plugin/extension/src/types.ts",
+          "release/previous/0.9.0/vscode/plugin/extension/test/extension.test.js",
+          "release/vscode/install-wizard.sh",
+          "release/vscode/install_hath0r.py",
+          "release/windows/install-wizard.sh",
+          "release/windows/install_hath0r.py",
+          "scripts/build_fileset.py",
+          "scripts/build_release_binaries.py",
+          "scripts/build_vscode_plugin.py",
+          "scripts/install_hath0r.py",
+          "src/hath0r_cli/bots/install_wizard_bot.py",
+          "src/hath0r_cli/bots/quality.py",
+          "src/hath0r_cli/commands/install_wizard.py",
+          "src/hath0r_cli/commands/release.py",
+          "src/hath0r_cli/lazy_group.py",
+          "src/hath0r_cli/server/mcp_server.py",
+          "src/hath0r_cli/step_runner.py",
+          "tests/test_release_binaries_sync.py",
+          "tests/test_update_cli_factory.py",
+          "tests/test_vscode_plugin.py",
+          "tests/unit/test_bots.py",
+          "tests/unit/test_install_wizard_bot.py"
+        ],
+        "text": [
+          ".github/workflows/release.yml",
+          "AGENTS.md",
+          "CHANGELOG.md",
+          "CLAUDE.md",
+          "cfg/factories/clean-repos-factory.yaml",
+          "cfg/factories/end-of-task-factory.yaml",
+          "cfg/factories/install-wizard-factory.yaml",
+          "cfg/factories/quality-release-factory.yaml",
+          "cfg/factories/update-cli-factory.yaml",
+          "docs/governance/bot-specs/install-wizard-bot-spec.md",
+          "docs/governance/playbooks/install-wizard-playbook.md",
+          "docs/governance/procedures/install-wizard-procedure.md",
+          "docs/governance/runbooks/install-wizard-runbook.md",
+          "docs/governance/strategies/install-wizard-strategy.md",
+          "docs/hathor-guide-047-install-and-release-20260918.md",
+          "packages/vscode-extension/package.json",
+          "pyproject.toml",
+          "release/README.md",
+          "release/previous/0.9.0/vscode/plugin/[Content_Types].xml",
+          "release/previous/0.9.0/vscode/plugin/docs/AGENTS.md",
+          "release/previous/0.9.0/vscode/plugin/docs/CHANGELOG.md",
+          "release/previous/0.9.0/vscode/plugin/docs/INDEX.md",
+          "release/previous/0.9.0/vscode/plugin/docs/README.md",
+          "release/previous/0.9.0/vscode/plugin/docs/TECH_README.md",
+          "release/previous/0.9.0/vscode/plugin/docs/TICKET-AGENTGRAPH-REFACTOR.md",
+          "release/previous/0.9.0/vscode/plugin/docs/articles/beyond-rag-building-production-grade-agentic-pipelines-with-aws-bedrock.md",
+          "release/previous/0.9.0/vscode/plugin/docs/articles/the-hath0r-framework-rethinking-development-from-the-ground-up.md",
+          "release/previous/0.9.0/vscode/plugin/docs/canonical.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/SUITE_STANDARDS.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/branch-rules.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/agent-session-start.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/checklist-cli-update.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/coding-checklist.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/docker-group.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/end-of-task-daemon.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/finops-token-telemetry-histogram-checklist.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/hyper-context-checklist.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/mcp-doc-publish-checklist.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/mcp-doc-publish-test-doc.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/mcp-enablement-checklist.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/memory-space-checklist.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/openfeature-adherence.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/openobservation-adherence.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/opentelemetry-adherence.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/opentelemetry-tracing.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/pr-human-gate-before-staging.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/pr-post-merge-development.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/pr-pre-merge-development.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/pr-pre-promote-testing.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/pr-release-to-master.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/quality-bots.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/repo-clean.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/semantic-versioning-checklist.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/sonarcloud-pr-gate.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/task-lifecycle.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/troubleshooting-checklist.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/update-cli-checklist.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/checklists/voice-command-group-checklist.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/cli-first-rules.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/docker-group-standard.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/issue-factory.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/jev-integration.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/jev-next-steps.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/mcp-configuration.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/mcp-doc-publish.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/openfeature-standards.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/openobservation-standards.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/opentelemetry-standards.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/colpali-vision-kb-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/docker-group-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/dynamic-mcp-security-policy-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/dynamic-tool-routing-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/end-of-task-daemon-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/finops-token-telemetry-histogram-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/git-worktree-isolation-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/hyper-context-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/instruction-aware-reranker-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/kokoro-tts-engine-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/lazy-command-loading-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/local-reasoning-adapters-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/mcp-doc-publish-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/mcp-enablement-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/memory-space-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/openfeature-setup-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/openobservation-setup-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/opentelemetry-setup-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/opentelemetry-tracing-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/playbook-cli-update.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/playbook-coding.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/playbook-troubleshooting.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/pr-workflow-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/pytorch-acceleration-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/pytorch-batch-quantization-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/release-binaries-sync-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/release-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/repo-clean-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/schema-self-repair-loops-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/sonarcloud-quality-gate-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/sqlite-fts5-kb-cache-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/supercompress-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/task-lifecycle-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/token-check-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/tree-sitter-ast-parser-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/update-cli-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/vision-transformers-cli-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/voice-command-group-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/voice-converse-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/playbooks/wasm-micro-runtime-playbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/pr-workflow.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/coding-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/docker-group-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/end-of-task-daemon-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/finops-token-telemetry-histogram-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/hyper-context-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/mcp-doc-publish-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/memory-space-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/opentelemetry-tracing-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/procedure-cli-update.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/quality-release-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/repo-clean-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/task-finish-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/task-start-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/troubleshooting-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/update-cli-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/voice-command-group-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/procedures/voice-converse-procedure.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/project-closure-suite-epics-2026-09-24.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/quality-bots.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/coding-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/docker-group-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/end-of-task-daemon-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/finops-token-telemetry-histogram-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/hyper-context-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/mcp-doc-publish-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/memory-space-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/openfeature-ops-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/openobservation-ops-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/opentelemetry-ops-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/opentelemetry-tracing-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/pr-lifecycle-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/quality-release-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/repo-clean-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/runbook-cli-update.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/task-lifecycle-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/token-check-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/troubleshooting-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/update-cli-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/voice-command-group-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/runbooks/voice-converse-runbook.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/semantic-versioning.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/sonarcloud-quality-gates.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/coding-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/colpali-vision-kb-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/docker-group-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/dynamic-mcp-security-policy-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/dynamic-tool-routing-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/end-of-task-daemon-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/finops-token-telemetry-histogram-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/git-worktree-isolation-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/hyper-context-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/instruction-aware-reranker-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/kokoro-tts-engine-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/lazy-command-loading-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/local-reasoning-adapters-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/mcp-doc-publish-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/memory-space-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/opentelemetry-tracing-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/pr-lifecycle-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/pytorch-acceleration-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/pytorch-batch-quantization-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/quality-release-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/release-binaries-sync-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/repo-clean-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/schema-self-repair-loops-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/sqlite-fts5-kb-cache-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/strategy-cli-update.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/supercompress-integration-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/task-lifecycle-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/tree-sitter-ast-parser-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/troubleshooting-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/update-cli-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/vision-transformers-cli-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/voice-command-group-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/voice-converse-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/strategies/wasm-micro-runtime-strategy.md",
+          "release/previous/0.9.0/vscode/plugin/docs/governance/workflow-documentation-standard.md",
+          "release/previous/0.9.0/vscode/plugin/docs/hathor-arch-004-cli-control-tower-integration-20260916.md",
+          "release/previous/0.9.0/vscode/plugin/docs/hathor-guide-042-current-command-reference-20260916.md",
+          "release/previous/0.9.0/vscode/plugin/docs/hathor-guide-043-poc-adapter-integration-20260916.md",
+          "release/previous/0.9.0/vscode/plugin/docs/hathor-guide-044-development-testing-20260916.md",
+          "release/previous/0.9.0/vscode/plugin/docs/hathor-guide-045-security-governance-delivery-20260916.md",
+          "release/previous/0.9.0/vscode/plugin/docs/hathor-guide-046-troubleshooting-20260916.md",
+          "release/previous/0.9.0/vscode/plugin/docs/hathor-guide-047-install-and-release-20260918.md",
+          "release/previous/0.9.0/vscode/plugin/docs/hathor-guide-048-paper-design-mcp-integration-20261003.md",
+          "release/previous/0.9.0/vscode/plugin/docs/hathor-playbook-001-repo-init-setup-20260919.md",
+          "release/previous/0.9.0/vscode/plugin/docs/hathor-req-002-cli-poc-integration-requirements-20260916.md",
+          "release/previous/0.9.0/vscode/plugin/docs/hathor-ts-005-poc-machine-interface-20260916.md",
+          "release/previous/0.9.0/vscode/plugin/docs/index.json",
+          "release/previous/0.9.0/vscode/plugin/docs/jev-rollout.md",
+          "release/previous/0.9.0/vscode/plugin/docs/llms.txt",
+          "release/previous/0.9.0/vscode/plugin/docs/opensource-project.md",
+          "release/previous/0.9.0/vscode/plugin/docs/reports/HATHOR-REPORT-MULTI-001-1nation-bai-websites-20260919.md",
+          "release/previous/0.9.0/vscode/plugin/docs/reports/compliance-audit-report-hathor-cli.md",
+          "release/previous/0.9.0/vscode/plugin/docs/reports/hath0r-multi-tree-compliance-20260919.json",
+          "release/previous/0.9.0/vscode/plugin/docs/rules.md",
+          "release/previous/0.9.0/vscode/plugin/docs/runbook.md",
+          "release/previous/0.9.0/vscode/plugin/extension/CHANGELOG.md",
+          "release/previous/0.9.0/vscode/plugin/extension/README.md",
+          "release/previous/0.9.0/vscode/plugin/extension/package.json",
+          "release/previous/0.9.0/vscode/plugin/extension/tsconfig.json",
+          "release/vscode/plugin/extension/package.json",
+          "release/vscode/plugin/extension/tsconfig.json"
+        ],
+        "other": [
+          ".gitignore",
+          "VERSION",
+          "packaging/installers/windows_wizard_launcher.c",
+          "release/CHECKSUMS.sha256",
+          "release/mac/CHECKSUMS.sha256",
+          "release/mac/Hath0r-Install-Wizard-1.22.0-macos.dmg",
+          "release/mac/Hath0r-Install-Wizard-1.22.0-macos.dmg.sha256",
+          "release/mac/Hath0r-Install-Wizard.dmg",
+          "release/mac/Hath0r-Install-Wizard.dmg.sha256",
+          "release/mac/hath0r-darwin-arm64",
+          "release/mac/hath0r-darwin-x86_64",
+          "release/mac/hath0r-fileset-1.22.0.tar.gz",
+          "release/mac/hath0r-fileset-1.22.0.tar.gz.sha256",
+          "release/previous/0.3.0/CHECKSUMS.sha256",
+          "release/previous/0.3.0/hath0r-fileset-0.3.0.tar.gz",
+          "release/previous/0.3.0/hath0r_cli-0.3.0-py3-none-any.whl",
+          "release/previous/0.3.0/hath0r_cli-0.3.0.tar.gz",
+          "release/previous/0.9.0/CHECKSUMS.sha256",
+          "release/previous/0.9.0/vscode/plugin/docs/LICENSE",
+          "release/previous/0.9.0/vscode/plugin/extension.vsixmanifest",
+          "release/previous/0.9.0/vscode/plugin/extension/.vscodeignore",
+          "release/previous/0.9.0/vscode/plugin/extension/LICENSE",
+          "release/previous/0.9.0/vscode/plugin/extension/media/hath0r.png",
+          "release/previous/0.9.0/vscode/plugin/hath0r-vscode-0.9.0.vsix",
+          "release/previous/1.15.2/CHECKSUMS.sha256",
+          "release/previous/1.21.0/CHECKSUMS.sha256",
+          "release/previous/1.21.0/hath0r-darwin-arm64",
+          "release/previous/1.21.0/hath0r-darwin-x86_64",
+          "release/previous/1.21.0/hath0r-fileset-1.21.0.tar.gz",
+          "release/previous/1.21.0/hath0r-fileset-1.21.0.tar.gz.sha256",
+          "release/previous/1.21.0/hath0r-linux-arm64",
+          "release/previous/1.21.0/hath0r-linux-x86_64",
+          "release/previous/1.21.0/hath0r-windows-x64.cmd",
+          "release/previous/1.5.0/CHECKSUMS.sha256",
+          "release/previous/1.6.0/CHECKSUMS.sha256",
+          "release/previous/1.7.0/CHECKSUMS.sha256",
+          "release/vscode/CHECKSUMS.sha256",
+          "release/vscode/hath0r-fileset-1.22.0.tar.gz",
+          "release/vscode/hath0r-fileset-1.22.0.tar.gz.sha256",
+          "release/vscode/hath0r-vscode-1.22.0.vsix",
+          "release/vscode/hath0r-vscode-1.22.0.vsix.sha256",
+          "release/vscode/hath0r-vscode.vsix",
+          "release/vscode/hath0r-vscode.vsix.sha256",
+          "release/vscode/plugin/extension.vsixmanifest",
+          "release/vscode/plugin/extension/.vscodeignore",
+          "release/vscode/plugin/extension/test/extension.test.mjs",
+          "release/vscode/plugin/hath0r-vscode-1.22.0.vsix",
+          "release/windows/CHECKSUMS.sha256",
+          "release/windows/Hath0r-Install-Wizard-1.22.0-windows-x64.exe",
+          "release/windows/Hath0r-Install-Wizard-1.22.0-windows-x64.exe.sha256",
+          "release/windows/Hath0r-Install-Wizard.exe",
+          "release/windows/Hath0r-Install-Wizard.exe.sha256",
+          "release/windows/hath0r-fileset-1.22.0.tar.gz",
+          "release/windows/hath0r-fileset-1.22.0.tar.gz.sha256",
+          "release/windows/hath0r-windows-x64.cmd"
+        ]
       },
-      "changed_files_count": 4
+      "changed_files_count": 300
     },
     "goal_alignment": {
       "score": 0.9287,
       "passed": true,
-      "task_id": "issue-566",
-      "issue_number": 566,
+      "task_id": "task-HATH0R-CLI",
+      "issue_number": null,
       "active_focus": "Active working session in hathor-cli",
-      "goal_keywords_count": 5,
+      "goal_keywords_count": 6,
       "goal_overlap_score": 0.98,
-      "compounded_nodes_count": 95,
+      "compounded_nodes_count": 98,
       "consensus_score": 0.826
     }
   },
@@ -358,7 +686,7 @@
       "new_maintainability_rating": 1,
       "min_security_hotspots_reviewed_pct": 100.0
     },
-    "files_analyzed": 15,
+    "files_analyzed": 17,
     "qgate_score": 0.9525,
     "failing_gates": [],
     "gates": {
@@ -390,52 +718,52 @@
         "functions_scanned": 247,
         "offending_functions": [
           {
-            "function": "scripts/build_fileset.py:copy_contracts",
+            "function": "scripts\\build_fileset.py:copy_contracts",
             "line": 40,
             "complexity": 16
           },
           {
-            "function": "scripts/build_release_binaries.py:generate_checksums",
+            "function": "scripts\\build_release_binaries.py:generate_checksums",
             "line": 57,
             "complexity": 25
           },
           {
-            "function": "scripts/build_release_binaries.py:_route_artifact_to_platform_folders",
+            "function": "scripts\\build_release_binaries.py:_route_artifact_to_platform_folders",
             "line": 108,
             "complexity": 23
           },
           {
-            "function": "scripts/build_release_binaries.py:cleanup_and_archive_release_dir",
+            "function": "scripts\\build_release_binaries.py:cleanup_and_archive_release_dir",
             "line": 168,
             "complexity": 182
           },
           {
-            "function": "scripts/build_release_binaries.py:rotate_previous_release",
+            "function": "scripts\\build_release_binaries.py:rotate_previous_release",
             "line": 358,
             "complexity": 50
           },
           {
-            "function": "scripts/build_release_binaries.py:populate_platform_release_dirs",
+            "function": "scripts\\build_release_binaries.py:populate_platform_release_dirs",
             "line": 500,
             "complexity": 70
           },
           {
-            "function": "scripts/build_release_binaries.py:sync_to_framework",
+            "function": "scripts\\build_release_binaries.py:sync_to_framework",
             "line": 627,
             "complexity": 36
           },
           {
-            "function": "scripts/build_release_binaries.py:execute_release_build",
+            "function": "scripts\\build_release_binaries.py:execute_release_build",
             "line": 690,
             "complexity": 30
           },
           {
-            "function": "scripts/build_vscode_plugin.py:rotate_existing_vscode_release",
+            "function": "scripts\\build_vscode_plugin.py:rotate_existing_vscode_release",
             "line": 57,
             "complexity": 27
           },
           {
-            "function": "scripts/build_vscode_plugin.py:build_vscode_package",
+            "function": "scripts\\build_vscode_plugin.py:build_vscode_package",
             "line": 221,
             "complexity": 16
           }
@@ -445,7 +773,7 @@
       "duplication": {
         "gate": "duplication",
         "passed": true,
-        "duplicated_lines_pct": 0.3,
+        "duplicated_lines_pct": 0.0,
         "max_duplicated_lines_pct": 3.0,
         "comparator": "<=",
         "duplicated_lines": 0,
@@ -462,32 +790,26 @@
         ".hath0r/evals/latest.json"
       ],
       "STATIC_AST_ANALYSIS": [
-        "scripts/build_release_binaries.py",
-        "src/hath0r_cli/bots/install_wizard_bot.py",
-        "tests/test_update_cli_factory.py",
-        "tests/unit/test_bots.py",
-        ".hath0r/agentgraph/snapshot.json",
-        ".hath0r/evals/history/eval-issue-566.json",
-        ".hath0r/evals/latest.json",
-        ".hath0r/memory/graph.json",
-        ".hath0r/memory/hashes.json",
-        ".hath0r/memory/sessions/current.json",
-        ".hath0r/memory/sessions/latest.json",
-        ".hath0r/memory/sessions/sess-20261101-160736-c73550.json"
+        ".hath0r/agentgraph/snapshot.json"
       ],
-      "UNVERIFIED_FILE_PRESENCE": []
+      "UNVERIFIED_FILE_PRESENCE": [
+        ".hath0r/agentgraph/snapshot.ttl"
+      ]
     },
     "counts": {
       "VERIFIED_EXECUTION": 1,
-      "STATIC_AST_ANALYSIS": 12,
-      "UNVERIFIED_FILE_PRESENCE": 0
+      "STATIC_AST_ANALYSIS": 1,
+      "UNVERIFIED_FILE_PRESENCE": 1
     }
   },
-  "blocking_reasons": [],
+  "blocking_reasons": [
+    "Tier 1 deterministic gate failed: memory_compounded, test_suite",
+    "Composite reward R_task (0.7448) is below threshold (0.80)"
+  ],
   "observability_sync": {
-    "mode": "live_synced",
+    "mode": "spooled_local",
     "phoenix_logged": true,
-    "mlflow_run_id": "59bb6ac6160d412a9fbddabc7f2ab045"
+    "mlflow_run_id": null
   },
-  "content_hash": "sha256:30d697dde38cc177531f5af22b8f8165c937e414b1602191caf0919beffe6d27"
+  "content_hash": "sha256:6855a4d01f98f779b6e95d0e39e47b81420c0af6de9fc92182396a7c668fa1c0"
 }
