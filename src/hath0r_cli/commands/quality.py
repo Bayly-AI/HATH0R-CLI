@@ -170,13 +170,25 @@ def quality_check(ctx: click.Context, pr_number: int, repo: str | None, dry_run:
 @quality.command("sonar")
 @click.option("--project-key", default=None, help="SonarCloud project key (defaults to sonar-project.properties).")
 @click.option("--organization", default="bayly-ai", help="SonarCloud organization key.")
+@click.option("--branch", default=None, help="Branch to inspect (default: the project's main branch).")
+@click.option(
+    "--failed-tasks",
+    type=click.IntRange(min=0, max=100),
+    default=0,
+    show_default=True,
+    help="Also list this many recent failed analyses (background tasks) with their error messages.",
+)
 @click.pass_context
-def quality_sonar(ctx: click.Context, project_key: str | None, organization: str) -> None:
+def quality_sonar(
+    ctx: click.Context, project_key: str | None, organization: str, branch: str | None, failed_tasks: int
+) -> None:
     """Inspect real-time SonarCloud Quality Gate status and list blocking issues."""
     from hath0r_cli.bots.quality import QualityGateBot
 
     bot = QualityGateBot(cwd=Path.cwd())
-    res = bot.check_sonar(project_key=project_key, organization=organization)
+    res = bot.check_sonar(
+        project_key=project_key, organization=organization, branch=branch, failed_tasks=failed_tasks
+    )
     state = "ok" if res.get("success") else "error"
     response = _build_response(ctx, command="quality.sonar", state=state, data=res)
 
@@ -197,6 +209,17 @@ def quality_sonar(ctx: click.Context, project_key: str | None, organization: str
                 click.echo(f"\nTop Unresolved Issues ({len(res['blocking_issues'])} total):")
                 for iss in res["blocking_issues"][:10]:
                     click.echo(f"  [{iss.get('severity')}] {iss.get('component')}:{iss.get('line')} - {iss.get('message')} ({iss.get('rule')})")
+        tasks = res.get("failed_tasks")
+        if isinstance(tasks, dict):
+            click.echo(f"\n{tasks.get('error')}")
+        elif tasks is not None:
+            click.echo(f"\nRecent failed analyses ({len(tasks)}):")
+            for task in tasks:
+                if task.get("pull_request"):
+                    where = f"PR {task['pull_request']}"
+                else:
+                    where = task.get("branch") or "branch"
+                click.echo(f"  {task.get('submitted_at')} {where}: {task.get('error_message')}")
 
     _emit_response(ctx, response, text_renderer=_text)
     if not res.get("success"):

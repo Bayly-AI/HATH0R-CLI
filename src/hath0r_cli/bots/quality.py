@@ -210,8 +210,15 @@ class QualityGateBot:
         project_key: Optional[str] = None,
         *,
         organization: str = "bayly-ai",
+        branch: Optional[str] = None,
+        failed_tasks: int = 0,
     ) -> Dict[str, Any]:
-        """Query SonarCloud API for real-time Quality Gate status and blocking issues."""
+        """Query SonarCloud API for real-time Quality Gate status and blocking issues.
+
+        ``branch`` scopes the gate and issues to a branch instead of the main branch. ``failed_tasks`` > 0 also lists
+        that many recent failed background tasks (``api/ce/activity``) with their error messages, which is the only
+        place SonarCloud says why an analysis failed.
+        """
         import base64
         import os
         import urllib.error
@@ -251,7 +258,12 @@ class QualityGateBot:
 
         auth_header = "Basic " + base64.b64encode(f"{token}:".encode()).decode()
 
-        status_url = f"https://sonarcloud.io/api/qualitygates/project_status?projectKey={urllib.parse.quote(key)}"
+        branch_param = f"&branch={urllib.parse.quote(branch)}" if branch else ""
+        tasks = self._sonar_failed_tasks(key, auth_header, failed_tasks, branch) if failed_tasks > 0 else None
+
+        status_url = (
+            f"https://sonarcloud.io/api/qualitygates/project_status?projectKey={urllib.parse.quote(key)}{branch_param}"
+        )
         req = urllib.request.Request(status_url, headers={"Authorization": auth_header})
         try:
             with urllib.request.urlopen(req) as resp:
@@ -261,12 +273,16 @@ class QualityGateBot:
             return {
                 "success": False,
                 "project_key": key,
+                "branch": branch,
+                "failed_tasks": tasks,
                 "error": f"SonarCloud API error ({exc.code}): {exc.read().decode()}",
             }
         except Exception as exc:
             return {
                 "success": False,
                 "project_key": key,
+                "branch": branch,
+                "failed_tasks": tasks,
                 "error": f"SonarCloud API request failed: {exc}",
             }
 
@@ -276,7 +292,7 @@ class QualityGateBot:
 
         issues = []
         if gate_status != "OK":
-            issues_url = f"https://sonarcloud.io/api/issues/search?componentKeys={urllib.parse.quote(key)}&resolved=false&ps=50"
+            issues_url = f"https://sonarcloud.io/api/issues/search?componentKeys={urllib.parse.quote(key)}&resolved=false&ps=50{branch_param}"
             req2 = urllib.request.Request(issues_url, headers={"Authorization": auth_header})
             try:
                 with urllib.request.urlopen(req2) as resp2:
@@ -299,17 +315,60 @@ class QualityGateBot:
             "passed": passed,
             "project_key": key,
             "organization": organization,
+            "branch": branch,
             "status": gate_status,
             "conditions": conditions,
             "failing_conditions": failing_conditions,
             "issues_count": len(issues),
             "blocking_issues": issues,
+            "failed_tasks": tasks,
             "message": (
                 f"SonarCloud Quality Gate PASSED (status: OK) for '{key}'."
                 if passed
                 else f"SonarCloud Quality Gate FAILED (status: {gate_status}) for '{key}'. Fix {len(failing_conditions)} failing condition(s) and {len(issues)} issue(s) before proceeding."
             ),
         }
+
+    @staticmethod
+    def _sonar_failed_tasks(
+        key: str, auth_header: str, limit: int, branch: Optional[str] = None
+    ) -> List[Dict[str, Any]] | Dict[str, str]:
+        """Recent FAILED background tasks for ``key`` (newest first), optionally only those of ``branch``.
+
+        SonarCloud leaves ``branch`` empty on tasks that failed before a branch was recorded (for example the
+        organization line limit), so a ``branch`` filter can't match those; omit it to see every failure.
+        """
+        import urllib.parse
+        import urllib.request
+
+        url = (
+            f"https://sonarcloud.io/api/ce/activity?component={urllib.parse.quote(key)}"
+            f"&status=FAILED&ps={min(limit * 5 if branch else limit, 100)}"
+        )
+        req = urllib.request.Request(url, headers={"Authorization": auth_header})
+        try:
+            with urllib.request.urlopen(req) as resp:
+                data = json.loads(resp.read().decode())
+        except Exception as exc:  # report the lookup failure instead of hiding the gate result
+            return {"error": f"SonarCloud background task request failed: {exc}"}
+        tasks = []
+        for task in data.get("tasks", []):
+            if branch and task.get("branch") != branch:
+                continue
+            tasks.append({
+                "id": task.get("id"),
+                "type": task.get("type"),
+                "branch": task.get("branch"),
+                "branch_type": task.get("branchType"),
+                "pull_request": task.get("pullRequest"),
+                "submitted_at": task.get("submittedAt"),
+                "executed_at": task.get("executedAt"),
+                "error_type": task.get("errorType"),
+                "error_message": task.get("errorMessage"),
+            })
+            if len(tasks) >= limit:
+                break
+        return tasks
 
     def report_json(self, evaluation: Dict[str, Any]) -> str:
         return json.dumps(evaluation, indent=2, sort_keys=True)
