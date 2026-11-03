@@ -5,6 +5,15 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.23.0] - 2026-11-03
+
+### Added
+- **`hath0r quality sonar --branch` and `--failed-tasks N`** (#568): `--branch` scopes the quality gate and issues to a
+  branch instead of the main branch. `--failed-tasks N` lists the N most recent failed SonarCloud analyses
+  (`api/ce/activity`) with their error messages, the only place SonarCloud says why a "SonarQube Cloud analysis failed"
+  check failed. It found that MatrixOnline-Client analyses fail on the `bayly-ai` organization's 50,000-line plan limit.
+  Tests: `tests/unit/test_quality_bots.py`.
+
 ## [1.22.0] - 2026-11-01
 
 ### Added
