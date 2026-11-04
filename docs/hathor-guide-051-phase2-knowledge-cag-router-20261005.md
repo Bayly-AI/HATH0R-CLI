@@ -59,3 +59,40 @@ Run unit and integration tests:
 ```bash
 pytest tests/test_phase2_knowledge_cag.py
 ```
+
+---
+
+## Retrieval Model Backends (v1.24.0, #570)
+
+The router's intent classifier and the `kb search --hybrid` reranker use real models when available and say which
+backend produced each score.
+
+| Component | Backend order (`auto`) | Env override |
+|---|---|---|
+| Embeddings (`hath0r_cli.embeddings`) | `sentence-transformers` (if installed) → Ollama `all-minilm` → `hash` | `HATH0R_EMBED_BACKEND`, `HATH0R_EMBED_MODEL`, `HATH0R_OLLAMA_URL` |
+| Reranker (`InstructionAwareReranker`) | `cross-encoder` (if `sentence-transformers` installed) → `embedding` (trained model only) → `heuristic` | `HATH0R_RERANK_BACKEND` |
+
+`hash` and `heuristic` are deterministic, dependency-free fallbacks, not trained models.
+
+### Operator runbook
+
+```bash
+# Zero-install path: local Ollama embeddings
+ollama pull all-minilm
+hath0r kb rerankers            # expect: Active rerank backend: embedding / Embedding backend: ollama:all-minilm
+hath0r kb search -q "sign in users securely" --hybrid -o json   # data.rerank_backend == "embedding"
+
+# Real cross-encoder (downloads weights from Hugging Face on first use)
+pip install 'hath0r-cli[rerank]'
+hath0r kb search -q "..." --hybrid -m qwen3-reranker   # tomaarsen/Qwen3-Reranker-0.6B-seq-cls
+hath0r kb search -q "..." --hybrid -m minilm-l6-v2     # small/fast cross-encoder
+
+# Force deterministic behaviour (CI, offline)
+export HATH0R_EMBED_BACKEND=hash HATH0R_RERANK_BACKEND=heuristic
+```
+
+Rollback: set the two env vars above; no data migration is involved. Any backend error at query time degrades to
+the next backend and is recorded in `InstructionAwareReranker.last_fallback_reason`.
+
+Latency (local Ollama, Intel Mac): ~45 ms per classified query, ~80 ms to rerank 3 candidates after warm-up
+(first call ~0.9 s while the model loads). The `hash` backend stays under 5 ms.
