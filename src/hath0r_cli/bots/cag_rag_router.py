@@ -20,10 +20,11 @@ class IntentClassificationResult:
     probabilities: Dict[str, float]
     inference_latency_ms: float
     classifier: str = "NeuralIntentClassifier"
+    embedding_backend: str = "none"  # backend:model that produced the query embedding
 
 
 class NeuralIntentClassifier:
-    """Lightweight neural intent classifier using dense embeddings and cosine similarity scoring."""
+    """Intent classifier scoring dense query embeddings against intent prototypes by cosine similarity."""
 
     INTENT_CLASSES: List[str] = ["CAG", "RAG", "CLI_ACTION"]
 
@@ -44,18 +45,35 @@ class NeuralIntentClassifier:
     }
 
     def __init__(self) -> None:
-        try:
-            from hath0r_engine.gateway.cache import DenseBiEncoder
-
-            self._encoder = DenseBiEncoder(dimensions=384)
-        except Exception:
-            self._encoder = None
-
-        # Precompute normalized prototype vectors
+        # Embedding backend (Ollama / sentence-transformers / hash) is resolved lazily on first classify()
+        # so importing this module never blocks on a network probe.
+        self._encoder: Any = None
+        self._encoder_resolved = False
         self._prototype_embeddings: Dict[str, List[float]] = {}
-        if self._encoder is not None:
-            for intent, text in self.PROTOTYPES.items():
-                self._prototype_embeddings[intent] = self._encoder.encode(text)
+
+    def _ensure_encoder(self) -> None:
+        """Resolve the shared embedding backend and precompute normalized prototype vectors."""
+        if self._encoder_resolved:
+            return
+        self._encoder_resolved = True
+        from hath0r_cli.embeddings import get_embedding_backend
+
+        backend = get_embedding_backend()
+        if backend is None:
+            return
+        try:
+            intents = list(self.PROTOTYPES)
+            vectors = backend.embed([self.PROTOTYPES[i] for i in intents])
+        except Exception:  # noqa: BLE001 - classifier degrades to keyword fallback
+            return
+        self._encoder = backend
+        self._prototype_embeddings = dict(zip(intents, vectors))
+
+    @property
+    def embedding_backend(self) -> str:
+        """``backend:model`` used for classification, or ``none`` before/without an encoder."""
+        self._ensure_encoder()
+        return f"{self._encoder.name}:{self._encoder.model}" if self._encoder is not None else "none"
 
     def _cosine_similarity(self, v1: List[float], v2: List[float]) -> float:
         return sum(a * b for a, b in zip(v1, v2))
@@ -65,25 +83,34 @@ class NeuralIntentClassifier:
         total_exp = sum(exp_scores.values()) or 1.0
         return {k: round(v / total_exp, 4) for k, v in exp_scores.items()}
 
+    @staticmethod
+    def _keyword_fallback(q_lower: str, t0: float) -> IntentClassificationResult:
+        rag_keywords = ["pdf", "archive", "archival", "onedrive", "career", "history", "documents", "book", "external"]
+        intent = "RAG" if any(kw in q_lower for kw in rag_keywords) else "CAG"
+        elapsed = round((time.perf_counter() - t0) * 1000.0, 3)
+        return IntentClassificationResult(
+            intent=intent,
+            confidence=0.85,
+            probabilities={intent: 0.85, "OTHER": 0.15},
+            inference_latency_ms=elapsed,
+            classifier="KeywordFallback",
+            embedding_backend="none",
+        )
+
     def classify(self, query: str) -> IntentClassificationResult:
-        """Classify query intent with sub-2ms latency using neural semantic projections."""
+        """Classify query intent by cosine similarity of the query embedding to intent prototypes."""
+        self._ensure_encoder()  # one-time warm-up, excluded from per-query latency
         t0 = time.perf_counter()
         q_lower = query.strip().lower()
 
         # Fallback if encoder is unavailable
         if self._encoder is None or not self._prototype_embeddings:
-            rag_keywords = ["pdf", "archive", "archival", "onedrive", "career", "history", "documents", "book", "external"]
-            intent = "RAG" if any(kw in q_lower for kw in rag_keywords) else "CAG"
-            elapsed = round((time.perf_counter() - t0) * 1000.0, 3)
-            return IntentClassificationResult(
-                intent=intent,
-                confidence=0.85,
-                probabilities={intent: 0.85, "OTHER": 0.15},
-                inference_latency_ms=elapsed,
-                classifier="KeywordFallback",
-            )
+            return self._keyword_fallback(q_lower, t0)
 
-        q_vec = self._encoder.encode(query)
+        try:
+            q_vec = self._encoder.embed_one(query)
+        except Exception:  # noqa: BLE001 - e.g. Ollama stopped after warm-up
+            return self._keyword_fallback(q_lower, t0)
         scores: Dict[str, float] = {}
         for intent, p_vec in self._prototype_embeddings.items():
             sim = self._cosine_similarity(q_vec, p_vec)
@@ -107,6 +134,7 @@ class NeuralIntentClassifier:
             probabilities=probs,
             inference_latency_ms=elapsed_ms,
             classifier="NeuralIntentClassifier",
+            embedding_backend=f"{self._encoder.name}:{self._encoder.model}",
         )
 
 

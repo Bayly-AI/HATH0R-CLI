@@ -260,6 +260,8 @@ def kb_search(
             "hybrid": hybrid,
             "instruction": instruction,
             "model": model_name or "qwen3-reranker",
+            "rerank_backend": getattr(store, "last_rerank_backend", None) if hybrid else None,
+            "rerank_model": getattr(store, "last_rerank_model", None) if hybrid else None,
             "count": len(results_data),
             "results": results_data,
         },
@@ -284,16 +286,20 @@ def kb_rerankers(ctx: click.Context) -> None:
     from rich.table import Table
 
     from hath0r_cli.common import console
+    from hath0r_cli.embeddings import get_embedding_backend
     from hath0r_cli.instruction_reranker import InstructionAwareReranker
 
     reranker = InstructionAwareReranker()
     models = reranker.list_models()
+    active = reranker.resolve_backend()
+    emb = get_embedding_backend()
+    embedding = emb.describe() if emb is not None else {"backend": "none"}
 
     response = _build_response(
         ctx,
         command="kb.rerankers",
         state="ok",
-        data={"models": models, "count": len(models)},
+        data={"models": models, "count": len(models), "active_backend": active, "embedding": embedding},
     )
 
     def _text() -> None:
@@ -313,6 +319,9 @@ def kb_rerankers(ctx: click.Context) -> None:
                 m["description"],
             )
         console.print(table)
+        emb_label = f"{embedding['backend']}:{embedding.get('model', '-')}"
+        console.print(f"Active rerank backend: [bold]{active['backend']}[/bold] (preference: {active['preference']})")
+        console.print(f"Embedding backend: [bold]{emb_label}[/bold]")
 
     _emit_response(ctx, response, text_renderer=_text)
 
