@@ -75,6 +75,8 @@ class SQLiteIndexStore(KnowledgeIndexStore):
     """High-speed local SQLite FTS5 and vector index store."""
 
     def __init__(self, db_path: Optional[Path | str] = None) -> None:
+        self.last_rerank_backend: Optional[str] = None
+        self.last_rerank_model: Optional[str] = None
         if db_path is None:
             # Default location: .hath0r/cache/kb_index.sqlite
             from hath0r_cli.common import _discover_group_root
@@ -335,7 +337,10 @@ class SQLiteIndexStore(KnowledgeIndexStore):
         instruction: Optional[str] = None,
         model: Optional[str] = None,
     ) -> List[SearchResult]:
-        """Execute hybrid search combining FTS5 lexical ranking and instruction-aware cross-encoder reranking."""
+        """Execute hybrid search: FTS5/BM25 candidate recall, then instruction-aware reranking.
+
+        The reranker backend actually used is recorded in ``last_rerank_backend`` / ``last_rerank_model``.
+        """
         fts_hits = self.search_fts(query, limit=max(limit * 2, 10))
         if not fts_hits:
             return []
@@ -350,6 +355,8 @@ class SQLiteIndexStore(KnowledgeIndexStore):
             instruction=instruction,
             model_id=model,
         )
+        self.last_rerank_backend = reranker.last_backend
+        self.last_rerank_model = reranked[0]["model"] if reranked else None
 
         hybrid_results: List[SearchResult] = []
         for r in reranked[:limit]:

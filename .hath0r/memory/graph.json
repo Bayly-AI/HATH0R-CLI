@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 709,
-  "content_hash": "sha256:5ba265a4890bb894b620e231ff0ea5f9c0406972c0d5ec6a5f99ea66e0936b0b",
-  "updated_at": "2026-11-07T20:03:53.286825+00:00",
+  "revision": 705,
+  "content_hash": "sha256:45dbcc5eb75ac71d780deceb95fbe8c6442cf45fac66527410cf3dde02bac914",
+  "updated_at": "2026-11-04T20:28:00.569360+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -1598,9 +1598,9 @@
       "updated_at": "2026-10-29T11:57:13.069488+00:00",
       "metadata": {
         "source_files": {
-          "VERSION": "sha256:f24986f850ee6e66a4c7fdbe8ea5f72f94bee5434a3bcd1892799e3bc46f3d12",
-          "pyproject.toml": "sha256:87cb111c1744b8af42dbb0409381f1d9e04e43f6227b5285ecbd483b9beb156e",
-          "CHANGELOG.md": "sha256:94d244eabf78fb66fc4d00e5b79ee66f1607fb46c0d5686c46ae3ecacf5a64c1",
+          "VERSION": "sha256:674f4a09248743250e5a3af0542b31ac96a6031a254069470b83b1a4e14210f8",
+          "pyproject.toml": "sha256:136cb21983255005ecbd1487faeeb3eca68dab75e00dbb89a02095a44d59585f",
+          "CHANGELOG.md": "sha256:0c714ea16ed9a359de0e8b84281d210448b957dcc81bd6ba74f7756dd3d2c1b7",
           "src/hath0r_cli/cccd/training_coordinator.py": "sha256:b1fed8465db95f4d72188ed58404f2c4e88040c7f06ca818df8c354e6aa29366",
           "src/hath0r_cli/bots/cicccd_bot.py": "sha256:4a5f72f02a0b3eb5de382608cd5aa5e643f5eaca0472e9061e122f02a774e972"
         }
@@ -2499,7 +2499,6 @@
         "compounded"
       ],
       "valid_from": "2026-11-01T16:23:11.171581+00:00",
-      "valid_to": null,
       "is_current": true,
       "created_at": "2026-11-01T16:23:11.171581+00:00",
       "updated_at": "2026-11-01T16:23:11.171581+00:00",
@@ -2521,7 +2520,6 @@
         "compounded"
       ],
       "valid_from": "2026-11-01T16:23:11.171581+00:00",
-      "valid_to": null,
       "is_current": true,
       "created_at": "2026-11-01T16:23:11.171581+00:00",
       "updated_at": "2026-11-01T16:23:11.171581+00:00",
@@ -2590,7 +2588,6 @@
         "compounded"
       ],
       "valid_from": "2026-11-01T16:33:56.651366+00:00",
-      "valid_to": null,
       "is_current": true,
       "created_at": "2026-11-01T16:33:56.651366+00:00",
       "updated_at": "2026-11-01T16:33:56.651366+00:00",
@@ -2658,7 +2655,6 @@
         "compounded"
       ],
       "valid_from": "2026-11-01T16:39:27.140365+00:00",
-      "valid_to": null,
       "is_current": true,
       "created_at": "2026-11-01T16:39:27.140365+00:00",
       "updated_at": "2026-11-01T16:39:27.140365+00:00",
@@ -2680,7 +2676,6 @@
         "compounded"
       ],
       "valid_from": "2026-11-01T16:39:27.140365+00:00",
-      "valid_to": null,
       "is_current": true,
       "created_at": "2026-11-01T16:39:27.140365+00:00",
       "updated_at": "2026-11-01T16:39:27.140365+00:00",
@@ -2772,49 +2767,70 @@
       "metadata": {}
     },
     {
-      "id": "fact:repo-hathor-cli-wt-574-orientation",
-      "type": "fact",
-      "label": "hathor-cli-wt-574 Repository Orientation Memory",
-      "content": "hathor-cli-wt-574: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" /> </p>",
-      "importance": 0.85,
+      "id": "episode:issue-570-real-retrieval-backends",
+      "type": "episode",
+      "label": "Issue 570 real embedding and reranker backends",
+      "content": "InstructionAwareReranker previously simulated Qwen3 with lexical overlap + hash noise; DenseBiEncoder is hash n-grams. Added hath0r_cli.embeddings (sentence-transformers optional, Ollama /api/embed all-minilm 384-d, hash fallback), real cross-encoder/embedding rerank with per-result backend label, classifier on shared embedder. Gameshow CAG registry still Jaccard matching (unchanged). Version bump PRs must run 'hath0r release build --no-sync-framework' or release tests fail.",
+      "importance": 0.8,
       "tags": [
-        "orientation",
-        "repository",
-        "hathor-cli-wt-574",
-        "fact",
+        "episode",
         "compounded"
       ],
-      "valid_from": "2026-11-07T20:02:01.588811+00:00",
+      "valid_from": "2026-11-04T20:27:50.111212+00:00",
       "valid_to": null,
       "is_current": true,
-      "created_at": "2026-11-07T20:02:01.588811+00:00",
-      "updated_at": "2026-11-07T20:02:01.588853+00:00",
+      "created_at": "2026-11-04T20:27:50.111212+00:00",
+      "updated_at": "2026-11-04T20:27:50.111212+00:00",
       "metadata": {}
+    },
+    {
+      "id": "eval:issue-570",
+      "type": "eval",
+      "label": "Task Evaluation issue-570 (R=0.92, PASS)",
+      "content": "4-Tier Task Evaluation for issue-570 on branch feature/570-real-embeddings-reranker: R_task=0.9233 (det=0.96, traj=0.93, adv=0.85, goal=0.93). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "issue-570",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-11-04T20:28:00.438367+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-04T20:28:00.438367+00:00",
+      "updated_at": "2026-11-04T20:28:00.438367+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:054a9fea28767369ea1170d592ee079fb53c36343e16d3f64bb334e88fd069f2"
+        }
+      }
     },
     {
       "id": "session:sess-20261101-160736-c73550",
       "type": "session",
       "label": "Micro Session sess-20261101-160736-c73550",
-      "content": "Micro Session sess-20261101-160736-c73550 [completed] | Focus: Orienting repository hathor-cli-wt-574 | Reads: 7, Writes: 28 | Entries: Completed PR #101 (feature/101-test) via EndOfTaskBot.",
+      "content": "Micro Session sess-20261101-160736-c73550 [active] | Focus: Active working session in hathor-cli | Reads: 3, Writes: 27 | Entries: Compounded eval:issue-570: Task Evaluation issue-570 (R=0.92, PASS)",
       "importance": 0.75,
       "tags": [
         "session",
         "micro-session",
-        "completed"
+        "active"
       ],
       "valid_from": "2026-11-01T16:07:36.711558+00:00",
-      "valid_to": "2026-11-07T20:03:53.276288+00:00",
+      "valid_to": null,
       "is_current": true,
       "created_at": "2026-11-01T16:07:36.711558+00:00",
-      "updated_at": "2026-11-07T20:03:53.276288+00:00",
+      "updated_at": "2026-11-04T20:28:00.556281+00:00",
       "metadata": {
         "session_id": "sess-20261101-160736-c73550",
         "prior_session_id": "sess-20261031-162748-37dc07",
         "parent_session_id": "sess-20261031-162748-37dc07",
-        "read_count": 7,
-        "write_count": 28,
-        "status": "completed",
-        "byte_size": 1835
+        "read_count": 3,
+        "write_count": 27,
+        "status": "active",
+        "byte_size": 1918
       }
     }
   ],
@@ -5305,9 +5321,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T13:36:47.428289+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "feature:local-qgates-561",
@@ -5315,9 +5329,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T13:36:47.500096+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-561",
@@ -5325,9 +5337,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T13:36:51.177162+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-561",
@@ -5335,9 +5345,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T13:36:51.177162+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-561",
@@ -5345,9 +5353,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T13:36:51.177162+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-561",
@@ -5355,9 +5361,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T13:36:51.251466+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "knowledge:suite-arch-and-local-qgates-20261031",
@@ -5365,9 +5369,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T14:27:10.429716+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "knowledge:suite-arch-and-local-qgates-20261031",
@@ -5375,9 +5377,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T14:27:10.509207+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:release-deploy-hath0r-mcp-1-13-0-cli-1-21-0",
@@ -5385,9 +5385,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T14:45:04.879979+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:release-deploy-hath0r-mcp-1-13-0-cli-1-21-0",
@@ -5395,9 +5393,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T14:45:04.879979+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:release-deploy-hath0r-mcp-1-13-0-cli-1-21-0",
@@ -5405,9 +5401,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T14:45:04.879979+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:release-deploy-hath0r-mcp-1-13-0-cli-1-21-0",
@@ -5415,9 +5409,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T14:45:04.987179+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:global-install-hath0r-cli-1-21-0",
@@ -5425,9 +5417,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T15:32:16.721805+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:global-install-hath0r-cli-1-21-0",
@@ -5435,9 +5425,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T15:32:16.721805+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:global-install-hath0r-cli-1-21-0",
@@ -5445,9 +5433,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T15:32:16.721805+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:global-install-hath0r-cli-1-21-0",
@@ -5455,9 +5441,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T15:32:16.822572+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:setup-local-qgates-36-repos",
@@ -5465,9 +5449,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:00:56.843723+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:setup-local-qgates-36-repos",
@@ -5475,9 +5457,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:00:56.843723+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:setup-local-qgates-36-repos",
@@ -5485,9 +5465,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:00:56.843723+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:setup-local-qgates-36-repos",
@@ -5495,9 +5473,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:00:56.920144+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "session:sess-20261031-114426-90b427",
@@ -5825,9 +5801,7 @@
       "relation": "PRECEDES",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:17:37.763860+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "session:sess-20261031-161737-5169cf",
@@ -5835,9 +5809,7 @@
       "relation": "RELATES_TO",
       "weight": 0.8,
       "valid_from": "2026-10-31T16:17:37.763860+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "episode:clean-repo-hathor-cli",
@@ -5845,9 +5817,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:17:37.941248+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:clean-repo-hathor-cli",
@@ -5855,9 +5825,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:17:43.253478+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:clean-repo-hathor-cli",
@@ -5865,9 +5833,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:17:43.319910+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:clean-all-repos-development",
@@ -5875,9 +5841,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:25:39.721879+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:clean-all-repos-development",
@@ -5885,9 +5849,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:25:39.721879+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:clean-all-repos-development",
@@ -5895,9 +5857,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:25:39.721879+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:clean-all-repos-development",
@@ -5905,9 +5865,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:25:39.798358+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "session:sess-20261031-161737-5169cf",
@@ -5915,9 +5873,7 @@
       "relation": "PRECEDES",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:27:48.640297+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "session:sess-20261031-162748-37dc07",
@@ -5925,9 +5881,7 @@
       "relation": "RELATES_TO",
       "weight": 0.8,
       "valid_from": "2026-10-31T16:27:48.640297+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "episode:clean-repo-hathor-cli",
@@ -5935,9 +5889,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:27:48.800440+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:clean-repo-hathor-cli",
@@ -5945,9 +5897,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:27:53.164268+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:clean-repo-hathor-cli",
@@ -5955,9 +5905,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-10-31T16:27:53.243132+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "session:sess-20261031-162748-37dc07",
@@ -5965,9 +5913,7 @@
       "relation": "PRECEDES",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:07:36.722327+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "session:sess-20261101-160736-c73550",
@@ -5975,9 +5921,7 @@
       "relation": "RELATES_TO",
       "weight": 0.8,
       "valid_from": "2026-11-01T16:07:36.722327+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "episode:issue-566-install-wizard",
@@ -5985,9 +5929,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:23:10.887146+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "episode:issue-566-install-wizard",
@@ -5995,9 +5937,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:23:11.067544+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "insight:mcp",
@@ -6005,9 +5945,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:23:11.171581+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "insight:mcp",
@@ -6015,9 +5953,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:23:11.171581+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "insight:release",
@@ -6025,9 +5961,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:23:11.171581+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "insight:release",
@@ -6035,9 +5969,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:23:11.171581+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566-install-wizard",
@@ -6045,9 +5977,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:23:19.292448+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566-install-wizard",
@@ -6055,9 +5985,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:23:19.292448+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566-install-wizard",
@@ -6065,9 +5993,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:23:19.292448+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566-install-wizard",
@@ -6075,9 +6001,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:23:19.481039+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "episode:issue-566-dmg-exe-installers",
@@ -6085,9 +6009,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:33:56.526686+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "episode:issue-566-dmg-exe-installers",
@@ -6095,9 +6017,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:33:56.607358+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "insight:install-wizard",
@@ -6105,9 +6025,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:33:56.651366+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "insight:install-wizard",
@@ -6115,9 +6033,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:33:56.651366+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566-dmg-exe-installers",
@@ -6125,9 +6041,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:33:59.226371+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566-dmg-exe-installers",
@@ -6135,9 +6049,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:33:59.226371+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566-dmg-exe-installers",
@@ -6145,9 +6057,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:33:59.226371+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566-dmg-exe-installers",
@@ -6155,9 +6065,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:33:59.304187+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "episode:issue-566-release-cleanup",
@@ -6165,9 +6073,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:39:26.961988+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "episode:issue-566-release-cleanup",
@@ -6175,9 +6081,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:39:27.044813+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "insight:dmg",
@@ -6185,9 +6089,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:39:27.140365+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "insight:dmg",
@@ -6195,9 +6097,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:39:27.140365+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "insight:exe",
@@ -6205,9 +6105,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:39:27.140365+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "insight:exe",
@@ -6215,9 +6113,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:39:27.140365+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566-release-cleanup",
@@ -6225,9 +6121,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:39:29.501413+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566-release-cleanup",
@@ -6235,9 +6129,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:39:29.501413+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566-release-cleanup",
@@ -6245,9 +6137,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:39:29.501413+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566-release-cleanup",
@@ -6255,9 +6145,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:39:29.585066+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "rule:cr-release-rotation-001",
@@ -6265,9 +6153,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:59:38.180034+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "rule:cr-release-rotation-001",
@@ -6275,9 +6161,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:59:38.258874+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566",
@@ -6285,9 +6169,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:59:40.582274+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566",
@@ -6295,9 +6177,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:59:40.582274+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566",
@@ -6305,9 +6185,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:59:40.582274+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:issue-566",
@@ -6315,9 +6193,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T16:59:40.675088+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:task-HATH0R-CLI",
@@ -6325,9 +6201,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T18:15:29.590810+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:task-HATH0R-CLI",
@@ -6335,9 +6209,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T18:15:29.590810+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:task-HATH0R-CLI",
@@ -6345,9 +6217,7 @@
       "relation": "EVALUATES",
       "weight": 1.0,
       "valid_from": "2026-11-01T18:15:29.590810+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "eval:task-HATH0R-CLI",
@@ -6355,9 +6225,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T18:15:29.688866+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "episode:conflict-resolution-development-sync",
@@ -6365,9 +6233,7 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T18:24:55.867897+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
       "source": "episode:conflict-resolution-development-sync",
@@ -6375,29 +6241,55 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-01T18:24:55.974242+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "is_current": true
     },
     {
-      "source": "fact:repo-hathor-cli-wt-574-orientation",
+      "source": "episode:issue-570-real-retrieval-backends",
       "target": "concept:tri-graph",
-      "relation": "RELATES_TO",
+      "relation": "DERIVES_FROM",
       "weight": 1.0,
-      "valid_from": "2026-11-07T20:02:01.588811+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "valid_from": "2026-11-04T20:27:50.111212+00:00",
+      "is_current": true
     },
     {
-      "source": "fact:repo-hathor-cli-wt-574-orientation",
-      "target": "rule:cr-memory-compound-001",
-      "relation": "RELATES_TO",
+      "source": "episode:issue-570-real-retrieval-backends",
+      "target": "session:sess-20261101-160736-c73550",
+      "relation": "DERIVES_FROM",
       "weight": 1.0,
-      "valid_from": "2026-11-07T20:02:01.588811+00:00",
-      "valid_to": null,
-      "is_current": true,
-      "metadata": {}
+      "valid_from": "2026-11-04T20:27:50.217313+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-570",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-11-04T20:28:00.438367+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-570",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-11-04T20:28:00.438367+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-570",
+      "target": "session:sess-20261101-160736-c73550",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-11-04T20:28:00.438367+00:00",
+      "is_current": true
+    },
+    {
+      "source": "eval:issue-570",
+      "target": "session:sess-20261101-160736-c73550",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-04T20:28:00.559379+00:00",
+      "is_current": true
     }
   ]
 }

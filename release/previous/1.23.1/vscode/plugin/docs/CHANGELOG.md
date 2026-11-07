@@ -5,15 +5,28 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.23.1] - 2026-11-07
+## [1.24.0] - 2026-11-04
 
-### Fixed
-- **`hath0r preflight run`, `hath0r evals run` and `hath0r deploy pre` ignored `thresholds.json` commands** (#574):
-  without a `cfg/quality-gates.json` override they always ran `pytest -q` and `ruff check src`, so repos without a
-  `src/` folder failed preflight with ruff E902 and scored `test_suite` 0 in the task eval. Commands now resolve in
-  order: `cfg/quality-gates.json`, then the `tests` and `errors` commands in `thresholds.json` (`CR-LOCAL-QGATES-001`),
-  then the built-in defaults, which lint `src` only when it exists. Found in Bayly-AI/Legion-Wow-Armory (#66).
-  Tests: `tests/unit/test_quality_bots.py`.
+### Added
+- **Real embedding and rerank backends for RAG/CAG retrieval** (#570):
+  - New shared module `src/hath0r_cli/embeddings.py`: `sentence-transformers` (optional) → local Ollama
+    (`/api/embed`, default `all-minilm`, 384-d) → deterministic hash fallback. Select with `HATH0R_EMBED_BACKEND`
+    (`auto|sentence-transformers|ollama|hash`), `HATH0R_EMBED_MODEL`, `HATH0R_OLLAMA_URL` / `OLLAMA_HOST`.
+  - `InstructionAwareReranker` now scores with a real cross-encoder (`sentence-transformers`; Qwen3-Reranker via
+    its `seq-cls` conversion, BGE v2-m3, MiniLM) or bi-encoder cosine over trained embeddings, falling back to the
+    lexical heuristic. Select with `HATH0R_RERANK_BACKEND` (`auto|cross-encoder|embedding|heuristic`). Every result
+    reports `backend` and the `model` that actually scored it.
+  - `NeuralIntentClassifier` (CAG/RAG/CLI router) embeds queries with the shared backend; result carries
+    `embedding_backend`.
+  - `hath0r kb rerankers` shows the active rerank and embedding backends; `hath0r kb search --hybrid` reports
+    `rerank_backend` / `rerank_model`.
+  - Optional extra `pip install 'hath0r-cli[rerank]'` for local cross-encoder / sentence-transformers models.
+
+### Changed
+- Removed the SHA-256 "semantic nuance" noise from the heuristic reranker; it is now a plain, deterministic
+  lexical score and is labelled `lexical-heuristic`.
+- Tests pin `HATH0R_EMBED_BACKEND=hash` / `HATH0R_RERANK_BACKEND=heuristic` (autouse fixture) so they never call
+  Ollama or Hugging Face.
 
 ## [1.23.0] - 2026-11-03
 

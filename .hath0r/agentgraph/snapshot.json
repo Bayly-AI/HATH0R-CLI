@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
-  "graph_id": "agentgraph-hathor-cli-wt-574",
-  "timestamp": "2026-11-07T20:03:53.408076+00:00",
+  "graph_id": "agentgraph-hathor-cli",
+  "timestamp": "2026-11-04T20:28:00.953397+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -1039,7 +1039,7 @@
       "properties": {
         "path": "docs/hathor-guide-051-phase2-knowledge-cag-router-20261005.md",
         "category": "docs",
-        "size_bytes": 2491
+        "size_bytes": 4307
       },
       "is_current": true
     },
@@ -6045,9 +6045,9 @@
       "content": "Released v1.13.0 of HATH0R-CLI adding CCCDTTrainingCoordinator SFT/LoRA/QLoRA/PEFT subspace training and benchmark evals, SecuritySASTScanner AST-aware eval/exec detection, and GitWorkflowBot.",
       "properties": {
         "source_files": {
-          "VERSION": "sha256:f24986f850ee6e66a4c7fdbe8ea5f72f94bee5434a3bcd1892799e3bc46f3d12",
-          "pyproject.toml": "sha256:87cb111c1744b8af42dbb0409381f1d9e04e43f6227b5285ecbd483b9beb156e",
-          "CHANGELOG.md": "sha256:94d244eabf78fb66fc4d00e5b79ee66f1607fb46c0d5686c46ae3ecacf5a64c1",
+          "VERSION": "sha256:674f4a09248743250e5a3af0542b31ac96a6031a254069470b83b1a4e14210f8",
+          "pyproject.toml": "sha256:136cb21983255005ecbd1487faeeb3eca68dab75e00dbb89a02095a44d59585f",
+          "CHANGELOG.md": "sha256:0c714ea16ed9a359de0e8b84281d210448b957dcc81bd6ba74f7756dd3d2c1b7",
           "src/hath0r_cli/cccd/training_coordinator.py": "sha256:b1fed8465db95f4d72188ed58404f2c4e88040c7f06ca818df8c354e6aa29366",
           "src/hath0r_cli/bots/cicccd_bot.py": "sha256:4a5f72f02a0b3eb5de382608cd5aa5e643f5eaca0472e9061e122f02a774e972"
         },
@@ -7137,18 +7137,37 @@
       "is_current": true
     },
     {
-      "id": "memory:fact:repo-hathor-cli-wt-574-orientation",
+      "id": "memory:episode:issue-570-real-retrieval-backends",
       "plane": "memory",
-      "type": "fact",
-      "label": "hathor-cli-wt-574 Repository Orientation Memory",
-      "content": "hathor-cli-wt-574: <p align=\"center\"> <img src=\"lib/assets/images/hathor-logo-1.png\" alt=\"HATHOR logo\" width=\"280\" /> </p>",
+      "type": "episode",
+      "label": "Issue 570 real embedding and reranker backends",
+      "content": "InstructionAwareReranker previously simulated Qwen3 with lexical overlap + hash noise; DenseBiEncoder is hash n-grams. Added hath0r_cli.embeddings (sentence-transformers optional, Ollama /api/embed all-minilm 384-d, hash fallback), real cross-encoder/embedding rerank with per-result backend label, classifier on shared embedder. Gameshow CAG registry still Jaccard matching (unchanged). Version bump PRs must run 'hath0r release build --no-sync-framework' or release tests fail.",
       "properties": {
         "source": "local_memory",
         "tags": [
-          "orientation",
-          "repository",
-          "hathor-cli-wt-574",
-          "fact",
+          "episode",
+          "compounded"
+        ],
+        "importance": 0.8
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:issue-570",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation issue-570 (R=0.92, PASS)",
+      "content": "4-Tier Task Evaluation for issue-570 on branch feature/570-real-embeddings-reranker: R_task=0.9233 (det=0.96, traj=0.93, adv=0.85, goal=0.93). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:054a9fea28767369ea1170d592ee079fb53c36343e16d3f64bb334e88fd069f2"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "issue-570",
+          "passed",
           "compounded"
         ],
         "importance": 0.85
@@ -7160,20 +7179,20 @@
       "plane": "memory",
       "type": "session",
       "label": "Micro Session sess-20261101-160736-c73550",
-      "content": "Micro Session sess-20261101-160736-c73550 [completed] | Focus: Orienting repository hathor-cli-wt-574 | Reads: 7, Writes: 28 | Entries: Completed PR #101 (feature/101-test) via EndOfTaskBot.",
+      "content": "Micro Session sess-20261101-160736-c73550 [active] | Focus: Active working session in hathor-cli | Reads: 3, Writes: 27 | Entries: Compounded eval:issue-570: Task Evaluation issue-570 (R=0.92, PASS)",
       "properties": {
         "session_id": "sess-20261101-160736-c73550",
         "prior_session_id": "sess-20261031-162748-37dc07",
         "parent_session_id": "sess-20261031-162748-37dc07",
-        "read_count": 7,
-        "write_count": 28,
-        "status": "completed",
-        "byte_size": 1835,
+        "read_count": 3,
+        "write_count": 27,
+        "status": "active",
+        "byte_size": 1918,
         "source": "local_memory",
         "tags": [
           "session",
           "micro-session",
-          "completed"
+          "active"
         ],
         "importance": 0.75
       },
@@ -11637,15 +11656,39 @@
       "is_current": true
     },
     {
-      "source": "memory:fact:repo-hathor-cli-wt-574-orientation",
+      "source": "memory:episode:issue-570-real-retrieval-backends",
       "target": "concept:tri-graph",
-      "relation": "RELATES_TO",
+      "relation": "DERIVES_FROM",
       "is_current": true
     },
     {
-      "source": "memory:fact:repo-hathor-cli-wt-574-orientation",
+      "source": "memory:episode:issue-570-real-retrieval-backends",
+      "target": "memory:session:sess-20261101-160736-c73550",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-570",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-570",
       "target": "memory:rule:cr-memory-compound-001",
-      "relation": "RELATES_TO",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-570",
+      "target": "memory:session:sess-20261101-160736-c73550",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-570",
+      "target": "memory:session:sess-20261101-160736-c73550",
+      "relation": "DERIVES_FROM",
       "is_current": true
     },
     {
@@ -12543,7 +12586,13 @@
       "is_current": true
     },
     {
-      "source": "memory:fact:repo-hathor-cli-wt-574-orientation",
+      "source": "memory:episode:issue-570-real-retrieval-backends",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-570",
       "target": "role:developer",
       "relation": "INFORMS",
       "is_current": true
@@ -13396,7 +13445,7 @@
     }
   ],
   "metadata": {
-    "repo_root": "/Users/raybayly/Development/OpenSource/hathor-cli-wt-574",
+    "repo_root": "/Users/raybayly/Development/OpenSource/hathor-cli",
     "synced_sources": 333
   }
 }
