@@ -271,3 +271,12 @@ def test_cli_status_and_apply_render(workspace, tmp_path: Path, monkeypatch: pyt
     )
     assert applied.exit_code == 0, applied.output
     assert "1.2.4" in applied.output
+
+
+def test_context_squeeze_rule_is_canonical():
+    rule = RuleRolloutBot.resolve_rule("CR-CONTEXT-SQUEEZE-001")
+    assert rule["section"].startswith("## CR-CONTEXT-SQUEEZE-001: Compress Context with SuperSqueeze")
+    assert "hath0r squeeze" in rule["section"] and "SuperSqueezeBot" in rule["section"]
+    assert {"rule_id": "CR-CONTEXT-SQUEEZE-001", "title": "Compress Context with SuperSqueeze"} in RuleRolloutBot.list_rules()
+    assert "docs/governance/rules/cr-context-squeeze-001.md" in rule["section"]
+    assert (Path(__file__).resolve().parents[2] / "docs/governance/rules/cr-context-squeeze-001.md").is_file()
