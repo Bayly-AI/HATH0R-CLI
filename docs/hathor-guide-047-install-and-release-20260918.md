@@ -24,9 +24,32 @@ PyPI/pipx, GitHub Release binaries, fileset tarball, and the npm thin client.
 
 ## Tier 0 install methods
 
+> **Official Install Wizard (Recommended):** The Install Wizard (`python3 scripts/install_hath0r.py`, `./release/install-wizard.sh`, or `hath0r install-wizard run`) installs all host dependencies (Python, `pipx`, Git, `curl`, Docker Engine & Compose v2), installs the `hath0r` CLI globally, stages the `Hath0r-MCP` `Dockerfile` & `docker-compose.yml`, provisions the `hath0r-net` Docker network, launches the `Hath0r-MCP` container (`127.0.0.1:38083:8083`), and verifies end-to-end health.
+>
 > **Automated upgrades:** once installed, keep the CLI current with `hath0r upgrade run`
-> (verify + auto-rollback + announce). First-time verified install: `python3 scripts/install_hath0r.py`.
-> See [GUIDE-049](hathor-guide-049-automated-upgrade-install-20261005.md).
+> (verify + auto-rollback + announce).
+> See [GUIDE-049](hathor-guide-049-automated-upgrade-install-20261005.md) and [`docs/governance/playbooks/install-wizard-playbook.md`](governance/playbooks/install-wizard-playbook.md).
+
+### 0. Official Install Wizard (CLI + Hath0r MCP via Docker)
+
+- **macOS Disk Image (`.dmg`)**: Open `release/Hath0r-Install-Wizard.dmg` (or `release/Hath0r-Install-Wizard-<ver>-macos.dmg`) and double-click **`Hath0r Install Wizard.app`** (or `Install Hath0r Wizard.command`).
+- **Windows Executable (`.exe`)**: Launch `release/Hath0r-Install-Wizard.exe` (or `release/Hath0r-Install-Wizard-<ver>-windows-x64.exe`).
+
+```sh
+# Rebuild the macOS .dmg and Windows .exe Install Wizard installers:
+hath0r install-wizard package --target all
+
+# Interactive or automated full installation (dependencies + global CLI + Docker MCP):
+python3 scripts/install_hath0r.py
+# Or from the release directory:
+./release/install-wizard.sh
+
+# Post-install CLI wizard commands:
+hath0r install-wizard check
+hath0r install-wizard run
+hath0r install-wizard status
+hath0r install-wizard repair
+```
 
 ### 1. pip / pipx (recommended operators)
 

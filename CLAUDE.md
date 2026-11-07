@@ -36,6 +36,17 @@
 
 Canonical: [HATH0R-CLI `docs/governance/cli-first-rules.md`](https://github.com/Bayly-AI/HATH0R-CLI/blob/development/docs/governance/cli-first-rules.md).
 
+## CR-CONTEXT-SQUEEZE-001: Compress Context with SuperSqueeze (CRITICAL — Org-Wide · CANONICAL)
+
+1. **Squeeze before you load**: Bulky context (whole files, logs, CI/tool output, KB/RAG hits, transcripts, anything over ~2,000 tokens) MUST go through SuperSqueeze before it enters an agent's context or a prompt: `hath0r squeeze -q "<active query>" -f <file>` (or `-c "<text>"`), or `SuperSqueezeBot` in code. No hand-rolled truncation.
+2. **Anchor on the active query** and re-squeeze when the query changes.
+3. **Quality floor**: if `verifier.quality_score` < 0.90, lower `--threshold` or switch to targeted reads (line ranges, `grep`, `hath0r code`); never dump the whole source.
+4. **Local-first**: use `--local` for sensitive content; never squeeze secrets.
+5. **Exact-text exceptions**: code being edited, diffs under review, quoted legal text and fixtures are read verbatim with targeted reads.
+6. **Pipelines route through SuperSqueeze** (`CAGEngine.pack_context()`, `HybridCAGRAGRouter`, HAHP envelopes, MCP responses); audited by `SubstrateUtilizationBot` and the Tier 2 eval.
+
+Canonical: [HATH0R-CLI `docs/governance/rules/cr-context-squeeze-001.md`](https://github.com/Bayly-AI/HATH0R-CLI/blob/development/docs/governance/rules/cr-context-squeeze-001.md).
+
 ## CR-CLI-FEATURE-STANDARD-001 (Shared Code in CLI & Artifact Hexad — CRITICAL · CANONICAL)
 - **Zero Code Duplication**: Anything usable across multiple repositories MUST live in `HATH0R-CLI`.
 - **Complete Feature Package**: When adding any feature that qualifies as a CLI capability, deliver the CLI commands (`src/hath0r_cli/commands/`), managing bots (`src/hath0r_cli/bots/`), workflows (`cfg/workflows/`), and the Governance Documentation Hexad (Strategy, Procedure, Playbook, Runbook, Workflow, Bot Spec).
@@ -113,6 +124,13 @@ Canonical: [HATH0R-CLI `docs/governance/cli-first-rules.md`](https://github.com/
 - New products start at `0.1.0`.
 - Declare the bump in the PR body as `Version Impact: patch|minor|major` and add a matching `CHANGELOG.md` entry. Verify with `hath0r release validate` before announcing complete.
 - A PR merged without a version bump is not Complete.
+
+---
+
+## CR-RELEASE-ROTATION-001 (Canonical `release/{mac,windows,vscode}` & `release/previous/<version>/` Archive Rotation — CANONICAL)
+- **Canonical Platform Subfolders (`release/mac`, `release/windows`, `release/vscode`)**: Under `release/` reside the three active platform folders: `release/mac/` (Mac `.dmg` Install Wizard, Darwin binaries, fileset, wizard scripts), `release/windows/` (Windows `.exe` Install Wizard, Windows wrapper, fileset, wizard scripts), and `release/vscode/` (VSCode `.vsix` extension package).
+- **Automatic Clear & Rotation to `release/previous/<version>/`**: Before building a new release (`hath0r release build` / `hath0r release rotate` / `ReleaseBot`), `release/mac/`, `release/windows/`, and `release/vscode/` are cleared out and their previous release items are moved into `release/previous/<prev_version>/{mac,windows,vscode}/` (with per-version `CHECKSUMS.sha256`), and then the new releases are built into `release/mac/`, `release/windows/`, and `release/vscode/` and synchronized with `hath0r-framework/release/`.
+- **Canonical Workflow Enforcement**: Enforced across `quality-release-factory.yaml` (`release-cut`), `update-cli-factory.yaml` (`update-cli`), `end-of-task-factory.yaml` (`end-of-task`), `clean-repos-factory.yaml` (`clean-repos`), and `install-wizard-factory.yaml` (`install-wizard-package`). Verify with `hath0r release rotate` and `hath0r release validate`.
 
 ---
 

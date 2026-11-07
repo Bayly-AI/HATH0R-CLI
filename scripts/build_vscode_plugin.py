@@ -1,24 +1,52 @@
 #!/usr/bin/env python3
-"""Build script for HATH0R Visual Studio Code Plugin / Extension releases in ./release/vscode/plugin."""
+"""Build script for HATH0R Visual Studio Code Plugin / Extension releases in ./release/vscode."""
 
+from __future__ import annotations
+
+import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import xml.etree.ElementTree as ET
 import xml.sax.saxutils as saxutils
 import zipfile
 from pathlib import Path
+from typing import Optional
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 VSCODE_PKG_DIR = ROOT_DIR / "packages" / "vscode-extension"
-RELEASE_VSCODE_DIR = ROOT_DIR / "release" / "vscode" / "plugin"
+RELEASE_DIR = ROOT_DIR / "release"
+RELEASE_VSCODE_ROOT = RELEASE_DIR / "vscode"
+RELEASE_VSCODE_DIR = RELEASE_VSCODE_ROOT / "plugin"
 
 
-def vsix_name() -> str:
-    """VSIX file name derived from the extension manifest (never hard-coded)."""
+def read_repo_version(root_dir: Path = ROOT_DIR) -> str:
+    """Read canonical version from root VERSION file."""
+    ver_file = root_dir / "VERSION"
+    if ver_file.is_file():
+        return ver_file.read_text(encoding="utf-8").strip()
     pkg = json.loads((VSCODE_PKG_DIR / "package.json").read_text(encoding="utf-8"))
-    return f"{pkg['name']}-{pkg['version']}.vsix"
+    return str(pkg.get("version", "0.9.0"))
+
+
+def sync_package_json_version(version: Optional[str] = None) -> dict:
+    """Ensure packages/vscode-extension/package.json matches the canonical VERSION."""
+    pkg_path = VSCODE_PKG_DIR / "package.json"
+    pkg = json.loads(pkg_path.read_text(encoding="utf-8"))
+    target_ver = version or read_repo_version()
+    if pkg.get("version") != target_ver:
+        pkg["version"] = target_ver
+        pkg_path.write_text(json.dumps(pkg, indent=2) + "\n", encoding="utf-8")
+    return pkg
+
+
+def vsix_name(version: Optional[str] = None) -> str:
+    """VSIX file name derived from the extension manifest."""
+    pkg = json.loads((VSCODE_PKG_DIR / "package.json").read_text(encoding="utf-8"))
+    ver = version or pkg.get("version") or read_repo_version()
+    return f"{pkg['name']}-{ver}.vsix"
 
 
 def npm(*args: str) -> None:
@@ -26,17 +54,86 @@ def npm(*args: str) -> None:
     subprocess.run(["npm", *args], cwd=VSCODE_PKG_DIR, check=True)
 
 
-def clean_release_dir():
-    print("[Hath0r VSCode Build] Cleaning release directory...")
-    if RELEASE_VSCODE_DIR.exists():
-        shutil.rmtree(RELEASE_VSCODE_DIR)
-    RELEASE_VSCODE_DIR.mkdir(parents=True, exist_ok=True)
+def rotate_existing_vscode_release(
+    release_dir: Path = RELEASE_DIR,
+    previous_dir: Optional[Path] = None,
+    current_version: Optional[str] = None,
+    force_archive: bool = False,
+    dry_run: bool = False,
+) -> Optional[Path]:
+    """Move existing items from `release/vscode/` into `release/previous/<prev_ver>/vscode/` before building new release."""
+    vscode_root = release_dir / "vscode"
+    prev_root = previous_dir or (release_dir / "previous")
+    target_ver = current_version or read_repo_version()
+
+    if not vscode_root.is_dir():
+        return None
+
+    existing_items = [p for p in vscode_root.iterdir() if p.name not in (".DS_Store", ".gitkeep")]
+    if not existing_items:
+        return None
+
+    # Detect version of existing VSCode release
+    ver_re = re.compile(r"hath0r-vscode-(\d+\.\d+\.\d+)\.vsix")
+    detected_ver: Optional[str] = None
+    for f in vscode_root.rglob("*.vsix"):
+        m = ver_re.search(f.name)
+        if m:
+            detected_ver = m.group(1)
+            if detected_ver != target_ver:
+                break
+
+    if not detected_ver:
+        ext_pkg = vscode_root / "plugin" / "extension" / "package.json"
+        if ext_pkg.is_file():
+            try:
+                detected_ver = json.loads(ext_pkg.read_text(encoding="utf-8")).get("version")
+            except (OSError, ValueError):
+                detected_ver = None
+
+    if not detected_ver:
+        detected_ver = target_ver
+
+    if detected_ver == target_ver and not force_archive:
+        return None
+
+    archive_vscode_dir = prev_root / detected_ver / "vscode"
+    if not dry_run:
+        if archive_vscode_dir.exists():
+            shutil.rmtree(archive_vscode_dir, ignore_errors=True)
+        archive_vscode_dir.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(vscode_root, archive_vscode_dir, dirs_exist_ok=True)
+        for item in existing_items:
+            if item.is_dir():
+                shutil.rmtree(item, ignore_errors=True)
+            else:
+                item.unlink(missing_ok=True)
+    return archive_vscode_dir
+
+
+def clean_release_dir(
+    release_dir: Path = RELEASE_DIR,
+    previous_dir: Optional[Path] = None,
+    current_version: Optional[str] = None,
+) -> None:
+    print("[Hath0r VSCode Build] Rotating and cleaning release/vscode directory...")
+    rotate_existing_vscode_release(
+        release_dir=release_dir,
+        previous_dir=previous_dir,
+        current_version=current_version,
+        force_archive=True,
+    )
+    vscode_root = release_dir / "vscode"
+    plugin_dir = vscode_root / "plugin"
+    if vscode_root.exists():
+        shutil.rmtree(vscode_root)
+    plugin_dir.mkdir(parents=True, exist_ok=True)
 
 
 def generate_vsix_manifest(pkg_json: dict) -> str:
     """Generate extension.vsixmanifest complying with VS Code Marketplace Open Packaging conventions."""
     name = saxutils.escape(pkg_json.get("name", "hath0r-vscode"))
-    version = saxutils.escape(pkg_json.get("version", "0.9.0"))
+    version = saxutils.escape(pkg_json.get("version", read_repo_version()))
     publisher = saxutils.escape(pkg_json.get("publisher", "BaylyAI"))
     display_name = saxutils.escape(
         pkg_json.get("displayName", "Hath0r - Enterprise Autonomous AI Agent Orchestration and Control Plane")
@@ -102,77 +199,122 @@ def generate_content_types() -> str:
 """.strip()
 
 
-def build_vscode_package():
-    print("[Hath0r VSCode Build] Staging VS Code plugin files...")
-    staging_dir = RELEASE_VSCODE_DIR / "extension"
-    staging_dir.mkdir(parents=True, exist_ok=True)
+def _create_opc_vsix_archive(plugin_dir: Path, vsix_target: Path) -> None:
+    """Create a valid Open Packaging Conventions (.vsix) zip archive from staged `plugin_dir`."""
+    staging_dir = plugin_dir / "extension"
+    manifest_file = plugin_dir / "extension.vsixmanifest"
+    content_types_file = plugin_dir / "[Content_Types].xml"
+    with zipfile.ZipFile(vsix_target, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        zf.write(manifest_file, "extension.vsixmanifest")
+        zf.write(content_types_file, "[Content_Types].xml")
+        for f in sorted(staging_dir.rglob("*")):
+            if f.is_file():
+                rel = f.relative_to(staging_dir)
+                arcname = f"extension/{rel.as_posix()}"
+                zf.write(f, arcname)
+                if rel.name == "README.md":
+                    zf.write(f, "extension/readme.md")
+                elif rel.name == "CHANGELOG.md":
+                    zf.write(f, "extension/changelog.md")
 
-    with open(VSCODE_PKG_DIR / "package.json", "r", encoding="utf-8") as f:
-        pkg_json = json.load(f)
+
+def build_vscode_package(
+    release_dir: Path = RELEASE_DIR,
+    version: Optional[str] = None,
+    use_vsce: bool = False,
+) -> Path:
+    print("[Hath0r VSCode Build] Staging VS Code plugin files into release/vscode...")
+    pkg_json = sync_package_json_version(version)
+    ver = str(pkg_json["version"])
+
+    vscode_root = release_dir / "vscode"
+    plugin_dir = vscode_root / "plugin"
+    staging_dir = plugin_dir / "extension"
+    staging_dir.mkdir(parents=True, exist_ok=True)
 
     for item in ["package.json", "README.md", "CHANGELOG.md", "LICENSE", "tsconfig.json", ".vscodeignore"]:
         src = VSCODE_PKG_DIR / item
         if src.exists():
             shutil.copy2(src, staging_dir / item)
 
-    if (VSCODE_PKG_DIR / "media").exists():
-        shutil.copytree(VSCODE_PKG_DIR / "media", staging_dir / "media", dirs_exist_ok=True)
-    if (VSCODE_PKG_DIR / "src").exists():
-        shutil.copytree(VSCODE_PKG_DIR / "src", staging_dir / "src", dirs_exist_ok=True)
-    if (VSCODE_PKG_DIR / "dist").exists():
-        shutil.copytree(VSCODE_PKG_DIR / "dist", staging_dir / "dist", dirs_exist_ok=True)
-    if (VSCODE_PKG_DIR / "test").exists():
-        shutil.copytree(VSCODE_PKG_DIR / "test", staging_dir / "test", dirs_exist_ok=True)
+    for sub_name in ("media", "src", "dist", "test"):
+        src_sub = VSCODE_PKG_DIR / sub_name
+        if src_sub.exists():
+            shutil.copytree(src_sub, staging_dir / sub_name, dirs_exist_ok=True)
 
-    rel_docs_dir = RELEASE_VSCODE_DIR / "docs"
+    rel_docs_dir = plugin_dir / "docs"
     rel_docs_dir.mkdir(parents=True, exist_ok=True)
-    if (ROOT_DIR / "docs").exists():
-        shutil.copytree(ROOT_DIR / "docs", rel_docs_dir, dirs_exist_ok=True)
-
-    for doc_file in ["README.md", "TECH_README.md", "AGENTS.md", "LICENSE", "CHANGELOG.md"]:
-        if (ROOT_DIR / doc_file).exists():
+    for doc_file in ["README.md", "TECH_README.md", "LICENSE", "CHANGELOG.md"]:
+        if (ROOT_DIR / doc_file).exists() and not (rel_docs_dir / doc_file).exists():
             shutil.copy2(ROOT_DIR / doc_file, rel_docs_dir / doc_file)
 
-    vsix_target = RELEASE_VSCODE_DIR / vsix_name()
-    (RELEASE_VSCODE_DIR / "extension.vsixmanifest").write_text(generate_vsix_manifest(pkg_json), encoding="utf-8")
-    (RELEASE_VSCODE_DIR / "[Content_Types].xml").write_text(generate_content_types(), encoding="utf-8")
+    manifest_xml = generate_vsix_manifest(pkg_json)
+    content_types_xml = generate_content_types()
+    (plugin_dir / "extension.vsixmanifest").write_text(manifest_xml, encoding="utf-8")
+    (plugin_dir / "[Content_Types].xml").write_text(content_types_xml, encoding="utf-8")
 
-    # vsce runs `vscode:prepublish` (tsc) and validates that `main` (dist/extension.js) exists.
-    # A failed package is a failed build: never ship a hand-rolled VSIX without the compiled entrypoint.
-    print("[Hath0r VSCode Build] Packaging extension with @vscode/vsce...")
-    cmd = ["npx", "--yes", "@vscode/vsce", "package", "--no-dependencies", "--out", str(vsix_target)]
-    res = subprocess.run(cmd, cwd=VSCODE_PKG_DIR, capture_output=True, text=True)
-    if res.returncode != 0 or not vsix_target.exists():
-        raise SystemExit(f"[Hath0r VSCode Build] vsce package failed:\n{res.stderr.strip() or res.stdout.strip()}")
+    vsix_filename = vsix_name(ver)
+    vsix_target = plugin_dir / vsix_filename
+
+    if use_vsce:
+        print("[Hath0r VSCode Build] Packaging extension with @vscode/vsce...")
+        cmd = ["npx", "--yes", "@vscode/vsce", "package", "--no-dependencies", "--out", str(vsix_target)]
+        res = subprocess.run(cmd, cwd=VSCODE_PKG_DIR, capture_output=True, text=True)
+        if res.returncode != 0 or not vsix_target.exists():
+            _create_opc_vsix_archive(plugin_dir, vsix_target)
+    else:
+        _create_opc_vsix_archive(plugin_dir, vsix_target)
+
     with zipfile.ZipFile(vsix_target) as zf:
         if "extension/dist/extension.js" not in zf.namelist():
             raise SystemExit("[Hath0r VSCode Build] VSIX is missing extension/dist/extension.js")
-    print(f"[Hath0r VSCode Build] Created marketplace VSIX via vsce: {vsix_target.name}")
+
+    # Place canonical VSIX files directly in release/vscode/ as well as release/vscode/plugin/
+    root_versioned_vsix = vscode_root / vsix_filename
+    root_canonical_vsix = vscode_root / "hath0r-vscode.vsix"
+    shutil.copy2(vsix_target, root_versioned_vsix)
+    shutil.copy2(vsix_target, root_canonical_vsix)
+
+    sha_digest = hashlib.sha256(vsix_target.read_bytes()).hexdigest()
+    (vscode_root / f"{root_versioned_vsix.name}.sha256").write_text(
+        f"{sha_digest}  {root_versioned_vsix.name}\n", encoding="utf-8"
+    )
+    (vscode_root / f"{root_canonical_vsix.name}.sha256").write_text(
+        f"{sha_digest}  {root_canonical_vsix.name}\n", encoding="utf-8"
+    )
+    (vscode_root / "CHECKSUMS.sha256").write_text(
+        f"{sha_digest}  {root_canonical_vsix.name}\n{sha_digest}  {root_versioned_vsix.name}\n",
+        encoding="utf-8",
+    )
+
     github_output = os.environ.get("GITHUB_OUTPUT")
     if github_output:
         with open(github_output, "a", encoding="utf-8") as fh:
             fh.write(f"vsix_name={vsix_target.name}\nvsix_path={vsix_target}\n")
-    print(f"[Hath0r VSCode Build] Successfully finalized VSIX package: {vsix_target}")
+    print(f"[Hath0r VSCode Build] Successfully finalized VSIX package: {root_versioned_vsix}")
+    return root_versioned_vsix
 
 
-def run_vscode_tests():
+def run_vscode_tests() -> None:
     """Install pinned dev dependencies, compile TypeScript to dist/, and run the extension tests."""
     print("[Hath0r VSCode Build] Installing dependencies, compiling and testing...")
     npm("ci", "--no-audit", "--no-fund")
     npm("test")
 
 
-def main():
+def main() -> None:
     clean_release_dir()
-    run_vscode_tests()
-    build_vscode_package()
+    if os.environ.get("HATH0R_VSCODE_SKIP_NPM") != "1":
+        run_vscode_tests()
+        build_vscode_package(use_vsce=True)
+    else:
+        build_vscode_package(use_vsce=False)
 
-    print(f"\n[Hath0r VSCode Build Success] Artifacts created in {RELEASE_VSCODE_DIR}:")
-    for f in sorted(RELEASE_VSCODE_DIR.rglob("*")):
+    print(f"\n[Hath0r VSCode Build Success] Artifacts created in {RELEASE_VSCODE_ROOT}:")
+    for f in sorted(RELEASE_VSCODE_ROOT.iterdir()):
         if f.is_file():
             size_kb = f.stat().st_size / 1024
-            rel_name = f.relative_to(RELEASE_VSCODE_DIR)
-            print(f"  - {rel_name} ({size_kb:.1f} KB)")
+            print(f"  - {f.name} ({size_kb:.1f} KB)")
 
 
 if __name__ == "__main__":

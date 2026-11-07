@@ -133,6 +133,9 @@ def build(out_dir: Path, product_id: str, framework_root: Path | None) -> Path:
     with tarfile.open(tar_path, "w:gz") as tar:
         tar.add(stage, arcname=stage_name)
 
+    if stage.exists():
+        shutil.rmtree(stage, ignore_errors=True)
+
     digest = hashlib.sha256(tar_path.read_bytes()).hexdigest()
     (out_dir / f"{tar_path.name}.sha256").write_text(f"{digest}  {tar_path.name}\n", encoding="utf-8")
 

@@ -67,8 +67,11 @@ bots:
   - id: release-bot
     name: Release Bot
     role: packaging-and-release
-    description: Validates build wheel, package metadata, and release notes.
+    description: Rotates previous releases into release/previous/<version>/, builds current release artifacts, and validates release notes.
     capabilities:
+      - rotate
+      - build-and-rotate
+      - sync
       - validate
       - notes
 
@@ -110,6 +113,11 @@ workflows:
       - bot: knowledge-organizer-bot
         action: sync-kb
         on_failure: continue
+      - bot: release-bot
+        action: rotate
+        on_failure: abort
+        args:
+          sync_framework: true
       - bot: release-bot
         action: validate
       - bot: git-pr-bot

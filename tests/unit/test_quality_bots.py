@@ -383,6 +383,69 @@ def test_deploy_test_bot_dry_run() -> None:
     assert res["phase"] == "pre_deploy"
 
 
+def _write_thresholds(root: Path, commands: dict) -> None:
+    (root / "thresholds.json").write_text(json.dumps({"stack": {"commands": commands}}), encoding="utf-8")
+
+
+_THRESHOLD_CMDS = {
+    "errors": ["python3", "-m", "ruff", "check", "tests"],
+    "typecheck": ["python3", "-m", "mypy", "tests"],
+    "tests": ["python3", "-m", "pytest", "-q"],
+}
+
+
+def _ran_commands(res: dict) -> list:
+    return [cr["command"] for cr in res["command_results"]]
+
+
+def _stub_local_commands(monkeypatch, bot: PreflightBot) -> None:
+    monkeypatch.setattr(
+        bot, "_run_local_commands", lambda cmds: [{"command": c, "ok": True, "exit_code": 0} for c in cmds]
+    )
+
+
+def test_preflight_uses_thresholds_json_commands(tmp_path: Path, monkeypatch) -> None:
+    """#574: preflight runs the tests and errors commands declared in thresholds.json."""
+    _write_thresholds(tmp_path, _THRESHOLD_CMDS)
+    bot = PreflightBot(cwd=tmp_path)
+    _stub_local_commands(monkeypatch, bot)
+    res = bot.run(skip_tests=False)
+    assert _ran_commands(res) == [_THRESHOLD_CMDS["tests"], _THRESHOLD_CMDS["errors"]]
+
+
+def test_preflight_quality_gates_cfg_overrides_thresholds(tmp_path: Path, monkeypatch) -> None:
+    """#574: cfg/quality-gates.json preflight.commands still take precedence over thresholds.json."""
+    _write_thresholds(tmp_path, _THRESHOLD_CMDS)
+    (tmp_path / "cfg").mkdir()
+    (tmp_path / "cfg" / "quality-gates.json").write_text(
+        json.dumps({"preflight": {"commands": [["echo", "ok"]]}}), encoding="utf-8"
+    )
+    bot = PreflightBot(cwd=tmp_path)
+    _stub_local_commands(monkeypatch, bot)
+    assert _ran_commands(bot.run(skip_tests=False)) == [["echo", "ok"]]
+
+
+@pytest.mark.parametrize("has_src", [False, True])
+def test_preflight_defaults_lint_src_only_when_present(tmp_path: Path, monkeypatch, has_src: bool) -> None:
+    """#574: without thresholds.json commands, built-in defaults skip ``ruff check src`` when src/ is absent."""
+    if has_src:
+        (tmp_path / "src").mkdir()
+    bot = PreflightBot(cwd=tmp_path)
+    _stub_local_commands(monkeypatch, bot)
+    ran = _ran_commands(bot.run(skip_tests=False))
+    assert ["python", "-m", "pytest", "-q"] in ran
+    assert (["python", "-m", "ruff", "check", "src"] in ran) is has_src
+
+
+def test_deploy_pre_phase_uses_thresholds_json_commands(tmp_path: Path) -> None:
+    """#574: deploy pre-phase resolves commands the same way as preflight."""
+    from hath0r_cli.bots.quality import DeployTestBot
+
+    _write_thresholds(tmp_path, _THRESHOLD_CMDS)
+    res = DeployTestBot(cwd=tmp_path).run_pre_deploy(dry_run=True)
+    assert res["commands"] == [_THRESHOLD_CMDS["tests"], _THRESHOLD_CMDS["errors"]]
+
+
 def test_end_of_task_daemon_bot_test_suite_failure(tmp_path: Path, monkeypatch) -> None:
     from hath0r_cli.bots import EndOfTaskBot
 
@@ -492,3 +555,93 @@ def test_cli_quality_sonar_mocked(tmp_path: Path, monkeypatch) -> None:
     assert data["data"]["status"] == "ERROR"
     assert len(data["data"]["blocking_issues"]) == 1
 
+
+
+def _sonar_fake_urlopen(monkeypatch, tasks: list[dict], seen: list[str]) -> None:
+    import urllib.request
+
+    class FakeResponse:
+        def __init__(self, data: dict):
+            self.data = json.dumps(data).encode("utf-8")
+
+        def read(self):
+            return self.data
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            pass
+
+    def fake_urlopen(req):
+        url = req.full_url
+        seen.append(url)
+        if "ce/activity" in url:
+            return FakeResponse({"tasks": tasks})
+        if "project_status" in url:
+            return FakeResponse({"projectStatus": {"status": "NONE", "conditions": []}})
+        return FakeResponse({"issues": []})
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+
+LOC_LIMIT_ERROR = (
+    "This analysis will make your organization 'bayly-ai' reach the maximum allowed lines limit of 50000."
+)
+
+
+def test_quality_gate_check_sonar_branch_and_failed_tasks(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("SONAR_TOKEN", "mock_token")
+    seen: list[str] = []
+    tasks = [
+        {"id": "t3", "type": "REPORT", "pullRequest": "156", "submittedAt": "2026-11-02T21:37:01+0000",
+         "errorMessage": LOC_LIMIT_ERROR},
+        {"id": "t2", "type": "REPORT", "branch": "testing", "branchType": "BRANCH", "errorMessage": "other"},
+        {"id": "t1", "type": "REPORT", "branch": "development", "branchType": "BRANCH", "errorMessage": "dev"},
+    ]
+    _sonar_fake_urlopen(monkeypatch, tasks, seen)
+
+    res = QualityGateBot(cwd=tmp_path).check_sonar(
+        project_key="Bayly-AI_Test", branch="development", failed_tasks=5
+    )
+
+    assert res["branch"] == "development"
+    assert [t["id"] for t in res["failed_tasks"]] == ["t1"]
+    assert any("project_status" in u and "&branch=development" in u for u in seen)
+    assert any("ce/activity" in u and "status=FAILED" in u for u in seen)
+
+
+def test_quality_gate_check_sonar_failed_tasks_limit_and_default_off(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("SONAR_TOKEN", "mock_token")
+    seen: list[str] = []
+    tasks = [{"id": f"t{i}", "pullRequest": str(i), "errorMessage": LOC_LIMIT_ERROR} for i in range(4)]
+    _sonar_fake_urlopen(monkeypatch, tasks, seen)
+    bot = QualityGateBot(cwd=tmp_path)
+
+    res = bot.check_sonar(project_key="Bayly-AI_Test", failed_tasks=2)
+    assert [t["id"] for t in res["failed_tasks"]] == ["t0", "t1"]
+    assert res["failed_tasks"][0]["error_message"] == LOC_LIMIT_ERROR
+
+    seen.clear()
+    res = bot.check_sonar(project_key="Bayly-AI_Test")
+    assert res["failed_tasks"] is None
+    assert not any("ce/activity" in u for u in seen)
+
+
+def test_cli_quality_sonar_failed_tasks_text(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("SONAR_TOKEN", "mock_token")
+    monkeypatch.chdir(tmp_path)
+    seen: list[str] = []
+    tasks = [{"id": "t1", "pullRequest": "157", "submittedAt": "2026-11-02T21:42:04+0000",
+              "errorMessage": LOC_LIMIT_ERROR}]
+    _sonar_fake_urlopen(monkeypatch, tasks, seen)
+
+    runner = CliRunner(mix_stderr=False)
+    res = runner.invoke(
+        cli.main,
+        ["--output", "text", "quality", "sonar", "--project-key", "Bayly-AI_Test", "--failed-tasks", "3"],
+    )
+
+    assert res.exit_code == 1  # gate status NONE is not OK
+    assert "Recent failed analyses (1):" in res.stdout
+    assert "PR 157: " + LOC_LIMIT_ERROR in res.stdout

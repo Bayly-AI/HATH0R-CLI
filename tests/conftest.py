@@ -11,6 +11,18 @@ from click.testing import CliRunner
 from tests.framework_paths import framework_schemas as _framework_schemas
 
 
+@pytest.fixture(autouse=True)
+def _hermetic_retrieval_backends(monkeypatch: pytest.MonkeyPatch):
+    """Pin deterministic embedding/rerank backends so tests never reach Ollama or Hugging Face."""
+    from hath0r_cli.embeddings import reset_backend_cache
+
+    monkeypatch.setenv("HATH0R_EMBED_BACKEND", "hash")
+    monkeypatch.setenv("HATH0R_RERANK_BACKEND", "heuristic")
+    reset_backend_cache()
+    yield
+    reset_backend_cache()
+
+
 @pytest.fixture
 def runner() -> CliRunner:
     return CliRunner(mix_stderr=False)
