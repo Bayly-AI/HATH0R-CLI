@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.23.1] - 2026-11-07
 
+### Added
+- **`CR-CONTEXT-SQUEEZE-001` — Compress Context with SuperSqueeze (CRITICAL · CANONICAL)**: agents compress bulky context through `hath0r squeeze` / `SuperSqueezeBot` before it enters a context window or prompt. Registered in `CANONICAL_RULE_SECTIONS` for `hath0r rules ensure-all`; canonical doc `docs/governance/rules/cr-context-squeeze-001.md`.
+- **`hath0r rules ensure-all` keeps `CLAUDE.md` mirrored**: `RuleRolloutBot.prepare()` now writes and commits `CLAUDE.md` as a byte-for-byte copy of the updated `AGENTS.md` (CR-CLAUDE-SYNC-001); before, rollout PRs changed only `AGENTS.md` and broke the mirror. Tests: `tests/unit/test_rule_rollout_bot.py`.
 ### Fixed
 - **`hath0r preflight run`, `hath0r evals run` and `hath0r deploy pre` ignored `thresholds.json` commands** (#574):
   without a `cfg/quality-gates.json` override they always ran `pytest -q` and `ruff check src`, so repos without a
