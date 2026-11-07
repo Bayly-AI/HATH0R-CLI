@@ -383,6 +383,69 @@ def test_deploy_test_bot_dry_run() -> None:
     assert res["phase"] == "pre_deploy"
 
 
+def _write_thresholds(root: Path, commands: dict) -> None:
+    (root / "thresholds.json").write_text(json.dumps({"stack": {"commands": commands}}), encoding="utf-8")
+
+
+_THRESHOLD_CMDS = {
+    "errors": ["python3", "-m", "ruff", "check", "tests"],
+    "typecheck": ["python3", "-m", "mypy", "tests"],
+    "tests": ["python3", "-m", "pytest", "-q"],
+}
+
+
+def _ran_commands(res: dict) -> list:
+    return [cr["command"] for cr in res["command_results"]]
+
+
+def _stub_local_commands(monkeypatch, bot: PreflightBot) -> None:
+    monkeypatch.setattr(
+        bot, "_run_local_commands", lambda cmds: [{"command": c, "ok": True, "exit_code": 0} for c in cmds]
+    )
+
+
+def test_preflight_uses_thresholds_json_commands(tmp_path: Path, monkeypatch) -> None:
+    """#574: preflight runs the tests and errors commands declared in thresholds.json."""
+    _write_thresholds(tmp_path, _THRESHOLD_CMDS)
+    bot = PreflightBot(cwd=tmp_path)
+    _stub_local_commands(monkeypatch, bot)
+    res = bot.run(skip_tests=False)
+    assert _ran_commands(res) == [_THRESHOLD_CMDS["tests"], _THRESHOLD_CMDS["errors"]]
+
+
+def test_preflight_quality_gates_cfg_overrides_thresholds(tmp_path: Path, monkeypatch) -> None:
+    """#574: cfg/quality-gates.json preflight.commands still take precedence over thresholds.json."""
+    _write_thresholds(tmp_path, _THRESHOLD_CMDS)
+    (tmp_path / "cfg").mkdir()
+    (tmp_path / "cfg" / "quality-gates.json").write_text(
+        json.dumps({"preflight": {"commands": [["echo", "ok"]]}}), encoding="utf-8"
+    )
+    bot = PreflightBot(cwd=tmp_path)
+    _stub_local_commands(monkeypatch, bot)
+    assert _ran_commands(bot.run(skip_tests=False)) == [["echo", "ok"]]
+
+
+@pytest.mark.parametrize("has_src", [False, True])
+def test_preflight_defaults_lint_src_only_when_present(tmp_path: Path, monkeypatch, has_src: bool) -> None:
+    """#574: without thresholds.json commands, built-in defaults skip ``ruff check src`` when src/ is absent."""
+    if has_src:
+        (tmp_path / "src").mkdir()
+    bot = PreflightBot(cwd=tmp_path)
+    _stub_local_commands(monkeypatch, bot)
+    ran = _ran_commands(bot.run(skip_tests=False))
+    assert ["python", "-m", "pytest", "-q"] in ran
+    assert (["python", "-m", "ruff", "check", "src"] in ran) is has_src
+
+
+def test_deploy_pre_phase_uses_thresholds_json_commands(tmp_path: Path) -> None:
+    """#574: deploy pre-phase resolves commands the same way as preflight."""
+    from hath0r_cli.bots.quality import DeployTestBot
+
+    _write_thresholds(tmp_path, _THRESHOLD_CMDS)
+    res = DeployTestBot(cwd=tmp_path).run_pre_deploy(dry_run=True)
+    assert res["commands"] == [_THRESHOLD_CMDS["tests"], _THRESHOLD_CMDS["errors"]]
+
+
 def test_end_of_task_daemon_bot_test_suite_failure(tmp_path: Path, monkeypatch) -> None:
     from hath0r_cli.bots import EndOfTaskBot
 
