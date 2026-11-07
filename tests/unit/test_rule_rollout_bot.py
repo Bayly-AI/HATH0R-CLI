@@ -188,6 +188,7 @@ def test_apply_commits_in_worktree_and_leaves_checkout_untouched(workspace, tmp_
     wt = Path(alpha["worktree"])
     agents = (wt / "AGENTS.md").read_text()
     assert agents.index(RULE) < agents.index("## CR-OTHER-RULE-001")
+    assert (wt / "CLAUDE.md").read_text() == agents  # CR-CLAUDE-SYNC-001 mirror committed
     assert 'version = "1.2.4"' in (wt / "pyproject.toml").read_text()
     changelog = (wt / "CHANGELOG.md").read_text()
     assert changelog.index("[Unreleased]") < changelog.index("[1.2.4]") < changelog.index("[1.2.3]")

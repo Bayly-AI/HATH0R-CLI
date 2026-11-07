@@ -252,7 +252,10 @@ class RuleRolloutBot:
         repo = {**repo, "worktree": str(wt), "branch": branch}
 
         agents = wt / "AGENTS.md"
-        agents.write_text(insert_section(agents.read_text(encoding="utf-8"), rule["section"]), encoding="utf-8")
+        agents_text = insert_section(agents.read_text(encoding="utf-8"), rule["section"])
+        agents.write_text(agents_text, encoding="utf-8")
+        # CR-CLAUDE-SYNC-001: CLAUDE.md is a byte-for-byte mirror of AGENTS.md.
+        (wt / "CLAUDE.md").write_text(agents_text, encoding="utf-8")
 
         vfile = wt / "VERSION"
         old = vfile.read_text(encoding="utf-8").strip() if vfile.is_file() else None
@@ -271,7 +274,7 @@ class RuleRolloutBot:
         if not validation.get("success"):
             return {**repo, "status": "error", "error": f"release validate failed: {validation.get('message')}"}
 
-        self._git(wt, "add", "AGENTS.md", "VERSION", "CHANGELOG.md")
+        self._git(wt, "add", "AGENTS.md", "CLAUDE.md", "VERSION", "CHANGELOG.md")
         for manifest in ("pyproject.toml", "package.json", "package-lock.json"):
             if (wt / manifest).is_file():
                 self._git(wt, "add", manifest)
@@ -303,7 +306,7 @@ class RuleRolloutBot:
         if code != 0:
             return {**repo, "status": "error", "issue": number, "error": f"push failed: {err}"}
         body = (
-            f"## Summary\n- Adds the canonical **{rule_id}** rule to `AGENTS.md`: {rule['summary']}.\n"
+            f"## Summary\n- Adds the canonical **{rule_id}** rule to `AGENTS.md` and its `CLAUDE.md` mirror: {rule['summary']}.\n"
             f"- Bumps `VERSION` **{repo.get('old_version') or '(none)'} → {repo['new_version']}**, keeping "
             "package manifests and `CHANGELOG.md` in step (CR-SEMVER-BUMP-001).\n\n"
             f"Closes #{number}\n\n**Version Impact: patch**\n\n"
