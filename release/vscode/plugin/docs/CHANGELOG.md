@@ -5,6 +5,16 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.23.1] - 2026-11-07
+
+### Fixed
+- **`hath0r preflight run`, `hath0r evals run` and `hath0r deploy pre` ignored `thresholds.json` commands** (#574):
+  without a `cfg/quality-gates.json` override they always ran `pytest -q` and `ruff check src`, so repos without a
+  `src/` folder failed preflight with ruff E902 and scored `test_suite` 0 in the task eval. Commands now resolve in
+  order: `cfg/quality-gates.json`, then the `tests` and `errors` commands in `thresholds.json` (`CR-LOCAL-QGATES-001`),
+  then the built-in defaults, which lint `src` only when it exists. Found in Bayly-AI/Legion-Wow-Armory (#66).
+  Tests: `tests/unit/test_quality_bots.py`.
+
 ## [1.23.0] - 2026-11-03
 
 ### Added

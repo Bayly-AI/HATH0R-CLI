@@ -1,5 +1,5 @@
 /*
- * Hath0r CLI + Hath0r MCP (Docker) — Official Windows Install Wizard Launcher (v1.23.0)
+ * Hath0r CLI + Hath0r MCP (Docker) — Official Windows Install Wizard Launcher (v1.22.0)
  * Compiled as a standalone 64-bit Windows PE32+ executable (Hath0r-Install-Wizard.exe).
  * Extracts the embedded install_hath0r.py bootstrap wizard, ensures Python 3.10+ (via winget if needed),
  * and runs the 5-stage Hath0r CLI + Docker MCP installation pipeline.

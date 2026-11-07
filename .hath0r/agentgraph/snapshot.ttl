@@ -1692,6 +1692,11 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:episode:conflict-resolution-development-sync> a hath0r:Plane ;
+    rdfs:label "Conflict Resolution & Development Sync" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:episode:decision-radar-architecture-plan> a hath0r:Plane ;
     rdfs:label "Hath0r Decision Radar Architecture Plan and GitHub Issues" ;
     hath0r:inPlane "memory" ;
@@ -2003,7 +2008,7 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
 <https://hath0r.dev/ontology/v1#memory:eval:task-HATH0R-CLI> a hath0r:Plane ;
-    rdfs:label "Task Evaluation task-HATH0R-CLI (R=0.93, PASS)" ;
+    rdfs:label "Task Evaluation task-HATH0R-CLI (R=0.94, PASS)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
