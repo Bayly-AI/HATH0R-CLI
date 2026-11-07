@@ -236,7 +236,7 @@ class InstructionAwareReranker:
         self.last_backend = backend
         model_label = self._model_label(backend, target_model)
 
-        scored = [
+        scored: List[Dict[str, Any]] = [
             {
                 "index": idx,
                 "candidate": cand,
