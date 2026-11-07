@@ -1,0 +1,55 @@
+{
+  "schema_version": "hath0r.micro_session/1",
+  "session_id": "sess-20261101-160736-c73550",
+  "prior_session_id": "sess-20261031-162748-37dc07",
+  "parent_session_id": "sess-20261031-162748-37dc07",
+  "revision": 30,
+  "content_hash": "sha256:b2a501994006dcbc57664a95438e1c5b23137c48c11f416ebd7c6b8ddb130653",
+  "base_graph_hash": "sha256:e5a4df783a6aee6f99e19854067c6c80a5c2bc4f190f5728c55a5b32db931854",
+  "task_id": null,
+  "role": null,
+  "repo_name": "hathor-cli",
+  "status": "active",
+  "started_at": "2026-11-01T16:07:36.711558+00:00",
+  "updated_at": "2026-11-04T20:28:00.556281+00:00",
+  "ended_at": null,
+  "read_count": 3,
+  "write_count": 27,
+  "last_read_at": "2026-11-01T18:24:54.434208+00:00",
+  "last_write_at": "2026-11-04T20:28:00.556281+00:00",
+  "active_focus": "Active working session in hathor-cli",
+  "prior_summary": "ounded eval:task-HATH0R-CLI: Task Ev; #570: real retrieval backends. Embedding; Compounded episode:issue-570-real-retrie",
+  "recalled_nodes": [
+    {
+      "id": "episode:sft-lora-peft-coordinator",
+      "type": "episode",
+      "label": "Completed SFT/LoRA/PEFT Training Coordinator & Evals",
+      "snippet": "Updated CCCDTTrainingCoordinator and SecuritySASTScanner in hathor-cli to execute real SFT"
+    }
+  ],
+  "micro_entries": [
+    {
+      "timestamp": "2026-11-04T20:28:00.556281+00:00",
+      "kind": "compound",
+      "summary": "Compounded eval:issue-570: Task Evaluation issue-570 (R=0.92, PASS)",
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "issue-570",
+        "passed",
+        "compounded"
+      ],
+      "node_id": "eval:issue-570"
+    }
+  ],
+  "next_steps": [],
+  "compounded_node_ids": [
+    "rule:cr-release-rotation-001",
+    "eval:issue-566",
+    "eval:task-HATH0R-CLI",
+    "episode:conflict-resolution-development-sync",
+    "episode:issue-570-real-retrieval-backends",
+    "eval:issue-570"
+  ],
+  "capsule_bytes": 1918
+}

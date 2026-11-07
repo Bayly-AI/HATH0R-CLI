@@ -20,7 +20,7 @@ def release() -> None:
 @release.command("validate")
 @click.pass_context
 def release_validate(ctx: click.Context) -> None:
-    """Validate VERSION SemVer and CHANGELOG alignment."""
+    """Validate VERSION SemVer, CHANGELOG alignment, and release/ root rotation."""
     from hath0r_cli.bots.quality import ReleaseBot
 
     bot = ReleaseBot(cwd=Path.cwd())
@@ -169,6 +169,54 @@ def release_sync(
             click.echo("Release artifacts synchronized successfully with Framework.")
         else:
             click.echo(f"Sync failed: {res.get('error')}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+    if not res.get("success"):
+        ctx.exit(1)
+
+
+@release.command("rotate")
+@click.option(
+    "--out", "out_dir", type=click.Path(path_type=Path), default=None, help="Output directory for release artifacts."
+)
+@click.option(
+    "--previous-dir", type=click.Path(path_type=Path), default=None, help="Directory for previous version archives."
+)
+@click.option("--framework-dir", type=click.Path(path_type=Path), default=None, help="Framework release directory.")
+@click.option("--no-sync-framework", is_flag=True, default=False, help="Skip syncing release to Framework.")
+@click.option("--dry-run", is_flag=True, default=False, help="Simulate rotation without modifying files.")
+@click.pass_context
+def release_rotate(
+    ctx: click.Context,
+    out_dir: Path | None,
+    previous_dir: Path | None,
+    framework_dir: Path | None,
+    no_sync_framework: bool,
+    dry_run: bool,
+) -> None:
+    """Move all non-current release artifacts out of release/ root into release/previous/<version>/."""
+    from hath0r_cli.bots.quality import ReleaseBot
+
+    bot = ReleaseBot(cwd=Path.cwd())
+    res = bot.rotate_previous(
+        out_dir=out_dir,
+        previous_dir=previous_dir,
+        framework_dir=framework_dir,
+        sync_framework=not no_sync_framework,
+        dry_run=dry_run,
+    )
+    state = "ok" if res.get("success") else "error"
+    response = _build_response(ctx, command="release.rotate", state=state, dry_run=dry_run, data=res)
+
+    def _text() -> None:
+        if res.get("success"):
+            click.echo(res.get("message") or f"Rotated previous releases for v{res.get('version')}.")
+            if res.get("archived_path"):
+                click.echo(f"Archived previous active release to: {res.get('archived_path')}")
+            if res.get("framework_synced"):
+                click.echo("Synchronized release/ and release/previous/ with Framework.")
+        else:
+            click.echo(f"Release rotation failed: {res.get('error')}")
 
     _emit_response(ctx, response, text_renderer=_text)
     if not res.get("success"):

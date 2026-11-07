@@ -970,6 +970,32 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         bot = IaCManagingBot(workspace=Path(path))
         return bot.render_manifests(path=Path(path), environment=environment)
 
+    @mcp.tool()
+    def hath0r_install_wizard(
+        action: str = "check",
+        method: Optional[str] = None,
+        mcp_port: int = 38083,
+        dry_run: bool = True,
+    ) -> Dict[str, Any]:
+        """Check, status, repair, or dry-run the Hath0r CLI and Hath0r MCP Docker Install Wizard.
+
+        Args:
+            action: Wizard action ('check', 'status', 'run', 'repair').
+            method: Optional CLI install method ('pipx', 'binary', 'pip').
+            mcp_port: Host port for Hath0r-MCP container (default: 38083).
+            dry_run: Simulate execution when True (default: True).
+        """
+        from hath0r_cli.bots.install_wizard_bot import InstallWizardBot
+
+        bot = InstallWizardBot()
+        if action == "check":
+            return bot.check_environment(mcp_port=mcp_port)
+        elif action == "run":
+            return bot.run_wizard(method=method, mcp_port=mcp_port, dry_run=dry_run)
+        elif action == "repair":
+            return bot.repair(mcp_port=mcp_port, dry_run=dry_run)
+        return bot.status(mcp_port=mcp_port)
+
     return mcp
 
 

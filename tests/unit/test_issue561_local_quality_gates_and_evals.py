@@ -259,3 +259,32 @@ def test_cli_quality_init_local_ensure_all_and_bot_registry(tmp_path: Path, monk
     assert reg.invoke("local-quality-gate-bot", "detect-technology", {}).success is True
     assert reg.invoke("local-quality-gate-bot", "ensure-all", {}, dry_run=True).success is True
     assert reg.invoke("local-quality-gate-bot", "unknown-action", {}).success is False
+
+
+def test_recursive_repo_discovery_and_flutter_c_stacks(tmp_path: Path) -> None:
+    """Verify recursive discovery across multi-tech repos (flutter-dart, c-native, sonar-project.properties)."""
+    flutter_repo = tmp_path / "groupA" / "mobile-app"
+    flutter_repo.mkdir(parents=True)
+    (flutter_repo / ".git").mkdir()
+    (flutter_repo / "pubspec.yaml").write_text("name: mobile_app\n", encoding="utf-8")
+    (flutter_repo / "lib").mkdir()
+    (flutter_repo / "lib" / "main.dart").write_text("void main() {}\n", encoding="utf-8")
+    (flutter_repo / "test").mkdir()
+    (flutter_repo / "test" / "widget_test.dart").write_text("void main() { /* main */ }\n", encoding="utf-8")
+
+    c_repo = tmp_path / "groupB" / "native-tool"
+    c_repo.mkdir(parents=True)
+    (c_repo / ".git").mkdir()
+    (c_repo / "Makefile").write_text("all:\n\t@echo ok\n", encoding="utf-8")
+    (c_repo / "sonar-project.properties").write_text("sonar.sources=src\nsonar.tests=tests\n", encoding="utf-8")
+    (c_repo / "src").mkdir()
+    (c_repo / "src" / "main.c").write_text("int main(void) { return 0; }\n", encoding="utf-8")
+
+    bot = LocalQualityGateBot(cwd=tmp_path)
+    res = bot.ensure_all_repos(workspace_root=tmp_path, recursive=True)
+    assert res["repos_count"] == 2
+    assert res["passed_count"] == 2
+    assert res["success"] is True
+    techs = {item["repo_name"]: item["technology"] for item in res["results"]}
+    assert techs["groupA/mobile-app"] == "flutter-dart"
+    assert techs["groupB/native-tool"] == "c-native"

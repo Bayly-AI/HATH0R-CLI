@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hath0r-cli"
-version = "1.21.0"
+version = "1.24.0"
 description = "HATH0R CLI — operator and developer control plane for the HATHOR agentic framework."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -36,6 +36,8 @@ mcp = [
 ]
 release = ["build>=1.2", "twine>=5.0", "pyinstaller>=6.0"]
 redis = ["redis>=5.0"]
+# Real local embedding + cross-encoder rerank models (Qwen3 / BGE / MiniLM); Ollama needs no extra.
+rerank = ["sentence-transformers>=3.0"]
 
 [tool.ruff]
 target-version = "py310"

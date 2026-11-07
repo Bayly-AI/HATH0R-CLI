@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+  <Metadata>
+    <Identity Language="en-US" Id="hath0r-vscode" Version="0.9.0" Publisher="BaylyAI"/>
+    <DisplayName>Hath0r - Enterprise Autonomous AI Agent Orchestration and Control Plane</DisplayName>
+    <Description xml:space="preserve">Enterprise control plane, autonomous agent execution, Taguchi parameter optimization, Tri-Graph cognitive substrate, and FinOps token analytics for Visual Studio Code.</Description>
+    <Tags>hath0r,ai-agents,agentic-ai,taguchi,finops,tri-graph,mcp,control-plane</Tags>
+    <Categories>Machine Learning,Programming Languages,Testing,Visualization,Other</Categories>
+    <GalleryFlags>Public</GalleryFlags>
+    <Badges></Badges>
+    <Properties>
+      <Property Id="Microsoft.VisualStudio.Code.Engine" Value="^1.80.0" />
+      <Property Id="Microsoft.VisualStudio.Code.ExtensionDependencies" Value="" />
+      <Property Id="Microsoft.VisualStudio.Code.ExtensionPack" Value="" />
+      <Property Id="Microsoft.VisualStudio.Code.LocalizedLanguages" Value="" />
+      <Property Id="Microsoft.VisualStudio.Code.ExtensionKind" Value="workspace,web" />
+    </Properties>
+    <License>extension/LICENSE</License>
+    <Icon>extension/media/hath0r.png</Icon>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Code"/>
+  </Installation>
+  <Dependencies/>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.Code.Manifest" Path="extension/package.json" Addressable="true" />
+    <Asset Type="Microsoft.VisualStudio.Services.Content.Details" Path="extension/README.md" Addressable="true" />
+    <Asset Type="Microsoft.VisualStudio.Services.Content.License" Path="extension/LICENSE" Addressable="true" />
+    <Asset Type="Microsoft.VisualStudio.Services.Icons.Default" Path="extension/media/hath0r.png" Addressable="true" />
+  </Assets>
+</PackageManifest>

@@ -29,6 +29,11 @@ bots:
     capabilities:
       - verify_completion
       - status
+  - id: release-bot
+    name: Release Bot
+    capabilities:
+      - rotate
+      - validate
 workflows:
   - id: clean-repos
     name: Clean & Verify Suite Repositories
@@ -37,6 +42,11 @@ workflows:
         action: ensure-calibrated
         args:
           max_age_hours: 4.0
+        on_failure: continue
+      - bot: release-bot
+        action: rotate
+        args:
+          sync_framework: true
         on_failure: continue
       - bot: architecture-preservation-bot
         action: verify_fleet
