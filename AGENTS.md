@@ -36,6 +36,17 @@
 
 Canonical: [HATH0R-CLI `docs/governance/cli-first-rules.md`](https://github.com/Bayly-AI/HATH0R-CLI/blob/development/docs/governance/cli-first-rules.md).
 
+## CR-CONTEXT-SQUEEZE-001: Compress Context with SuperSqueeze (CRITICAL — Org-Wide · CANONICAL)
+
+1. **Squeeze before you load**: Bulky context (whole files, logs, CI/tool output, KB/RAG hits, transcripts, anything over ~2,000 tokens) MUST go through SuperSqueeze before it enters an agent's context or a prompt: `hath0r squeeze -q "<active query>" -f <file>` (or `-c "<text>"`), or `SuperSqueezeBot` in code. No hand-rolled truncation.
+2. **Anchor on the active query** and re-squeeze when the query changes.
+3. **Quality floor**: if `verifier.quality_score` < 0.90, lower `--threshold` or switch to targeted reads (line ranges, `grep`, `hath0r code`); never dump the whole source.
+4. **Local-first**: use `--local` for sensitive content; never squeeze secrets.
+5. **Exact-text exceptions**: code being edited, diffs under review, quoted legal text and fixtures are read verbatim with targeted reads.
+6. **Pipelines route through SuperSqueeze** (`CAGEngine.pack_context()`, `HybridCAGRAGRouter`, HAHP envelopes, MCP responses); audited by `SubstrateUtilizationBot` and the Tier 2 eval.
+
+Canonical: [HATH0R-CLI `docs/governance/rules/cr-context-squeeze-001.md`](https://github.com/Bayly-AI/HATH0R-CLI/blob/development/docs/governance/rules/cr-context-squeeze-001.md).
+
 ## CR-CLI-FEATURE-STANDARD-001 (Shared Code in CLI & Artifact Hexad — CRITICAL · CANONICAL)
 - **Zero Code Duplication**: Anything usable across multiple repositories MUST live in `HATH0R-CLI`.
 - **Complete Feature Package**: When adding any feature that qualifies as a CLI capability, deliver the CLI commands (`src/hath0r_cli/commands/`), managing bots (`src/hath0r_cli/bots/`), workflows (`cfg/workflows/`), and the Governance Documentation Hexad (Strategy, Procedure, Playbook, Runbook, Workflow, Bot Spec).

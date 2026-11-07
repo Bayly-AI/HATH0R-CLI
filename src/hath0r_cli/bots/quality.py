@@ -57,6 +57,37 @@ def _repo_cfg(cwd: Path) -> dict[str, Any]:
     return _load_json_cfg(cwd / "cfg" / "quality-gates.json")
 
 
+# thresholds.json stack.commands keys run as pre-deploy/preflight commands, in order.
+_THRESHOLDS_PRE_DEPLOY_KEYS = ("tests", "errors")
+
+
+def _thresholds_commands(cwd: Path) -> List[List[str]]:
+    """Return the tests and errors commands a repo declares in thresholds.json (CR-LOCAL-QGATES-001)."""
+    stack = _load_json_cfg(cwd / "thresholds.json").get("stack")
+    commands = stack.get("commands") if isinstance(stack, dict) else None
+    if not isinstance(commands, dict):
+        return []
+    resolved: List[List[str]] = []
+    for key in _THRESHOLDS_PRE_DEPLOY_KEYS:
+        cmd = commands.get(key)
+        if isinstance(cmd, list) and cmd and all(isinstance(part, str) for part in cmd):
+            resolved.append(list(cmd))
+    return resolved
+
+
+def _default_pre_deploy_commands(cwd: Path) -> List[List[str]]:
+    """Built-in defaults; lint ``src`` only when it exists, so repos without it don't fail with ruff E902."""
+    return [list(c) for c in DEFAULT_PRE_DEPLOY_COMMANDS if c[-1] != "src" or (cwd / "src").is_dir()]
+
+
+def _resolve_pre_deploy_commands(cwd: Path, phase_cfg: dict[str, Any]) -> List[List[str]]:
+    """Resolve commands: cfg/quality-gates.json, then thresholds.json, then built-in defaults."""
+    raw = phase_cfg.get("commands")
+    if isinstance(raw, list) and raw:
+        return [list(c) if isinstance(c, list) else str(c).split() for c in raw]
+    return _thresholds_commands(cwd) or _default_pre_deploy_commands(cwd)
+
+
 _PYTEST_SUMMARY_LABELS = ("failed", "passed", "error", "errors", "skipped", "warning", "warnings")
 
 
@@ -627,11 +658,10 @@ class PreflightBot:
         if not skip_tests:
             commands = extra_commands
             if commands is None:
-                raw = cfg.get("preflight", {}).get("commands")
-                if isinstance(raw, list) and raw:
-                    commands = [list(c) if isinstance(c, list) else str(c).split() for c in raw]
-                else:
-                    commands = [list(c) for c in DEFAULT_PRE_DEPLOY_COMMANDS]
+                preflight_cfg = cfg.get("preflight")
+                commands = _resolve_pre_deploy_commands(
+                    self.cwd, preflight_cfg if isinstance(preflight_cfg, dict) else {}
+                )
             cmd_results = self._run_local_commands(commands)
             for cr in cmd_results:
                 checks.append(
@@ -745,6 +775,8 @@ class DeployTestBot:
         raw = phase_cfg.get("commands")
         if isinstance(raw, list) and raw:
             commands = [list(c) if isinstance(c, list) else str(c).split() for c in raw]
+        elif phase == "pre_deploy" and default_commands is DEFAULT_PRE_DEPLOY_COMMANDS:
+            commands = _resolve_pre_deploy_commands(self.cwd, {})
         else:
             commands = [list(c) for c in default_commands]
 
