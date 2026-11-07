@@ -5,6 +5,65 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.24.0] - 2026-11-07
+
+### Added
+- **Real embedding and rerank backends for RAG/CAG retrieval** (#570):
+  - New shared module `src/hath0r_cli/embeddings.py`: `sentence-transformers` (optional) → local Ollama
+    (`/api/embed`, default `all-minilm`, 384-d) → deterministic hash fallback. Select with `HATH0R_EMBED_BACKEND`
+    (`auto|sentence-transformers|ollama|hash`), `HATH0R_EMBED_MODEL`, `HATH0R_OLLAMA_URL` / `OLLAMA_HOST`.
+  - `InstructionAwareReranker` now scores with a real cross-encoder (`sentence-transformers`; Qwen3-Reranker via
+    its `seq-cls` conversion, BGE v2-m3, MiniLM) or bi-encoder cosine over trained embeddings, falling back to the
+    lexical heuristic. Select with `HATH0R_RERANK_BACKEND` (`auto|cross-encoder|embedding|heuristic`). Every result
+    reports `backend` and the `model` that actually scored it.
+  - `NeuralIntentClassifier` (CAG/RAG/CLI router) embeds queries with the shared backend; result carries
+    `embedding_backend`.
+  - `hath0r kb rerankers` shows the active rerank and embedding backends; `hath0r kb search --hybrid` reports
+    `rerank_backend` / `rerank_model`.
+  - Optional extra `pip install 'hath0r-cli[rerank]'` for local cross-encoder / sentence-transformers models.
+
+### Changed
+- Removed the SHA-256 "semantic nuance" noise from the heuristic reranker; it is now a plain, deterministic
+  lexical score and is labelled `lexical-heuristic`.
+- Tests pin `HATH0R_EMBED_BACKEND=hash` / `HATH0R_RERANK_BACKEND=heuristic` (autouse fixture) so they never call
+  Ollama or Hugging Face.
+
+## [1.23.1] - 2026-11-07
+
+### Added
+- **`CR-CONTEXT-SQUEEZE-001` — Compress Context with SuperSqueeze (CRITICAL · CANONICAL)**: agents compress bulky context through `hath0r squeeze` / `SuperSqueezeBot` before it enters a context window or prompt. Registered in `CANONICAL_RULE_SECTIONS` for `hath0r rules ensure-all`; canonical doc `docs/governance/rules/cr-context-squeeze-001.md`.
+- **`hath0r rules ensure-all` keeps `CLAUDE.md` mirrored**: `RuleRolloutBot.prepare()` now writes and commits `CLAUDE.md` as a byte-for-byte copy of the updated `AGENTS.md` (CR-CLAUDE-SYNC-001); before, rollout PRs changed only `AGENTS.md` and broke the mirror. Tests: `tests/unit/test_rule_rollout_bot.py`.
+### Fixed
+- **`hath0r preflight run`, `hath0r evals run` and `hath0r deploy pre` ignored `thresholds.json` commands** (#574):
+  without a `cfg/quality-gates.json` override they always ran `pytest -q` and `ruff check src`, so repos without a
+  `src/` folder failed preflight with ruff E902 and scored `test_suite` 0 in the task eval. Commands now resolve in
+  order: `cfg/quality-gates.json`, then the `tests` and `errors` commands in `thresholds.json` (`CR-LOCAL-QGATES-001`),
+  then the built-in defaults, which lint `src` only when it exists. Found in Bayly-AI/Legion-Wow-Armory (#66).
+  Tests: `tests/unit/test_quality_bots.py`.
+
+## [1.23.0] - 2026-11-03
+
+### Added
+- **`hath0r quality sonar --branch` and `--failed-tasks N`** (#568): `--branch` scopes the quality gate and issues to a
+  branch instead of the main branch. `--failed-tasks N` lists the N most recent failed SonarCloud analyses
+  (`api/ce/activity`) with their error messages, the only place SonarCloud says why a "SonarQube Cloud analysis failed"
+  check failed. It found that MatrixOnline-Client analyses fail on the `bayly-ai` organization's 50,000-line plan limit.
+  Tests: `tests/unit/test_quality_bots.py`.
+
+## [1.22.0] - 2026-11-01
+
+### Added
+- **Official Hath0r Install Wizard for CLI & Hath0r MCP via Docker (`CR-FEATURE-WORKFLOW-STANDARD-001` & `CR-DOCKER-HATH0R-GROUP-001`)** (#566):
+  - Added `InstallWizardBot` (`src/hath0r_cli/bots/install_wizard_bot.py`) orchestrating the 5-stage installation pipeline:
+    1. **Dependency Inspection & Installation**: Detects and installs missing Python >= 3.10, `pipx`/`pip`, Git, `curl`, Docker Engine, and Docker Compose v2 across `brew`, `apt`, and `dnf`, and starts the Docker daemon.
+    2. **Global Hath0r CLI Installation**: Installs `hath0r` globally via `pipx`, standalone binary (`release/` or GitHub Releases), or `pip` with SHA-256 checksum verification and automatic `PATH` profile persistence.
+    3. **Hath0r MCP Docker Staging**: Stages the hardened non-root `Dockerfile` (`USER 10001:10001`), `docker-compose.yml` (`name: hath0r`, `Hath0r-MCP`, `127.0.0.1:38083:8083`, `read_only: true`, `cap_drop: [ALL]`), `requirements.txt`, and canonical knowledgebase (`~/.hath0r/mcp` or workspace sibling `hath0r-mcp`).
+    4. **Docker Network & Container Launch**: Provisions external network `hath0r-net` with `com.hath0r.*` labels and launches `Hath0r-MCP` via Docker Compose.
+    5. **End-to-End Verification & Receipt**: Probes `http://127.0.0.1:38083/health` and `/ready`, runs `UpgradeVerifierBot.verify()`, configures `~/.hath0r/mcp.json` and `.hath0r/mcp.json`, and writes `~/.hath0r/install/INSTALL_RECEIPT.json`.
+  - Added `hath0r install-wizard` (and alias `hath0r setup`) with `run`, `check`, `status`, `repair`, and `uninstall` subcommands (`src/hath0r_cli/commands/install_wizard.py`), registered `install-wizard-bot` in `BotRegistry` (`src/hath0r_cli/step_runner.py`), and exposed the `hath0r_install_wizard` MCP tool (`src/hath0r_cli/server/mcp_server.py`).
+  - Upgraded `scripts/install_hath0r.py` and added `release/install-wizard.sh` as the zero-dependency release bootstrap entrypoints bundled into `release/` (`scripts/build_release_binaries.py` and `.github/workflows/release.yml`).
+  - Added full Governance Documentation Hexad (`docs/governance/*/install-wizard-*.md`), declarative factory `cfg/factories/install-wizard-factory.yaml`, and unit test suite `tests/unit/test_install_wizard_bot.py`.
+
 ## [1.21.0] - 2026-10-31
 
 ### Added

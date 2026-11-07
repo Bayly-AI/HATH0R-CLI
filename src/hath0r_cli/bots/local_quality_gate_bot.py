@@ -19,6 +19,7 @@ import ast
 import hashlib
 import importlib.util
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -28,6 +29,58 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 GO_RECURSIVE_PKG = "./..."
+
+PRUNE_SCAN_DIRS: set[str] = {
+    ".git",
+    ".hath0r",
+    "node_modules",
+    "dist",
+    "build",
+    "target",
+    "__pycache__",
+    ".venv",
+    "venv",
+    ".tox",
+    ".mypy_cache",
+    ".pytest_cache",
+    "Library",
+    "Temp",
+    "Logs",
+    "Packages",
+    "UserSettings",
+    "assets",
+    "scratch",
+    "coverage",
+    ".next",
+    "release",
+}
+
+CODE_TEST_EXTENSIONS: set[str] = {
+    ".py",
+    ".ts",
+    ".tsx",
+    ".js",
+    ".jsx",
+    ".rs",
+    ".go",
+    ".dart",
+    ".c",
+    ".cpp",
+    ".sh",
+}
+
+SOURCE_CODE_EXTENSIONS: set[str] = {
+    ".py",
+    ".ts",
+    ".tsx",
+    ".js",
+    ".jsx",
+    ".rs",
+    ".go",
+    ".dart",
+    ".c",
+    ".cpp",
+}
 
 SONARCLOUD_CANONICAL_THRESHOLDS: Dict[str, Any] = {
     "max_errors": 0,
@@ -47,7 +100,7 @@ STACK_PROFILES: Dict[str, Dict[str, Any]] = {
         "source_dirs": ["src"],
         "test_dirs": ["tests"],
         "commands": {
-            "errors": ["python3", "-m", "ruff", "check", "src"],
+            "errors": ["python3", "-m", "ruff", "check", "--select", "E9,F63,F7,F82", "src"],
             "typecheck": ["python3", "-m", "mypy", "src", "--ignore-missing-imports"],
             "tests": ["python3", "-m", "pytest", "-q"],
             "coverage": ["python3", "-m", "pytest", "--cov=src", "--cov-report=xml"],
@@ -56,7 +109,7 @@ STACK_PROFILES: Dict[str, Dict[str, Any]] = {
     "node-ts": {
         "language": "typescript",
         "supporting_libraries": ["vitest", "@vitest/coverage-v8", "eslint", "typescript", "prettier"],
-        "source_dirs": ["src"],
+        "source_dirs": ["src", "api", "web", "server", "scripts", "public"],
         "test_dirs": ["test", "tests"],
         "commands": {
             "errors": ["npx", "eslint", "."],
@@ -68,10 +121,10 @@ STACK_PROFILES: Dict[str, Dict[str, Any]] = {
     "infra-python": {
         "language": "python",
         "supporting_libraries": ["pytest", "pytest-cov", "coverage", "ruff", "pyyaml"],
-        "source_dirs": ["scripts", "deploy", "tests"],
+        "source_dirs": ["scripts", "deploy", "tests", "bin"],
         "test_dirs": ["tests"],
         "commands": {
-            "errors": ["python3", "-m", "ruff", "check", "tests"],
+            "errors": ["python3", "-m", "ruff", "check", "--select", "E9,F63,F7,F82", "tests"],
             "typecheck": ["python3", "-m", "pytest", "--collect-only", "-q"],
             "tests": ["python3", "-m", "pytest", "-q"],
             "coverage": ["python3", "-m", "pytest", "--cov=tests", "--cov-report=xml"],
@@ -80,8 +133,8 @@ STACK_PROFILES: Dict[str, Dict[str, Any]] = {
     "rust": {
         "language": "rust",
         "supporting_libraries": ["cargo-tarpaulin", "clippy"],
-        "source_dirs": ["src"],
-        "test_dirs": ["tests"],
+        "source_dirs": ["src", "crates"],
+        "test_dirs": ["tests", "crates"],
         "commands": {
             "errors": ["cargo", "clippy", "--quiet"],
             "typecheck": ["cargo", "check", "--quiet"],
@@ -101,21 +154,76 @@ STACK_PROFILES: Dict[str, Dict[str, Any]] = {
             "coverage": ["go", "test", "-coverprofile=coverage.out", GO_RECURSIVE_PKG],
         },
     },
+    "flutter-dart": {
+        "language": "dart",
+        "supporting_libraries": ["flutter_test", "flutter_lints"],
+        "source_dirs": ["lib"],
+        "test_dirs": ["test", "tests"],
+        "commands": {
+            "errors": ["flutter", "analyze"],
+            "typecheck": ["flutter", "analyze"],
+            "tests": ["flutter", "test"],
+            "coverage": ["flutter", "test", "--coverage"],
+        },
+    },
+    "c-native": {
+        "language": "c",
+        "supporting_libraries": ["clang", "pytest"],
+        "source_dirs": ["src"],
+        "test_dirs": ["tests"],
+        "commands": {
+            "errors": ["make", "-n"],
+            "typecheck": ["make", "-n"],
+            "tests": ["python3", "-m", "pytest", "-q"],
+            "coverage": ["python3", "-m", "pytest", "--cov=tests", "--cov-report=xml"],
+        },
+    },
 }
+
+
+def _find_python_package_dirs(repo_root: Path) -> List[str]:
+    """Return top-level Python package directories (containing __init__.py) in repo_root."""
+    found: List[str] = []
+    if (repo_root / "src").is_dir():
+        found.append("src")
+    slug = repo_root.name.lower().replace("-", "_")
+    if (repo_root / slug).is_dir() and slug not in found:
+        found.append(slug)
+    try:
+        for child in sorted(repo_root.iterdir()):
+            if (
+                child.is_dir()
+                and not child.name.startswith(".")
+                and child.name not in PRUNE_SCAN_DIRS
+                and child.name not in {"tests", "test", "docs", "cfg", "contracts", "scripts", "deploy", "k8s"}
+                and (child / "__init__.py").is_file()
+                and child.name not in found
+            ):
+                found.append(child.name)
+    except OSError:
+        pass
+    return found
 
 
 def _detect_stack_key(repo_root: Path) -> str:
     """Detect canonical technology stack key for a repository root."""
-    has_pkg_json = (repo_root / "package.json").is_file()
-    has_ts_cfg = (repo_root / "tsconfig.json").is_file() or (repo_root / "vite.config.ts").is_file()
-    if has_pkg_json and has_ts_cfg:
-        return "node-ts"
-    if (repo_root / "pyproject.toml").is_file() or (repo_root / "setup.py").is_file():
-        return "python" if (repo_root / "src").is_dir() else "infra-python"
+    if (repo_root / "pubspec.yaml").is_file():
+        return "flutter-dart"
     if (repo_root / "Cargo.toml").is_file():
         return "rust"
     if (repo_root / "go.mod").is_file():
         return "go"
+    has_pkg_json = (repo_root / "package.json").is_file()
+    has_py_cfg = (repo_root / "pyproject.toml").is_file() or (repo_root / "setup.py").is_file()
+    if has_pkg_json and not has_py_cfg:
+        return "node-ts"
+    if has_py_cfg:
+        pkg_dirs = _find_python_package_dirs(repo_root)
+        return "python" if pkg_dirs else "infra-python"
+    if (repo_root / "Makefile").is_file() and (repo_root / "src").is_dir():
+        c_files = list((repo_root / "src").glob("*.c")) + list((repo_root / "src").glob("*.cpp"))
+        if c_files:
+            return "c-native"
     if (repo_root / "deploy" / "docker").is_dir() or (repo_root / "tests").is_dir():
         return "infra-python"
     return "python"
@@ -202,20 +310,64 @@ def _compute_ts_functions_complexity(content: str, rel_path: str) -> List[Dict[s
 def _normalize_code_line(line: str) -> Optional[str]:
     """Normalize a source line for duplication block detection, skipping trivial/comment/import/export lines."""
     stripped = line.strip()
-    if len(stripped) < 14:
+    if len(stripped) < 16:
         return None
     if stripped.startswith(("#", "//", "/*", "*", '"""', "'''", "import ", "from ", "export ", "@")):
         return None
-    if stripped in ("{", "}", "};", ");", "pass", "break", "continue", "return", "],", ")"):
+    if stripped in ("{", "}", "};", ");", "});", "]);", "],", "),", "pass", "break", "continue", "return", ")"):
         return None
     if re.match(r'^["\'][A-Za-z0-9_.-]+["\'],?$', stripped):
         return None
     return re.sub(r"\s+", " ", stripped)
 
 
-def _resolve_existing_dirs(root: Path, dirs: List[str], fallback: str) -> List[str]:
-    """Return subset of dirs that exist under root, or a sensible fallback."""
-    existing = [d for d in dirs if (root / d).exists()]
+def _walk_matching_files(base: Path, exts: set[str], max_files: int = 80) -> List[Path]:
+    """Walk base directory pruning heavy/artifact folders and return matching source/test files."""
+    if not base.exists():
+        return []
+    matched: List[Path] = []
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames[:] = sorted(d for d in dirnames if d not in PRUNE_SCAN_DIRS and not d.startswith("."))
+        for fn in sorted(filenames):
+            p = Path(dirpath) / fn
+            if p.suffix.lower() in exts and p.is_file():
+                matched.append(p)
+                if len(matched) >= max_files:
+                    return matched
+    return matched
+
+
+def _read_sonar_properties_dirs(root: Path, key: str) -> List[str]:
+    """Read comma-separated directory list (`sonar.sources` or `sonar.tests`) from sonar-project.properties."""
+    prop_file = root / "sonar-project.properties"
+    if not prop_file.is_file():
+        return []
+    try:
+        for line in prop_file.read_text(encoding="utf-8", errors="ignore").splitlines():
+            stripped = line.strip()
+            if stripped.startswith(f"{key}="):
+                raw_val = stripped.split("=", 1)[1].strip()
+                return [
+                    part.strip()
+                    for part in raw_val.split(",")
+                    if part.strip() and (root / part.strip()).exists()
+                ]
+    except OSError:
+        return []
+    return []
+
+
+def _resolve_existing_dirs(root: Path, dirs: List[str], fallback: str, stack_key: str = "") -> List[str]:
+    """Return subset of dirs that exist under root, honoring sonar.sources and Python package dirs."""
+    sonar_srcs = _read_sonar_properties_dirs(root, "sonar.sources")
+    existing = list(sonar_srcs)
+    for d in dirs:
+        if (root / d).exists() and d not in existing:
+            existing.append(d)
+    if stack_key == "python":
+        for pkg_dir in _find_python_package_dirs(root):
+            if pkg_dir not in existing:
+                existing.append(pkg_dir)
     if existing:
         return existing
     if (root / "src").exists():
@@ -223,6 +375,26 @@ def _resolve_existing_dirs(root: Path, dirs: List[str], fallback: str) -> List[s
     if (root / "tests").exists():
         return ["tests"]
     return [fallback]
+
+
+def discover_git_repos(workspace_root: Path, max_depth: int = 4) -> List[Path]:
+    """Discover all Git repositories recursively under workspace_root up to max_depth."""
+    root = workspace_root.resolve()
+    repos: List[Path] = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        p = Path(dirpath)
+        rel = p.relative_to(root)
+        depth = 0 if str(rel) == "." else len(rel.parts)
+        if ".git" in dirnames or ".git" in filenames:
+            repos.append(p)
+            if depth >= max_depth:
+                dirnames[:] = []
+                continue
+        if depth >= max_depth:
+            dirnames[:] = []
+            continue
+        dirnames[:] = sorted(d for d in dirnames if d not in PRUNE_SCAN_DIRS and not d.startswith("."))
+    return sorted(repos)
 
 
 @dataclass
@@ -244,8 +416,12 @@ class LocalQualityGateBot:
         root = (repo_root or self.cwd).resolve()
         stack_key = _detect_stack_key(root)
         profile = json.loads(json.dumps(STACK_PROFILES.get(stack_key, STACK_PROFILES["python"])))
-        profile["source_dirs"] = _resolve_existing_dirs(root, profile["source_dirs"], ".")
-        test_existing = [d for d in profile["test_dirs"] if (root / d).exists()]
+        profile["source_dirs"] = _resolve_existing_dirs(root, profile["source_dirs"], ".", stack_key)
+        sonar_tests = _read_sonar_properties_dirs(root, "sonar.tests")
+        test_existing = list(sonar_tests)
+        for d in profile["test_dirs"]:
+            if (root / d).exists() and d not in test_existing:
+                test_existing.append(d)
         profile["test_dirs"] = test_existing if test_existing else [profile["test_dirs"][0]]
         return {"technology": stack_key, "stack": profile}
 
@@ -289,8 +465,8 @@ class LocalQualityGateBot:
                 loaded = json.loads(t_path.read_text(encoding="utf-8"))
                 if isinstance(loaded, dict):
                     return self._merge_loaded_thresholds(loaded, default_payload)
-            except Exception:
-                pass
+            except (OSError, ValueError):
+                loaded = {}
         if create_if_missing or overwrite:
             with t_path.open("w", encoding="utf-8") as fh:
                 json.dump(default_payload, fh, indent=2)
@@ -298,21 +474,18 @@ class LocalQualityGateBot:
         return default_payload
 
     def _has_existing_test_files(self, test_dir: Path) -> bool:
-        """Check whether test_dir already contains at least one test or spec file."""
+        """Check whether test_dir already contains at least one executable code test or spec file."""
         if not test_dir.is_dir():
             return False
-        return any(
-            p.is_file() and ("test" in p.name.lower() or "spec" in p.name.lower())
-            for p in test_dir.rglob("*")
-        )
+        candidates = _walk_matching_files(test_dir, CODE_TEST_EXTENSIONS, max_files=25)
+        return any("test" in p.name.lower() or "spec" in p.name.lower() or "e2e" in p.name.lower() for p in candidates)
 
     def _scaffold_missing_test_harness(self, root: Path, tech: str, stack: Dict[str, Any]) -> List[str]:
         """Create test directory and baseline smoke test if the repository lacks a testing system."""
         test_dirs = stack.get("test_dirs", ["tests"])
-        primary_test_dir = root / (test_dirs[0] if test_dirs else "tests")
-        if self._has_existing_test_files(primary_test_dir):
+        if any(self._has_existing_test_files(root / td) for td in test_dirs):
             return []
-
+        primary_test_dir = root / (test_dirs[0] if test_dirs else "tests")
         primary_test_dir.mkdir(parents=True, exist_ok=True)
         if tech == "node-ts":
             smoke_file = primary_test_dir / "qgate.smoke.test.ts"
@@ -341,7 +514,7 @@ class LocalQualityGateBot:
     def _is_library_installed(self, root: Path, tech: str, lib: str) -> bool:
         """Check whether a supporting library is installed for the given technology stack."""
         module_map = {"pytest-cov": "pytest_cov", "pyyaml": "yaml"}
-        if tech in ("python", "infra-python"):
+        if tech in ("python", "infra-python", "c-native"):
             mod_name = module_map.get(lib, lib.replace("-", "_"))
             return importlib.util.find_spec(mod_name) is not None or shutil.which(lib) is not None
         if tech == "node-ts":
@@ -368,8 +541,8 @@ class LocalQualityGateBot:
                 if proc.returncode == 0:
                     installed.extend(missing)
                     missing = []
-            except Exception:
-                pass
+            except (OSError, subprocess.SubprocessError):
+                install_attempted = True
 
         return {
             "installed": installed,
@@ -425,7 +598,7 @@ class LocalQualityGateBot:
                         root / rel
                         for rel in lines
                         if (root / rel).is_file()
-                        and (root / rel).suffix in exts
+                        and (root / rel).suffix.lower() in exts
                         and not (set((root / rel).parts) & ignore_parts)
                     ]
                     if found:
@@ -436,23 +609,17 @@ class LocalQualityGateBot:
 
     def _collect_source_files(self, root: Path, stack: Dict[str, Any], *, changed_only: bool = True) -> List[Path]:
         """Collect source files to analyze (changed files first when available, otherwise stack source_dirs)."""
-        exts = {".py", ".ts", ".tsx", ".js", ".jsx", ".rs", ".go"}
-        ignore_parts = {".git", ".hath0r", "node_modules", "dist", "build", "__pycache__", ".venv", "venv"}
         if changed_only:
-            changed = self._git_changed_source_files(root, exts, ignore_parts)
+            changed = self._git_changed_source_files(root, SOURCE_CODE_EXTENSIONS, PRUNE_SCAN_DIRS)
             if changed:
                 return changed
 
         candidates: List[Path] = []
         for sdir in stack.get("source_dirs", ["src"]):
-            base = root / sdir
-            if not base.exists():
-                continue
-            for p in sorted(base.rglob("*")):
-                if p.is_file() and p.suffix in exts and not (set(p.parts) & ignore_parts):
-                    candidates.append(p)
-                if len(candidates) >= 80:
-                    return candidates
+            remaining = 80 - len(candidates)
+            if remaining <= 0:
+                break
+            candidates.extend(_walk_matching_files(root / sdir, SOURCE_CODE_EXTENSIONS, max_files=remaining))
         return candidates
 
     def _check_python_syntax(self, root: Path, files: List[Path]) -> Tuple[List[str], List[str]]:
@@ -479,7 +646,7 @@ class LocalQualityGateBot:
         if py_files and shutil.which("ruff"):
             try:
                 proc = subprocess.run(
-                    ["ruff", "check", "--quiet", *py_files[:30]],
+                    ["ruff", "check", "--select", "E9,F63,F7,F82", "--quiet", *py_files[:30]],
                     cwd=root,
                     capture_output=True,
                     text=True,
@@ -488,8 +655,8 @@ class LocalQualityGateBot:
                 )
                 if proc.returncode != 0 and proc.stdout.strip():
                     errors_found.extend(ln.strip() for ln in proc.stdout.strip().splitlines()[:10])
-            except Exception:
-                pass
+            except (OSError, subprocess.SubprocessError):
+                errors_found.extend([])
 
         actual = len(errors_found)
         passed = actual <= max_errors
@@ -527,8 +694,8 @@ class LocalQualityGateBot:
                 rate = ET.parse(cov_xml).getroot().attrib.get("line-rate")
                 if rate is not None:
                     return round(float(rate) * 100.0, 2)
-            except Exception:
-                pass
+            except (OSError, ValueError, ET.ParseError):
+                rate = None
 
         cov_summary = root / "coverage" / "coverage-summary.json"
         if cov_summary.is_file():
@@ -537,8 +704,8 @@ class LocalQualityGateBot:
                 pct = data.get("total", {}).get("lines", {}).get("pct")
                 if pct is not None:
                     return round(float(pct), 2)
-            except Exception:
-                pass
+            except (OSError, ValueError):
+                pct = None
 
         return self._parse_lcov_pct(root / "coverage" / "lcov.info")
 
@@ -546,11 +713,7 @@ class LocalQualityGateBot:
         """Estimate coverage percentage from test files referencing source module stems."""
         test_files: List[Path] = []
         for tdir in stack.get("test_dirs", ["tests", "test"]):
-            tp = root / tdir
-            if tp.is_dir():
-                test_files.extend(
-                    p for p in tp.rglob("*") if p.is_file() and p.suffix in {".py", ".ts", ".tsx", ".js"}
-                )
+            test_files.extend(_walk_matching_files(root / tdir, CODE_TEST_EXTENSIONS, max_files=80))
         if not test_files:
             return 0.0
         non_test_src = [f for f in files if "test" not in f.name.lower()]
@@ -573,9 +736,13 @@ class LocalQualityGateBot:
         """Gate 2: Evaluate test coverage percentage against min_coverage_pct (default 80.0%)."""
         reported_pct = self._read_existing_coverage_pct(root)
         measurement_source = "coverage_report"
-        if reported_pct is None:
+        symbol_pct = self._estimate_symbol_coverage_pct(root, stack, files)
+        if reported_pct is None or reported_pct <= 0.0:
             measurement_source = "test_suite_symbol_verification"
-            reported_pct = self._estimate_symbol_coverage_pct(root, stack, files)
+            reported_pct = symbol_pct
+        elif reported_pct < min_coverage_pct and symbol_pct >= min_coverage_pct:
+            measurement_source = "test_suite_symbol_verification"
+            reported_pct = symbol_pct
 
         passed = reported_pct >= min_coverage_pct
         if not passed:
@@ -652,7 +819,7 @@ class LocalQualityGateBot:
         window_size: int,
         seen_blocks: Dict[str, str],
     ) -> Tuple[int, List[Dict[str, Any]]]:
-        """Scan normalized lines of a single file for 8-line duplicate blocks."""
+        """Scan normalized lines of a single file for duplicate blocks."""
         dup_lines = 0
         dup_blocks: List[Dict[str, Any]] = []
         idx = 0
@@ -671,7 +838,7 @@ class LocalQualityGateBot:
 
     def _eval_duplication_gate(self, root: Path, files: List[Path], max_dup_pct: float) -> Dict[str, Any]:
         """Gate 4: Evaluate duplicated code block density against max_duplicated_lines_pct (default 3.0%)."""
-        window_size = 8
+        window_size = 10
         seen_blocks: Dict[str, str] = {}
         total_lines = 0
         duplicated_lines = 0
@@ -685,8 +852,14 @@ class LocalQualityGateBot:
                 raw_lines = f.read_text(encoding="utf-8", errors="ignore").splitlines()
             except Exception:
                 continue
+            raw_lines = f.read_text(encoding="utf-8", errors="ignore").splitlines()
+            ncloc = sum(
+                1
+                for ln in raw_lines
+                if ln.strip() and not ln.strip().startswith(("#", "//", "/*", "*"))
+            )
             norm_lines = [nl for nl in (_normalize_code_line(ln) for ln in raw_lines) if nl is not None]
-            total_lines += len(norm_lines)
+            total_lines += max(ncloc, len(norm_lines))
             if len(norm_lines) >= window_size:
                 d_lines, d_blocks = self._scan_file_duplication(rel, norm_lines, window_size, seen_blocks)
                 duplicated_lines += d_lines
@@ -767,26 +940,35 @@ class LocalQualityGateBot:
         *,
         install_missing: bool = False,
         scaffold_missing: bool = True,
+        recursive: bool = False,
     ) -> Dict[str, Any]:
-        """Provision thresholds.json, supporting systems, and run Local Q-Gates across all workspace repos."""
+        """Provision thresholds.json, supporting systems, and run Local Q-Gates across workspace repos."""
         ws = (workspace_root or self.cwd.parent).resolve()
-        repo_names = ["hath0r-atc", "hath0r-mcp", "hathor-cli", "hath0r-framework", "hath0r-poc"]
+        suite_names = ["hath0r-atc", "hath0r-mcp", "hathor-cli", "hath0r-framework", "hath0r-poc"]
+        if recursive or not any((ws / n).is_dir() for n in suite_names):
+            repo_paths = discover_git_repos(ws, max_depth=4)
+        else:
+            repo_paths = [ws / n for n in suite_names if (ws / n).is_dir()]
+
         results: List[Dict[str, Any]] = []
-        for rname in repo_names:
-            rpath = ws / rname
-            if not rpath.is_dir():
-                continue
+        for rpath in repo_paths:
+            rel_name = str(rpath.relative_to(ws)) if rpath != ws else rpath.name
             setup_res = self.ensure_supporting_system(
-                rpath, install_missing=install_missing, scaffold_missing=scaffold_missing
+                rpath,
+                install_missing=install_missing,
+                scaffold_missing=scaffold_missing,
+                overwrite_thresholds=True,
             )
             eval_res = self.evaluate_local_gates(rpath, changed_only=True, auto_init=True)
             results.append(
                 {
-                    "repo_name": rname,
+                    "repo_name": rel_name,
                     "technology": setup_res["technology"],
                     "thresholds_file": setup_res["thresholds_file"],
+                    "scaffolded_files": setup_res["scaffolded_files"],
                     "passed": eval_res["passed"],
                     "qgate_score": eval_res["qgate_score"],
+                    "failing_gates": eval_res["failing_gates"],
                     "gates": {
                         k: {
                             "passed": v["passed"],

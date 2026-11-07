@@ -44,6 +44,31 @@ CANONICAL_RULE_SECTIONS: Dict[str, Dict[str, str]] = {
             "(https://github.com/Bayly-AI/HATH0R-CLI/blob/development/docs/governance/cli-first-rules.md).\n\n"
         ),
     },
+    "CR-CONTEXT-SQUEEZE-001": {
+        "title": "Compress Context with SuperSqueeze",
+        "slug": "context-squeeze-rule",
+        "summary": (
+            "agents compress bulky context through SuperSqueeze (`hath0r squeeze` / `SuperSqueezeBot`) "
+            "before it enters a context window or prompt"
+        ),
+        "section": (
+            "## CR-CONTEXT-SQUEEZE-001: Compress Context with SuperSqueeze (CRITICAL — Org-Wide · CANONICAL)\n\n"
+            "1. **Squeeze before you load**: Bulky context (whole files, logs, CI/tool output, KB/RAG hits, "
+            "transcripts, anything over ~2,000 tokens) MUST go through SuperSqueeze before it enters an agent's "
+            "context or a prompt: `hath0r squeeze -q \"<active query>\" -f <file>` (or `-c \"<text>\"`), or "
+            "`SuperSqueezeBot` in code. No hand-rolled truncation.\n"
+            "2. **Anchor on the active query** and re-squeeze when the query changes.\n"
+            "3. **Quality floor**: if `verifier.quality_score` < 0.90, lower `--threshold` or switch to targeted "
+            "reads (line ranges, `grep`, `hath0r code`); never dump the whole source.\n"
+            "4. **Local-first**: use `--local` for sensitive content; never squeeze secrets.\n"
+            "5. **Exact-text exceptions**: code being edited, diffs under review, quoted legal text and fixtures "
+            "are read verbatim with targeted reads.\n"
+            "6. **Pipelines route through SuperSqueeze** (`CAGEngine.pack_context()`, `HybridCAGRAGRouter`, HAHP "
+            "envelopes, MCP responses); audited by `SubstrateUtilizationBot` and the Tier 2 eval.\n\n"
+            "Canonical: [HATH0R-CLI `docs/governance/rules/cr-context-squeeze-001.md`]"
+            "(https://github.com/Bayly-AI/HATH0R-CLI/blob/development/docs/governance/rules/cr-context-squeeze-001.md).\n\n"
+        ),
+    },
 }
 
 Runner = Callable[[List[str], Optional[Path]], Tuple[int, str, str]]
@@ -227,7 +252,10 @@ class RuleRolloutBot:
         repo = {**repo, "worktree": str(wt), "branch": branch}
 
         agents = wt / "AGENTS.md"
-        agents.write_text(insert_section(agents.read_text(encoding="utf-8"), rule["section"]), encoding="utf-8")
+        agents_text = insert_section(agents.read_text(encoding="utf-8"), rule["section"])
+        agents.write_text(agents_text, encoding="utf-8")
+        # CR-CLAUDE-SYNC-001: CLAUDE.md is a byte-for-byte mirror of AGENTS.md.
+        (wt / "CLAUDE.md").write_text(agents_text, encoding="utf-8")
 
         vfile = wt / "VERSION"
         old = vfile.read_text(encoding="utf-8").strip() if vfile.is_file() else None
@@ -246,7 +274,7 @@ class RuleRolloutBot:
         if not validation.get("success"):
             return {**repo, "status": "error", "error": f"release validate failed: {validation.get('message')}"}
 
-        self._git(wt, "add", "AGENTS.md", "VERSION", "CHANGELOG.md")
+        self._git(wt, "add", "AGENTS.md", "CLAUDE.md", "VERSION", "CHANGELOG.md")
         for manifest in ("pyproject.toml", "package.json", "package-lock.json"):
             if (wt / manifest).is_file():
                 self._git(wt, "add", manifest)
@@ -278,7 +306,7 @@ class RuleRolloutBot:
         if code != 0:
             return {**repo, "status": "error", "issue": number, "error": f"push failed: {err}"}
         body = (
-            f"## Summary\n- Adds the canonical **{rule_id}** rule to `AGENTS.md`: {rule['summary']}.\n"
+            f"## Summary\n- Adds the canonical **{rule_id}** rule to `AGENTS.md` and its `CLAUDE.md` mirror: {rule['summary']}.\n"
             f"- Bumps `VERSION` **{repo.get('old_version') or '(none)'} → {repo['new_version']}**, keeping "
             "package manifests and `CHANGELOG.md` in step (CR-SEMVER-BUMP-001).\n\n"
             f"Closes #{number}\n\n**Version Impact: patch**\n\n"
