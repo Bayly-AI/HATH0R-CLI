@@ -2,7 +2,7 @@
   "name": "hath0r-vscode",
   "displayName": "Hath0r - Enterprise Autonomous AI Agent Orchestration and Control Plane",
   "description": "Enterprise control plane, autonomous agent execution, Taguchi parameter optimization, Tri-Graph cognitive substrate, and FinOps token analytics for Visual Studio Code.",
-  "version": "1.26.2",
+  "version": "1.27.0",
   "publisher": "BaylyAI",
   "engines": {
     "vscode": "^1.80.0"

@@ -5,6 +5,7 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
 ## [1.26.2] - 2026-11-11
 
 ### Fixed
@@ -15,6 +16,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`hath0r andon status`), matching the verified gate (#605). It keeps the pushed refs and chains
   `git lfs pre-push` when the repo uses Git LFS, and it replaces the stock Git LFS hook instead of skipping it,
   so repos where `git lfs install` overwrote the eval hook get it back. Other custom hooks are left alone.
+
+## [1.27.0] - 2026-11-11
+
+### Changed
+- **CCCD calibration is informational** (#608). Nothing consumes the calibrated parameters yet, and without a
+  `measure_cmd` calibration can never be fresh. Freshness is still reported (Tier 1 `checks.calibration_4h`,
+  `informational_probes` in `TaskCompletionVerifierBot`) but is no longer scored or gated. The `end-of-task`
+  `verify_completion` step no longer aborts on stale calibration. Tier 1 weights are re-spread over the
+  remaining checks, and the rubric version is now part of the judge fingerprint (`v2-calibration-informational`),
+  so the Gage R&R study was re-run.
+- **SPC charts one gauge at a time** (#608). Eval metrics only use history scored by the current judge
+  fingerprint (`series(all_gauges=True)` for everything). Before this, the pre-#582 fixed scores of 1.0 froze
+  zero-width limits, and every measured eval after them read as a signal.
+- **`capability.mode: auto` is the new default** (#608). It warns while a metric's baseline is provisional and
+  blocks (and pulls Andon) once it has 20 points from the same gauge. `warn` and `block` behave as before.
+  HATH0R-CLI's own `thresholds.json` now uses `auto`.
+
+
 ## [1.26.1] - 2026-11-11
 
 ### Fixed

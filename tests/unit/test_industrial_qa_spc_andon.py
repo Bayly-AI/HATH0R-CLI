@@ -49,11 +49,15 @@ def test_capability_one_sided():
 
 
 # ------------------------------------------------------------------------------ SPC bot
-def _history(root: Path, values):
+def _history(root: Path, values, fingerprint=None, start=0):
+    from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot, judge_fingerprint
+
+    fp = fingerprint or judge_fingerprint(TaskEvaluatorBot(cwd=root).load_config())
     hist = root / ".hath0r" / "evals" / "history"
     hist.mkdir(parents=True, exist_ok=True)
-    for i, v in enumerate(values):
+    for i, v in enumerate(values, start=start):
         card = {
+            "judge": {"fingerprint": fp},
             "eval_id": f"eval-{i:03d}",
             "evaluated_at": f"2026-11-{1 + i // 24:02d}T{i % 24:02d}:00:00+00:00",
             "r_task": v,
@@ -72,8 +76,9 @@ def _stable(n=30, seed=2):
     return [round(0.93 + rng.gauss(0, 0.005), 4) for _ in range(n)]
 
 
-def test_spc_status_warns_but_does_not_block_by_default(tmp_path):
+def test_spc_status_warns_but_does_not_block_in_warn_mode(tmp_path):
     _history(tmp_path, _stable() + [0.70])
+    _thresholds(tmp_path, "warn")
     res = SPCMonitorBot(cwd=tmp_path).status()
     assert res["mode"] == "warn"
     assert res["metrics"]["r_task"]["status"] == "out_of_control"
@@ -113,6 +118,7 @@ def test_spc_frozen_recent_baseline_is_used(tmp_path):
 def test_spc_low_cpk_is_a_warning(tmp_path):
     rng = random.Random(4)
     _history(tmp_path, [0.83 + rng.gauss(0, 0.02) for _ in range(30)])
+    _thresholds(tmp_path, "warn")
     res = SPCMonitorBot(cwd=tmp_path).status(metrics=["r_task"])
     assert any("Cpk" in w for w in res["warnings"])
     assert res["success"] is True
@@ -133,6 +139,7 @@ def test_spc_unknown_metric():
 def test_spc_cli(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     _history(tmp_path, _stable() + [0.70])
+    _thresholds(tmp_path, "warn")
     runner = CliRunner()
     res = runner.invoke(main, ["-o", "json", "spc", "status"])
     assert res.exit_code == 0
@@ -149,9 +156,42 @@ def test_spc_cli(tmp_path, monkeypatch):
 def test_quality_local_reports_capability(tmp_path):
     _history(tmp_path, _stable(30))
     cap = LocalQualityGateBot(cwd=tmp_path)._capability_check(tmp_path)
-    assert cap["available"] and cap["mode"] == "warn" and cap["blocking"] is False
+    assert cap["available"] and cap["mode"] == "auto" and cap["blocking"] is False
     payload = LocalQualityGateBot(cwd=tmp_path).build_default_thresholds_payload(tmp_path)
-    assert payload["capability"]["mode"] == "warn" and payload["capability"]["min_cpk_warn"] == 1.33
+    assert payload["capability"]["mode"] == "auto" and payload["capability"]["min_cpk_warn"] == 1.33
+
+
+# ------------------------------------------------------------- #608: same gauge, auto mode
+def test_spc_ignores_history_from_another_judge(tmp_path):
+    _history(tmp_path, [1.0] * 20, fingerprint="old-gauge")
+    _history(tmp_path, _stable(5), start=20)
+    pts = SPCMonitorBot(cwd=tmp_path).series("r_task")
+    assert len(pts) == 5
+    assert len(SPCMonitorBot(cwd=tmp_path).series("r_task", all_gauges=True)) == 25
+
+
+def test_spc_auto_mode_warns_on_a_provisional_baseline(tmp_path):
+    _history(tmp_path, _stable(10) + [0.70])
+    res = SPCMonitorBot(cwd=tmp_path).gate()
+    assert res["mode"] == "auto"
+    assert res["warnings"] and res["blocking"] is False and res["success"] is True
+    assert AndonBot(cwd=tmp_path).status()["stopped"] is False
+
+
+def test_spc_auto_mode_blocks_once_the_baseline_is_sufficient(tmp_path):
+    _history(tmp_path, _stable() + [0.70])
+    res = SPCMonitorBot(cwd=tmp_path).gate()
+    assert res["mode"] == "auto" and res["blocking"] and res["success"] is False
+    assert res["blocking_warnings"]
+    assert AndonBot(cwd=tmp_path).status()["stopped"]
+
+
+def test_quality_local_auto_blocks_low_cpk_only_with_enough_points(tmp_path):
+    rng = random.Random(4)
+    _history(tmp_path, [0.83 + rng.gauss(0, 0.02) for _ in range(10)])
+    assert LocalQualityGateBot(cwd=tmp_path)._capability_check(tmp_path)["blocking"] is False
+    _history(tmp_path, [0.83 + rng.gauss(0, 0.02) for _ in range(20)], start=10)
+    assert LocalQualityGateBot(cwd=tmp_path)._capability_check(tmp_path)["blocking"] is True
 
 
 # ------------------------------------------------------------------------------- Andon
