@@ -5,6 +5,43 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.25.0] - 2026-11-11
+
+### Added
+- **Industrial QA methods for the eval and agent pipeline** (epic #580). Everything is a `hath0r`
+  subcommand run by a registered bot, with a factory, a contract and the governance hexad.
+  - **Gage R&R on the evals** (#584, #585): `hath0r evals msa run|report` (`measurement-system-bot`) runs a
+    crossed ANOVA Gage R&R and attribute agreement over a reference panel through the real eval pipeline,
+    stores the study in `.hath0r/evals/msa/` and pins the judge fingerprint. `cfg/evals/task-eval.json`
+    pins the Tier 4 judge, sets the goal to R_task 1.0 and turns the Tier 4 clamp off now that the study ran.
+  - **Statistical process control and capability** (#586, #587): `hath0r spc status|chart|baseline|capability`
+    (`spc-monitor-bot`) with I-MR limits, Western Electric rules, EWMA and CUSUM over R_task, tier scores,
+    duration, tokens, cost and latency; R_task Cp/Cpk/Pp/Ppk against the eval threshold. Signals and
+    Cpk below 1.33 are warnings; `capability.mode: block` in `thresholds.json` makes them blocking.
+    `hath0r quality local` shows a Capability line.
+  - **Andon** (#588, #589): `hath0r andon raise|ack|clear|status|verify` (`andon-bot`) with a hash-chained
+    ledger. Factory steps can declare `andon: stop|warn`; workflows, the agent DAG runner and the token tree
+    budget guard stop on an active stop. Stops are routed to the decision radar.
+  - **Agent FMEA** (#590): `hath0r fmea init|add|update|score|report|sync-issues|export` (`fmea-bot`) with the
+    14-mode multi-agent failure taxonomy, AIAG-VDA action priority and occurrence scored from eval history.
+  - **Root cause** (#591): `hath0r rca tag|pareto|fishbone|why` (`root-cause-bot`) with 6M cause categories,
+    Pareto of failed gates and 5 Whys compounded as insight nodes.
+  - **DMAIC projects** (#592): `hath0r dmaic start|analyze|improve|status|close` (`dmaic-project-bot`); close
+    refuses until the CTQ chart has 20 in-control points after the change. Issue template
+    `.github/ISSUE_TEMPLATE/dmaic-improvement.yml`.
+  - **Sequential design of experiments** (#593): `hath0r optimize screen|rsm|bayes|confirm` (`doe-bot`) and
+    `hath0r cccd calibrate --strategy sequential`; MCP tool `hath0r_optimize_doe`. Bayesian optimisation is
+    optional (`pip install 'hath0r-cli[doe]'`). Measurement is never simulated.
+  - **Poka-yoke** (#583): catalogue `docs/governance/poka-yoke-catalogue.md`; factory `on_failure` accepts the
+    `failure_policy` alias.
+  - Level 1 read-only tools in HATH0R-MCP and the SPC panel in HATH0R-ATC (#594).
+
+### Fixed
+- Taguchi analysis no longer pads missing responses with 1.0: `hath0r optimize taguchi --responses` refuses an
+  incomplete experiment unless `--allow-partial` is given, and then analyses only measured runs (#581).
+- Tier 4 no longer clamps scores or falls back to fixed values when the judge is unavailable (#582).
+- `cfg/factories/cccd-4h-calibration-factory.yaml` was referenced but missing; it now exists.
+
 ## [1.24.0] - 2026-11-07
 
 ### Added

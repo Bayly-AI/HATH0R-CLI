@@ -1,55 +1,60 @@
 {
   "schema_version": "hath0r.micro_session/1",
-  "session_id": "sess-20261101-160736-c73550",
-  "prior_session_id": "sess-20261031-162748-37dc07",
-  "parent_session_id": "sess-20261031-162748-37dc07",
-  "revision": 30,
-  "content_hash": "sha256:b2a501994006dcbc57664a95438e1c5b23137c48c11f416ebd7c6b8ddb130653",
-  "base_graph_hash": "sha256:e5a4df783a6aee6f99e19854067c6c80a5c2bc4f190f5728c55a5b32db931854",
-  "task_id": null,
-  "role": null,
-  "repo_name": "hathor-cli",
-  "status": "active",
-  "started_at": "2026-11-01T16:07:36.711558+00:00",
-  "updated_at": "2026-11-04T20:28:00.556281+00:00",
-  "ended_at": null,
-  "read_count": 3,
-  "write_count": 27,
-  "last_read_at": "2026-11-01T18:24:54.434208+00:00",
-  "last_write_at": "2026-11-04T20:28:00.556281+00:00",
-  "active_focus": "Active working session in hathor-cli",
-  "prior_summary": "ounded eval:task-HATH0R-CLI: Task Ev; #570: real retrieval backends. Embedding; Compounded episode:issue-570-real-retrie",
+  "session_id": "sess-20261111-133108-f6050e",
+  "prior_session_id": "sess-20261101-160736-c73550",
+  "repo_name": "HATH0R-CLI",
+  "status": "completed",
+  "started_at": "2026-11-11T13:31:08.505128+00:00",
+  "updated_at": "2026-11-11T13:34:27.936005+00:00",
+  "ended_at": "2026-11-11T13:34:04.825795+00:00",
+  "read_count": 6,
+  "write_count": 8,
+  "revision": 13,
+  "content_hash": "sha256:da0794b8c75e5b051d3223158b3f75e82e35c0a190de26354fa442213e55babe",
+  "base_graph_hash": "sha256:840d00488d7ebba325811357ef30685bef22463fcf80ef1d349cb7b9281a3134",
+  "last_read_at": "2026-11-11T13:34:04.793513+00:00",
+  "last_write_at": "2026-11-11T13:34:27.936005+00:00",
+  "active_focus": "Orienting repository HATH0R-CLI",
+  "prior_summary": "leted AgentGraph orientation for HAT; Completed AgentGraph orientation for HAT; Completed AgentGraph orientation for HAT",
   "recalled_nodes": [
     {
-      "id": "episode:sft-lora-peft-coordinator",
-      "type": "episode",
-      "label": "Completed SFT/LoRA/PEFT Training Coordinator & Evals",
-      "snippet": "Updated CCCDTTrainingCoordinator and SecuritySASTScanner in hathor-cli to execute real SFT"
+      "id": "decision:issue-474-micro-memory-session",
+      "type": "decision",
+      "label": "True Micro Memory Session CLI & Bot Enforcement (Issue #474)",
+      "snippet": "Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task st"
     }
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-11-04T20:28:00.556281+00:00",
+      "timestamp": "2026-11-11T13:34:04.825795+00:00",
+      "kind": "milestone",
+      "summary": "Completed PR #101 (feature/101-test) via EndOfTaskBot.",
+      "tags": [
+        "session-end"
+      ],
+      "node_id": null
+    },
+    {
+      "timestamp": "2026-11-11T13:34:27.936005+00:00",
       "kind": "compound",
-      "summary": "Compounded eval:issue-570: Task Evaluation issue-570 (R=0.92, PASS)",
+      "summary": "Compounded eval:issue-580: Task Evaluation issue-580 (R=0.83, FAIL)",
       "tags": [
         "eval",
         "cr-task-eval-001",
-        "issue-570",
-        "passed",
+        "issue-580",
+        "failed",
         "compounded"
       ],
-      "node_id": "eval:issue-570"
+      "node_id": "eval:issue-580"
     }
   ],
-  "next_steps": [],
-  "compounded_node_ids": [
-    "rule:cr-release-rotation-001",
-    "eval:issue-566",
-    "eval:task-HATH0R-CLI",
-    "episode:conflict-resolution-development-sync",
-    "episode:issue-570-real-retrieval-backends",
-    "eval:issue-570"
+  "next_steps": [
+    "Review PRs"
   ],
-  "capsule_bytes": 1918
+  "compounded_node_ids": [
+    "decision:industrial-qa-epic-580",
+    "eval:issue-580"
+  ],
+  "parent_session_id": "sess-20261101-160736-c73550",
+  "capsule_bytes": 2036
 }
