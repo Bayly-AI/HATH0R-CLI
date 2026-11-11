@@ -12,16 +12,19 @@ rows:
   effect: Defects reach development
   cause: Tests or evals skipped
   severity: 9
-  occurrence: 5
-  detection: 4
+  occurrence: 3
+  detection: 3
   detected_by: task-evaluator-bot
-  occurrence_signal: tier:deterministic
-  occurrence_source: data:tier:deterministic
-  actions: []
+  occurrence_signal: gate:escape
+  occurrence_source: manual
+  actions:
+  - at: '2026-11-11T16:22:58.548195+00:00'
+    action: 'Eval with tests runs before the PR (andon: stop), and merge/announce
+      carry gate: verified, enforced fail-closed by the workflow executor (#596).
+      O is a hand rating until the gate:escape ledger has 20 samples.'
   issue: 596
-  rpn: 180
-  action_priority: H
-  observed_rate: 0.0256
+  rpn: 81
+  action_priority: M
 - id: EOT-12
   taxonomy: FM-3.1
   category: verification
@@ -31,16 +34,19 @@ rows:
   effect: Announced complete before gates pass
   cause: Announcement not gated
   severity: 9
-  occurrence: 5
+  occurrence: 3
   detection: 3
   detected_by: task-announcer-bot
-  occurrence_signal: eval_fail_rate
-  occurrence_source: data:eval_fail_rate
-  actions: []
+  occurrence_signal: gate:escape
+  occurrence_source: manual
+  actions:
+  - at: '2026-11-11T16:22:59.557607+00:00'
+    action: 'Merge and announce steps carry gate: verified, so they only run after
+      evals verify passes and no Andon stop is active (#597). O is a hand rating until
+      the gate:escape ledger has 20 samples.'
   issue: 597
-  rpn: 135
-  action_priority: H
-  observed_rate: 0.0256
+  rpn: 81
+  action_priority: M
 - id: EOT-07
   taxonomy: FM-2.2
   category: inter-agent
@@ -51,14 +57,18 @@ rows:
   cause: No decision-radar request on ambiguity
   severity: 7
   occurrence: 5
-  detection: 7
+  detection: 3
   detected_by: decision-radar-bot
-  occurrence_signal: null
+  occurrence_signal: clarity:unasked
   occurrence_source: seed
-  actions: []
+  actions:
+  - at: '2026-11-11T16:23:00.493597+00:00'
+    action: start-of-task runs decision-radar-bot clarify-issue, which raises a blocking
+      decision when the issue has no acceptance criteria (#598). The clarity:unasked
+      ledger now measures occurrence.
   issue: 598
-  rpn: 245
-  action_priority: H
+  rpn: 105
+  action_priority: M
 - id: EOT-04
   taxonomy: FM-1.4
   category: specification
@@ -269,4 +279,7 @@ history:
 - at: '2026-11-11T12:57:37.427132+00:00'
   total_rpn: 1460
   high: 3
-updated_at: '2026-11-11T13:00:28.338788+00:00'
+- at: '2026-11-11T16:23:01.389507+00:00'
+  total_rpn: 1167
+  high: 0
+updated_at: '2026-11-11T16:23:01.389580+00:00'

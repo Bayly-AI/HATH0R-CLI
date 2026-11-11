@@ -527,6 +527,8 @@ class BotRegistry:
                 return self._dispatch_install_wizard_bot(bot, action, args, dry_run=dry_run, context=ctx)
             elif bot_id in ("cicccd-managing-bot", "calibration-bot"):
                 return self._dispatch_cicccd_bot(bot_id, bot, action, args, dry_run=dry_run, context=ctx)
+            elif bot_id == "decision-radar-bot" and action in ("clarify-issue", "clarify"):
+                return self._dispatch_clarify_issue(bot, action, args, repo=repo, dry_run=dry_run, context=ctx)
             elif bot_id in ("supercompress-bot", "supersqueeze-bot"):
                 return self._dispatch_supercompress_bot(bot_id, bot, action, args, dry_run=dry_run, context=ctx)
             else:
@@ -630,6 +632,39 @@ class BotRegistry:
             )
         return self._dispatch_generic_bot(bot_id, bot, action, args, dry_run=dry_run)
 
+    def _dispatch_clarify_issue(
+        self,
+        bot: Any,
+        action: str,
+        args: dict[str, Any],
+        *,
+        repo: str | None,
+        dry_run: bool,
+        context: dict[str, Any],
+    ) -> StepExecutionResult:
+        """Raise a decision when the task's issue has no acceptance criteria (FMEA EOT-07 / PL-07)."""
+        issue_num = int(args.get("issue_number") or context.get("issue_number") or 0)
+        body = args.get("body", context.get("issue_body"))
+        title = args.get("title", context.get("issue_title"))
+        if body is None and issue_num and not dry_run:
+            guard = self.get_bot("issue-guard-bot")
+            fetched = guard.view_issue(issue_num, repo=args.get("repo") or repo) if guard else {}
+            issue = fetched.get("issue") or {}
+            body, title = issue.get("body"), title or issue.get("title")
+        res = bot.clarify_issue(
+            issue_number=issue_num or None, title=title, body=body, block=bool(args.get("block", True)), dry_run=dry_run
+        )
+        if res.get("decision_id"):
+            context["clarification_decision_id"] = res["decision_id"]
+        return StepExecutionResult(
+            bot_id="decision-radar-bot",
+            action=action,
+            success=bool(res.get("success")),
+            data=res,
+            error=res.get("error"),
+            dry_run=dry_run,
+        )
+
     def _dispatch_generic_bot(
         self,
         bot_id: str,
@@ -689,6 +724,8 @@ class BotRegistry:
             res = bot.verify_issue(issue_num, repo=target_repo, dry_run=dry_run)
             if res.get("success") and res.get("issue_number"):
                 context["issue_number"] = res["issue_number"]
+                context["issue_title"] = res.get("title") or ""
+                context["issue_body"] = res.get("body") or ""
             return StepExecutionResult(
                 bot_id="issue-guard-bot",
                 action=action,
@@ -3063,6 +3100,24 @@ def _andon_blocks(andon: Any) -> Exception | None:
     return None
 
 
+def _gate_blocks(
+    step: dict[str, Any], registry: Any, wf_id: str, context: dict[str, Any], dry_run: bool
+) -> str | None:
+    """Enforce ``gate: verified`` (evals verify + andon status) before a merge or announce step."""
+    if str(step.get("gate", "")).lower() != "verified" or dry_run:
+        return None
+    from hath0r_cli.qa import gates
+
+    cwd = Path(getattr(registry, "cwd", None) or Path.cwd())
+    step_id = str(step.get("id", step.get("action", "")))
+    reason = gates.check_verified(cwd, task_id=context.get("task_id"))
+    try:
+        gates.record(cwd, workflow_id=wf_id, step_id=step_id, verified=reason is None, ran=reason is None, reason=reason)
+    except OSError as exc:  # an unrecorded gate is still enforced
+        reason = reason or f"gate ledger unavailable: {exc}"
+    return f"gate '{step_id}' blocked: {reason}" if reason else None
+
+
 def execute_workflow(
     workflow_def: dict[str, Any],
     registry: BotRegistry,
@@ -3114,6 +3169,15 @@ def execute_workflow(
                     results[-1].aborted = True
                     break
             action = str(step.get("action", ""))
+            blocked = _gate_blocks(step, registry, wf_id, context, dry_run)
+            if blocked is not None:
+                results.append(
+                    StepExecutionResult(bot_id=bot_id, action=action, success=False, error=blocked, dry_run=dry_run)
+                )
+                all_success = False
+                aborted = True
+                results[-1].aborted = True
+                break
             args = step.get("args") if isinstance(step.get("args"), dict) else {}
             # ``failure_policy`` is accepted as an alias (poka-yoke PY-13: it used to be silently ignored).
             on_failure = str(step.get("on_failure", step.get("failure_policy", "abort"))).lower()

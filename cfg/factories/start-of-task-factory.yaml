@@ -4,7 +4,7 @@
 
 factory_id: start-of-task-factory
 name: Start of Task Automation Factory
-version: 1.1.0
+version: 1.2.0
 description: >
   Canonical automation factory executed at the start of any task in any Hath0r repository.
   Enforces issue-first governance (cr-branch-gov-001) by invoking the issue-factory, verifying
@@ -43,6 +43,13 @@ bots:
       - create-issue
       - update-issue
       - validate-issue
+
+  - id: decision-radar-bot
+    name: Decision Radar Bot
+    role: clarification-gate
+    description: Raises a decision when the task's issue has no acceptance criteria.
+    capabilities:
+      - clarify-issue
 
   - id: branch-guard-bot
     name: Branch Guard Bot
@@ -83,6 +90,15 @@ workflows:
       - bot: issue-manager-bot
         action: validate-issue
         on_failure: continue
+
+      # FMEA EOT-07 / PL-07 (#598): ask before building on a guess.
+      - id: clarify-issue
+        bot: decision-radar-bot
+        action: clarify-issue
+        on_failure: abort
+        andon: warn
+        args:
+          block: true
 
       - bot: branch-guard-bot
         action: ensure-work-branch

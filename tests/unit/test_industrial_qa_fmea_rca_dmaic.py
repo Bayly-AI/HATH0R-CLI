@@ -88,6 +88,9 @@ def test_score_refreshes_occurrence_from_eval_history(tmp_path):
     bot.init("demo")
     res = bot.score("demo")
     row = next(r for r in res["rows"] if r["taxonomy"] == "FM-3.2")
+    row = bot.update("demo", row["id"], occurrence_signal="tier:deterministic")["row"]
+    res = bot.score("demo")
+    row = next(r for r in res["rows"] if r["taxonomy"] == "FM-3.2")
     assert row["occurrence"] == 10 and row["occurrence_source"] == "data:tier:deterministic"
     assert row["action_priority"] == "H"
     assert res["rows"][0]["action_priority"] == "H"  # ranked

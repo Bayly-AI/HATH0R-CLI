@@ -1396,6 +1396,56 @@ class DecisionRadarBot:
         except (OSError, ValueError, RuntimeError):
             return None
 
+    def clarify_issue(
+        self,
+        issue_number: Optional[int] = None,
+        title: Optional[str] = None,
+        body: Optional[str] = None,
+        block: bool = True,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Raise a clarification decision when the task's issue has no acceptance criteria.
+
+        Records every check in the clarity ledger, which feeds the FMEA ``clarity:unasked`` signal.
+        With ``block`` the step fails while the question is open, so the task waits for an answer.
+        """
+        from hath0r_cli.qa import clarity
+
+        has_criteria = clarity.has_acceptance_criteria(body)
+        ref = f"#{issue_number}" if issue_number else "this task"
+        if has_criteria:
+            if not dry_run:
+                clarity.record(self.cwd, issue_number=issue_number, has_criteria=True, asked=False)
+            return {"success": True, "issue_number": issue_number, "has_acceptance_criteria": True, "decision_id": None}
+        question = f"Issue {ref} has no acceptance criteria. What does done look like?"
+        if dry_run:
+            return {"success": True, "dry_run": True, "issue_number": issue_number, "has_acceptance_criteria": False, "question": question}
+        try:
+            res = self.request_decision(
+                question=question,
+                category="set_product_rule",
+                agent_id="decision-radar-bot",
+                unblocks=[f"issue-{issue_number}"] if issue_number else [],
+                options=["Add acceptance criteria to the issue", "Proceed with the agent's stated reading"],
+                criticality=0.8,
+                note="Raised by the clarification hook (FMEA EOT-07 / PL-07).",
+                context={"issue_number": issue_number, "title": title or ""},
+                sync_remote=False,
+            )
+            decision_id = (res.get("decision") or {}).get("decision_id")
+        except Exception as exc:  # the miss is still recorded, so occurrence stays honest
+            clarity.record(self.cwd, issue_number=issue_number, has_criteria=False, asked=False)
+            return {"success": False, "issue_number": issue_number, "has_acceptance_criteria": False, "error": f"could not raise clarification decision: {exc}"}
+        clarity.record(self.cwd, issue_number=issue_number, has_criteria=False, asked=True, decision_id=decision_id)
+        return {
+            "success": not block,
+            "issue_number": issue_number,
+            "has_acceptance_criteria": False,
+            "decision_id": decision_id,
+            "question": question,
+            "error": f"waiting on clarification decision {decision_id}: {question}" if block else None,
+        }
+
     def list_decisions(
         self,
         status_filter: Optional[str] = None,

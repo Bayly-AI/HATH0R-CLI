@@ -540,7 +540,7 @@ def test_cli_task_finish_dry_run() -> None:
     data = json.loads(res.stdout)
     assert data["state"] == "ok"
     assert data["data"]["workflow"]["id"] == "end-of-task"
-    assert len(data["data"]["workflow"]["steps"]) in (11, 14, 15, 17)  # 17: spc-monitor-bot (#586) and root-cause-bot (#591) gates
+    assert len(data["data"]["workflow"]["steps"]) in (11, 14, 15, 17, 18)  # 18: eval-with-tests before the PR (#596)
 
 
 def test_issue_and_branch_guard_bots_dry_run() -> None:
