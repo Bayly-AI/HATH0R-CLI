@@ -67,6 +67,9 @@ def test_task_completion_verifier_bot_probes(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
+    from tests.cccd_helpers import write_spec
+
+    write_spec(tmp_path)  # the calibration probe needs a measurement source (#595)
     bot = TaskCompletionVerifierBot(cwd=tmp_path)
     res = bot.verify_completion(require_eval=True)
     assert res["success"] is True

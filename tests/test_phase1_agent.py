@@ -104,8 +104,10 @@ def test_agent_cli_commands():
 
 
 def test_cccd_calibration_with_l2ws(tmp_path):
+    from tests.cccd_helpers import MEASURE_CMD
+
     loop = CCCDCalibrationLoop(state_file=tmp_path / "cccd_state.json")
-    res = loop.run_calibration(iterations=1, signature_name="test_l2ws_sig")
+    res = loop.run_calibration(iterations=1, signature_name="test_l2ws_sig", measure_cmd=MEASURE_CMD)
     assert res["success"] is True
     assert "updated_parameters" in res
 

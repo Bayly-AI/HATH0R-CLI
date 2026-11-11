@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import click
 from rich.panel import Panel
@@ -56,7 +57,7 @@ def cccd_status(ctx: click.Context) -> None:
         drift_table.add_column("Value / Drift", style="yellow")
 
         for k, v in state.get("drift_metrics", {}).items():
-            drift_table.add_row(str(k), f"{v:+}")
+            drift_table.add_row(str(k), f"{v:+}" if isinstance(v, (int, float)) else str(v))
 
         console.print(drift_table)
 
@@ -90,15 +91,42 @@ def cccd_status(ctx: click.Context) -> None:
     help="sequential: screen, response surface, then confirmation (doe-bot, #593).",
 )
 @click.option("--spec", "spec_file", type=click.Path(exists=True, dir_okay=False, path_type=Path), default=None, help="Sequential: YAML/JSON with factors {name: [low, high]} and goal.")
-@click.option("--measure-cmd", default=None, help="Sequential: command that reads a JSON point on stdin and prints the measured response.")
+@click.option("--measure-cmd", default=None, help="Command that reads a JSON point on stdin and prints the measured response (default: measure_cmd in cfg/cccd/doe-spec.yaml).")
+@click.option(
+    "--responses",
+    "responses_file",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Taguchi: JSON file with measured responses, one list per L9 run (9 rows).",
+)
 @click.pass_context
-def cccd_calibrate(ctx: click.Context, iterations: int, signature: str, strategy: str, spec_file: Optional[Path], measure_cmd: Optional[str]) -> None:
-    """Trigger on-demand continuous calibration run against specified benchmark datasets."""
+def cccd_calibrate(
+    ctx: click.Context,
+    iterations: int,
+    signature: str,
+    strategy: str,
+    spec_file: Optional[Path],
+    measure_cmd: Optional[str],
+    responses_file: Optional[Path],
+) -> None:
+    """Calibrate on measured benchmark responses (nothing is simulated)."""
     if strategy == "sequential":
         _calibrate_sequential(ctx, spec_file, measure_cmd)
         return
-    loop = CCCDCalibrationLoop()
-    result = loop.run_calibration(iterations=iterations, signature_name=signature)
+    from hath0r_cli.commands._qa_common import call
+
+    def run() -> Dict[str, Any]:
+        responses = json.loads(responses_file.read_text(encoding="utf-8")) if responses_file else None
+        try:
+            return CCCDCalibrationLoop().run_calibration(
+                iterations=iterations, signature_name=signature, responses_matrix=responses, measure_cmd=measure_cmd, spec=spec_file
+            )
+        except RuntimeError as exc:  # the measurement command failed
+            raise ValueError(str(exc)) from exc
+
+    result = call(ctx, "cccd calibrate", "CCCD_NO_MEASUREMENT", run)
+    if result is None:
+        return
 
     response = _build_response(
         ctx,

@@ -57,7 +57,7 @@ def cicccdct_status(ctx: click.Context) -> None:
         drift_table.add_column("Metric", style="cyan")
         drift_table.add_column("Value / Drift", style="yellow")
         for k, v in state.get("drift_metrics", {}).items():
-            drift_table.add_row(str(k), f"{v:+}")
+            drift_table.add_row(str(k), f"{v:+}" if isinstance(v, (int, float)) else str(v))
         console.print(drift_table)
 
         # CT Model Lineage Table

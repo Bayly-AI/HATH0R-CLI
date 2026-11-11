@@ -12,6 +12,17 @@ from hath0r_cli.cccd.dspy_bridge import DSPyCompilerBridge
 from hath0r_cli.cccd.l2ws_predictor import l2ws_predictor
 from hath0r_cli.cccd.taguchi_optimizer import TaguchiLossOptimizer
 
+CALIBRATION_SPEC = Path("cfg") / "cccd" / "doe-spec.yaml"
+L9_LEVELS: Dict[str, List[float]] = {
+    "temperature": [0.1, 0.2, 0.5],
+    "top_p": [0.9, 0.95, 0.99],
+    "guardrail_threshold": [0.8, 0.85, 0.9],
+}
+
+
+class CalibrationUnavailable(ValueError):
+    """No measured responses and no measurement command: calibration never runs on invented data (#595)."""
+
 
 @dataclass
 class CCCDCalibrationLoop:
@@ -41,11 +52,7 @@ class CCCDCalibrationLoop:
                     "retry_count": 3,
                     "guardrail_threshold": 0.85,
                 },
-                "drift_metrics": {
-                    "accuracy_drift": 0.012,
-                    "latency_drift_ms": 14.5,
-                    "token_tax_drift": -0.005,
-                },
+                "drift_metrics": {},
                 "history": [],
             }
         with open(self.state_file, "r", encoding="utf-8") as f:
@@ -57,19 +64,62 @@ class CCCDCalibrationLoop:
         with open(self.state_file, "w", encoding="utf-8") as f:
             json.dump(state, f, indent=2)
 
+    def _spec(self, spec: Optional[Path] = None) -> Dict[str, Any]:
+        import yaml
+
+        path = spec or (self.cwd / CALIBRATION_SPEC)
+        if not path.is_file():
+            return {}
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return data if isinstance(data, dict) else {}
+
+    def measure_responses(self, measure_cmd: str, replicates: int = 3) -> List[List[float]]:
+        """Run ``measure_cmd`` for every L9 run (point as JSON on stdin), ``replicates`` times each."""
+        from hath0r_cli.bots.doe_bot import shell_measure
+
+        measure = shell_measure(measure_cmd)
+        runs = self.taguchi_optimizer.bot.generate_matrix(array_type="L9", factors=list(L9_LEVELS), levels=L9_LEVELS)["matrix"]
+        return [[measure({k: float(v) for k, v in run.items() if k != "run_id"}) for _ in range(max(1, replicates))] for run in runs]
+
+    @staticmethod
+    def _drift(history: List[Dict[str, Any]], entry: Dict[str, Any]) -> Dict[str, Any]:
+        """Drift against the previous measured calibration; nothing before the first one."""
+        prev = next((h for h in reversed(history) if h.get("responses_source") == "measured" and "mean_response" in h), None)
+        if prev is None:
+            return {"baseline_run_id": None}
+        return {
+            "baseline_run_id": prev.get("run_id"),
+            "mean_response_drift": round(float(entry["mean_response"]) - float(prev["mean_response"]), 6),
+            "snr_drift_db": round(float(entry["mean_snr_db"]) - float(prev.get("mean_snr_db", 0.0)), 6),
+            "quality_loss_drift": round(float(entry["quality_loss"]) - float(prev.get("quality_loss", 0.0)), 6),
+        }
+
     def run_calibration(
         self,
         dataset: Optional[List[Dict[str, Any]]] = None,
         iterations: int = 3,
         signature_name: str = "default_agent_signature",
         responses_matrix: Optional[List[List[float]]] = None,
+        measure_cmd: Optional[str] = None,
+        spec: Optional[Path] = None,
     ) -> Dict[str, Any]:
-        """Execute on-demand continuous calibration against dataset using Taguchi OATS and DSPy compiler.
+        """Calibrate on measured L9 responses with Taguchi OATS and the DSPy compiler.
 
-        ``responses_matrix`` holds measured benchmark responses for the 9 L9 runs. When it is not
-        supplied the loop falls back to a built-in simulated matrix and labels the result
-        ``responses_source: "simulated"`` so it is never mistaken for a measurement (#583, #595).
+        Responses come from ``responses_matrix`` or from a measurement command (``measure_cmd``, or
+        ``measure_cmd`` in ``cfg/cccd/doe-spec.yaml``) run once per replicate for each of the 9 runs.
+        With neither, ``CalibrationUnavailable`` is raised: nothing is simulated (#583, #595). Drift is
+        measured against the previous calibration.
         """
+        cfg = self._spec(spec)
+        maximize = str(cfg.get("goal", "maximize")).lower() != "minimize"
+        if not responses_matrix:
+            cmd = measure_cmd or cfg.get("measure_cmd")
+            if not cmd:
+                raise CalibrationUnavailable(
+                    f"no measured responses: set measure_cmd in {CALIBRATION_SPEC}, pass --measure-cmd, or pass --responses"
+                )
+            responses_matrix = self.measure_responses(str(cmd), replicates=int(cfg.get("replicates", 3)))
+
         state = self.load_state()
 
         # Load Princeton L2WS Warm-Start parameters
@@ -91,44 +141,22 @@ class CCCDCalibrationLoop:
             max_bootstrapped_demos=min(4, len(sample_dataset)),
         )
 
-        # 2. Taguchi Robust Parameter Optimization
-        factors = ["temperature", "top_p", "guardrail_threshold"]
-        levels = {
-            "temperature": [0.1, 0.2, 0.5],
-            "top_p": [0.9, 0.95, 0.99],
-            "guardrail_threshold": [0.8, 0.85, 0.9],
-        }
-        responses_source = "measured" if responses_matrix else "simulated"
-        # Fallback simulated benchmark responses (latency/error metrics across 9 runs), labelled as such.
-        responses_matrix = responses_matrix or [
-            [120.0, 115.0, 125.0],
-            [110.0, 108.0, 112.0],
-            [130.0, 135.0, 128.0],
-            [105.0, 102.0, 108.0],
-            [115.0, 118.0, 112.0],
-            [140.0, 142.0, 138.0],
-            [100.0, 98.0, 102.0],
-            [125.0, 122.0, 128.0],
-            [118.0, 116.0, 120.0],
-        ]
-
+        # 2. Taguchi Robust Parameter Optimization on measured responses
         taguchi_res = self.taguchi_optimizer.optimize_parameters(
-            factors=factors,
-            levels=levels,
+            factors=list(L9_LEVELS),
+            levels=L9_LEVELS,
             responses_matrix=responses_matrix,
             array_type="L9",
-            criterion="smaller_is_better",
-            target_m=100.0,
+            criterion="larger_is_better" if maximize else "smaller_is_better",
+            target_m=float(cfg.get("target", 1.0 if maximize else 0.0)),
             sensitivity_k=0.01,
         )
 
-        # Update state with optimal parameters
         optimal_params = taguchi_res["optimal_parameters"]
         state["current_parameters"].update(optimal_params)
         state["last_run_timestamp"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         state["total_calibration_runs"] += 1
-        state["drift_metrics"]["accuracy_drift"] = 0.002
-        state["drift_metrics"]["latency_drift_ms"] = 3.1
+        values = [float(v) for row in responses_matrix for v in row]
 
         calibration_entry = {
             "run_id": state["total_calibration_runs"],
@@ -138,8 +166,10 @@ class CCCDCalibrationLoop:
             "optimal_parameters": optimal_params,
             "mean_snr_db": taguchi_res["mean_snr_db"],
             "quality_loss": taguchi_res["mean_quality_loss"],
-            "responses_source": responses_source,
+            "mean_response": round(sum(values) / len(values), 6),
+            "responses_source": "measured",
         }
+        state["drift_metrics"] = self._drift(state.get("history") or [], calibration_entry)
         # 3. Log to MLflow experiment tracking if available
         mlflow_run_id = self._log_to_mlflow(
             signature_name=signature_name,
@@ -152,7 +182,7 @@ class CCCDCalibrationLoop:
         if mlflow_run_id:
             calibration_entry["mlflow_run_id"] = mlflow_run_id
 
-        state["history"].append(calibration_entry)
+        state.setdefault("history", []).append(calibration_entry)
         self.save_state(state)
         l2ws_predictor.save_warmstart(signature_name, optimal_params, taguchi_res["mean_quality_loss"])
 
@@ -162,7 +192,7 @@ class CCCDCalibrationLoop:
             "timestamp": state["last_run_timestamp"],
             "dspy_compilation": dspy_res,
             "taguchi_optimization": taguchi_res,
-            "responses_source": responses_source,
+            "responses_source": "measured",
             "updated_parameters": state["current_parameters"],
             "drift_metrics": state["drift_metrics"],
             "mlflow_run_id": mlflow_run_id,
@@ -189,8 +219,7 @@ class CCCDCalibrationLoop:
             metrics = {
                 "mean_snr_db": float(taguchi_res.get("mean_snr_db", 0.0)),
                 "quality_loss": float(taguchi_res.get("mean_quality_loss", 0.0)),
-                "accuracy_drift": float(drift_metrics.get("accuracy_drift", 0.0)),
-                "latency_drift_ms": float(drift_metrics.get("latency_drift_ms", 0.0)),
+                **{k: float(v) for k, v in drift_metrics.items() if k.endswith("_drift") or k.endswith("_drift_db")},
             }
             tags = {
                 "engine": "cccd",
@@ -281,7 +310,21 @@ class CCCDCalibrationLoop:
                 "action_taken": "verified_fresh",
             }
 
-        cal_res = self.run_calibration(iterations=iterations, signature_name=signature_name)
+        try:
+            cal_res = self.run_calibration(iterations=iterations, signature_name=signature_name)
+        except CalibrationUnavailable as err:
+            # Stale and nothing to measure with: report it honestly instead of inventing a calibration.
+            return {
+                "success": True,
+                "is_fresh": False,
+                "auto_calibrated": False,
+                "trigger_source": trigger_source,
+                "age_hours": freshness.get("age_hours"),
+                "max_age_hours": max_age_hours,
+                "last_run_timestamp": freshness.get("last_run_timestamp"),
+                "action_taken": "no_measurement_source",
+                "message": str(err),
+            }
         return {
             "success": bool(cal_res.get("success", True)),
             "is_fresh": True,
