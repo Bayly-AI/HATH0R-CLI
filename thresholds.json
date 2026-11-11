@@ -14,6 +14,12 @@
     "new_maintainability_rating": 1,
     "min_security_hotspots_reviewed_pct": 100.0
   },
+  "capability": {
+    "mode": "warn",
+    "min_cpk_warn": 1.33,
+    "baseline_points": 20,
+    "ewma_lambda": 0.2
+  },
   "stack": {
     "language": "python",
     "supporting_libraries": [

@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "schema_version": "hath0r.rca.pareto/v1",
+  "by": "category",
+  "since_days": 30,
+  "total": 1,
+  "table": [
+    {
+      "category": "method",
+      "count": 1,
+      "pct": 100.0,
+      "cumulative_pct": 100.0
+    }
+  ],
+  "vital_few": [
+    "method"
+  ],
+  "top": "method",
+  "unclassified": 0,
+  "generated_at": "2026-11-11T13:00:31.442635+00:00"
+}

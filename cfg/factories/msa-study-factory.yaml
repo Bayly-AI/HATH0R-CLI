@@ -32,10 +32,10 @@ workflows:
       - id: run-study
         bot: measurement-system-bot
         action: run-study
-        failure_policy: abort
+        on_failure: abort
         args:
           replicates: 3
       - id: report
         bot: measurement-system-bot
         action: report
-        failure_policy: continue
+        on_failure: continue

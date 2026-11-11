@@ -1,0 +1,39 @@
+factory_id: andon-factory
+name: Andon Stop-the-Line Factory (WS6)
+version: "1.0.0"
+description: >
+  Any workflow step marked andon: stop|warn pulls the cord when it fails. While a stop is active,
+  workflow steps and agent DAGs refuse to start. Stops are hash-chained in
+  .hath0r/state/andon/events.jsonl, routed to the Decision Radar, and must be acknowledged before
+  they are cleared.
+bots:
+  - id: andon-bot
+    name: Andon Bot
+    role: Raises, acknowledges, clears and verifies stop-the-line events
+    capabilities:
+      - status
+      - raise-event
+      - ack
+      - clear
+      - verify
+      - check
+  - id: decision-radar-bot
+    name: Decision Radar Bot
+    role: Shows active stops to a person
+    capabilities:
+      - request-decision
+workflows:
+  - id: andon-check
+    name: Check the Line Before Work Starts
+    acceptance_test: >
+      With an active stop, hath0r andon status exits 1, a workflow aborts before its first step and
+      AgentDAGRunner returns andon_stopped; after ack and clear, work resumes and the ledger verifies.
+    steps:
+      - id: verify-ledger
+        bot: andon-bot
+        action: verify
+        on_failure: abort
+      - id: check
+        bot: andon-bot
+        action: check
+        on_failure: abort

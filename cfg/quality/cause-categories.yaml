@@ -1,0 +1,29 @@
+# Cause categories for root-cause analysis (WS9, #591): the 6M of an Ishikawa diagram adapted to agents.
+# Keywords classify failed gates, CI failures and red-team findings automatically (first match wins,
+# in this order). Anything that matches nothing is "unclassified" and should be tagged by hand.
+schema_version: hath0r.rca.categories/v1
+categories:
+  - id: measurement
+    label: Measurement (evals)
+    description: The gauge itself is wrong, noisy or unqualified.
+    keywords: [measurement_qualified, msa, gauge, judge, flaky eval, consensus]
+  - id: method
+    label: Method (workflow)
+    description: The workflow, factory or process step is missing or wrong.
+    keywords: [workflow, factory, step, version, changelog, semver, memory, compounded, branch, pr ]
+  - id: material
+    label: Material (context and data)
+    description: Wrong, missing or stale context, data, fixtures or knowledge.
+    keywords: [context, fixture, data, knowledge, kb, retrieval, stale, missing file]
+  - id: machine
+    label: Machine (infra)
+    description: Tools, CI, network, containers or dependencies failed.
+    keywords: [timeout, network, docker, ci, dependency, install, permission, disk, latency]
+  - id: model
+    label: Model
+    description: The model's reasoning or output was wrong.
+    keywords: [hallucinat, reasoning, model, refus, tokens, budget]
+  - id: operator
+    label: Operator (prompt and instructions)
+    description: Prompt, rules or instructions were unclear or contradictory.
+    keywords: [prompt, instruction, rule, agents.md, claude.md, goal_alignment, focus]

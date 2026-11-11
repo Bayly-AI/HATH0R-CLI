@@ -1,0 +1,44 @@
+{
+  "schema_version": "hath0r.dmaic.project/v1",
+  "issue": 599,
+  "ctq": "goal_alignment",
+  "goal": "maximize",
+  "target": 0.97,
+  "problem": "Tier 4 cannot rank good work: known-good panel parts score within 0.002 of each other",
+  "phase": "analyze",
+  "phases": [
+    {
+      "phase": "define",
+      "at": "2026-11-11T13:00:30.288182+00:00",
+      "note": "Tier 4 cannot rank good work: known-good panel parts score within 0.002 of each other"
+    },
+    {
+      "phase": "measure",
+      "at": "2026-11-11T13:00:30.387030+00:00",
+      "note": "baseline n=39 center=1.0"
+    },
+    {
+      "phase": "analyze",
+      "at": "2026-11-11T13:00:31.444656+00:00",
+      "note": "root cause: Tier 4 consensus is computed over synthetic critic text instead of per-tier evidence"
+    }
+  ],
+  "created_at": "2026-11-11T13:00:30.288193+00:00",
+  "updated_at": "2026-11-11T13:00:31.525492+00:00",
+  "baseline": {
+    "n": 39,
+    "status": "out_of_control",
+    "center": 1.0,
+    "sigma": 0.0,
+    "ucl": 1.0,
+    "lcl": 1.0,
+    "points": 20,
+    "sufficient": true,
+    "mean": 0.9670923076923077
+  },
+  "analysis": {
+    "root_cause": "Tier 4 consensus is computed over synthetic critic text instead of per-tier evidence",
+    "category": "measurement",
+    "pareto_top": "method"
+  }
+}

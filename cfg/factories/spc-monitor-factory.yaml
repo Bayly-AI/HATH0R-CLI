@@ -1,0 +1,35 @@
+factory_id: spc-monitor-factory
+name: Statistical Process Control Monitor Factory (WS2/WS3)
+version: "1.0.0"
+description: >
+  Charts R_task, tier scores, eval duration, tokens, cost and latency with I-MR, EWMA, CUSUM and
+  Western Electric rules, and reports R_task capability against the eval threshold. Signals and
+  low Cpk are warnings unless thresholds.json sets capability.mode to block.
+bots:
+  - id: spc-monitor-bot
+    name: SPC Monitor Bot
+    role: Owns control charts, frozen baselines and capability reports
+    capabilities:
+      - status
+      - chart
+      - baseline
+      - capability
+      - gate
+  - id: phoenix-observer-bot
+    name: Phoenix Observer Bot
+    role: Surfaces the SPC snapshot alongside traces
+    capabilities:
+      - status
+workflows:
+  - id: spc-monitor
+    name: Chart Quality Signals and Report Capability
+    acceptance_test: >
+      hath0r spc status writes .hath0r/spc/latest.json with a status for every metric and R_task
+      Cpk; in warn mode it exits 0 even with signals; in block mode a signal fails the gate and
+      raises an Andon stop.
+    steps:
+      - id: status
+        bot: spc-monitor-bot
+        action: gate
+        on_failure: continue
+        andon: warn

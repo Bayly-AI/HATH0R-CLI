@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.hath0r.dev/hath0r-spc-chart-v1.schema.json",
+  "title": "hath0r.spc.chart/v1",
+  "description": "Control chart for one Hath0r metric (hath0r spc chart): I-MR baseline, Western Electric rules, EWMA and CUSUM.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["metric", "status", "n"],
+  "properties": {
+    "schema_version": {"const": "hath0r.spc.chart/v1"},
+    "metric": {"type": "string"},
+    "status": {"type": "string", "enum": ["in_control", "out_of_control", "provisional_in_control", "provisional_out_of_control", "insufficient_data"]},
+    "n": {"type": "integer", "minimum": 0},
+    "baseline_frozen": {"type": "boolean"},
+    "baseline": {
+      "type": "object",
+      "required": ["points", "sufficient", "center", "sigma", "ucl", "lcl"],
+      "properties": {
+        "points": {"type": "integer"}, "sufficient": {"type": "boolean"}, "center": {"type": "number"},
+        "sigma": {"type": "number", "minimum": 0}, "ucl": {"type": "number"}, "lcl": {"type": "number"}
+      }
+    },
+    "western_electric": {"type": "array", "items": {"type": "object", "required": ["index", "rule"], "properties": {"index": {"type": "integer"}, "rule": {"type": "integer", "minimum": 1, "maximum": 4}, "description": {"type": "string"}}}},
+    "ewma": {"type": "object"},
+    "cusum": {"type": "object"},
+    "signal_indices": {"type": "array", "items": {"type": "integer"}},
+    "points": {"type": "array", "items": {"type": "object", "required": ["value"], "properties": {"t": {"type": "string"}, "value": {"type": "number"}, "id": {}}}},
+    "goal": {"type": "number"},
+    "gap_to_goal": {"type": "number"}
+  }
+}

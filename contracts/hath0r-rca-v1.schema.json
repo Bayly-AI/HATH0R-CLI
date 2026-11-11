@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.hath0r.dev/hath0r-rca-v1.schema.json",
+  "title": "hath0r.rca/v1",
+  "description": "Root-cause record for one issue (.hath0r/rca/<issue>.json): Ishikawa diagram and 5 Whys.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "issue", "fishbone"],
+  "properties": {
+    "schema_version": {"const": "hath0r.rca/v1"},
+    "issue": {"type": "integer"},
+    "problem": {"type": ["string", "null"]},
+    "fishbone": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "string"}}},
+    "whys": {
+      "type": ["object", "null"],
+      "required": ["problem", "chain", "root_cause", "category"],
+      "properties": {
+        "problem": {"type": "string"},
+        "chain": {"type": "array", "minItems": 3, "maxItems": 5, "items": {"type": "string"}},
+        "root_cause": {"type": "string"},
+        "category": {"type": "string"}
+      }
+    }
+  }
+}

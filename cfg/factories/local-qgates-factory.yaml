@@ -21,6 +21,12 @@ bots:
       - evaluate
       - ensure-all
       - detect-technology
+  - id: spc-monitor-bot
+    name: SPC Monitor Bot
+    role: Reports R_task capability (Cpk) and control-chart signals as warnings
+    capabilities:
+      - gate
+      - status
   - id: task-evaluator-bot
     name: Task Evaluator Bot
     role: Integrates local Q-Gates into the 4-tier continuous task evaluation scorecard
@@ -38,18 +44,22 @@ workflows:
       - id: ensure-4h-calibration
         bot: cicccd-managing-bot
         action: ensure-calibrated
-        failure_policy: continue
+        on_failure: continue
         args:
           max_age_hours: 4.0
       - id: ensure-thresholds
         bot: local-quality-gate-bot
         action: init
-        failure_policy: abort
+        on_failure: abort
       - id: run-local-qgates
         bot: local-quality-gate-bot
         action: evaluate
-        failure_policy: abort
+        on_failure: abort
       - id: run-4tier-eval
         bot: task-evaluator-bot
         action: evaluate
-        failure_policy: abort
+        on_failure: abort
+      - id: spc-capability
+        bot: spc-monitor-bot
+        action: gate
+        on_failure: continue

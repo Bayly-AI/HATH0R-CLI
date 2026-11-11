@@ -136,6 +136,11 @@
                   "default": "abort",
                   "description": "Failure policy when the step errors: continue, abort (default), or retry."
                 },
+                "andon": {
+                  "type": "string",
+                  "enum": ["stop", "warn"],
+                  "description": "Pull the Andon cord when this step fails: stop halts later steps and workflows until acknowledged and cleared; warn only records the event."
+                },
                 "retry_count": {
                   "type": "integer",
                   "minimum": 1,

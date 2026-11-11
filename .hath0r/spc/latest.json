@@ -1,0 +1,120 @@
+{
+  "schema_version": "hath0r.spc.status/v1",
+  "generated_at": "2026-11-11T12:48:54.830141+00:00",
+  "mode": "warn",
+  "metrics": {
+    "r_task": {
+      "status": "out_of_control",
+      "n": 39,
+      "center": 1.0,
+      "ucl": 1.0,
+      "lcl": 1.0,
+      "latest": 0.9233,
+      "signals": 18,
+      "last_signal_index": 38
+    },
+    "deterministic": {
+      "status": "out_of_control",
+      "n": 39,
+      "center": 1.0,
+      "ucl": 1.0,
+      "lcl": 1.0,
+      "latest": 0.9636,
+      "signals": 18,
+      "last_signal_index": 38
+    },
+    "trajectory": {
+      "status": "out_of_control",
+      "n": 39,
+      "center": 1.0,
+      "ucl": 1.0,
+      "lcl": 1.0,
+      "latest": 0.9301,
+      "signals": 18,
+      "last_signal_index": 38
+    },
+    "adversarial": {
+      "status": "out_of_control",
+      "n": 39,
+      "center": 1.0,
+      "ucl": 1.0,
+      "lcl": 1.0,
+      "latest": 0.85,
+      "signals": 18,
+      "last_signal_index": 38
+    },
+    "goal_alignment": {
+      "status": "out_of_control",
+      "n": 39,
+      "center": 1.0,
+      "ucl": 1.0,
+      "lcl": 1.0,
+      "latest": 0.9287,
+      "signals": 18,
+      "last_signal_index": 38
+    },
+    "eval_duration_ms": {
+      "status": "out_of_control",
+      "n": 39,
+      "center": 32095.267,
+      "ucl": 145782.915376,
+      "lcl": -81592.381376,
+      "latest": 1880.63,
+      "signals": 31,
+      "last_signal_index": 38
+    },
+    "total_tokens": {
+      "status": "provisional_out_of_control",
+      "n": 9,
+      "center": 23.222222,
+      "ucl": 47.158392,
+      "lcl": -0.713948,
+      "latest": 7.0,
+      "signals": 6,
+      "last_signal_index": 8
+    },
+    "cost_usd": {
+      "status": "provisional_out_of_control",
+      "n": 9,
+      "center": 0.000606,
+      "ucl": 0.002082,
+      "lcl": -0.00087,
+      "latest": 2.1e-05,
+      "signals": 4,
+      "last_signal_index": 8
+    },
+    "latency_ms": {
+      "status": "provisional_in_control",
+      "n": 9,
+      "center": 0.0,
+      "ucl": 0.0,
+      "lcl": 0.0,
+      "latest": 0.0,
+      "signals": 0,
+      "last_signal_index": null
+    }
+  },
+  "capability": {
+    "n": 39,
+    "mean": 0.9680102564102564,
+    "lsl": 0.8,
+    "usl": null,
+    "cp": null,
+    "cpk": 8.263444212012883,
+    "pp": null,
+    "ppk": 1.4976135059902593,
+    "capable": true,
+    "min_cpk_warn": 1.33
+  },
+  "warnings": [
+    "r_task: 18 out-of-control signal(s), latest at point 39 of 39",
+    "deterministic: 18 out-of-control signal(s), latest at point 39 of 39",
+    "trajectory: 18 out-of-control signal(s), latest at point 39 of 39",
+    "adversarial: 18 out-of-control signal(s), latest at point 39 of 39",
+    "goal_alignment: 18 out-of-control signal(s), latest at point 39 of 39",
+    "eval_duration_ms: 31 out-of-control signal(s), latest at point 39 of 39",
+    "total_tokens: 6 out-of-control signal(s), latest at point 9 of 9",
+    "cost_usd: 4 out-of-control signal(s), latest at point 9 of 9"
+  ],
+  "blocking": false
+}

@@ -130,12 +130,22 @@ def chart(
     baseline_points: int = MIN_BASELINE_POINTS,
     lam: float = 0.2,
     goal: Optional[float] = None,
+    frozen: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
-    """Build I-MR, EWMA and CUSUM views of one metric and summarize the signals."""
+    """Build I-MR, EWMA and CUSUM views of one metric and summarize the signals.
+
+    ``frozen`` is a saved phase 1 baseline (``center``, ``sigma``, ``points``); without it the limits
+    come from the first ``baseline_points`` observations.
+    """
     vals = [float(v) for v in values]
     if len(vals) < 2:
         return {"status": "insufficient_data", "n": len(vals), "signals": [], "in_control": None}
-    base = baseline(vals, points=baseline_points)
+    if frozen:
+        c, sg = float(frozen["center"]), float(frozen["sigma"])
+        pts = int(frozen.get("points", MIN_BASELINE_POINTS))
+        base = {"points": pts, "sufficient": pts >= MIN_BASELINE_POINTS, "center": c, "sigma": sg, "ucl": c + 3 * sg, "lcl": c - 3 * sg}
+    else:
+        base = baseline(vals, points=baseline_points)
     rules = western_electric(vals, base["center"], base["sigma"])
     ew = ewma(vals, center=base["center"], sigma=base["sigma"], lam=lam)
     cu = cusum(vals, center=base["center"], sigma=base["sigma"])
