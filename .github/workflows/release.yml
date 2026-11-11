@@ -98,6 +98,11 @@ jobs:
             tag: linux
           - os: macos-latest
             tag: darwin
+            dmg: true
+          # Intel Mac (x86_64). macos-latest is Apple Silicon only.
+          - os: macos-15-intel
+            tag: darwin-x64
+            dmg: false
     steps:
       - name: Checkout CLI
         uses: actions/checkout@v4
@@ -125,7 +130,8 @@ jobs:
       - name: Build binary
         run: |
           python scripts/build_binary.py --out dist/binary
-          if [ "${{ matrix.tag }}" = "darwin" ]; then
+          # One install wizard .dmg per release, from the Apple Silicon job, so the assets do not collide.
+          if [ "${{ matrix.dmg }}" = "true" ]; then
             hath0r install-wizard package --target dmg --out-dir dist/binary
           fi
           if command -v x86_64-w64-mingw32-gcc >/dev/null 2>&1; then
