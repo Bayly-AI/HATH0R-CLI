@@ -302,3 +302,31 @@ def test_version_drift_detects_mismatched_files(tmp_path):
     assert "CHANGELOG.md" not in files
     (tmp_path / "pyproject.toml").write_text('[project]\nname = "x"\nversion = "1.2.4"\n', encoding="utf-8")
     assert version_drift(tmp_path, "1.2.4") == []
+
+
+def test_self_eval_diff_skips_msa_gauge_fixtures(tmp_path):
+    """The gauge fixtures carry deliberate defects; Tier 3 must not count them against the branch."""
+    import subprocess
+
+
+    swallow = "try:\n    x = 1\nexcept Exception: " + "pass\n"  # split so this test is not itself flagged
+
+    def git(*args):
+        subprocess.run(["git", *args], cwd=tmp_path, check=True, capture_output=True)
+
+    git("init", "-q")
+    git("-c", "user.email=t@example.com", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "base")
+    fixture = tmp_path / "cfg" / "evals" / "msa-fixtures" / "defect" / "calc.py"
+    fixture.parent.mkdir(parents=True)
+    fixture.write_text(swallow)
+    real = tmp_path / "src" / "ok.py"
+    real.parent.mkdir(parents=True)
+    real.write_text("VALUE = 1\n")
+    git("add", "-A")
+    tier3 = TaskEvaluatorBot(cwd=tmp_path)._evaluate_tier3_adversarial(dry_run=True)
+    assert tier3["adversarial_flaws_count"] == 0
+
+    real.write_text(swallow)
+    git("add", "-A")
+    tier3 = TaskEvaluatorBot(cwd=tmp_path)._evaluate_tier3_adversarial(dry_run=True)
+    assert tier3["adversarial_flaws_count"] == 1

@@ -108,6 +108,11 @@ def _compute_scorecard_hash(data: Dict[str, Any]) -> str:
     return f"sha256:{hashlib.sha256(raw).hexdigest()}"
 
 
+# Paths left out of the self-evaluation diff: framework state, and the MSA gauge fixtures, which
+# carry deliberate defects (e.g. a swallowed exception) for the Gage R&R study to detect.
+_DIFF_PATHSPEC = ("--", ":!.hath0r", ":!cfg/evals/msa-fixtures")
+
+
 @dataclass
 class TaskEvaluatorBot:
     """Executes the 4-tier automatic task evaluation pipeline and enforces CR-TASK-EVAL-001."""
@@ -459,9 +464,9 @@ class TaskEvaluatorBot:
         """Collect modified files across working tree and current branch commits (excluding .hath0r/)."""
         files_set: set[str] = set()
         cmds = [
-            ["git", "diff", "--name-only", "HEAD", "--", ":!.hath0r"],
-            ["git", "diff", "--name-only", "origin/development...HEAD", "--", ":!.hath0r"],
-            ["git", "diff", "--name-only", "HEAD~1..HEAD", "--", ":!.hath0r"],
+            ["git", "diff", "--name-only", "HEAD", *_DIFF_PATHSPEC],
+            ["git", "diff", "--name-only", "origin/development...HEAD", *_DIFF_PATHSPEC],
+            ["git", "diff", "--name-only", "HEAD~1..HEAD", *_DIFF_PATHSPEC],
         ]
         for cmd in cmds:
             try:
@@ -488,7 +493,7 @@ class TaskEvaluatorBot:
         diff_text = ""
         try:
             proc = subprocess.run(
-                ["git", "diff", "HEAD", "--", ":!.hath0r"],
+                ["git", "diff", "HEAD", *_DIFF_PATHSPEC],
                 cwd=self.cwd,
                 capture_output=True,
                 text=True,
@@ -497,7 +502,7 @@ class TaskEvaluatorBot:
             diff_text = proc.stdout or ""
             if not diff_text.strip():
                 proc2 = subprocess.run(
-                    ["git", "diff", "origin/development...HEAD", "--", ":!.hath0r"],
+                    ["git", "diff", "origin/development...HEAD", *_DIFF_PATHSPEC],
                     cwd=self.cwd,
                     capture_output=True,
                     text=True,
@@ -506,7 +511,7 @@ class TaskEvaluatorBot:
                 diff_text = proc2.stdout or ""
             if not diff_text.strip():
                 proc3 = subprocess.run(
-                    ["git", "diff", "HEAD~1..HEAD", "--", ":!.hath0r"],
+                    ["git", "diff", "HEAD~1..HEAD", *_DIFF_PATHSPEC],
                     cwd=self.cwd,
                     capture_output=True,
                     text=True,
