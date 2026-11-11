@@ -4,7 +4,7 @@
 
 factory_id: pr-and-branch-lifecycle-factory
 name: PR and Branch Lifecycle Factory
-version: 1.0.0
+version: 1.1.0
 description: >
   Autonomous factory managing branch creation and validation, PR lifecycles,
   Dependabot automated triage, stale branch janitorial pruning, and PR documentation
@@ -42,6 +42,13 @@ bots:
       - scan-stale
       - prune-branches
 
+  - id: task-evaluator-bot
+    name: Task Evaluator Bot
+    role: verification-gate
+    description: Backs the verified gate on merge and document steps (evals verify plus andon status).
+    capabilities:
+      - verify
+
   - id: documentation-bot
     name: Documentation Bot
     role: knowledge-and-wiki-sync
@@ -60,8 +67,12 @@ workflows:
         action: list-prs
         args:
           state: open
-      - bot: pr-bot
+      # FMEA PL-13 (#596): CI is the verification for Dependabot PRs. process-dependabot
+      # refuses a PR with failing checks or with no checks reported at all.
+      - id: merge-dependabot
+        bot: pr-bot
         action: process-dependabot
+        on_failure: abort
         args:
           auto_merge: true
 
@@ -77,7 +88,11 @@ workflows:
   - id: document-merged-prs
     name: Document Merged PRs
     steps:
-      - bot: documentation-bot
+      # FMEA PL-12 (#597): document only once evals verify passes and no Andon stop is active.
+      - id: document-merged-prs-1
+        bot: documentation-bot
         action: generate-summary
+        gate: verified
+        on_failure: abort
       - bot: documentation-bot
         action: sync-wiki

@@ -9,6 +9,6 @@ of the multi-agent failure taxonomy (MAST, Cemri et al. 2025) and mapped to that
 - Ratings are 1-10 for severity, occurrence and detection. Priority follows a documented reading of the
   AIAG-VDA (2019) action priority table (severity first); RPN is shown as well.
 - Occurrence is measured where a row names a data signal (eval gate failures, a tier's pass rate, Andon events,
-  the gauge's miss rate), and estimated otherwise.
+  the gauge's miss rate, gate escapes, unasked clarifications), and estimated otherwise.
 - Every high-priority row has a GitHub issue. A fix is proven by re-rating and re-scoring the row.
 - First studies: `end-of-task` and `pr-lifecycle` (#596, #597, #598).

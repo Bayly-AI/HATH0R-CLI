@@ -183,9 +183,14 @@ class CICCCDManagingBot:
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         }
 
-    def calibrate(self, iterations: int = 3, signature: str = "default_agent_signature") -> Dict[str, Any]:
-        """Trigger continuous calibration loop run."""
-        result = self.calibration_loop.run_calibration(iterations=iterations, signature_name=signature)
+    def calibrate(self, iterations: int = 3, signature: str = "default_agent_signature", measure_cmd: Optional[str] = None) -> Dict[str, Any]:
+        """Trigger continuous calibration loop run (measured responses only, #595)."""
+        from hath0r_cli.cccd.calibration_loop import CalibrationUnavailable
+
+        try:
+            result = self.calibration_loop.run_calibration(iterations=iterations, signature_name=signature, measure_cmd=measure_cmd)
+        except CalibrationUnavailable as err:
+            return {"success": False, "calibration_id": None, "updated_parameters": {}, "timestamp": None, "message": str(err)}
         return {
             "success": result.get("success", False),
             "calibration_id": result.get("calibration_id"),

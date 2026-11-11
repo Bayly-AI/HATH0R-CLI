@@ -62,6 +62,9 @@ def test_4_hour_pre_task_auto_calibration_gate(tmp_path: Path) -> None:
     assert check["is_fresh"] is False
     assert check["stale"] is True
 
+    from tests.cccd_helpers import write_spec
+
+    write_spec(tmp_path)
     bot = CICCCDManagingBot(root_dir=str(tmp_path))
     assert CalibrationBot is CICCCDManagingBot
     ensured = bot.ensure_calibrated(max_age_hours=4.0, trigger_source="test_issue_551")

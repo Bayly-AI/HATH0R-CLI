@@ -17,6 +17,28 @@ from typing import Any, Dict, List, Optional
 PLATFORM_FOLDERS = ("mac", "windows", "vscode")
 
 
+
+def pyinstaller_bundle_args() -> list:
+    """Flags that make the frozen binary carry every command.
+
+    Subcommands load through importlib (lazy_group.COMMAND_REGISTRY) and the bots import
+    hath0r_engine from the framework, so PyInstaller's static scan misses both. Without these
+    the binary answers "No such command" for install-wizard, release, evals and more, and
+    reports a stale version because the package metadata is not bundled.
+    """
+    import importlib.util
+
+    args = ["--collect-submodules", "hath0r_cli", "--copy-metadata", "hath0r-cli"]
+    spec = importlib.util.find_spec("hath0r_engine")
+    if spec is not None:
+        # An editable install resolves through a setuptools finder that PyInstaller does not
+        # follow, so point it at the directory that holds the package as well.
+        locations = list(spec.submodule_search_locations or [])
+        if locations:
+            args += ["--paths", str(Path(locations[0]).parent)]
+        args += ["--collect-submodules", "hath0r_engine"]
+    return args
+
 def read_version(cli_root: Path) -> str:
     """Read current SemVer from VERSION file."""
     ver_file = cli_root / "VERSION"
@@ -484,6 +506,7 @@ def build_pyinstaller_binary(cli_root: Path, output_dir: Path, dry_run: bool = F
         "--hidden-import=click",
         "--hidden-import=rich",
         "--hidden-import=yaml",
+        *pyinstaller_bundle_args(),
         str(entry_point),
     ]
 

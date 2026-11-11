@@ -213,6 +213,15 @@ class PRBot:
                 "failing_checks": failing_checks,
                 "reason": "CI checks failing",
             }
+        if not rollup:
+            # FMEA PL-13: CI is the verification for Dependabot PRs, so no checks means unverified.
+            return {
+                "pr_number": pr_number,
+                "is_dependabot": True,
+                "action": "blocked",
+                "failing_checks": [],
+                "reason": "No CI checks reported; refusing to merge an unverified PR",
+            }
 
         actions_taken = []
         if dry_run:
@@ -973,6 +982,7 @@ class IssueGuardBot:
             "success": is_open,
             "issue_number": issue_number,
             "title": issue_data.get("title"),
+            "body": issue_data.get("body") or "",
             "state": issue_data.get("state"),
             "open": is_open,
             "error": None if is_open else f"Issue #{issue_number} is {issue_data.get('state')}, expected OPEN.",

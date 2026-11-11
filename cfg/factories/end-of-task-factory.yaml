@@ -4,7 +4,7 @@
 
 factory_id: end-of-task-factory
 name: End of Task Automation Factory
-version: 1.0.0
+version: 1.1.0
 description: >
   Canonical automation factory executed upon completion of work in any Hath0r repository.
   Validates the feature branch, opens the pull request, generates release notes/summaries,
@@ -141,6 +141,15 @@ workflows:
         action: pre-deploy
         on_failure: abort
 
+      # FMEA EOT-13 (#596): run the eval with tests before the PR is opened.
+      - id: verify-before-pr
+        bot: task-evaluator-bot
+        action: run-eval
+        on_failure: abort
+        andon: stop
+        args:
+          skip_tests: false
+
       - bot: release-bot
         action: rotate
         on_failure: continue
@@ -162,8 +171,11 @@ workflows:
         on_failure: retry
         retry_count: 2
 
-      - bot: pr-bot
+      # FMEA EOT-12 (#597): merge only runs when evals verify passes and no Andon stop is active.
+      - id: merge-pr
+        bot: pr-bot
         action: merge-pr
+        gate: verified
         on_failure: abort
         args:
           admin: true
@@ -216,6 +228,9 @@ workflows:
         action: verify_completion
         on_failure: abort
 
-      - bot: task-announcer-bot
+      # FMEA EOT-12 (#597): announce only runs when evals verify passes and no Andon stop is active.
+      - id: announce-complete
+        bot: task-announcer-bot
         action: announce-complete
-        on_failure: continue
+        gate: verified
+        on_failure: abort

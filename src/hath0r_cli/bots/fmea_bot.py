@@ -32,13 +32,13 @@ MAST_TAXONOMY: List[tuple] = [
     ("FM-1.4", "specification", "Loses conversation history", "Decisions made earlier are contradicted", "Context not handed over in a HAHP envelope", 6, 4, 7, "memory-manager-bot", ("memory", "compound"), None),
     ("FM-1.5", "specification", "Unaware of termination conditions", "Runs past the budget or never finishes", "No stop condition or budget guard", 7, 3, 4, "token-tree-budget-guard", ("monitor", "wait"), "andon:token-tree-budget-guard"),
     ("FM-2.1", "inter-agent", "Conversation reset", "Work restarts and loses progress", "Session state not persisted", 5, 3, 6, "memory-manager-bot", ("session",), None),
-    ("FM-2.2", "inter-agent", "Fails to ask for clarification", "Builds the wrong thing on a guess", "No decision-radar request on ambiguity", 7, 5, 7, "decision-radar-bot", ("decision", "plan"), None),
+    ("FM-2.2", "inter-agent", "Fails to ask for clarification", "Builds the wrong thing on a guess", "No decision-radar request on ambiguity", 7, 5, 7, "decision-radar-bot", ("decision", "plan"), "clarity:unasked"),
     ("FM-2.3", "inter-agent", "Task derailment", "Effort spent off the issue's goal", "Goal not re-checked between steps", 6, 4, 5, "task-evaluator-bot", ("eval",), "tier:goal_alignment"),
     ("FM-2.4", "inter-agent", "Withholds information", "A later step decides without a known fact", "Facts not written to memory or the envelope", 6, 3, 7, "memory-manager-bot", ("compound", "summary"), None),
     ("FM-2.5", "inter-agent", "Ignores another agent's input", "Review findings or failed checks are dropped", "Step result not read by the next step", 8, 4, 5, "antagonistic-review-bot", ("review", "checks"), "tier:adversarial"),
     ("FM-2.6", "inter-agent", "Reasoning and action mismatch", "Says one thing, changes another", "No diff check against the stated plan", 7, 4, 6, "antagonistic-review-bot", ("review", "diff"), "tier:adversarial"),
-    ("FM-3.1", "verification", "Premature termination", "Announced complete before gates pass", "Announcement not gated", 9, 3, 3, "task-announcer-bot", ("announce", "merge"), "eval_fail_rate"),
-    ("FM-3.2", "verification", "No or incomplete verification", "Defects reach development", "Tests or evals skipped", 9, 4, 4, "task-evaluator-bot", ("test", "eval", "pre-deploy"), "tier:deterministic"),
+    ("FM-3.1", "verification", "Premature termination", "Announced complete before gates pass", "Announcement not gated", 9, 3, 3, "task-announcer-bot", ("announce", "merge"), "gate:escape"),
+    ("FM-3.2", "verification", "No or incomplete verification", "Defects reach development", "Tests or evals skipped", 9, 4, 4, "task-evaluator-bot", ("test", "eval", "pre-deploy"), "gate:escape"),
     ("FM-3.3", "verification", "Incorrect verification", "A broken change passes the gate", "Gauge cannot discriminate good from bad", 9, 3, 6, "measurement-system-bot", ("eval", "verify"), "msa:missed_defects"),
 ]
 
@@ -150,6 +150,10 @@ class FMEABot:
             raise ValueError(f"no row '{row_id}' in {process}")
         action = changes.pop("action", None)
         row.update({k: v for k, v in changes.items() if v is not None})
+        if changes.get("occurrence") is not None:
+            # A hand rating holds until the row's data signal has enough samples to replace it.
+            row["occurrence_source"] = "manual"
+            row.pop("observed_rate", None)
         if action:
             row.setdefault("actions", []).append({"at": _now(), "action": action})
         new = score_row(row)
@@ -167,6 +171,14 @@ class FMEABot:
                     cards.append(json.loads(f.read_text(encoding="utf-8")))
                 except (OSError, json.JSONDecodeError):
                     continue
+        if signal == "gate:escape":
+            from hath0r_cli.qa.gates import escape_rate
+
+            return escape_rate(self.cwd)
+        if signal == "clarity:unasked":
+            from hath0r_cli.qa.clarity import unasked_rate
+
+            return unasked_rate(self.cwd)
         if signal == "eval_fail_rate":
             return sum(1 for c in cards if not c.get("passed_gate")) / len(cards) if cards else None
         if signal.startswith("tier:"):

@@ -1,0 +1,4 @@
+# Mac binaries are ~60 MB each, over GitHub's 50 MB warning, so they live in Git LFS.
+# Rotated copies under release/previous/<version>/mac/ stay in LFS too.
+release/mac/hath0r-darwin-* filter=lfs diff=lfs merge=lfs -text
+release/previous/*/mac/hath0r-darwin-* filter=lfs diff=lfs merge=lfs -text

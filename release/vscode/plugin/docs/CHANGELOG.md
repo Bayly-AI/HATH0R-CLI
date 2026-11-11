@@ -5,6 +5,33 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.26.0] - 2026-11-11
+
+### Added
+- **Verification gate on merge and announce** (#596, #597). A factory step marked `gate: verified` runs only
+  when `hath0r evals verify` passes and `hath0r andon status` shows no stop. The workflow executor enforces it,
+  fails closed and logs each decision to `.hath0r/state/gates/events.jsonl`. `end-of-task` runs the eval with
+  tests before the PR (`andon: stop`) and gates `merge-pr` and `announce-complete`; `pr-lifecycle` gates
+  `document-merged-prs`.
+- **Clarification hook** (#598). `start-of-task` runs `decision-radar-bot clarify-issue`, which raises a
+  blocking decision when the issue has no acceptance criteria and records each check in
+  `.hath0r/state/clarity/events.jsonl`.
+- FMEA occurrence signals `gate:escape` and `clarity:unasked` (20-sample minimum) and
+  `hath0r fmea update --signal`. EOT-07/12/13 and PL-07/12/13 re-rated with actions; both worksheets have no H rows.
+- `hath0r cccd calibrate --measure-cmd/--responses` and `hath0r cicccd calibrate --measure-cmd` (#595).
+
+### Changed
+- **CCCD calibration uses measured responses only** (#595). The simulated Taguchi matrix and hard-coded drift
+  are gone; drift is computed against the previous measured calibration. Without a measurement source
+  (`measure_cmd` in `cfg/cccd/doe-spec.yaml`) the pre-task gate reports not fresh instead of faking a run.
+- **Tier 4 scores the change and the tiers' verdicts** (#599). Goal overlap is matched against changed paths and
+  added diff lines, and consensus is the share of approving critics voting from Tier 1-3 evidence plus a goal
+  critic. `tier4.method: evidence-v2` is in the judge fingerprint; the WS1 study was re-run and passes
+  (%GRR 0.112, ndc 100, attribute agreement 100%). Known-good parts now span R_task 0.897-0.951.
+
+### Fixed
+- Dependabot PRs are no longer merged when no CI checks have reported.
+
 ## [1.25.0] - 2026-11-11
 
 ### Added

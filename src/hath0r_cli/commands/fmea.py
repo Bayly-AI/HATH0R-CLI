@@ -71,10 +71,11 @@ def fmea_add(ctx: click.Context, process: str, step: str, failure_mode: str, eff
 @click.option("--detected-by", default=None)
 @click.option("--action", default=None, help="What was done (recorded on the row).")
 @click.option("--issue", type=int, default=None, help="Link an existing GitHub issue to the row.")
+@click.option("--signal", default=None, help="Occurrence data signal, e.g. gate:escape, clarity:unasked, eval_fail_rate, tier:<name>.")
 @click.pass_context
-def fmea_update(ctx: click.Context, process: str, row_id: str, severity: Optional[int], occurrence: Optional[int], detection: Optional[int], detected_by: Optional[str], action: Optional[str], issue: Optional[int]) -> None:
+def fmea_update(ctx: click.Context, process: str, row_id: str, severity: Optional[int], occurrence: Optional[int], detection: Optional[int], detected_by: Optional[str], action: Optional[str], issue: Optional[int], signal: Optional[str]) -> None:
     """Re-rate a row after an action, or link it to an issue."""
-    res = call(ctx, "fmea.update", CODE, lambda: _bot().update(process, row_id, severity=severity, occurrence=occurrence, detection=detection, detected_by=detected_by, action=action, issue=issue))
+    res = call(ctx, "fmea.update", CODE, lambda: _bot().update(process, row_id, severity=severity, occurrence=occurrence, detection=detection, detected_by=detected_by, action=action, issue=issue, occurrence_signal=signal))
     if res is not None:
         emit(ctx, "fmea.update", res, lambda: _rows_text([res["row"]]))
 

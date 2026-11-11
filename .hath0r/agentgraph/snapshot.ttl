@@ -1918,6 +1918,16 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:decision:dmaic:599:analyze> a hath0r:Plane ;
+    rdfs:label "DMAIC #599 entered analyze" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:decision:dmaic:599:improve> a hath0r:Plane ;
+    rdfs:label "DMAIC #599 entered improve" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:decision:industrial-qa-epic-580> a hath0r:Plane ;
     rdfs:label "Industrial QA methods in Hath0r (epic 580, v1.25.0)" ;
     hath0r:inPlane "memory" ;
@@ -2025,6 +2035,11 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:episode:issue-570-real-retrieval-backends> a hath0r:Plane ;
     rdfs:label "Issue 570 real embedding and reranker backends" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:episode:issue-595-599-qa-follow-ups> a hath0r:Plane ;
+    rdfs:label "QA follow-ups 595-599: measured calibration, verified gates, clarification hook, evidence Tier 4" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -2179,7 +2194,12 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
 <https://hath0r.dev/ontology/v1#memory:eval:issue-580> a hath0r:Plane ;
-    rdfs:label "Task Evaluation issue-580 (R=0.83, FAIL)" ;
+    rdfs:label "Task Evaluation issue-580 (R=0.91, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-595> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-595 (R=0.82, FAIL)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -2333,6 +2353,11 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:insight:dmaic> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on dmaic" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:insight:dmg> a hath0r:Plane ;
     rdfs:label "Synthesized Insight on dmg" ;
     hath0r:inPlane "memory" ;
@@ -2350,6 +2375,16 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:insight:feature> a hath0r:Plane ;
     rdfs:label "Synthesized Insight on feature" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:insight:fmea> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on fmea" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:insight:goal_alignment> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on goal_alignment" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -2383,13 +2418,28 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:insight:msa> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on msa" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:insight:orientation> a hath0r:Plane ;
     rdfs:label "Synthesized Insight on orientation" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:insight:passed> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on passed" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:insight:pr> a hath0r:Plane ;
     rdfs:label "Synthesized Insight on pr" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:insight:rca:599> a hath0r:Plane ;
+    rdfs:label "Root cause of #599 (measurement): Tier 4 measures restated text instead of the change and the tiers' verdicts" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -2405,6 +2455,16 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:knowledge:suite-arch-and-local-qgates-20261031> a hath0r:Plane ;
     rdfs:label "Suite MCP-Central Architecture & Local Quality Gates (CR-LOCAL-QGATES-001)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:msa:msa-20261111-163527-f4057c> a hath0r:Plane ;
+    rdfs:label "Gage R&R msa-20261111-163527-f4057c (PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:msa:msa-20261111-163638-b192d9> a hath0r:Plane ;
+    rdfs:label "Gage R&R msa-20261111-163638-b192d9 (PASS)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 

@@ -53,7 +53,7 @@ def cicccd_status(ctx: click.Context) -> None:
         drift_table.add_column("Value / Drift", style="yellow")
 
         for k, v in state.get("drift_metrics", {}).items():
-            drift_table.add_row(str(k), f"{v:+}")
+            drift_table.add_row(str(k), f"{v:+}" if isinstance(v, (int, float)) else str(v))
 
         console.print(drift_table)
 
@@ -125,11 +125,12 @@ def cicccd_validate(ctx: click.Context, repo: str | None) -> None:
 @cicccd.command(name="calibrate")
 @click.option("--iterations", "-i", type=int, default=3, help="Number of benchmark evaluation iterations.")
 @click.option("--signature", "-s", type=str, default="default_agent_signature", help="DSPy signature name to compile.")
+@click.option("--measure-cmd", default=None, help="Command that reads a JSON point on stdin and prints the measured response (default: measure_cmd in cfg/cccd/doe-spec.yaml).")
 @click.pass_context
-def cicccd_calibrate(ctx: click.Context, iterations: int, signature: str) -> None:
-    """Trigger on-demand continuous calibration run against specified benchmark datasets."""
+def cicccd_calibrate(ctx: click.Context, iterations: int, signature: str, measure_cmd: str | None) -> None:
+    """Calibrate on measured benchmark responses (nothing is simulated)."""
     bot = CICCCDManagingBot()
-    result = bot.calibrate(iterations=iterations, signature=signature)
+    result = bot.calibrate(iterations=iterations, signature=signature, measure_cmd=measure_cmd)
 
     response = _build_response(
         ctx,
@@ -139,6 +140,9 @@ def cicccd_calibrate(ctx: click.Context, iterations: int, signature: str) -> Non
     )
 
     def _text() -> None:
+        if not result["success"]:
+            console.print(f"[red]✗ {result['message']}[/red]")
+            return
         console.print("\n[bold green]✓ Continuous Calibration Run Completed Successfully[/bold green]")
         console.print(f"Calibration ID: [bold cyan]#{result['calibration_id']}[/bold cyan]")
         console.print(f"Timestamp: [bold white]{result['timestamp']}[/bold white]")
@@ -150,6 +154,8 @@ def cicccd_calibrate(ctx: click.Context, iterations: int, signature: str) -> Non
             console.print(f"  • {k}: [bold green]{v}[/bold green]")
 
     _emit_response(ctx, response, text_renderer=_text)
+    if not result["success"]:
+        ctx.exit(2)
 
 
 @cicccd.command(name="auto-tune")

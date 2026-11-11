@@ -27,7 +27,13 @@ def test_cicccd_managing_bot_validate(tmp_path):
 
 
 def test_cicccd_managing_bot_calibrate(tmp_path):
+    from tests.cccd_helpers import write_spec
+
     bot = CICCCDManagingBot(root_dir=str(tmp_path))
+    refused = bot.calibrate(iterations=1)
+    assert refused["success"] is False
+    assert "no measured responses" in refused["message"]
+    write_spec(tmp_path)
     res = bot.calibrate(iterations=1)
     assert res["success"] is True
     assert "calibration_id" in res
@@ -63,12 +69,14 @@ def test_cicccd_cli_validate():
 
 def test_cicccd_cli_calibrate():
     runner = CliRunner()
-    result = runner.invoke(main, ["-o", "text", "cicccd", "calibrate", "--iterations", "1"])
+    from tests.cccd_helpers import MEASURE_CMD
+
+    result = runner.invoke(main, ["-o", "text", "cicccd", "calibrate", "--iterations", "1", "--measure-cmd", MEASURE_CMD])
     assert result.exit_code == 0
     assert "Continuous Calibration Run Completed" in result.output
 
     # Test JSON mode
-    json_res = runner.invoke(main, ["-o", "json", "cicccd", "calibrate", "--iterations", "1"])
+    json_res = runner.invoke(main, ["-o", "json", "cicccd", "calibrate", "--iterations", "1", "--measure-cmd", MEASURE_CMD])
     assert json_res.exit_code == 0
     parsed = json.loads(json_res.output)
     assert parsed["state"] == "ok"

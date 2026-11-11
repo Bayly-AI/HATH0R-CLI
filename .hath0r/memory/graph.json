@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 741,
-  "content_hash": "sha256:73e2a819ade420b126ea015663604da6d7b56da231c10fa44f268dea233d71c3",
-  "updated_at": "2026-11-11T15:54:01.712026+00:00",
+  "revision": 811,
+  "content_hash": "sha256:f31b92585db7938d6afb9734ac937a1882ba39553f052b4529b270fcb1bf425d",
+  "updated_at": "2026-11-11T18:08:49.497889+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -536,7 +536,7 @@
           "src/hath0r_cli/bots/kv_prewarmer.py": "sha256:c54dd8284f8c01b079ac09bd07ebb561a0d8ea3f632fe64b9dd15e0534640cd9",
           "src/hath0r_cli/bots/cag_engine.py": "sha256:5ea67ac0001a3c576c165564f8edcbbb6ddcb4c5b1e0fc5c9eeda3418c18bf3a",
           "src/hath0r_cli/commands/agent.py": "sha256:a98d62293b3e3d3bbd29990596e8208c7258735ce03870cace9ed4bd0a6f0a9c",
-          "tests/test_phase1_agent.py": "sha256:330ece3aa4a356d6ca460debb6d56ea7d7870bb947e1a5645eb27cf28f2f0eb4"
+          "tests/test_phase1_agent.py": "sha256:28ebdf4e561da479f7baffbd70370d62a0f81e16b0c8c55b1dad7c636b29a4cf"
         }
       }
     },
@@ -581,7 +581,7 @@
       "updated_at": "2026-10-28T12:29:58.673969+00:00",
       "metadata": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:8117dbf6b0a9bca58ee166719166e4abe18fe1b2f783b1aff4ee976c1f7f3d7b",
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:d41f79a63ce30cc12ca40f710e5e56156c69bc8b451e6fd393830784cc17c5d5",
           "src/hath0r_cli/commands/decision.py": "sha256:275fb92d46061c2c5b15d5cef210936b8d6f7ef972cf773692eb21e8d9adea4b",
           "src/hath0r_cli/server/decision_radar_server.py": "sha256:62d23b6b9d877b25af14b11f672387d3eabca565809f17bc2b8c11c1c83d70bb"
         }
@@ -651,7 +651,7 @@
       "updated_at": "2026-10-28T12:59:58.010370+00:00",
       "metadata": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:8117dbf6b0a9bca58ee166719166e4abe18fe1b2f783b1aff4ee976c1f7f3d7b",
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:d41f79a63ce30cc12ca40f710e5e56156c69bc8b451e6fd393830784cc17c5d5",
           "src/hath0r_cli/commands/decision.py": "sha256:275fb92d46061c2c5b15d5cef210936b8d6f7ef972cf773692eb21e8d9adea4b",
           "src/hath0r_cli/server/decision_radar_server.py": "sha256:62d23b6b9d877b25af14b11f672387d3eabca565809f17bc2b8c11c1c83d70bb"
         }
@@ -745,7 +745,7 @@
       "updated_at": "2026-10-28T13:23:14.632392+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -769,7 +769,7 @@
       "updated_at": "2026-10-28T13:23:21.538822+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -813,7 +813,7 @@
       "updated_at": "2026-10-28T13:31:54.915874+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -837,7 +837,7 @@
       "updated_at": "2026-10-28T14:05:46.606003+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -946,7 +946,7 @@
       "updated_at": "2026-10-28T14:05:49.726259+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -991,7 +991,7 @@
       "updated_at": "2026-10-29T13:58:56.031518+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1015,7 +1015,7 @@
       "updated_at": "2026-10-28T14:22:02.710039+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1059,7 +1059,7 @@
       "updated_at": "2026-10-28T14:38:21.109040+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1083,7 +1083,7 @@
       "updated_at": "2026-10-28T14:38:23.473566+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1107,7 +1107,7 @@
       "updated_at": "2026-10-28T14:50:50.899901+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1152,7 +1152,7 @@
       "updated_at": "2026-10-28T14:51:42.220727+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1198,7 +1198,7 @@
       "updated_at": "2026-10-28T14:51:44.744643+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1243,7 +1243,7 @@
       "updated_at": "2026-10-28T14:59:38.749656+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1267,7 +1267,7 @@
       "updated_at": "2026-10-28T15:21:58.314539+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1291,7 +1291,7 @@
       "updated_at": "2026-10-31T16:27:53.164268+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1315,7 +1315,7 @@
       "updated_at": "2026-10-28T17:30:26.311044+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1339,7 +1339,7 @@
       "updated_at": "2026-10-28T17:37:06.843311+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1363,7 +1363,7 @@
       "updated_at": "2026-10-28T17:42:47.222209+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1432,7 +1432,7 @@
       "updated_at": "2026-10-28T20:55:27.567714+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1457,7 +1457,7 @@
       "updated_at": "2026-10-29T10:05:11.981713+00:00",
       "metadata": {
         "source_files": {
-          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:8117dbf6b0a9bca58ee166719166e4abe18fe1b2f783b1aff4ee976c1f7f3d7b"
+          "src/hath0r_cli/bots/decision_radar_bot.py": "sha256:d41f79a63ce30cc12ca40f710e5e56156c69bc8b451e6fd393830784cc17c5d5"
         }
       }
     },
@@ -1501,7 +1501,7 @@
       "updated_at": "2026-10-29T10:12:49.607556+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1553,7 +1553,7 @@
       "metadata": {
         "source_files": {
           "src/hath0r_cli/cccd/training_coordinator.py": "sha256:b1fed8465db95f4d72188ed58404f2c4e88040c7f06ca818df8c354e6aa29366",
-          "src/hath0r_cli/bots/cicccd_bot.py": "sha256:4a5f72f02a0b3eb5de382608cd5aa5e643f5eaca0472e9061e122f02a774e972"
+          "src/hath0r_cli/bots/cicccd_bot.py": "sha256:a476088ade7dbbaa3d28b2a4d2e745d1905a66942fab2e9935a4bfc95978140c"
         }
       }
     },
@@ -1577,7 +1577,7 @@
       "updated_at": "2026-10-29T11:49:05.964763+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1598,11 +1598,11 @@
       "updated_at": "2026-10-29T11:57:13.069488+00:00",
       "metadata": {
         "source_files": {
-          "VERSION": "sha256:32112436a82effc1d958644a972f2a81e829e5ff08beb71305473cf6d41ca956",
-          "pyproject.toml": "sha256:22715cfb4bc6b77ada35c0f23f6499467fe8b980394df265d500b7cc56f918e8",
-          "CHANGELOG.md": "sha256:9b429d9fb9729b3945de59131835aa44a9f4934d5893cbe89ce6093b9a022d6a",
+          "VERSION": "sha256:acef448c3973160e815171b20f8788735d99b01e7bf551b3619bbde1ae1db7a8",
+          "pyproject.toml": "sha256:7c777e6b6b515b87882bafadcc1102ba39a15d3178cabbf13a47a412c25e858f",
+          "CHANGELOG.md": "sha256:23fe2e25a5463f43bcfce0758df4a85e4fb4edc6f46f55898f33a13a2b661df4",
           "src/hath0r_cli/cccd/training_coordinator.py": "sha256:b1fed8465db95f4d72188ed58404f2c4e88040c7f06ca818df8c354e6aa29366",
-          "src/hath0r_cli/bots/cicccd_bot.py": "sha256:4a5f72f02a0b3eb5de382608cd5aa5e643f5eaca0472e9061e122f02a774e972"
+          "src/hath0r_cli/bots/cicccd_bot.py": "sha256:a476088ade7dbbaa3d28b2a4d2e745d1905a66942fab2e9935a4bfc95978140c"
         }
       }
     },
@@ -1626,7 +1626,7 @@
       "updated_at": "2026-10-29T11:57:17.342810+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1702,7 +1702,7 @@
       "updated_at": "2026-10-29T13:26:59.461378+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1796,7 +1796,7 @@
       "updated_at": "2026-10-29T14:32:23.153719+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1891,7 +1891,7 @@
       "updated_at": "2026-10-31T11:57:38.418877+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -1958,7 +1958,7 @@
       "updated_at": "2026-10-31T12:05:06.169496+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2025,7 +2025,7 @@
       "updated_at": "2026-10-31T12:09:20.844346+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2092,7 +2092,7 @@
       "updated_at": "2026-10-31T12:13:39.431791+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2159,7 +2159,7 @@
       "updated_at": "2026-10-31T13:16:46.495363+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2200,7 +2200,7 @@
       "updated_at": "2026-10-31T14:09:39.171114+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2241,7 +2241,7 @@
       "updated_at": "2026-10-31T14:45:04.879979+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2265,7 +2265,7 @@
       "updated_at": "2026-10-31T15:32:16.721805+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2289,7 +2289,7 @@
       "updated_at": "2026-10-31T16:01:52.623543+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2339,7 +2339,7 @@
       "updated_at": "2026-10-31T16:25:39.721879+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2410,7 +2410,7 @@
       "updated_at": "2026-11-01T15:43:55.138516+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2434,7 +2434,7 @@
       "updated_at": "2026-11-01T18:24:58.906045+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2550,7 +2550,7 @@
       "updated_at": "2026-11-01T16:23:19.292448+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2619,7 +2619,7 @@
       "updated_at": "2026-11-01T16:33:59.226371+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2709,7 +2709,7 @@
       "updated_at": "2026-11-01T16:39:29.501413+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2750,7 +2750,7 @@
       "updated_at": "2026-11-01T17:28:34.770321+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2808,7 +2808,7 @@
       "updated_at": "2026-11-04T20:28:00.438367+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
         }
       }
     },
@@ -2889,7 +2889,283 @@
       "updated_at": "2026-11-11T15:54:01.627284+00:00",
       "metadata": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:935d30d54103934714d66ad30f6c58cddc64ee87561dbd2fcb16b8b6951a6955"
+          ".hath0r/evals/latest.json": "sha256:3c2447581e6a2e4bb8557e521980b1029058aa3918fdf9ad12d5f8cb586b1067"
+        }
+      }
+    },
+    {
+      "id": "insight:rca:599",
+      "type": "insight",
+      "label": "Root cause of #599 (measurement): Tier 4 measures restated text instead of the change and the tiers' verdicts",
+      "content": "Problem: Known-good changes all get nearly the same R_task (0.926-0.928 on the WS1 panel). Whys: Tier 4 scores 0.7767 on every panel part, good or defective, so it adds no spread -> Its three signals are constants: goal overlap 1.0, compounded memory 1.0 and consensus 0.33 -> Goal overlap matched the focus against memory nodes that restate the focus, and consensus took a majority vote over three different fixed strings -> The critics were synthetic strings built from a shared anchor, not verdicts from each tier's evidence -> Tier 4 was written before the WS1 gauge existed, and the gauge checks R_task, not per-tier discrimination",
+      "importance": 0.8,
+      "tags": [
+        "rca",
+        "5-whys",
+        "measurement",
+        "insight",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:30:20.328559+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:30:20.328559+00:00",
+      "updated_at": "2026-11-11T16:30:20.328559+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/rca/599.json": "sha256:8563743f76d72d9a92c90f756a9258b5164b17c71241b667041e24e79054c000"
+        }
+      }
+    },
+    {
+      "id": "decision:dmaic:599:analyze",
+      "type": "decision",
+      "label": "DMAIC #599 entered analyze",
+      "content": "CTQ goal_alignment. root cause: Tier 4 measures restated text instead of the change and the tiers' verdicts",
+      "importance": 0.8,
+      "tags": [
+        "dmaic",
+        "analyze",
+        "goal_alignment",
+        "decision",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:30:20.854203+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:30:20.854203+00:00",
+      "updated_at": "2026-11-11T16:30:20.854203+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/dmaic/599.json": "sha256:7351d8d3bde48fccb00c2c2afdb54ad37fbe08ee5488a9cfd0a43a5967286c20"
+        }
+      }
+    },
+    {
+      "id": "insight:dmaic",
+      "type": "insight",
+      "label": "Synthesized Insight on dmaic",
+      "content": "Consolidated from 2 memory nodes tagged 'dmaic'. Recurring themes: tier, mode, root, cause. Latest context: CTQ goal_alignment. root cause: Tier 4 measures restated text instead of the change and the tiers' verdicts",
+      "importance": 1.0,
+      "tags": [
+        "dmaic",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:30:20.920302+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:30:20.920302+00:00",
+      "updated_at": "2026-11-11T16:30:20.920302+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "dmaic"
+      }
+    },
+    {
+      "id": "decision:dmaic:599:improve",
+      "type": "decision",
+      "label": "DMAIC #599 entered improve",
+      "content": "CTQ goal_alignment. Tier 4 now matches the goal against the change itself (changed paths and added diff lines) and takes consensus as the share of approving critics, each voting from its own tier's evidence plus a goal critic. WS1 panel: good parts now span R_task 0.897-0.951 (was 0.926-0.928); %GRR 0.069, ndc 100, attribute agreement 100%.",
+      "importance": 0.8,
+      "tags": [
+        "dmaic",
+        "improve",
+        "goal_alignment",
+        "decision",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:30:27.198399+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:30:27.198399+00:00",
+      "updated_at": "2026-11-11T16:30:27.198399+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/dmaic/599.json": "sha256:7351d8d3bde48fccb00c2c2afdb54ad37fbe08ee5488a9cfd0a43a5967286c20"
+        }
+      }
+    },
+    {
+      "id": "insight:goal_alignment",
+      "type": "insight",
+      "label": "Synthesized Insight on goal_alignment",
+      "content": "Consolidated from 2 memory nodes tagged 'goal_alignment'. Recurring themes: tier, dmaic, entered, change. Latest context: CTQ goal_alignment. Tier 4 now matches the goal against the change itself (changed paths and added diff lines) and takes consensus as the share of approving cri",
+      "importance": 0.95,
+      "tags": [
+        "goal_alignment",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:30:27.289511+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:30:27.289511+00:00",
+      "updated_at": "2026-11-11T16:30:27.289511+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "goal_alignment"
+      }
+    },
+    {
+      "id": "msa:msa-20261111-163527-f4057c",
+      "type": "fact",
+      "label": "Gage R&R msa-20261111-163527-f4057c (PASS)",
+      "content": "Eval gauge study: %GRR=0.088%, ndc=100, missed defects=[], judge=7fc12d96c081eb89.",
+      "importance": 0.8,
+      "tags": [
+        "msa",
+        "cr-task-eval-001",
+        "passed",
+        "fact",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:35:27.636378+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:35:27.636378+00:00",
+      "updated_at": "2026-11-11T16:35:27.636378+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/msa/latest.json": "sha256:c29c82bbb6e7eca7c87563fbd90a54f6b6c366afc6add392c122e67fb6f4dc31"
+        }
+      }
+    },
+    {
+      "id": "insight:msa",
+      "type": "insight",
+      "label": "Synthesized Insight on msa",
+      "content": "Consolidated from 2 memory nodes tagged 'msa'. Recurring themes: gage, tier, mode, industrial. Latest context: Eval gauge study: %GRR=0.088%, ndc=100, missed defects=[], judge=7fc12d96c081eb89.",
+      "importance": 1.0,
+      "tags": [
+        "msa",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:35:27.712038+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:35:27.712038+00:00",
+      "updated_at": "2026-11-11T16:35:27.712038+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "msa"
+      }
+    },
+    {
+      "id": "msa:msa-20261111-163638-b192d9",
+      "type": "fact",
+      "label": "Gage R&R msa-20261111-163638-b192d9 (PASS)",
+      "content": "Eval gauge study: %GRR=0.112%, ndc=100, missed defects=[], judge=3b4ac6def7b91849.",
+      "importance": 0.8,
+      "tags": [
+        "msa",
+        "cr-task-eval-001",
+        "passed",
+        "fact",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:36:38.100800+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:36:38.100800+00:00",
+      "updated_at": "2026-11-11T16:36:38.100800+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/msa/latest.json": "sha256:c29c82bbb6e7eca7c87563fbd90a54f6b6c366afc6add392c122e67fb6f4dc31"
+        }
+      }
+    },
+    {
+      "id": "insight:passed",
+      "type": "insight",
+      "label": "Synthesized Insight on passed",
+      "content": "Consolidated from 2 memory nodes tagged 'passed'. Recurring themes: gage, pass, eval, gauge. Latest context: Eval gauge study: %GRR=0.112%, ndc=100, missed defects=[], judge=3b4ac6def7b91849.",
+      "importance": 0.95,
+      "tags": [
+        "passed",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:36:38.194895+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:36:38.194895+00:00",
+      "updated_at": "2026-11-11T16:36:38.194895+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "passed"
+      }
+    },
+    {
+      "id": "episode:issue-595-599-qa-follow-ups",
+      "type": "episode",
+      "label": "QA follow-ups 595-599: measured calibration, verified gates, clarification hook, evidence Tier 4",
+      "content": "CCCD calibrates only on measured responses with real drift. gate: verified steps (evals verify + andon) guard merge/announce, logged to gates ledger (gate:escape signal). start-of-task clarify-issue raises a decision when acceptance criteria are missing (clarity:unasked). Tier 4 evidence-v2 matches goal against the diff and votes from tier verdicts; WS1 passes. DMAIC 599 waits for 20 control points.",
+      "importance": 0.8,
+      "tags": [
+        "qa",
+        "fmea",
+        "dmaic",
+        "tier4",
+        "cccd",
+        "episode",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:43:22.607777+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:43:22.607777+00:00",
+      "updated_at": "2026-11-11T16:43:22.607777+00:00",
+      "metadata": {}
+    },
+    {
+      "id": "insight:fmea",
+      "type": "insight",
+      "label": "Synthesized Insight on fmea",
+      "content": "Consolidated from 2 memory nodes tagged 'fmea'. Recurring themes: tier, evals, mode, andon. Latest context: CCCD calibrates only on measured responses with real drift. gate: verified steps (evals verify + andon) guard merge/announce, logged to gates ledger (gate:escap",
+      "importance": 1.0,
+      "tags": [
+        "fmea",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:43:22.689867+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:43:22.689867+00:00",
+      "updated_at": "2026-11-11T16:43:22.689867+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "fmea"
+      }
+    },
+    {
+      "id": "eval:issue-595",
+      "type": "eval",
+      "label": "Task Evaluation issue-595 (R=0.91, PASS)",
+      "content": "4-Tier Task Evaluation for issue-595 on branch feature/595-qa-follow-ups: R_task=0.9111 (det=0.97, traj=0.87, adv=0.85, goal=0.92). Gate=PASSED.",
+      "importance": 0.85,
+      "tags": [
+        "eval",
+        "cr-task-eval-001",
+        "issue-595",
+        "passed",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T18:08:49.242624+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:46:32.414373+00:00",
+      "updated_at": "2026-11-11T18:08:49.242624+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:ff806ca7c74cc833ac80677db83ebb6a9d9d89aaa40ed6bad8b9f80d136299de"
         }
       }
     },
@@ -2897,7 +3173,7 @@
       "id": "session:sess-20261111-133108-f6050e",
       "type": "session",
       "label": "Micro Session sess-20261111-133108-f6050e",
-      "content": "Micro Session sess-20261111-133108-f6050e [completed] | Focus: Orienting repository hathor-cli | Reads: 10, Writes: 13 | Entries: Completed PR #101 (feature/101-test) via EndOfTaskBot.; Compounded eval:issue-580: Task Evaluation issue-580 (R=0.91, PASS)",
+      "content": "Micro Session sess-20261111-133108-f6050e [completed] | Focus: Orienting repository hathor-cli | Reads: 22, Writes: 36 | Entries: Compounded eval:issue-595: Task Evaluation issue-595 (R=0.91, PASS)",
       "importance": 0.75,
       "tags": [
         "session",
@@ -2905,18 +3181,18 @@
         "completed"
       ],
       "valid_from": "2026-11-11T13:31:08.505128+00:00",
-      "valid_to": "2026-11-11T15:49:06.107369+00:00",
+      "valid_to": "2026-11-11T18:00:30.820578+00:00",
       "is_current": true,
       "created_at": "2026-11-11T13:31:08.505128+00:00",
-      "updated_at": "2026-11-11T15:54:01.704151+00:00",
+      "updated_at": "2026-11-11T18:08:49.442407+00:00",
       "metadata": {
         "session_id": "sess-20261111-133108-f6050e",
         "prior_session_id": "sess-20261101-160736-c73550",
         "parent_session_id": "sess-20261101-160736-c73550",
-        "read_count": 10,
-        "write_count": 13,
+        "read_count": 22,
+        "write_count": 36,
         "status": "completed",
-        "byte_size": 2038
+        "byte_size": 1947
       }
     }
   ],
@@ -6617,6 +6893,266 @@
       "relation": "DERIVES_FROM",
       "weight": 1.0,
       "valid_from": "2026-11-11T13:34:27.937889+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:rca:599",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:20.328559+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:rca:599",
+      "target": "session:sess-20261111-133108-f6050e",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:20.374611+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "decision:dmaic:599:analyze",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:20.854203+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "decision:dmaic:599:analyze",
+      "target": "session:sess-20261111-133108-f6050e",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:20.898232+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:dmaic",
+      "target": "decision:industrial-qa-epic-580",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:20.920302+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:dmaic",
+      "target": "decision:dmaic:599:analyze",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:20.920302+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "decision:dmaic:599:improve",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:27.198399+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "decision:dmaic:599:improve",
+      "target": "session:sess-20261111-133108-f6050e",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:27.261460+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:goal_alignment",
+      "target": "decision:dmaic:599:analyze",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:27.289511+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:goal_alignment",
+      "target": "decision:dmaic:599:improve",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:27.289511+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "msa:msa-20261111-163527-f4057c",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:35:27.636378+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "msa:msa-20261111-163527-f4057c",
+      "target": "session:sess-20261111-133108-f6050e",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:35:27.685581+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:msa",
+      "target": "decision:industrial-qa-epic-580",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:35:27.712038+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:msa",
+      "target": "msa:msa-20261111-163527-f4057c",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:35:27.712038+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "msa:msa-20261111-163638-b192d9",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:36:38.100800+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "msa:msa-20261111-163638-b192d9",
+      "target": "session:sess-20261111-133108-f6050e",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:36:38.169223+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:passed",
+      "target": "msa:msa-20261111-163527-f4057c",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:36:38.194895+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:passed",
+      "target": "msa:msa-20261111-163638-b192d9",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:36:38.194895+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-595-599-qa-follow-ups",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:43:22.607777+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "episode:issue-595-599-qa-follow-ups",
+      "target": "session:sess-20261111-133108-f6050e",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:43:22.667446+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:fmea",
+      "target": "decision:industrial-qa-epic-580",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:43:22.689867+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "insight:fmea",
+      "target": "episode:issue-595-599-qa-follow-ups",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:43:22.689867+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "eval:issue-595",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:46:32.414373+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "eval:issue-595",
+      "target": "rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:46:32.414373+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "eval:issue-595",
+      "target": "session:sess-20261111-133108-f6050e",
+      "relation": "EVALUATES",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:46:32.414373+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "metadata": {}
+    },
+    {
+      "source": "eval:issue-595",
+      "target": "session:sess-20261111-133108-f6050e",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:46:32.463404+00:00",
       "valid_to": null,
       "is_current": true,
       "metadata": {}
