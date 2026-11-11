@@ -5,6 +5,18 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [1.26.2] - 2026-11-11
+
+### Fixed
+- The fileset now ships the canonical `start-of-task` and `end-of-task` factories, copied from `cfg/factories/`
+  at build time (#605). The 1.26.0 fileset carried stale 1.0.0 copies without `clarify-issue`,
+  `verify-before-pr` or `gate: verified`. The template copies are removed and a test fails on drift.
+- The pre-push hook written by `hath0r evals ensure-all` now also refuses the push while an Andon stop is active
+  (`hath0r andon status`), matching the verified gate (#605). It keeps the pushed refs and chains
+  `git lfs pre-push` when the repo uses Git LFS, and it replaces the stock Git LFS hook instead of skipping it,
+  so repos where `git lfs install` overwrote the eval hook get it back. Other custom hooks are left alone.
+
 ## [1.27.0] - 2026-11-11
 
 ### Changed
@@ -20,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`capability.mode: auto` is the new default** (#608). It warns while a metric's baseline is provisional and
   blocks (and pulls Andon) once it has 20 points from the same gauge. `warn` and `block` behave as before.
   HATH0R-CLI's own `thresholds.json` now uses `auto`.
+
 
 ## [1.26.1] - 2026-11-11
 

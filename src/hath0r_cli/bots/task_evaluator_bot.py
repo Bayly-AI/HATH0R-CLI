@@ -1274,15 +1274,7 @@ class TaskEvaluatorBot:
                     MemoryManagerBot._atomic_write_text(cfg_file, json.dumps(cfg_payload, indent=2) + "\n")
 
         # Provision post-task hook script (.hath0r/evals/post-task-hook.sh) and .git/hooks/pre-push gate
-        hook_script = (
-            "#!/usr/bin/env bash\n"
-            "# Canonical CR-TASK-EVAL-001 post-task evaluation & pre-push verification hook\n"
-            "set -euo pipefail\n"
-            "export OTEL_SDK_DISABLED=true\n"
-            "if command -v hath0r >/dev/null 2>&1; then\n"
-            "  hath0r evals verify --auto-run\n"
-            "fi\n"
-        )
+        hook_script = _pre_push_hook_script(lfs=_uses_git_lfs(self.cwd))
         if not dry_run:
             post_hook_path = self.evals_dir / "post-task-hook.sh"
             MemoryManagerBot._atomic_write_text(post_hook_path, hook_script)
@@ -1290,7 +1282,11 @@ class TaskEvaluatorBot:
             git_hooks_dir = self.cwd / ".git" / "hooks"
             if git_hooks_dir.is_dir():
                 pre_push_path = git_hooks_dir / "pre-push"
-                if not pre_push_path.exists() or "CR-TASK-EVAL-001" in pre_push_path.read_text(encoding="utf-8", errors="ignore"):
+                existing_hook = pre_push_path.read_text(encoding="utf-8", errors="ignore") if pre_push_path.exists() else ""
+                if _hook_is_replaceable(existing_hook):
+                    # A stock Git LFS hook is merged into the combined hook, never dropped (#605).
+                    if _is_stock_lfs_hook(existing_hook):
+                        hook_script = _pre_push_hook_script(lfs=True)
                     MemoryManagerBot._atomic_write_text(pre_push_path, hook_script)
                     pre_push_path.chmod(0o755)
 
@@ -1453,3 +1449,46 @@ class TaskEvaluatorBot:
 
 
 task_evaluator_bot = TaskEvaluatorBot()
+
+
+def _uses_git_lfs(cwd: Path) -> bool:
+    """True when the repo routes any path through Git LFS."""
+    attrs = cwd / ".gitattributes"
+    try:
+        return attrs.is_file() and "filter=lfs" in attrs.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return False
+
+
+def _is_stock_lfs_hook(text: str) -> bool:
+    """The pre-push hook ``git lfs install`` writes (nothing else in it)."""
+    return "git lfs pre-push" in text and "CR-TASK-EVAL-001" not in text and "hath0r" not in text
+
+
+def _hook_is_replaceable(text: str) -> bool:
+    """Missing, ours, or the stock LFS hook. Other custom hooks are left alone."""
+    return not text.strip() or "CR-TASK-EVAL-001" in text or _is_stock_lfs_hook(text)
+
+
+def _pre_push_hook_script(lfs: bool) -> str:
+    """Canonical pre-push gate: evals verify and no Andon stop (the 1.26 verified gate), then Git LFS."""
+    lines = [
+        "#!/usr/bin/env bash",
+        "# Canonical CR-TASK-EVAL-001 post-task evaluation & pre-push verification hook",
+        "set -euo pipefail",
+        "export OTEL_SDK_DISABLED=true",
+        "# Keep the ref list git sends on stdin so git lfs pre-push still gets it.",
+        'refs="$(cat)"',
+        "if command -v hath0r >/dev/null 2>&1; then",
+        "  hath0r evals verify --auto-run </dev/null",
+        "  # Verified gate (#596/#597): refuse the push while an Andon stop is active.",
+        "  hath0r andon status </dev/null >/dev/null || { echo >&2 'pre-push: Andon stop active (hath0r andon status)'; exit 1; }",
+        "fi",
+    ]
+    if lfs:
+        lines += [
+            "# Git LFS: upload LFS objects for the pushed refs.",
+            "command -v git-lfs >/dev/null 2>&1 || { printf >&2 '\\n%s\\n\\n' \"This repository is configured for Git LFS but 'git-lfs' was not found on your path.\"; exit 2; }",
+            "printf '%s\\n' \"$refs\" | git lfs pre-push \"$@\"",
+        ]
+    return "\n".join(lines) + "\n"

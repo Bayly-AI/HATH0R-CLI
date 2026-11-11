@@ -16,6 +16,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATES = ROOT / "packaging" / "fileset" / "templates"
 DEFAULT_OUT = ROOT / "dist" / "fileset"
+# Lifecycle factories member repos receive. Copied verbatim from cfg/factories so the fileset never
+# ships a stale copy (#605).
+CANONICAL_FACTORIES = ("start-of-task-factory.yaml", "end-of-task-factory.yaml")
 
 
 def read_version() -> str:
@@ -104,6 +107,12 @@ def build(out_dir: Path, product_id: str, framework_root: Path | None) -> Path:
         dest.write_text(substitute(raw, mapping), encoding="utf-8")
         if src.name.endswith(".sh"):
             dest.chmod(dest.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
+    # Canonical lifecycle factories, verbatim (no template substitution)
+    factories_dir = stage / "cfg" / "factories"
+    factories_dir.mkdir(parents=True, exist_ok=True)
+    for name in CANONICAL_FACTORIES:
+        shutil.copy2(ROOT / "cfg" / "factories" / name, factories_dir / name)
 
     # LICENSE from repo root
     shutil.copy2(ROOT / "LICENSE", stage / "LICENSE")
