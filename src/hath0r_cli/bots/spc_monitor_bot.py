@@ -6,6 +6,10 @@ I-MR, EWMA and CUSUM charts plus Western Electric rules, and reports process cap
 
 Validated decision (2026-11-11): signals and low Cpk are **warnings** by default. Set
 ``capability.mode: block`` in ``thresholds.json`` to make them blocking later.
+
+#608: eval metrics are charted only from history scored by the current judge (same
+``judge.fingerprint``), since points from another gauge are not comparable. The default mode is
+``auto``: warnings until a metric has a sufficient baseline from that gauge, blocking after.
 """
 
 from __future__ import annotations
@@ -20,12 +24,13 @@ from typing import Any, Dict, List, Optional, Tuple
 from hath0r_cli.qa.spc import MIN_BASELINE_POINTS, baseline, capability, chart
 
 DEFAULT_CAPABILITY: Dict[str, Any] = {
-    "mode": "warn",
+    "mode": "auto",
     "min_cpk_warn": 1.33,
     "baseline_points": MIN_BASELINE_POINTS,
     "ewma_lambda": 0.2,
 }
-"""Seeded into ``thresholds.json`` under ``capability``. ``mode`` is ``warn`` or ``block``."""
+"""Seeded into ``thresholds.json`` under ``capability``. ``mode`` is ``warn``, ``block`` or ``auto``."""
+CAPABILITY_MODES = ("warn", "block", "auto")
 
 EVAL_METRICS = {
     "r_task": ("r_task",),
@@ -74,9 +79,17 @@ class SPCMonitorBot:
                 cfg.update(loaded.get("capability") or {})
             except (OSError, json.JSONDecodeError):
                 pass
-        if cfg.get("mode") not in ("warn", "block"):
+        if cfg.get("mode") not in CAPABILITY_MODES:
             cfg["mode"] = "warn"
         return cfg
+
+    def _current_fingerprint(self) -> Optional[str]:
+        try:
+            from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot, judge_fingerprint
+
+            return judge_fingerprint(TaskEvaluatorBot(cwd=self.cwd).load_config())
+        except Exception:  # without a fingerprint every point is from an unknown gauge
+            return None
 
     def _eval_lsl(self) -> float:
         from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot
@@ -84,17 +97,24 @@ class SPCMonitorBot:
         return float(TaskEvaluatorBot(cwd=self.cwd).load_config().get("thresholds", {}).get("min_reward", 0.8))
 
     # ------------------------------------------------------------------ data
-    def series(self, metric: str) -> List[Dict[str, Any]]:
-        """Return ``[{"t", "value", "id"}]`` for a metric, oldest first."""
+    def series(self, metric: str, all_gauges: bool = False) -> List[Dict[str, Any]]:
+        """Return ``[{"t", "value", "id"}]`` for a metric, oldest first.
+
+        Eval metrics only include scorecards whose ``judge.fingerprint`` matches the current judge,
+        unless ``all_gauges`` is set (#608).
+        """
         if metric not in METRICS:
             raise ValueError(f"unknown metric '{metric}'. Choose one of: {', '.join(METRICS)}")
         points: List[Dict[str, Any]] = []
         if metric in EVAL_METRICS:
             hist = self.cwd / ".hath0r" / "evals" / "history"
+            fingerprint = None if all_gauges else self._current_fingerprint()
             for f in sorted(hist.glob("*.json")) if hist.is_dir() else []:
                 try:
                     card = json.loads(f.read_text(encoding="utf-8"))
                 except (OSError, json.JSONDecodeError):
+                    continue
+                if not all_gauges and (card.get("judge") or {}).get("fingerprint") != fingerprint:
                     continue
                 v = _dig(card, EVAL_METRICS[metric])
                 if v is not None:
@@ -200,6 +220,9 @@ class SPCMonitorBot:
         cfg = self.settings()
         summary: Dict[str, Any] = {}
         warnings: List[str] = []
+        # Warnings backed by a sufficient baseline; in ``auto`` mode only these block.
+        established: List[str] = []
+        n_base = int(cfg["baseline_points"])
         for m in metrics or list(METRICS):
             c = self.chart(m)
             if c.get("n", 0) < 2:
@@ -216,11 +239,17 @@ class SPCMonitorBot:
                 "last_signal_index": c["signal_indices"][-1] if c["signal_indices"] else None,
             }
             if c["signal_indices"]:
-                warnings.append(f"{m}: {len(c['signal_indices'])} out-of-control signal(s), latest at point {c['signal_indices'][-1] + 1} of {c['n']}")
+                msg = f"{m}: {len(c['signal_indices'])} out-of-control signal(s), latest at point {c['signal_indices'][-1] + 1} of {c['n']}"
+                warnings.append(msg)
+                if c["baseline"].get("sufficient"):
+                    established.append(msg)
         cap = self.capability("r_task")
         if cap.get("n", 0) >= 2 and not cap["capable"]:
-            warnings.append(f"r_task Cpk {cap['cpk']:.2f} is below {cfg['min_cpk_warn']} against LSL {cap['lsl']}")
-        blocking = cfg["mode"] == "block" and bool(warnings)
+            msg = f"r_task Cpk {cap['cpk']:.2f} is below {cfg['min_cpk_warn']} against LSL {cap['lsl']}"
+            warnings.append(msg)
+            if cap.get("n", 0) >= n_base:
+                established.append(msg)
+        blocking = bool(warnings) if cfg["mode"] == "block" else (cfg["mode"] == "auto" and bool(established))
         out: Dict[str, Any] = {
             "schema_version": "hath0r.spc.status/v1",
             "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -228,6 +257,7 @@ class SPCMonitorBot:
             "metrics": summary,
             "capability": {k: cap.get(k) for k in ("n", "mean", "lsl", "usl", "cp", "cpk", "pp", "ppk", "capable", "min_cpk_warn")},
             "warnings": warnings,
+            "blocking_warnings": warnings if cfg["mode"] == "block" else (established if cfg["mode"] == "auto" else []),
             "blocking": blocking,
         }
         if not dry_run:
@@ -235,14 +265,15 @@ class SPCMonitorBot:
         return {"success": not blocking, **out}
 
     def gate(self) -> Dict[str, Any]:
-        """Workflow step: never fails in ``warn`` mode; fails on any signal in ``block`` mode."""
+        """Workflow step: never fails in ``warn`` mode; fails on any signal in ``block`` mode, and in ``auto``
+        mode on signals backed by a sufficient same-gauge baseline."""
         res = self.status()
         if res["blocking"]:
             try:
                 from hath0r_cli.bots.andon_bot import AndonBot
 
                 AndonBot(cwd=self.cwd).raise_event(
-                    source="spc-monitor-bot", severity="stop", reason="; ".join(res["warnings"]), details={"mode": "block"}
+                    source="spc-monitor-bot", severity="stop", reason="; ".join(res["blocking_warnings"]), details={"mode": res["mode"]}
                 )
             except Exception as exc:  # andon is best-effort; the gate result is the record
                 res.setdefault("andon_error", str(exc))

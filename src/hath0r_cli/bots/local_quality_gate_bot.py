@@ -948,7 +948,8 @@ class LocalQualityGateBot:
         }
 
     def _capability_check(self, root: Path) -> Dict[str, Any]:
-        """R_task process capability (WS3, #587): a warning in ``warn`` mode, a gate in ``block`` mode."""
+        """R_task process capability (WS3, #587): a warning in ``warn`` mode, a gate in ``block`` mode, and in
+        ``auto`` mode (#608) a gate once there are enough same-gauge points for a baseline."""
         try:
             from hath0r_cli.bots.spc_monitor_bot import SPCMonitorBot
 
@@ -970,7 +971,7 @@ class LocalQualityGateBot:
             "min_cpk_warn": cap["min_cpk_warn"],
             "capable": cap["capable"],
             "warning": warning,
-            "blocking": bool(warning) and mode == "block",
+            "blocking": bool(warning) and (mode == "block" or (mode == "auto" and cap["n"] >= int(spc.settings()["baseline_points"]))),
         }
 
     def ensure_all_repos(

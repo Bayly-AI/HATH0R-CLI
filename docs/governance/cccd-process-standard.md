@@ -83,3 +83,13 @@ and a confirmation run at the predicted optimum. Only a confirmed optimum is ado
 The default strategy stays `taguchi`. Bayesian optimisation is optional (`hath0r-cli[doe]`).
 See [`strategies/doe-strategy.md`](strategies/doe-strategy.md) and the `cccd-sequential-doe` workflow in
 `cfg/factories/cccd-4h-calibration-factory.yaml`.
+
+---
+
+## 7. Calibration is informational (#608)
+
+Nothing reads the calibrated parameters in `.hath0r/cccd_state.json` beyond display, so freshness is
+**reported, not scored or gated**: Tier 1 records `checks.calibration_4h` with `informational: true`, and
+`TaskCompletionVerifierBot` lists it under `informational_probes`. The `start-of-task` calibration step stays
+`on_failure: continue`. Turn it back into a gate only when an agent consumes the calibrated parameters
+and the repo has a real `measure_cmd`.
