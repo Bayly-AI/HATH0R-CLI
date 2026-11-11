@@ -16,6 +16,28 @@ ENTRY = ROOT / "packaging" / "binary" / "hath0r-entry.py"
 DEFAULT_OUT = ROOT / "dist" / "binary"
 
 
+
+def pyinstaller_bundle_args() -> list:
+    """Flags that make the frozen binary carry every command.
+
+    Subcommands load through importlib (lazy_group.COMMAND_REGISTRY) and the bots import
+    hath0r_engine from the framework, so PyInstaller's static scan misses both. Without these
+    the binary answers "No such command" for install-wizard, release, evals and more, and
+    reports a stale version because the package metadata is not bundled.
+    """
+    import importlib.util
+
+    args = ["--collect-submodules", "hath0r_cli", "--copy-metadata", "hath0r-cli"]
+    spec = importlib.util.find_spec("hath0r_engine")
+    if spec is not None:
+        # An editable install resolves through a setuptools finder that PyInstaller does not
+        # follow, so point it at the directory that holds the package as well.
+        locations = list(spec.submodule_search_locations or [])
+        if locations:
+            args += ["--paths", str(Path(locations[0]).parent)]
+        args += ["--collect-submodules", "hath0r_engine"]
+    return args
+
 def platform_tag() -> str:
     system = platform.system().lower()
     machine = platform.machine().lower()
@@ -81,6 +103,7 @@ def main() -> int:
         str(work / "build"),
         "--specpath",
         str(work),
+        *pyinstaller_bundle_args(),
         str(ENTRY),
     ]
     print("running:", " ".join(cmd))
