@@ -6,7 +6,7 @@
     "name": "hath0r-cli-task-evals",
     "product": "HATH0R-CLI",
     "suite": "hath0r-opensource",
-    "updated": "2026-10-28"
+    "updated": "2026-11-11"
   },
   "weights": {
     "deterministic": 0.4,
@@ -36,5 +36,25 @@
     "mlflow_enabled": true,
     "mlflow_experiment": "hath0r-task-evals",
     "spool_when_offline": true
+  },
+  "tier4": {
+    "clamp": false
+  },
+  "judge": {
+    "engine": "multiagent_consensus_engine",
+    "model": null,
+    "prompt_hash": null,
+    "temperature": null
+  },
+  "goal": {
+    "r_task": 1.0
+  },
+  "measurement_system": {
+    "panel": "cfg/evals/msa-panel.yaml",
+    "study_dir": ".hath0r/evals/msa",
+    "targets": {
+      "max_grr_pct": 10.0,
+      "min_ndc": 5
+    }
   }
 }

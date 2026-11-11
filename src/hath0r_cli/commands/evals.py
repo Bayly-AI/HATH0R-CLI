@@ -322,3 +322,83 @@ def evals_redteam(ctx: click.Context, component: str) -> None:
 from hath0r_cli.commands.gameshow import gameshow_cmd  # noqa: E402
 
 evals_cmd.add_command(gameshow_cmd, name="gameshow")
+
+
+# ---------------------------------------------------------------- MSA / Gage R&R (WS1, #584)
+@evals_cmd.group("msa")
+def evals_msa_cmd() -> None:
+    """Measurement System Analysis: Gage R&R study of the eval pipeline itself."""
+
+
+@evals_msa_cmd.command("run")
+@click.option("--panel", "panel_path", type=click.Path(path_type=Path), default=None, help="Panel YAML (default cfg/evals/msa-panel.yaml).")
+@click.option("--replicates", type=int, default=3, show_default=True, help="Measurements per part per operator.")
+@click.option("--dry-run", is_flag=True, help="Run the study without saving it or compounding memory.")
+@click.pass_context
+def evals_msa_run(ctx: click.Context, panel_path: Optional[Path], replicates: int, dry_run: bool) -> None:
+    """Replay the fixture panel through the canonical eval pipeline and score the gauge."""
+    from hath0r_cli.bots.measurement_system_bot import MeasurementSystemBot
+
+    try:
+        res = MeasurementSystemBot(cwd=Path.cwd()).run_study(panel_path=panel_path, replicates=replicates, dry_run=dry_run)
+    except (FileNotFoundError, ValueError) as exc:
+        msg = str(exc)
+        response = _build_response(
+            ctx,
+            command="evals.msa.run",
+            state="error",
+            data={"success": False, "error": str(exc)},
+            diagnostics=[Diagnostic(code="MSA_STUDY_INVALID", severity="error", message=str(exc))],
+        )
+        _emit_response(ctx, response, text_renderer=lambda: console.print(f"[red]{msg}[/red]"))
+        ctx.exit(2)
+        return
+    res.pop("measurements", None)
+    diags = [Diagnostic(code="MSA_STUDY_FAILED", severity="error", message=f) for f in res["failures"]]
+    response = _build_response(ctx, command="evals.msa.run", state="ok" if res["passed"] else "failed", data=res, diagnostics=diags)
+    _emit_response(ctx, response, text_renderer=lambda: _render_msa(res))
+    if not res["passed"]:
+        ctx.exit(1)
+
+
+@evals_msa_cmd.command("report")
+@click.pass_context
+def evals_msa_report(ctx: click.Context) -> None:
+    """Show the latest Gage R&R study and whether the current judge is qualified."""
+    from hath0r_cli.bots.measurement_system_bot import MeasurementSystemBot
+
+    res = MeasurementSystemBot(cwd=Path.cwd()).report()
+    response = _build_response(ctx, command="evals.msa.report", state="ok" if res.get("exists") else "empty", data=res)
+
+    def _text() -> None:
+        if not res.get("exists"):
+            console.print(f"[yellow]{res.get('message')}[/yellow]")
+            return
+        _render_msa(res)
+        q = res.get("qualified_now") or {}
+        badge = "[green]yes[/green]" if q.get("qualified") else f"[red]no[/red] ({q.get('reason')})"
+        console.print(f"  • Current judge qualified: {badge}")
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+def _render_msa(res: dict) -> None:
+    g = res["gage_rr"]
+    a = res["attribute_agreement"]
+    badge = "[bold green]PASS[/bold green]" if res["passed"] else "[bold red]FAIL[/bold red]"
+    console.print(f"\n[bold cyan]Gage R&R study {res['study_id']}[/bold cyan]: {badge}")
+    table = Table(show_header=True, header_style="bold")
+    table.add_column("Measure")
+    table.add_column("Value", justify="right")
+    table.add_column("Target", justify="right")
+    table.add_row("%GRR", f"{g['grr_pct']:.2f}%", f"<= {res['targets']['max_grr_pct']}%")
+    table.add_row("ndc", str(g["ndc"]), f">= {int(res['targets']['min_ndc'])}")
+    table.add_row("Repeatability", f"{g['study_variation_pct']['repeatability']:.2f}%", "")
+    table.add_row("Reproducibility", f"{g['study_variation_pct']['reproducibility']:.2f}%", "")
+    table.add_row("Missed defects", str(len(a["missed_defects"])), "0")
+    table.add_row("False alarms", str(len(a["false_alarms"])), "0")
+    console.print(table)
+    console.print(f"  • Parts {res['parts']} · operators {', '.join(res['operators'])} · replicates {res['replicates']}")
+    console.print(f"  • Judge fingerprint: {res['judge_fingerprint']}")
+    for f in res.get("failures", []):
+        console.print(f"  [red]✗ {f}[/red]")

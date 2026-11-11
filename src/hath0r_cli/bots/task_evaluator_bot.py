@@ -55,7 +55,27 @@ DEFAULT_TASK_EVAL_CONFIG: Dict[str, Any] = {
         "mlflow_experiment": "hath0r-task-evals",
         "spool_when_offline": True,
     },
+    # #582 / #585: the legacy Tier 4 clamp squeezed consensus into 0.76-0.97 and used fixed fallbacks
+    # (0.72 / 0.50 / 0.85). It defaults to off now that the WS1 Gage R&R study has run (#584).
+    "tier4": {"clamp": False},
+    # #585: the judge configuration is pinned and written into every scorecard so a judge change
+    # is visible and triggers a new measurement-system study.
+    "judge": {
+        "engine": "multiagent_consensus_engine",
+        "model": None,
+        "prompt_hash": None,
+        "temperature": None,
+    },
+    "goal": {"r_task": 1.0},
 }
+
+_SECTION_KEYS = ("weights", "thresholds", "hard_gates", "observability", "tier4", "judge", "goal")
+
+
+def judge_fingerprint(cfg: Dict[str, Any]) -> str:
+    """Stable hash of everything that changes how the gauge measures (judge, tier4, weights, thresholds)."""
+    material = {k: cfg.get(k) for k in ("judge", "tier4", "weights", "thresholds")}
+    return hashlib.sha256(json.dumps(material, sort_keys=True, default=str).encode("utf-8")).hexdigest()[:16]
 
 
 def _atomic_write_json(path: Path, payload: Dict[str, Any]) -> None:
@@ -107,11 +127,11 @@ class TaskEvaluatorBot:
             try:
                 user_cfg = json.loads(cfg_file.read_text(encoding="utf-8"))
                 if isinstance(user_cfg, dict):
-                    for section in ("weights", "thresholds", "hard_gates", "observability"):
+                    for section in _SECTION_KEYS:
                         if isinstance(user_cfg.get(section), dict):
                             cfg[section].update(user_cfg[section])
                     for k, v in user_cfg.items():
-                        if k not in ("weights", "thresholds", "hard_gates", "observability"):
+                        if k not in _SECTION_KEYS:
                             cfg[k] = v
             except Exception:
                 pass
@@ -179,15 +199,22 @@ class TaskEvaluatorBot:
             rel_bot = ReleaseBot(cwd=self.cwd)
             ver_res = rel_bot.read_version()
             rel_val = rel_bot.validate() if (self.cwd / "CHANGELOG.md").is_file() else ver_res
+            from hath0r_cli.bots.quality import version_drift
+
             ver_ok = bool(ver_res.get("success"))
             changelog_aligned = bool(rel_val.get("changelog_mentions_version", True))
+            # CR-SEMVER-BUMP-001 is a hard rule: VERSION, pyproject/package.json and the latest
+            # CHANGELOG release must agree (gap found by the WS1 Gage R&R study, #584).
+            drift = version_drift(self.cwd, str(ver_res.get("version"))) if ver_ok else []
+            version_passed = ver_ok and changelog_aligned and not drift
             checks["version_valid"] = {
-                "passed": ver_ok,
+                "passed": version_passed,
                 "version": ver_res.get("version"),
                 "changelog_aligned": changelog_aligned,
-                "error": ver_res.get("error"),
+                "drift": drift,
+                "error": ver_res.get("error") or ("; ".join(d["message"] for d in drift) if drift else None),
             }
-            sub_scores["version_valid"] = (1.0 if changelog_aligned else 0.86) if ver_ok else 0.0
+            sub_scores["version_valid"] = 1.0 if version_passed else 0.0
         else:
             checks["version_valid"] = {
                 "passed": True,
@@ -589,8 +616,13 @@ class TaskEvaluatorBot:
         task_id: str,
         issue_number: Optional[int],
         min_consensus: float = 0.70,
+        clamp: bool = False,
     ) -> Dict[str, Any]:
-        """Tier 4: Goal Alignment & Multi-Agent Consensus (Semantic/Lexical Overlap + Distinct Critics)."""
+        """Tier 4: Goal Alignment & Multi-Agent Consensus (Semantic/Lexical Overlap + Distinct Critics).
+
+        With ``clamp=False`` (default) every signal is reported raw in [0, 1]; ``clamp=True`` restores
+        the legacy floors and caps for comparison studies only.
+        """
         from hath0r_cli.bots.memory_manager import MemoryManagerBot
         from hath0r_cli.bots.multiagent_consensus import multiagent_consensus_engine
 
@@ -619,9 +651,13 @@ class TaskEvaluatorBot:
 
         goal_keywords = self._extract_keywords(f"{focus} {task_id}")
         artifact_keywords = self._extract_keywords(" ".join(artifact_corpus_parts))
+        recall = 0.0
         if goal_keywords and artifact_keywords:
             matched = goal_keywords & artifact_keywords
             recall = len(matched) / max(1, len(goal_keywords))
+        if not clamp:
+            goal_overlap_score = round(min(1.0, recall), 4)
+        elif goal_keywords and artifact_keywords:
             goal_overlap_score = round(min(0.98, 0.78 + 0.20 * min(1.0, recall * 1.35)), 4)
         elif focus:
             goal_overlap_score = 0.84
@@ -647,18 +683,19 @@ class TaskEvaluatorBot:
                 },
             ]
         )
-        raw_consensus = float(consensus_res.get("consensus_score", 0.85))
-        # Normalize Jaccard consensus into [0.75, 0.97] when above threshold
-        consensus_score = round(min(0.97, max(raw_consensus, 0.76 + 0.20 * raw_consensus)), 4)
-
         has_focus = bool(focus)
         has_compounded = compounded_count >= 1
-        compounded_signal = min(0.98, 0.86 + 0.02 * min(6, compounded_count)) if has_compounded else 0.50
-        alignment_signals = [
-            goal_overlap_score if has_focus else 0.72,
-            compounded_signal,
-            consensus_score,
-        ]
+        if clamp:
+            raw_consensus = float(consensus_res.get("consensus_score", 0.85))
+            # Legacy: normalize Jaccard consensus into [0.76, 0.97]
+            consensus_score = round(min(0.97, max(raw_consensus, 0.76 + 0.20 * raw_consensus)), 4)
+            compounded_signal = min(0.98, 0.86 + 0.02 * min(6, compounded_count)) if has_compounded else 0.50
+            alignment_signals = [goal_overlap_score if has_focus else 0.72, compounded_signal, consensus_score]
+        else:
+            raw_consensus = float(consensus_res.get("consensus_score") or 0.0)
+            consensus_score = round(max(0.0, min(1.0, raw_consensus)), 4)
+            compounded_signal = 1.0 if has_compounded else 0.0
+            alignment_signals = [goal_overlap_score, compounded_signal, consensus_score]
         score = round(sum(alignment_signals) / len(alignment_signals), 4)
 
         return {
@@ -671,6 +708,8 @@ class TaskEvaluatorBot:
             "goal_overlap_score": goal_overlap_score,
             "compounded_nodes_count": compounded_count,
             "consensus_score": consensus_score,
+            "raw_consensus": raw_consensus,
+            "clamped": clamp,
         }
 
     def _sync_observability(
@@ -779,6 +818,7 @@ class TaskEvaluatorBot:
             task_id=resolved_task_id,
             issue_number=issue_num,
             min_consensus=float(thresholds.get("min_consensus", 0.70)),
+            clamp=bool(cfg.get("tier4", {}).get("clamp", False)),
         )
 
         s_det = float(tier1["score"])
@@ -849,6 +889,10 @@ class TaskEvaluatorBot:
             "local_quality_gates": local_qgates,
             "evidence_trust_report": evidence_trust_report,
             "blocking_reasons": blocking_reasons,
+            "goal": float(cfg.get("goal", {}).get("r_task", 1.0)),
+            "gap_to_goal": round(float(cfg.get("goal", {}).get("r_task", 1.0)) - r_task, 4),
+            "judge": {**cfg.get("judge", {}), "tier4_clamp": bool(cfg.get("tier4", {}).get("clamp", False)), "fingerprint": judge_fingerprint(cfg)},
+            "measurement_system": self.measurement_status(cfg),
             "observability_sync": {"mode": "pending"},
             "content_hash": "",
         }
@@ -911,11 +955,44 @@ class TaskEvaluatorBot:
             "tier_scores": scorecard["tier_scores"],
             "local_quality_gates": local_qgates,
             "blocking_reasons": blocking_reasons,
+            "measurement_qualified": scorecard["measurement_system"]["qualified"],
+            "judge": scorecard["judge"],
             "latest_file": str(latest_file),
             "history_file": str(history_file),
             "compounded_node_id": compounded_node_id,
             "scorecard_summary_markdown": summary_md,
             "scorecard": scorecard,
+        }
+
+    def measurement_status(self, cfg: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Is the current gauge configuration qualified by a passing Gage R&R study (#584)?
+
+        Reads ``.hath0r/evals/msa/latest.json``; the study must have passed and must have been run
+        with the same judge fingerprint as the current configuration.
+        """
+        cfg = cfg or self.load_config()
+        fp = judge_fingerprint(cfg)
+        study_file = self.evals_dir / "msa" / "latest.json"
+        if not study_file.is_file():
+            return {"qualified": False, "fingerprint": fp, "reason": "No Gage R&R study yet: run 'hath0r evals msa run'."}
+        try:
+            study = json.loads(study_file.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {"qualified": False, "fingerprint": fp, "reason": "Unreadable MSA study file."}
+        if study.get("judge_fingerprint") != fp:
+            return {
+                "qualified": False,
+                "fingerprint": fp,
+                "study_id": study.get("study_id"),
+                "reason": "Judge configuration changed since the last study: rerun 'hath0r evals msa run'.",
+            }
+        return {
+            "qualified": bool(study.get("passed")),
+            "fingerprint": fp,
+            "study_id": study.get("study_id"),
+            "grr_pct": study.get("gage_rr", {}).get("grr_pct"),
+            "ndc": study.get("gage_rr", {}).get("ndc"),
+            "reason": None if study.get("passed") else "; ".join(study.get("failures", [])) or "Study failed.",
         }
 
     def format_scorecard_markdown(self, scorecard: Optional[Dict[str, Any]] = None) -> str:

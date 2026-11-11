@@ -274,6 +274,9 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         loss_k: Optional[float] = None,
         target_m: Optional[float] = None,
         measured_y: Optional[float] = None,
+        levels: Optional[Dict[str, List[Any]]] = None,
+        responses: Optional[List[List[float]]] = None,
+        allow_partial: bool = False,
     ) -> Dict[str, Any]:
         """Generate Taguchi orthogonal design array (L4, L8, L9, L12, L18), calculate SNR, and compute Quality Loss.
 
@@ -285,16 +288,30 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
             loss_k: Financial loss sensitivity coefficient k in L(y) = k(y-m)^2.
             target_m: Nominal specification target value.
             measured_y: Actual observed quality characteristic value.
+            levels: Optional level values per factor; counts must match the array column.
+            responses: Optional measured responses per run, in run order, to analyse the experiment.
+            allow_partial: Analyse only measured runs when some runs have no responses (never padded).
         """
         from hath0r_cli.bots.taguchi_bot import TaguchiBot
 
         bot = TaguchiBot()
-        factor_list = factors or ["factor_1", "factor_2"]
-        design = bot.generate_matrix(array_type=array, factors=factor_list)
-
-        res: Dict[str, Any] = {
-            "design": design,
-        }
+        factor_list = factors or list((levels or {}).keys()) or ["factor_1", "factor_2"]
+        try:
+            design = bot.generate_matrix(array_type=array, factors=factor_list, levels=levels)
+            res: Dict[str, Any] = {"design": design}
+            if responses is not None:
+                res["analysis"] = bot.analyze(
+                    factors=design["factors"],
+                    levels=levels,
+                    responses_matrix=responses,
+                    array_type=array,
+                    criterion=criterion,
+                    target_m=target_m if target_m is not None else 0.0,
+                    sensitivity_k=loss_k if loss_k is not None else 1.0,
+                    allow_partial=allow_partial,
+                )
+        except ValueError as exc:
+            return {"success": False, "error": str(exc), "code": "TAGUCHI_INVALID_EXPERIMENT"}
 
         if snr_values:
             snr = bot.calculate_snr(snr_values, criterion=criterion)

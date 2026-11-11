@@ -1,0 +1,41 @@
+factory_id: msa-study-factory
+name: Eval Gauge Measurement System Analysis Factory (WS1, CR-TASK-EVAL-001)
+version: "1.0.0"
+description: >
+  Treats the canonical 4-tier eval pipeline as a gauge. Replays the fixed fixture panel in
+  cfg/evals/msa-panel.yaml through TaskEvaluatorBot several times per evaluator, then reports
+  %GRR, ndc and attribute agreement. A judge configuration is only "measurement qualified"
+  while the latest study passed with the same judge fingerprint.
+bots:
+  - id: measurement-system-bot
+    name: Measurement System Bot
+    role: Runs crossed Gage R&R studies and attribute agreement on the eval pipeline
+    capabilities:
+      - run-study
+      - report
+      - status
+  - id: task-evaluator-bot
+    name: Task Evaluator Bot
+    role: The gauge under study; stamps measurement_qualified on every scorecard
+    capabilities:
+      - evaluate
+      - verify
+      - status
+workflows:
+  - id: msa-study
+    name: Run and Record an Eval Gauge Study
+    acceptance_test: >
+      hath0r evals msa run writes .hath0r/evals/msa/latest.json with %GRR <= 10%, ndc >= 5,
+      zero missed seeded defects and zero false alarms; hath0r evals msa report shows the
+      current judge as qualified.
+    steps:
+      - id: run-study
+        bot: measurement-system-bot
+        action: run-study
+        failure_policy: abort
+        args:
+          replicates: 3
+      - id: report
+        bot: measurement-system-bot
+        action: report
+        failure_policy: continue

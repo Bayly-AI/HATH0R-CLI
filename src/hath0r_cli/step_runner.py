@@ -170,7 +170,7 @@ SERVICE_BOT_MAP: dict[str, dict[str, Any]] = {
     "pmat": {"service": "PMAT Complexity & Maintainability Service", "owning_bots": ["pmat-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/quality-gate-factory.yaml"},
     "mesh": {"service": "Agent Mesh & HAHP Handoff Service", "owning_bots": ["mesh-manager-bot", "hahp-protocol-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/mesh-handoff-factory.yaml"},
     "agent": {"service": "Multi-Agent DAG & Consensus Service", "owning_bots": ["agent-dag-runner-bot", "multiagent-consensus-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/multiagent-consensus-factory.yaml"},
-    "evals": {"service": "Continuous 4-Tier Task Evaluation, Local Q-Gates & Red-Team Service", "owning_bots": ["task-evaluator-bot", "local-quality-gate-bot", "redteam-engine-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
+    "evals": {"service": "Continuous 4-Tier Task Evaluation, Local Q-Gates & Red-Team Service", "owning_bots": ["task-evaluator-bot", "local-quality-gate-bot", "redteam-engine-bot", "measurement-system-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
     "rules": {"service": "Cross-Repo Rule Rollout & Sync Service", "owning_bots": ["rule-rollout-bot", "governance-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/rule-rollout-factory.yaml"},
     "mlflow": {"service": "Hathor-MLFLOW Experiment & Model Registry Service", "owning_bots": ["mlflow-manager-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"},
     "atc": {"service": "HATH0R-ATC Control Tower & Suite Status Service", "owning_bots": ["docker-bot", "decision-radar-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/docker-group-factory.yaml"},
@@ -223,6 +223,7 @@ class BotRegistry:
         from hath0r_cli.bots.local_quality_gate_bot import LocalQualityGateBot
         from hath0r_cli.bots.mcp_centralization_bot import MCPCentralizationBot
         from hath0r_cli.bots.mcp_workflow_engine_bot import MCPWorkflowEngineBot
+        from hath0r_cli.bots.measurement_system_bot import MeasurementSystemBot
         from hath0r_cli.bots.mesh_manager_bot import MeshManagerBot
         from hath0r_cli.bots.mlflow_manager_bot import MLflowManagerBot
         from hath0r_cli.bots.multiagent_consensus import MultiAgentConsensusEngine
@@ -355,6 +356,7 @@ class BotRegistry:
             "shadow-ai-classifier-bot": _init_bot(ShadowAIClassifierBot),
             "sibling-manager-bot": _init_bot(SiblingManagerBot),
             "taguchi-bot": _init_bot(TaguchiBot),
+            "measurement-system-bot": _init_bot(MeasurementSystemBot),
             "task-level-planner-bot": _init_bot(TaskLevelPlannerBot),
             "temporal-logic-planner-bot": _init_bot(TemporalLogicPlannerBot),
             "thread-parallelism-bot": _init_bot(ThreadLevelParallelismBot),

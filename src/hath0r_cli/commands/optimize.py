@@ -45,6 +45,18 @@ def optimize() -> None:
 )
 @click.option("--target-m", type=float, default=None, help="Nominal target value m for Quality Loss.")
 @click.option("--measured-y", type=float, default=None, help="Observed output value y for Quality Loss.")
+@click.option(
+    "--responses",
+    "responses_file",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="JSON/YAML file of measured responses per run (and optional levels) to analyse the experiment.",
+)
+@click.option(
+    "--allow-partial",
+    is_flag=True,
+    help="Analyse only the measured runs when some runs have no responses (never padded).",
+)
 @click.pass_context
 def optimize_taguchi(
     ctx: click.Context,
@@ -55,6 +67,8 @@ def optimize_taguchi(
     loss_k: Optional[float],
     target_m: Optional[float],
     measured_y: Optional[float],
+    responses_file: Optional[Path],
+    allow_partial: bool,
 ) -> None:
     """Generate Taguchi orthogonal design matrices and evaluate Signal-to-Noise Ratio (SNR)."""
     from hath0r_cli.bots.taguchi_bot import TaguchiBot
@@ -62,15 +76,48 @@ def optimize_taguchi(
     bot = TaguchiBot(cwd=Path.cwd())
     factor_list = list(factors) if factors else None
 
-    # Generate design matrix
-    matrix_res = bot.generate_matrix(array_type=array, factors=factor_list)
+    crit_mapped = f"{criterion}_is_better" if criterion in ("smaller", "larger") else "nominal_is_best"
+    spec: dict = {}
+    try:
+        if responses_file is not None:
+            from hath0r_cli.bots.taguchi_bot import load_responses_file
+
+            spec = load_responses_file(responses_file)
+            factor_list = factor_list or spec.get("factors") or list((spec.get("levels") or {}).keys()) or None
+        # Generate design matrix
+        matrix_res = bot.generate_matrix(array_type=array, factors=factor_list, levels=spec.get("levels"))
+        if responses_file is not None:
+            matrix_res["analysis"] = bot.analyze(
+                factors=matrix_res["factors"],
+                levels=spec.get("levels"),
+                responses_matrix=spec["responses"],
+                array_type=array,
+                criterion=spec.get("criterion", crit_mapped),
+                target_m=float(spec.get("target_m", target_m if target_m is not None else 0.0)),
+                sensitivity_k=float(spec.get("sensitivity_k", loss_k if loss_k is not None else 1.0)),
+                allow_partial=allow_partial,
+            )
+    except ValueError as exc:
+        from hath0r_cli.envelope import Diagnostic
+
+        msg = str(exc)
+
+        response = _build_response(
+            ctx,
+            command="optimize.taguchi",
+            state="error",
+            data={"success": False, "error": str(exc)},
+            diagnostics=[Diagnostic(code="TAGUCHI_INVALID_EXPERIMENT", severity="error", message=str(exc))],
+        )
+        _emit_response(ctx, response, text_renderer=lambda: console.print(f"[bold red]✗ {msg}[/bold red]"))
+        ctx.exit(2)
+        return
 
     # Optional SNR calculation
     snr_value = None
     if snr:
         try:
             values = [float(v.strip()) for v in snr.split(",") if v.strip()]
-            crit_mapped = f"{criterion}_is_better" if criterion in ("smaller", "larger") else "nominal_is_best"
             snr_value = round(bot.calculate_snr(values, criterion=crit_mapped), 2)
             matrix_res["snr_calculation"] = {
                 "values": values,
@@ -108,6 +155,15 @@ def optimize_taguchi(
             console.print(
                 f"\n[bold]Signal-to-Noise Ratio (SNR):[/bold] [cyan]{calc['snr_db']} dB[/cyan] (Criterion: {calc['criterion']})"
             )
+
+        if "analysis" in matrix_res:
+            an = matrix_res["analysis"]
+            note = f" [yellow](partial: runs {an['missing_runs']} not measured)[/yellow]" if an["partial"] else ""
+            console.print(
+                f"\n[bold]Experiment analysis:[/bold] {an['measured_runs']}/{an['total_runs']} runs measured{note}"
+            )
+            console.print(f"  • Optimal levels: {an['optimal_parameters']}")
+            console.print(f"  • Best run: {an['best_run']['run_id']} (S/N {an['best_run']['snr_db']} dB)")
 
         if "quality_loss" in matrix_res:
             ql = matrix_res["quality_loss"]
