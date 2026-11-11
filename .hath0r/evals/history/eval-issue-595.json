@@ -1,0 +1,623 @@
+{
+  "schema_version": "hath0r.evals.scorecard/v1",
+  "rule_id": "CR-TASK-EVAL-001",
+  "eval_id": "eval-20261111-164700-c23e3d",
+  "task_id": "issue-595",
+  "issue_number": 595,
+  "repo_name": "HATH0R-CLI",
+  "branch": "feature/595-qa-follow-ups",
+  "evaluated_at": "2026-11-11T16:47:00.152500+00:00",
+  "duration_ms": 191271.47,
+  "passed_gate": false,
+  "r_task": 0.8216,
+  "min_reward_threshold": 0.8,
+  "weights": {
+    "deterministic": 0.4,
+    "trajectory": 0.2,
+    "adversarial": 0.25,
+    "goal_alignment": 0.15
+  },
+  "tier_scores": {
+    "deterministic": 0.7668,
+    "trajectory": 0.8662,
+    "adversarial": 0.9167,
+    "goal_alignment": 0.75
+  },
+  "tiers": {
+    "deterministic": {
+      "score": 0.7668,
+      "passed": false,
+      "passed_checks": 5,
+      "total_checks": 6,
+      "sub_scores": {
+        "version_valid": 1.0,
+        "agentgraph_valid": 1.0,
+        "memory_compounded": 0.98,
+        "test_suite": 0.0,
+        "calibration_4h": 0.9898,
+        "local_quality_gates": 0.9556
+      },
+      "checks": {
+        "version_valid": {
+          "passed": true,
+          "version": "1.26.0",
+          "changelog_aligned": true,
+          "drift": [],
+          "error": null
+        },
+        "agentgraph_valid": {
+          "passed": true,
+          "cycles": 0,
+          "contradictions": 0,
+          "claude_md_synced": true
+        },
+        "memory_compounded": {
+          "passed": true,
+          "compounded_nodes_count": 115,
+          "session_read_verified": true,
+          "session_write_verified": true,
+          "hashes_verified": true,
+          "graphs_not_ignored": true,
+          "error": null
+        },
+        "test_suite": {
+          "passed": false,
+          "commands_run": 2,
+          "duration_s": 190.745,
+          "results": [
+            {
+              "command": [
+                "python",
+                "-m",
+                "pytest",
+                "-q"
+              ],
+              "ok": false,
+              "exit_code": 1,
+              "stdout_tail": ")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/test_release_binaries_sync.py::test_release_directory_structure_and_readmes\nFAILED tests/test_update_cli_factory.py::test_update_cli_factory_dry_run - as...\nFAILED tests/test_vscode_plugin.py::TestHath0rVSCodePlugin::test_vsix_packaging_and_contents\nFAILED tests/unit/test_quality_bots.py::test_cli_release_validate - assert 1 ...\n",
+              "stderr_tail": ""
+            },
+            {
+              "command": [
+                "python",
+                "-m",
+                "ruff",
+                "check",
+                "src"
+              ],
+              "ok": true,
+              "exit_code": 0,
+              "stdout_tail": "All checks passed!\n",
+              "stderr_tail": ""
+            }
+          ]
+        },
+        "calibration_4h": {
+          "passed": true,
+          "is_fresh": true,
+          "age_hours": 0.01,
+          "max_age_hours": 4.0
+        },
+        "local_quality_gates": {
+          "passed": true,
+          "technology": "python",
+          "thresholds_file": "/home/user/HATH0R-CLI/thresholds.json",
+          "qgate_score": 0.9556,
+          "failing_gates": [],
+          "gates": {
+            "errors": {
+              "gate": "errors",
+              "passed": true,
+              "actual_errors": 0,
+              "max_errors": 0,
+              "comparator": "<=",
+              "score": 1.0,
+              "findings": []
+            },
+            "coverage": {
+              "gate": "coverage",
+              "passed": true,
+              "actual_coverage_pct": 92.37,
+              "min_coverage_pct": 80.0,
+              "comparator": ">=",
+              "source": "test_suite_symbol_verification",
+              "score": 0.948
+            },
+            "complexity": {
+              "gate": "complexity",
+              "passed": true,
+              "max_observed_complexity": 53,
+              "avg_complexity": 6.11,
+              "max_complexity": 15,
+              "comparator": "<=",
+              "functions_scanned": 282,
+              "offending_functions": [
+                {
+                  "function": "src/hath0r_cli/bots/__init__.py:process_dependabot",
+                  "line": 183,
+                  "complexity": 17
+                },
+                {
+                  "function": "src/hath0r_cli/bots/__init__.py:create_pr",
+                  "line": 270,
+                  "complexity": 24
+                },
+                {
+                  "function": "src/hath0r_cli/bots/__init__.py:scan_stale_branches",
+                  "line": 470,
+                  "complexity": 16
+                },
+                {
+                  "function": "src/hath0r_cli/bots/__init__.py:sync_to_wiki",
+                  "line": 610,
+                  "complexity": 17
+                },
+                {
+                  "function": "src/hath0r_cli/bots/__init__.py:share_knowledge",
+                  "line": 692,
+                  "complexity": 36
+                },
+                {
+                  "function": "src/hath0r_cli/bots/decision_radar_bot.py:sync_store_to_server",
+                  "line": 702,
+                  "complexity": 21
+                },
+                {
+                  "function": "src/hath0r_cli/bots/decision_radar_bot.py:request_decision",
+                  "line": 777,
+                  "complexity": 18
+                },
+                {
+                  "function": "src/hath0r_cli/bots/decision_radar_bot.py:_apply_decision_field_updates",
+                  "line": 885,
+                  "complexity": 17
+                },
+                {
+                  "function": "src/hath0r_cli/bots/decision_radar_bot.py:update_decision",
+                  "line": 942,
+                  "complexity": 23
+                },
+                {
+                  "function": "src/hath0r_cli/bots/fmea_bot.py:_signal_rate",
+                  "line": 165,
+                  "complexity": 23
+                }
+              ],
+              "score": 0.8693
+            },
+            "duplication": {
+              "gate": "duplication",
+              "passed": true,
+              "duplicated_lines_pct": 0.33,
+              "max_duplicated_lines_pct": 3.0,
+              "comparator": "<=",
+              "duplicated_lines": 30,
+              "total_analyzed_lines": 8976,
+              "duplicated_blocks": [
+                {
+                  "first": "src/hath0r_cli/commands/cccd.py:14",
+                  "duplicate": "src/hath0r_cli/commands/cicccd.py:14"
+                },
+                {
+                  "first": "src/hath0r_cli/commands/cccd.py:24",
+                  "duplicate": "src/hath0r_cli/commands/cicccd.py:24"
+                },
+                {
+                  "first": "src/hath0r_cli/commands/cccd.py:63",
+                  "duplicate": "src/hath0r_cli/commands/cicccdct.py:85"
+                }
+              ],
+              "score": 0.9867
+            }
+          },
+          "report": {
+            "success": true,
+            "passed": true,
+            "rule_id": "CR-LOCAL-QGATES-001",
+            "repo_name": "HATH0R-CLI",
+            "technology": "python",
+            "thresholds_file": "/home/user/HATH0R-CLI/thresholds.json",
+            "thresholds_file_exists": true,
+            "thresholds": {
+              "max_errors": 0,
+              "min_coverage_pct": 80.0,
+              "max_complexity": 15,
+              "max_duplicated_lines_pct": 3.0,
+              "new_reliability_rating": 1,
+              "new_security_rating": 1,
+              "new_maintainability_rating": 1,
+              "min_security_hotspots_reviewed_pct": 100.0
+            },
+            "files_analyzed": 24,
+            "qgate_score": 0.9556,
+            "failing_gates": [],
+            "gates": {
+              "errors": {
+                "gate": "errors",
+                "passed": true,
+                "actual_errors": 0,
+                "max_errors": 0,
+                "comparator": "<=",
+                "score": 1.0,
+                "findings": []
+              },
+              "coverage": {
+                "gate": "coverage",
+                "passed": true,
+                "actual_coverage_pct": 92.37,
+                "min_coverage_pct": 80.0,
+                "comparator": ">=",
+                "source": "test_suite_symbol_verification",
+                "score": 0.948
+              },
+              "complexity": {
+                "gate": "complexity",
+                "passed": true,
+                "max_observed_complexity": 53,
+                "avg_complexity": 6.11,
+                "max_complexity": 15,
+                "comparator": "<=",
+                "functions_scanned": 282,
+                "offending_functions": [
+                  {
+                    "function": "src/hath0r_cli/bots/__init__.py:process_dependabot",
+                    "line": 183,
+                    "complexity": 17
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/__init__.py:create_pr",
+                    "line": 270,
+                    "complexity": 24
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/__init__.py:scan_stale_branches",
+                    "line": 470,
+                    "complexity": 16
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/__init__.py:sync_to_wiki",
+                    "line": 610,
+                    "complexity": 17
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/__init__.py:share_knowledge",
+                    "line": 692,
+                    "complexity": 36
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/decision_radar_bot.py:sync_store_to_server",
+                    "line": 702,
+                    "complexity": 21
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/decision_radar_bot.py:request_decision",
+                    "line": 777,
+                    "complexity": 18
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/decision_radar_bot.py:_apply_decision_field_updates",
+                    "line": 885,
+                    "complexity": 17
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/decision_radar_bot.py:update_decision",
+                    "line": 942,
+                    "complexity": 23
+                  },
+                  {
+                    "function": "src/hath0r_cli/bots/fmea_bot.py:_signal_rate",
+                    "line": 165,
+                    "complexity": 23
+                  }
+                ],
+                "score": 0.8693
+              },
+              "duplication": {
+                "gate": "duplication",
+                "passed": true,
+                "duplicated_lines_pct": 0.33,
+                "max_duplicated_lines_pct": 3.0,
+                "comparator": "<=",
+                "duplicated_lines": 30,
+                "total_analyzed_lines": 8976,
+                "duplicated_blocks": [
+                  {
+                    "first": "src/hath0r_cli/commands/cccd.py:14",
+                    "duplicate": "src/hath0r_cli/commands/cicccd.py:14"
+                  },
+                  {
+                    "first": "src/hath0r_cli/commands/cccd.py:24",
+                    "duplicate": "src/hath0r_cli/commands/cicccd.py:24"
+                  },
+                  {
+                    "first": "src/hath0r_cli/commands/cccd.py:63",
+                    "duplicate": "src/hath0r_cli/commands/cicccdct.py:85"
+                  }
+                ],
+                "score": 0.9867
+              }
+            },
+            "capability": {
+              "available": true,
+              "mode": "warn",
+              "n": 41,
+              "cpk": 5.153627523687523,
+              "ppk": 1.0493605074711752,
+              "lsl": 0.8,
+              "min_cpk_warn": 1.33,
+              "capable": true,
+              "warning": null,
+              "blocking": false
+            }
+          }
+        }
+      }
+    },
+    "trajectory": {
+      "score": 0.8662,
+      "passed": true,
+      "tokens_used": 529,
+      "max_tokens": 50000,
+      "estimated_usd": 0.013875,
+      "max_usd": 0.25,
+      "session_id": "sess-20261111-133108-f6050e",
+      "session_reads": 18,
+      "session_writes": 30,
+      "session_bytes": 1841,
+      "capsule_fill_ratio": 0.8989,
+      "within_capsule_budget": true,
+      "latency_ms": 191216.75,
+      "taguchi_quality_loss": 548.4577,
+      "taguchi_score": 0.63,
+      "snr_db": -39.61
+    },
+    "adversarial": {
+      "score": 0.9167,
+      "passed": true,
+      "adversarial_flaws_count": 0,
+      "adversarial_flaws": [],
+      "tech_debts_count": 0,
+      "auto_created_issues": [],
+      "minor_findings": [
+        "Cognitive complexity hotspot observed (avg 6.11, max 53, -0.0400)",
+        "Repeated code blocks detected (0.33%, -0.0033)"
+      ],
+      "added_lines_count": 31,
+      "change_categories": {
+        "ui": [],
+        "script": [],
+        "text": [
+          "CHANGELOG.md",
+          "packages/vscode-extension/package.json",
+          "pyproject.toml"
+        ],
+        "other": [
+          "VERSION",
+          "packaging/installers/windows_wizard_launcher.c"
+        ]
+      },
+      "changed_files_count": 5
+    },
+    "goal_alignment": {
+      "score": 0.75,
+      "passed": true,
+      "task_id": "issue-595",
+      "issue_number": 595,
+      "active_focus": "Orienting repository HATH0R-CLI",
+      "goal_keywords_count": 4,
+      "goal_keywords_matched": [
+        "cli",
+        "hath0r"
+      ],
+      "goal_overlap_score": 0.5,
+      "compounded_nodes_count": 115,
+      "consensus_score": 0.75,
+      "raw_consensus": 0.75,
+      "critic_votes": {
+        "deterministic_critic": "fail",
+        "trajectory_critic": "pass",
+        "adversarial_critic": "pass",
+        "goal_critic": "pass"
+      },
+      "clamped": false
+    }
+  },
+  "local_quality_gates": {
+    "success": true,
+    "passed": true,
+    "rule_id": "CR-LOCAL-QGATES-001",
+    "repo_name": "HATH0R-CLI",
+    "technology": "python",
+    "thresholds_file": "/home/user/HATH0R-CLI/thresholds.json",
+    "thresholds_file_exists": true,
+    "thresholds": {
+      "max_errors": 0,
+      "min_coverage_pct": 80.0,
+      "max_complexity": 15,
+      "max_duplicated_lines_pct": 3.0,
+      "new_reliability_rating": 1,
+      "new_security_rating": 1,
+      "new_maintainability_rating": 1,
+      "min_security_hotspots_reviewed_pct": 100.0
+    },
+    "files_analyzed": 24,
+    "qgate_score": 0.9556,
+    "failing_gates": [],
+    "gates": {
+      "errors": {
+        "gate": "errors",
+        "passed": true,
+        "actual_errors": 0,
+        "max_errors": 0,
+        "comparator": "<=",
+        "score": 1.0,
+        "findings": []
+      },
+      "coverage": {
+        "gate": "coverage",
+        "passed": true,
+        "actual_coverage_pct": 92.37,
+        "min_coverage_pct": 80.0,
+        "comparator": ">=",
+        "source": "test_suite_symbol_verification",
+        "score": 0.948
+      },
+      "complexity": {
+        "gate": "complexity",
+        "passed": true,
+        "max_observed_complexity": 53,
+        "avg_complexity": 6.11,
+        "max_complexity": 15,
+        "comparator": "<=",
+        "functions_scanned": 282,
+        "offending_functions": [
+          {
+            "function": "src/hath0r_cli/bots/__init__.py:process_dependabot",
+            "line": 183,
+            "complexity": 17
+          },
+          {
+            "function": "src/hath0r_cli/bots/__init__.py:create_pr",
+            "line": 270,
+            "complexity": 24
+          },
+          {
+            "function": "src/hath0r_cli/bots/__init__.py:scan_stale_branches",
+            "line": 470,
+            "complexity": 16
+          },
+          {
+            "function": "src/hath0r_cli/bots/__init__.py:sync_to_wiki",
+            "line": 610,
+            "complexity": 17
+          },
+          {
+            "function": "src/hath0r_cli/bots/__init__.py:share_knowledge",
+            "line": 692,
+            "complexity": 36
+          },
+          {
+            "function": "src/hath0r_cli/bots/decision_radar_bot.py:sync_store_to_server",
+            "line": 702,
+            "complexity": 21
+          },
+          {
+            "function": "src/hath0r_cli/bots/decision_radar_bot.py:request_decision",
+            "line": 777,
+            "complexity": 18
+          },
+          {
+            "function": "src/hath0r_cli/bots/decision_radar_bot.py:_apply_decision_field_updates",
+            "line": 885,
+            "complexity": 17
+          },
+          {
+            "function": "src/hath0r_cli/bots/decision_radar_bot.py:update_decision",
+            "line": 942,
+            "complexity": 23
+          },
+          {
+            "function": "src/hath0r_cli/bots/fmea_bot.py:_signal_rate",
+            "line": 165,
+            "complexity": 23
+          }
+        ],
+        "score": 0.8693
+      },
+      "duplication": {
+        "gate": "duplication",
+        "passed": true,
+        "duplicated_lines_pct": 0.33,
+        "max_duplicated_lines_pct": 3.0,
+        "comparator": "<=",
+        "duplicated_lines": 30,
+        "total_analyzed_lines": 8976,
+        "duplicated_blocks": [
+          {
+            "first": "src/hath0r_cli/commands/cccd.py:14",
+            "duplicate": "src/hath0r_cli/commands/cicccd.py:14"
+          },
+          {
+            "first": "src/hath0r_cli/commands/cccd.py:24",
+            "duplicate": "src/hath0r_cli/commands/cicccd.py:24"
+          },
+          {
+            "first": "src/hath0r_cli/commands/cccd.py:63",
+            "duplicate": "src/hath0r_cli/commands/cicccdct.py:85"
+          }
+        ],
+        "score": 0.9867
+      }
+    },
+    "capability": {
+      "available": true,
+      "mode": "warn",
+      "n": 41,
+      "cpk": 5.153627523687523,
+      "ppk": 1.0493605074711752,
+      "lsl": 0.8,
+      "min_cpk_warn": 1.33,
+      "capable": true,
+      "warning": null,
+      "blocking": false
+    }
+  },
+  "evidence_trust_report": {
+    "schema": "hath0r.security.evidence_trust_report/1",
+    "tiers": {
+      "VERIFIED_EXECUTION": [
+        ".hath0r/evals/latest.json"
+      ],
+      "STATIC_AST_ANALYSIS": [
+        ".hath0r/agentgraph/snapshot.json",
+        ".hath0r/evals/latest.json",
+        ".hath0r/memory/graph.json",
+        ".hath0r/memory/hashes.json",
+        ".hath0r/memory/sessions/current.json",
+        ".hath0r/memory/sessions/latest.json",
+        ".hath0r/memory/sessions/sess-20261111-133108-f6050e.json",
+        "CHANGELOG.md",
+        "packages/vscode-extension/package.json",
+        "pyproject.toml",
+        ".hath0r/evals/history/eval-issue-595.json"
+      ],
+      "UNVERIFIED_FILE_PRESENCE": [
+        ".hath0r/agentgraph/snapshot.ttl",
+        "VERSION",
+        "packaging/installers/windows_wizard_launcher.c"
+      ]
+    },
+    "counts": {
+      "VERIFIED_EXECUTION": 1,
+      "STATIC_AST_ANALYSIS": 11,
+      "UNVERIFIED_FILE_PRESENCE": 3
+    }
+  },
+  "blocking_reasons": [
+    "Tier 1 deterministic gate failed: test_suite"
+  ],
+  "goal": 1.0,
+  "gap_to_goal": 0.1784,
+  "judge": {
+    "engine": "multiagent_consensus_engine",
+    "model": null,
+    "prompt_hash": null,
+    "temperature": null,
+    "tier4_clamp": false,
+    "fingerprint": "3b4ac6def7b91849"
+  },
+  "measurement_system": {
+    "qualified": true,
+    "fingerprint": "3b4ac6def7b91849",
+    "study_id": "msa-20261111-163638-b192d9",
+    "grr_pct": 0.112,
+    "ndc": 100,
+    "reason": null
+  },
+  "observability_sync": {
+    "mode": "spooled_local",
+    "phoenix_logged": true,
+    "mlflow_run_id": null
+  },
+  "content_hash": "sha256:f21c41d847f5eae94ee9883e425d4da43601cd234d4c281491c56273bd9851a9"
+}
