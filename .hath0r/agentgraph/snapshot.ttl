@@ -2178,6 +2178,11 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:eval:issue-580> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-580 (R=0.83, FAIL)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:eval:pr-101> a hath0r:Plane ;
     rdfs:label "Task Evaluation pr-101 (R=0.90, FAIL)" ;
     hath0r:inPlane "memory" ;

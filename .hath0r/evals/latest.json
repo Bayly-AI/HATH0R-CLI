@@ -1,15 +1,15 @@
 {
   "schema_version": "hath0r.evals.scorecard/v1",
   "rule_id": "CR-TASK-EVAL-001",
-  "eval_id": "eval-20261111-133140-ad6312",
+  "eval_id": "eval-20261111-154456-5adef9",
   "task_id": "issue-580",
-  "issue_number": null,
-  "repo_name": "HATH0R-CLI",
-  "branch": "claude/project-thread-lz2u7p",
-  "evaluated_at": "2026-11-11T13:31:40.793965+00:00",
-  "duration_ms": 167095.29,
-  "passed_gate": false,
-  "r_task": 0.8269,
+  "issue_number": 580,
+  "repo_name": "hathor-cli",
+  "branch": "feature/580-industrial-qa-methods",
+  "evaluated_at": "2026-11-11T15:44:56.659413+00:00",
+  "duration_ms": 544573.44,
+  "passed_gate": true,
+  "r_task": 0.9114,
   "min_reward_threshold": 0.8,
   "weights": {
     "deterministic": 0.4,
@@ -18,23 +18,23 @@
     "goal_alignment": 0.15
   },
   "tier_scores": {
-    "deterministic": 0.7673,
-    "trajectory": 0.8622,
-    "adversarial": 0.924,
+    "deterministic": 0.9727,
+    "trajectory": 0.8589,
+    "adversarial": 0.936,
     "goal_alignment": 0.7767
   },
   "tiers": {
     "deterministic": {
-      "score": 0.7673,
-      "passed": false,
-      "passed_checks": 5,
+      "score": 0.9727,
+      "passed": true,
+      "passed_checks": 6,
       "total_checks": 6,
       "sub_scores": {
         "version_valid": 1.0,
         "agentgraph_valid": 1.0,
         "memory_compounded": 0.98,
-        "test_suite": 0.0,
-        "calibration_4h": 0.9898,
+        "test_suite": 0.935,
+        "calibration_4h": 0.9878,
         "local_quality_gates": 0.9583
       },
       "checks": {
@@ -53,7 +53,7 @@
         },
         "memory_compounded": {
           "passed": true,
-          "compounded_nodes_count": 102,
+          "compounded_nodes_count": 103,
           "session_read_verified": true,
           "session_write_verified": true,
           "hashes_verified": true,
@@ -61,9 +61,9 @@
           "error": null
         },
         "test_suite": {
-          "passed": false,
+          "passed": true,
           "commands_run": 2,
-          "duration_s": 166.527,
+          "duration_s": 543.247,
           "results": [
             {
               "command": [
@@ -72,9 +72,9 @@
                 "pytest",
                 "-q"
               ],
-              "ok": false,
-              "exit_code": 1,
-              "stdout_tail": "fy their metadata. Use the filter argument to control this behavior.\n    tar.extractall(stage)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/test_release_binaries_sync.py::test_release_directory_structure_and_readmes\nFAILED tests/test_update_cli_factory.py::test_update_cli_factory_dry_run - as...\nFAILED tests/unit/test_quality_bots.py::test_cli_release_validate - assert 1 ...\n",
+              "ok": true,
+              "exit_code": 0,
+              "stdout_tail": "............ [ 66%]\n........................................................................ [ 73%]\n........................................................................ [ 79%]\n........................................................................ [ 85%]\n........................................................................ [ 91%]\n........................................................................ [ 97%]\n...............................                                          [100%]\n",
               "stderr_tail": ""
             },
             {
@@ -95,13 +95,13 @@
         "calibration_4h": {
           "passed": true,
           "is_fresh": true,
-          "age_hours": 0.01,
+          "age_hours": 0.09,
           "max_age_hours": 4.0
         },
         "local_quality_gates": {
           "passed": true,
           "technology": "python",
-          "thresholds_file": "/home/user/HATH0R-CLI/thresholds.json",
+          "thresholds_file": "/Users/raybayly/Development/OpenSource/hathor-cli/thresholds.json",
           "qgate_score": 0.9583,
           "failing_gates": [],
           "gates": {
@@ -130,7 +130,7 @@
               "avg_complexity": 5.5,
               "max_complexity": 15,
               "comparator": "<=",
-              "functions_scanned": 535,
+              "functions_scanned": 536,
               "offending_functions": [
                 {
                   "function": "src/hath0r_cli/bots/agent_dag_runner.py:execute_dag",
@@ -192,7 +192,7 @@
               "max_duplicated_lines_pct": 3.0,
               "comparator": "<=",
               "duplicated_lines": 0,
-              "total_analyzed_lines": 12213,
+              "total_analyzed_lines": 12235,
               "duplicated_blocks": [],
               "score": 0.99
             }
@@ -201,9 +201,9 @@
             "success": true,
             "passed": true,
             "rule_id": "CR-LOCAL-QGATES-001",
-            "repo_name": "HATH0R-CLI",
+            "repo_name": "hathor-cli",
             "technology": "python",
-            "thresholds_file": "/home/user/HATH0R-CLI/thresholds.json",
+            "thresholds_file": "/Users/raybayly/Development/OpenSource/hathor-cli/thresholds.json",
             "thresholds_file_exists": true,
             "thresholds": {
               "max_errors": 0,
@@ -244,7 +244,7 @@
                 "avg_complexity": 5.5,
                 "max_complexity": 15,
                 "comparator": "<=",
-                "functions_scanned": 535,
+                "functions_scanned": 536,
                 "offending_functions": [
                   {
                     "function": "src/hath0r_cli/bots/agent_dag_runner.py:execute_dag",
@@ -306,7 +306,7 @@
                 "max_duplicated_lines_pct": 3.0,
                 "comparator": "<=",
                 "duplicated_lines": 0,
-                "total_analyzed_lines": 12213,
+                "total_analyzed_lines": 12235,
                 "duplicated_blocks": [],
                 "score": 0.99
               }
@@ -314,9 +314,9 @@
             "capability": {
               "available": true,
               "mode": "warn",
-              "n": 39,
-              "cpk": 8.263444212012883,
-              "ppk": 1.4976135059902593,
+              "n": 40,
+              "cpk": 6.234095063323863,
+              "ppk": 1.2711658833371753,
               "lsl": 0.8,
               "min_cpk_warn": 1.33,
               "capable": true,
@@ -328,25 +328,25 @@
       }
     },
     "trajectory": {
-      "score": 0.8622,
+      "score": 0.8589,
       "passed": true,
-      "tokens_used": 323,
+      "tokens_used": 431,
       "max_tokens": 50000,
-      "estimated_usd": 0.006285,
+      "estimated_usd": 0.010941,
       "max_usd": 0.25,
       "session_id": "sess-20261111-133108-f6050e",
-      "session_reads": 6,
-      "session_writes": 7,
-      "session_bytes": 1940,
-      "capsule_fill_ratio": 0.9473,
+      "session_reads": 10,
+      "session_writes": 12,
+      "session_bytes": 1964,
+      "capsule_fill_ratio": 0.959,
       "within_capsule_budget": true,
-      "latency_ms": 167054.23,
-      "taguchi_quality_loss": 418.6067,
+      "latency_ms": 544240.84,
+      "taguchi_quality_loss": 4442.9713,
       "taguchi_score": 0.63,
-      "snr_db": -38.44
+      "snr_db": -48.7
     },
     "adversarial": {
-      "score": 0.924,
+      "score": 0.936,
       "passed": true,
       "adversarial_flaws_count": 0,
       "adversarial_flaws": [],
@@ -355,30 +355,26 @@
       "minor_findings": [
         "Cognitive complexity hotspot observed (avg 5.50, max 72, -0.0400)"
       ],
-      "added_lines_count": 40,
+      "added_lines_count": 1,
       "change_categories": {
         "ui": [],
         "script": [],
-        "text": [
-          "CHANGELOG.md",
-          "pyproject.toml"
-        ],
+        "text": [],
         "other": [
-          "VERSION",
           "packaging/installers/windows_wizard_launcher.c"
         ]
       },
-      "changed_files_count": 4
+      "changed_files_count": 1
     },
     "goal_alignment": {
       "score": 0.7767,
       "passed": true,
       "task_id": "issue-580",
-      "issue_number": null,
-      "active_focus": "Orienting repository HATH0R-CLI",
+      "issue_number": 580,
+      "active_focus": "Orienting repository hathor-cli",
       "goal_keywords_count": 4,
       "goal_overlap_score": 1.0,
-      "compounded_nodes_count": 102,
+      "compounded_nodes_count": 103,
       "consensus_score": 0.33,
       "raw_consensus": 0.33,
       "clamped": false
@@ -388,9 +384,9 @@
     "success": true,
     "passed": true,
     "rule_id": "CR-LOCAL-QGATES-001",
-    "repo_name": "HATH0R-CLI",
+    "repo_name": "hathor-cli",
     "technology": "python",
-    "thresholds_file": "/home/user/HATH0R-CLI/thresholds.json",
+    "thresholds_file": "/Users/raybayly/Development/OpenSource/hathor-cli/thresholds.json",
     "thresholds_file_exists": true,
     "thresholds": {
       "max_errors": 0,
@@ -431,7 +427,7 @@
         "avg_complexity": 5.5,
         "max_complexity": 15,
         "comparator": "<=",
-        "functions_scanned": 535,
+        "functions_scanned": 536,
         "offending_functions": [
           {
             "function": "src/hath0r_cli/bots/agent_dag_runner.py:execute_dag",
@@ -493,7 +489,7 @@
         "max_duplicated_lines_pct": 3.0,
         "comparator": "<=",
         "duplicated_lines": 0,
-        "total_analyzed_lines": 12213,
+        "total_analyzed_lines": 12235,
         "duplicated_blocks": [],
         "score": 0.99
       }
@@ -501,9 +497,9 @@
     "capability": {
       "available": true,
       "mode": "warn",
-      "n": 39,
-      "cpk": 8.263444212012883,
-      "ppk": 1.4976135059902593,
+      "n": 40,
+      "cpk": 6.234095063323863,
+      "ppk": 1.2711658833371753,
       "lsl": 0.8,
       "min_cpk_warn": 1.33,
       "capable": true,
@@ -523,27 +519,22 @@
         ".hath0r/memory/hashes.json",
         ".hath0r/memory/sessions/current.json",
         ".hath0r/memory/sessions/latest.json",
-        "CHANGELOG.md",
-        "pyproject.toml",
         ".hath0r/memory/sessions/sess-20261111-133108-f6050e.json"
       ],
       "UNVERIFIED_FILE_PRESENCE": [
         ".hath0r/agentgraph/snapshot.ttl",
-        "VERSION",
         "packaging/installers/windows_wizard_launcher.c"
       ]
     },
     "counts": {
       "VERIFIED_EXECUTION": 1,
-      "STATIC_AST_ANALYSIS": 8,
-      "UNVERIFIED_FILE_PRESENCE": 3
+      "STATIC_AST_ANALYSIS": 6,
+      "UNVERIFIED_FILE_PRESENCE": 2
     }
   },
-  "blocking_reasons": [
-    "Tier 1 deterministic gate failed: test_suite"
-  ],
+  "blocking_reasons": [],
   "goal": 1.0,
-  "gap_to_goal": 0.1731,
+  "gap_to_goal": 0.0886,
   "judge": {
     "engine": "multiagent_consensus_engine",
     "model": null,
@@ -561,7 +552,9 @@
     "reason": null
   },
   "observability_sync": {
-    "mode": "pending"
+    "mode": "live_synced",
+    "phoenix_logged": true,
+    "mlflow_run_id": "a9b7f42d9c3d47d5903a078c9a90aef6"
   },
-  "content_hash": "sha256:68d8e18790958c2c7ae24342e679cdf82c0924e68d11d2aba0fb6d2e3b073a7a"
+  "content_hash": "sha256:ef45dfc99883a762b9159ccb646024fc679ccd796f1b7a47dc679dc1a8f6634d"
 }
