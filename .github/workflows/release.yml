@@ -36,15 +36,13 @@ jobs:
       - name: Checkout CLI
         uses: actions/checkout@v4
 
-      - name: Checkout Framework contracts
+      # Full checkout: the release checks import hath0r_cli.bots, which needs hath0r_engine.
+      - name: Checkout Framework (hath0r_engine + contracts)
         uses: actions/checkout@v4
         with:
           repository: Bayly-AI/HATH0R-Agentic-Framework
+          ref: development
           path: hath0r-framework
-          sparse-checkout: |
-            lib/schemas
-            lib/contracts
-          sparse-checkout-cone-mode: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -55,6 +53,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev,release]"
+          pip install -e ./hath0r-framework
 
       - name: Verify canonical release rotation & SemVer alignment (CR-RELEASE-ROTATION-001)
         run: |
@@ -101,6 +100,15 @@ jobs:
       - name: Checkout CLI
         uses: actions/checkout@v4
 
+      # hath0r_cli.bots imports hath0r_engine, so the frozen binary (and the install-wizard
+      # command used below) need the framework installed, as in ci.yml.
+      - name: Checkout Framework (hath0r_engine)
+        uses: actions/checkout@v4
+        with:
+          repository: Bayly-AI/HATH0R-Agentic-Framework
+          ref: development
+          path: hath0r-framework
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -109,7 +117,8 @@ jobs:
       - name: Install package + PyInstaller
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[release]"
+          pip install -e ".[dev,release]"
+          pip install -e ./hath0r-framework
 
       - name: Build binary
         run: |
