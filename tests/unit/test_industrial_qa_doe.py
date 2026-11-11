@@ -144,7 +144,10 @@ def test_confirm_needs_an_analysed_rsm_and_reports_outcome(bot):
     bad = bot.confirm(surface["study_id"], [0.1, 0.1, 0.1])
     assert not bad["success"]
     with pytest.raises(FileNotFoundError):
-        bot.load("doe-rsm-missing")
+        bot.load("doe-rsm-20260101-000000-abcdef")
+    for bad in ("../../etc/passwd", "doe-rsm-missing", "doe-rsm-20260101-000000-abcdef/../x"):
+        with pytest.raises(ValueError):
+            bot.load(bad)
 
 
 def test_sequential_screens_fits_and_confirms(bot):

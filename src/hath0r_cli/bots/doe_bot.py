@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -37,6 +38,9 @@ from hath0r_cli.qa.stats import mean
 
 MeasureFn = Callable[[Dict[str, float]], float]
 Ranges = Mapping[str, Sequence[float]]
+
+
+STUDY_ID_RE = re.compile(r"doe-(screen|rsm|bayes)-\d{8}-\d{6}-[0-9a-f]{6}")
 
 
 def _check_ranges(ranges: Ranges) -> Dict[str, List[float]]:
@@ -80,6 +84,8 @@ class DoEBot:
         return study
 
     def load(self, study_id: str) -> Dict[str, Any]:
+        if not STUDY_ID_RE.fullmatch(str(study_id)):
+            raise ValueError(f"not a DoE study id: '{study_id}' (expected doe-<kind>-<date>-<time>-<hex>)")
         path = self.study_dir / f"{study_id}.json"
         if not path.is_file():
             raise FileNotFoundError(f"no DoE study '{study_id}' in {self.study_dir}")
