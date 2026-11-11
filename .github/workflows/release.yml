@@ -69,7 +69,7 @@ jobs:
         run: |
           python scripts/build_fileset.py --out dist/fileset
           cp scripts/install_hath0r.py dist/install_hath0r.py
-          cp release/install-wizard.sh dist/install-wizard.sh
+          cp release/mac/install-wizard.sh dist/install-wizard.sh
           shasum -a 256 dist/install_hath0r.py > dist/install_hath0r.py.sha256
           shasum -a 256 dist/install-wizard.sh > dist/install-wizard.sh.sha256
 
