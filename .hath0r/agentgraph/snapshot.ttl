@@ -2199,7 +2199,7 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
 <https://hath0r.dev/ontology/v1#memory:eval:issue-595> a hath0r:Plane ;
-    rdfs:label "Task Evaluation issue-595 (R=0.82, FAIL)" ;
+    rdfs:label "Task Evaluation issue-595 (R=0.91, PASS)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 

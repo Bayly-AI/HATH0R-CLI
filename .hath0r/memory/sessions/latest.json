@@ -5,17 +5,17 @@
   "repo_name": "HATH0R-CLI",
   "status": "completed",
   "started_at": "2026-11-11T13:31:08.505128+00:00",
-  "updated_at": "2026-11-11T18:08:49.442407+00:00",
-  "ended_at": "2026-11-11T18:00:30.820578+00:00",
-  "read_count": 22,
-  "write_count": 36,
-  "revision": 57,
-  "content_hash": "sha256:ea741ccaebf3a85742941ef6a15ef253d506f8c7f7c75555f038336ad2a5a243",
-  "base_graph_hash": "sha256:cc27a5d96c4781436f6c811129c48aa82188f5d908ff012bbc3e47bd51942e22",
-  "last_read_at": "2026-11-11T18:00:30.681521+00:00",
-  "last_write_at": "2026-11-11T18:08:49.442407+00:00",
+  "updated_at": "2026-11-11T19:21:52.047392+00:00",
+  "ended_at": "2026-11-11T19:21:52.047392+00:00",
+  "read_count": 26,
+  "write_count": 40,
+  "revision": 65,
+  "content_hash": "sha256:ea5eefb73810408c0432ca47716d1e93bbc213129546f279deae511eaf82f208",
+  "base_graph_hash": "sha256:2d3bedabf5746e798530af68600be726512d93ea41580b8fa492caf181dc0ea1",
+  "last_read_at": "2026-11-11T19:21:51.953794+00:00",
+  "last_write_at": "2026-11-11T19:21:52.047392+00:00",
   "active_focus": "Orienting repository hathor-cli",
-  "prior_summary": "leted AgentGraph orientation for hat; Completed AgentGraph orientation for hat; Completed PR #101 (feature/101-test) via",
+  "prior_summary": "leted AgentGraph orientation for hat; Completed AgentGraph orientation for hat; Completed AgentGraph orientation for hat",
   "recalled_nodes": [
     {
       "id": "decision:issue-474-micro-memory-session",
@@ -26,17 +26,13 @@
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-11-11T18:08:49.442407+00:00",
-      "kind": "compound",
-      "summary": "Compounded eval:issue-595: Task Evaluation issue-595 (R=0.91, PASS)",
+      "timestamp": "2026-11-11T19:21:52.047392+00:00",
+      "kind": "milestone",
+      "summary": "Completed PR #101 (feature/101-test) via EndOfTaskBot.",
       "tags": [
-        "eval",
-        "cr-task-eval-001",
-        "issue-595",
-        "passed",
-        "compounded"
+        "session-end"
       ],
-      "node_id": "eval:issue-595"
+      "node_id": null
     }
   ],
   "next_steps": [
@@ -51,5 +47,5 @@
     "eval:issue-595"
   ],
   "parent_session_id": "sess-20261101-160736-c73550",
-  "capsule_bytes": 1947
+  "capsule_bytes": 1841
 }

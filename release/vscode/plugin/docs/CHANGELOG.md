@@ -5,6 +5,13 @@ All notable changes to **HATH0R CLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.26.1] - 2026-11-11
+
+### Fixed
+- **Intel Mac binary on GitHub Releases** (#603). The release workflow also builds the binary on an Intel macOS
+  runner (`macos-15-intel`), so tag releases ship `hath0r-<version>-darwin-x64` next to darwin-arm64 and linux-x64.
+  The install wizard `.dmg` is still built once, on the Apple Silicon job.
+
 ## [1.26.0] - 2026-11-11
 
 ### Added
