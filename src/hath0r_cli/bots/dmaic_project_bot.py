@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from hath0r_cli.qa.paths import inside
 from hath0r_cli.qa.spc import MIN_BASELINE_POINTS, chart
 
 PHASES = ("define", "measure", "analyze", "improve", "control", "closed")
@@ -52,8 +53,8 @@ class DMAICProjectBot:
     def _save(self, proj: Dict[str, Any]) -> None:
         self.dmaic_dir.mkdir(parents=True, exist_ok=True)
         proj["updated_at"] = _now()
-        path = self._path(proj["issue"])
-        tmp = path.with_suffix(".tmp")
+        path = inside(self.dmaic_dir, self._path(int(proj["issue"])))
+        tmp = inside(self.dmaic_dir, path.with_suffix(".tmp"))
         tmp.write_text(json.dumps(proj, indent=2, default=str), encoding="utf-8")
         os.replace(tmp, path)
 

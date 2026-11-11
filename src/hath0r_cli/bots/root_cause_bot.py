@@ -19,6 +19,8 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
+from hath0r_cli.qa.paths import inside
+
 CATEGORIES_FILE = Path("cfg") / "quality" / "cause-categories.yaml"
 FALLBACK_CATEGORIES = ["method", "model", "material", "measurement", "machine", "operator"]
 
@@ -72,8 +74,9 @@ class RootCauseBot:
         return list(json.loads(self.tags_path.read_text(encoding="utf-8")))
 
     def _write_json(self, path: Path, payload: Any) -> None:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_suffix(".tmp")
+        self.rca_dir.mkdir(parents=True, exist_ok=True)
+        path = inside(self.rca_dir, path)
+        tmp = inside(self.rca_dir, path.with_suffix(".tmp"))
         tmp.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
         os.replace(tmp, path)
 

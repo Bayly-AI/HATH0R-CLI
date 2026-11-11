@@ -268,3 +268,15 @@ def test_services_and_template_registered():
     tpl = yaml.safe_load((REPO / ".github" / "ISSUE_TEMPLATE" / "dmaic-improvement.yml").read_text())
     ids = {b.get("id") for b in tpl["body"]}
     assert {"problem", "ctq", "baseline", "target", "root_cause", "change", "control_plan"} <= ids
+
+
+def test_state_writes_stay_inside_their_directory(tmp_path):
+    from hath0r_cli.qa.paths import inside
+
+    assert inside(tmp_path, tmp_path / "a.json") == (tmp_path / "a.json").resolve()
+    for bad in (tmp_path / ".." / "x.json", tmp_path, Path("/etc/passwd")):
+        with pytest.raises(ValueError):
+            inside(tmp_path, bad)
+    rca = RootCauseBot(cwd=tmp_path)
+    with pytest.raises(ValueError):
+        rca._write_json(tmp_path / "elsewhere.json", {})
