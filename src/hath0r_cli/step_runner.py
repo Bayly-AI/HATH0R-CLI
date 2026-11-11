@@ -154,7 +154,7 @@ SERVICE_BOT_MAP: dict[str, dict[str, Any]] = {
     "validate-change": {"service": "Change Validation Gate Service", "owning_bots": ["change-validation-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
     "vision": {"service": "ColPali Vision & Multimodal Grounding Service", "owning_bots": ["vision-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/vision-grounding-factory.yaml"},
     "code": {"service": "AST Code Parser & Transformation Service", "owning_bots": ["transformation-pipeline-bot", "tri-graph-ingest-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/code-analysis-factory.yaml"},
-    "optimize": {"service": "Taguchi Robust Parameter Optimization Service", "owning_bots": ["taguchi-bot", "cicccd-managing-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/cccd-4h-calibration-factory.yaml"},
+    "optimize": {"service": "Taguchi Robust Parameter Optimization Service", "owning_bots": ["taguchi-bot", "doe-bot", "cicccd-managing-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/cccd-4h-calibration-factory.yaml"},
     "finops": {"service": "FinOps Token Ledger, Budget & Tokenizer Tax Service", "owning_bots": ["token-telemetry-bot", "token-tree-budget-bot", "tokenizer-tax-bot", "token-check-workflow-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/finops-budget-factory.yaml"},
     "agentgraph": {"service": "Two-Level AgentGraph Governance & Routing Service", "owning_bots": ["agentgraph-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/memory-agentgraph-sync-factory.yaml"},
     "design": {"service": "Paper.design Bi-Directional UI Synthesis Service", "owning_bots": ["paper-design-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/paper-design-factory.yaml"},
@@ -217,6 +217,7 @@ class BotRegistry:
         from hath0r_cli.bots.decision_radar_bot import DecisionRadarBot
         from hath0r_cli.bots.dependency_guard_bot import DependencyGuardBot
         from hath0r_cli.bots.dmaic_project_bot import DMAICProjectBot
+        from hath0r_cli.bots.doe_bot import DoEBot
         from hath0r_cli.bots.embedded_elt_bot import EmbeddedELTBot
         from hath0r_cli.bots.fmea_bot import FMEABot
         from hath0r_cli.bots.gameshow_bot import HathorGameshowBot
@@ -372,6 +373,7 @@ class BotRegistry:
             "fmea-bot": _init_bot(FMEABot),
             "root-cause-bot": _init_bot(RootCauseBot),
             "dmaic-project-bot": _init_bot(DMAICProjectBot),
+            "doe-bot": _init_bot(DoEBot),
             "task-level-planner-bot": _init_bot(TaskLevelPlannerBot),
             "temporal-logic-planner-bot": _init_bot(TemporalLogicPlannerBot),
             "thread-parallelism-bot": _init_bot(ThreadLevelParallelismBot),

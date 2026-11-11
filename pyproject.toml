@@ -31,6 +31,10 @@ dev = [
   # hath0r-engine (framework) imports structlog without declaring it
   "structlog>=24.0",
 ]
+# Optional Bayesian optimization stage for `hath0r optimize bayes` (WS8, #593); falls back to RSM without it.
+doe = [
+  "optuna>=3.0",
+]
 mcp = [
   "mcp>=1.0,<2",
 ]

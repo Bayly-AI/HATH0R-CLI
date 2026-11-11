@@ -328,6 +328,55 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         return res
 
     @mcp.tool()
+    def hath0r_optimize_doe(
+        action: str = "screen",
+        factors: Optional[Dict[str, List[float]]] = None,
+        responses: Optional[List[List[float]]] = None,
+        fraction: int = 0,
+        design: str = "ccd",
+        goal: str = "maximize",
+        alpha: float = 0.05,
+        study_id: Optional[str] = None,
+        observed: Optional[List[float]] = None,
+    ) -> Dict[str, Any]:
+        """Sequential design of experiments (doe-bot, WS8): screen, response surface and confirmation.
+
+        Without responses a screen or rsm call returns the design to run (status awaiting_responses);
+        with responses in run order it analyses them. Measurement is never simulated here.
+
+        Args:
+            action: 'screen' (2-level fractional factorial ANOVA), 'rsm' (CCD/BBD quadratic fit),
+                'confirm' (check observations at an rsm optimum) or 'status'.
+            factors: Factor ranges, e.g. {"temperature": [0.1, 0.7]}.
+            responses: Measured responses per run (replicates per row), in design order.
+            fraction: Screening fraction p for a 2^(k-p) design.
+            design: 'ccd' or 'bbd' for rsm.
+            goal: 'maximize' or 'minimize'.
+            alpha: Screening significance level.
+            study_id: rsm study id for confirm.
+            observed: Confirmation observations for confirm.
+        """
+        from hath0r_cli.bots.doe_bot import DoEBot
+
+        bot = DoEBot(log_mlflow=False)
+        try:
+            if action == "status":
+                return bot.status()
+            if action == "confirm":
+                if not study_id or not observed:
+                    raise ValueError("confirm needs study_id and observed")
+                return bot.confirm(study_id, observed)
+            if not factors:
+                raise ValueError("factors are required, e.g. {'temperature': [0.1, 0.7]}")
+            if action == "screen":
+                return bot.screen(factors, responses=responses, fraction=fraction, alpha=alpha)
+            if action == "rsm":
+                return bot.rsm(factors, responses=responses, design=design, goal=goal)
+            raise ValueError("action must be screen, rsm, confirm or status")
+        except (ValueError, FileNotFoundError) as exc:
+            return {"success": False, "error": str(exc), "code": "DOE_INVALID_INPUT"}
+
+    @mcp.tool()
     def hath0r_finops_tokenizer_tax(
         text: str,
         vocab_size: int = 256000,

@@ -72,3 +72,14 @@ hath0r cccd auto-tune --interval 300 --daemon
 1. **Test Coverage**: All CCCD modules and CLI commands must maintain 100% unit test pass rate in `tests/test_cccd_engine.py`.
 2. **State Persistence**: Active calibration state and parameters must be stored deterministically under `.hath0r/cccd_state.json`.
 
+
+---
+
+## 6. Sequential DoE Calibration (WS8, #593)
+
+`hath0r cccd calibrate --strategy sequential --spec cfg/cccd/doe-spec.yaml --measure-cmd "<cmd>"` runs
+`doe-bot`: a fractional factorial screen, a response surface on the significant factors (at most three)
+and a confirmation run at the predicted optimum. Only a confirmed optimum is adopted and compounded.
+The default strategy stays `taguchi`. Bayesian optimisation is optional (`hath0r-cli[doe]`).
+See [`strategies/doe-strategy.md`](strategies/doe-strategy.md) and the `cccd-sequential-doe` workflow in
+`cfg/factories/cccd-4h-calibration-factory.yaml`.
