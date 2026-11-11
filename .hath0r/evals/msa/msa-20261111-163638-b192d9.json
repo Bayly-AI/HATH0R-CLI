@@ -1,0 +1,1311 @@
+{
+  "schema_version": "hath0r.evals.msa-study/v1",
+  "study_id": "msa-20261111-163638-b192d9",
+  "run_at": "2026-11-11T16:36:38.099285+00:00",
+  "panel": "/home/user/HATH0R-CLI/cfg/evals/msa-panel.yaml",
+  "parts": 13,
+  "operators": [
+    "evaluator-a",
+    "evaluator-b"
+  ],
+  "replicates": 3,
+  "judge_fingerprint": "3b4ac6def7b91849",
+  "targets": {
+    "max_grr_pct": 10.0,
+    "min_ndc": 5
+  },
+  "gage_rr": {
+    "parts": 13,
+    "operators": 2,
+    "replicates": 3,
+    "grand_mean": 0.897904,
+    "anova": {
+      "part": {
+        "ss": 0.3376312505128207,
+        "df": 12,
+        "ms": 0.02813593754273506,
+        "p_value": 0.0
+      },
+      "operator": {
+        "ss": 1.2820512819997587e-10,
+        "df": 1,
+        "ms": 1.2820512819997587e-10,
+        "p_value": 0.883365
+      },
+      "interaction": {
+        "ss": 8.487179487178643e-08,
+        "df": 12,
+        "ms": 7.072649572648869e-09,
+        "p_value": 0.273959,
+        "pooled": true
+      },
+      "repeatability": {
+        "ss": 2.933333333332909e-07,
+        "df": 52,
+        "ms": 5.6410256410248254e-09
+      }
+    },
+    "variance_components": {
+      "repeatability": 5.909455128204333e-09,
+      "reproducibility": 0.0,
+      "operator": 0.0,
+      "interaction": 0.0,
+      "gage_rr": 5.909455128204333e-09,
+      "part_to_part": 0.004689321938879989,
+      "total": 0.0046893278483351175
+    },
+    "study_variation_pct": {
+      "repeatability": 0.112,
+      "reproducibility": 0.0,
+      "gage_rr": 0.112,
+      "part_to_part": 100.0
+    },
+    "grr_pct": 0.112,
+    "ndc": 100,
+    "targets": {
+      "max_grr_pct": 10.0,
+      "min_ndc": 5
+    },
+    "passed": true,
+    "failures": []
+  },
+  "attribute_agreement": {
+    "verdicts": 78,
+    "effectiveness": 1.0,
+    "miss_rate": 0.0,
+    "false_alarm_rate": 0.0,
+    "missed_defects": [],
+    "false_alarms": [],
+    "inconsistent_parts": [],
+    "passed": true,
+    "failures": []
+  },
+  "passed": true,
+  "failures": [],
+  "measurements": [
+    {
+      "part": "good-add-subtract",
+      "operator": "evaluator-a",
+      "replicate": 1,
+      "r_task": 0.9507,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9623,
+        "trajectory": 0.9341,
+        "adversarial": 0.956,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-add-subtract",
+      "operator": "evaluator-a",
+      "replicate": 2,
+      "r_task": 0.9506,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9622,
+        "trajectory": 0.9337,
+        "adversarial": 0.956,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-add-subtract",
+      "operator": "evaluator-a",
+      "replicate": 3,
+      "r_task": 0.9507,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9623,
+        "trajectory": 0.9341,
+        "adversarial": 0.956,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-add-subtract",
+      "operator": "evaluator-b",
+      "replicate": 1,
+      "r_task": 0.9505,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9622,
+        "trajectory": 0.9333,
+        "adversarial": 0.956,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-add-subtract",
+      "operator": "evaluator-b",
+      "replicate": 2,
+      "r_task": 0.9507,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9623,
+        "trajectory": 0.934,
+        "adversarial": 0.956,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-add-subtract",
+      "operator": "evaluator-b",
+      "replicate": 3,
+      "r_task": 0.9507,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9623,
+        "trajectory": 0.9339,
+        "adversarial": 0.956,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-add-multiply",
+      "operator": "evaluator-a",
+      "replicate": 1,
+      "r_task": 0.9507,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9623,
+        "trajectory": 0.934,
+        "adversarial": 0.956,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-add-multiply",
+      "operator": "evaluator-a",
+      "replicate": 2,
+      "r_task": 0.9506,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9622,
+        "trajectory": 0.9337,
+        "adversarial": 0.956,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-add-multiply",
+      "operator": "evaluator-a",
+      "replicate": 3,
+      "r_task": 0.9507,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9623,
+        "trajectory": 0.934,
+        "adversarial": 0.956,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-add-multiply",
+      "operator": "evaluator-b",
+      "replicate": 1,
+      "r_task": 0.9507,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9623,
+        "trajectory": 0.934,
+        "adversarial": 0.956,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-add-multiply",
+      "operator": "evaluator-b",
+      "replicate": 2,
+      "r_task": 0.9506,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9622,
+        "trajectory": 0.9336,
+        "adversarial": 0.956,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-add-multiply",
+      "operator": "evaluator-b",
+      "replicate": 3,
+      "r_task": 0.9506,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9622,
+        "trajectory": 0.9336,
+        "adversarial": 0.956,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-docs-readme",
+      "operator": "evaluator-a",
+      "replicate": 1,
+      "r_task": 0.9471,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9615,
+        "trajectory": 0.925,
+        "adversarial": 0.96,
+        "goal_alignment": 0.9167
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-docs-readme",
+      "operator": "evaluator-a",
+      "replicate": 2,
+      "r_task": 0.9471,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9615,
+        "trajectory": 0.925,
+        "adversarial": 0.96,
+        "goal_alignment": 0.9167
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-docs-readme",
+      "operator": "evaluator-a",
+      "replicate": 3,
+      "r_task": 0.9471,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9615,
+        "trajectory": 0.925,
+        "adversarial": 0.96,
+        "goal_alignment": 0.9167
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-docs-readme",
+      "operator": "evaluator-b",
+      "replicate": 1,
+      "r_task": 0.9469,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9613,
+        "trajectory": 0.9243,
+        "adversarial": 0.96,
+        "goal_alignment": 0.9167
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-docs-readme",
+      "operator": "evaluator-b",
+      "replicate": 2,
+      "r_task": 0.947,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9614,
+        "trajectory": 0.9247,
+        "adversarial": 0.96,
+        "goal_alignment": 0.9167
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-docs-readme",
+      "operator": "evaluator-b",
+      "replicate": 3,
+      "r_task": 0.9471,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9615,
+        "trajectory": 0.9249,
+        "adversarial": 0.96,
+        "goal_alignment": 0.9167
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-bugfix-divide-zero",
+      "operator": "evaluator-a",
+      "replicate": 1,
+      "r_task": 0.9441,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9621,
+        "trajectory": 0.9345,
+        "adversarial": 0.956,
+        "goal_alignment": 0.8889
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-bugfix-divide-zero",
+      "operator": "evaluator-a",
+      "replicate": 2,
+      "r_task": 0.9441,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9621,
+        "trajectory": 0.9345,
+        "adversarial": 0.956,
+        "goal_alignment": 0.8889
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-bugfix-divide-zero",
+      "operator": "evaluator-a",
+      "replicate": 3,
+      "r_task": 0.9441,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9621,
+        "trajectory": 0.9344,
+        "adversarial": 0.956,
+        "goal_alignment": 0.8889
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-bugfix-divide-zero",
+      "operator": "evaluator-b",
+      "replicate": 1,
+      "r_task": 0.9441,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9621,
+        "trajectory": 0.9346,
+        "adversarial": 0.956,
+        "goal_alignment": 0.8889
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-bugfix-divide-zero",
+      "operator": "evaluator-b",
+      "replicate": 2,
+      "r_task": 0.9441,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9621,
+        "trajectory": 0.9345,
+        "adversarial": 0.956,
+        "goal_alignment": 0.8889
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-bugfix-divide-zero",
+      "operator": "evaluator-b",
+      "replicate": 3,
+      "r_task": 0.9441,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9621,
+        "trajectory": 0.9346,
+        "adversarial": 0.956,
+        "goal_alignment": 0.8889
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-larger-feature",
+      "operator": "evaluator-a",
+      "replicate": 1,
+      "r_task": 0.8986,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9621,
+        "trajectory": 0.9364,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-larger-feature",
+      "operator": "evaluator-a",
+      "replicate": 2,
+      "r_task": 0.8986,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9621,
+        "trajectory": 0.9365,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-larger-feature",
+      "operator": "evaluator-a",
+      "replicate": 3,
+      "r_task": 0.8986,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9621,
+        "trajectory": 0.9364,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-larger-feature",
+      "operator": "evaluator-b",
+      "replicate": 1,
+      "r_task": 0.8986,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9621,
+        "trajectory": 0.9365,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-larger-feature",
+      "operator": "evaluator-b",
+      "replicate": 2,
+      "r_task": 0.8986,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9621,
+        "trajectory": 0.9362,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-larger-feature",
+      "operator": "evaluator-b",
+      "replicate": 3,
+      "r_task": 0.8986,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9621,
+        "trajectory": 0.9364,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-config-file",
+      "operator": "evaluator-a",
+      "replicate": 1,
+      "r_task": 0.897,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9613,
+        "trajectory": 0.9251,
+        "adversarial": 0.96,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-config-file",
+      "operator": "evaluator-a",
+      "replicate": 2,
+      "r_task": 0.8973,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9615,
+        "trajectory": 0.9261,
+        "adversarial": 0.96,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-config-file",
+      "operator": "evaluator-a",
+      "replicate": 3,
+      "r_task": 0.8972,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9614,
+        "trajectory": 0.9255,
+        "adversarial": 0.96,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-config-file",
+      "operator": "evaluator-b",
+      "replicate": 1,
+      "r_task": 0.8972,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9614,
+        "trajectory": 0.9258,
+        "adversarial": 0.96,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-config-file",
+      "operator": "evaluator-b",
+      "replicate": 2,
+      "r_task": 0.8971,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9613,
+        "trajectory": 0.9254,
+        "adversarial": 0.96,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-config-file",
+      "operator": "evaluator-b",
+      "replicate": 3,
+      "r_task": 0.8973,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9615,
+        "trajectory": 0.926,
+        "adversarial": 0.96,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-version-bump",
+      "operator": "evaluator-a",
+      "replicate": 1,
+      "r_task": 0.95,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9615,
+        "trajectory": 0.937,
+        "adversarial": 0.952,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-version-bump",
+      "operator": "evaluator-a",
+      "replicate": 2,
+      "r_task": 0.9501,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9615,
+        "trajectory": 0.9373,
+        "adversarial": 0.952,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-version-bump",
+      "operator": "evaluator-a",
+      "replicate": 3,
+      "r_task": 0.95,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9615,
+        "trajectory": 0.9371,
+        "adversarial": 0.952,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-version-bump",
+      "operator": "evaluator-b",
+      "replicate": 1,
+      "r_task": 0.9501,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9615,
+        "trajectory": 0.9373,
+        "adversarial": 0.952,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-version-bump",
+      "operator": "evaluator-b",
+      "replicate": 2,
+      "r_task": 0.9499,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9614,
+        "trajectory": 0.9369,
+        "adversarial": 0.952,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-version-bump",
+      "operator": "evaluator-b",
+      "replicate": 3,
+      "r_task": 0.9498,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9613,
+        "trajectory": 0.9363,
+        "adversarial": 0.952,
+        "goal_alignment": 0.9333
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-type-alias",
+      "operator": "evaluator-a",
+      "replicate": 1,
+      "r_task": 0.8968,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9622,
+        "trajectory": 0.9272,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-type-alias",
+      "operator": "evaluator-a",
+      "replicate": 2,
+      "r_task": 0.8968,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9622,
+        "trajectory": 0.9271,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-type-alias",
+      "operator": "evaluator-a",
+      "replicate": 3,
+      "r_task": 0.8967,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9621,
+        "trajectory": 0.9266,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-type-alias",
+      "operator": "evaluator-b",
+      "replicate": 1,
+      "r_task": 0.8968,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9622,
+        "trajectory": 0.9271,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-type-alias",
+      "operator": "evaluator-b",
+      "replicate": 2,
+      "r_task": 0.8969,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9622,
+        "trajectory": 0.9274,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-type-alias",
+      "operator": "evaluator-b",
+      "replicate": 3,
+      "r_task": 0.8968,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9622,
+        "trajectory": 0.9271,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-docstring",
+      "operator": "evaluator-a",
+      "replicate": 1,
+      "r_task": 0.8978,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9622,
+        "trajectory": 0.9322,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-docstring",
+      "operator": "evaluator-a",
+      "replicate": 2,
+      "r_task": 0.8979,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9623,
+        "trajectory": 0.9326,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-docstring",
+      "operator": "evaluator-a",
+      "replicate": 3,
+      "r_task": 0.8978,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9622,
+        "trajectory": 0.9319,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-docstring",
+      "operator": "evaluator-b",
+      "replicate": 1,
+      "r_task": 0.8979,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9623,
+        "trajectory": 0.9326,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-docstring",
+      "operator": "evaluator-b",
+      "replicate": 2,
+      "r_task": 0.8978,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9622,
+        "trajectory": 0.9323,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-docstring",
+      "operator": "evaluator-b",
+      "replicate": 3,
+      "r_task": 0.8979,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9622,
+        "trajectory": 0.9325,
+        "adversarial": 0.956,
+        "goal_alignment": 0.5833
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-source-no-test",
+      "operator": "evaluator-a",
+      "replicate": 1,
+      "r_task": 0.9448,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9614,
+        "trajectory": 0.9347,
+        "adversarial": 0.96,
+        "goal_alignment": 0.8889
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-source-no-test",
+      "operator": "evaluator-a",
+      "replicate": 2,
+      "r_task": 0.9449,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9614,
+        "trajectory": 0.9349,
+        "adversarial": 0.96,
+        "goal_alignment": 0.8889
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-source-no-test",
+      "operator": "evaluator-a",
+      "replicate": 3,
+      "r_task": 0.9446,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9613,
+        "trajectory": 0.9339,
+        "adversarial": 0.96,
+        "goal_alignment": 0.8889
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-source-no-test",
+      "operator": "evaluator-b",
+      "replicate": 1,
+      "r_task": 0.9449,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9614,
+        "trajectory": 0.935,
+        "adversarial": 0.96,
+        "goal_alignment": 0.8889
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-source-no-test",
+      "operator": "evaluator-b",
+      "replicate": 2,
+      "r_task": 0.9449,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9615,
+        "trajectory": 0.935,
+        "adversarial": 0.96,
+        "goal_alignment": 0.8889
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "good-source-no-test",
+      "operator": "evaluator-b",
+      "replicate": 3,
+      "r_task": 0.945,
+      "passed": true,
+      "tier_scores": {
+        "deterministic": 0.9615,
+        "trajectory": 0.9351,
+        "adversarial": 0.96,
+        "goal_alignment": 0.8889
+      },
+      "blocking_reasons": [],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-failing-test",
+      "operator": "evaluator-a",
+      "replicate": 1,
+      "r_task": 0.7972,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.743,
+        "trajectory": 0.9249,
+        "adversarial": 0.96,
+        "goal_alignment": 0.5
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: test_suite",
+        "Composite reward R_task (0.7972) is below threshold (0.80)"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-failing-test",
+      "operator": "evaluator-a",
+      "replicate": 2,
+      "r_task": 0.7972,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.743,
+        "trajectory": 0.9248,
+        "adversarial": 0.96,
+        "goal_alignment": 0.5
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: test_suite",
+        "Composite reward R_task (0.7972) is below threshold (0.80)"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-failing-test",
+      "operator": "evaluator-a",
+      "replicate": 3,
+      "r_task": 0.7971,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.743,
+        "trajectory": 0.9247,
+        "adversarial": 0.96,
+        "goal_alignment": 0.5
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: test_suite",
+        "Composite reward R_task (0.7971) is below threshold (0.80)"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-failing-test",
+      "operator": "evaluator-b",
+      "replicate": 1,
+      "r_task": 0.7971,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.743,
+        "trajectory": 0.9244,
+        "adversarial": 0.96,
+        "goal_alignment": 0.5
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: test_suite",
+        "Composite reward R_task (0.7971) is below threshold (0.80)"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-failing-test",
+      "operator": "evaluator-b",
+      "replicate": 2,
+      "r_task": 0.7972,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.743,
+        "trajectory": 0.9252,
+        "adversarial": 0.96,
+        "goal_alignment": 0.5
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: test_suite",
+        "Composite reward R_task (0.7972) is below threshold (0.80)"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-failing-test",
+      "operator": "evaluator-b",
+      "replicate": 3,
+      "r_task": 0.7972,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.743,
+        "trajectory": 0.9252,
+        "adversarial": 0.96,
+        "goal_alignment": 0.5
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: test_suite",
+        "Composite reward R_task (0.7972) is below threshold (0.80)"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-swallowed-exception",
+      "operator": "evaluator-a",
+      "replicate": 1,
+      "r_task": 0.7231,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.7437,
+        "trajectory": 0.9332,
+        "adversarial": 0.456,
+        "goal_alignment": 0.8333
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: test_suite",
+        "Tier 3 adversarial critic detected 1 critical flaw(s)",
+        "Composite reward R_task (0.7231) is below threshold (0.80)"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-swallowed-exception",
+      "operator": "evaluator-a",
+      "replicate": 2,
+      "r_task": 0.7231,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.7437,
+        "trajectory": 0.9333,
+        "adversarial": 0.456,
+        "goal_alignment": 0.8333
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: test_suite",
+        "Tier 3 adversarial critic detected 1 critical flaw(s)",
+        "Composite reward R_task (0.7231) is below threshold (0.80)"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-swallowed-exception",
+      "operator": "evaluator-a",
+      "replicate": 3,
+      "r_task": 0.7231,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.7437,
+        "trajectory": 0.9332,
+        "adversarial": 0.456,
+        "goal_alignment": 0.8333
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: test_suite",
+        "Tier 3 adversarial critic detected 1 critical flaw(s)",
+        "Composite reward R_task (0.7231) is below threshold (0.80)"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-swallowed-exception",
+      "operator": "evaluator-b",
+      "replicate": 1,
+      "r_task": 0.7231,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.7437,
+        "trajectory": 0.9333,
+        "adversarial": 0.456,
+        "goal_alignment": 0.8333
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: test_suite",
+        "Tier 3 adversarial critic detected 1 critical flaw(s)",
+        "Composite reward R_task (0.7231) is below threshold (0.80)"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-swallowed-exception",
+      "operator": "evaluator-b",
+      "replicate": 2,
+      "r_task": 0.7231,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.7437,
+        "trajectory": 0.9332,
+        "adversarial": 0.456,
+        "goal_alignment": 0.8333
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: test_suite",
+        "Tier 3 adversarial critic detected 1 critical flaw(s)",
+        "Composite reward R_task (0.7231) is below threshold (0.80)"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-swallowed-exception",
+      "operator": "evaluator-b",
+      "replicate": 3,
+      "r_task": 0.7231,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.7437,
+        "trajectory": 0.9331,
+        "adversarial": 0.456,
+        "goal_alignment": 0.8333
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: test_suite",
+        "Tier 3 adversarial critic detected 1 critical flaw(s)",
+        "Composite reward R_task (0.7231) is below threshold (0.80)"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-missing-version-bump",
+      "operator": "evaluator-a",
+      "replicate": 1,
+      "r_task": 0.8748,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.8215,
+        "trajectory": 0.932,
+        "adversarial": 0.956,
+        "goal_alignment": 0.8056
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: version_valid"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-missing-version-bump",
+      "operator": "evaluator-a",
+      "replicate": 2,
+      "r_task": 0.8748,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.8214,
+        "trajectory": 0.9318,
+        "adversarial": 0.956,
+        "goal_alignment": 0.8056
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: version_valid"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-missing-version-bump",
+      "operator": "evaluator-a",
+      "replicate": 3,
+      "r_task": 0.8747,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.8214,
+        "trajectory": 0.9317,
+        "adversarial": 0.956,
+        "goal_alignment": 0.8056
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: version_valid"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-missing-version-bump",
+      "operator": "evaluator-b",
+      "replicate": 1,
+      "r_task": 0.8747,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.8214,
+        "trajectory": 0.9317,
+        "adversarial": 0.956,
+        "goal_alignment": 0.8056
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: version_valid"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-missing-version-bump",
+      "operator": "evaluator-b",
+      "replicate": 2,
+      "r_task": 0.8748,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.8215,
+        "trajectory": 0.932,
+        "adversarial": 0.956,
+        "goal_alignment": 0.8056
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: version_valid"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    },
+    {
+      "part": "defect-missing-version-bump",
+      "operator": "evaluator-b",
+      "replicate": 3,
+      "r_task": 0.8748,
+      "passed": false,
+      "tier_scores": {
+        "deterministic": 0.8214,
+        "trajectory": 0.9318,
+        "adversarial": 0.956,
+        "goal_alignment": 0.8056
+      },
+      "blocking_reasons": [
+        "Tier 1 deterministic gate failed: version_valid"
+      ],
+      "judge_fingerprint": "3b4ac6def7b91849"
+    }
+  ]
+}

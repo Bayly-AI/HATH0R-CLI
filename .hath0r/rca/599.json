@@ -4,7 +4,8 @@
   "problem": "Known-good changes all get nearly the same R_task",
   "fishbone": {
     "measurement": [
-      "Tier 4 consensus is computed over synthetic critic text instead of per-tier evidence"
+      "Tier 4 consensus is computed over synthetic critic text instead of per-tier evidence",
+      "Tier 4 measures restated text instead of the change and the tiers' verdicts"
     ],
     "method": [],
     "material": [],
@@ -13,16 +14,17 @@
     "operator": []
   },
   "whys": {
-    "problem": "Known-good changes all get nearly the same R_task",
+    "problem": "Known-good changes all get nearly the same R_task (0.926-0.928 on the WS1 panel)",
     "chain": [
-      "Tier 4 adds almost no spread between good parts",
-      "Its consensus score compares three critic strings built from the same anchor text",
-      "The critics are synthetic strings, not evidence from each tier",
-      "Tier 4 was written before there was a gauge to show it could not discriminate"
+      "Tier 4 scores 0.7767 on every panel part, good or defective, so it adds no spread",
+      "Its three signals are constants: goal overlap 1.0, compounded memory 1.0 and consensus 0.33",
+      "Goal overlap matched the focus against memory nodes that restate the focus, and consensus took a majority vote over three different fixed strings",
+      "The critics were synthetic strings built from a shared anchor, not verdicts from each tier's evidence",
+      "Tier 4 was written before the WS1 gauge existed, and the gauge checks R_task, not per-tier discrimination"
     ],
-    "root_cause": "Tier 4 consensus is computed over synthetic critic text instead of per-tier evidence",
+    "root_cause": "Tier 4 measures restated text instead of the change and the tiers' verdicts",
     "category": "measurement",
-    "recorded_at": "2026-11-11T13:00:30.885159+00:00"
+    "recorded_at": "2026-11-11T16:30:20.327590+00:00"
   },
   "created_at": "2026-11-11T13:00:30.885146+00:00"
 }

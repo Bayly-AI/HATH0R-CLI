@@ -38,7 +38,8 @@
     "spool_when_offline": true
   },
   "tier4": {
-    "clamp": false
+    "clamp": false,
+    "method": "evidence-v2"
   },
   "judge": {
     "engine": "multiagent_consensus_engine",

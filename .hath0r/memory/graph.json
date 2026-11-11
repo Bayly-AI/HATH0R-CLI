@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "graph_id": "canonical-memory-space",
-  "revision": 741,
-  "content_hash": "sha256:73e2a819ade420b126ea015663604da6d7b56da231c10fa44f268dea233d71c3",
-  "updated_at": "2026-11-11T15:54:01.712026+00:00",
+  "revision": 760,
+  "content_hash": "sha256:8a364fc5bfbf56d2a35de6e17265f5703decadf60356b825ddae662583e92786",
+  "updated_at": "2026-11-11T16:36:38.196371+00:00",
   "metadata": {},
   "nodes": [
     {
@@ -2894,10 +2894,193 @@
       }
     },
     {
+      "id": "insight:rca:599",
+      "type": "insight",
+      "label": "Root cause of #599 (measurement): Tier 4 measures restated text instead of the change and the tiers' verdicts",
+      "content": "Problem: Known-good changes all get nearly the same R_task (0.926-0.928 on the WS1 panel). Whys: Tier 4 scores 0.7767 on every panel part, good or defective, so it adds no spread -> Its three signals are constants: goal overlap 1.0, compounded memory 1.0 and consensus 0.33 -> Goal overlap matched the focus against memory nodes that restate the focus, and consensus took a majority vote over three different fixed strings -> The critics were synthetic strings built from a shared anchor, not verdicts from each tier's evidence -> Tier 4 was written before the WS1 gauge existed, and the gauge checks R_task, not per-tier discrimination",
+      "importance": 0.8,
+      "tags": [
+        "rca",
+        "5-whys",
+        "measurement",
+        "insight",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:30:20.328559+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:30:20.328559+00:00",
+      "updated_at": "2026-11-11T16:30:20.328559+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/rca/599.json": "sha256:8563743f76d72d9a92c90f756a9258b5164b17c71241b667041e24e79054c000"
+        }
+      }
+    },
+    {
+      "id": "decision:dmaic:599:analyze",
+      "type": "decision",
+      "label": "DMAIC #599 entered analyze",
+      "content": "CTQ goal_alignment. root cause: Tier 4 measures restated text instead of the change and the tiers' verdicts",
+      "importance": 0.8,
+      "tags": [
+        "dmaic",
+        "analyze",
+        "goal_alignment",
+        "decision",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:30:20.854203+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:30:20.854203+00:00",
+      "updated_at": "2026-11-11T16:30:20.854203+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/dmaic/599.json": "sha256:62c17a86e731d82cfdecc42bc1734c175597ea9f9ef0b527f9b9dd461995dd2b"
+        }
+      }
+    },
+    {
+      "id": "insight:dmaic",
+      "type": "insight",
+      "label": "Synthesized Insight on dmaic",
+      "content": "Consolidated from 2 memory nodes tagged 'dmaic'. Recurring themes: tier, mode, root, cause. Latest context: CTQ goal_alignment. root cause: Tier 4 measures restated text instead of the change and the tiers' verdicts",
+      "importance": 1.0,
+      "tags": [
+        "dmaic",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:30:20.920302+00:00",
+      "is_current": true,
+      "created_at": "2026-11-11T16:30:20.920302+00:00",
+      "updated_at": "2026-11-11T16:30:20.920302+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "dmaic"
+      }
+    },
+    {
+      "id": "decision:dmaic:599:improve",
+      "type": "decision",
+      "label": "DMAIC #599 entered improve",
+      "content": "CTQ goal_alignment. Tier 4 now matches the goal against the change itself (changed paths and added diff lines) and takes consensus as the share of approving critics, each voting from its own tier's evidence plus a goal critic. WS1 panel: good parts now span R_task 0.897-0.951 (was 0.926-0.928); %GRR 0.069, ndc 100, attribute agreement 100%.",
+      "importance": 0.8,
+      "tags": [
+        "dmaic",
+        "improve",
+        "goal_alignment",
+        "decision",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:30:27.198399+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:30:27.198399+00:00",
+      "updated_at": "2026-11-11T16:30:27.198399+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/dmaic/599.json": "sha256:e0c6430291d9176c25a513babec33c30966da56a34f671e68e942da9cb3b8e3d"
+        }
+      }
+    },
+    {
+      "id": "insight:goal_alignment",
+      "type": "insight",
+      "label": "Synthesized Insight on goal_alignment",
+      "content": "Consolidated from 2 memory nodes tagged 'goal_alignment'. Recurring themes: tier, dmaic, entered, change. Latest context: CTQ goal_alignment. Tier 4 now matches the goal against the change itself (changed paths and added diff lines) and takes consensus as the share of approving cri",
+      "importance": 0.95,
+      "tags": [
+        "goal_alignment",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:30:27.289511+00:00",
+      "is_current": true,
+      "created_at": "2026-11-11T16:30:27.289511+00:00",
+      "updated_at": "2026-11-11T16:30:27.289511+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "goal_alignment"
+      }
+    },
+    {
+      "id": "msa:msa-20261111-163527-f4057c",
+      "type": "fact",
+      "label": "Gage R&R msa-20261111-163527-f4057c (PASS)",
+      "content": "Eval gauge study: %GRR=0.088%, ndc=100, missed defects=[], judge=7fc12d96c081eb89.",
+      "importance": 0.8,
+      "tags": [
+        "msa",
+        "cr-task-eval-001",
+        "passed",
+        "fact",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:35:27.636378+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:35:27.636378+00:00",
+      "updated_at": "2026-11-11T16:35:27.636378+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/msa/latest.json": "sha256:effb465e748a21aa9a610cdccd84365879937949ee15b19aaa56549bd75d1bee"
+        }
+      }
+    },
+    {
+      "id": "insight:msa",
+      "type": "insight",
+      "label": "Synthesized Insight on msa",
+      "content": "Consolidated from 2 memory nodes tagged 'msa'. Recurring themes: gage, tier, mode, industrial. Latest context: Eval gauge study: %GRR=0.088%, ndc=100, missed defects=[], judge=7fc12d96c081eb89.",
+      "importance": 1.0,
+      "tags": [
+        "msa",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:35:27.712038+00:00",
+      "is_current": true,
+      "created_at": "2026-11-11T16:35:27.712038+00:00",
+      "updated_at": "2026-11-11T16:35:27.712038+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "msa"
+      }
+    },
+    {
+      "id": "msa:msa-20261111-163638-b192d9",
+      "type": "fact",
+      "label": "Gage R&R msa-20261111-163638-b192d9 (PASS)",
+      "content": "Eval gauge study: %GRR=0.112%, ndc=100, missed defects=[], judge=3b4ac6def7b91849.",
+      "importance": 0.8,
+      "tags": [
+        "msa",
+        "cr-task-eval-001",
+        "passed",
+        "fact",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:36:38.100800+00:00",
+      "valid_to": null,
+      "is_current": true,
+      "created_at": "2026-11-11T16:36:38.100800+00:00",
+      "updated_at": "2026-11-11T16:36:38.100800+00:00",
+      "metadata": {
+        "source_files": {
+          ".hath0r/evals/msa/latest.json": "sha256:c29c82bbb6e7eca7c87563fbd90a54f6b6c366afc6add392c122e67fb6f4dc31"
+        }
+      }
+    },
+    {
       "id": "session:sess-20261111-133108-f6050e",
       "type": "session",
       "label": "Micro Session sess-20261111-133108-f6050e",
-      "content": "Micro Session sess-20261111-133108-f6050e [completed] | Focus: Orienting repository hathor-cli | Reads: 10, Writes: 13 | Entries: Completed PR #101 (feature/101-test) via EndOfTaskBot.; Compounded eval:issue-580: Task Evaluation issue-580 (R=0.91, PASS)",
+      "content": "Micro Session sess-20261111-133108-f6050e [completed] | Focus: Orienting repository hathor-cli | Reads: 10, Writes: 18 | Entries: Compounded msa:msa-20261111-163638-b192d9: Gage R&R msa-20261111-163638-b192d9 (PASS)",
       "importance": 0.75,
       "tags": [
         "session",
@@ -2908,15 +3091,36 @@
       "valid_to": "2026-11-11T15:49:06.107369+00:00",
       "is_current": true,
       "created_at": "2026-11-11T13:31:08.505128+00:00",
-      "updated_at": "2026-11-11T15:54:01.704151+00:00",
+      "updated_at": "2026-11-11T16:36:38.167504+00:00",
       "metadata": {
         "session_id": "sess-20261111-133108-f6050e",
         "prior_session_id": "sess-20261101-160736-c73550",
         "parent_session_id": "sess-20261101-160736-c73550",
         "read_count": 10,
-        "write_count": 13,
+        "write_count": 18,
         "status": "completed",
-        "byte_size": 2038
+        "byte_size": 1955
+      }
+    },
+    {
+      "id": "insight:passed",
+      "type": "insight",
+      "label": "Synthesized Insight on passed",
+      "content": "Consolidated from 2 memory nodes tagged 'passed'. Recurring themes: gage, pass, eval, gauge. Latest context: Eval gauge study: %GRR=0.112%, ndc=100, missed defects=[], judge=3b4ac6def7b91849.",
+      "importance": 0.95,
+      "tags": [
+        "passed",
+        "insight",
+        "reflection",
+        "compounded"
+      ],
+      "valid_from": "2026-11-11T16:36:38.194895+00:00",
+      "is_current": true,
+      "created_at": "2026-11-11T16:36:38.194895+00:00",
+      "updated_at": "2026-11-11T16:36:38.194895+00:00",
+      "metadata": {
+        "constituent_count": 2,
+        "source_tag": "passed"
       }
     }
   ],
@@ -6620,6 +6824,150 @@
       "valid_to": null,
       "is_current": true,
       "metadata": {}
+    },
+    {
+      "source": "insight:rca:599",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:20.328559+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:rca:599",
+      "target": "session:sess-20261111-133108-f6050e",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:20.374611+00:00",
+      "is_current": true
+    },
+    {
+      "source": "decision:dmaic:599:analyze",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:20.854203+00:00",
+      "is_current": true
+    },
+    {
+      "source": "decision:dmaic:599:analyze",
+      "target": "session:sess-20261111-133108-f6050e",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:20.898232+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:dmaic",
+      "target": "decision:industrial-qa-epic-580",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:20.920302+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:dmaic",
+      "target": "decision:dmaic:599:analyze",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:20.920302+00:00",
+      "is_current": true
+    },
+    {
+      "source": "decision:dmaic:599:improve",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:27.198399+00:00",
+      "is_current": true
+    },
+    {
+      "source": "decision:dmaic:599:improve",
+      "target": "session:sess-20261111-133108-f6050e",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:27.261460+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:goal_alignment",
+      "target": "decision:dmaic:599:analyze",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:27.289511+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:goal_alignment",
+      "target": "decision:dmaic:599:improve",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:30:27.289511+00:00",
+      "is_current": true
+    },
+    {
+      "source": "msa:msa-20261111-163527-f4057c",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:35:27.636378+00:00",
+      "is_current": true
+    },
+    {
+      "source": "msa:msa-20261111-163527-f4057c",
+      "target": "session:sess-20261111-133108-f6050e",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:35:27.685581+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:msa",
+      "target": "decision:industrial-qa-epic-580",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:35:27.712038+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:msa",
+      "target": "msa:msa-20261111-163527-f4057c",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:35:27.712038+00:00",
+      "is_current": true
+    },
+    {
+      "source": "msa:msa-20261111-163638-b192d9",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:36:38.100800+00:00",
+      "is_current": true
+    },
+    {
+      "source": "msa:msa-20261111-163638-b192d9",
+      "target": "session:sess-20261111-133108-f6050e",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:36:38.169223+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:passed",
+      "target": "msa:msa-20261111-163527-f4057c",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:36:38.194895+00:00",
+      "is_current": true
+    },
+    {
+      "source": "insight:passed",
+      "target": "msa:msa-20261111-163638-b192d9",
+      "relation": "DERIVES_FROM",
+      "weight": 1.0,
+      "valid_from": "2026-11-11T16:36:38.194895+00:00",
+      "is_current": true
     }
   ]
 }

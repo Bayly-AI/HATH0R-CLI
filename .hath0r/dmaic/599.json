@@ -5,7 +5,7 @@
   "goal": "maximize",
   "target": 0.97,
   "problem": "Tier 4 cannot rank good work: known-good panel parts score within 0.002 of each other",
-  "phase": "analyze",
+  "phase": "control",
   "phases": [
     {
       "phase": "define",
@@ -21,10 +21,25 @@
       "phase": "analyze",
       "at": "2026-11-11T13:00:31.444656+00:00",
       "note": "root cause: Tier 4 consensus is computed over synthetic critic text instead of per-tier evidence"
+    },
+    {
+      "phase": "analyze",
+      "at": "2026-11-11T16:30:20.853633+00:00",
+      "note": "root cause: Tier 4 measures restated text instead of the change and the tiers' verdicts"
+    },
+    {
+      "phase": "improve",
+      "at": "2026-11-11T16:30:27.197422+00:00",
+      "note": "Tier 4 now matches the goal against the change itself (changed paths and added diff lines) and takes consensus as the share of approving critics, each voting from its own tier's evidence plus a goal critic. WS1 panel: good parts now span R_task 0.897-0.951 (was 0.926-0.928); %GRR 0.069, ndc 100, attribute agreement 100%."
+    },
+    {
+      "phase": "control",
+      "at": "2026-11-11T16:30:27.772478+00:00",
+      "note": "0 points after change"
     }
   ],
   "created_at": "2026-11-11T13:00:30.288193+00:00",
-  "updated_at": "2026-11-11T13:00:31.525492+00:00",
+  "updated_at": "2026-11-11T16:30:27.772491+00:00",
   "baseline": {
     "n": 39,
     "status": "out_of_control",
@@ -37,8 +52,18 @@
     "mean": 0.9670923076923077
   },
   "analysis": {
-    "root_cause": "Tier 4 consensus is computed over synthetic critic text instead of per-tier evidence",
+    "root_cause": "Tier 4 measures restated text instead of the change and the tiers' verdicts",
     "category": "measurement",
     "pareto_top": "method"
+  },
+  "change": {
+    "description": "Tier 4 now matches the goal against the change itself (changed paths and added diff lines) and takes consensus as the share of approving critics, each voting from its own tier's evidence plus a goal critic. WS1 panel: good parts now span R_task 0.897-0.951 (was 0.926-0.928); %GRR 0.069, ndc 100, attribute agreement 100%.",
+    "at": "2026-11-11T16:30:27.192574+00:00",
+    "after_point": 40
+  },
+  "control": {
+    "points_after_change": 0,
+    "required": 20,
+    "ready_to_close": false
   }
 }

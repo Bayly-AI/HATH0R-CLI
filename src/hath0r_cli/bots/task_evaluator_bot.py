@@ -57,7 +57,9 @@ DEFAULT_TASK_EVAL_CONFIG: Dict[str, Any] = {
     },
     # #582 / #585: the legacy Tier 4 clamp squeezed consensus into 0.76-0.97 and used fixed fallbacks
     # (0.72 / 0.50 / 0.85). It defaults to off now that the WS1 Gage R&R study has run (#584).
-    "tier4": {"clamp": False},
+    # #599: "evidence-v2" scores goal overlap against the change and consensus from the tiers'
+    # verdicts. The method is part of the judge fingerprint, so changing it needs a new WS1 study.
+    "tier4": {"clamp": False, "method": "evidence-v2"},
     # #585: the judge configuration is pinned and written into every scorecard so a judge change
     # is visible and triggers a new measurement-system study.
     "judge": {
@@ -480,6 +482,17 @@ class TaskEvaluatorBot:
                 continue
         return sorted(files_set)
 
+    def _collect_branch_diff(self) -> str:
+        """Return the task's diff: working tree, else branch vs development, else the last commit."""
+        for rng in (["HEAD"], ["origin/development...HEAD"], ["HEAD~1..HEAD"]):
+            try:
+                proc = subprocess.run(["git", "diff", *rng, *_DIFF_PATHSPEC], cwd=self.cwd, capture_output=True, text=True, check=False)
+            except OSError:
+                return ""
+            if proc.returncode == 0 and proc.stdout.strip():
+                return proc.stdout
+        return ""
+
     def _evaluate_tier3_adversarial(
         self,
         *,
@@ -490,36 +503,7 @@ class TaskEvaluatorBot:
         from hath0r_cli.bots.antagonistic_review import AntagonisticReviewBot
         from hath0r_cli.bots.change_validation import ChangeValidationBot
 
-        diff_text = ""
-        try:
-            proc = subprocess.run(
-                ["git", "diff", "HEAD", *_DIFF_PATHSPEC],
-                cwd=self.cwd,
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            diff_text = proc.stdout or ""
-            if not diff_text.strip():
-                proc2 = subprocess.run(
-                    ["git", "diff", "origin/development...HEAD", *_DIFF_PATHSPEC],
-                    cwd=self.cwd,
-                    capture_output=True,
-                    text=True,
-                    check=False,
-                )
-                diff_text = proc2.stdout or ""
-            if not diff_text.strip():
-                proc3 = subprocess.run(
-                    ["git", "diff", "HEAD~1..HEAD", *_DIFF_PATHSPEC],
-                    cwd=self.cwd,
-                    capture_output=True,
-                    text=True,
-                    check=False,
-                )
-                diff_text = proc3.stdout or ""
-        except Exception:
-            diff_text = ""
+        diff_text = self._collect_branch_diff()
 
         rev_bot = AntagonisticReviewBot(root_path=self.cwd)
         rev_res = rev_bot.review_diff(diff_content=diff_text)
@@ -622,87 +606,101 @@ class TaskEvaluatorBot:
         issue_number: Optional[int],
         min_consensus: float = 0.70,
         clamp: bool = False,
+        critics: Optional[Dict[str, Dict[str, Any]]] = None,
     ) -> Dict[str, Any]:
-        """Tier 4: Goal Alignment & Multi-Agent Consensus (Semantic/Lexical Overlap + Distinct Critics).
+        """Tier 4: Goal Alignment & Multi-Agent Consensus.
 
-        With ``clamp=False`` (default) every signal is reported raw in [0, 1]; ``clamp=True`` restores
-        the legacy floors and caps for comparison studies only.
+        Unclamped (default, #599): goal overlap is the share of the goal's keywords that appear in the
+        change itself (changed paths and added diff lines), and consensus is the share of critics that
+        approve, where each critic votes from its own tier's evidence (Tier 1-3 pass/fail) plus a goal
+        critic that votes from the overlap. ``clamp=True`` keeps the legacy signals for comparison
+        studies only.
         """
+        if clamp:
+            return self._evaluate_tier4_legacy(task_id=task_id, issue_number=issue_number, min_consensus=min_consensus)
         from hath0r_cli.bots.memory_manager import MemoryManagerBot
         from hath0r_cli.bots.multiagent_consensus import multiagent_consensus_engine
 
         mbot = MemoryManagerBot(cwd=self.cwd)
-        sess = mbot.session_status()
-        focus = str(sess.get("active_focus") or "").strip()
-        ver = mbot.verify_compounded(require_session=False, require_hashes=False)
-        compounded_count = int(ver.get("compounded_nodes_count", 0))
+        focus = str(mbot.session_status().get("active_focus") or "").strip()
+        compounded_count = int(mbot.verify_compounded(require_session=False, require_hashes=False).get("compounded_nodes_count", 0))
 
-        # Collect compounded node labels/content and changed files for lexical goal overlap
-        artifact_corpus_parts: List[str] = [task_id]
+        # The goal is the stated focus, else the branch/task slug. It is matched against the work
+        # only, never against memory nodes, which restate the focus and made overlap circular.
+        goal_keywords = self._extract_keywords(focus or task_id.replace("-", " "))
         changed_files = self._collect_branch_changed_files()
-        artifact_corpus_parts.extend(changed_files)
+        added = [ln[1:] for ln in self._collect_branch_diff().splitlines() if ln.startswith("+") and not ln.startswith("+++")]
+        evidence_keywords = self._extract_keywords(" ".join(changed_files) + " " + " ".join(added))
+        matched = goal_keywords & evidence_keywords
+        goal_overlap_score = round(len(matched) / len(goal_keywords), 4) if goal_keywords else 0.0
+
+        votes = [
+            {"agent_id": f"{name}_critic", "output": "pass" if bool(result.get("passed")) else "fail"}
+            for name, result in (critics or {}).items()
+        ]
+        votes.append({"agent_id": "goal_critic", "output": "pass" if goal_overlap_score >= 0.5 else "fail"})
+        multiagent_consensus_engine.consensus_threshold = min_consensus
+        consensus_res = multiagent_consensus_engine.evaluate_consensus(votes)
+        approvals = sum(1 for v in votes if v["output"] == "pass")
+        consensus_score = round(approvals / len(votes), 4)
+
+        compounded_signal = 1.0 if compounded_count >= 1 else 0.0
+        score = round((goal_overlap_score + compounded_signal + consensus_score) / 3, 4)
+        return {
+            "score": score,
+            "passed": score >= min_consensus,
+            "task_id": task_id,
+            "issue_number": issue_number,
+            "active_focus": focus or "General task execution",
+            "goal_keywords_count": len(goal_keywords),
+            "goal_keywords_matched": sorted(matched),
+            "goal_overlap_score": goal_overlap_score,
+            "compounded_nodes_count": compounded_count,
+            "consensus_score": consensus_score,
+            "raw_consensus": float(consensus_res.get("consensus_score") or 0.0),
+            "critic_votes": {v["agent_id"]: v["output"] for v in votes},
+            "clamped": False,
+        }
+
+    def _evaluate_tier4_legacy(self, *, task_id: str, issue_number: Optional[int], min_consensus: float) -> Dict[str, Any]:
+        """Pre-#599 Tier 4 with the #582 clamp, kept only so comparison studies can reproduce it."""
+        from hath0r_cli.bots.memory_manager import MemoryManagerBot
+        from hath0r_cli.bots.multiagent_consensus import multiagent_consensus_engine
+
+        mbot = MemoryManagerBot(cwd=self.cwd)
+        focus = str(mbot.session_status().get("active_focus") or "").strip()
+        compounded_count = int(mbot.verify_compounded(require_session=False, require_hashes=False).get("compounded_nodes_count", 0))
+        corpus: List[str] = [task_id, *self._collect_branch_changed_files()]
         graph_file = self.cwd / ".hath0r" / "memory" / "graph.json"
-        recent_nodes_text = ""
         if graph_file.is_file():
             try:
-                gdata = json.loads(graph_file.read_text(encoding="utf-8"))
-                for node in gdata.get("nodes", [])[-8:]:
+                for node in json.loads(graph_file.read_text(encoding="utf-8")).get("nodes", [])[-8:]:
                     if str(node.get("type")) != "eval":
-                        part = f"{node.get('id', '')} {node.get('label', '')} {node.get('content', '')}"
-                        artifact_corpus_parts.append(part)
-                        recent_nodes_text += " " + part
-            except Exception:
-                recent_nodes_text = ""
-
+                        corpus.append(f"{node.get('id', '')} {node.get('label', '')} {node.get('content', '')}")
+            except (OSError, json.JSONDecodeError):
+                pass
         goal_keywords = self._extract_keywords(f"{focus} {task_id}")
-        artifact_keywords = self._extract_keywords(" ".join(artifact_corpus_parts))
-        recall = 0.0
+        artifact_keywords = self._extract_keywords(" ".join(corpus))
         if goal_keywords and artifact_keywords:
-            matched = goal_keywords & artifact_keywords
-            recall = len(matched) / max(1, len(goal_keywords))
-        if not clamp:
-            goal_overlap_score = round(min(1.0, recall), 4)
-        elif goal_keywords and artifact_keywords:
+            recall = len(goal_keywords & artifact_keywords) / max(1, len(goal_keywords))
             goal_overlap_score = round(min(0.98, 0.78 + 0.20 * min(1.0, recall * 1.35)), 4)
-        elif focus:
-            goal_overlap_score = 0.84
         else:
-            goal_overlap_score = 0.72
-
-        # Build 3 distinct critic evidence summaries (sharing core task/goal anchors + tier-specific tokens)
-        shared_anchor = " ".join(sorted(list(goal_keywords | artifact_keywords))[:10]) or f"task {task_id} verified"
+            goal_overlap_score = 0.84 if focus else 0.72
+        anchor = " ".join(sorted(goal_keywords | artifact_keywords)[:10]) or f"task {task_id} verified"
         multiagent_consensus_engine.consensus_threshold = min_consensus
-        consensus_res = multiagent_consensus_engine.evaluate_consensus(
-            [
-                {
-                    "agent_id": "deterministic_critic",
-                    "output": f"{shared_anchor} deterministic tests semver memory compounded",
-                },
-                {
-                    "agent_id": "trajectory_critic",
-                    "output": f"{shared_anchor} trajectory capsule budget taguchi finops",
-                },
-                {
-                    "agent_id": "adversarial_critic",
-                    "output": f"{shared_anchor} adversarial diff review hygiene",
-                },
-            ]
+        raw_consensus = float(
+            multiagent_consensus_engine.evaluate_consensus(
+                [
+                    {"agent_id": "deterministic_critic", "output": f"{anchor} deterministic tests semver memory compounded"},
+                    {"agent_id": "trajectory_critic", "output": f"{anchor} trajectory capsule budget taguchi finops"},
+                    {"agent_id": "adversarial_critic", "output": f"{anchor} adversarial diff review hygiene"},
+                ]
+            ).get("consensus_score", 0.85)
         )
-        has_focus = bool(focus)
-        has_compounded = compounded_count >= 1
-        if clamp:
-            raw_consensus = float(consensus_res.get("consensus_score", 0.85))
-            # Legacy: normalize Jaccard consensus into [0.76, 0.97]
-            consensus_score = round(min(0.97, max(raw_consensus, 0.76 + 0.20 * raw_consensus)), 4)
-            compounded_signal = min(0.98, 0.86 + 0.02 * min(6, compounded_count)) if has_compounded else 0.50
-            alignment_signals = [goal_overlap_score if has_focus else 0.72, compounded_signal, consensus_score]
-        else:
-            raw_consensus = float(consensus_res.get("consensus_score") or 0.0)
-            consensus_score = round(max(0.0, min(1.0, raw_consensus)), 4)
-            compounded_signal = 1.0 if has_compounded else 0.0
-            alignment_signals = [goal_overlap_score, compounded_signal, consensus_score]
-        score = round(sum(alignment_signals) / len(alignment_signals), 4)
-
+        consensus_score = round(min(0.97, max(raw_consensus, 0.76 + 0.20 * raw_consensus)), 4)
+        compounded_signal = min(0.98, 0.86 + 0.02 * min(6, compounded_count)) if compounded_count >= 1 else 0.50
+        signals = [goal_overlap_score if focus else 0.72, compounded_signal, consensus_score]
+        score = round(sum(signals) / len(signals), 4)
         return {
             "score": score,
             "passed": score >= min_consensus,
@@ -714,7 +712,7 @@ class TaskEvaluatorBot:
             "compounded_nodes_count": compounded_count,
             "consensus_score": consensus_score,
             "raw_consensus": raw_consensus,
-            "clamped": clamp,
+            "clamped": True,
         }
 
     def _sync_observability(
@@ -824,6 +822,7 @@ class TaskEvaluatorBot:
             issue_number=issue_num,
             min_consensus=float(thresholds.get("min_consensus", 0.70)),
             clamp=bool(cfg.get("tier4", {}).get("clamp", False)),
+            critics={"deterministic": tier1, "trajectory": tier2, "adversarial": tier3},
         )
 
         s_det = float(tier1["score"])
