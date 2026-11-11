@@ -74,7 +74,8 @@ def test_task_completion_verifier_bot_probes(tmp_path: Path) -> None:
     res = bot.verify_completion(require_eval=True)
     assert res["success"] is True
     assert res["open_cruise_control_blockers"] == 0
-    assert res["probes"]["cccd.calibration.fresh:4h"] is True
+    assert res["informational_probes"]["cccd.calibration.fresh:4h"] is True
+    assert "cccd.calibration.fresh:4h" not in res["probes"]
     assert res["probes"]["eval.gate.passed"] is True
     assert res["probes"]["workflow.first.verified"] is True
 
@@ -94,3 +95,13 @@ def test_bot_registry_and_arch_cli_commands(tmp_path: Path) -> None:
     res_sub = runner.invoke(main, ["-o", "json", "arch", "substrate"])
     assert res_sub.exit_code == 0
     assert json.loads(res_sub.output)["data"]["success"] is True
+
+
+def test_task_completion_verifier_does_not_gate_on_calibration(tmp_path: Path) -> None:
+    """#608: without a measurement source calibration is never fresh, and that must not block completion."""
+    eval_dir = tmp_path / ".hath0r" / "evals"
+    eval_dir.mkdir(parents=True)
+    (eval_dir / "latest.json").write_text(json.dumps({"passed_gate": True, "composite_reward": 0.9412}), encoding="utf-8")
+    res = TaskCompletionVerifierBot(cwd=tmp_path).verify_completion(require_eval=True)
+    assert res["informational_probes"]["cccd.calibration.fresh:4h"] is False
+    assert res["success"] is True

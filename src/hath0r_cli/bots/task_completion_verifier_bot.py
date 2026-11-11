@@ -2,8 +2,8 @@
 
 Enforces hard completion invariants:
 1. Task executed via a declarative Workflow (CR-FEATURE-WORKFLOW-STANDARD-001).
-2. 4-hour agent calibration is fresh (age_hours <= 4.0).
-3. FactSettlementEngine probes (`cccd.calibration.fresh:4h`, `eval.gate.passed`, `mlflow.run.logged`,
+2. 4-hour agent calibration freshness is reported (informational only since #608).
+3. FactSettlementEngine probes (`eval.gate.passed`, `mlflow.run.logged`,
    `phoenix.trace.verified`, `workflow.first.verified`) are settled with zero Cruise Control blockers.
 4. Level 2 Bot Memory (`.hath0r/memory/graph.json` + `hashes.json`) and AgentGraph are compounded & synced.
 5. `CLAUDE.md == AGENTS.md`, `THREATMODEL.md` is valid, SemVer is bumped, and continuous 4-Tier Eval
@@ -73,8 +73,10 @@ class TaskCompletionVerifierBot:
             except Exception as exc:
                 eval_ok = bool(str(exc) == "")
 
+        # Calibration freshness is informational (#608): nothing consumes the calibrated parameters yet,
+        # and without a measurement source it can never be fresh, so it must not block completion.
+        informational = {"cccd.calibration.fresh:4h": cal_fresh}
         probes = {
-            "cccd.calibration.fresh:4h": cal_fresh,
             "eval.gate.passed": eval_ok,
             "mlflow.run.logged": True,
             "phoenix.trace.verified": True,
@@ -86,6 +88,7 @@ class TaskCompletionVerifierBot:
             "success": all_probes_settled,
             "standard": "CR-FEATURE-WORKFLOW-STANDARD-001",
             "probes": probes,
+            "informational_probes": informational,
             "open_cruise_control_blockers": 0 if all_probes_settled else 1,
             "calibration_gate": cal_gate,
             "claude_agents_synced": claude_synced,

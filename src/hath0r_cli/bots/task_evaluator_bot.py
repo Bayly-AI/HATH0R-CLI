@@ -74,9 +74,15 @@ DEFAULT_TASK_EVAL_CONFIG: Dict[str, Any] = {
 _SECTION_KEYS = ("weights", "thresholds", "hard_gates", "observability", "tier4", "judge", "goal")
 
 
+# Tier 1 rubric version. Part of the judge fingerprint: changing the rubric changes the gauge, so it needs
+# a new Gage R&R study. v2 (#608) drops agent calibration freshness from the score.
+TIER1_RUBRIC_VERSION = "v2-calibration-informational"
+
+
 def judge_fingerprint(cfg: Dict[str, Any]) -> str:
-    """Stable hash of everything that changes how the gauge measures (judge, tier4, weights, thresholds)."""
-    material = {k: cfg.get(k) for k in ("judge", "tier4", "weights", "thresholds")}
+    """Stable hash of everything that changes how the gauge measures (judge, tier4, weights, thresholds, rubric)."""
+    material: Dict[str, Any] = {k: cfg.get(k) for k in ("judge", "tier4", "weights", "thresholds")}
+    material["tier1_rubric"] = TIER1_RUBRIC_VERSION
     return hashlib.sha256(json.dumps(material, sort_keys=True, default=str).encode("utf-8")).hexdigest()[:16]
 
 
@@ -193,12 +199,11 @@ class TaskEvaluatorBot:
         checks: Dict[str, Dict[str, Any]] = {}
         sub_scores: Dict[str, float] = {}
         rubric_weights: Dict[str, float] = {
-            "version_valid": 0.14,
-            "agentgraph_valid": 0.14,
-            "memory_compounded": 0.20,
-            "test_suite": 0.22,
-            "local_quality_gates": 0.18,
-            "calibration_4h": 0.12,
+            "version_valid": 0.16,
+            "agentgraph_valid": 0.16,
+            "memory_compounded": 0.23,
+            "test_suite": 0.25,
+            "local_quality_gates": 0.20,
         }
 
         # 1. Version & SemVer + CHANGELOG alignment check
@@ -302,26 +307,20 @@ class TaskEvaluatorBot:
                 speed_deduction = min(0.06, 0.005 * test_elapsed_s)
                 sub_scores["test_suite"] = round(max(0.92, 0.995 - speed_deduction), 4)
 
-        # 5. 4-Hour CCCD Agent Calibration Freshness (CR-CCCD-CALIBRATE-4H-001)
+        # 5. CCCD agent calibration freshness: informational only (#608). Nothing consumes the calibrated
+        # parameters yet, so freshness is reported but neither scored nor gated.
         try:
             cal_loop = CCCDCalibrationLoop(cwd=self.cwd, state_file=self.cwd / ".hath0r" / "cccd_state.json")
             cal_fresh = cal_loop.check_calibration_freshness(max_age_hours=4.0)
-            age_h = cal_fresh.get("age_hours")
-            is_fresh = bool(cal_fresh.get("is_fresh", False))
             checks["calibration_4h"] = {
                 "passed": True,
-                "is_fresh": is_fresh,
-                "age_hours": age_h,
+                "informational": True,
+                "is_fresh": bool(cal_fresh.get("is_fresh", False)),
+                "age_hours": cal_fresh.get("age_hours"),
                 "max_age_hours": 4.0,
             }
-            if is_fresh and age_h is not None:
-                # Continuous age decay over the 4-hour TTL window: 0.99 at 0h -> 0.89 at 4h
-                sub_scores["calibration_4h"] = round(max(0.88, 0.99 - 0.025 * min(4.0, float(age_h))), 4)
-            else:
-                sub_scores["calibration_4h"] = 0.82
-        except Exception:
-            checks["calibration_4h"] = {"passed": True, "is_fresh": False, "age_hours": None, "max_age_hours": 4.0}
-            sub_scores["calibration_4h"] = 0.82
+        except Exception as exc:
+            checks["calibration_4h"] = {"passed": True, "informational": True, "is_fresh": False, "age_hours": None, "max_age_hours": 4.0, "error": str(exc)}
 
         # 6. Local Quality Gates (CR-LOCAL-QGATES-001: Errors, Coverage, Complexity, Duplication via thresholds.json)
         try:
