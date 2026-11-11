@@ -9,7 +9,6 @@ in ``.hath0r/rca/<issue>.json``, and every completed 5 Whys is compounded as an 
 from __future__ import annotations
 
 import json
-import os
 import re
 import uuid
 from dataclasses import dataclass, field
@@ -19,7 +18,7 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
-from hath0r_cli.qa.paths import inside
+from hath0r_cli.qa.paths import write_state_json
 
 CATEGORIES_FILE = Path("cfg") / "quality" / "cause-categories.yaml"
 FALLBACK_CATEGORIES = ["method", "model", "material", "measurement", "machine", "operator"]
@@ -73,12 +72,8 @@ class RootCauseBot:
             return []
         return list(json.loads(self.tags_path.read_text(encoding="utf-8")))
 
-    def _write_json(self, path: Path, payload: Any) -> None:
-        self.rca_dir.mkdir(parents=True, exist_ok=True)
-        path = inside(self.rca_dir, path)
-        tmp = inside(self.rca_dir, path.with_suffix(".tmp"))
-        tmp.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
-        os.replace(tmp, path)
+    def _write_json(self, name: str, payload: Any) -> None:
+        write_state_json(self.rca_dir, name, payload)
 
     def tag(self, *, source: str, ref: str, summary: str, category: Optional[str] = None, gate: Optional[str] = None, issue: Optional[int] = None) -> Dict[str, Any]:
         """Tag one failure. ``category`` defaults to keyword classification of ``summary``."""
@@ -92,7 +87,7 @@ class RootCauseBot:
             if category:
                 existing["category"] = category
                 existing["classified_by"] = "operator"
-            self._write_json(self.tags_path, tags)
+            self._write_json(self.tags_path.name, tags)
             return {"success": True, "created": False, **existing}
         rec = {
             "id": f"rca-{uuid.uuid4().hex[:8]}",
@@ -106,7 +101,7 @@ class RootCauseBot:
             "tagged_at": _now().isoformat(),
         }
         tags.append(rec)
-        self._write_json(self.tags_path, tags)
+        self._write_json(self.tags_path.name, tags)
         return {"success": True, "created": True, **rec}
 
     @staticmethod
@@ -170,7 +165,7 @@ class RootCauseBot:
             "unclassified": counts.get("unclassified", 0) if by == "category" else None,
             "generated_at": _now().isoformat(),
         }
-        self._write_json(self.rca_dir / "pareto-latest.json", out)
+        self._write_json("pareto-latest.json", out)
         return out
 
     # ------------------------------------------------------- fishbone / whys
@@ -196,7 +191,7 @@ class RootCauseBot:
                 rec["fishbone"][cat].append(cause)
         if problem or cause:
             rec["updated_at"] = _now().isoformat()
-            self._write_json(self._record_path(issue), rec)
+            self._write_json(f"{int(issue)}.json", rec)
         return {"success": True, **rec}
 
     def why(self, issue: int, problem: str, whys: List[str], root_cause: Optional[str] = None, category: Optional[str] = None, compound: bool = True) -> Dict[str, Any]:
@@ -211,7 +206,7 @@ class RootCauseBot:
         rec["whys"] = {"problem": problem, "chain": chain, "root_cause": root, "category": cat, "recorded_at": _now().isoformat()}
         if cat in rec["fishbone"] and root not in rec["fishbone"][cat]:
             rec["fishbone"][cat].append(root)
-        self._write_json(self._record_path(issue), rec)
+        self._write_json(f"{int(issue)}.json", rec)
         if compound:
             try:
                 from hath0r_cli.bots.memory_manager import MemoryManagerBot

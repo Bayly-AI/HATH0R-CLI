@@ -9,13 +9,12 @@ the point where the change landed; Control refuses to close until the CTQ chart 
 from __future__ import annotations
 
 import json
-import os
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from hath0r_cli.qa.paths import inside
+from hath0r_cli.qa.paths import write_state_json
 from hath0r_cli.qa.spc import MIN_BASELINE_POINTS, chart
 
 PHASES = ("define", "measure", "analyze", "improve", "control", "closed")
@@ -51,12 +50,8 @@ class DMAICProjectBot:
         return dict(json.loads(path.read_text(encoding="utf-8")))
 
     def _save(self, proj: Dict[str, Any]) -> None:
-        self.dmaic_dir.mkdir(parents=True, exist_ok=True)
         proj["updated_at"] = _now()
-        path = inside(self.dmaic_dir, self._path(int(proj["issue"])))
-        tmp = inside(self.dmaic_dir, path.with_suffix(".tmp"))
-        tmp.write_text(json.dumps(proj, indent=2, default=str), encoding="utf-8")
-        os.replace(tmp, path)
+        write_state_json(self.dmaic_dir, f"{int(proj['issue'])}.json", proj)
 
     def _gate_node(self, proj: Dict[str, Any], phase: str, note: str) -> None:
         try:

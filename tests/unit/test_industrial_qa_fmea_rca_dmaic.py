@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import random
 from pathlib import Path
 
@@ -271,12 +272,14 @@ def test_services_and_template_registered():
 
 
 def test_state_writes_stay_inside_their_directory(tmp_path):
-    from hath0r_cli.qa.paths import inside
+    from hath0r_cli.qa.paths import write_state_json
 
-    assert inside(tmp_path, tmp_path / "a.json") == (tmp_path / "a.json").resolve()
-    for bad in (tmp_path / ".." / "x.json", tmp_path, Path("/etc/passwd")):
+    assert write_state_json(tmp_path, "a.json", {"x": 1}) == Path(os.path.realpath(tmp_path)) / "a.json"
+    assert json.loads((tmp_path / "a.json").read_text()) == {"x": 1}
+    assert not (tmp_path / "a.tmp").exists()
+    for bad in ("../x.json", "/etc/passwd", "a/b.json", "A.json", "x.txt", ".json"):
         with pytest.raises(ValueError):
-            inside(tmp_path, bad)
+            write_state_json(tmp_path, bad, {})
     rca = RootCauseBot(cwd=tmp_path)
     with pytest.raises(ValueError):
-        rca._write_json(tmp_path / "elsewhere.json", {})
+        rca._write_json("../elsewhere.json", {})
