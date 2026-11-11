@@ -407,6 +407,41 @@ class QualityGateBot:
 
 
 
+_PYPROJECT_VERSION_RE = re.compile(r'^\s*version\s*=\s*"([^"]+)"', re.MULTILINE)
+_CHANGELOG_RELEASE_RE = re.compile(r"^##\s*\[?v?(\d+\.\d+\.\d+[^\]\s]*)\]?", re.MULTILINE)
+
+
+def version_drift(cwd: Path, version: str) -> List[Dict[str, str]]:
+    """Poka-yoke (#583): VERSION, pyproject.toml / package.json and the top CHANGELOG release must agree.
+
+    Returns one entry per file that disagrees with ``version``; an empty list means no drift.
+    Files that do not exist are skipped.
+    """
+    drift: List[Dict[str, str]] = []
+    pyproject = cwd / "pyproject.toml"
+    if pyproject.is_file():
+        text = pyproject.read_text(encoding="utf-8")
+        section = text.split("[project]", 1)[1] if "[project]" in text else ""
+        section = section.split("\n[", 1)[0]
+        m = _PYPROJECT_VERSION_RE.search(section)
+        if m and m.group(1) != version:
+            drift.append({"file": "pyproject.toml", "found": m.group(1), "message": f"pyproject.toml has {m.group(1)}, VERSION has {version}"})
+    package_json = cwd / "package.json"
+    if package_json.is_file():
+        try:
+            pkg_version = json.loads(package_json.read_text(encoding="utf-8")).get("version")
+        except (OSError, ValueError):
+            pkg_version = None
+        if pkg_version and pkg_version != version:
+            drift.append({"file": "package.json", "found": str(pkg_version), "message": f"package.json has {pkg_version}, VERSION has {version}"})
+    changelog = cwd / "CHANGELOG.md"
+    if changelog.is_file():
+        m = _CHANGELOG_RELEASE_RE.search(changelog.read_text(encoding="utf-8"))
+        if m and m.group(1) != version:
+            drift.append({"file": "CHANGELOG.md", "found": m.group(1), "message": f"latest CHANGELOG.md release is {m.group(1)}, VERSION has {version}"})
+    return drift
+
+
 @dataclass
 class PreflightBot:
     """Pre-PR threshold bot — block opening a PR until local gates pass."""
@@ -426,6 +461,15 @@ class PreflightBot:
         raw = version_path.read_text(encoding="utf-8").strip()
         if not SEMVER_RE.match(raw):
             return {"ok": False, "check": "version", "error": f"VERSION '{raw}' is not valid SemVer"}
+        drift = version_drift(self.cwd, raw)
+        if drift:
+            return {
+                "ok": False,
+                "check": "version",
+                "version": raw,
+                "drift": drift,
+                "error": "Version drift (CR-SEMVER-BUMP-001): " + "; ".join(d["message"] for d in drift),
+            }
         return {"ok": True, "check": "version", "version": raw}
 
     def _branch_ok(self) -> Dict[str, Any]:

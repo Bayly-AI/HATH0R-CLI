@@ -274,6 +274,9 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
         loss_k: Optional[float] = None,
         target_m: Optional[float] = None,
         measured_y: Optional[float] = None,
+        levels: Optional[Dict[str, List[Any]]] = None,
+        responses: Optional[List[List[float]]] = None,
+        allow_partial: bool = False,
     ) -> Dict[str, Any]:
         """Generate Taguchi orthogonal design array (L4, L8, L9, L12, L18), calculate SNR, and compute Quality Loss.
 
@@ -285,16 +288,30 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
             loss_k: Financial loss sensitivity coefficient k in L(y) = k(y-m)^2.
             target_m: Nominal specification target value.
             measured_y: Actual observed quality characteristic value.
+            levels: Optional level values per factor; counts must match the array column.
+            responses: Optional measured responses per run, in run order, to analyse the experiment.
+            allow_partial: Analyse only measured runs when some runs have no responses (never padded).
         """
         from hath0r_cli.bots.taguchi_bot import TaguchiBot
 
         bot = TaguchiBot()
-        factor_list = factors or ["factor_1", "factor_2"]
-        design = bot.generate_matrix(array_type=array, factors=factor_list)
-
-        res: Dict[str, Any] = {
-            "design": design,
-        }
+        factor_list = factors or list((levels or {}).keys()) or ["factor_1", "factor_2"]
+        try:
+            design = bot.generate_matrix(array_type=array, factors=factor_list, levels=levels)
+            res: Dict[str, Any] = {"design": design}
+            if responses is not None:
+                res["analysis"] = bot.analyze(
+                    factors=design["factors"],
+                    levels=levels,
+                    responses_matrix=responses,
+                    array_type=array,
+                    criterion=criterion,
+                    target_m=target_m if target_m is not None else 0.0,
+                    sensitivity_k=loss_k if loss_k is not None else 1.0,
+                    allow_partial=allow_partial,
+                )
+        except ValueError as exc:
+            return {"success": False, "error": str(exc), "code": "TAGUCHI_INVALID_EXPERIMENT"}
 
         if snr_values:
             snr = bot.calculate_snr(snr_values, criterion=criterion)
@@ -309,6 +326,55 @@ def create_mcp_server(name: str = "hath0r-cli") -> FastMCP:
             res["quality_loss"] = loss
 
         return res
+
+    @mcp.tool()
+    def hath0r_optimize_doe(
+        action: str = "screen",
+        factors: Optional[Dict[str, List[float]]] = None,
+        responses: Optional[List[List[float]]] = None,
+        fraction: int = 0,
+        design: str = "ccd",
+        goal: str = "maximize",
+        alpha: float = 0.05,
+        study_id: Optional[str] = None,
+        observed: Optional[List[float]] = None,
+    ) -> Dict[str, Any]:
+        """Sequential design of experiments (doe-bot, WS8): screen, response surface and confirmation.
+
+        Without responses a screen or rsm call returns the design to run (status awaiting_responses);
+        with responses in run order it analyses them. Measurement is never simulated here.
+
+        Args:
+            action: 'screen' (2-level fractional factorial ANOVA), 'rsm' (CCD/BBD quadratic fit),
+                'confirm' (check observations at an rsm optimum) or 'status'.
+            factors: Factor ranges, e.g. {"temperature": [0.1, 0.7]}.
+            responses: Measured responses per run (replicates per row), in design order.
+            fraction: Screening fraction p for a 2^(k-p) design.
+            design: 'ccd' or 'bbd' for rsm.
+            goal: 'maximize' or 'minimize'.
+            alpha: Screening significance level.
+            study_id: rsm study id for confirm.
+            observed: Confirmation observations for confirm.
+        """
+        from hath0r_cli.bots.doe_bot import DoEBot
+
+        bot = DoEBot(log_mlflow=False)
+        try:
+            if action == "status":
+                return bot.status()
+            if action == "confirm":
+                if not study_id or not observed:
+                    raise ValueError("confirm needs study_id and observed")
+                return bot.confirm(study_id, observed)
+            if not factors:
+                raise ValueError("factors are required, e.g. {'temperature': [0.1, 0.7]}")
+            if action == "screen":
+                return bot.screen(factors, responses=responses, fraction=fraction, alpha=alpha)
+            if action == "rsm":
+                return bot.rsm(factors, responses=responses, design=design, goal=goal)
+            raise ValueError("action must be screen, rsm, confirm or status")
+        except (ValueError, FileNotFoundError) as exc:
+            return {"success": False, "error": str(exc), "code": "DOE_INVALID_INPUT"}
 
     @mcp.tool()
     def hath0r_finops_tokenizer_tax(

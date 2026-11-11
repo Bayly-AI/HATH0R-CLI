@@ -1,0 +1,272 @@
+schema_version: hath0r.fmea/v1
+process: end-of-task
+factory: cfg/factories/end-of-task-factory.yaml
+created_at: '2026-11-11T12:56:54.547323+00:00'
+rows:
+- id: EOT-13
+  taxonomy: FM-3.2
+  category: verification
+  step: end-of-task-1
+  step_bot: deploy-test-bot
+  failure_mode: No or incomplete verification
+  effect: Defects reach development
+  cause: Tests or evals skipped
+  severity: 9
+  occurrence: 5
+  detection: 4
+  detected_by: task-evaluator-bot
+  occurrence_signal: tier:deterministic
+  occurrence_source: data:tier:deterministic
+  actions: []
+  issue: 596
+  rpn: 180
+  action_priority: H
+  observed_rate: 0.0256
+- id: EOT-12
+  taxonomy: FM-3.1
+  category: verification
+  step: end-of-task-6
+  step_bot: pr-bot
+  failure_mode: Premature termination
+  effect: Announced complete before gates pass
+  cause: Announcement not gated
+  severity: 9
+  occurrence: 5
+  detection: 3
+  detected_by: task-announcer-bot
+  occurrence_signal: eval_fail_rate
+  occurrence_source: data:eval_fail_rate
+  actions: []
+  issue: 597
+  rpn: 135
+  action_priority: H
+  observed_rate: 0.0256
+- id: EOT-07
+  taxonomy: FM-2.2
+  category: inter-agent
+  step: workflow
+  step_bot: null
+  failure_mode: Fails to ask for clarification
+  effect: Builds the wrong thing on a guess
+  cause: No decision-radar request on ambiguity
+  severity: 7
+  occurrence: 5
+  detection: 7
+  detected_by: decision-radar-bot
+  occurrence_signal: null
+  occurrence_source: seed
+  actions: []
+  issue: 598
+  rpn: 245
+  action_priority: H
+- id: EOT-04
+  taxonomy: FM-1.4
+  category: specification
+  step: workflow
+  step_bot: null
+  failure_mode: Loses conversation history
+  effect: Decisions made earlier are contradicted
+  cause: Context not handed over in a HAHP envelope
+  severity: 6
+  occurrence: 4
+  detection: 7
+  detected_by: memory-manager-bot
+  occurrence_signal: null
+  occurrence_source: seed
+  actions: []
+  issue: null
+  rpn: 168
+  action_priority: M
+- id: EOT-14
+  taxonomy: FM-3.3
+  category: verification
+  step: end-of-task-11
+  step_bot: task-evaluator-bot
+  failure_mode: Incorrect verification
+  effect: A broken change passes the gate
+  cause: Gauge cannot discriminate good from bad
+  severity: 9
+  occurrence: 1
+  detection: 6
+  detected_by: measurement-system-bot
+  occurrence_signal: msa:missed_defects
+  occurrence_source: data:msa:missed_defects
+  actions: []
+  issue: null
+  rpn: 54
+  action_priority: L
+  observed_rate: 0.0
+- id: EOT-01
+  taxonomy: FM-1.1
+  category: specification
+  step: end-of-task-10
+  step_bot: change-validation-bot
+  failure_mode: Disobeys the task specification
+  effect: Work does not meet the issue's acceptance criteria
+  cause: Ambiguous or ignored issue scope
+  severity: 8
+  occurrence: 1
+  detection: 5
+  detected_by: task-evaluator-bot
+  occurrence_signal: tier:goal_alignment
+  occurrence_source: data:tier:goal_alignment
+  actions: []
+  issue: null
+  rpn: 40
+  action_priority: L
+  observed_rate: 0.0
+- id: EOT-10
+  taxonomy: FM-2.5
+  category: inter-agent
+  step: end-of-task-5
+  step_bot: pr-bot
+  failure_mode: Ignores another agent's input
+  effect: Review findings or failed checks are dropped
+  cause: Step result not read by the next step
+  severity: 8
+  occurrence: 1
+  detection: 5
+  detected_by: antagonistic-review-bot
+  occurrence_signal: tier:adversarial
+  occurrence_source: data:tier:adversarial
+  actions: []
+  issue: null
+  rpn: 40
+  action_priority: L
+  observed_rate: 0.0
+- id: EOT-02
+  taxonomy: FM-1.2
+  category: specification
+  step: workflow
+  step_bot: null
+  failure_mode: Disobeys its role specification
+  effect: A bot acts outside its owning service
+  cause: Role prompt or RBAC not enforced
+  severity: 7
+  occurrence: 3
+  detection: 6
+  detected_by: agentgraph-bot
+  occurrence_signal: null
+  occurrence_source: seed
+  actions: []
+  issue: null
+  rpn: 126
+  action_priority: L
+- id: EOT-05
+  taxonomy: FM-1.5
+  category: specification
+  step: end-of-task-5
+  step_bot: pr-bot
+  failure_mode: Unaware of termination conditions
+  effect: Runs past the budget or never finishes
+  cause: No stop condition or budget guard
+  severity: 7
+  occurrence: 3
+  detection: 4
+  detected_by: token-tree-budget-guard
+  occurrence_signal: andon:token-tree-budget-guard
+  occurrence_source: seed
+  actions: []
+  issue: null
+  rpn: 84
+  action_priority: L
+- id: EOT-11
+  taxonomy: FM-2.6
+  category: inter-agent
+  step: workflow
+  step_bot: null
+  failure_mode: Reasoning and action mismatch
+  effect: Says one thing, changes another
+  cause: No diff check against the stated plan
+  severity: 7
+  occurrence: 1
+  detection: 6
+  detected_by: antagonistic-review-bot
+  occurrence_signal: tier:adversarial
+  occurrence_source: data:tier:adversarial
+  actions: []
+  issue: null
+  rpn: 42
+  action_priority: L
+  observed_rate: 0.0
+- id: EOT-09
+  taxonomy: FM-2.4
+  category: inter-agent
+  step: end-of-task-4
+  step_bot: documentation-bot
+  failure_mode: Withholds information
+  effect: A later step decides without a known fact
+  cause: Facts not written to memory or the envelope
+  severity: 6
+  occurrence: 3
+  detection: 7
+  detected_by: memory-manager-bot
+  occurrence_signal: null
+  occurrence_source: seed
+  actions: []
+  issue: null
+  rpn: 126
+  action_priority: L
+- id: EOT-08
+  taxonomy: FM-2.3
+  category: inter-agent
+  step: end-of-task-11
+  step_bot: task-evaluator-bot
+  failure_mode: Task derailment
+  effect: Effort spent off the issue's goal
+  cause: Goal not re-checked between steps
+  severity: 6
+  occurrence: 1
+  detection: 5
+  detected_by: task-evaluator-bot
+  occurrence_signal: tier:goal_alignment
+  occurrence_source: data:tier:goal_alignment
+  actions: []
+  issue: null
+  rpn: 30
+  action_priority: L
+  observed_rate: 0.0
+- id: EOT-03
+  taxonomy: FM-1.3
+  category: specification
+  step: end-of-task-1
+  step_bot: deploy-test-bot
+  failure_mode: Repeats a step
+  effect: Duplicate PRs, commits or tokens spent twice
+  cause: No idempotency check on the step
+  severity: 5
+  occurrence: 4
+  detection: 5
+  detected_by: git-janitor-bot
+  occurrence_signal: null
+  occurrence_source: seed
+  actions: []
+  issue: null
+  rpn: 100
+  action_priority: L
+- id: EOT-06
+  taxonomy: FM-2.1
+  category: inter-agent
+  step: workflow
+  step_bot: null
+  failure_mode: Conversation reset
+  effect: Work restarts and loses progress
+  cause: Session state not persisted
+  severity: 5
+  occurrence: 3
+  detection: 6
+  detected_by: memory-manager-bot
+  occurrence_signal: null
+  occurrence_source: seed
+  actions: []
+  issue: null
+  rpn: 90
+  action_priority: L
+history:
+- at: '2026-11-11T12:56:55.598288+00:00'
+  total_rpn: 1604
+  high: 3
+- at: '2026-11-11T12:57:37.427132+00:00'
+  total_rpn: 1460
+  high: 3
+updated_at: '2026-11-11T13:00:28.338788+00:00'

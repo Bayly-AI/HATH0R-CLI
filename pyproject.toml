@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hath0r-cli"
-version = "1.24.0"
+version = "1.25.0"
 description = "HATH0R CLI — operator and developer control plane for the HATHOR agentic framework."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -30,6 +30,10 @@ dev = [
   "mcp>=1.0,<2",
   # hath0r-engine (framework) imports structlog without declaring it
   "structlog>=24.0",
+]
+# Optional Bayesian optimization stage for `hath0r optimize bayes` (WS8, #593); falls back to RSM without it.
+doe = [
+  "optuna>=3.0",
 ]
 mcp = [
   "mcp>=1.0,<2",

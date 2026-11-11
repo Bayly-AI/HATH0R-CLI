@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.hath0r.dev/hath0r-fmea-v1.schema.json",
+  "title": "hath0r.fmea/v1",
+  "description": "FMEA worksheet for one Hath0r workflow (.hath0r/fmea/<process>.yaml).",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "process", "rows"],
+  "properties": {
+    "schema_version": {"const": "hath0r.fmea/v1"},
+    "process": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "factory": {"type": "string"},
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "step", "failure_mode", "effect", "cause", "severity", "occurrence", "detection", "rpn", "action_priority"],
+        "properties": {
+          "id": {"type": "string"},
+          "taxonomy": {"type": ["string", "null"]},
+          "category": {"type": "string"},
+          "step": {"type": "string"},
+          "failure_mode": {"type": "string"},
+          "effect": {"type": "string"},
+          "cause": {"type": "string"},
+          "severity": {"type": "integer", "minimum": 1, "maximum": 10},
+          "occurrence": {"type": "integer", "minimum": 1, "maximum": 10},
+          "detection": {"type": "integer", "minimum": 1, "maximum": 10},
+          "rpn": {"type": "integer", "minimum": 1, "maximum": 1000},
+          "action_priority": {"type": "string", "enum": ["H", "M", "L"]},
+          "detected_by": {"type": ["string", "null"]},
+          "occurrence_signal": {"type": ["string", "null"]},
+          "occurrence_source": {"type": "string"},
+          "observed_rate": {"type": "number"},
+          "actions": {"type": "array"},
+          "issue": {"type": ["integer", "string", "null"]}
+        }
+      }
+    },
+    "history": {"type": "array"}
+  }
+}

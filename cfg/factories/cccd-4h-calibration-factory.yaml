@@ -1,0 +1,57 @@
+factory_id: cccd-4h-calibration-factory
+name: CCCD 4-Hour Calibration Factory
+version: "1.0.0"
+description: >
+  Keeps agent calibration fresh (max 4 hours) with the Taguchi calibration loop, and runs the
+  sequential design of experiments (screen, response surface, confirmation) when a measurement
+  command is configured (WS8, #593). Every design point is logged to MLflow when reachable.
+bots:
+  - id: cicccd-managing-bot
+    name: CICCCD Managing Bot
+    role: Enforces calibration freshness and runs the Taguchi calibration loop
+    capabilities:
+      - ensure-calibrated
+      - calibrate
+      - status
+  - id: taguchi-bot
+    name: Taguchi Bot
+    role: Orthogonal-array screening, S/N ratios and quality loss
+    capabilities:
+      - generate-matrix
+      - analyze
+  - id: doe-bot
+    name: DoE Bot
+    role: Fractional factorial screening, response surfaces, Bayesian optimization, confirmation
+    capabilities:
+      - screen
+      - rsm
+      - bayes
+      - confirm
+      - calibrate-sequential
+workflows:
+  - id: cccd-4h-calibration
+    name: Ensure 4-Hour Calibration Freshness
+    schedule: "0 */4 * * *"
+    acceptance_test: >
+      hath0r cccd status reports a calibration younger than 4 hours.
+    steps:
+      - id: ensure-calibrated
+        bot: cicccd-managing-bot
+        action: ensure-calibrated
+        on_failure: continue
+        args:
+          max_age_hours: 4.0
+  - id: cccd-sequential-doe
+    name: Sequential Design of Experiments Calibration
+    acceptance_test: >
+      hath0r cccd calibrate --strategy sequential --spec cfg/cccd/doe-spec.yaml (measure_cmd set in the spec)
+      screens the factors, fits a response surface on the significant ones and its confirmation run
+      lands inside the predicted interval; the optimum is compounded as a fact node.
+    steps:
+      - id: sequential
+        bot: doe-bot
+        action: calibrate-sequential
+        on_failure: abort
+        andon: warn
+        args:
+          spec: cfg/cccd/doe-spec.yaml

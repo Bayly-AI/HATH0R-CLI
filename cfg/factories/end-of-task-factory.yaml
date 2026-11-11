@@ -77,6 +77,21 @@ bots:
       - verify-eval
       - status
 
+  - id: spc-monitor-bot
+    name: SPC Monitor Bot
+    role: process-control-warning
+    description: Charts eval and token history and reports R_task capability; warns by default (WS2/WS3).
+    capabilities:
+      - gate
+      - status
+
+  - id: root-cause-bot
+    name: Root Cause Bot
+    role: failure-tagging
+    description: Tags failed eval gates with a 6M cause category for the monthly Pareto (WS9).
+    capabilities:
+      - gate
+
   - id: task-announcer-bot
     name: Task Announcer Bot
     role: notification-and-announcements
@@ -180,6 +195,14 @@ workflows:
         on_failure: abort
         args:
           skip_tests: true
+
+      - bot: spc-monitor-bot
+        action: gate
+        on_failure: continue
+
+      - bot: root-cause-bot
+        action: gate
+        on_failure: continue
 
       - bot: architecture-preservation-bot
         action: status

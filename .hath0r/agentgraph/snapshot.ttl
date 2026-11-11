@@ -13,6 +13,10 @@ hath0r: a owl:Ontology ;
     rdfs:label "agentgraph-bot" ;
     hath0r:inPlane "context" .
 
+<https://hath0r.dev/ontology/v1#bot:andon-bot> a hath0r:Plane ;
+    rdfs:label "andon-bot" ;
+    hath0r:inPlane "context" .
+
 <https://hath0r.dev/ontology/v1#bot:antagonistic-review-bot> a hath0r:Plane ;
     rdfs:label "antagonistic-review-bot" ;
     hath0r:inPlane "context" .
@@ -85,6 +89,10 @@ hath0r: a owl:Ontology ;
     rdfs:label "deploy-test-bot" ;
     hath0r:inPlane "context" .
 
+<https://hath0r.dev/ontology/v1#bot:dmaic-project-bot> a hath0r:Plane ;
+    rdfs:label "dmaic-project-bot" ;
+    hath0r:inPlane "context" .
+
 <https://hath0r.dev/ontology/v1#bot:doc-refactor-bot> a hath0r:Plane ;
     rdfs:label "doc-refactor-bot" ;
     hath0r:inPlane "context" .
@@ -101,6 +109,10 @@ hath0r: a owl:Ontology ;
     rdfs:label "documentation-bot" ;
     hath0r:inPlane "context" .
 
+<https://hath0r.dev/ontology/v1#bot:doe-bot> a hath0r:Plane ;
+    rdfs:label "doe-bot" ;
+    hath0r:inPlane "context" .
+
 <https://hath0r.dev/ontology/v1#bot:embedded-elt-bot> a hath0r:Plane ;
     rdfs:label "embedded-elt-bot" ;
     hath0r:inPlane "context" .
@@ -111,6 +123,10 @@ hath0r: a owl:Ontology ;
 
 <https://hath0r.dev/ontology/v1#bot:factory-manager-bot> a hath0r:Plane ;
     rdfs:label "factory-manager-bot" ;
+    hath0r:inPlane "context" .
+
+<https://hath0r.dev/ontology/v1#bot:fmea-bot> a hath0r:Plane ;
+    rdfs:label "fmea-bot" ;
     hath0r:inPlane "context" .
 
 <https://hath0r.dev/ontology/v1#bot:gameshow-bot> a hath0r:Plane ;
@@ -175,6 +191,10 @@ hath0r: a owl:Ontology ;
 
 <https://hath0r.dev/ontology/v1#bot:mcp-workflow-engine-bot> a hath0r:Plane ;
     rdfs:label "mcp-workflow-engine-bot" ;
+    hath0r:inPlane "context" .
+
+<https://hath0r.dev/ontology/v1#bot:measurement-system-bot> a hath0r:Plane ;
+    rdfs:label "measurement-system-bot" ;
     hath0r:inPlane "context" .
 
 <https://hath0r.dev/ontology/v1#bot:memory-manager-bot> a hath0r:Plane ;
@@ -249,6 +269,10 @@ hath0r: a owl:Ontology ;
     rdfs:label "reporting-bot" ;
     hath0r:inPlane "context" .
 
+<https://hath0r.dev/ontology/v1#bot:root-cause-bot> a hath0r:Plane ;
+    rdfs:label "root-cause-bot" ;
+    hath0r:inPlane "context" .
+
 <https://hath0r.dev/ontology/v1#bot:rule-rollout-bot> a hath0r:Plane ;
     rdfs:label "rule-rollout-bot" ;
     hath0r:inPlane "context" .
@@ -263,6 +287,10 @@ hath0r: a owl:Ontology ;
 
 <https://hath0r.dev/ontology/v1#bot:sibling-manager-bot> a hath0r:Plane ;
     rdfs:label "sibling-manager-bot" ;
+    hath0r:inPlane "context" .
+
+<https://hath0r.dev/ontology/v1#bot:spc-monitor-bot> a hath0r:Plane ;
+    rdfs:label "spc-monitor-bot" ;
     hath0r:inPlane "context" .
 
 <https://hath0r.dev/ontology/v1#bot:speech-listener-bot> a hath0r:Plane ;
@@ -385,6 +413,10 @@ hath0r: a owl:Ontology ;
     rdfs:label "Hath0rAgentGraphSnapshot" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#contract:hath0r-andon-event-v1.schema.json> a hath0r:Plane ;
+    rdfs:label "hath0r.andon.event/v1" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#contract:hath0r-cli-agentgraph-v1.schema.json> a hath0r:Plane ;
     rdfs:label "hath0r.cli.agentgraph/1" ;
     hath0r:inPlane "knowledge" .
@@ -417,24 +449,48 @@ hath0r: a owl:Ontology ;
     rdfs:label "Hath0r Cruise Control Decision Envelope & Specification Schema" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#contract:hath0r-dmaic-project-v1.schema.json> a hath0r:Plane ;
+    rdfs:label "hath0r.dmaic.project/v1" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#contract:hath0r-docker-workflow-v1.schema.json> a hath0r:Plane ;
     rdfs:label "Hath0r Docker Workflow Specification" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#contract:hath0r-doe-study-v1.schema.json> a hath0r:Plane ;
+    rdfs:label "hath0r.optimize.doe-study/v1" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#contract:hath0r-factory-v1.schema.json> a hath0r:Plane ;
     rdfs:label "Hath0rFactoryManifest" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#contract:hath0r-fmea-v1.schema.json> a hath0r:Plane ;
+    rdfs:label "hath0r.fmea/v1" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#contract:hath0r-mcp-servers-v1.schema.json> a hath0r:Plane ;
     rdfs:label "Hath0r MCP Servers Configuration" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#contract:hath0r-msa-study-v1.schema.json> a hath0r:Plane ;
+    rdfs:label "hath0r.evals.msa-study/v1" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#contract:hath0r-orient-report-v1.schema.json> a hath0r:Plane ;
     rdfs:label "Hath0r Repository Orientation Report Schema" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#contract:hath0r-rca-v1.schema.json> a hath0r:Plane ;
+    rdfs:label "hath0r.rca/v1" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#contract:hath0r-rule-node-v1.schema.json> a hath0r:Plane ;
     rdfs:label "Hath0rRuleNode" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#contract:hath0r-spc-chart-v1.schema.json> a hath0r:Plane ;
+    rdfs:label "hath0r.spc.chart/v1" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#contract:hath0r-token-histogram-v1.schema.json> a hath0r:Plane ;
@@ -463,20 +519,24 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "Tech Readme" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:_hath0r%5Cknowledgebase%5CREADME_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:_hath0r__knowledgebase__README_md> a hath0r:Plane ;
     rdfs:label "Readme" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:_hath0r%5Cknowledgebase%5Chathor-guide-050-phase1-agent-substrate-20261005_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:_hath0r__knowledgebase__hathor-guide-050-phase1-agent-substrate-20261005_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 050 Phase1 Agent Substrate 20261005" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:_hath0r%5Cknowledgebase%5Chathor-guide-051-phase2-knowledge-cag-router-20261005_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:_hath0r__knowledgebase__hathor-guide-051-phase2-knowledge-cag-router-20261005_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 051 Phase2 Knowledge Cag Router 20261005" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:_hath0r%5Cknowledgebase%5Chathor-guide-052-phase3-swarm-verifiers-budget-20261005_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:_hath0r__knowledgebase__hathor-guide-052-phase3-swarm-verifiers-budget-20261005_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 052 Phase3 Swarm Verifiers Budget 20261005" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:agents-base> a hath0r:Plane ;
+    rdfs:label "AGENTS.md (base)" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:agents-bots> a hath0r:Plane ;
@@ -516,1155 +576,1331 @@ hath0r:definesRole a owl:ObjectProperty .
     rdfs:label "AGENTS.md (tests)" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5CINDEX_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__INDEX_md> a hath0r:Plane ;
     rdfs:label "Index" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5CTICKET-AGENTGRAPH-REFACTOR_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__TICKET-AGENTGRAPH-REFACTOR_md> a hath0r:Plane ;
     rdfs:label "Ticket Agentgraph Refactor" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Carchitecture%5Cadr-rl-rag-evaluation_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__architecture__adr-rl-rag-evaluation_md> a hath0r:Plane ;
     rdfs:label "Adr Rl Rag Evaluation" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Carticles%5Cbeyond-rag-building-production-grade-agentic-pipelines-with-aws-bedrock_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__articles__beyond-rag-building-production-grade-agentic-pipelines-with-aws-bedrock_md> a hath0r:Plane ;
     rdfs:label "Beyond Rag Building Production Grade Agentic Pipelines With Aws Bedrock" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Carticles%5Cthe-hath0r-framework-rethinking-development-from-the-ground-up_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__articles__the-hath0r-framework-rethinking-development-from-the-ground-up_md> a hath0r:Plane ;
     rdfs:label "The Hath0R Framework Rethinking Development From The Ground Up" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cbots%5Cbite-verifier-bot-spec_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__bots__bite-verifier-bot-spec_md> a hath0r:Plane ;
     rdfs:label "Bite Verifier Bot Spec" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Ccanonical_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__canonical_md> a hath0r:Plane ;
     rdfs:label "Canonical" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5CSUITE_STANDARDS_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__SUITE_STANDARDS_md> a hath0r:Plane ;
     rdfs:label "Suite Standards" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cbot-specs%5Ccicccd-bot-spec_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__andon-bot-spec_md> a hath0r:Plane ;
+    rdfs:label "Andon Bot Spec" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__cicccd-bot-spec_md> a hath0r:Plane ;
     rdfs:label "Cicccd Bot Spec" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cbot-specs%5Cdecision-radar-bot-spec_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__decision-radar-bot-spec_md> a hath0r:Plane ;
     rdfs:label "Decision Radar Bot Spec" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cbot-specs%5Cembedded-elt-bots-spec_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__dmaic-project-bot-spec_md> a hath0r:Plane ;
+    rdfs:label "Dmaic Project Bot Spec" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__doe-bot-spec_md> a hath0r:Plane ;
+    rdfs:label "Doe Bot Spec" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__embedded-elt-bots-spec_md> a hath0r:Plane ;
     rdfs:label "Embedded Elt Bots Spec" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cbot-specs%5Cinstall-wizard-bot-spec_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__fmea-bot-spec_md> a hath0r:Plane ;
+    rdfs:label "Fmea Bot Spec" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__install-wizard-bot-spec_md> a hath0r:Plane ;
     rdfs:label "Install Wizard Bot Spec" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cbot-specs%5Clocal-quality-gate-bot-spec_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__local-quality-gate-bot-spec_md> a hath0r:Plane ;
     rdfs:label "Local Quality Gate Bot Spec" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cbot-specs%5Cmemory-manager-bot-spec_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__measurement-system-bot-spec_md> a hath0r:Plane ;
+    rdfs:label "Measurement System Bot Spec" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__memory-manager-bot-spec_md> a hath0r:Plane ;
     rdfs:label "Memory Manager Bot Spec" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cbot-specs%5Cmlflow-manager-bot-spec_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__mlflow-manager-bot-spec_md> a hath0r:Plane ;
     rdfs:label "Mlflow Manager Bot Spec" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cbot-specs%5Corient-bot-spec_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__orient-bot-spec_md> a hath0r:Plane ;
     rdfs:label "Orient Bot Spec" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cbot-specs%5Cphoenix-manager-bot-spec_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__phoenix-manager-bot-spec_md> a hath0r:Plane ;
     rdfs:label "Phoenix Manager Bot Spec" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cbot-specs%5Crule-rollout-bot-spec_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__root-cause-bot-spec_md> a hath0r:Plane ;
+    rdfs:label "Root Cause Bot Spec" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__rule-rollout-bot-spec_md> a hath0r:Plane ;
     rdfs:label "Rule Rollout Bot Spec" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cbot-specs%5Ctask-evaluator-bot-spec_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__spc-monitor-bot-spec_md> a hath0r:Plane ;
+    rdfs:label "Spc Monitor Bot Spec" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__task-evaluator-bot-spec_md> a hath0r:Plane ;
     rdfs:label "Task Evaluator Bot Spec" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cbot-specs%5Ctlp-bots-spec_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__tlp-bots-spec_md> a hath0r:Plane ;
     rdfs:label "Tlp Bots Spec" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cbot-specs%5Cupgrade-bot-spec_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__bot-specs__upgrade-bot-spec_md> a hath0r:Plane ;
     rdfs:label "Upgrade Bot Spec" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cbranch-rules_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__branch-rules_md> a hath0r:Plane ;
     rdfs:label "Branch Rules" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Ccccd-process-standard_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__cccd-process-standard_md> a hath0r:Plane ;
     rdfs:label "Cccd Process Standard" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cagent-session-start_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__agent-session-start_md> a hath0r:Plane ;
     rdfs:label "Agent Session Start" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cchecklist-cli-update_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__checklist-cli-update_md> a hath0r:Plane ;
     rdfs:label "Checklist Cli Update" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Ccicccd_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__cicccd_md> a hath0r:Plane ;
     rdfs:label "Cicccd" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Ccoding-checklist_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__coding-checklist_md> a hath0r:Plane ;
     rdfs:label "Coding Checklist" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cdocker-group_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__docker-group_md> a hath0r:Plane ;
     rdfs:label "Docker Group" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cend-of-task-daemon_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__end-of-task-daemon_md> a hath0r:Plane ;
     rdfs:label "End Of Task Daemon" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cfinops-token-telemetry-histogram-checklist_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__finops-token-telemetry-histogram-checklist_md> a hath0r:Plane ;
     rdfs:label "Finops Token Telemetry Histogram Checklist" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Chyper-context-checklist_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__hyper-context-checklist_md> a hath0r:Plane ;
     rdfs:label "Hyper Context Checklist" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cmcp-doc-publish-checklist_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__mcp-doc-publish-checklist_md> a hath0r:Plane ;
     rdfs:label "Mcp Doc Publish Checklist" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cmcp-doc-publish-test-doc_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__mcp-doc-publish-test-doc_md> a hath0r:Plane ;
     rdfs:label "Mcp Doc Publish Test Doc" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cmcp-enablement-checklist_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__mcp-enablement-checklist_md> a hath0r:Plane ;
     rdfs:label "Mcp Enablement Checklist" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cmemory-space-checklist_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__memory-space-checklist_md> a hath0r:Plane ;
     rdfs:label "Memory Space Checklist" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Copenfeature-adherence_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__openfeature-adherence_md> a hath0r:Plane ;
     rdfs:label "Openfeature Adherence" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Copenobservation-adherence_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__openobservation-adherence_md> a hath0r:Plane ;
     rdfs:label "Openobservation Adherence" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Copentelemetry-adherence_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__opentelemetry-adherence_md> a hath0r:Plane ;
     rdfs:label "Opentelemetry Adherence" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Copentelemetry-tracing_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__opentelemetry-tracing_md> a hath0r:Plane ;
     rdfs:label "Opentelemetry Tracing" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Corient-checklist_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__orient-checklist_md> a hath0r:Plane ;
     rdfs:label "Orient Checklist" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cpr-human-gate-before-staging_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__pr-human-gate-before-staging_md> a hath0r:Plane ;
     rdfs:label "Pr Human Gate Before Staging" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cpr-post-merge-development_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__pr-post-merge-development_md> a hath0r:Plane ;
     rdfs:label "Pr Post Merge Development" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cpr-pre-merge-development_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__pr-pre-merge-development_md> a hath0r:Plane ;
     rdfs:label "Pr Pre Merge Development" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cpr-pre-promote-testing_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__pr-pre-promote-testing_md> a hath0r:Plane ;
     rdfs:label "Pr Pre Promote Testing" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cpr-release-to-master_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__pr-release-to-master_md> a hath0r:Plane ;
     rdfs:label "Pr Release To Master" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cquality-bots_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__quality-bots_md> a hath0r:Plane ;
     rdfs:label "Quality Bots" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Crepo-clean_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__repo-clean_md> a hath0r:Plane ;
     rdfs:label "Repo Clean" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Csemantic-versioning-checklist_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__semantic-versioning-checklist_md> a hath0r:Plane ;
     rdfs:label "Semantic Versioning Checklist" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Csonarcloud-pr-gate_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__sonarcloud-pr-gate_md> a hath0r:Plane ;
     rdfs:label "Sonarcloud Pr Gate" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Ctask-lifecycle_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__task-lifecycle_md> a hath0r:Plane ;
     rdfs:label "Task Lifecycle" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Ctroubleshooting-checklist_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__troubleshooting-checklist_md> a hath0r:Plane ;
     rdfs:label "Troubleshooting Checklist" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cupdate-cli-checklist_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__update-cli-checklist_md> a hath0r:Plane ;
     rdfs:label "Update Cli Checklist" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cupgrade_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__upgrade_md> a hath0r:Plane ;
     rdfs:label "Upgrade" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cchecklists%5Cvoice-command-group-checklist_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__checklists__voice-command-group-checklist_md> a hath0r:Plane ;
     rdfs:label "Voice Command Group Checklist" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Ccli-first-rules_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__cli-first-rules_md> a hath0r:Plane ;
     rdfs:label "Cli First Rules" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Ccr-cli-feature-standard-001_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__cr-cli-feature-standard-001_md> a hath0r:Plane ;
     rdfs:label "Cr Cli Feature Standard 001" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cdocker-group-standard_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__docker-group-standard_md> a hath0r:Plane ;
     rdfs:label "Docker Group Standard" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cissue-factory_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__issue-factory_md> a hath0r:Plane ;
     rdfs:label "Issue Factory" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cjev-integration_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__jev-integration_md> a hath0r:Plane ;
     rdfs:label "Jev Integration" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cjev-next-steps_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__jev-next-steps_md> a hath0r:Plane ;
     rdfs:label "Jev Next Steps" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Clocal-quality-gates_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__local-quality-gates_md> a hath0r:Plane ;
     rdfs:label "Local Quality Gates" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cmcp-centralization-workflow-first-standard_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__mcp-centralization-workflow-first-standard_md> a hath0r:Plane ;
     rdfs:label "Mcp Centralization Workflow First Standard" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cmcp-configuration_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__mcp-configuration_md> a hath0r:Plane ;
     rdfs:label "Mcp Configuration" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cmcp-doc-publish_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__mcp-doc-publish_md> a hath0r:Plane ;
     rdfs:label "Mcp Doc Publish" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Copenfeature-standards_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__openfeature-standards_md> a hath0r:Plane ;
     rdfs:label "Openfeature Standards" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Copenobservation-standards_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__openobservation-standards_md> a hath0r:Plane ;
     rdfs:label "Openobservation Standards" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Copentelemetry-standards_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__opentelemetry-standards_md> a hath0r:Plane ;
     rdfs:label "Opentelemetry Standards" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Ccicccd-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__andon-playbook_md> a hath0r:Plane ;
+    rdfs:label "Andon Playbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__cicccd-playbook_md> a hath0r:Plane ;
     rdfs:label "Cicccd Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Ccolpali-vision-kb-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__colpali-vision-kb-playbook_md> a hath0r:Plane ;
     rdfs:label "Colpali Vision Kb Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cdecision-radar-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__decision-radar-playbook_md> a hath0r:Plane ;
     rdfs:label "Decision Radar Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cdocker-group-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__dmaic-playbook_md> a hath0r:Plane ;
+    rdfs:label "Dmaic Playbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__docker-group-playbook_md> a hath0r:Plane ;
     rdfs:label "Docker Group Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cdynamic-mcp-security-policy-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__doe-playbook_md> a hath0r:Plane ;
+    rdfs:label "Doe Playbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__dynamic-mcp-security-policy-playbook_md> a hath0r:Plane ;
     rdfs:label "Dynamic Mcp Security Policy Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cdynamic-tool-routing-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__dynamic-tool-routing-playbook_md> a hath0r:Plane ;
     rdfs:label "Dynamic Tool Routing Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Celt-troubleshooting-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__elt-troubleshooting-playbook_md> a hath0r:Plane ;
     rdfs:label "Elt Troubleshooting Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cend-of-task-daemon-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__end-of-task-daemon-playbook_md> a hath0r:Plane ;
     rdfs:label "End Of Task Daemon Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cfinops-token-telemetry-histogram-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__eval-measurement-system-playbook_md> a hath0r:Plane ;
+    rdfs:label "Eval Measurement System Playbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__finops-token-telemetry-histogram-playbook_md> a hath0r:Plane ;
     rdfs:label "Finops Token Telemetry Histogram Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cgit-worktree-isolation-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__fmea-playbook_md> a hath0r:Plane ;
+    rdfs:label "Fmea Playbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__git-worktree-isolation-playbook_md> a hath0r:Plane ;
     rdfs:label "Git Worktree Isolation Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Chyper-context-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__hyper-context-playbook_md> a hath0r:Plane ;
     rdfs:label "Hyper Context Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cinstall-wizard-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__install-wizard-playbook_md> a hath0r:Plane ;
     rdfs:label "Install Wizard Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cinstruction-aware-reranker-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__instruction-aware-reranker-playbook_md> a hath0r:Plane ;
     rdfs:label "Instruction Aware Reranker Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Ckokoro-tts-engine-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__kokoro-tts-engine-playbook_md> a hath0r:Plane ;
     rdfs:label "Kokoro Tts Engine Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Clazy-command-loading-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__lazy-command-loading-playbook_md> a hath0r:Plane ;
     rdfs:label "Lazy Command Loading Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Clocal-quality-gates-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__local-quality-gates-playbook_md> a hath0r:Plane ;
     rdfs:label "Local Quality Gates Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Clocal-reasoning-adapters-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__local-reasoning-adapters-playbook_md> a hath0r:Plane ;
     rdfs:label "Local Reasoning Adapters Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cmcp-doc-publish-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__mcp-doc-publish-playbook_md> a hath0r:Plane ;
     rdfs:label "Mcp Doc Publish Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cmcp-enablement-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__mcp-enablement-runbook_md> a hath0r:Plane ;
     rdfs:label "Mcp Enablement Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cmemory-space-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__memory-space-playbook_md> a hath0r:Plane ;
     rdfs:label "Memory Space Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cmemorygraph-compounding-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__memorygraph-compounding-playbook_md> a hath0r:Plane ;
     rdfs:label "Memorygraph Compounding Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cmlflow-experiment-tracking-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__mlflow-experiment-tracking-playbook_md> a hath0r:Plane ;
     rdfs:label "Mlflow Experiment Tracking Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Copenfeature-setup-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__openfeature-setup-playbook_md> a hath0r:Plane ;
     rdfs:label "Openfeature Setup Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Copenobservation-setup-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__openobservation-setup-playbook_md> a hath0r:Plane ;
     rdfs:label "Openobservation Setup Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Copentelemetry-setup-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__opentelemetry-setup-playbook_md> a hath0r:Plane ;
     rdfs:label "Opentelemetry Setup Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Copentelemetry-tracing-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__opentelemetry-tracing-playbook_md> a hath0r:Plane ;
     rdfs:label "Opentelemetry Tracing Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Corient-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__orient-playbook_md> a hath0r:Plane ;
     rdfs:label "Orient Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cphoenix-telemetry-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__phoenix-telemetry-playbook_md> a hath0r:Plane ;
     rdfs:label "Phoenix Telemetry Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cplaybook-cli-update_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__playbook-cli-update_md> a hath0r:Plane ;
     rdfs:label "Playbook Cli Update" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cplaybook-coding_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__playbook-coding_md> a hath0r:Plane ;
     rdfs:label "Playbook Coding" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cplaybook-troubleshooting_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__playbook-troubleshooting_md> a hath0r:Plane ;
     rdfs:label "Playbook Troubleshooting" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cpr-workflow-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__pr-workflow-playbook_md> a hath0r:Plane ;
     rdfs:label "Pr Workflow Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cpytorch-acceleration-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__pytorch-acceleration-playbook_md> a hath0r:Plane ;
     rdfs:label "Pytorch Acceleration Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cpytorch-batch-quantization-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__pytorch-batch-quantization-playbook_md> a hath0r:Plane ;
     rdfs:label "Pytorch Batch Quantization Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Crelease-binaries-sync-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__rca-playbook_md> a hath0r:Plane ;
+    rdfs:label "Rca Playbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__release-binaries-sync-playbook_md> a hath0r:Plane ;
     rdfs:label "Release Binaries Sync Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Crelease-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__release-runbook_md> a hath0r:Plane ;
     rdfs:label "Release Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Crepo-clean-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__repo-clean-playbook_md> a hath0r:Plane ;
     rdfs:label "Repo Clean Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Crule-rollout-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__rule-rollout-playbook_md> a hath0r:Plane ;
     rdfs:label "Rule Rollout Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cschema-self-repair-loops-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__schema-self-repair-loops-playbook_md> a hath0r:Plane ;
     rdfs:label "Schema Self Repair Loops Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Csonarcloud-quality-gate-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__sonarcloud-quality-gate-playbook_md> a hath0r:Plane ;
     rdfs:label "Sonarcloud Quality Gate Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Csqlite-fts5-kb-cache-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__spc-monitor-playbook_md> a hath0r:Plane ;
+    rdfs:label "Spc Monitor Playbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__sqlite-fts5-kb-cache-playbook_md> a hath0r:Plane ;
     rdfs:label "Sqlite Fts5 Kb Cache Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Csupercompress-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__supercompress-playbook_md> a hath0r:Plane ;
     rdfs:label "Supercompress Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Ctask-evals-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__task-evals-playbook_md> a hath0r:Plane ;
     rdfs:label "Task Evals Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Ctask-lifecycle-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__task-lifecycle-playbook_md> a hath0r:Plane ;
     rdfs:label "Task Lifecycle Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Ctlp-troubleshooting-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__tlp-troubleshooting-playbook_md> a hath0r:Plane ;
     rdfs:label "Tlp Troubleshooting Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Ctoken-check-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__token-check-playbook_md> a hath0r:Plane ;
     rdfs:label "Token Check Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Ctree-sitter-ast-parser-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__tree-sitter-ast-parser-playbook_md> a hath0r:Plane ;
     rdfs:label "Tree Sitter Ast Parser Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cupdate-cli-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__update-cli-playbook_md> a hath0r:Plane ;
     rdfs:label "Update Cli Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cupgrade-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__upgrade-playbook_md> a hath0r:Plane ;
     rdfs:label "Upgrade Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cvision-transformers-cli-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__vision-transformers-cli-playbook_md> a hath0r:Plane ;
     rdfs:label "Vision Transformers Cli Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cvoice-command-group-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__voice-command-group-playbook_md> a hath0r:Plane ;
     rdfs:label "Voice Command Group Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cvoice-converse-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__voice-converse-playbook_md> a hath0r:Plane ;
     rdfs:label "Voice Converse Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cplaybooks%5Cwasm-micro-runtime-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__playbooks__wasm-micro-runtime-playbook_md> a hath0r:Plane ;
     rdfs:label "Wasm Micro Runtime Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cportraits%5CREADME_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__poka-yoke-catalogue_md> a hath0r:Plane ;
+    rdfs:label "Poka Yoke Catalogue" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__portraits__README_md> a hath0r:Plane ;
     rdfs:label "Readme" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cportraits%5Cbot-specification_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__portraits__bot-specification_md> a hath0r:Plane ;
     rdfs:label "Bot Specification" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cportraits%5Cplaybook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__portraits__playbook_md> a hath0r:Plane ;
     rdfs:label "Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cportraits%5Cprocedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__portraits__procedure_md> a hath0r:Plane ;
     rdfs:label "Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cportraits%5Crunbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__portraits__runbook_md> a hath0r:Plane ;
     rdfs:label "Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cportraits%5Cstrategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__portraits__strategy_md> a hath0r:Plane ;
     rdfs:label "Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cportraits%5Cworkflow_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__portraits__workflow_md> a hath0r:Plane ;
     rdfs:label "Workflow" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cpr-workflow_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__pr-workflow_md> a hath0r:Plane ;
     rdfs:label "Pr Workflow" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Ccicccd-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__andon-procedure_md> a hath0r:Plane ;
+    rdfs:label "Andon Procedure" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__cicccd-procedure_md> a hath0r:Plane ;
     rdfs:label "Cicccd Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Ccoding-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__coding-procedure_md> a hath0r:Plane ;
     rdfs:label "Coding Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cdecision-radar-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__decision-radar-procedure_md> a hath0r:Plane ;
     rdfs:label "Decision Radar Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cdocker-group-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__dmaic-procedure_md> a hath0r:Plane ;
+    rdfs:label "Dmaic Procedure" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__docker-group-procedure_md> a hath0r:Plane ;
     rdfs:label "Docker Group Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Celt-pipeline-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__doe-procedure_md> a hath0r:Plane ;
+    rdfs:label "Doe Procedure" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__elt-pipeline-procedure_md> a hath0r:Plane ;
     rdfs:label "Elt Pipeline Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cend-of-task-daemon-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__end-of-task-daemon-procedure_md> a hath0r:Plane ;
     rdfs:label "End Of Task Daemon Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cfinops-token-telemetry-histogram-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__eval-measurement-system-procedure_md> a hath0r:Plane ;
+    rdfs:label "Eval Measurement System Procedure" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__finops-token-telemetry-histogram-procedure_md> a hath0r:Plane ;
     rdfs:label "Finops Token Telemetry Histogram Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Chyper-context-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__fmea-procedure_md> a hath0r:Plane ;
+    rdfs:label "Fmea Procedure" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__hyper-context-procedure_md> a hath0r:Plane ;
     rdfs:label "Hyper Context Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cinstall-wizard-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__install-wizard-procedure_md> a hath0r:Plane ;
     rdfs:label "Install Wizard Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Clocal-quality-gates-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__local-quality-gates-procedure_md> a hath0r:Plane ;
     rdfs:label "Local Quality Gates Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cmcp-doc-publish-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__mcp-doc-publish-procedure_md> a hath0r:Plane ;
     rdfs:label "Mcp Doc Publish Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cmemory-space-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__memory-space-procedure_md> a hath0r:Plane ;
     rdfs:label "Memory Space Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cmemorygraph-compounding-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__memorygraph-compounding-procedure_md> a hath0r:Plane ;
     rdfs:label "Memorygraph Compounding Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cmlflow-management-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__mlflow-management-procedure_md> a hath0r:Plane ;
     rdfs:label "Mlflow Management Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Copentelemetry-tracing-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__opentelemetry-tracing-procedure_md> a hath0r:Plane ;
     rdfs:label "Opentelemetry Tracing Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Corient-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__orient-procedure_md> a hath0r:Plane ;
     rdfs:label "Orient Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cphoenix-deployment-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__phoenix-deployment-procedure_md> a hath0r:Plane ;
     rdfs:label "Phoenix Deployment Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cprocedure-cli-update_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__procedure-cli-update_md> a hath0r:Plane ;
     rdfs:label "Procedure Cli Update" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cquality-release-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__quality-release-procedure_md> a hath0r:Plane ;
     rdfs:label "Quality Release Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Crepo-clean-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__rca-procedure_md> a hath0r:Plane ;
+    rdfs:label "Rca Procedure" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__repo-clean-procedure_md> a hath0r:Plane ;
     rdfs:label "Repo Clean Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Crule-rollout-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__rule-rollout-procedure_md> a hath0r:Plane ;
     rdfs:label "Rule Rollout Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Ctask-evals-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__spc-monitor-procedure_md> a hath0r:Plane ;
+    rdfs:label "Spc Monitor Procedure" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__task-evals-procedure_md> a hath0r:Plane ;
     rdfs:label "Task Evals Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Ctask-finish-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__task-finish-procedure_md> a hath0r:Plane ;
     rdfs:label "Task Finish Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Ctask-start-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__task-start-procedure_md> a hath0r:Plane ;
     rdfs:label "Task Start Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Ctlp-execution-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__tlp-execution-procedure_md> a hath0r:Plane ;
     rdfs:label "Tlp Execution Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Ctroubleshooting-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__troubleshooting-procedure_md> a hath0r:Plane ;
     rdfs:label "Troubleshooting Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cupdate-cli-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__update-cli-procedure_md> a hath0r:Plane ;
     rdfs:label "Update Cli Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cupgrade-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__upgrade-procedure_md> a hath0r:Plane ;
     rdfs:label "Upgrade Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cvoice-command-group-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__voice-command-group-procedure_md> a hath0r:Plane ;
     rdfs:label "Voice Command Group Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cprocedures%5Cvoice-converse-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__procedures__voice-converse-procedure_md> a hath0r:Plane ;
     rdfs:label "Voice Converse Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cproject-closure-suite-epics-2026-09-24_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__project-closure-suite-epics-2026-09-24_md> a hath0r:Plane ;
     rdfs:label "Project Closure Suite Epics 2026 09 24" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cquality-bots_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__quality-bots_md> a hath0r:Plane ;
     rdfs:label "Quality Bots" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crules%5Ccr-memory-compound-001_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__rules__cr-context-squeeze-001_md> a hath0r:Plane ;
+    rdfs:label "Cr Context Squeeze 001" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__rules__cr-memory-compound-001_md> a hath0r:Plane ;
     rdfs:label "Cr Memory Compound 001" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Ccicccd-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__andon-runbook_md> a hath0r:Plane ;
+    rdfs:label "Andon Runbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__cicccd-runbook_md> a hath0r:Plane ;
     rdfs:label "Cicccd Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Ccoding-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__coding-runbook_md> a hath0r:Plane ;
     rdfs:label "Coding Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cdecision-radar-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__decision-radar-runbook_md> a hath0r:Plane ;
     rdfs:label "Decision Radar Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cdocker-group-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__dmaic-runbook_md> a hath0r:Plane ;
+    rdfs:label "Dmaic Runbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__docker-group-runbook_md> a hath0r:Plane ;
     rdfs:label "Docker Group Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Celt-runtime-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__doe-runbook_md> a hath0r:Plane ;
+    rdfs:label "Doe Runbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__elt-runtime-runbook_md> a hath0r:Plane ;
     rdfs:label "Elt Runtime Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cend-of-task-daemon-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__end-of-task-daemon-runbook_md> a hath0r:Plane ;
     rdfs:label "End Of Task Daemon Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cfinops-token-telemetry-histogram-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__eval-measurement-system-runbook_md> a hath0r:Plane ;
+    rdfs:label "Eval Measurement System Runbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__finops-token-telemetry-histogram-runbook_md> a hath0r:Plane ;
     rdfs:label "Finops Token Telemetry Histogram Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Chyper-context-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__fmea-runbook_md> a hath0r:Plane ;
+    rdfs:label "Fmea Runbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__hyper-context-runbook_md> a hath0r:Plane ;
     rdfs:label "Hyper Context Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cinstall-wizard-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__install-wizard-runbook_md> a hath0r:Plane ;
     rdfs:label "Install Wizard Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Clocal-quality-gates-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__local-quality-gates-runbook_md> a hath0r:Plane ;
     rdfs:label "Local Quality Gates Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cmcp-doc-publish-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__mcp-doc-publish-runbook_md> a hath0r:Plane ;
     rdfs:label "Mcp Doc Publish Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cmemory-space-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__memory-space-runbook_md> a hath0r:Plane ;
     rdfs:label "Memory Space Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cmemorygraph-compounding-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__memorygraph-compounding-runbook_md> a hath0r:Plane ;
     rdfs:label "Memorygraph Compounding Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cmlflow-service-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__mlflow-service-runbook_md> a hath0r:Plane ;
     rdfs:label "Mlflow Service Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Copenfeature-ops-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__openfeature-ops-runbook_md> a hath0r:Plane ;
     rdfs:label "Openfeature Ops Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Copenobservation-ops-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__openobservation-ops-runbook_md> a hath0r:Plane ;
     rdfs:label "Openobservation Ops Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Copentelemetry-ops-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__opentelemetry-ops-runbook_md> a hath0r:Plane ;
     rdfs:label "Opentelemetry Ops Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Copentelemetry-tracing-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__opentelemetry-tracing-runbook_md> a hath0r:Plane ;
     rdfs:label "Opentelemetry Tracing Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Corient-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__orient-runbook_md> a hath0r:Plane ;
     rdfs:label "Orient Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cphoenix-lifecycle-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__phoenix-lifecycle-runbook_md> a hath0r:Plane ;
     rdfs:label "Phoenix Lifecycle Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cpr-lifecycle-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__pr-lifecycle-runbook_md> a hath0r:Plane ;
     rdfs:label "Pr Lifecycle Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cquality-release-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__quality-release-runbook_md> a hath0r:Plane ;
     rdfs:label "Quality Release Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Crepo-clean-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__rca-runbook_md> a hath0r:Plane ;
+    rdfs:label "Rca Runbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__repo-clean-runbook_md> a hath0r:Plane ;
     rdfs:label "Repo Clean Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Crule-rollout-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__rule-rollout-runbook_md> a hath0r:Plane ;
     rdfs:label "Rule Rollout Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Crunbook-cli-update_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__runbook-cli-update_md> a hath0r:Plane ;
     rdfs:label "Runbook Cli Update" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Ctask-evals-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__spc-monitor-runbook_md> a hath0r:Plane ;
+    rdfs:label "Spc Monitor Runbook" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__task-evals-runbook_md> a hath0r:Plane ;
     rdfs:label "Task Evals Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Ctask-lifecycle-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__task-lifecycle-runbook_md> a hath0r:Plane ;
     rdfs:label "Task Lifecycle Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Ctlp-runtime-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__tlp-runtime-runbook_md> a hath0r:Plane ;
     rdfs:label "Tlp Runtime Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Ctoken-check-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__token-check-runbook_md> a hath0r:Plane ;
     rdfs:label "Token Check Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Ctroubleshooting-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__troubleshooting-runbook_md> a hath0r:Plane ;
     rdfs:label "Troubleshooting Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cupdate-cli-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__update-cli-runbook_md> a hath0r:Plane ;
     rdfs:label "Update Cli Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cupgrade-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__upgrade-runbook_md> a hath0r:Plane ;
     rdfs:label "Upgrade Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cvoice-command-group-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__voice-command-group-runbook_md> a hath0r:Plane ;
     rdfs:label "Voice Command Group Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Crunbooks%5Cvoice-converse-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__runbooks__voice-converse-runbook_md> a hath0r:Plane ;
     rdfs:label "Voice Converse Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Csemantic-versioning_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__semantic-versioning_md> a hath0r:Plane ;
     rdfs:label "Semantic Versioning" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Csonarcloud-quality-gates_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__sonarcloud-quality-gates_md> a hath0r:Plane ;
     rdfs:label "Sonarcloud Quality Gates" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Ccicccd-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__andon-strategy_md> a hath0r:Plane ;
+    rdfs:label "Andon Strategy" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__cicccd-strategy_md> a hath0r:Plane ;
     rdfs:label "Cicccd Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Ccoding-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__coding-strategy_md> a hath0r:Plane ;
     rdfs:label "Coding Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Ccolpali-vision-kb-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__colpali-vision-kb-strategy_md> a hath0r:Plane ;
     rdfs:label "Colpali Vision Kb Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cdecision-radar-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__decision-radar-strategy_md> a hath0r:Plane ;
     rdfs:label "Decision Radar Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cdocker-group-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__dmaic-strategy_md> a hath0r:Plane ;
+    rdfs:label "Dmaic Strategy" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__docker-group-strategy_md> a hath0r:Plane ;
     rdfs:label "Docker Group Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cdynamic-mcp-security-policy-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__doe-strategy_md> a hath0r:Plane ;
+    rdfs:label "Doe Strategy" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__dynamic-mcp-security-policy-strategy_md> a hath0r:Plane ;
     rdfs:label "Dynamic Mcp Security Policy Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cdynamic-tool-routing-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__dynamic-tool-routing-strategy_md> a hath0r:Plane ;
     rdfs:label "Dynamic Tool Routing Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cembedded-elt-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__embedded-elt-strategy_md> a hath0r:Plane ;
     rdfs:label "Embedded Elt Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cend-of-task-daemon-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__end-of-task-daemon-strategy_md> a hath0r:Plane ;
     rdfs:label "End Of Task Daemon Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cfinops-token-telemetry-histogram-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__eval-measurement-system-strategy_md> a hath0r:Plane ;
+    rdfs:label "Eval Measurement System Strategy" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__finops-token-telemetry-histogram-strategy_md> a hath0r:Plane ;
     rdfs:label "Finops Token Telemetry Histogram Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cgit-worktree-isolation-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__fmea-strategy_md> a hath0r:Plane ;
+    rdfs:label "Fmea Strategy" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__git-worktree-isolation-strategy_md> a hath0r:Plane ;
     rdfs:label "Git Worktree Isolation Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Chyper-context-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__hyper-context-strategy_md> a hath0r:Plane ;
     rdfs:label "Hyper Context Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cinstall-wizard-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__install-wizard-strategy_md> a hath0r:Plane ;
     rdfs:label "Install Wizard Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cinstruction-aware-reranker-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__instruction-aware-reranker-strategy_md> a hath0r:Plane ;
     rdfs:label "Instruction Aware Reranker Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Ckokoro-tts-engine-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__kokoro-tts-engine-strategy_md> a hath0r:Plane ;
     rdfs:label "Kokoro Tts Engine Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Clazy-command-loading-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__lazy-command-loading-strategy_md> a hath0r:Plane ;
     rdfs:label "Lazy Command Loading Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Clocal-quality-gates-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__local-quality-gates-strategy_md> a hath0r:Plane ;
     rdfs:label "Local Quality Gates Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Clocal-reasoning-adapters-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__local-reasoning-adapters-strategy_md> a hath0r:Plane ;
     rdfs:label "Local Reasoning Adapters Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cmcp-doc-publish-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__mcp-doc-publish-strategy_md> a hath0r:Plane ;
     rdfs:label "Mcp Doc Publish Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cmemory-space-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__memory-space-strategy_md> a hath0r:Plane ;
     rdfs:label "Memory Space Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cmemorygraph-compounding-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__memorygraph-compounding-strategy_md> a hath0r:Plane ;
     rdfs:label "Memorygraph Compounding Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cmlflow-mlops-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__mlflow-mlops-strategy_md> a hath0r:Plane ;
     rdfs:label "Mlflow Mlops Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Copentelemetry-tracing-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__opentelemetry-tracing-strategy_md> a hath0r:Plane ;
     rdfs:label "Opentelemetry Tracing Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Corient-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__orient-strategy_md> a hath0r:Plane ;
     rdfs:label "Orient Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cphoenix-telemetry-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__phoenix-telemetry-strategy_md> a hath0r:Plane ;
     rdfs:label "Phoenix Telemetry Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cpr-lifecycle-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__pr-lifecycle-strategy_md> a hath0r:Plane ;
     rdfs:label "Pr Lifecycle Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cpytorch-acceleration-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__pytorch-acceleration-strategy_md> a hath0r:Plane ;
     rdfs:label "Pytorch Acceleration Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cpytorch-batch-quantization-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__pytorch-batch-quantization-strategy_md> a hath0r:Plane ;
     rdfs:label "Pytorch Batch Quantization Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cquality-release-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__quality-release-strategy_md> a hath0r:Plane ;
     rdfs:label "Quality Release Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Crelease-binaries-sync-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__rca-strategy_md> a hath0r:Plane ;
+    rdfs:label "Rca Strategy" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__release-binaries-sync-strategy_md> a hath0r:Plane ;
     rdfs:label "Release Binaries Sync Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Crepo-clean-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__repo-clean-strategy_md> a hath0r:Plane ;
     rdfs:label "Repo Clean Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Crule-rollout-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__rule-rollout-strategy_md> a hath0r:Plane ;
     rdfs:label "Rule Rollout Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cschema-self-repair-loops-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__schema-self-repair-loops-strategy_md> a hath0r:Plane ;
     rdfs:label "Schema Self Repair Loops Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Csqlite-fts5-kb-cache-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__spc-monitor-strategy_md> a hath0r:Plane ;
+    rdfs:label "Spc Monitor Strategy" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__sqlite-fts5-kb-cache-strategy_md> a hath0r:Plane ;
     rdfs:label "Sqlite Fts5 Kb Cache Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cstrategy-cli-update_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__strategy-cli-update_md> a hath0r:Plane ;
     rdfs:label "Strategy Cli Update" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Csupercompress-integration-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__supercompress-integration-strategy_md> a hath0r:Plane ;
     rdfs:label "Supercompress Integration Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Ctask-evals-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__task-evals-strategy_md> a hath0r:Plane ;
     rdfs:label "Task Evals Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Ctask-lifecycle-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__task-lifecycle-strategy_md> a hath0r:Plane ;
     rdfs:label "Task Lifecycle Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Ctlp-orchestration-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__tlp-orchestration-strategy_md> a hath0r:Plane ;
     rdfs:label "Tlp Orchestration Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Ctree-sitter-ast-parser-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__tree-sitter-ast-parser-strategy_md> a hath0r:Plane ;
     rdfs:label "Tree Sitter Ast Parser Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Ctroubleshooting-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__troubleshooting-strategy_md> a hath0r:Plane ;
     rdfs:label "Troubleshooting Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cupdate-cli-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__update-cli-strategy_md> a hath0r:Plane ;
     rdfs:label "Update Cli Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cupgrade-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__upgrade-strategy_md> a hath0r:Plane ;
     rdfs:label "Upgrade Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cvision-transformers-cli-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__vision-transformers-cli-strategy_md> a hath0r:Plane ;
     rdfs:label "Vision Transformers Cli Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cvoice-command-group-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__voice-command-group-strategy_md> a hath0r:Plane ;
     rdfs:label "Voice Command Group Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cvoice-converse-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__voice-converse-strategy_md> a hath0r:Plane ;
     rdfs:label "Voice Converse Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cstrategies%5Cwasm-micro-runtime-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__strategies__wasm-micro-runtime-strategy_md> a hath0r:Plane ;
     rdfs:label "Wasm Micro Runtime Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cworkflow-documentation-standard_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflow-documentation-standard_md> a hath0r:Plane ;
     rdfs:label "Workflow Documentation Standard" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cworkflows%5Cdecision-radar-workflow_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__andon-workflow_md> a hath0r:Plane ;
+    rdfs:label "Andon Workflow" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__decision-radar-workflow_md> a hath0r:Plane ;
     rdfs:label "Decision Radar Workflow" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cworkflows%5Cembedded-elt-workflow_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__dmaic-project-workflow_md> a hath0r:Plane ;
+    rdfs:label "Dmaic Project Workflow" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__embedded-elt-workflow_md> a hath0r:Plane ;
     rdfs:label "Embedded Elt Workflow" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cworkflows%5Clocal-quality-gates-workflow_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__eval-measurement-system-workflow_md> a hath0r:Plane ;
+    rdfs:label "Eval Measurement System Workflow" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__fmea-review-workflow_md> a hath0r:Plane ;
+    rdfs:label "Fmea Review Workflow" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__local-quality-gates-workflow_md> a hath0r:Plane ;
     rdfs:label "Local Quality Gates Workflow" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cworkflows%5Cmemorygraph-compounding-workflow_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__memorygraph-compounding-workflow_md> a hath0r:Plane ;
     rdfs:label "Memorygraph Compounding Workflow" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cworkflows%5Cmlflow-continuous-calibration-workflow_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__mlflow-continuous-calibration-workflow_md> a hath0r:Plane ;
     rdfs:label "Mlflow Continuous Calibration Workflow" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cworkflows%5Corient-workflow_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__orient-workflow_md> a hath0r:Plane ;
     rdfs:label "Orient Workflow" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cworkflows%5Cphoenix-telemetry-workflow_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__phoenix-telemetry-workflow_md> a hath0r:Plane ;
     rdfs:label "Phoenix Telemetry Workflow" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cworkflows%5Crule-rollout-workflow_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__rca-pareto-workflow_md> a hath0r:Plane ;
+    rdfs:label "Rca Pareto Workflow" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__rule-rollout-workflow_md> a hath0r:Plane ;
     rdfs:label "Rule Rollout Workflow" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cworkflows%5Ctask-evals-workflow_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__sequential-doe-workflow_md> a hath0r:Plane ;
+    rdfs:label "Sequential Doe Workflow" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__spc-monitor-workflow_md> a hath0r:Plane ;
+    rdfs:label "Spc Monitor Workflow" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__task-evals-workflow_md> a hath0r:Plane ;
     rdfs:label "Task Evals Workflow" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cgovernance%5Cworkflows%5Ctlp-orchestration-workflow_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__governance__workflows__tlp-orchestration-workflow_md> a hath0r:Plane ;
     rdfs:label "Tlp Orchestration Workflow" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-arch-004-cli-control-tower-integration-20260916_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-arch-004-cli-control-tower-integration-20260916_md> a hath0r:Plane ;
     rdfs:label "Hathor Arch 004 Cli Control Tower Integration 20260916" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-guide-042-current-command-reference-20260916_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-042-current-command-reference-20260916_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 042 Current Command Reference 20260916" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-guide-043-poc-adapter-integration-20260916_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-043-poc-adapter-integration-20260916_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 043 Poc Adapter Integration 20260916" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-guide-044-development-testing-20260916_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-044-development-testing-20260916_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 044 Development Testing 20260916" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-guide-045-security-governance-delivery-20260916_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-045-security-governance-delivery-20260916_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 045 Security Governance Delivery 20260916" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-guide-046-troubleshooting-20260916_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-046-troubleshooting-20260916_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 046 Troubleshooting 20260916" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-guide-047-install-and-release-20260918_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-047-install-and-release-20260918_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 047 Install And Release 20260918" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-guide-048-paper-design-mcp-integration-20261003_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-048-paper-design-mcp-integration-20261003_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 048 Paper Design Mcp Integration 20261003" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-guide-049-automated-upgrade-install-20261005_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-049-automated-upgrade-install-20261005_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 049 Automated Upgrade Install 20261005" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-guide-050-phase1-agent-substrate-20261005_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-050-phase1-agent-substrate-20261005_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 050 Phase1 Agent Substrate 20261005" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-guide-051-phase2-knowledge-cag-router-20261005_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-051-phase2-knowledge-cag-router-20261005_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 051 Phase2 Knowledge Cag Router 20261005" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-guide-052-phase3-swarm-verifiers-budget-20261005_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-guide-052-phase3-swarm-verifiers-budget-20261005_md> a hath0r:Plane ;
     rdfs:label "Hathor Guide 052 Phase3 Swarm Verifiers Budget 20261005" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-playbook-001-repo-init-setup-20260919_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-playbook-001-repo-init-setup-20260919_md> a hath0r:Plane ;
     rdfs:label "Hathor Playbook 001 Repo Init Setup 20260919" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-req-002-cli-poc-integration-requirements-20260916_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-req-002-cli-poc-integration-requirements-20260916_md> a hath0r:Plane ;
     rdfs:label "Hathor Req 002 Cli Poc Integration Requirements 20260916" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Chathor-ts-005-poc-machine-interface-20260916_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__hathor-ts-005-poc-machine-interface-20260916_md> a hath0r:Plane ;
     rdfs:label "Hathor Ts 005 Poc Machine Interface 20260916" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cjev-rollout_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__jev-rollout_md> a hath0r:Plane ;
     rdfs:label "Jev Rollout" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Copensource-project_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__opensource-project_md> a hath0r:Plane ;
     rdfs:label "Opensource Project" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cplaybooks%5Cbite-supply-chain-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__playbooks__bite-supply-chain-playbook_md> a hath0r:Plane ;
     rdfs:label "Bite Supply Chain Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cplaybooks%5Cgit-promotion-workflow-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__playbooks__git-promotion-workflow-playbook_md> a hath0r:Plane ;
     rdfs:label "Git Promotion Workflow Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cplaybooks%5Chathor-eval-ci-playbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__playbooks__hathor-eval-ci-playbook_md> a hath0r:Plane ;
     rdfs:label "Hathor Eval Ci Playbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cprocedures%5Cbite-supply-chain-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__procedures__bite-supply-chain-procedure_md> a hath0r:Plane ;
     rdfs:label "Bite Supply Chain Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cprocedures%5Cgit-promotion-workflow-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__procedures__git-promotion-workflow-procedure_md> a hath0r:Plane ;
     rdfs:label "Git Promotion Workflow Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cprocedures%5Cphoenix-feature-lifecycle-procedure_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__procedures__phoenix-feature-lifecycle-procedure_md> a hath0r:Plane ;
     rdfs:label "Phoenix Feature Lifecycle Procedure" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Creports%5CHATHOR-REPORT-MULTI-001-1nation-bai-websites-20260919_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__reports__HATHOR-REPORT-MULTI-001-1nation-bai-websites-20260919_md> a hath0r:Plane ;
     rdfs:label "Hathor Report Multi 001 1Nation Bai Websites 20260919" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Creports%5Ccompliance-audit-report-hathor-cli_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__reports__compliance-audit-report-hathor-cli_md> a hath0r:Plane ;
     rdfs:label "Compliance Audit Report Hathor Cli" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Crules_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__rules_md> a hath0r:Plane ;
     rdfs:label "Rules" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Crunbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__runbook_md> a hath0r:Plane ;
     rdfs:label "Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Crunbooks%5Cbite-supply-chain-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__runbooks__bite-supply-chain-runbook_md> a hath0r:Plane ;
     rdfs:label "Bite Supply Chain Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Crunbooks%5Cgit-promotion-workflow-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__runbooks__git-promotion-workflow-runbook_md> a hath0r:Plane ;
     rdfs:label "Git Promotion Workflow Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Crunbooks%5Chathor-observe-phoenix-runbook_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__runbooks__hathor-observe-phoenix-runbook_md> a hath0r:Plane ;
     rdfs:label "Hathor Observe Phoenix Runbook" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cstrategies%5Cbite-supply-chain-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__strategies__bite-supply-chain-strategy_md> a hath0r:Plane ;
     rdfs:label "Bite Supply Chain Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cstrategies%5Cgit-promotion-workflow-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__strategies__git-promotion-workflow-strategy_md> a hath0r:Plane ;
     rdfs:label "Git Promotion Workflow Strategy" ;
     hath0r:inPlane "knowledge" .
 
-<https://hath0r.dev/ontology/v1#doc:docs%5Cstrategies%5Cphoenix-observability-strategy_md> a hath0r:Plane ;
+<https://hath0r.dev/ontology/v1#doc:docs__strategies__phoenix-observability-strategy_md> a hath0r:Plane ;
     rdfs:label "Phoenix Observability Strategy" ;
     hath0r:inPlane "knowledge" .
 
@@ -1679,6 +1915,11 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:decision:cruise-control-naming> a hath0r:Plane ;
     rdfs:label "Named Agent Decision Control Layer 'Cruise Control' (#508)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:decision:industrial-qa-epic-580> a hath0r:Plane ;
+    rdfs:label "Industrial QA methods in Hath0r (epic 580, v1.25.0)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -1779,6 +2020,11 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:episode:issue-566-release-cleanup> a hath0r:Plane ;
     rdfs:label "Release Directory Cleanup & Previous Version Archiving (#566)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:episode:issue-570-real-retrieval-backends> a hath0r:Plane ;
+    rdfs:label "Issue 570 real embedding and reranker backends" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -1924,6 +2170,16 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:eval:issue-566-release-cleanup> a hath0r:Plane ;
     rdfs:label "Task Evaluation issue-566-release-cleanup (R=0.93, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-570> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-570 (R=0.92, PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:eval:issue-580> a hath0r:Plane ;
+    rdfs:label "Task Evaluation issue-580 (R=0.83, FAIL)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
@@ -2269,6 +2525,11 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:session:sess-20261111-133108-f6050e> a hath0r:Plane ;
+    rdfs:label "Micro Session sess-20261111-133108-f6050e" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#role:reader> a hath0r:AgentRole ;
     rdfs:label "Read-Only Agent" ;
     hath0r:inPlane "rules" .
@@ -2333,6 +2594,11 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:governs <https://hath0r.dev/ontology/v1#role:developer> ;
     hath0r:inPlane "rules" .
 
+<https://hath0r.dev/ontology/v1#rule:cr-context-squeeze-001> a hath0r:Plane ;
+    rdfs:label "Rule cr-context-squeeze-001" ;
+    hath0r:governs <https://hath0r.dev/ontology/v1#role:developer> ;
+    hath0r:inPlane "rules" .
+
 <https://hath0r.dev/ontology/v1#rule:cr-docker-hath0r-group-001> a hath0r:Plane ;
     rdfs:label "Rule CR-DOCKER-HATH0R-GROUP-001" ;
     hath0r:governs <https://hath0r.dev/ontology/v1#role:developer> ;
@@ -2394,6 +2660,10 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#service:agentgraph> a hath0r:Plane ;
     rdfs:label "Two-Level AgentGraph Governance & Routing Service" ;
+    hath0r:inPlane "context" .
+
+<https://hath0r.dev/ontology/v1#service:andon> a hath0r:Plane ;
+    rdfs:label "Andon Stop-the-Line Signal Service" ;
     hath0r:inPlane "context" .
 
 <https://hath0r.dev/ontology/v1#service:arch> a hath0r:Plane ;
@@ -2472,6 +2742,10 @@ hath0r:informs a owl:ObjectProperty .
     rdfs:label "Paper.design Bi-Directional UI Synthesis Service" ;
     hath0r:inPlane "context" .
 
+<https://hath0r.dev/ontology/v1#service:dmaic> a hath0r:Plane ;
+    rdfs:label "DMAIC Improvement Project Service" ;
+    hath0r:inPlane "context" .
+
 <https://hath0r.dev/ontology/v1#service:docker> a hath0r:Plane ;
     rdfs:label "Hath0r Docker Group Lifecycle Service" ;
     hath0r:inPlane "context" .
@@ -2498,6 +2772,10 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#service:finops> a hath0r:Plane ;
     rdfs:label "FinOps Token Ledger, Budget & Tokenizer Tax Service" ;
+    hath0r:inPlane "context" .
+
+<https://hath0r.dev/ontology/v1#service:fmea> a hath0r:Plane ;
+    rdfs:label "Failure Mode & Effects Analysis Service" ;
     hath0r:inPlane "context" .
 
 <https://hath0r.dev/ontology/v1#service:gameshow> a hath0r:Plane ;
@@ -2608,6 +2886,10 @@ hath0r:informs a owl:ObjectProperty .
     rdfs:label "Decision Radar Unblocking Wedge Service" ;
     hath0r:inPlane "context" .
 
+<https://hath0r.dev/ontology/v1#service:rca> a hath0r:Plane ;
+    rdfs:label "Root Cause Analysis (Pareto, Ishikawa, 5 Whys) Service" ;
+    hath0r:inPlane "context" .
+
 <https://hath0r.dev/ontology/v1#service:release> a hath0r:Plane ;
     rdfs:label "SemVer Release & Changelog Service" ;
     hath0r:inPlane "context" .
@@ -2634,6 +2916,10 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#service:skills> a hath0r:Plane ;
     rdfs:label "BITE Skill & Prompt Supply-Chain Audit Service" ;
+    hath0r:inPlane "context" .
+
+<https://hath0r.dev/ontology/v1#service:spc> a hath0r:Plane ;
+    rdfs:label "Statistical Process Control & Capability Service" ;
     hath0r:inPlane "context" .
 
 <https://hath0r.dev/ontology/v1#service:speak> a hath0r:Plane ;

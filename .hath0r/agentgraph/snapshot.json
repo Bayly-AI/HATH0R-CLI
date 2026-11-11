@@ -1,7 +1,7 @@
 {
   "schema_version": "hath0r.agentgraph/1",
   "graph_id": "agentgraph-hathor-cli",
-  "timestamp": "2026-11-04T20:28:00.953397+00:00",
+  "timestamp": "2026-11-11T15:54:02.239977+00:00",
   "nodes": [
     {
       "id": "doc:agents-root",
@@ -84,6 +84,18 @@
       "properties": {
         "path": "cfg/AGENTS.md",
         "subsystem": "cfg"
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:agents-base",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "AGENTS.md (base)",
+      "content": "# AGENTS.md - MSA fixture\n\nFixture repository used as a part in the Hath0r eval Gage R&R panel.\n",
+      "properties": {
+        "path": "cfg/evals/msa-fixtures/base/AGENTS.md",
+        "subsystem": "base"
       },
       "is_current": true
     },
@@ -251,6 +263,19 @@
       "content": "# CR-MEMORY-COMPOUND-001: Mandatory `.hath0r/memory` Repository Presence, Micro Memory Sessions & Pre-Announcement MemoryGraph Compounding (CRITICAL — org-wide)\n\n> **Status**: Active · **Tier**: Org Invariant (`RulePriority.ORG_INVARIANT`)  \n> **Scope**: All repositories across `/Users/raybayly/Development` (`OpenSource`, `1-Nation`, `BAI`, `Ray`, `Websites`)  \n> **Enforced by**: `hath0r memory`, `MemoryManagerBot`, `OrientBot`, `TaskAnnouncerBot`, `EndOfTaskBot`, `CleanReposWorkflowBot`, `AgentGraphBot`\n\n---\n\n## 1. Universal `.hath0r/memory`, `.hath0r/memory/sessions`, `.hath0r/memory/hashes.json` & Un-Ignored Graph Folders Invariant\n\n1. Every active project repository in `/Users/raybayly/Development` **MUST** maintain an initialized `.hath0r/memory/` directory containing:\n   - `.hath0r/memory/graph.json`: The canonical serialized `MemoryGraph` (`schema_version: \"1.0.0\"`), storing typed semantic, episodic, and session nodes (`rule`, `concept`, `decision`, `fact`, `episode`, `topic`, `insight`, `session`), relational edges (`ENFORCES`, `REQUIRES`, `DERIVES_FROM`, `SUPERSEDES`, `RELATES_TO`, `RESOLVES`, `PRECEDES`), monotonic `revision` counter, and canonical `content_hash` (`sha256:<64-hex>`).\n   - `.hath0r/memory/sessions/`: The dedicated **Micro Memory Session** store containing:\n     - `current.json`: Active compact (<2KB) micro-session state (`session_id`, `prior_session_id`, `read_count`, `write_count`, `revision`, `content_hash`, `base_graph_hash`, `active_focus`, `reca",
       "properties": {
         "path": "docs/governance/rules/cr-memory-compound-001.md",
+        "priority": 4,
+        "restricted_actions": []
+      },
+      "is_current": true
+    },
+    {
+      "id": "rule:cr-context-squeeze-001",
+      "plane": "rules",
+      "type": "rule_policy",
+      "label": "Rule cr-context-squeeze-001",
+      "content": "# CR-CONTEXT-SQUEEZE-001: Compress Context with SuperSqueeze (CRITICAL — Org-Wide · CANONICAL)\n\n> **Status**: Active · **Tier**: Org Invariant (`RulePriority.ORG_INVARIANT`)\n> **Scope**: All repositories across `/Users/raybayly/Development` (`OpenSource`, `1-Nation`, `BAI`, `Ray`, `Websites`, `Projects`)\n> **Enforced by**: `hath0r squeeze`, `SuperSqueezeBot` (`SuperCompressBot`, `src/hath0r_cli/bots/supercompress_bot.py`),\n> `SubstrateUtilizationBot`, `hath0r evals` (Tier 2 SuperSqueeze utilization ratio), `hath0r rules ensure-all`\n\n---\n\n## Rule\n\n1. **Squeeze before you load**: Bulky context — whole files, logs, CI output, tool results, KB/RAG hits, transcripts,\n   anything over roughly 2,000 tokens — MUST go through SuperSqueeze before it enters an agent's context window or a\n   model prompt. Read the compressed output, not the raw text.\n   - CLI: `hath0r squeeze -q \"<active query>\" -f <file>` or `hath0r squeeze -q \"<active query>\" -c \"<text>\"`.\n   - Code: `SuperSqueezeBot` / `supersqueeze_bot` (alias of `SuperCompressBot`). Never hand-roll truncation or\n     `head`/`[:N]` slicing as a substitute.\n2. **Anchor on the active query**: `-q` is always the current task or question, so compression keeps what the task\n   needs. Re-squeeze when the query changes.\n3. **Quality floor**: Check `verifier.quality_score` (and `entity_recall`) in the response. Below `0.90`, lower\n   `--threshold` and squeeze again, or switch to targeted reads (line ranges, `grep`, AST outlines via `hath0r c",
+      "properties": {
+        "path": "docs/governance/rules/cr-context-squeeze-001.md",
         "priority": 4,
         "restricted_actions": []
       },
@@ -542,6 +567,18 @@
       "is_current": true
     },
     {
+      "id": "contract:hath0r-msa-study-v1.schema.json",
+      "plane": "knowledge",
+      "type": "contract",
+      "label": "hath0r.evals.msa-study/v1",
+      "content": "Gage R&R and attribute agreement study of the Hath0r eval pipeline (.hath0r/evals/msa/<study_id>.json).",
+      "properties": {
+        "schema_id": "https://schemas.hath0r.dev/hath0r-msa-study-v1.schema.json",
+        "path": "contracts/hath0r-msa-study-v1.schema.json"
+      },
+      "is_current": true
+    },
+    {
       "id": "contract:hath0r-voice-action-v1.schema.json",
       "plane": "knowledge",
       "type": "contract",
@@ -602,6 +639,18 @@
       "is_current": true
     },
     {
+      "id": "contract:hath0r-fmea-v1.schema.json",
+      "plane": "knowledge",
+      "type": "contract",
+      "label": "hath0r.fmea/v1",
+      "content": "FMEA worksheet for one Hath0r workflow (.hath0r/fmea/<process>.yaml).",
+      "properties": {
+        "schema_id": "https://schemas.hath0r.dev/hath0r-fmea-v1.schema.json",
+        "path": "contracts/hath0r-fmea-v1.schema.json"
+      },
+      "is_current": true
+    },
+    {
       "id": "contract:hath0r-cli-doctor-v1.schema.json",
       "plane": "knowledge",
       "type": "contract",
@@ -610,6 +659,18 @@
       "properties": {
         "schema_id": "https://schemas.hath0r.dev/hath0r-cli-doctor-v1.schema.json",
         "path": "contracts/hath0r-cli-doctor-v1.schema.json"
+      },
+      "is_current": true
+    },
+    {
+      "id": "contract:hath0r-dmaic-project-v1.schema.json",
+      "plane": "knowledge",
+      "type": "contract",
+      "label": "hath0r.dmaic.project/v1",
+      "content": "DMAIC improvement project (.hath0r/dmaic/<issue>.json).",
+      "properties": {
+        "schema_id": "https://schemas.hath0r.dev/hath0r-dmaic-project-v1.schema.json",
+        "path": "contracts/hath0r-dmaic-project-v1.schema.json"
       },
       "is_current": true
     },
@@ -638,6 +699,18 @@
       "is_current": true
     },
     {
+      "id": "contract:hath0r-andon-event-v1.schema.json",
+      "plane": "knowledge",
+      "type": "contract",
+      "label": "hath0r.andon.event/v1",
+      "content": "One record of the hash-chained Andon ledger (.hath0r/state/andon/events.jsonl).",
+      "properties": {
+        "schema_id": "https://schemas.hath0r.dev/hath0r-andon-event-v1.schema.json",
+        "path": "contracts/hath0r-andon-event-v1.schema.json"
+      },
+      "is_current": true
+    },
+    {
       "id": "contract:hath0r-cli-kb-products-v1.schema.json",
       "plane": "knowledge",
       "type": "contract",
@@ -646,6 +719,30 @@
       "properties": {
         "schema_id": "https://schemas.hath0r.dev/hath0r-cli-kb-products-v1.schema.json",
         "path": "contracts/hath0r-cli-kb-products-v1.schema.json"
+      },
+      "is_current": true
+    },
+    {
+      "id": "contract:hath0r-doe-study-v1.schema.json",
+      "plane": "knowledge",
+      "type": "contract",
+      "label": "hath0r.optimize.doe-study/v1",
+      "content": "A design-of-experiments study from doe-bot (hath0r optimize screen|rsm|bayes|confirm, hath0r cccd calibrate --strategy sequential), stored in .hath0r/optimize/<study_id>.json.",
+      "properties": {
+        "schema_id": "https://schemas.hath0r.dev/hath0r-doe-study-v1.schema.json",
+        "path": "contracts/hath0r-doe-study-v1.schema.json"
+      },
+      "is_current": true
+    },
+    {
+      "id": "contract:hath0r-spc-chart-v1.schema.json",
+      "plane": "knowledge",
+      "type": "contract",
+      "label": "hath0r.spc.chart/v1",
+      "content": "Control chart for one Hath0r metric (hath0r spc chart): I-MR baseline, Western Electric rules, EWMA and CUSUM.",
+      "properties": {
+        "schema_id": "https://schemas.hath0r.dev/hath0r-spc-chart-v1.schema.json",
+        "path": "contracts/hath0r-spc-chart-v1.schema.json"
       },
       "is_current": true
     },
@@ -706,6 +803,18 @@
       "properties": {
         "schema_id": "https://hath0r.bayly.ai/contracts/hath0r-decision-spec-v1.schema.json",
         "path": "contracts/hath0r-decision-spec-v1.schema.json"
+      },
+      "is_current": true
+    },
+    {
+      "id": "contract:hath0r-rca-v1.schema.json",
+      "plane": "knowledge",
+      "type": "contract",
+      "label": "hath0r.rca/v1",
+      "content": "Root-cause record for one issue (.hath0r/rca/<issue>.json): Ishikawa diagram and 5 Whys.",
+      "properties": {
+        "schema_id": "https://schemas.hath0r.dev/hath0r-rca-v1.schema.json",
+        "path": "contracts/hath0r-rca-v1.schema.json"
       },
       "is_current": true
     },
@@ -1304,6 +1413,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__poka-yoke-catalogue_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Poka Yoke Catalogue",
+      "content": "# Poka-yoke catalogue (WS5, #583)\n\n> Mistake-proofing guards in the Hath0r CLI. Each guard stops a known error at the point where it would\n> enter the system, instead of finding it later in review. Owner: the bot named in each row.\n\n| Id | Guard | Where | Stops | Owning bot |\n|---|---|---|---|---|\n| PY-01 | Incomplete orthogonal-array experiments raise `IncompleteExperimentError` | `cccd/taguchi_optimizer.py` | Missing runs silently padded with invented data | `taguchi-bot` |\n| PY-02 | `--allow-partial` analyses only measured runs and marks `partial: true` | `hath0r optimize taguchi`, MCP `hath0r_optimize_taguchi` | Partial experiments reported as complete | `taguchi-bot` |\n| PY-03 | Factor level counts must equal the levels each array column tests | `TaguchiBot.generate_matrix` | Levels wrapped onto the wrong value (modulo mapping) or never tested | `taguchi-bot` |\n| PY-04 | Levels for factors not in the design are rejected | `TaguchiBot.generate_matrix` | Typos in factor names silently ignored | `taguchi-bot` |\n| PY-05 | Calibration history records `responses_source: measured|simulated` | `cccd/calibration_loop.py` | Simulated tuning data read as measurements (#595) | `cicccd-man",
+      "properties": {
+        "path": "docs/governance/poka-yoke-catalogue.md",
+        "category": "governance",
+        "size_bytes": 2785
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__mcp-doc-publish_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1442,7 +1564,7 @@
       "properties": {
         "path": "docs/governance/cccd-process-standard.md",
         "category": "governance",
-        "size_bytes": 3689
+        "size_bytes": 4297
       },
       "is_current": true
     },
@@ -1534,6 +1656,19 @@
         "path": "docs/governance/docker-group-standard.md",
         "category": "governance",
         "size_bytes": 864
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__procedures__spc-monitor-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Spc Monitor Procedure",
+      "content": "# Procedure: Statistical process control\n\n> **Procedure ID**: `PR-SPC-001` · **Owning Bot**: `spc-monitor-bot`\n\n1. Every `end-of-task` and `local-quality-gates` run calls `spc-monitor-bot gate` (`on_failure: continue`).\n2. In warn mode, signals appear as `SPC_SIGNAL` warning diagnostics and in `.hath0r/spc/latest.json`.\n3. When a signal appears, find its point in `hath0r spc chart -m <metric>` and look for an assignable cause\n   (a config change, a new tier check, a dependency). Record it with `hath0r rca` when it is not obvious.\n4. When the cause is a deliberate improvement, re-baseline: `hath0r spc baseline -m <metric> --recent`.\n5. Do not re-baseline to make a real degradation disappear.\n",
+      "properties": {
+        "path": "docs/governance/procedures/spc-monitor-procedure.md",
+        "category": "procedures",
+        "size_bytes": 701
       },
       "is_current": true
     },
@@ -1655,6 +1790,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__procedures__doe-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Doe Procedure",
+      "content": "# Procedure: Sequential design of experiments\n\n> **Procedure ID**: `PR-DOE-001` · **Owning Bot**: `doe-bot`\n\n1. Write the factor ranges in a spec (`cfg/cccd/doe-spec.yaml`) or pass `--factor name=low:high`.\n2. Screen: `hath0r optimize screen --spec <spec>` prints the design (status `awaiting_responses`). Run each\n   point at least twice, then add `responses:` to the spec and run again, or let doe-bot measure with `--measure-cmd`.\n3. Keep the significant factors. If none are significant, stop: the ranges are too narrow or the\n   measurement is too noisy (check the gauge first with `hath0r evals msa run`).\n4. Response surface on the kept factors: `hath0r optimize rsm --spec <spec with kept factors and responses>`.\n5. Confirm at the predicted optimum: `hath0r optimize confirm <study_id> --observed v1,v2,v3`.\n6. Only a confirmed optimum may change calibrated parameters. `hath0r cccd calibrate --strategy sequential`\n   runs steps 2 to 5 end to end.\n",
+      "properties": {
+        "path": "docs/governance/procedures/doe-procedure.md",
+        "category": "procedures",
+        "size_bytes": 959
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__procedures__end-of-task-daemon-procedure_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1681,6 +1829,32 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__procedures__rca-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Rca Procedure",
+      "content": "# Procedure: Root cause analysis\n\n> **Procedure ID**: `PR-RCA-001` · **Owning Bot**: `root-cause-bot`\n\n1. Failed eval gates are tagged automatically (end-of-task `root-cause-bot gate` step, and on every Pareto run).\n2. Tag CI, red-team and Andon failures by hand: `hath0r rca tag --source ci --ref <run> --summary \"...\"`.\n3. Retag anything `unclassified` with `--category`.\n4. Monthly: `hath0r rca pareto --since 30d`. For the top cause, open a DMAIC issue from the template.\n5. `hath0r rca fishbone <issue> --cause ...` to collect candidate causes, then `hath0r rca why <issue>` (3 to 5 answers).\n",
+      "properties": {
+        "path": "docs/governance/procedures/rca-procedure.md",
+        "category": "procedures",
+        "size_bytes": 599
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__procedures__andon-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Andon Procedure",
+      "content": "# Procedure: Andon\n\n> **Procedure ID**: `PR-ANDON-001` · **Owning Bot**: `andon-bot`\n\n1. Mark factory steps whose failure must stop all work with `andon: stop`; use `andon: warn` to record without stopping.\n2. Stops appear on the Decision Radar and in `hath0r andon status` (exit code 1 while stopped).\n3. Acknowledge (`hath0r andon ack <id> --by <name>`) when someone owns the problem.\n4. Fix the cause, then clear with a note (`hath0r andon clear <id> --note \"<fix>\"`). Clearing a stop without an ack is refused.\n5. `hath0r andon verify` checks the ledger; a broken chain is itself a stop-worthy finding.\n",
+      "properties": {
+        "path": "docs/governance/procedures/andon-procedure.md",
+        "category": "procedures",
+        "size_bytes": 608
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__procedures__rule-rollout-procedure_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1690,6 +1864,19 @@
         "path": "docs/governance/procedures/rule-rollout-procedure.md",
         "category": "procedures",
         "size_bytes": 967
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__procedures__eval-measurement-system-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Eval Measurement System Procedure",
+      "content": "# Procedure: Eval measurement system analysis\n\n> **Procedure ID**: `PR-EVAL-MSA-001` · **Owning Bot**: `measurement-system-bot`\n\n1. Run a study whenever `cfg/evals/task-eval.json` changes (weights, thresholds, tier4, judge) or a tier's code changes.\n2. `hath0r evals msa run` replays every panel part through `TaskEvaluatorBot` in a fresh workspace, 3 replicates per operator.\n3. The study is saved to `.hath0r/evals/msa/<study_id>.json` and `latest.json`, and compounded as an `msa:<study_id>` fact.\n4. If the study fails, the gauge is not qualified: fix the tier that missed the defect or caused the variation, then rerun.\n5. To add a part, add a fixture change under `cfg/evals/msa-fixtures/` and a row in `cfg/evals/msa-panel.yaml`\n   with `expected: pass|fail`. Every new failure mode found in production should become a seeded defect.\n",
+      "properties": {
+        "path": "docs/governance/procedures/eval-measurement-system-procedure.md",
+        "category": "procedures",
+        "size_bytes": 842
       },
       "is_current": true
     },
@@ -1729,6 +1916,19 @@
         "path": "docs/governance/procedures/elt-pipeline-procedure.md",
         "category": "procedures",
         "size_bytes": 1902
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__procedures__dmaic-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Dmaic Procedure",
+      "content": "# Procedure: DMAIC\n\n> **Procedure ID**: `PR-DMAIC-001` · **Owning Bot**: `dmaic-project-bot`\n\n1. **Define**: open an issue from the DMAIC template; `hath0r dmaic start <issue> --ctq <metric> --target <t> --problem \"...\"`.\n2. **Measure**: taken at start from the SPC chart (and Cpk for `r_task`).\n3. **Analyze**: `hath0r rca why <issue> ...`, then `hath0r dmaic analyze <issue>`.\n4. **Improve**: land the change, then `hath0r dmaic improve <issue> --change \"<PR>\"`.\n5. **Control**: `hath0r dmaic status <issue>` until 20 in-control points; `hath0r dmaic close <issue>`.\n6. Each phase gate is a decision node in memory.\n",
+      "properties": {
+        "path": "docs/governance/procedures/dmaic-procedure.md",
+        "category": "procedures",
+        "size_bytes": 619
       },
       "is_current": true
     },
@@ -1889,6 +2089,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__procedures__fmea-procedure_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Fmea Procedure",
+      "content": "# Procedure: FMEA\n\n> **Procedure ID**: `PR-FMEA-001` · **Owning Bot**: `fmea-bot`\n\n1. `hath0r fmea init <process>` for each factory workflow worth analysing.\n2. Review the seeded rows: fix steps, adjust ratings, add process-specific rows with `hath0r fmea add`.\n3. `hath0r fmea score <process>` refreshes occurrence from data and ranks rows.\n4. `hath0r fmea sync-issues <process>` files an issue per H row (or link an existing one: `hath0r fmea update ... --issue N`).\n5. When an action lands, `hath0r fmea update <process> <row> -d <new> --action \"<what>\"`, then rescore.\n6. `hath0r fmea export <process>` puts M and H rows into AgentGraph (`hath0r agentgraph sync`).\n7. The `fmea-review` workflow repeats steps 3-6 weekly.\n",
+      "properties": {
+        "path": "docs/governance/procedures/fmea-procedure.md",
+        "category": "procedures",
+        "size_bytes": 726
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__procedures__update-cli-procedure_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -1989,6 +2202,19 @@
         "path": "docs/governance/strategies/schema-self-repair-loops-strategy.md",
         "category": "strategies",
         "size_bytes": 4101
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__strategies__doe-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Doe Strategy",
+      "content": "# Strategy: Sequential design of experiments (WS8, #593)\n\n> **Strategy ID**: `ST-DOE-001` · **Owning Bot**: `doe-bot`\n\nTaguchi arrays tell us which levels look best for many factors at once. They do not tell us where the\noptimum sits between levels, or whether two factors interact. Hath0r now tunes in the classic sequence\n(Montgomery, *Design and Analysis of Experiments*; NIST/SEMATECH 5.3):\n\n1. **Screen**: a 2-level full or fractional factorial (2^(k-p)) with replicates, analysed by main-effects\n   ANOVA. Only factors significant at alpha (default 0.05) go forward, at most three.\n2. **Response surface**: a central composite (CCD) or Box-Behnken (BBD) design on the kept factors, a\n   quadratic fit, and the predicted optimum inside the coded cube.\n3. **Confirm**: runs at the predicted optimum must land inside the model's interval. Only a confirmed\n   optimum is compounded as a `fact` memory node and treated as the new calibration.\n\n- Bayesian optimisation (TPE) is an **optional dependency** (`pip install 'hath0r-cli[doe]'`, validated\n  2026-11-11). Without optuna, `bayes` falls back to a CCD response surface and says so.\n- Nothing is simulated. A study either receives measured respo",
+      "properties": {
+        "path": "docs/governance/strategies/doe-strategy.md",
+        "category": "strategies",
+        "size_bytes": 1330
       },
       "is_current": true
     },
@@ -2097,6 +2323,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__strategies__eval-measurement-system-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Eval Measurement System Strategy",
+      "content": "# Strategy: Eval measurement system analysis (WS1, #584)\n\n> **Strategy ID**: `ST-EVAL-MSA-001` · **Owning Bot**: `measurement-system-bot` · **Rule**: `CR-TASK-EVAL-001`\n\n## Why\n`R_task` gates every task. If the eval pipeline itself is noisy or cannot tell good work from bad, the gate\nis luck. Manufacturing solves this with Measurement System Analysis: qualify the gauge before trusting it.\n\n## Position\n- The eval pipeline is the gauge. Parts are fixture repositories with a known-good or seeded-defect change.\n  Operators are independent evaluator instances (or candidate judge configurations).\n- A crossed Gage R&R (AIAG ANOVA method) plus attribute agreement on pass/fail is the qualification test.\n- Targets (validated 2026-11-11): %GRR <= 10%, ndc >= 5, zero missed defects, zero false alarms.\n  Anything else is a failed study.\n- A scorecard is `measurement_qualified` only while the latest passing study used the same judge fingerprint.\n- Tier 4 clamping is off by default since the first study; scores now reflect raw signals.\n",
+      "properties": {
+        "path": "docs/governance/strategies/eval-measurement-system-strategy.md",
+        "category": "strategies",
+        "size_bytes": 1039
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__strategies__task-evals-strategy_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2132,6 +2371,19 @@
         "path": "docs/governance/strategies/decision-radar-strategy.md",
         "category": "strategies",
         "size_bytes": 3066
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__strategies__dmaic-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Dmaic Strategy",
+      "content": "# Strategy: DMAIC improvement projects (WS7, #592)\n\n> **Strategy ID**: `ST-DMAIC-001` · **Owning Bot**: `dmaic-project-bot`\n\nA quality fix without a baseline and a control check cannot show it worked or that it lasted. Each fix that\nmatters runs as a Define-Measure-Analyze-Improve-Control project tied to one GitHub issue\n(`.github/ISSUE_TEMPLATE/dmaic-improvement.yml`) and one CTQ metric from `hath0r spc`. A project closes only\nwhen the CTQ chart shows 20 or more in-control points after the change. First project: #599 (Tier 4 discrimination).\n",
+      "properties": {
+        "path": "docs/governance/strategies/dmaic-strategy.md",
+        "category": "strategies",
+        "size_bytes": 550
       },
       "is_current": true
     },
@@ -2331,6 +2583,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__strategies__andon-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Andon Strategy",
+      "content": "# Strategy: Andon stop-the-line (WS6, #588, #589)\n\n> **Strategy ID**: `ST-ANDON-001` · **Owning Bot**: `andon-bot`\n\nIn the Toyota Production System anyone can stop the line when they see a defect, and the line stays stopped\nuntil the cause is dealt with. Hath0r applies this to agent work: a bot that detects a problem it must not\nwork past (a tripped token budget, a blocking SPC signal, a failed step marked `andon: stop`) raises a stop.\nWhile a stop is active no workflow step or agent DAG starts. A person acknowledges it, fixes the cause and\nclears it. Every event is hash-chained so a stop cannot be silently removed.\n",
+      "properties": {
+        "path": "docs/governance/strategies/andon-strategy.md",
+        "category": "strategies",
+        "size_bytes": 625
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__strategies__orient-strategy_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2422,6 +2687,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__strategies__fmea-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Fmea Strategy",
+      "content": "# Strategy: FMEA on the bot and workflow catalogue (WS4, #590)\n\n> **Strategy ID**: `ST-FMEA-001` · **Owning Bot**: `fmea-bot`\n\nFailure Mode and Effects Analysis ranks what can go wrong in a process before it does, so effort goes to the\nriskiest failure modes first. Hath0r keeps one worksheet per factory workflow, seeded from the 14 failure modes\nof the multi-agent failure taxonomy (MAST, Cemri et al. 2025) and mapped to that workflow's steps.\n\n- Ratings are 1-10 for severity, occurrence and detection. Priority follows a documented reading of the\n  AIAG-VDA (2019) action priority table (severity first); RPN is shown as well.\n- Occurrence is measured where a row names a data signal (eval gate failures, a tier's pass rate, Andon events,\n  the gauge's miss rate), and estimated otherwise.\n- Every high-priority row has a GitHub issue. A fix is proven by re-rating and re-scoring the row.\n- First studies: `end-of-task` and `pr-lifecycle` (#596, #597, #598).\n",
+      "properties": {
+        "path": "docs/governance/strategies/fmea-strategy.md",
+        "category": "strategies",
+        "size_bytes": 965
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__strategies__upgrade-strategy_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2461,6 +2739,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__strategies__rca-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Rca Strategy",
+      "content": "# Strategy: Root cause with Pareto, Ishikawa and 5 Whys (WS9, #591)\n\n> **Strategy ID**: `ST-RCA-001` · **Owning Bot**: `root-cause-bot`\n\nMost failures come from a few causes. Every failed gate is tagged with one of six cause categories (the 6M\nof an Ishikawa diagram adapted to agents, `cfg/quality/cause-categories.yaml`): Method, Model, Material,\nMeasurement, Machine and Operator. A monthly Pareto names the vital few; the top cause gets a fishbone, a 5 Whys\nrecord and a DMAIC project. Each 5 Whys becomes an insight node in memory.\n",
+      "properties": {
+        "path": "docs/governance/strategies/rca-strategy.md",
+        "category": "strategies",
+        "size_bytes": 538
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__strategies__finops-token-telemetry-histogram-strategy_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -2483,6 +2774,19 @@
         "path": "docs/governance/strategies/local-reasoning-adapters-strategy.md",
         "category": "strategies",
         "size_bytes": 3202
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__strategies__spc-monitor-strategy_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Spc Monitor Strategy",
+      "content": "# Strategy: Statistical process control for Hath0r (WS2/WS3, #586, #587)\n\n> **Strategy ID**: `ST-SPC-001` · **Owning Bot**: `spc-monitor-bot`\n\nA single eval tells you whether one task passed. A control chart tells you whether the process that produces\ntasks has changed. Hath0r charts its own signals (R_task, each tier, eval duration, tokens, cost, latency)\nusing the NIST/SEMATECH methods: I-MR limits, Western Electric rules 1-4, EWMA (lambda 0.2) and tabular CUSUM.\n\n- Capability is R_task Cpk against the eval threshold (LSL 0.80, one-sided). The goal is R_task as close to 1.0 as possible.\n- Validated decision (2026-11-11): signals and Cpk below 1.33 are **warnings**. `capability.mode: block` in\n  `thresholds.json` upgrades them to a blocking gate that also pulls the Andon cord.\n- Limits from fewer than 20 points are provisional. After a deliberate process change, freeze new limits\n  from recent points (`hath0r spc baseline --recent`).\n",
+      "properties": {
+        "path": "docs/governance/strategies/spc-monitor-strategy.md",
+        "category": "strategies",
+        "size_bytes": 950
       },
       "is_current": true
     },
@@ -3020,6 +3324,32 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__fmea-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Fmea Runbook",
+      "content": "# Runbook: FMEA\n\n> **Runbook ID**: `RB-FMEA-001` · **Owning Bot**: `fmea-bot`\n\n```bash\nhath0r fmea init end-of-task\nhath0r fmea score end-of-task\nhath0r fmea report --top 10\nhath0r fmea add end-of-task --step run-eval --mode \"...\" --effect \"...\" --cause \"...\" -s 8 -o 3 -d 5 --signal tier:adversarial\nhath0r fmea update end-of-task EOT-13 -d 3 --action \"eval step marked andon: stop\"\nhath0r fmea update end-of-task EOT-13 --issue 596\nhath0r fmea sync-issues end-of-task --dry-run\nhath0r fmea export end-of-task && hath0r agentgraph sync\n```\n\nSignals: `eval_fail_rate`, `tier:<deterministic|trajectory|adversarial|goal_alignment>`, `andon:<source>`, `msa:missed_defects`.\nState `.hath0r/fmea/<process>.yaml`; schema `contracts/hath0r-fmea-v1.schema.json`.\n",
+      "properties": {
+        "path": "docs/governance/runbooks/fmea-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 756
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__runbooks__rca-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Rca Runbook",
+      "content": "# Runbook: Root cause analysis\n\n> **Runbook ID**: `RB-RCA-001` · **Owning Bot**: `root-cause-bot`\n\n```bash\nhath0r rca pareto --since 30d            # by category\nhath0r rca pareto --since all --by gate\nhath0r rca tag --source ci --ref 1234 --summary \"docker network timeout\" --category machine\nhath0r rca fishbone 599 --problem \"...\" --cause \"synthetic critic text\" --category measurement\nhath0r rca why 599 --problem \"...\" --because \"...\" --because \"...\" --because \"...\"\n```\n\nState `.hath0r/rca/tags.json`, `.hath0r/rca/<issue>.json`, `.hath0r/rca/pareto-latest.json`; schema `contracts/hath0r-rca-v1.schema.json`.\n",
+      "properties": {
+        "path": "docs/governance/runbooks/rca-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 617
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__mcp-doc-publish-runbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3042,6 +3372,19 @@
         "path": "docs/governance/runbooks/end-of-task-daemon-runbook.md",
         "category": "runbooks",
         "size_bytes": 597
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__runbooks__doe-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Doe Runbook",
+      "content": "# Runbook: Sequential design of experiments\n\n> **Runbook ID**: `RB-DOE-001` · **Owning Bot**: `doe-bot`\n\n```bash\nhath0r optimize screen --factor temperature=0.1:0.7 --factor top_p=0.85:0.99     # print the design\nhath0r optimize screen --spec screen.yaml                 # analyse: spec holds factors + responses\nhath0r optimize screen --spec cfg/cccd/doe-spec.yaml --measure-cmd \"<cmd>\"        # measure as it goes\nhath0r optimize rsm --spec rsm.yaml --design ccd           # spec holds the kept factors + responses\nhath0r optimize bayes --spec cfg/cccd/doe-spec.yaml --measure-cmd \"<cmd>\" --trials 30   # needs the doe extra\nhath0r optimize confirm <study_id> --observed 0.97,0.98,0.97\nhath0r cccd calibrate --strategy sequential --spec cfg/cccd/doe-spec.yaml --measure-cmd \"<cmd>\"\n```\n\nA spec is YAML or JSON with `factors: {name: [low, high]}` and, to analyse, `responses:` (one list of\nreplicates per run, in design order). The measurement command reads one point as JSON on stdin and prints the measured response as the last line\nof stdout. Studies are stored in `.hath0r/optimize/<study_id>.json`\n(`contracts/hath0r-doe-study-v1.schema.json`) and logged to MLflow when it is reachable.\nMCP: `h",
+      "properties": {
+        "path": "docs/governance/runbooks/doe-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 1269
       },
       "is_current": true
     },
@@ -3137,6 +3480,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__andon-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Andon Runbook",
+      "content": "# Runbook: Andon\n\n> **Runbook ID**: `RB-ANDON-001` · **Owning Bot**: `andon-bot`\n\n```bash\nhath0r andon status                         # exit 1 while a stop is active\nhath0r andon raise --reason \"manual stop\"   # pull the cord by hand\nhath0r andon ack andon-1a2b3c4d5e --by ray\nhath0r andon clear andon-1a2b3c4d5e --note \"fixed flaky fixture\"\nhath0r andon verify\n```\n\nIn code: `AndonBot(cwd).raise_event(source=..., reason=..., severity=\"stop\")`, `AndonBot(cwd).check()` raises\n`AndonStop`. `AgentDAGRunner.execute_dag` returns `status: andon_stopped` (opt out per DAG with `\"andon\": false`).\n`TokenTreeBudgetGuard(andon_cwd=...)` raises a stop when it trips. Schema: `contracts/hath0r-andon-event-v1.schema.json`.\n",
+      "properties": {
+        "path": "docs/governance/runbooks/andon-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 715
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__runbooks__local-quality-gates-runbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3146,6 +3502,32 @@
         "path": "docs/governance/runbooks/local-quality-gates-runbook.md",
         "category": "runbooks",
         "size_bytes": 857
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__runbooks__spc-monitor-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Spc Monitor Runbook",
+      "content": "# Runbook: Statistical process control\n\n> **Runbook ID**: `RB-SPC-001` · **Owning Bot**: `spc-monitor-bot`\n\n```bash\nhath0r spc status                          # every metric + R_task Cpk (warnings)\nhath0r spc chart -m r_task                 # I-MR, EWMA, CUSUM, rule hits\nhath0r spc chart -m cost_usd\nhath0r spc capability                      # R_task Cpk/Ppk vs the eval threshold\nhath0r spc capability -m latency_ms --usl 2000\nhath0r spc baseline -m r_task --recent     # freeze limits from the last 20 points\nhath0r quality local                       # now shows a Capability line\n```\n\nSettings live in `thresholds.json` under `capability`: `mode` (`warn`|`block`), `min_cpk_warn` (1.33),\n`baseline_points` (20), `ewma_lambda` (0.2). Schema: `contracts/hath0r-spc-chart-v1.schema.json`.\n",
+      "properties": {
+        "path": "docs/governance/runbooks/spc-monitor-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 793
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__runbooks__dmaic-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Dmaic Runbook",
+      "content": "# Runbook: DMAIC\n\n> **Runbook ID**: `RB-DMAIC-001` · **Owning Bot**: `dmaic-project-bot`\n\n```bash\nhath0r dmaic start 599 --ctq goal_alignment --target 0.97 --problem \"Tier 4 cannot rank good work\"\nhath0r rca why 599 --problem \"...\" --because \"...\" --because \"...\" --because \"...\"\nhath0r dmaic analyze 599\nhath0r dmaic improve 599 --change \"PR #NNN: per-tier evidence for Tier 4\"\nhath0r dmaic status 599\nhath0r dmaic close 599\n```\n\nState `.hath0r/dmaic/<issue>.json`; schema `contracts/hath0r-dmaic-project-v1.schema.json`.\n",
+      "properties": {
+        "path": "docs/governance/runbooks/dmaic-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 524
       },
       "is_current": true
     },
@@ -3384,6 +3766,45 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__runbooks__eval-measurement-system-runbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Eval Measurement System Runbook",
+      "content": "# Runbook: Eval measurement system analysis\n\n> **Runbook ID**: `RB-EVAL-MSA-001` · **Owning Bot**: `measurement-system-bot`\n\n```bash\nhath0r evals msa run                      # full study, saved and compounded\nhath0r evals msa run --dry-run            # compare a candidate config without saving\nhath0r evals msa run --replicates 5       # tighter repeatability estimate\nhath0r evals msa report                   # latest study + whether the current judge is qualified\nhath0r -o json evals msa report           # machine-readable\nhath0r evals run && hath0r -o json evals status   # scorecards include measurement_qualified\n```\n\nTo compare a candidate judge setting, add `config:` overrides to the operators in a copy of the panel, for example\n`{id: clamp-on, config: {tier4: {clamp: true}}}`, and run `hath0r evals msa run --panel <copy> --dry-run`.\nSchema: `contracts/hath0r-msa-study-v1.schema.json`.\n",
+      "properties": {
+        "path": "docs/governance/runbooks/eval-measurement-system-runbook.md",
+        "category": "runbooks",
+        "size_bytes": 904
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__workflows__andon-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Andon Workflow",
+      "content": "# Workflow: Andon (`cfg/factories/andon-factory.yaml`)\n\n> **Workflow ID**: `cfg/factories/andon-factory.yaml` · **Owning Bots**: `andon-bot`, `decision-radar-bot`\n\n1. **`verify` (`andon-bot`)**: check the ledger hash chain.\n2. **`check` (`andon-bot`)**: fail while any stop is active.\n\nEvery workflow run by `execute_workflow` also checks for an active stop before each step, and raises an event\nwhen a step marked `andon: stop|warn` fails.\n",
+      "properties": {
+        "path": "docs/governance/workflows/andon-workflow.md",
+        "category": "workflows",
+        "size_bytes": 442
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__workflows__fmea-review-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Fmea Review Workflow",
+      "content": "# Workflow: FMEA review (`cfg/factories/fmea-review-factory.yaml`)\n\n> **Workflow ID**: `cfg/factories/fmea-review-factory.yaml` · **Owning Bots**: `fmea-bot`, `issue-manager-bot` · weekly\n\n1. **`review` (`fmea-bot`, end-of-task)**: score, export to AgentGraph, file issues for H rows.\n2. **`review` (`fmea-bot`, pr-lifecycle)**: the same for the PR lifecycle.\n3. **`report` (`fmea-bot`)**: top rows across worksheets.\n",
+      "properties": {
+        "path": "docs/governance/workflows/fmea-review-workflow.md",
+        "category": "workflows",
+        "size_bytes": 420
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__workflows__local-quality-gates-workflow_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3406,6 +3827,19 @@
         "path": "docs/governance/workflows/phoenix-telemetry-workflow.md",
         "category": "workflows",
         "size_bytes": 1642
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__workflows__spc-monitor-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Spc Monitor Workflow",
+      "content": "# Workflow: Statistical process control (`cfg/factories/spc-monitor-factory.yaml`)\n\n> **Workflow ID**: `cfg/factories/spc-monitor-factory.yaml` · **Owning Bots**: `spc-monitor-bot`, `phoenix-observer-bot`\n\n1. **`gate` (`spc-monitor-bot`)**: chart every metric, compute capability, write `.hath0r/spc/latest.json`.\n   Warn mode never fails; block mode fails and raises an Andon stop. Also runs as a `continue` step in\n   `end-of-task-factory.yaml` and `local-qgates-factory.yaml`.\n",
+      "properties": {
+        "path": "docs/governance/workflows/spc-monitor-workflow.md",
+        "category": "workflows",
+        "size_bytes": 481
       },
       "is_current": true
     },
@@ -3488,6 +3922,32 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__workflows__dmaic-project-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Dmaic Project Workflow",
+      "content": "# Workflow: DMAIC project (`cfg/factories/dmaic-project-factory.yaml`)\n\n> **Workflow ID**: `cfg/factories/dmaic-project-factory.yaml` · **Owning Bots**: `dmaic-project-bot`, `spc-monitor-bot`, `root-cause-bot`, `issue-manager-bot`\n\n1. **`status` (`dmaic-project-bot`, daily)**: list projects and phases so open projects are seen.\n\nPhase transitions are run by people through `hath0r dmaic` because each one is a decision.\n",
+      "properties": {
+        "path": "docs/governance/workflows/dmaic-project-workflow.md",
+        "category": "workflows",
+        "size_bytes": 423
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__workflows__sequential-doe-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Sequential Doe Workflow",
+      "content": "# Workflow: Sequential DoE calibration (`cfg/factories/cccd-4h-calibration-factory.yaml`)\n\n> **Workflow ID**: `cccd-sequential-doe` · **Owning Bots**: `doe-bot`, `cicccd-managing-bot`, `taguchi-bot`\n\n1. **`sequential` (`doe-bot calibrate-sequential`)**: reads `cfg/cccd/doe-spec.yaml`, screens the factors,\n   fits a response surface on the significant ones and runs the confirmation. `on_failure: abort`,\n   `andon: warn`. The step refuses while the spec has no `measure_cmd`.\n2. The confirmed optimum is compounded as `fact:doe:<study_id>`.\n\nThe same factory keeps the `cccd-4h-calibration` freshness workflow (every 4 hours).\nAcceptance test: the confirmation run lands inside the predicted interval.\n",
+      "properties": {
+        "path": "docs/governance/workflows/sequential-doe-workflow.md",
+        "category": "workflows",
+        "size_bytes": 705
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__workflows__decision-radar-workflow_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3514,6 +3974,45 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__workflows__eval-measurement-system-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Eval Measurement System Workflow",
+      "content": "# Workflow: Eval measurement system analysis (`cfg/factories/msa-study-factory.yaml`)\n\n> **Workflow ID**: `cfg/factories/msa-study-factory.yaml` · **Owning Bots**: `measurement-system-bot`, `task-evaluator-bot`\n\n1. **`run-study` (`measurement-system-bot`)**: replay the panel, compute Gage R&R and attribute agreement, save the study. Abort on failure.\n2. **`report` (`measurement-system-bot`)**: report the latest study and whether the current judge fingerprint is qualified.\n",
+      "properties": {
+        "path": "docs/governance/workflows/eval-measurement-system-workflow.md",
+        "category": "workflows",
+        "size_bytes": 478
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__workflows__rca-pareto-workflow_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Rca Pareto Workflow",
+      "content": "# Workflow: Root cause Pareto (`cfg/factories/rca-pareto-factory.yaml`)\n\n> **Workflow ID**: `cfg/factories/rca-pareto-factory.yaml` · **Owning Bot**: `root-cause-bot` · monthly\n\n1. **`auto-tag`**: tag every failed gate in the eval history (idempotent).\n2. **`pareto`**: 30-day Pareto by category to `.hath0r/rca/pareto-latest.json`.\n\n`end-of-task-factory.yaml` also runs `root-cause-bot gate` after the eval step.\n",
+      "properties": {
+        "path": "docs/governance/workflows/rca-pareto-workflow.md",
+        "category": "workflows",
+        "size_bytes": 416
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__doe-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Doe Bot Spec",
+      "content": "# Bot Specification: `DoEBot` (`doe-bot`)\n\n> **Bot ID**: `doe-bot`  \n> **Class**: `hath0r_cli.bots.doe_bot.DoEBot`  \n> **Level 2 CLI**: `hath0r optimize screen|rsm|bayes|confirm`, `hath0r cccd calibrate --strategy sequential`  \n> **Level 1 MCP**: `hath0r_optimize_doe`\n\n## Actions\n| Action | Method | Notes |\n|---|---|---|\n| `screen` | `screen(ranges, responses=None, measure=None, fraction=0, replicates=3, alpha=0.05)` | 2^(k-p) design and main-effects ANOVA |\n| `rsm` | `rsm(ranges, responses=None, measure=None, design=\"ccd\", goal=\"maximize\")` | CCD/BBD, quadratic fit, optimum and interval |\n| `bayes` | `bayes(ranges, measure, n_trials=30)` | optuna TPE; CCD fallback without optuna |\n| `confirm` | `confirm(study_id, observed)` | Compounds a `fact` node when confirmed |\n| `sequential` | `sequential(ranges, measure, ...)` | screen, keep significant, rsm, confirm |\n| `calibrate-sequential` | `calibrate_sequential(spec, measure_cmd=None)` | Factory step; spec `measure_cmd` is the default |\n| `status` | `status()` | Lists studies and whether optuna is installed |\n\n## Outputs\n`.hath0r/optimize/<study_id>.json`, MLflow runs (best effort), memory node `fact:doe:<study_id>`.\n\n## Failure modes",
+      "properties": {
+        "path": "docs/governance/bot-specs/doe-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 1352
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__bot-specs__rule-rollout-bot-spec_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3523,6 +4022,19 @@
         "path": "docs/governance/bot-specs/rule-rollout-bot-spec.md",
         "category": "bot-specs",
         "size_bytes": 1070
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__measurement-system-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Measurement System Bot Spec",
+      "content": "# Bot Specification: `MeasurementSystemBot` (`measurement-system-bot`)\n\n> **Bot ID**: `measurement-system-bot`  \n> **Class**: `hath0r_cli.bots.measurement_system_bot.MeasurementSystemBot`  \n> **Level 2 CLI**: `hath0r evals msa run|report`  \n> **Level 1 MCP**: `evals_msa_report` (HATH0R-MCP, read-only)\n\n## Responsibilities\n1. Load and validate the panel (`cfg/evals/msa-panel.yaml`): at least 2 parts, unique ids, `expected: pass|fail`, at least one seeded defect.\n2. Build each part in a fresh git workspace with memory initialised, then measure it with the canonical `TaskEvaluatorBot`.\n3. Compute crossed Gage R&R (`hath0r_cli.qa.msa.gage_rr_anova`) and attribute agreement; fail on any target miss.\n4. Persist `.hath0r/evals/msa/<study_id>.json` and `latest.json` atomically; compound an `msa:<study_id>` fact node.\n5. Provide `report()` with `qualified_now` from `TaskEvaluatorBot.measurement_status()`.\n\n## Actions\n| Action | Method | Notes |\n|---|---|---|\n| `run-study` | `run_study(panel_path, replicates=3, dry_run=False)` | `success` is true only when the study passes |\n| `report` | `report()` | Latest study without raw measurements |\n| `status` | `status()` | Health and whether a study",
+      "properties": {
+        "path": "docs/governance/bot-specs/measurement-system-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 1210
       },
       "is_current": true
     },
@@ -3566,6 +4078,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__bot-specs__dmaic-project-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Dmaic Project Bot Spec",
+      "content": "# Bot Specification: `DMAICProjectBot` (`dmaic-project-bot`)\n\n> **Bot ID**: `dmaic-project-bot` · **Class**: `hath0r_cli.bots.dmaic_project_bot.DMAICProjectBot`  \n> **Level 2 CLI**: `hath0r dmaic start|analyze|improve|status|close`\n\n| Action | Method | Notes |\n|---|---|---|\n| `start` | `start(issue, ctq, problem, target, goal)` | Define + Measure (SPC baseline) |\n| `analyze` | `analyze(issue)` | Needs a 5 Whys from `root-cause-bot` |\n| `improve` | `improve(issue, change)` | Marks the data point where the change landed |\n| `control` | `control(issue)` | Post-change chart; `ready_to_close` |\n| `close` | `close(issue)` | Refused until 20 in-control points after the change |\n| `status` | `status(issue=None)` | |\n",
+      "properties": {
+        "path": "docs/governance/bot-specs/dmaic-project-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 719
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__bot-specs__tlp-bots-spec_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3579,6 +4104,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__bot-specs__root-cause-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Root Cause Bot Spec",
+      "content": "# Bot Specification: `RootCauseBot` (`root-cause-bot`)\n\n> **Bot ID**: `root-cause-bot` · **Class**: `hath0r_cli.bots.root_cause_bot.RootCauseBot`  \n> **Level 2 CLI**: `hath0r rca tag|pareto|fishbone|why`\n\n| Action | Method | Notes |\n|---|---|---|\n| `tag` | `tag(source, ref, summary, category=None, gate=None, issue=None)` | Keyword classification unless a category is given |\n| `auto-tag` | `auto_tag()` | Every blocking reason of every failed scorecard |\n| `pareto` | `pareto(since_days=30, by=\"category\"|\"gate\"|\"source\")` | Vital few to 80% |\n| `fishbone` | `fishbone(issue, problem, category, cause)` | |\n| `why` | `why(issue, problem, whys, root_cause, category)` | 3-5 answers; compounds an insight node |\n| `gate` | `gate()` | Workflow step |\n",
+      "properties": {
+        "path": "docs/governance/bot-specs/root-cause-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 751
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__bot-specs__embedded-elt-bots-spec_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3588,6 +4126,19 @@
         "path": "docs/governance/bot-specs/embedded-elt-bots-spec.md",
         "category": "bot-specs",
         "size_bytes": 1822
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__andon-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Andon Bot Spec",
+      "content": "# Bot Specification: `AndonBot` (`andon-bot`)\n\n> **Bot ID**: `andon-bot`  \n> **Class**: `hath0r_cli.bots.andon_bot.AndonBot`  \n> **Level 2 CLI**: `hath0r andon status|raise|ack|clear|verify`  \n> **Level 1 MCP**: `andon_status` (HATH0R-MCP, read-only)\n\n## State\n`.hath0r/state/andon/events.jsonl`: append-only, SHA-256 hash-chained (same scheme as the FinOps token ledger).\n\n## Actions\n| Action | Method | Notes |\n|---|---|---|\n| `raise-event` | `raise_event(source, reason, severity=\"stop\", workflow_id, step_id, details)` | Stops are routed to the Decision Radar |\n| `ack` | `ack(event_id, by, note)` | |\n| `clear` | `clear(event_id, by, note)` | Stops must be acknowledged first |\n| `status` | `status()` | `stopped`, active events, ledger validity |\n| `check` | `check()` | Raises `AndonStop` while stopped |\n| `verify` | `verify()` | Hash chain check |\n",
+      "properties": {
+        "path": "docs/governance/bot-specs/andon-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 857
       },
       "is_current": true
     },
@@ -3627,6 +4178,19 @@
         "path": "docs/governance/bot-specs/task-evaluator-bot-spec.md",
         "category": "bot-specs",
         "size_bytes": 1820
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__bot-specs__fmea-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Fmea Bot Spec",
+      "content": "# Bot Specification: `FMEABot` (`fmea-bot`)\n\n> **Bot ID**: `fmea-bot` · **Class**: `hath0r_cli.bots.fmea_bot.FMEABot`  \n> **Level 2 CLI**: `hath0r fmea init|add|update|score|report|sync-issues|export` · **Level 1 MCP**: `fmea_query` (HATH0R-MCP, read-only)\n\n| Action | Method | Notes |\n|---|---|---|\n| `init` | `init(process, factory=None, force=False)` | 14 MAST rows mapped to factory steps |\n| `add` / `update` | `add(...)`, `update(process, row_id, ..., action, issue)` | Ratings validated 1-10 |\n| `score` | `score(process, refresh=True)` | Occurrence from data signals; ranked by AP, S, RPN |\n| `report` | `report(process=None, top=10)` | |\n| `sync-issues` | `sync_issues(process, repo, min_priority=\"H\", dry_run)` | Through `IssueManagerBot.create_issue` |\n| `export` | `export_agentgraph(process, min_priority=\"M\")` | Memory `concept` nodes ingested by AgentGraph |\n| `review` | `review(process, repo, dry_run=True)` | Factory step |\n",
+      "properties": {
+        "path": "docs/governance/bot-specs/fmea-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 944
       },
       "is_current": true
     },
@@ -3683,6 +4247,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__bot-specs__spc-monitor-bot-spec_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Spc Monitor Bot Spec",
+      "content": "# Bot Specification: `SPCMonitorBot` (`spc-monitor-bot`)\n\n> **Bot ID**: `spc-monitor-bot`  \n> **Class**: `hath0r_cli.bots.spc_monitor_bot.SPCMonitorBot`  \n> **Level 2 CLI**: `hath0r spc status|chart|baseline|capability`  \n> **Level 1 MCP**: `quality_spc_status` (HATH0R-MCP, read-only)\n\n## Inputs\n- `.hath0r/evals/history/*.json` (R_task, tier scores, duration)\n- `.hath0r/state/finops/token_ledger.jsonl` and `.hath0r/finops/token_telemetry.jsonl` (tokens, cost, latency)\n- `thresholds.json` `capability` block\n\n## Actions\n| Action | Method | Notes |\n|---|---|---|\n| `status` | `status(metrics=None)` | Writes `.hath0r/spc/latest.json` |\n| `chart` | `chart(metric, lam=None)` | Uses a frozen baseline when one exists |\n| `baseline` | `baseline(metric, points, recent=False)` | Writes `.hath0r/spc/baselines.json` |\n| `capability` | `capability(metric, lsl, usl)` | R_task defaults to LSL = eval `min_reward` |\n| `gate` | `gate()` | Workflow step; raises an Andon stop in block mode |\n",
+      "properties": {
+        "path": "docs/governance/bot-specs/spc-monitor-bot-spec.md",
+        "category": "bot-specs",
+        "size_bytes": 985
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__playbooks__kokoro-tts-engine-playbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3731,6 +4308,19 @@
         "path": "docs/governance/playbooks/vision-transformers-cli-playbook.md",
         "category": "playbooks",
         "size_bytes": 1954
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__dmaic-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Dmaic Playbook",
+      "content": "# Playbook: DMAIC\n\n> **Playbook ID**: `PB-DMAIC-001` · **Owning Bot**: `dmaic-project-bot`\n\n| Situation | Play |\n|---|---|\n| Close refused: too few points | Keep working; the CTQ accrues a point per eval |\n| Close refused: out of control | The change is not stable yet; find the signal with `hath0r spc chart` |\n| Baseline is out of control | Note it; the process was already shifting, so judge Control on the post-change chart only |\n| Improvement is negative | Revert or rethink; record what you learned with `hath0r rca why` |\n| Gain held | Add a control: a guard (poka-yoke), an FMEA re-rating, or SPC block mode for the CTQ |\n",
+      "properties": {
+        "path": "docs/governance/playbooks/dmaic-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 632
       },
       "is_current": true
     },
@@ -3800,6 +4390,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__playbooks__eval-measurement-system-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Eval Measurement System Playbook",
+      "content": "# Playbook: Eval measurement system analysis\n\n> **Playbook ID**: `PB-EVAL-MSA-001` · **Owning Bot**: `measurement-system-bot`\n\n| Symptom | Likely cause | Play |\n|---|---|---|\n| `Seeded defects passed the gate: X` | A tier does not penalise that defect hard enough | Find the tier in `measurements[].tier_scores` for part X and make the check a hard gate (see PY-07) |\n| `Known-good parts failed the gate: X` | Over-strict tier or a broken fixture | Run `hath0r evals run` inside a copy of the fixture and read `blocking_reasons` |\n| `Verdict changed between replicates` | Non-deterministic tier (timing, ordering, network) | Pin the source of randomness; latency is the usual suspect |\n| `%GRR` above 10% | Repeatability or reproducibility noise | Read `study_variation_pct`; repeatability means within-evaluator noise, reproducibility means operator bias |\n| `ndc` below 5 | Parts too similar to tell apart | Add parts that span the score range, not just more of the same |\n| `qualified_now: false` with a passing study | Judge configuration changed since the study | Rerun `hath0r evals msa run` |\n",
+      "properties": {
+        "path": "docs/governance/playbooks/eval-measurement-system-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 1101
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__playbooks__pytorch-acceleration-playbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -3848,6 +4451,19 @@
         "path": "docs/governance/playbooks/voice-command-group-playbook.md",
         "category": "playbooks",
         "size_bytes": 908
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__doe-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Doe Playbook",
+      "content": "# Playbook: Sequential design of experiments\n\n> **Playbook ID**: `PB-DOE-001` · **Owning Bot**: `doe-bot`\n\n| Situation | Play |\n|---|---|\n| No significant factors after screening | Widen the ranges, add replicates, or check the gauge (%GRR) before tuning |\n| More than three significant factors | doe-bot keeps the three with the largest F; screen again on the rest later |\n| Optimum on the edge of the cube | The true optimum is outside the ranges; shift the ranges and run a new rsm |\n| Confirmation fails | Do not adopt the optimum. Look for curvature the model missed or a drifting process (`hath0r spc chart`) |\n| optuna missing | `bayes` falls back to a CCD response surface; install the `doe` extra for TPE |\n| Measurement command fails | The study stops with the command's stderr; nothing is guessed |\n",
+      "properties": {
+        "path": "docs/governance/playbooks/doe-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 811
       },
       "is_current": true
     },
@@ -4047,6 +4663,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__playbooks__fmea-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Fmea Playbook",
+      "content": "# Playbook: FMEA\n\n> **Playbook ID**: `PB-FMEA-001` · **Owning Bot**: `fmea-bot`\n\n| Situation | Play |\n|---|---|\n| H from severity 9-10 | Lower occurrence (a poka-yoke guard) or detection (a gate); severity rarely moves |\n| High detection rating (7+) | Nothing catches it: add a bot step, an eval check or an Andon `stop` |\n| Occurrence is a seed estimate | Give the row a `--signal` so data replaces the guess |\n| Row mapped to `workflow` | No step matches; the missing step is often the fix |\n| Score did not drop after a fix | Occurrence only drops when the data does; re-rate detection for new gates |\n",
+      "properties": {
+        "path": "docs/governance/playbooks/fmea-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 606
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__playbooks__colpali-vision-kb-playbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -4164,6 +4793,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__playbooks__spc-monitor-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Spc Monitor Playbook",
+      "content": "# Playbook: Statistical process control\n\n> **Playbook ID**: `PB-SPC-001` · **Owning Bot**: `spc-monitor-bot`\n\n| Signal | Meaning | Play |\n|---|---|---|\n| Rule 1 (one point beyond 3 sigma) | A single unusual task | Read that scorecard's `blocking_reasons` and tier scores |\n| Rule 4 (8 in a row on one side) or EWMA/CUSUM | The process mean has shifted | Find the change that landed at the start of the run; re-baseline only if it was intended |\n| Every point after the baseline flagged, sigma 0 | Baseline had no variation (for example the clamped era) | `hath0r spc baseline --recent` once the new process has 20 points |\n| Low Cpk with no signals | Process is stable but too close to the 0.80 threshold | Improvement project: `hath0r dmaic start` |\n| Cost or token signals | Spend pattern changed | `hath0r finops tokens histogram` to see which agent |\n",
+      "properties": {
+        "path": "docs/governance/playbooks/spc-monitor-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 856
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__playbooks__local-reasoning-adapters-playbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -4216,6 +4858,19 @@
       "is_current": true
     },
     {
+      "id": "doc:docs__governance__playbooks__rca-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Rca Playbook",
+      "content": "# Playbook: Root cause analysis\n\n> **Playbook ID**: `PB-RCA-001` · **Owning Bot**: `root-cause-bot`\n\n| Pareto shows | Play |\n|---|---|\n| `unclassified` on top | Keywords miss your failures: retag by hand and extend `cause-categories.yaml` |\n| `method` on top | A workflow step is missing or wrong: FMEA the factory |\n| `measurement` on top | The gauge is suspect: `hath0r evals msa run` |\n| `machine` on top | Infra noise: check Andon and CI history before changing code |\n| A flat Pareto | No vital few yet; keep tagging until a pattern shows |\n| 5 Whys stops at a person | Keep asking why the process let it happen |\n",
+      "properties": {
+        "path": "docs/governance/playbooks/rca-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 620
+      },
+      "is_current": true
+    },
+    {
       "id": "doc:docs__governance__playbooks__supercompress-playbook_md",
       "plane": "knowledge",
       "type": "knowledge_doc",
@@ -4251,6 +4906,19 @@
         "path": "docs/governance/playbooks/local-quality-gates-playbook.md",
         "category": "playbooks",
         "size_bytes": 1225
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__playbooks__andon-playbook_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Andon Playbook",
+      "content": "# Playbook: Andon\n\n> **Playbook ID**: `PB-ANDON-001` · **Owning Bot**: `andon-bot`\n\n| Source | Typical cause | Play |\n|---|---|---|\n| `token-tree-budget-guard` | Runaway agent tree | Inspect `hath0r finops budget check`; lower fan-out before clearing |\n| `spc-monitor-bot` (block mode) | Process shift or low Cpk | `hath0r spc chart`, then `hath0r rca` if the cause is not obvious |\n| A factory step with `andon: stop` | That step's check failed | Rerun the workflow with `-o json` and read the step error |\n| `ANDON_LEDGER_TAMPERED` | Ledger edited by hand | Restore `.hath0r/state/andon/events.jsonl` from git; do not rewrite hashes |\n",
+      "properties": {
+        "path": "docs/governance/playbooks/andon-playbook.md",
+        "category": "playbooks",
+        "size_bytes": 638
       },
       "is_current": true
     },
@@ -4472,6 +5140,19 @@
         "path": "docs/governance/rules/cr-memory-compound-001.md",
         "category": "rules",
         "size_bytes": 9078
+      },
+      "is_current": true
+    },
+    {
+      "id": "doc:docs__governance__rules__cr-context-squeeze-001_md",
+      "plane": "knowledge",
+      "type": "knowledge_doc",
+      "label": "Cr Context Squeeze 001",
+      "content": "# CR-CONTEXT-SQUEEZE-001: Compress Context with SuperSqueeze (CRITICAL — Org-Wide · CANONICAL)\n\n> **Status**: Active · **Tier**: Org Invariant (`RulePriority.ORG_INVARIANT`)\n> **Scope**: All repositories across `/Users/raybayly/Development` (`OpenSource`, `1-Nation`, `BAI`, `Ray`, `Websites`, `Projects`)\n> **Enforced by**: `hath0r squeeze`, `SuperSqueezeBot` (`SuperCompressBot`, `src/hath0r_cli/bots/supercompress_bot.py`),\n> `SubstrateUtilizationBot`, `hath0r evals` (Tier 2 SuperSqueeze utilization ratio), `hath0r rules ensure-all`\n\n---\n\n## Rule\n\n1. **Squeeze before you load**: Bulky context — whole files, logs, CI output, tool results, KB/RAG hits, transcripts,\n   anything over roughly 2,000 tokens — MUST go through SuperSqueeze before it enters an agent's context window or a\n   model prompt. Read the compressed output, not the raw text.\n   - CLI: `hath0r squeeze -q \"<active query>\" -f <file>` or `hath0r squeeze -q \"<active query>\" -c \"<text>\"`.\n   - Code: `SuperSqueezeBot` / `supersqueeze_bot` (alias of `SuperCompressBot`). Never hand-roll truncation or\n     `head`/`[:N]` slicing as a substitute.\n2. **Anchor on the active query**: `-q` is always the current task or question, so c",
+      "properties": {
+        "path": "docs/governance/rules/cr-context-squeeze-001.md",
+        "category": "rules",
+        "size_bytes": 2787
       },
       "is_current": true
     },
@@ -5255,7 +5936,7 @@
       "content": "4-Tier Task Evaluation for pr-101 on branch feature/510-automatic-task-evals: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5277,7 +5958,7 @@
       "content": "4-Tier Task Evaluation for pr-104 on branch feature/510-automatic-task-evals: R_task=0.9000 (det=0.75, traj=1.00, adv=1.00, goal=1.00). Gate=FAILED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5318,7 +5999,7 @@
       "content": "4-Tier Task Evaluation for issue-510 on branch feature/510-automatic-task-evals: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5340,7 +6021,7 @@
       "content": "4-Tier Task Evaluation for pr-516 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5440,7 +6121,7 @@
       "content": "4-Tier Task Evaluation for pr-516-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5482,7 +6163,7 @@
       "content": "4-Tier Task Evaluation for eval-baseline-hathor-cli on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5504,7 +6185,7 @@
       "content": "4-Tier Task Evaluation for issue-518 on branch feature/518-evals-ensure-all-repos: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5545,7 +6226,7 @@
       "content": "4-Tier Task Evaluation for pr-519 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5567,7 +6248,7 @@
       "content": "4-Tier Task Evaluation for pr-519-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5589,7 +6270,7 @@
       "content": "4-Tier Task Evaluation for issue-520 on branch feature/520-detached-cruise-control: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5631,7 +6312,7 @@
       "content": "4-Tier Task Evaluation for pr-521 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5673,7 +6354,7 @@
       "content": "4-Tier Task Evaluation for pr-521-merged on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5715,7 +6396,7 @@
       "content": "4-Tier Task Evaluation for release-v1.11.0 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5737,7 +6418,7 @@
       "content": "4-Tier Task Evaluation for issue-522 on branch feature/522-clean-repo-branch-hygiene: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5759,7 +6440,7 @@
       "content": "4-Tier Task Evaluation for clean-repo-hathor-cli on branch development: R_task=0.9249 (det=0.95, traj=0.93, adv=0.88, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5781,7 +6462,7 @@
       "content": "4-Tier Task Evaluation for release-v1-12-0 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5803,7 +6484,7 @@
       "content": "4-Tier Task Evaluation for issue-524 on branch feature/524-eval-scorecard-summary-rule: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5825,7 +6506,7 @@
       "content": "4-Tier Task Evaluation for pr-525-scorecard-summary-rule on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5847,7 +6528,7 @@
       "content": "Added RuleRolloutBot and hath0r rules list/status/ensure-all to roll a canonical CR-* AGENTS.md section to every repo remote: scratch worktree off origin/development, patch SemVer bump, ReleaseBot check, optional issue + PR. Acceptance: CR-CLI-ENTRY-001 preview reports 23 pending PRs, 9 compliant, 0 missing.",
       "properties": {
         "source_files": {
-          "src/hath0r_cli/bots/rule_rollout_bot.py": "sha256:c34b4d807b45bfa5fbe4525469f9332c56dc8b4d481fed8797b919a4fac2a036"
+          "src/hath0r_cli/bots/rule_rollout_bot.py": "sha256:6ecf02f5472cfb707a0bff98e608215bbac606a6b42cb8ddcdc7e0271a541938"
         },
         "source": "local_memory",
         "tags": [
@@ -5889,7 +6570,7 @@
       "content": "4-Tier Task Evaluation for issue-528 on branch feature/528-rules-ensure-all: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -5953,7 +6634,7 @@
       "content": "4-Tier Task Evaluation for issue-532 on branch fix/532-cruise-sync: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6023,7 +6704,7 @@
       "content": "4-Tier Task Evaluation for sft-lora-peft-evals on branch feature/530-git-workflows: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6045,9 +6726,9 @@
       "content": "Released v1.13.0 of HATH0R-CLI adding CCCDTTrainingCoordinator SFT/LoRA/QLoRA/PEFT subspace training and benchmark evals, SecuritySASTScanner AST-aware eval/exec detection, and GitWorkflowBot.",
       "properties": {
         "source_files": {
-          "VERSION": "sha256:674f4a09248743250e5a3af0542b31ac96a6031a254069470b83b1a4e14210f8",
-          "pyproject.toml": "sha256:136cb21983255005ecbd1487faeeb3eca68dab75e00dbb89a02095a44d59585f",
-          "CHANGELOG.md": "sha256:0c714ea16ed9a359de0e8b84281d210448b957dcc81bd6ba74f7756dd3d2c1b7",
+          "VERSION": "sha256:32112436a82effc1d958644a972f2a81e829e5ff08beb71305473cf6d41ca956",
+          "pyproject.toml": "sha256:22715cfb4bc6b77ada35c0f23f6499467fe8b980394df265d500b7cc56f918e8",
+          "CHANGELOG.md": "sha256:9b429d9fb9729b3945de59131835aa44a9f4934d5893cbe89ce6093b9a022d6a",
           "src/hath0r_cli/cccd/training_coordinator.py": "sha256:b1fed8465db95f4d72188ed58404f2c4e88040c7f06ca818df8c354e6aa29366",
           "src/hath0r_cli/bots/cicccd_bot.py": "sha256:4a5f72f02a0b3eb5de382608cd5aa5e643f5eaca0472e9061e122f02a774e972"
         },
@@ -6068,7 +6749,7 @@
       "content": "4-Tier Task Evaluation for release-v1-13-0 on branch feature/530-git-workflows: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6116,7 +6797,7 @@
         "source_files": {
           "src/hath0r_cli/bots/bite_verifier_bot.py": "sha256:c4eb8bac4ac1abf166d642c95f053e5d3844b048079099e9e5c46ca9929f8e00",
           "src/hath0r_cli/bots/secret_pii_sanitizer.py": "sha256:24d98c07d7b036f7e7ec2df6b30bc32b58228848899f7a7378025a367c495a30",
-          "src/hath0r_cli/bots/dependency_guard_bot.py": "sha256:40f9a3276102e90efced21bf89ba2cedf2c5a3313bb7cd83308d0cc814a5f7f0",
+          "src/hath0r_cli/bots/dependency_guard_bot.py": "sha256:b42e5e8aaf4ffb07a6952b9704bb6d9dd984fc37e4d64a57ad05b5774dec6ac1",
           "src/hath0r_cli/bots/shadow_ai_classifier.py": "sha256:3cef738257bede3b4961797aca507edb6d69657fce69c1f831ad4da4c92778db",
           "src/hath0r_cli/commands/skills.py": "sha256:76c599f3782fa6d1cf80212d210ca33df6368ed0908a954ee2fb1b78c9dc7c44",
           "src/hath0r_cli/commands/threatmodel.py": "sha256:04ca3cfac68f53e19faae733e701e0b84ccc359fb6c3cb15f161f4ab22f3e031"
@@ -6138,7 +6819,7 @@
       "content": "4-Tier Task Evaluation for task-hathor-cli on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6224,7 +6905,7 @@
       "content": "4-Tier Task Evaluation for release-v1.15.2 on branch development: R_task=1.0000 (det=1.00, traj=1.00, adv=1.00, goal=1.00). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6312,7 +6993,7 @@
       "content": "4-Tier Task Evaluation for issue-551 on branch feature/551-register-69-bots-4h-calibration-supersqueeze: R_task=0.9349 (det=0.96, traj=0.93, adv=0.90, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6374,7 +7055,7 @@
       "content": "4-Tier Task Evaluation for issue-552 on branch feature/552-mcp-centralization-workflow-engine-bots: R_task=0.9450 (det=0.96, traj=0.94, adv=0.94, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6436,7 +7117,7 @@
       "content": "4-Tier Task Evaluation for issue-553 on branch feature/553-iteration-cascade-bot: R_task=0.9451 (det=0.96, traj=0.94, adv=0.94, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6498,7 +7179,7 @@
       "content": "4-Tier Task Evaluation for issue-554 on branch feature/554-arch-preservation-substrate-verifier-bots: R_task=0.9452 (det=0.96, traj=0.94, adv=0.93, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6560,7 +7241,7 @@
       "content": "4-Tier Task Evaluation for issue-555 on branch feature/555-continuous-task-evaluator-bot: R_task=0.9344 (det=0.96, traj=0.94, adv=0.89, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6598,7 +7279,7 @@
       "content": "4-Tier Task Evaluation for issue-561 on branch feature/561-local-qgates-thresholds-evals: R_task=0.9386 (det=0.96, traj=0.93, adv=0.92, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6636,7 +7317,7 @@
       "content": "4-Tier Task Evaluation for release-deploy-hath0r-mcp-1.13.0-cli-1.21.0 on branch development: R_task=0.9378 (det=0.96, traj=0.92, adv=0.92, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6658,7 +7339,7 @@
       "content": "4-Tier Task Evaluation for global-install-hath0r-cli-1.21.0 on branch development: R_task=0.9400 (det=0.95, traj=0.94, adv=0.92, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6680,7 +7361,7 @@
       "content": "4-Tier Task Evaluation for setup-local-qgates-36-repos on branch development: R_task=0.9328 (det=0.95, traj=0.94, adv=0.90, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6726,7 +7407,7 @@
       "content": "4-Tier Task Evaluation for clean-all-repos-development on branch development: R_task=0.9388 (det=0.95, traj=0.92, adv=0.94, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6792,7 +7473,7 @@
       "content": "4-Tier Task Evaluation for eval-baseline-hath0r-cli on branch development: R_task=0.8566 (det=0.74, traj=0.93, adv=0.94, goal=0.93). Gate=FAILED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6814,7 +7495,7 @@
       "content": "4-Tier Task Evaluation for task-HATH0R-CLI on branch development: R_task=0.9354 (det=0.94, traj=0.93, adv=0.94, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6921,7 +7602,7 @@
       "content": "4-Tier Task Evaluation for issue-566-install-wizard on branch feature/566-cli-mcp-install-wizard: R_task=0.9305 (det=0.96, traj=0.93, adv=0.88, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -6985,7 +7666,7 @@
       "content": "4-Tier Task Evaluation for issue-566-dmg-exe-installers on branch feature/566-cli-mcp-install-wizard: R_task=0.9290 (det=0.96, traj=0.93, adv=0.88, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -7068,7 +7749,7 @@
       "content": "4-Tier Task Evaluation for issue-566-release-cleanup on branch feature/566-cli-mcp-install-wizard: R_task=0.9251 (det=0.96, traj=0.93, adv=0.87, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -7106,7 +7787,7 @@
       "content": "4-Tier Task Evaluation for issue-566 on branch feature/566-cli-mcp-install-wizard: R_task=0.9350 (det=0.96, traj=0.91, adv=0.92, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:72337e9eceebc5f8c1867a3211b55074230e8bad038ed7609323e680c7ef2ad9"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -7160,7 +7841,7 @@
       "content": "4-Tier Task Evaluation for issue-570 on branch feature/570-real-embeddings-reranker: R_task=0.9233 (det=0.96, traj=0.93, adv=0.85, goal=0.93). Gate=PASSED.",
       "properties": {
         "source_files": {
-          ".hath0r/evals/latest.json": "sha256:054a9fea28767369ea1170d592ee079fb53c36343e16d3f64bb334e88fd069f2"
+          ".hath0r/evals/latest.json": "sha256:d2b0cdfcfa98c0906b501cab1cbdfd86a3e92806dc1da682ee47211e7dcea1d8"
         },
         "source": "local_memory",
         "tags": [
@@ -7193,6 +7874,81 @@
           "session",
           "micro-session",
           "active"
+        ],
+        "importance": 0.75
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:decision:industrial-qa-epic-580",
+      "plane": "memory",
+      "type": "decision",
+      "label": "Industrial QA methods in Hath0r (epic 580, v1.25.0)",
+      "content": "Shipped measurement-system-bot (Gage R&R on evals, %GRR 0.076, ndc 100, Tier 4 clamp off), spc-monitor-bot (I-MR, WE rules, EWMA, CUSUM, Cpk; warnings unless capability.mode block), andon-bot (hash-chained stop-the-line wired into workflows, DAG runner, budget guard), fmea-bot (MAST 14-mode taxonomy, AIAG-VDA AP; H rows -> #596-#598), root-cause-bot (6M, Pareto, 5 Whys), dmaic-project-bot (close needs 20 in-control points; #599 Tier 4 discrimination), doe-bot (screen, RSM, optional optuna, confirm; never simulated). MCP read-only tools and ATC SPC panel added.",
+      "properties": {
+        "source_files": {
+          "src/hath0r_cli/bots/doe_bot.py": "sha256:f698c352951ae53b110e31d8c11d579ab0a190fe02f6995167b36ef5b9ba3d67",
+          "src/hath0r_cli/bots/spc_monitor_bot.py": "sha256:e91157d2b01a7f92b36a86c745323c0d120db0c1fe4ca6f73d5382298806b4a6"
+        },
+        "source": "local_memory",
+        "tags": [
+          "industrial-qa",
+          "msa",
+          "spc",
+          "andon",
+          "fmea",
+          "rca",
+          "dmaic",
+          "doe",
+          "epic-580",
+          "decision",
+          "compounded"
+        ],
+        "importance": 0.9
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:eval:issue-580",
+      "plane": "memory",
+      "type": "eval",
+      "label": "Task Evaluation issue-580 (R=0.91, PASS)",
+      "content": "4-Tier Task Evaluation for issue-580 on branch feature/580-industrial-qa-methods: R_task=0.9114 (det=0.97, traj=0.86, adv=0.94, goal=0.78). Gate=PASSED.",
+      "properties": {
+        "source_files": {
+          ".hath0r/evals/latest.json": "sha256:935d30d54103934714d66ad30f6c58cddc64ee87561dbd2fcb16b8b6951a6955"
+        },
+        "source": "local_memory",
+        "tags": [
+          "eval",
+          "cr-task-eval-001",
+          "issue-580",
+          "passed",
+          "compounded"
+        ],
+        "importance": 0.85
+      },
+      "is_current": true
+    },
+    {
+      "id": "memory:session:sess-20261111-133108-f6050e",
+      "plane": "memory",
+      "type": "session",
+      "label": "Micro Session sess-20261111-133108-f6050e",
+      "content": "Micro Session sess-20261111-133108-f6050e [completed] | Focus: Orienting repository hathor-cli | Reads: 10, Writes: 13 | Entries: Completed PR #101 (feature/101-test) via EndOfTaskBot.; Compounded eval:issue-580: Task Evaluation issue-580 (R=0.91, PASS)",
+      "properties": {
+        "session_id": "sess-20261111-133108-f6050e",
+        "prior_session_id": "sess-20261101-160736-c73550",
+        "parent_session_id": "sess-20261101-160736-c73550",
+        "read_count": 10,
+        "write_count": 13,
+        "status": "completed",
+        "byte_size": 2038,
+        "source": "local_memory",
+        "tags": [
+          "session",
+          "micro-session",
+          "completed"
         ],
         "importance": 0.75
       },
@@ -8550,6 +9306,7 @@
         "command": "optimize",
         "owning_bots": [
           "taguchi-bot",
+          "doe-bot",
           "cicccd-managing-bot"
         ],
         "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
@@ -8565,6 +9322,17 @@
       "content": "Registered Bot 'taguchi-bot' in BotRegistry",
       "properties": {
         "bot_id": "taguchi-bot"
+      },
+      "is_current": true
+    },
+    {
+      "id": "bot:doe-bot",
+      "plane": "context",
+      "type": "bot",
+      "label": "doe-bot",
+      "content": "Registered Bot 'doe-bot' in BotRegistry",
+      "properties": {
+        "bot_id": "doe-bot"
       },
       "is_current": true
     },
@@ -9030,6 +9798,145 @@
       "is_current": true
     },
     {
+      "id": "service:spc",
+      "plane": "context",
+      "type": "service",
+      "label": "Statistical Process Control & Capability Service",
+      "content": "Service 'Statistical Process Control & Capability Service' for CLI command `hath0r spc` on L1_MCP_AND_L2_CLI_MEMORY",
+      "properties": {
+        "command": "spc",
+        "owning_bots": [
+          "spc-monitor-bot",
+          "phoenix-observer-bot"
+        ],
+        "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+        "workflow_id": "cfg/factories/spc-monitor-factory.yaml"
+      },
+      "is_current": true
+    },
+    {
+      "id": "bot:spc-monitor-bot",
+      "plane": "context",
+      "type": "bot",
+      "label": "spc-monitor-bot",
+      "content": "Registered Bot 'spc-monitor-bot' in BotRegistry",
+      "properties": {
+        "bot_id": "spc-monitor-bot"
+      },
+      "is_current": true
+    },
+    {
+      "id": "service:andon",
+      "plane": "context",
+      "type": "service",
+      "label": "Andon Stop-the-Line Signal Service",
+      "content": "Service 'Andon Stop-the-Line Signal Service' for CLI command `hath0r andon` on L1_MCP_AND_L2_CLI_MEMORY",
+      "properties": {
+        "command": "andon",
+        "owning_bots": [
+          "andon-bot",
+          "decision-radar-bot"
+        ],
+        "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+        "workflow_id": "cfg/factories/andon-factory.yaml"
+      },
+      "is_current": true
+    },
+    {
+      "id": "bot:andon-bot",
+      "plane": "context",
+      "type": "bot",
+      "label": "andon-bot",
+      "content": "Registered Bot 'andon-bot' in BotRegistry",
+      "properties": {
+        "bot_id": "andon-bot"
+      },
+      "is_current": true
+    },
+    {
+      "id": "service:fmea",
+      "plane": "context",
+      "type": "service",
+      "label": "Failure Mode & Effects Analysis Service",
+      "content": "Service 'Failure Mode & Effects Analysis Service' for CLI command `hath0r fmea` on L1_MCP_AND_L2_CLI_MEMORY",
+      "properties": {
+        "command": "fmea",
+        "owning_bots": [
+          "fmea-bot",
+          "issue-manager-bot"
+        ],
+        "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
+        "workflow_id": "cfg/factories/fmea-review-factory.yaml"
+      },
+      "is_current": true
+    },
+    {
+      "id": "bot:fmea-bot",
+      "plane": "context",
+      "type": "bot",
+      "label": "fmea-bot",
+      "content": "Registered Bot 'fmea-bot' in BotRegistry",
+      "properties": {
+        "bot_id": "fmea-bot"
+      },
+      "is_current": true
+    },
+    {
+      "id": "service:rca",
+      "plane": "context",
+      "type": "service",
+      "label": "Root Cause Analysis (Pareto, Ishikawa, 5 Whys) Service",
+      "content": "Service 'Root Cause Analysis (Pareto, Ishikawa, 5 Whys) Service' for CLI command `hath0r rca` on L2_CLI_MEMORY",
+      "properties": {
+        "command": "rca",
+        "owning_bots": [
+          "root-cause-bot"
+        ],
+        "agentgraph_level": "L2_CLI_MEMORY",
+        "workflow_id": "cfg/factories/rca-pareto-factory.yaml"
+      },
+      "is_current": true
+    },
+    {
+      "id": "bot:root-cause-bot",
+      "plane": "context",
+      "type": "bot",
+      "label": "root-cause-bot",
+      "content": "Registered Bot 'root-cause-bot' in BotRegistry",
+      "properties": {
+        "bot_id": "root-cause-bot"
+      },
+      "is_current": true
+    },
+    {
+      "id": "service:dmaic",
+      "plane": "context",
+      "type": "service",
+      "label": "DMAIC Improvement Project Service",
+      "content": "Service 'DMAIC Improvement Project Service' for CLI command `hath0r dmaic` on L2_CLI_MEMORY",
+      "properties": {
+        "command": "dmaic",
+        "owning_bots": [
+          "dmaic-project-bot",
+          "issue-manager-bot"
+        ],
+        "agentgraph_level": "L2_CLI_MEMORY",
+        "workflow_id": "cfg/factories/dmaic-project-factory.yaml"
+      },
+      "is_current": true
+    },
+    {
+      "id": "bot:dmaic-project-bot",
+      "plane": "context",
+      "type": "bot",
+      "label": "dmaic-project-bot",
+      "content": "Registered Bot 'dmaic-project-bot' in BotRegistry",
+      "properties": {
+        "bot_id": "dmaic-project-bot"
+      },
+      "is_current": true
+    },
+    {
       "id": "service:evals",
       "plane": "context",
       "type": "service",
@@ -9040,7 +9947,8 @@
         "owning_bots": [
           "task-evaluator-bot",
           "local-quality-gate-bot",
-          "redteam-engine-bot"
+          "redteam-engine-bot",
+          "measurement-system-bot"
         ],
         "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY",
         "workflow_id": "cfg/factories/end-of-task-factory.yaml"
@@ -9066,6 +9974,17 @@
       "content": "Registered Bot 'redteam-engine-bot' in BotRegistry",
       "properties": {
         "bot_id": "redteam-engine-bot"
+      },
+      "is_current": true
+    },
+    {
+      "id": "bot:measurement-system-bot",
+      "plane": "context",
+      "type": "bot",
+      "label": "measurement-system-bot",
+      "content": "Registered Bot 'measurement-system-bot' in BotRegistry",
+      "properties": {
+        "bot_id": "measurement-system-bot"
       },
       "is_current": true
     },
@@ -11692,6 +12611,54 @@
       "is_current": true
     },
     {
+      "source": "memory:session:sess-20261101-160736-c73550",
+      "target": "memory:session:sess-20261111-133108-f6050e",
+      "relation": "PRECEDES",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261111-133108-f6050e",
+      "target": "concept:tri-graph",
+      "relation": "RELATES_TO",
+      "is_current": true
+    },
+    {
+      "source": "memory:decision:industrial-qa-epic-580",
+      "target": "concept:tri-graph",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:decision:industrial-qa-epic-580",
+      "target": "memory:session:sess-20261111-133108-f6050e",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-580",
+      "target": "concept:tri-graph",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-580",
+      "target": "memory:rule:cr-memory-compound-001",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-580",
+      "target": "memory:session:sess-20261111-133108-f6050e",
+      "relation": "EVALUATES",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-580",
+      "target": "memory:session:sess-20261111-133108-f6050e",
+      "relation": "DERIVES_FROM",
+      "is_current": true
+    },
+    {
       "source": "rule:rules",
       "target": "role:developer",
       "relation": "GOVERNS",
@@ -11735,6 +12702,12 @@
     },
     {
       "source": "rule:cr-memory-compound-001",
+      "target": "role:developer",
+      "relation": "GOVERNS",
+      "is_current": true
+    },
+    {
+      "source": "rule:cr-context-squeeze-001",
       "target": "role:developer",
       "relation": "GOVERNS",
       "is_current": true
@@ -12604,6 +13577,24 @@
       "is_current": true
     },
     {
+      "source": "memory:decision:industrial-qa-epic-580",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:eval:issue-580",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
+      "source": "memory:session:sess-20261111-133108-f6050e",
+      "target": "role:developer",
+      "relation": "INFORMS",
+      "is_current": true
+    },
+    {
       "source": "service:doctor",
       "target": "bot:preflight-bot",
       "relation": "OWNED_BY_BOT",
@@ -13085,6 +14076,12 @@
     },
     {
       "source": "service:optimize",
+      "target": "bot:doe-bot",
+      "relation": "OWNED_BY_BOT",
+      "is_current": true
+    },
+    {
+      "source": "service:optimize",
       "target": "bot:cicccd-managing-bot",
       "relation": "OWNED_BY_BOT",
       "is_current": true
@@ -13252,6 +14249,60 @@
       "is_current": true
     },
     {
+      "source": "service:spc",
+      "target": "bot:spc-monitor-bot",
+      "relation": "OWNED_BY_BOT",
+      "is_current": true
+    },
+    {
+      "source": "service:spc",
+      "target": "bot:phoenix-observer-bot",
+      "relation": "OWNED_BY_BOT",
+      "is_current": true
+    },
+    {
+      "source": "service:andon",
+      "target": "bot:andon-bot",
+      "relation": "OWNED_BY_BOT",
+      "is_current": true
+    },
+    {
+      "source": "service:andon",
+      "target": "bot:decision-radar-bot",
+      "relation": "OWNED_BY_BOT",
+      "is_current": true
+    },
+    {
+      "source": "service:fmea",
+      "target": "bot:fmea-bot",
+      "relation": "OWNED_BY_BOT",
+      "is_current": true
+    },
+    {
+      "source": "service:fmea",
+      "target": "bot:issue-manager-bot",
+      "relation": "OWNED_BY_BOT",
+      "is_current": true
+    },
+    {
+      "source": "service:rca",
+      "target": "bot:root-cause-bot",
+      "relation": "OWNED_BY_BOT",
+      "is_current": true
+    },
+    {
+      "source": "service:dmaic",
+      "target": "bot:dmaic-project-bot",
+      "relation": "OWNED_BY_BOT",
+      "is_current": true
+    },
+    {
+      "source": "service:dmaic",
+      "target": "bot:issue-manager-bot",
+      "relation": "OWNED_BY_BOT",
+      "is_current": true
+    },
+    {
       "source": "service:evals",
       "target": "bot:task-evaluator-bot",
       "relation": "OWNED_BY_BOT",
@@ -13266,6 +14317,12 @@
     {
       "source": "service:evals",
       "target": "bot:redteam-engine-bot",
+      "relation": "OWNED_BY_BOT",
+      "is_current": true
+    },
+    {
+      "source": "service:evals",
+      "target": "bot:measurement-system-bot",
       "relation": "OWNED_BY_BOT",
       "is_current": true
     },
@@ -13446,6 +14503,6 @@
   ],
   "metadata": {
     "repo_root": "/Users/raybayly/Development/OpenSource/hathor-cli",
-    "synced_sources": 333
+    "synced_sources": 386
   }
 }

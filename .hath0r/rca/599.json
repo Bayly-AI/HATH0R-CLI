@@ -1,0 +1,28 @@
+{
+  "schema_version": "hath0r.rca/v1",
+  "issue": 599,
+  "problem": "Known-good changes all get nearly the same R_task",
+  "fishbone": {
+    "measurement": [
+      "Tier 4 consensus is computed over synthetic critic text instead of per-tier evidence"
+    ],
+    "method": [],
+    "material": [],
+    "machine": [],
+    "model": [],
+    "operator": []
+  },
+  "whys": {
+    "problem": "Known-good changes all get nearly the same R_task",
+    "chain": [
+      "Tier 4 adds almost no spread between good parts",
+      "Its consensus score compares three critic strings built from the same anchor text",
+      "The critics are synthetic strings, not evidence from each tier",
+      "Tier 4 was written before there was a gauge to show it could not discriminate"
+    ],
+    "root_cause": "Tier 4 consensus is computed over synthetic critic text instead of per-tier evidence",
+    "category": "measurement",
+    "recorded_at": "2026-11-11T13:00:30.885159+00:00"
+  },
+  "created_at": "2026-11-11T13:00:30.885146+00:00"
+}

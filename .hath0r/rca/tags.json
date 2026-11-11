@@ -1,0 +1,13 @@
+[
+  {
+    "id": "rca-bd9fb4d5",
+    "source": "eval",
+    "ref": "eval-20261101-154354-f450a2",
+    "gate": "tier1:deterministic",
+    "summary": "Tier 1 deterministic gate failed: memory_compounded",
+    "category": "method",
+    "classified_by": "keywords",
+    "issue": null,
+    "tagged_at": "2026-11-11T12:57:12.960374+00:00"
+  }
+]

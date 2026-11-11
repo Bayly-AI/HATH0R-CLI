@@ -154,7 +154,7 @@ SERVICE_BOT_MAP: dict[str, dict[str, Any]] = {
     "validate-change": {"service": "Change Validation Gate Service", "owning_bots": ["change-validation-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
     "vision": {"service": "ColPali Vision & Multimodal Grounding Service", "owning_bots": ["vision-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/vision-grounding-factory.yaml"},
     "code": {"service": "AST Code Parser & Transformation Service", "owning_bots": ["transformation-pipeline-bot", "tri-graph-ingest-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/code-analysis-factory.yaml"},
-    "optimize": {"service": "Taguchi Robust Parameter Optimization Service", "owning_bots": ["taguchi-bot", "cicccd-managing-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/cccd-4h-calibration-factory.yaml"},
+    "optimize": {"service": "Taguchi Robust Parameter Optimization Service", "owning_bots": ["taguchi-bot", "doe-bot", "cicccd-managing-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/cccd-4h-calibration-factory.yaml"},
     "finops": {"service": "FinOps Token Ledger, Budget & Tokenizer Tax Service", "owning_bots": ["token-telemetry-bot", "token-tree-budget-bot", "tokenizer-tax-bot", "token-check-workflow-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/finops-budget-factory.yaml"},
     "agentgraph": {"service": "Two-Level AgentGraph Governance & Routing Service", "owning_bots": ["agentgraph-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/memory-agentgraph-sync-factory.yaml"},
     "design": {"service": "Paper.design Bi-Directional UI Synthesis Service", "owning_bots": ["paper-design-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/paper-design-factory.yaml"},
@@ -170,7 +170,12 @@ SERVICE_BOT_MAP: dict[str, dict[str, Any]] = {
     "pmat": {"service": "PMAT Complexity & Maintainability Service", "owning_bots": ["pmat-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/quality-gate-factory.yaml"},
     "mesh": {"service": "Agent Mesh & HAHP Handoff Service", "owning_bots": ["mesh-manager-bot", "hahp-protocol-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/mesh-handoff-factory.yaml"},
     "agent": {"service": "Multi-Agent DAG & Consensus Service", "owning_bots": ["agent-dag-runner-bot", "multiagent-consensus-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/multiagent-consensus-factory.yaml"},
-    "evals": {"service": "Continuous 4-Tier Task Evaluation, Local Q-Gates & Red-Team Service", "owning_bots": ["task-evaluator-bot", "local-quality-gate-bot", "redteam-engine-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
+    "spc": {"service": "Statistical Process Control & Capability Service", "owning_bots": ["spc-monitor-bot", "phoenix-observer-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/spc-monitor-factory.yaml"},
+    "andon": {"service": "Andon Stop-the-Line Signal Service", "owning_bots": ["andon-bot", "decision-radar-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/andon-factory.yaml"},
+    "fmea": {"service": "Failure Mode & Effects Analysis Service", "owning_bots": ["fmea-bot", "issue-manager-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/fmea-review-factory.yaml"},
+    "rca": {"service": "Root Cause Analysis (Pareto, Ishikawa, 5 Whys) Service", "owning_bots": ["root-cause-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/rca-pareto-factory.yaml"},
+    "dmaic": {"service": "DMAIC Improvement Project Service", "owning_bots": ["dmaic-project-bot", "issue-manager-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/dmaic-project-factory.yaml"},
+    "evals": {"service": "Continuous 4-Tier Task Evaluation, Local Q-Gates & Red-Team Service", "owning_bots": ["task-evaluator-bot", "local-quality-gate-bot", "redteam-engine-bot", "measurement-system-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
     "rules": {"service": "Cross-Repo Rule Rollout & Sync Service", "owning_bots": ["rule-rollout-bot", "governance-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/rule-rollout-factory.yaml"},
     "mlflow": {"service": "Hathor-MLFLOW Experiment & Model Registry Service", "owning_bots": ["mlflow-manager-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"},
     "atc": {"service": "HATH0R-ATC Control Tower & Suite Status Service", "owning_bots": ["docker-bot", "decision-radar-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/docker-group-factory.yaml"},
@@ -199,6 +204,7 @@ class BotRegistry:
         self.cwd = cwd or Path.cwd()
         from hath0r_cli.bots import ApiBot, PostgresBot
         from hath0r_cli.bots.agent_dag_runner import AgentDAGRunner
+        from hath0r_cli.bots.andon_bot import AndonBot
         from hath0r_cli.bots.antagonistic_review import AntagonisticReviewBot
         from hath0r_cli.bots.architecture_preservation_bot import ArchitecturePreservationBot
         from hath0r_cli.bots.bite_verifier_bot import BITEVerifierBot
@@ -210,7 +216,10 @@ class BotRegistry:
         from hath0r_cli.bots.contracts_bot import ContractsBot
         from hath0r_cli.bots.decision_radar_bot import DecisionRadarBot
         from hath0r_cli.bots.dependency_guard_bot import DependencyGuardBot
+        from hath0r_cli.bots.dmaic_project_bot import DMAICProjectBot
+        from hath0r_cli.bots.doe_bot import DoEBot
         from hath0r_cli.bots.embedded_elt_bot import EmbeddedELTBot
+        from hath0r_cli.bots.fmea_bot import FMEABot
         from hath0r_cli.bots.gameshow_bot import HathorGameshowBot
         from hath0r_cli.bots.git_workflow_bot import GitWorkflowBot
         from hath0r_cli.bots.hahp_protocol import HAHPProtocolManager
@@ -223,6 +232,7 @@ class BotRegistry:
         from hath0r_cli.bots.local_quality_gate_bot import LocalQualityGateBot
         from hath0r_cli.bots.mcp_centralization_bot import MCPCentralizationBot
         from hath0r_cli.bots.mcp_workflow_engine_bot import MCPWorkflowEngineBot
+        from hath0r_cli.bots.measurement_system_bot import MeasurementSystemBot
         from hath0r_cli.bots.mesh_manager_bot import MeshManagerBot
         from hath0r_cli.bots.mlflow_manager_bot import MLflowManagerBot
         from hath0r_cli.bots.multiagent_consensus import MultiAgentConsensusEngine
@@ -233,10 +243,12 @@ class BotRegistry:
         from hath0r_cli.bots.portrait_sync import PortraitSyncBot
         from hath0r_cli.bots.redteam_engine import MultiAgentRedTeamEngine
         from hath0r_cli.bots.repo_clean import CleanReposWorkflowBot
+        from hath0r_cli.bots.root_cause_bot import RootCauseBot
         from hath0r_cli.bots.rule_rollout_bot import RuleRolloutBot
         from hath0r_cli.bots.secret_pii_sanitizer import SecretPIISanitizerBot
         from hath0r_cli.bots.shadow_ai_classifier import ShadowAIClassifierBot
         from hath0r_cli.bots.sibling_bot import SiblingManagerBot
+        from hath0r_cli.bots.spc_monitor_bot import SPCMonitorBot
         from hath0r_cli.bots.substrate_utilization_bot import SubstrateUtilizationBot
         from hath0r_cli.bots.supercompress_bot import SuperCompressBot
         from hath0r_cli.bots.taguchi_bot import TaguchiBot
@@ -355,6 +367,13 @@ class BotRegistry:
             "shadow-ai-classifier-bot": _init_bot(ShadowAIClassifierBot),
             "sibling-manager-bot": _init_bot(SiblingManagerBot),
             "taguchi-bot": _init_bot(TaguchiBot),
+            "measurement-system-bot": _init_bot(MeasurementSystemBot),
+            "spc-monitor-bot": _init_bot(SPCMonitorBot),
+            "andon-bot": _init_bot(AndonBot),
+            "fmea-bot": _init_bot(FMEABot),
+            "root-cause-bot": _init_bot(RootCauseBot),
+            "dmaic-project-bot": _init_bot(DMAICProjectBot),
+            "doe-bot": _init_bot(DoEBot),
             "task-level-planner-bot": _init_bot(TaskLevelPlannerBot),
             "temporal-logic-planner-bot": _init_bot(TemporalLogicPlannerBot),
             "thread-parallelism-bot": _init_bot(ThreadLevelParallelismBot),
@@ -3020,6 +3039,30 @@ class BotRegistry:
         return self._dispatch_generic_bot("install-wizard-bot", bot, action, args, dry_run=dry_run)
 
 
+def _andon_for(registry: Any, dry_run: bool) -> Any:
+    """AndonBot for the registry's workspace, or None in dry runs."""
+    if dry_run:
+        return None
+    try:
+        from hath0r_cli.bots.andon_bot import AndonBot
+
+        return AndonBot(cwd=getattr(registry, "cwd", None) or Path.cwd())
+    except Exception:
+        return None
+
+
+def _andon_blocks(andon: Any) -> Exception | None:
+    from hath0r_cli.bots.andon_bot import AndonStop
+
+    try:
+        andon.check()
+    except AndonStop as stop:
+        return stop
+    except Exception:
+        return None
+    return None
+
+
 def execute_workflow(
     workflow_def: dict[str, Any],
     registry: BotRegistry,
@@ -3049,13 +3092,31 @@ def execute_workflow(
             "workflow.dry_run": dry_run,
         },
     ):
+        andon = _andon_for(registry, dry_run)
         for step in steps:
             if not isinstance(step, dict):
                 continue
             bot_id = str(step.get("bot", ""))
+            if andon is not None:
+                stop = _andon_blocks(andon)
+                if stop is not None:
+                    results.append(
+                        StepExecutionResult(
+                            bot_id=bot_id,
+                            action=str(step.get("action", "")),
+                            success=False,
+                            error=str(stop),
+                            dry_run=dry_run,
+                        )
+                    )
+                    all_success = False
+                    aborted = True
+                    results[-1].aborted = True
+                    break
             action = str(step.get("action", ""))
             args = step.get("args") if isinstance(step.get("args"), dict) else {}
-            on_failure = str(step.get("on_failure", "abort")).lower()
+            # ``failure_policy`` is accepted as an alias (poka-yoke PY-13: it used to be silently ignored).
+            on_failure = str(step.get("on_failure", step.get("failure_policy", "abort"))).lower()
             if on_failure not in {"continue", "abort", "retry"}:
                 on_failure = "abort"
             max_retries = int(step.get("retry_count", 2)) if on_failure == "retry" else 0
@@ -3094,6 +3155,19 @@ def execute_workflow(
             step_res.retries = attempt - 1
 
             results.append(step_res)
+
+            andon_mode = str(step.get("andon", "")).lower()
+            if not step_res.success and andon is not None and andon_mode in ("stop", "warn"):
+                try:
+                    andon.raise_event(
+                        source=bot_id,
+                        severity=andon_mode,
+                        reason=f"step {step.get('id', action)} failed: {step_res.error or 'unsuccessful'}",
+                        workflow_id=wf_id,
+                        step_id=str(step.get("id", action)),
+                    )
+                except Exception as exc:  # the step result already records the failure
+                    step_res.error = f"{step_res.error or ''} (andon raise failed: {exc})".strip()
 
             if not step_res.success:
                 if on_failure == "abort":

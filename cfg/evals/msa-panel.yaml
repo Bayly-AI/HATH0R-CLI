@@ -1,0 +1,27 @@
+# Gage R&R panel for the Hath0r eval pipeline (WS1, #584).
+# Each part is a fixture repository (base) plus an uncommitted change (the diff the gauge judges).
+# Seeded defects (expected: fail) must fail the gate on every replicate, or the study fails.
+schema_version: hath0r.evals.msa-panel/v1
+fixtures_root: msa-fixtures
+targets:
+  max_grr_pct: 10.0
+  min_ndc: 5
+operators:
+  # Operators are independent evaluator instances: fresh workspace, fresh process state, same
+  # judge configuration. Add a `config:` override here to compare candidate judge settings.
+  - id: evaluator-a
+  - id: evaluator-b
+parts:
+  - {id: good-add-subtract, expected: pass, base: base, change: good-add-subtract, focus: "add subtract function to msa_fixture calc with test"}
+  - {id: good-add-multiply, expected: pass, base: base, change: good-add-multiply, focus: "add multiply function to msa_fixture calc with test"}
+  - {id: good-docs-readme, expected: pass, base: base, change: good-docs-readme, focus: "document calc usage in readme"}
+  - {id: good-bugfix-divide-zero, expected: pass, base: base, change: good-bugfix-divide-zero, focus: "fix divide by zero in msa_fixture calc"}
+  - {id: good-larger-feature, expected: pass, base: base, change: good-larger-feature, focus: "add stats module mean variance range"}
+  - {id: good-config-file, expected: pass, base: base, change: good-config-file, focus: "add calc precision config"}
+  - {id: good-version-bump, expected: pass, base: base, change: good-version-bump, focus: "release patch version bump changelog"}
+  - {id: good-type-alias, expected: pass, base: base, change: good-type-alias, focus: "add number type alias"}
+  - {id: good-docstring, expected: pass, base: base, change: good-docstring, focus: "clarify add docstring and test negative numbers"}
+  - {id: good-source-no-test, expected: pass, base: base, change: good-source-no-test, focus: "add negate function to calc"}
+  - {id: defect-failing-test, expected: fail, base: base, change: defect-failing-test, focus: "change add implementation"}
+  - {id: defect-swallowed-exception, expected: fail, base: base, change: defect-swallowed-exception, focus: "add safe divide to calc"}
+  - {id: defect-missing-version-bump, expected: fail, base: base, change: defect-missing-version-bump, focus: "add multiply and bump version"}

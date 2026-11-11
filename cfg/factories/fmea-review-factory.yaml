@@ -1,0 +1,50 @@
+factory_id: fmea-review-factory
+name: FMEA Review Factory (WS4)
+version: "1.0.0"
+description: >
+  Loads each FMEA worksheet in .hath0r/fmea/, refreshes occurrence from eval history, the Andon
+  ledger and the latest gauge study, ranks rows by action priority, exports them to AgentGraph and
+  files a GitHub issue for every high-priority row without one.
+bots:
+  - id: fmea-bot
+    name: FMEA Bot
+    role: Owns worksheets, scoring, ranking and AgentGraph export
+    capabilities:
+      - init
+      - add
+      - update
+      - score
+      - report
+      - sync-issues
+      - review
+  - id: issue-manager-bot
+    name: Issue Manager Bot
+    role: Files high-priority failure modes as structured GitHub issues
+    capabilities:
+      - create-issue
+workflows:
+  - id: fmea-review
+    name: Review FMEA Worksheets
+    schedule: "0 6 * * 1"  # weekly, Monday 06:00
+    acceptance_test: >
+      hath0r fmea report lists the end-of-task and pr-lifecycle worksheets ranked by action priority,
+      every H row carries an issue, and rerunning hath0r fmea score after a fix lowers that row.
+    steps:
+      - id: review-end-of-task
+        bot: fmea-bot
+        action: review
+        on_failure: continue
+        args:
+          process: end-of-task
+          dry_run: false
+      - id: review-pr-lifecycle
+        bot: fmea-bot
+        action: review
+        on_failure: continue
+        args:
+          process: pr-lifecycle
+          dry_run: false
+      - id: report
+        bot: fmea-bot
+        action: report
+        on_failure: continue

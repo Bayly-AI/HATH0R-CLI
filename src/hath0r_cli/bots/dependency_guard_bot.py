@@ -18,6 +18,7 @@ from typing import Any
 # Canonical known-good ecosystem packages commonly used across Hath0r repositories
 KNOWN_SAFE_PACKAGES: set[str] = {
     "click",
+    "optuna",
     "rich",
     "pydantic",
     "pydantic-settings",

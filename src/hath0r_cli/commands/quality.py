@@ -69,7 +69,14 @@ def quality_local(
         auto_init=not no_auto_init,
     )
     state = "ok" if res.get("passed") else "error"
-    response = _build_response(ctx, command="quality.local", state=state, data=res)
+    cap_warning = (res.get("capability") or {}).get("warning")
+    diagnostics = []
+    if cap_warning:
+        from hath0r_cli.envelope import Diagnostic
+
+        sev = "error" if res["capability"].get("blocking") else "warning"
+        diagnostics.append(Diagnostic(code="QGATE_LOW_CPK", severity=sev, message=cap_warning))
+    response = _build_response(ctx, command="quality.local", state=state, data=res, diagnostics=diagnostics)
 
     def _text() -> None:
         status_str = "PASSED" if res.get("passed") else "FAILED"
@@ -98,6 +105,10 @@ def quality_local(
             f"  • Duplication: {dup_g.get('duplicated_lines_pct')}% <= {dup_g.get('max_duplicated_lines_pct')}% "
             f"[{'PASS' if dup_g.get('passed') else 'FAIL'}]"
         )
+        cap = res.get("capability") or {}
+        if cap.get("available"):
+            tag = "PASS" if cap.get("capable") else ("FAIL" if cap.get("blocking") else "WARN")
+            click.echo(f"  • Capability:  R_task Cpk {cap['cpk']:.2f} >= {cap['min_cpk_warn']} ({cap['mode']} mode) [{tag}]")
 
     _emit_response(ctx, response, text_renderer=_text)
     if not res.get("passed"):

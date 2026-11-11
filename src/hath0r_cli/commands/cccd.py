@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+from typing import Optional
+
 import click
 from rich.panel import Panel
 from rich.table import Table
@@ -79,9 +82,21 @@ def cccd_status(ctx: click.Context) -> None:
 @cccd.command(name="calibrate")
 @click.option("--iterations", "-i", type=int, default=3, help="Number of benchmark evaluation iterations.")
 @click.option("--signature", "-s", type=str, default="default_agent_signature", help="DSPy signature name to compile.")
+@click.option(
+    "--strategy",
+    type=click.Choice(["taguchi", "sequential"]),
+    default="taguchi",
+    show_default=True,
+    help="sequential: screen, response surface, then confirmation (doe-bot, #593).",
+)
+@click.option("--spec", "spec_file", type=click.Path(exists=True, dir_okay=False, path_type=Path), default=None, help="Sequential: YAML/JSON with factors {name: [low, high]} and goal.")
+@click.option("--measure-cmd", default=None, help="Sequential: command that reads a JSON point on stdin and prints the measured response.")
 @click.pass_context
-def cccd_calibrate(ctx: click.Context, iterations: int, signature: str) -> None:
+def cccd_calibrate(ctx: click.Context, iterations: int, signature: str, strategy: str, spec_file: Optional[Path], measure_cmd: Optional[str]) -> None:
     """Trigger on-demand continuous calibration run against specified benchmark datasets."""
+    if strategy == "sequential":
+        _calibrate_sequential(ctx, spec_file, measure_cmd)
+        return
     loop = CCCDCalibrationLoop()
     result = loop.run_calibration(iterations=iterations, signature_name=signature)
 
@@ -144,3 +159,24 @@ def cccd_autotune(ctx: click.Context, interval: int, daemon: bool) -> None:
         )
 
     _emit_response(ctx, response, text_renderer=_text)
+
+
+def _calibrate_sequential(ctx: click.Context, spec_file: Optional[Path], measure_cmd: Optional[str]) -> None:
+    from hath0r_cli.bots.doe_bot import DoEBot
+    from hath0r_cli.commands._qa_common import call, emit
+
+    def run():
+        if not spec_file:
+            raise ValueError("--strategy sequential needs --spec (factor ranges) and a measurement (--measure-cmd or measure_cmd in the spec; nothing is simulated)")
+        return DoEBot(cwd=Path.cwd()).calibrate_sequential(str(spec_file), measure_cmd)
+
+    res = call(ctx, "cccd calibrate", "DOE_INVALID_INPUT", run)
+    if res is None:
+        return
+
+    def _text() -> None:
+        badge = "[green]confirmed[/green]" if res["confirmed"] else "[red]not confirmed[/red]"
+        console.print(f"\n[bold cyan]Sequential calibration[/bold cyan]: kept {res['kept_factors']} · optimum {res['optimum']['natural']} {badge}")
+        console.print(f"  • Studies: screen {res['screen']}, rsm {res['rsm']}")
+
+    emit(ctx, "cccd calibrate", res, _text, exit_on_failure=True)

@@ -1,0 +1,46 @@
+factory_id: dmaic-project-factory
+name: DMAIC Improvement Project Factory (WS7)
+version: "1.0.0"
+description: >
+  Runs a quality fix as a Define-Measure-Analyze-Improve-Control project tied to a GitHub issue
+  (.github/ISSUE_TEMPLATE/dmaic-improvement.yml) and one CTQ metric. Measure and Control use
+  spc-monitor-bot; Analyze uses root-cause-bot. Closing needs 20 in-control CTQ points after the change.
+bots:
+  - id: dmaic-project-bot
+    name: DMAIC Project Bot
+    role: Tracks the five phases and the control check
+    capabilities:
+      - start
+      - measure
+      - analyze
+      - improve
+      - control
+      - close
+      - status
+  - id: spc-monitor-bot
+    name: SPC Monitor Bot
+    role: Measure baseline and Control chart
+    capabilities:
+      - chart
+  - id: root-cause-bot
+    name: Root Cause Bot
+    role: Analyze (fishbone and 5 Whys)
+    capabilities:
+      - why
+  - id: issue-manager-bot
+    name: Issue Manager Bot
+    role: Links the project to its GitHub issue
+    capabilities:
+      - create-issue
+workflows:
+  - id: dmaic-control-check
+    name: Control Check for Open Projects
+    schedule: "0 7 * * *"  # daily
+    acceptance_test: >
+      hath0r dmaic status lists every project with its phase; hath0r dmaic close <issue> is refused
+      until the CTQ chart has 20 in-control points after the change, then closes with the chart attached.
+    steps:
+      - id: status
+        bot: dmaic-project-bot
+        action: status
+        on_failure: continue

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from pathlib import Path
+from typing import Any, Dict, Optional
 
 
 class TokenBudgetExceeded(Exception):
@@ -17,9 +18,12 @@ class TokenTreeBudgetGuard:
         self,
         max_tokens_budget: int = 50000,
         max_usd_budget: float = 0.25,
+        andon_cwd: Optional[Path] = None,
     ) -> None:
         self.max_tokens_budget = max_tokens_budget
         self.max_usd_budget = max_usd_budget
+        # When set, a tripped breaker also pulls the Andon cord in that workspace (#589).
+        self.andon_cwd = andon_cwd
         self._tree_usage: Dict[str, Dict[str, Any]] = {}
 
     def record_usage(
@@ -52,6 +56,7 @@ class TokenTreeBudgetGuard:
         # Check Circuit Breaker
         if data["total_tokens"] > self.max_tokens_budget or data["estimated_usd"] > self.max_usd_budget:
             data["status"] = "circuit_breaker_tripped"
+            self._pull_andon(tree_id, data)
             raise TokenBudgetExceeded(
                 f"Token budget exceeded for tree '{tree_id}': "
                 f"{data['total_tokens']} tokens (${data['estimated_usd']:.4f}) "
@@ -59,6 +64,21 @@ class TokenTreeBudgetGuard:
             )
 
         return data
+
+    def _pull_andon(self, tree_id: str, data: Dict[str, Any]) -> None:
+        if self.andon_cwd is None:
+            return
+        try:
+            from hath0r_cli.bots.andon_bot import AndonBot
+
+            AndonBot(cwd=self.andon_cwd).raise_event(
+                source="token-tree-budget-guard",
+                severity="stop",
+                reason=f"token budget exceeded for tree '{tree_id}': {data['total_tokens']} tokens, ${data['estimated_usd']:.4f}",
+                details={"tree_id": tree_id, "max_tokens": self.max_tokens_budget, "max_usd": self.max_usd_budget},
+            )
+        except Exception as exc:  # the exception raised next is the primary signal
+            data["andon_error"] = str(exc)
 
     def check_budget(self, tree_id: str = "default_tree") -> Dict[str, Any]:
         """Inspect budget consumption for execution tree."""

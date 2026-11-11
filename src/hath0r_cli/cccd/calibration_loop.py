@@ -62,8 +62,14 @@ class CCCDCalibrationLoop:
         dataset: Optional[List[Dict[str, Any]]] = None,
         iterations: int = 3,
         signature_name: str = "default_agent_signature",
+        responses_matrix: Optional[List[List[float]]] = None,
     ) -> Dict[str, Any]:
-        """Execute on-demand continuous calibration against dataset using Taguchi OATS and DSPy compiler."""
+        """Execute on-demand continuous calibration against dataset using Taguchi OATS and DSPy compiler.
+
+        ``responses_matrix`` holds measured benchmark responses for the 9 L9 runs. When it is not
+        supplied the loop falls back to a built-in simulated matrix and labels the result
+        ``responses_source: "simulated"`` so it is never mistaken for a measurement (#583, #595).
+        """
         state = self.load_state()
 
         # Load Princeton L2WS Warm-Start parameters
@@ -92,8 +98,9 @@ class CCCDCalibrationLoop:
             "top_p": [0.9, 0.95, 0.99],
             "guardrail_threshold": [0.8, 0.85, 0.9],
         }
-        # Simulated benchmark evaluation responses (e.g. latency/error metrics across 9 runs)
-        responses_matrix = [
+        responses_source = "measured" if responses_matrix else "simulated"
+        # Fallback simulated benchmark responses (latency/error metrics across 9 runs), labelled as such.
+        responses_matrix = responses_matrix or [
             [120.0, 115.0, 125.0],
             [110.0, 108.0, 112.0],
             [130.0, 135.0, 128.0],
@@ -131,6 +138,7 @@ class CCCDCalibrationLoop:
             "optimal_parameters": optimal_params,
             "mean_snr_db": taguchi_res["mean_snr_db"],
             "quality_loss": taguchi_res["mean_quality_loss"],
+            "responses_source": responses_source,
         }
         # 3. Log to MLflow experiment tracking if available
         mlflow_run_id = self._log_to_mlflow(
@@ -154,6 +162,7 @@ class CCCDCalibrationLoop:
             "timestamp": state["last_run_timestamp"],
             "dspy_compilation": dspy_res,
             "taguchi_optimization": taguchi_res,
+            "responses_source": responses_source,
             "updated_parameters": state["current_parameters"],
             "drift_metrics": state["drift_metrics"],
             "mlflow_run_id": mlflow_run_id,

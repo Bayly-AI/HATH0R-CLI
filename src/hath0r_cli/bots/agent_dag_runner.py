@@ -16,6 +16,20 @@ class AgentDAGRunner:
     def __init__(self) -> None:
         self._execution_history: List[Dict[str, Any]] = []
 
+    @staticmethod
+    def _andon_stop(spec: Dict[str, Any]) -> Any:
+        if spec.get("andon") is False:
+            return None
+        from pathlib import Path
+
+        from hath0r_cli.bots.andon_bot import AndonBot, AndonStop
+
+        try:
+            AndonBot(cwd=Path(spec.get("cwd") or Path.cwd())).check()
+        except AndonStop as stop:
+            return stop
+        return None
+
     def validate_dag(self, spec: Dict[str, Any]) -> Tuple[bool, str]:
         """Validate DAG specification schema and ensure no cyclic dependencies."""
         if "nodes" not in spec:
@@ -55,6 +69,11 @@ class AgentDAGRunner:
         is_valid, err_msg = self.validate_dag(spec)
         if not is_valid:
             return {"status": "error", "message": err_msg}
+
+        # Andon (#588, #589): never start a DAG while a stop is active (opt out with "andon": false).
+        stopped = self._andon_stop(spec)
+        if stopped is not None:
+            return {"status": "andon_stopped", "dag_name": spec.get("name", "unnamed_agent_dag"), "message": str(stopped), "andon_events": stopped.events}
 
         start_time = time.perf_counter()
         dag_name = spec.get("name", "unnamed_agent_dag")

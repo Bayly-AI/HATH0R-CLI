@@ -109,6 +109,23 @@ class TaguchiBot:
                 f"Array {arr} supports at most {max_factors} factors, but {len(active_factors)} were provided."
             )
 
+        # Poka-yoke (#583): levels must match what each array column actually tests, so a factor is
+        # never silently wrapped onto the wrong level (modulo mapping) or left with untested levels.
+        if levels:
+            unknown = sorted(set(levels) - set(active_factors))
+            if unknown:
+                raise ValueError(f"Levels supplied for factors that are not in the design: {unknown}")
+            for col_idx, factor_name in enumerate(active_factors):
+                if factor_name not in levels:
+                    continue
+                required = max(row[col_idx] for row in template)
+                supplied = len(levels[factor_name])
+                if supplied != required:
+                    raise ValueError(
+                        f"Factor '{factor_name}' has {supplied} levels but column {col_idx + 1} of {arr} "
+                        f"tests exactly {required}. Choose a different array or supply {required} levels."
+                    )
+
         runs: List[Dict[str, Any]] = []
         for run_idx, row in enumerate(template):
             run_dict: Dict[str, Any] = {"run_id": run_idx + 1}
@@ -191,3 +208,63 @@ class TaguchiBot:
             "deviation": round(deviation, 4),
             "estimated_loss": round(loss, 4),
         }
+
+    def analyze(
+        self,
+        *,
+        factors: List[str],
+        responses_matrix: List[List[float]],
+        levels: Optional[Dict[str, List[Any]]] = None,
+        array_type: str = "L9",
+        criterion: str = "smaller_is_better",
+        target_m: float = 0.0,
+        sensitivity_k: float = 1.0,
+        allow_partial: bool = False,
+    ) -> Dict[str, Any]:
+        """Analyse measured responses for every run of an orthogonal array (S/N, loss, optimum).
+
+        Poka-yoke (#583): incomplete experiments raise unless ``allow_partial`` is set, and missing
+        runs are skipped rather than padded.
+        """
+        from hath0r_cli.cccd.taguchi_optimizer import TaguchiLossOptimizer
+
+        return TaguchiLossOptimizer(bot=self).optimize_parameters(
+            factors=factors,
+            levels=levels or {},
+            responses_matrix=responses_matrix,
+            array_type=array_type,
+            criterion=criterion,
+            target_m=target_m,
+            sensitivity_k=sensitivity_k,
+            allow_partial=allow_partial,
+        )
+
+
+def load_responses_file(path: Path) -> Dict[str, Any]:
+    """Read a Taguchi responses file (JSON or YAML).
+
+    Accepts either a list of per-run response lists, or a mapping with ``responses`` and optional
+    ``levels``, ``factors``, ``criterion``, ``target_m`` and ``sensitivity_k``.
+    """
+    import json
+
+    import yaml
+
+    text = Path(path).read_text(encoding="utf-8")
+    data = json.loads(text) if Path(path).suffix.lower() == ".json" else yaml.safe_load(text)
+    if isinstance(data, list):
+        data = {"responses": data}
+    if not isinstance(data, dict) or not isinstance(data.get("responses"), list):
+        raise ValueError(f"{path}: expected a 'responses' list of per-run measurement lists")
+    rows: List[List[float]] = []
+    for i, row in enumerate(data["responses"], start=1):
+        if row is None:
+            rows.append([])
+        elif isinstance(row, (int, float)):
+            rows.append([float(row)])
+        elif isinstance(row, list):
+            rows.append([float(v) for v in row])
+        else:
+            raise ValueError(f"{path}: run {i} responses must be a number or a list of numbers")
+    data["responses"] = rows
+    return data

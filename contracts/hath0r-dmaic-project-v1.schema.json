@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.hath0r.dev/hath0r-dmaic-project-v1.schema.json",
+  "title": "hath0r.dmaic.project/v1",
+  "description": "DMAIC improvement project (.hath0r/dmaic/<issue>.json).",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "issue", "ctq", "phase", "phases"],
+  "properties": {
+    "schema_version": {"const": "hath0r.dmaic.project/v1"},
+    "issue": {"type": "integer"},
+    "ctq": {"type": "string"},
+    "goal": {"type": "string", "enum": ["maximize", "minimize"]},
+    "target": {"type": ["number", "null"]},
+    "problem": {"type": "string"},
+    "phase": {"type": "string", "enum": ["define", "measure", "analyze", "improve", "control", "closed"]},
+    "phases": {"type": "array", "items": {"type": "object", "required": ["phase", "at"]}},
+    "baseline": {"type": "object"},
+    "analysis": {"type": "object"},
+    "change": {"type": "object", "required": ["description", "after_point"]},
+    "control": {"type": "object", "required": ["points_after_change", "required", "ready_to_close"]}
+  }
+}

@@ -1,0 +1,34 @@
+factory_id: rca-pareto-factory
+name: Root Cause Pareto Factory (WS9)
+version: "1.0.0"
+description: >
+  Tags every failed gate in the eval history with a 6M cause category (cfg/quality/cause-categories.yaml)
+  and publishes a monthly Pareto so improvement effort goes to the vital few causes.
+bots:
+  - id: root-cause-bot
+    name: Root Cause Bot
+    role: Tags failures, builds Pareto tables, stores fishbone and 5 Whys records
+    capabilities:
+      - auto-tag
+      - pareto
+      - fishbone
+      - why
+      - gate
+workflows:
+  - id: rca-pareto
+    name: Monthly Root Cause Pareto
+    schedule: "0 6 1 * *"  # monthly, 1st at 06:00
+    acceptance_test: >
+      hath0r rca pareto --since 30d writes .hath0r/rca/pareto-latest.json; its top cause has a
+      5 Whys record (hath0r rca why) and a DMAIC issue (hath0r dmaic start).
+    steps:
+      - id: auto-tag
+        bot: root-cause-bot
+        action: auto-tag
+        on_failure: continue
+      - id: pareto
+        bot: root-cause-bot
+        action: pareto
+        on_failure: continue
+        args:
+          since_days: 30

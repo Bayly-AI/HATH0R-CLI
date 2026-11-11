@@ -82,6 +82,12 @@ SOURCE_CODE_EXTENSIONS: set[str] = {
     ".cpp",
 }
 
+def _default_capability() -> Dict[str, Any]:
+    from hath0r_cli.bots.spc_monitor_bot import DEFAULT_CAPABILITY
+
+    return dict(DEFAULT_CAPABILITY)
+
+
 SONARCLOUD_CANONICAL_THRESHOLDS: Dict[str, Any] = {
     "max_errors": 0,
     "min_coverage_pct": 80.0,
@@ -436,6 +442,7 @@ class LocalQualityGateBot:
             "technology": detected["technology"],
             "source": "sonarcloud-canonical-thresholds",
             "thresholds": dict(SONARCLOUD_CANONICAL_THRESHOLDS),
+            "capability": _default_capability(),
             "stack": detected["stack"],
         }
 
@@ -445,6 +452,7 @@ class LocalQualityGateBot:
         if isinstance(loaded.get("thresholds"), dict):
             merged_thresh.update(loaded["thresholds"])
         loaded["thresholds"] = merged_thresh
+        loaded["capability"] = {**_default_capability(), **(loaded.get("capability") or {})}
         if "stack" not in loaded or not isinstance(loaded["stack"], dict):
             loaded["stack"] = default_payload["stack"]
         return loaded
@@ -918,6 +926,10 @@ class LocalQualityGateBot:
             4,
         )
         failing_gates = [k for k, v in gates.items() if not v["passed"]]
+        capability = self._capability_check(root)
+        if capability.get("blocking"):
+            all_passed = False
+            failing_gates.append("capability")
 
         return {
             "success": all_passed,
@@ -932,6 +944,33 @@ class LocalQualityGateBot:
             "qgate_score": qgate_score,
             "failing_gates": failing_gates,
             "gates": gates,
+            "capability": capability,
+        }
+
+    def _capability_check(self, root: Path) -> Dict[str, Any]:
+        """R_task process capability (WS3, #587): a warning in ``warn`` mode, a gate in ``block`` mode."""
+        try:
+            from hath0r_cli.bots.spc_monitor_bot import SPCMonitorBot
+
+            spc = SPCMonitorBot(cwd=root)
+            mode = spc.settings()["mode"]
+            cap = spc.capability("r_task")
+        except Exception as exc:  # capability is advisory unless block mode is configured
+            return {"available": False, "error": str(exc), "blocking": False}
+        if cap.get("cpk") is None:
+            return {"available": False, "n": cap.get("n", 0), "mode": mode, "blocking": False}
+        warning = None if cap["capable"] else f"R_task Cpk {cap['cpk']:.2f} is below {cap['min_cpk_warn']}"
+        return {
+            "available": True,
+            "mode": mode,
+            "n": cap["n"],
+            "cpk": cap["cpk"],
+            "ppk": cap["ppk"],
+            "lsl": cap["lsl"],
+            "min_cpk_warn": cap["min_cpk_warn"],
+            "capable": cap["capable"],
+            "warning": warning,
+            "blocking": bool(warning) and mode == "block",
         }
 
     def ensure_all_repos(

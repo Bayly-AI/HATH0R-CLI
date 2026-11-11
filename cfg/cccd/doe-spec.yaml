@@ -1,0 +1,12 @@
+# Factor ranges for the sequential CCCD calibration (WS8, #593). The measurement command receives one
+# point as JSON on stdin and prints the measured response (for example mean R_task on a benchmark).
+schema_version: hath0r.optimize.doe-spec/v1
+goal: maximize
+replicates: 3
+factors:
+  temperature: [0.1, 0.7]
+  top_p: [0.85, 0.99]
+  guardrail_threshold: [0.75, 0.95]
+# Measurement command (a real benchmark run; nothing is simulated). The sequential factory step refuses
+# while this is null. Example: "hath0r evals benchmark --json-point" style wrapper that prints mean R_task.
+measure_cmd: null
