@@ -497,3 +497,9 @@ def test_workspace_paths_cannot_escape_root(tmp_path):
     root = tmp_path.resolve()
     assert _inside(root, "src/a.py") == root / "src" / "a.py"
     assert _inside(root, "../outside.py") is None
+
+
+@pytest.mark.parametrize("p", [0.0, 1.0, -0.1, 1.5])
+def test_t_quantile_rejects_p_outside_open_unit_interval(p):
+    with pytest.raises(ValueError):
+        t_quantile(p, 10)
