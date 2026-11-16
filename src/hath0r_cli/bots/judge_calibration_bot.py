@@ -35,7 +35,7 @@ import time
 import urllib.error
 import urllib.request
 import uuid
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -190,6 +190,9 @@ class Judge:
     anchor: bool = False
     banks: Sequence[str] = ("code",)
     options: Dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Subclasses that need set-up override this (dataclass calls it from __init__)."""
 
     def rate(self, item: Mapping[str, Any], replicate: int) -> Dict[str, Any]:
         raise NotImplementedError
@@ -418,41 +421,50 @@ class JudgeCalibrationBot:
                 for rep in range(1, reps + 1):
                     todo = [it for it in items if (judge.id, it["id"], rep) not in done]
                     with ThreadPoolExecutor(max_workers=workers) as pool:
-                        futures = {pool.submit(judge.rate, it, rep): it for it in todo}
-                        for fut in as_completed(futures):
-                            item = futures[fut]
-                            if stopped or judge.id in dropped:
-                                fut.cancel()
-                                continue
-                            try:
-                                out = fut.result()
-                            except JudgeError as exc:
-                                errors[judge.id] = errors.get(judge.id, 0) + 1
-                                error_samples.setdefault(judge.id, str(exc)[:300])
-                                if errors[judge.id] >= int(design.get("max_errors_per_judge", 25)):
-                                    dropped.add(judge.id)
-                                    if progress:
-                                        progress(f"{judge.id}: {errors[judge.id]} failed calls, dropping judge ({exc})")
-                                continue
-                            usage = out.get("usage") or {}
-                            price = prices.get(judge.model) or {}
-                            usd = (usage.get("input_tokens", 0) * float(price.get("input", 0)) + usage.get("output_tokens", 0) * float(price.get("output", 0))) / 1e6
-                            spent += usd
-                            new_rows = [
-                                {"part": item["id"], "level": item["level"], "judge": judge.id, "criterion": crit, "replicate": rep, "rating": int(rating), "truth": item["truth"].get(crit)}
-                                for crit, rating in out["ratings"].items()
-                            ]
-                            rows += new_rows
-                            if live is not None:
-                                for r in new_rows:
-                                    live.write(json.dumps(r) + "\n")
-                                live.flush()
-                            if ledger is not None and judge.kind not in ("truth", "stub"):
-                                ledger.append({"study_id": study_id, "judge": judge.id, "model": judge.model, "item": item["id"], "replicate": rep, "ratings": out["ratings"], "usage": usage, "usd": round(usd, 6)})
-                            if cap_usd and spent >= cap_usd and not stopped:
-                                stopped = f"budget cap ${cap_usd:.2f} reached after ${spent:.2f}"
-                                for f in futures:
-                                    f.cancel()
+                        queue = iter(todo)
+                        futures: Dict[Any, Dict[str, Any]] = {}
+
+                        def _fill() -> None:
+                            # keep at most `workers` calls in flight so a budget stop is prompt
+                            while len(futures) < workers and not stopped and judge.id not in dropped:
+                                nxt = next(queue, None)
+                                if nxt is None:
+                                    return
+                                futures[pool.submit(judge.rate, nxt, rep)] = nxt
+
+                        _fill()
+                        while futures:
+                            finished, _ = wait(list(futures), return_when=FIRST_COMPLETED)
+                            for fut in finished:
+                                item = futures.pop(fut)
+                                try:
+                                    out = fut.result()
+                                except JudgeError as exc:
+                                    errors[judge.id] = errors.get(judge.id, 0) + 1
+                                    error_samples.setdefault(judge.id, str(exc)[:300])
+                                    if errors[judge.id] >= int(design.get("max_errors_per_judge", 25)) and judge.id not in dropped:
+                                        dropped.add(judge.id)
+                                        if progress:
+                                            progress(f"{judge.id}: {errors[judge.id]} failed calls, dropping judge ({exc})")
+                                    continue
+                                usage = out.get("usage") or {}
+                                price = prices.get(judge.model) or {}
+                                usd = (usage.get("input_tokens", 0) * float(price.get("input", 0)) + usage.get("output_tokens", 0) * float(price.get("output", 0))) / 1e6
+                                spent += usd
+                                new_rows = [
+                                    {"part": item["id"], "level": item["level"], "judge": judge.id, "criterion": crit, "replicate": rep, "rating": int(rating), "truth": item["truth"].get(crit)}
+                                    for crit, rating in out["ratings"].items()
+                                ]
+                                rows += new_rows
+                                if live is not None:
+                                    for r in new_rows:
+                                        live.write(json.dumps(r) + "\n")
+                                    live.flush()
+                                if ledger is not None and judge.kind not in ("truth", "stub"):
+                                    ledger.append({"study_id": study_id, "judge": judge.id, "model": judge.model, "item": item["id"], "replicate": rep, "ratings": out["ratings"], "usage": usage, "usd": round(usd, 6)})
+                                if cap_usd and spent >= cap_usd and not stopped:
+                                    stopped = f"budget cap ${cap_usd:.2f} reached after ${spent:.2f}"
+                            _fill()
                     if progress:
                         progress(f"{bank}: {judge.id} replicate {rep} done (spent ${spent:.2f}, errors {errors.get(judge.id, 0)})")
             rows += [r for r in previous if r["criterion"] in bank_criteria(bank)]
