@@ -589,31 +589,28 @@ class LocalQualityGateBot:
         }
 
     def _git_changed_source_files(self, root: Path, exts: set[str], ignore_parts: set[str]) -> List[Path]:
-        """Return changed source files from git diff against origin/development or HEAD~1."""
-        for ref in ("origin/development...HEAD", "HEAD~1"):
+        """Return changed source files: uncommitted and untracked changes (#612) plus the branch diff
+        against origin/development, else HEAD~1."""
+
+        def _names(args: List[str]) -> List[str]:
             try:
-                proc = subprocess.run(
-                    ["git", "diff", "--name-only", ref],
-                    cwd=root,
-                    capture_output=True,
-                    text=True,
-                    timeout=5,
-                    check=False,
-                )
-                lines = [ln.strip() for ln in proc.stdout.splitlines() if ln.strip()]
-                if lines:
-                    found = [
-                        root / rel
-                        for rel in lines
-                        if (root / rel).is_file()
-                        and (root / rel).suffix.lower() in exts
-                        and not (set((root / rel).parts) & ignore_parts)
-                    ]
-                    if found:
-                        return found[:60]
+                proc = subprocess.run(["git", *args], cwd=root, capture_output=True, text=True, timeout=5, check=False)
             except Exception:
-                continue
-        return []
+                return []
+            return [ln.strip() for ln in proc.stdout.splitlines() if ln.strip()] if proc.returncode == 0 else []
+
+        rels: List[str] = _names(["diff", "--name-only", "HEAD"]) + _names(["ls-files", "--others", "--exclude-standard"])
+        for ref in ("origin/development...HEAD", "HEAD~1"):
+            branch = _names(["diff", "--name-only", ref])
+            if branch:
+                rels += branch
+                break
+        found: List[Path] = []
+        for rel in dict.fromkeys(rels):
+            path = root / rel
+            if path.is_file() and path.suffix.lower() in exts and not (set(path.parts) & ignore_parts):
+                found.append(path)
+        return found[:60]
 
     def _collect_source_files(self, root: Path, stack: Dict[str, Any], *, changed_only: bool = True) -> List[Path]:
         """Collect source files to analyze (changed files first when available, otherwise stack source_dirs)."""

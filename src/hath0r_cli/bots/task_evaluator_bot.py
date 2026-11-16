@@ -22,6 +22,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from hath0r_cli.qa.complexity import is_test_path
+
 DEFAULT_TASK_EVAL_CONFIG: Dict[str, Any] = {
     "schema_version": "hath0r.evals.task/v1",
     "rule_id": "CR-TASK-EVAL-001",
@@ -119,6 +121,42 @@ def _compute_scorecard_hash(data: Dict[str, Any]) -> str:
 # Paths left out of the self-evaluation diff: framework state, and the MSA gauge fixtures, which
 # carry deliberate defects (e.g. a swallowed exception) for the Gage R&R study to detect.
 _DIFF_PATHSPEC = ("--", ":!.hath0r", ":!cfg/evals/msa-fixtures")
+_CACHE_PREFIXES = (".pytest_cache/", ".mypy_cache/", ".ruff_cache/", "__pycache__/", ".coverage", "htmlcov/")
+
+
+def _untracked_files(cwd: Path) -> List[str]:
+    """Untracked, non-ignored files in the working tree (excluding Hath0r state and MSA fixtures)."""
+    try:
+        proc = subprocess.run(
+            ["git", "ls-files", "--others", "--exclude-standard", *_DIFF_PATHSPEC],
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return []
+    return [ln.strip() for ln in proc.stdout.splitlines() if ln.strip()] if proc.returncode == 0 else []
+
+
+def _untracked_diff(cwd: Path, max_bytes: int = 2_000_000) -> str:
+    """A unified diff that adds every untracked text file, so reviewers see new files (#612)."""
+    chunks: List[str] = []
+    total = 0
+    for rel in _untracked_files(cwd):
+        path = Path(cwd) / rel
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        lines = text.splitlines()
+        body = "".join(f"+{ln}\n" for ln in lines)
+        chunk = f"diff --git a/{rel} b/{rel}\nnew file mode 100644\n--- /dev/null\n+++ b/{rel}\n@@ -0,0 +1,{len(lines)} @@\n{body}"
+        total += len(chunk)
+        if total > max_bytes:
+            break
+        chunks.append(chunk)
+    return "".join(chunks)
 
 
 @dataclass
@@ -479,6 +517,9 @@ class TaskEvaluatorBot:
                             files_set.add(clean)
             except Exception:
                 continue
+        # #612: new files that are not yet committed are part of the change too. Study A found that
+        # defects in untracked files were invisible to Tiers 3 and 4.
+        files_set.update(f for f in _untracked_files(self.cwd) if not f.startswith(".hath0r/"))
         return sorted(files_set)
 
     def _collect_branch_diff(self) -> str:
@@ -488,8 +529,12 @@ class TaskEvaluatorBot:
                 proc = subprocess.run(["git", "diff", *rng, *_DIFF_PATHSPEC], cwd=self.cwd, capture_output=True, text=True, check=False)
             except OSError:
                 return ""
-            if proc.returncode == 0 and proc.stdout.strip():
-                return proc.stdout
+            out = proc.stdout if proc.returncode == 0 else ""
+            if rng == ["HEAD"]:
+                # Working tree: add uncommitted new files, which `git diff HEAD` leaves out (#612).
+                out += _untracked_diff(self.cwd)
+            if out.strip():
+                return out
         return ""
 
     def _evaluate_tier3_adversarial(
@@ -515,14 +560,16 @@ class TaskEvaluatorBot:
         changed_files = [f for f in changed_files if not f.startswith(".hath0r/")]
         if not changed_files:
             changed_files = self._collect_branch_changed_files()
+        changed_files = [f for f in changed_files if not f.startswith(_CACHE_PREFIXES) and "/__pycache__/" not in f"/{f}"]
         classification = cv_bot.classify_changes(files=changed_files)
 
         # Continuous diff hygiene & co-change deductions
         minor_deductions = 0.02  # Base adversarial skepticism margin
         minor_findings: List[str] = []
 
-        script_files = [f for f in classification.get("script", []) if not f.startswith(("tests/", "test_"))]
-        test_files = [f for f in changed_files if "test" in f.lower()]
+        # Real test files only: a substring match counted caches such as .pytest_cache/ as tests (#612).
+        script_files = [f for f in classification.get("script", []) if not is_test_path(f)]
+        test_files = [f for f in changed_files if is_test_path(f)]
         if script_files and not test_files:
             minor_deductions += 0.06
             minor_findings.append("Modified script/source files without co-changing test files (-0.06)")

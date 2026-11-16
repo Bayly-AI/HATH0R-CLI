@@ -1,0 +1,277 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.hath0r.dev/hath0r-msa-study-v2.schema.json",
+  "title": "hath0r.evals.msa-study/v2",
+  "description": "Level-stratified Gage R&R study of the Hath0r eval pipeline (#612): v1 plus per-level Gage R&R, AIAG bias and linearity, per-level attribute agreement and borderline verdict flips (.hath0r/evals/msa/<study_id>.json).",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "study_id",
+    "run_at",
+    "parts",
+    "operators",
+    "replicates",
+    "judge_fingerprint",
+    "targets",
+    "gage_rr",
+    "attribute_agreement",
+    "passed",
+    "failures",
+    "by_level"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "hath0r.evals.msa-study/v2"
+    },
+    "study_id": {
+      "type": "string",
+      "pattern": "^msa-"
+    },
+    "run_at": {
+      "type": "string"
+    },
+    "panel": {
+      "type": "string"
+    },
+    "parts": {
+      "type": "integer",
+      "minimum": 2
+    },
+    "operators": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "replicates": {
+      "type": "integer",
+      "minimum": 2
+    },
+    "judge_fingerprint": {
+      "type": "string"
+    },
+    "targets": {
+      "type": "object",
+      "required": [
+        "max_grr_pct",
+        "min_ndc"
+      ],
+      "properties": {
+        "max_grr_pct": {
+          "type": "number"
+        },
+        "min_ndc": {
+          "type": "number"
+        }
+      }
+    },
+    "gage_rr": {
+      "type": "object",
+      "required": [
+        "grr_pct",
+        "ndc",
+        "variance_components",
+        "study_variation_pct",
+        "passed",
+        "failures"
+      ],
+      "properties": {
+        "grr_pct": {
+          "type": "number",
+          "minimum": 0
+        },
+        "ndc": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "variance_components": {
+          "type": "object"
+        },
+        "study_variation_pct": {
+          "type": "object"
+        },
+        "anova": {
+          "type": "object"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "failures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "attribute_agreement": {
+      "type": "object",
+      "required": [
+        "effectiveness",
+        "missed_defects",
+        "false_alarms",
+        "inconsistent_parts",
+        "passed"
+      ],
+      "properties": {
+        "effectiveness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "missed_defects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "false_alarms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inconsistent_parts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "passed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "passed": {
+      "type": "boolean"
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "measurements": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "by_level": {
+      "type": "object",
+      "required": [
+        "targets",
+        "gage_rr",
+        "attribute_agreement",
+        "bias",
+        "linearity",
+        "verdict_flips",
+        "passed",
+        "failures"
+      ],
+      "properties": {
+        "targets": {
+          "type": "object",
+          "required": [
+            "max_level_bias",
+            "alpha",
+            "max_flip_rate",
+            "borderline_band"
+          ]
+        },
+        "gage_rr": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "attribute_agreement": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "bias": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "pooled_bias": {
+              "type": "number"
+            },
+            "by_level": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            },
+            "passed": {
+              "type": "boolean"
+            },
+            "failures": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "linearity": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "slope": {
+              "type": "number"
+            },
+            "slope_ci95": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "passed": {
+              "type": "boolean"
+            }
+          }
+        },
+        "linearity_known_good": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "linearity_all_parts_informational": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "verdict_flips": {
+          "type": "object",
+          "required": [
+            "flip_rate",
+            "borderline_parts",
+            "flipped_parts",
+            "passed"
+          ]
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "failures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -105,3 +105,52 @@ def least_squares(rows: List[List[float]], y: List[float]) -> List[float]:
     xtx = [[sum(r[i] * r[j] for r in rows) for j in range(p)] for i in range(p)]
     xty = [sum(r[i] * yy for r, yy in zip(rows, y)) for i in range(p)]
     return solve_linear(xtx, xty)
+
+
+def t_sf_two_sided(t_value: float, df: float) -> float:
+    """Two-sided p-value P(|T| > |t|) of Student's t distribution with ``df`` degrees of freedom."""
+    if df <= 0:
+        raise ValueError("degrees of freedom must be positive")
+    if math.isnan(t_value):
+        return 1.0
+    if math.isinf(t_value):
+        return 0.0
+    return betainc(df / 2.0, 0.5, df / (df + t_value * t_value))
+
+
+def t_quantile(p_two_sided: float, df: float) -> float:
+    """Critical value t such that P(|T| > t) = ``p_two_sided`` (bisection on :func:`t_sf_two_sided`)."""
+    if not 0 < p_two_sided < 1:
+        raise ValueError("p must be in (0, 1)")
+    lo, hi = 0.0, 1.0
+    while t_sf_two_sided(hi, df) > p_two_sided:
+        hi *= 2.0
+    for _ in range(200):
+        mid = (lo + hi) / 2.0
+        if t_sf_two_sided(mid, df) > p_two_sided:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2.0
+
+
+def normal_sf_two_sided(z: float) -> float:
+    """Two-sided p-value of a standard normal z score."""
+    return math.erfc(abs(z) / math.sqrt(2.0))
+
+
+def benjamini_hochberg(p_values: Sequence[float], q: float = 0.05) -> List[bool]:
+    """Benjamini-Hochberg step-up procedure: True where the hypothesis is rejected at FDR ``q``."""
+    m = len(p_values)
+    if m == 0:
+        return []
+    order = sorted(range(m), key=lambda i: p_values[i])
+    cutoff = -1
+    for rank, idx in enumerate(order, start=1):
+        if p_values[idx] <= q * rank / m:
+            cutoff = rank
+    rejected = [False] * m
+    for rank, idx in enumerate(order, start=1):
+        if rank <= cutoff:
+            rejected[idx] = True
+    return rejected

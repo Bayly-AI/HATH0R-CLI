@@ -44,7 +44,7 @@ class ChangeValidationBot:
         """Detect modified and untracked files via git in the working directory."""
         try:
             res = subprocess.run(
-                ["git", "status", "--porcelain"],
+                ["git", "status", "--porcelain", "--untracked-files=all"],
                 cwd=self.cwd,
                 capture_output=True,
                 text=True,

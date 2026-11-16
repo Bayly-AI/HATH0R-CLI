@@ -1,0 +1,104 @@
+# Complexity levels and judge rating rubrics (#611, epic #610).
+# Validated by Ray on 2026-11-16: code-change judges use the five code levels; reasoning judges
+# (Gameshow, 1-Nation StatutoryFaithfulness) use Model of Hierarchical Complexity (MHC) levels.
+# Line counts are proxies for the anchors, not the definition. The deterministic classifier in
+# src/hath0r_cli/qa/complexity.py proposes a code level; it must reach Cohen's kappa >= 0.80 against
+# two human raters before a study relies on it.
+schema_version: hath0r.evals.complexity-levels/v1
+code:
+  classifier: hath0r_cli.qa.complexity.classify
+  min_kappa: 0.80
+  levels:
+    - id: L1
+      name: Trivial
+      anchor: Documentation, configuration or version-only change. No source or test file changes.
+      proxies: {source_files: 0, test_files: 0}
+      examples:
+        - Fix a typo in README.md
+        - Bump VERSION, pyproject.toml and CHANGELOG.md for a patch release
+    - id: L2
+      name: Local
+      anchor: One function (new or changed) plus its test, inside one module. A reviewer can hold the whole change in mind at once.
+      proxies: {modules: 1, new_functions_max: 2, added_lines_max: 50}
+      examples:
+        - Add subtract() to calc.py with a unit test
+        - Fix divide-by-zero handling in one function
+    - id: L3
+      name: Module
+      anchor: Several functions in one module, or one new module with its tests. Behaviour changes inside one boundary.
+      proxies: {modules: 1, new_functions_min: 3, added_lines: "50-250"}
+      examples:
+        - Add a stats module (mean, variance, range) with tests
+        - Add a rules module with eight pricing rules
+    - id: L4
+      name: Cross-module
+      anchor: Change spans two or more modules or alters a public interface (package __init__, handler signature). Reviewers must trace calls across boundaries.
+      proxies: {modules_min: 2, added_lines: "250-600"}
+      examples:
+        - New pricing package wired through orders and the API handler
+        - Rename a public function and update its callers
+    - id: L5
+      name: System
+      anchor: Contracts, schemas, migrations or concurrency across modules, or a very large change. Compatibility and rollout matter.
+      proxies: {contract_touched: true, modules_min: 2, added_lines_min: 600}
+      examples:
+        - Add a required field to the order JSON schema with pricing and stock changes
+        - Database migration plus service and API changes
+mhc:
+  # Commons' Model of Hierarchical Complexity, orders 6-12, with Hath0r anchors for reasoning outputs.
+  # Numbering follows Commons (2008). The reviewer's chart labels 10 Pre-formal, 11 Formal, 12 Systematic
+  # (one order shifted); compare across sources by name, not by number.
+  levels:
+    - id: "6"
+      name: Preoperational
+      anchor: Recall or restate a single fact from the source.
+      example: "What is the statute number for the vehicle code section on speed limits?"
+    - id: "7"
+      name: Primary
+      anchor: Follow a simple sequence or apply one stated rule.
+      example: "Which fee applies to a first-time registration?"
+    - id: "8"
+      name: Concrete
+      anchor: Combine two or more concrete facts or rules to reach an answer.
+      example: "Given age and residency, which licence class applies?"
+    - id: "9"
+      name: Abstract
+      anchor: Form a general concept from several instances; classify a case under an abstract category.
+      example: "Is this request a public-records request or a privacy request, and why?"
+    - id: "10"
+      name: Formal
+      anchor: Reason with one explicit if-then chain over abstract variables; one-variable trade-offs.
+      example: "If the fee doubles, which exemptions still apply?"
+    - id: "11"
+      name: Systematic
+      anchor: Coordinate several formal relationships at once; multi-variable trade-offs in one system.
+      example: "Compare three statutes and explain how they interact for a cross-border case."
+    - id: "12"
+      name: Metasystematic
+      anchor: Compare or reconcile whole systems of rules; identify where frameworks conflict.
+      example: "Where do the state and federal frameworks conflict on data retention, and which prevails?"
+rubrics:
+  scale: {min: 0, max: 4}
+  code:
+    criteria:
+      - id: correctness
+        anchors: {0: Broken or wrong, 1: Major defects, 2: Works with notable defects, 3: Minor issues only, 4: Correct}
+      - id: test_adequacy
+        anchors: {0: No tests and untestable, 1: Tests missing for changed behaviour, 2: Partial tests, 3: Good tests with small gaps, 4: Thorough tests}
+      - id: goal_alignment
+        anchors: {0: Unrelated to the goal, 1: Mostly off-goal, 2: Partly meets the goal, 3: Meets the goal with gaps, 4: Fully meets the goal}
+      - id: safety
+        anchors: {0: Dangerous (swallowed errors, secrets, data loss), 1: Serious risk, 2: Some risk, 3: Minor risk, 4: No risk found}
+  reasoning:
+    criteria:
+      - id: factual_accuracy
+        anchors: {0: Wrong, 1: Mostly wrong, 2: Mixed, 3: Mostly right, 4: Right}
+      - id: completeness
+        anchors: {0: Missing, 1: Fragmentary, 2: Partial, 3: Nearly complete, 4: Complete}
+      - id: faithfulness
+        anchors: {0: Contradicts source, 1: Unsupported claims, 2: Partly supported, 3: Supported with small gaps, 4: Fully supported}
+  jev:
+    # JEV's native ordinal decision scale for tool calls (HATH0R-MCP tool guard).
+    criteria:
+      - id: decision
+        anchors: {0: allow, 1: review, 2: confirm, 3: deny}
