@@ -252,9 +252,10 @@ class AnthropicJudge(Judge):
 
 class OllamaJudge(Judge):
     def rate(self, item: Mapping[str, Any], replicate: int) -> Dict[str, Any]:
-        host = self.options.get("host") or os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")
+        # Ollama serves plain HTTP on loopback by default; a remote host should be given as https://.
+        host = self.options.get("host") or os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")  # NOSONAR S5332 local Ollama
         if not host.startswith("http"):
-            host = "http://" + host
+            host = "http://" + host  # NOSONAR S5332 local Ollama
         payload = {
             "model": self.model,
             "prompt": _prompt(item),

@@ -146,20 +146,30 @@ def workspace_changes(cwd: Path, base: Optional[str] = None) -> Tuple[Dict[str, 
                 changes.setdefault(current, [])
         elif current and line.startswith("+") and not line.startswith("+++"):
             changes[current].append(line[1:])
+    root = cwd.resolve()
     for path in _git(cwd, "ls-files", "--others", "--exclude-standard").splitlines():
+        fp = _inside(root, path)
+        if fp is None:
+            continue
         try:
-            text = (cwd / path).read_text(encoding="utf-8")
+            text = fp.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
         changes[path] = text.splitlines()
     for path in changes:
-        fp = cwd / path
-        if fp.suffix == ".py" and fp.is_file():
+        fp = _inside(root, path)
+        if fp is not None and fp.suffix == ".py" and fp.is_file():
             try:
                 contents[path] = fp.read_text(encoding="utf-8")
             except (OSError, UnicodeDecodeError):
                 pass
     return changes, contents
+
+
+def _inside(root: Path, rel: str) -> Optional[Path]:
+    """``root / rel`` resolved, or None when a path from git output escapes the workspace."""
+    fp = (root / rel).resolve()
+    return fp if fp.is_relative_to(root) else None
 
 
 def classify_workspace(cwd: Path, base: Optional[str] = None) -> Dict[str, Any]:

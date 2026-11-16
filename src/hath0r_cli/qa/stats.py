@@ -120,7 +120,7 @@ def t_sf_two_sided(t_value: float, df: float) -> float:
 
 def t_quantile(p_two_sided: float, df: float) -> float:
     """Critical value t such that P(|T| > t) = ``p_two_sided`` (bisection on :func:`t_sf_two_sided`)."""
-    if not 0 < p_two_sided < 1:
+    if p_two_sided <= 0 or p_two_sided >= 1:
         raise ValueError("p must be in (0, 1)")
     lo, hi = 0.0, 1.0
     while t_sf_two_sided(hi, df) > p_two_sided:

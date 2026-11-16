@@ -215,9 +215,9 @@ def fit_mfrm(
     parts = sorted({r["part"] for r in est})
     crit = sorted({r["criterion"] for r in est})
     judges = sorted({r["judge"] for r in est})
-    B = {p: 0.0 for p in parts}
-    D = {c: 0.0 for c in crit}
-    C = {j: 0.0 for j in judges}
+    B = dict.fromkeys(parts, 0.0)
+    D = dict.fromkeys(crit, 0.0)
+    C = dict.fromkeys(judges, 0.0)
     F = [0.0] * m
 
     def theta(r: Mapping[str, Any]) -> float:

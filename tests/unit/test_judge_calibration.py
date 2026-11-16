@@ -489,3 +489,11 @@ def test_http_json_sends_user_agent(monkeypatch):
     monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
     assert jcb._http_json("https://example.invalid", {}, {}, 1.0) == {"ok": True}
     assert seen["ua"].startswith("hath0r-cli/")
+
+
+def test_workspace_paths_cannot_escape_root(tmp_path):
+    from hath0r_cli.qa.complexity import _inside
+
+    root = tmp_path.resolve()
+    assert _inside(root, "src/a.py") == root / "src" / "a.py"
+    assert _inside(root, "../outside.py") is None
