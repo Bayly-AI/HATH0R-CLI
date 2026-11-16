@@ -450,3 +450,17 @@ def test_spc_level_and_judge_severity_series(tmp_path):
         bot.series("total_tokens@L3")
     with pytest.raises(ValueError):
         bot.series("judge_severity@opus")
+
+
+def test_study_matches_contract(tmp_path):
+    jsonschema = pytest.importorskip("jsonschema")
+    study = JudgeCalibrationBot(cwd=tmp_path).run_study(panel_path=_panel(tmp_path), dry_run=True)
+    schema = json.loads((REPO / "contracts/hath0r-judge-calibration-v1.schema.json").read_text())
+    jsonschema.validate(json.loads(json.dumps(study, default=str)), schema)
+
+
+def test_judge_calibration_factory_and_config():
+    factory = yaml.safe_load((REPO / "cfg/factories/judge-calibration-factory.yaml").read_text())
+    assert factory["bots"][0]["id"] == "judge-calibration-bot"
+    cfg = json.loads((REPO / "cfg/evals/task-eval.json").read_text())
+    assert cfg["judge_calibration"]["enforce"] is True

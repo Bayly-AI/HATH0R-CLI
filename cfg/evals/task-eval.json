@@ -57,5 +57,13 @@
       "max_grr_pct": 10.0,
       "min_ndc": 5
     }
+  },
+  "judge_calibration": {
+    "issue": "#616",
+    "description": "LLM judges (judge.model set) must be certified by Study B at the change's complexity level (hath0r evals judges). Deterministic judges need no calibration.",
+    "enforce": true,
+    "bank": "code",
+    "judge_id": null,
+    "calibration_id": null
   }
 }

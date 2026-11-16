@@ -1,0 +1,38 @@
+factory_id: judge-calibration-factory
+name: Judge Calibration (Many-Facet Rasch, Study B) Factory (#615, epic #610, CR-TASK-EVAL-001)
+version: "1.0.0"
+description: >
+  Every judge in cfg/evals/judge-panel.yaml rates the generated item banks (code changes at L1-L5, JEV
+  tool calls at R1-R5) several times. JudgeCalibrationBot fits the many-facet Rasch model, measures
+  each judge's bias at each level against the anchor judges, and certifies or removes each judge per
+  level (SE 0.10, MnSq 1.5, |psi| 0.20 logits with Benjamini-Hochberg q 0.05). No score adjustment.
+bots:
+  - id: judge-calibration-bot
+    name: Judge Calibration Bot
+    role: Runs Study B, keeps the judge registry and answers is-certified queries
+    capabilities: [calibrate, report, status, is-certified]
+  - id: task-evaluator-bot
+    name: Task Evaluator Bot
+    role: Stamps complexity level and judge certification on scorecards; refuses uncertified LLM judges
+    capabilities: [evaluate, verify]
+workflows:
+  - id: judge-calibration
+    name: Calibrate Judges per Complexity Level
+    acceptance_test: >
+      hath0r evals judges calibrate writes .hath0r/evals/judges/<study_id>.json (contract
+      hath0r-judge-calibration-v1), its ratings file and a hash-chained ledger; registry.json lists each
+      judge's certified levels; hath0r evals judges status <judge> --level <L> answers from it.
+    steps:
+      - id: smoke
+        bot: judge-calibration-bot
+        action: calibrate
+        on_failure: abort
+        args: {per_level: 2, replicates: 1, dry_run: true}
+      - id: calibrate
+        bot: judge-calibration-bot
+        action: calibrate
+        on_failure: abort
+      - id: report
+        bot: judge-calibration-bot
+        action: report
+        on_failure: continue

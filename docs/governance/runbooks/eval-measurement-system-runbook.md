@@ -14,3 +14,9 @@ hath0r evals run && hath0r -o json evals status   # scorecards include measureme
 To compare a candidate judge setting, add `config:` overrides to the operators in a copy of the panel, for example
 `{id: clamp-on, config: {tier4: {clamp: true}}}`, and run `hath0r evals msa run --panel <copy> --dry-run`.
 Schema: `contracts/hath0r-msa-study-v1.schema.json`.
+
+## Per level (v2)
+
+`hath0r -o json evals msa run` now includes `by_level` (gage_rr, attribute_agreement, bias, linearity,
+linearity_known_good, verdict_flips). Regenerate the panel with `python scripts/msa/gen_panel_v2.py`.
+Scorecards show `measurement_system.level_status` for the change's level.

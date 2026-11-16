@@ -2,193 +2,71 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://schemas.hath0r.dev/hath0r-judge-calibration-v1.schema.json",
   "title": "hath0r.evals.judge-calibration/v1",
-  "description": "Many-Facet Rasch calibration of LLM judges per complexity level (.hath0r/evals/judges/<calibration_id>.json, #615).",
+  "description": "Study B: many-facet Rasch calibration of Hath0r judges per complexity level (.hath0r/evals/judges/<study_id>.json and latest.json, #615).",
   "type": "object",
   "additionalProperties": true,
-  "required": [
-    "schema_version",
-    "calibration_id",
-    "run_at",
-    "domain",
-    "judges",
-    "gates",
-    "analysis",
-    "decisions",
-    "passed"
-  ],
+  "required": ["schema_version", "study_id", "created_at", "panel", "replicates", "judges", "banks", "spend_usd", "budget_usd", "complete"],
   "properties": {
-    "schema_version": {
-      "const": "hath0r.evals.judge-calibration/v1"
-    },
-    "calibration_id": {
-      "type": "string",
-      "pattern": "^jcal-"
-    },
-    "run_at": {
-      "type": "string"
-    },
-    "domain": {
-      "enum": [
-        "code",
-        "reasoning",
-        "jev"
-      ]
-    },
-    "pilot": {
-      "type": "boolean"
-    },
+    "schema_version": {"const": "hath0r.evals.judge-calibration/v1"},
+    "study_id": {"type": "string", "pattern": "^judges-"},
+    "created_at": {"type": "string"},
+    "panel": {"type": "string"},
+    "replicates": {"type": "integer", "minimum": 1},
+    "seed": {"type": "integer"},
     "judges": {
       "type": "array",
-      "items": {
+      "items": {"type": "object", "required": ["id", "kind"], "properties": {"id": {"type": "string"}, "kind": {"enum": ["truth", "stub", "anthropic", "ollama", "jev", "import"]}, "model": {"type": "string"}, "anchor": {"type": "boolean"}, "banks": {"type": "array", "items": {"type": "string"}}}}
+    },
+    "banks": {
+      "type": "object",
+      "additionalProperties": {
         "type": "object",
-        "required": [
-          "id",
-          "fingerprint"
-        ],
+        "required": ["items_per_level", "ratings", "judges", "anchors"],
         "properties": {
-          "id": {
-            "type": "string"
-          },
-          "fingerprint": {
-            "type": "string"
-          },
-          "kind": {
-            "type": "string"
-          },
-          "anchor": {
-            "type": "boolean"
-          }
-        }
-      }
-    },
-    "gates": {
-      "type": "object",
-      "required": [
-        "max_se",
-        "max_mnsq",
-        "removal_psi",
-        "bh_q"
-      ]
-    },
-    "analysis": {
-      "type": "object",
-      "required": [
-        "fit",
-        "bias",
-        "decisions"
-      ],
-      "properties": {
-        "fit": {
-          "type": "object"
-        },
-        "bias": {
-          "type": "object",
-          "properties": {
-            "cells": {
-              "type": "object",
-              "additionalProperties": {
+          "items_per_level": {"type": "integer"},
+          "ratings": {"type": "integer"},
+          "anchors": {"type": "array", "items": {"type": "string"}},
+          "error": {"type": "string"},
+          "agreement_with_truth": {"type": "object"},
+          "fit": {"type": "object"},
+          "bias": {
+            "type": "object",
+            "required": ["by", "reference", "cells", "swings"],
+            "properties": {
+              "cells": {
                 "type": "object",
                 "additionalProperties": {
                   "type": "object",
-                  "required": [
-                    "psi",
-                    "se_clustered",
-                    "n_ratings",
-                    "n_parts"
-                  ],
-                  "properties": {
-                    "psi": {
-                      "type": "number"
-                    },
-                    "se_model": {
-                      "type": [
-                        "number",
-                        "null"
-                      ]
-                    },
-                    "se_clustered": {
-                      "type": [
-                        "number",
-                        "null"
-                      ]
-                    },
-                    "z": {
-                      "type": [
-                        "number",
-                        "null"
-                      ]
-                    },
-                    "p_value": {
-                      "type": [
-                        "number",
-                        "null"
-                      ]
-                    },
-                    "n_ratings": {
-                      "type": "integer"
-                    },
-                    "n_parts": {
-                      "type": "integer"
-                    },
-                    "infit": {
-                      "type": [
-                        "number",
-                        "null"
-                      ]
-                    },
-                    "outfit": {
-                      "type": [
-                        "number",
-                        "null"
-                      ]
-                    }
+                  "additionalProperties": {
+                    "type": "object",
+                    "required": ["psi", "se_clustered", "n_ratings", "n_parts"],
+                    "properties": {"psi": {"type": ["number", "null"]}, "se_model": {"type": ["number", "null"]}, "se_clustered": {"type": ["number", "null"]}, "z": {"type": ["number", "null"]}, "p_value": {"type": ["number", "null"]}, "n_ratings": {"type": "integer"}, "n_parts": {"type": "integer"}, "infit": {"type": ["number", "null"]}, "outfit": {"type": ["number", "null"]}, "extreme_cell": {"enum": ["lowest", "highest"]}, "anchor": {"type": "boolean"}}
                   }
                 }
               }
             }
-          }
-        },
-        "decisions": {
-          "type": "object"
-        }
-      }
-    },
-    "decisions": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "object",
-        "additionalProperties": {
-          "type": "object",
-          "required": [
-            "status"
-          ],
-          "properties": {
-            "status": {
-              "enum": [
-                "certified",
-                "not_certified",
-                "removed_noise",
-                "removed_bias"
-              ]
-            },
-            "reasons": {
-              "type": "array"
+          },
+          "decisions": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": ["status", "reasons", "bh_significant"],
+                "properties": {"status": {"enum": ["certified", "not_certified", "removed_noise", "removed_bias"]}, "reasons": {"type": "array", "items": {"type": "string"}}, "bh_significant": {"type": "boolean"}, "psi": {"type": ["number", "null"]}, "se_clustered": {"type": ["number", "null"]}}
+              }
             }
-          }
+          },
+          "gates": {"type": "object", "required": ["max_se", "max_mnsq", "removal_psi", "bh_q"]},
+          "summary": {"type": "object"}
         }
       }
     },
-    "budget": {
-      "type": "object"
-    },
-    "passed": {
-      "type": "boolean"
-    },
-    "failures": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    }
+    "spend_usd": {"type": "number", "minimum": 0},
+    "budget_usd": {"type": "number", "minimum": 0},
+    "complete": {"type": "boolean"},
+    "stopped_reason": {"type": ["string", "null"]},
+    "errors": {"type": "object"},
+    "ledger": {"type": ["object", "null"]}
   }
 }

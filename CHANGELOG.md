@@ -6,6 +6,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.28.0] - 2026-11-16
+
+Judge calibration by complexity level (epic #610), in answer to the point that Gage R&R assumes a gauge
+behaves the same at every level, which LLM judges often do not.
+
+### Added
+- **Complexity levels** (#611): `cfg/evals/complexity-levels.yaml` defines code levels L1 (trivial) to L5
+  (system), Model of Hierarchical Complexity orders 6 to 12 for reasoning judges, and 0-4 rating rubrics.
+  `hath0r_cli.qa.complexity` classifies a change from diff metrics and computes Cohen's kappa against raters.
+- **Level-stratified Study A** (#612): `hath0r evals msa run` now reports Gage R&R, bias against the pooled
+  bias, linearity, attribute agreement and borderline verdict flips per level, with a variant operator
+  that rewrites each change in a meaning-preserving form. Panel v2 has 40 parts, 8 per level
+  (`scripts/msa/gen_panel_v2.py`); study contract `hath0r-msa-study-v2`.
+- **Many-facet Rasch engine** (#613): `hath0r_cli.qa.rasch` fits parts, criteria, judges and thresholds
+  by JMLE, estimates each judge's bias at each level against anchor judges with part-clustered SEs,
+  Benjamini-Hochberg control and the approved certify/remove rules (SE 0.10, MnSq 1.5, |psi| 0.20).
+- **JudgeCalibrationBot and `hath0r evals judges calibrate|report|status`** (#614, #615): item banks with
+  design truth (code changes L1-L5, JEV tool calls R1-R5), judge adapters (truth, stub, Anthropic,
+  Ollama, JEV preset/systemone, CSV/JSONL import for human raters and 1-Nation StatutoryFaithfulness),
+  bounded concurrency, resume, a budget cap (`cfg/evals/judge-panel.yaml`), a SHA-256 hash-chained call
+  ledger and a judge registry. Factory `cfg/factories/judge-calibration-factory.yaml`, contract
+  `hath0r-judge-calibration-v1`, governance hexad under `docs/governance/*/judge-calibration-*`.
+- **Scorecards and SPC per level** (#616): scorecards carry `complexity` and the gauge's status at that
+  level; an LLM judge that is not certified at the level blocks the gate (`judge_calibration.enforce`);
+  a pinned `judge_calibration.calibration_id` changes the judge fingerprint. `hath0r spc chart --level L4`
+  (`r_task@L4`) and `judge_severity@<judge>:<level>` series.
+
+### Fixed
+- Study A found the eval gauge blind to new files: `git diff HEAD` leaves out untracked files, so Tier 3,
+  Tier 4 and the local complexity gate never saw defects in new files (4 of 16 seeded defects missed).
+  The evaluator and local quality gate now include untracked files.
+- Tier 3's missing-test check counted any path containing "test", including `.pytest_cache/`, as a test
+  file, so source changes without tests were not penalised. It now uses a real test-path rule and
+  `git status --untracked-files=all`.
+
 ## [1.26.2] - 2026-11-11
 
 ### Fixed
