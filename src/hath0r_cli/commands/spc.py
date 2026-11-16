@@ -63,10 +63,13 @@ def spc_status(ctx: click.Context) -> None:
 
 @spc_cmd.command("chart")
 @click.option("--metric", "-m", default="r_task", show_default=True, help=METRIC_HELP)
+@click.option("--level", default=None, help="Chart only scorecards at this complexity level (L1-L5), e.g. r_task@L3 (#616).")
 @click.option("--lam", type=float, default=None, help="EWMA lambda (default from thresholds.json, 0.2).")
 @click.pass_context
-def spc_chart(ctx: click.Context, metric: str, lam: Optional[float]) -> None:
+def spc_chart(ctx: click.Context, metric: str, level: Optional[str], lam: Optional[float]) -> None:
     """I-MR, EWMA and CUSUM chart for one metric."""
+    if level and "@" not in metric:
+        metric = f"{metric}@{level}"
     try:
         res = _bot().chart(metric, lam=lam)
     except ValueError as exc:

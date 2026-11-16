@@ -85,6 +85,10 @@ def judge_fingerprint(cfg: Dict[str, Any]) -> str:
     """Stable hash of everything that changes how the gauge measures (judge, tier4, weights, thresholds, rubric)."""
     material: Dict[str, Any] = {k: cfg.get(k) for k in ("judge", "tier4", "weights", "thresholds")}
     material["tier1_rubric"] = TIER1_RUBRIC_VERSION
+    calibration_id = (cfg.get("judge_calibration") or {}).get("calibration_id")
+    if calibration_id and (cfg.get("judge") or {}).get("model"):
+        # a re-calibrated LLM judge is a different gauge (#616); deterministic judges are unaffected
+        material["judge_calibration_id"] = calibration_id
     return hashlib.sha256(json.dumps(material, sort_keys=True, default=str).encode("utf-8")).hexdigest()[:16]
 
 
@@ -899,6 +903,11 @@ class TaskEvaluatorBot:
         if r_task < min_reward:
             blocking_reasons.append(f"Composite reward R_task ({r_task:.4f}) is below threshold ({min_reward:.2f})")
 
+        complexity = self._complexity()
+        judge_cal = self.judge_calibration_status(cfg, complexity.get("level"))
+        if judge_cal.get("enforced") and not judge_cal.get("certified"):
+            blocking_reasons.append(f"LLM judge not certified at {complexity.get('level')}: {judge_cal.get('reason')} (#616)")
+
         passed_gate = len(blocking_reasons) == 0
         total_duration_ms = round((time.monotonic() - t0) * 1000.0, 2)
 
@@ -941,8 +950,9 @@ class TaskEvaluatorBot:
             "blocking_reasons": blocking_reasons,
             "goal": float(cfg.get("goal", {}).get("r_task", 1.0)),
             "gap_to_goal": round(float(cfg.get("goal", {}).get("r_task", 1.0)) - r_task, 4),
-            "judge": {**cfg.get("judge", {}), "tier4_clamp": bool(cfg.get("tier4", {}).get("clamp", False)), "fingerprint": judge_fingerprint(cfg)},
-            "measurement_system": self.measurement_status(cfg),
+            "judge": {**cfg.get("judge", {}), "tier4_clamp": bool(cfg.get("tier4", {}).get("clamp", False)), "fingerprint": judge_fingerprint(cfg), "calibration": judge_cal},
+            "complexity": complexity,
+            "measurement_system": self.measurement_status(cfg, level=complexity.get("level")),
             "observability_sync": {"mode": "pending"},
             "content_hash": "",
         }
@@ -1014,12 +1024,72 @@ class TaskEvaluatorBot:
             "scorecard": scorecard,
         }
 
-    def measurement_status(self, cfg: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _complexity(self) -> Dict[str, Any]:
+        """Complexity level of the change being evaluated (#611, #616)."""
+        try:
+            from hath0r_cli.qa.complexity import classify_workspace
+
+            res = classify_workspace(self.cwd)
+        except (OSError, ValueError) as exc:
+            return {"level": None, "error": str(exc)}
+        m = res["metrics"]
+        return {
+            "level": res["level"],
+            "classifier": "hath0r_cli.qa.complexity.classify",
+            "added_lines": m["added_lines"],
+            "modules": len(m["modules"]),
+            "source_files": len(m["source_files"]),
+            "test_files": len(m["test_files"]),
+            "contract_touched": m["contract_touched"],
+        }
+
+    def judge_calibration_status(self, cfg: Dict[str, Any], level: Optional[str]) -> Dict[str, Any]:
+        """Is an LLM judge certified by Study B at this level (#615, #616)?
+
+        Deterministic judges (no ``judge.model``) need no calibration. With ``judge_calibration.enforce``
+        an uncertified LLM judge blocks the gate; there is no score adjustment.
+        """
+        judge = cfg.get("judge") or {}
+        jc = cfg.get("judge_calibration") or {}
+        if not judge.get("model"):
+            return {"required": False, "certified": True, "reason": "deterministic judge"}
+        judge_id = str(jc.get("judge_id") or judge.get("calibration_judge_id") or judge["model"])
+        from hath0r_cli.bots.judge_calibration_bot import JudgeCalibrationBot
+
+        res = JudgeCalibrationBot(cwd=self.cwd).is_certified(judge_id, str(level or "unknown"), bank=str(jc.get("bank", "code")))
+        return {"required": True, "enforced": bool(jc.get("enforce", True)), "judge_id": judge_id, "level": level, **res}
+
+    def measurement_status(self, cfg: Optional[Dict[str, Any]] = None, level: Optional[str] = None) -> Dict[str, Any]:
         """Is the current gauge configuration qualified by a passing Gage R&R study (#584)?
 
         Reads ``.hath0r/evals/msa/latest.json``; the study must have passed and must have been run
-        with the same judge fingerprint as the current configuration.
+        with the same judge fingerprint as the current configuration. With ``level`` the result also
+        carries the level-stratified verdict for that complexity level (#616).
         """
+        res = self._measurement_status(cfg)
+        if level:
+            res["level"] = level
+            res["level_status"] = self._level_status(level)
+        return res
+
+    def _level_status(self, level: str) -> Dict[str, Any]:
+        study_file = self.evals_dir / "msa" / "latest.json"
+        try:
+            study = json.loads(study_file.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {"qualified": False, "reason": "no readable MSA study"}
+        by = study.get("by_level") or {}
+        if not by:
+            return {"qualified": False, "reason": "latest MSA study is not level-stratified (v1)"}
+        checks = {
+            "gage_rr": (by.get("gage_rr") or {}).get(level, {}).get("passed"),
+            "attribute_agreement": (by.get("attribute_agreement") or {}).get(level, {}).get("passed"),
+            "bias": ((by.get("bias") or {}).get("by_level") or {}).get(level, {}).get("passed"),
+        }
+        failed = [k for k, v in checks.items() if v is not True]
+        return {"qualified": not failed, "checks": checks, "reason": None if not failed else f"not passed at {level}: {', '.join(failed)}"}
+
+    def _measurement_status(self, cfg: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         cfg = cfg or self.load_config()
         fp = judge_fingerprint(cfg)
         study_file = self.evals_dir / "msa" / "latest.json"
@@ -1078,6 +1148,12 @@ class TaskEvaluatorBot:
             else "N/A"
         )
         latest_path = str(self.evals_dir / "latest.json")
+        cx = sc.get("complexity") or {}
+        ms = sc.get("measurement_system") or {}
+        lvl_ok = (ms.get("level_status") or {}).get("qualified")
+        cx_row = (
+            f"| **Complexity / Gauge at Level** | `{cx.get('level')}` · gauge qualified at level: `{lvl_ok}` |\n" if cx.get("level") else ""
+        )
         return (
             "### Eval Scorecard Summary (`CR-TASK-EVAL-001` & `CR-LOCAL-QGATES-001`)\n"
             "| Field | Value |\n"
@@ -1087,6 +1163,7 @@ class TaskEvaluatorBot:
             f"| **Composite Reward (`R_task`)** | **`{r_task:.4f}`** (Threshold `>= 0.80`) |\n"
             f"| **Tier Breakdown** | Tier 1 (Deterministic): `{s_det:.2f}` · Tier 2 (Trajectory): `{s_traj:.2f}` · Tier 3 (Adversarial): `{s_adv:.2f}` · Tier 4 (Goal Align): `{s_goal:.2f}` |\n"
             f"| **Local Q-Gates (`thresholds.json`)** | {lqg_str} |\n"
+            f"{cx_row}"
             f"| **Scorecard Artifact** | `{latest_path}` |"
         )
 

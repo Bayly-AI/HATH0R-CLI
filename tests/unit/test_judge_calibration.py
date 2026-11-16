@@ -395,3 +395,58 @@ def test_repo_judge_panel_loads():
     for spec in panel["judges"]:
         if spec.get("kind") != "import":
             build_judge(spec)
+
+
+# ----------------------------------------------------------------------------- scorecards and SPC (#616)
+def test_judge_calibration_status_and_fingerprint(tmp_path):
+    from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot, judge_fingerprint
+
+    ev = TaskEvaluatorBot(cwd=tmp_path)
+    assert ev.judge_calibration_status({"judge": {"model": None}}, "L3")["required"] is False
+    cfg = {"judge": {"model": "claude-opus-5-5"}, "judge_calibration": {"judge_id": "claude-opus", "enforce": True}}
+    st = ev.judge_calibration_status(cfg, "L3")
+    assert st["required"] and st["enforced"] and not st["certified"] and "never calibrated" in st["reason"]
+    reg = tmp_path / ".hath0r/evals/judges/registry.json"
+    reg.parent.mkdir(parents=True)
+    reg.write_text(json.dumps({"judges": {"claude-opus": {"banks": {"code": {"calibration_id": "judges-x", "levels": {"L3": "certified", "L5": "removed_bias"}, "certified_levels": ["L3"]}}}}}))
+    assert ev.judge_calibration_status(cfg, "L3")["certified"] is True
+    assert ev.judge_calibration_status(cfg, "L5")["certified"] is False
+    pinned = {**cfg, "judge_calibration": {**cfg["judge_calibration"], "calibration_id": "judges-x"}}
+    assert judge_fingerprint(pinned) != judge_fingerprint(cfg)
+    det = {"judge": {"model": None}, "judge_calibration": {"calibration_id": "judges-x"}}
+    assert judge_fingerprint(det) == judge_fingerprint({"judge": {"model": None}})
+
+
+def test_level_status_reads_stratified_study(tmp_path):
+    from hath0r_cli.bots.task_evaluator_bot import TaskEvaluatorBot
+
+    ev = TaskEvaluatorBot(cwd=tmp_path)
+    assert ev._level_status("L2")["qualified"] is False
+    msa = tmp_path / ".hath0r/evals/msa/latest.json"
+    msa.parent.mkdir(parents=True)
+    msa.write_text(json.dumps({"by_level": {"gage_rr": {"L2": {"passed": True}, "L4": {"passed": True}}, "attribute_agreement": {"L2": {"passed": True}, "L4": {"passed": True}}, "bias": {"by_level": {"L2": {"passed": True}, "L4": {"passed": False}}}}}))
+    assert ev._level_status("L2")["qualified"] is True
+    l4 = ev._level_status("L4")
+    assert l4["qualified"] is False and "bias" in l4["reason"]
+
+
+def test_spc_level_and_judge_severity_series(tmp_path):
+    from hath0r_cli.bots.spc_monitor_bot import SPCMonitorBot
+
+    hist = tmp_path / ".hath0r/evals/history"
+    hist.mkdir(parents=True)
+    for i, lvl in enumerate(["L2", "L3", "L3"]):
+        (hist / f"eval-{i}.json").write_text(json.dumps({"eval_id": f"e{i}", "evaluated_at": f"2026-11-1{i}", "r_task": 0.9 + i / 100, "complexity": {"level": lvl}, "judge": {"fingerprint": "fp"}}))
+    jdir = tmp_path / ".hath0r/evals/judges"
+    jdir.mkdir(parents=True)
+    for i, psi in enumerate([0.1, -0.3]):
+        (jdir / f"judges-{i}.json").write_text(json.dumps({"study_id": f"judges-{i}", "created_at": f"2026-11-1{i}", "banks": {"code": {"bias": {"cells": {"opus": {"L4": {"psi": psi}}}}}}}))
+    bot = SPCMonitorBot(cwd=tmp_path)
+    bot._current_fingerprint = lambda: "fp"  # type: ignore[method-assign]
+    assert [p["id"] for p in bot.series("r_task@L3")] == ["e1", "e2"]
+    assert len(bot.series("r_task")) == 3
+    assert [p["value"] for p in bot.series("judge_severity@opus:L4")] == [0.1, -0.3]
+    with pytest.raises(ValueError):
+        bot.series("total_tokens@L3")
+    with pytest.raises(ValueError):
+        bot.series("judge_severity@opus")
