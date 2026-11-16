@@ -26,12 +26,89 @@ from typing import Any, Callable, Dict, List, Optional
 
 import yaml
 
-from hath0r_cli.qa.msa import DEFAULT_TARGETS, attribute_agreement, gage_rr_anova
+from hath0r_cli.qa.msa import (
+    DEFAULT_LEVEL_TARGETS,
+    DEFAULT_TARGETS,
+    attribute_agreement,
+    attribute_agreement_by_level,
+    bias_study,
+    gage_rr_anova,
+    gage_rr_by_stratum,
+    linearity_study,
+    verdict_flip_rate,
+)
 
 Measurement = Dict[str, Any]
 MeasureFn = Callable[[Dict[str, Any], Dict[str, Any], Dict[str, Any], int], Measurement]
 
 DEFAULT_PANEL = Path("cfg") / "evals" / "msa-panel.yaml"
+
+
+def variant_python(text: str) -> str:
+    """Meaning-preserving rewrite of a Python module (#612 variant operator).
+
+    Each contiguous run of top-level function definitions is emitted in reverse order, separated by
+    the usual two blank lines. Functions resolve names at call time, so behaviour is unchanged;
+    module-level statements keep their position.
+    """
+    import ast
+
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return text
+    lines = text.splitlines()
+    out: List[str] = []
+    cursor = 0
+    body = tree.body
+    i = 0
+    while i < len(body):
+        node = body[i]
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            i += 1
+            continue
+        run = [node]
+        j = i + 1
+        while j < len(body) and isinstance(body[j], (ast.FunctionDef, ast.AsyncFunctionDef)):
+            run.append(body[j])
+            j += 1
+        first = run[0]
+        start = (first.decorator_list[0].lineno if first.decorator_list else first.lineno) - 1
+        end = run[-1].end_lineno or run[-1].lineno
+        out.extend(lines[cursor:start])
+        chunks = []
+        for n in run:
+            s0 = (n.decorator_list[0].lineno if n.decorator_list else n.lineno) - 1
+            chunks.append(lines[s0 : (n.end_lineno or n.lineno)])
+        for k, chunk in enumerate(reversed(chunks)):
+            if k:
+                out.extend(["", ""])
+            out.extend(chunk)
+        cursor = end
+        i = j
+    out.extend(lines[cursor:])
+    return "\n".join(out) + "\n"
+
+
+def apply_variant(change_dir: Path, ws: Path) -> List[str]:
+    """Rewrite the change's files inside ``ws`` in a meaning-preserving form; returns the files changed."""
+    touched: List[str] = []
+    for src in sorted(p for p in change_dir.rglob("*") if p.is_file()):
+        rel = src.relative_to(change_dir)
+        target = ws / rel
+        if not target.is_file():
+            continue
+        text = target.read_text(encoding="utf-8")
+        if target.suffix == ".py":
+            new = variant_python(text)
+        elif target.suffix in (".md", ".yaml", ".yml", ".txt"):
+            new = text.rstrip("\n") + "\n\n"
+        else:
+            continue
+        if new != text:
+            target.write_text(new, encoding="utf-8")
+            touched.append(str(rel))
+    return touched
 
 
 def _git(cwd: Path, *args: str) -> None:
@@ -73,6 +150,9 @@ class MeasurementSystemBot:
         for p in parts:
             if p.get("expected") not in ("pass", "fail"):
                 raise ValueError(f"part '{p.get('id')}' needs expected: pass|fail")
+            ref = p.get("reference")
+            if ref is not None and (not isinstance(ref, dict) or "quality" not in ref):
+                raise ValueError(f"part '{p.get('id')}' reference needs a quality value")
         if not any(p["expected"] == "fail" for p in parts):
             raise ValueError("an MSA panel needs at least one seeded defect (expected: fail)")
         panel.setdefault("operators", [{"id": "operator-a"}, {"id": "operator-b"}])
@@ -128,7 +208,11 @@ class MeasurementSystemBot:
             src = root / str(change)
             if not src.is_dir():
                 raise FileNotFoundError(f"fixture change not found: {src}")
-            shutil.copytree(src, ws, dirs_exist_ok=True)
+            # copy (not copy2): a fresh mtime makes git see same-size edits. With copy2 an edit that keeps
+            # the file size and inherits the base file's mtime is invisible to git status/diff (#612).
+            shutil.copytree(src, ws, dirs_exist_ok=True, copy_function=shutil.copy)
+            if operator.get("variant"):
+                apply_variant(src, ws)
 
     def canonical_measure(self, panel: Dict[str, Any], part: Dict[str, Any], operator: Dict[str, Any], replicate: int) -> Measurement:
         """Measure one part once with the canonical ``TaskEvaluatorBot`` pipeline in a fresh workspace."""
@@ -183,16 +267,31 @@ class MeasurementSystemBot:
             for operator in panel["operators"]:
                 for rep in range(1, replicates + 1):
                     m = measure_fn(panel, part, operator, rep)
-                    rows.append({"part": part["id"], "operator": operator["id"], "value": m["r_task"]})
-                    verdicts.append({"part": part["id"], "expected": part["expected"], "passed": m["passed"]})
+                    level = part.get("level")
+                    ref = (part.get("reference") or {}).get("quality")
+                    rows.append(
+                        {
+                            "part": part["id"],
+                            "operator": operator["id"],
+                            "value": m["r_task"],
+                            "level": level,
+                            "reference": ref,
+                            "passed": m["passed"],
+                            "borderline": bool(part.get("borderline")),
+                        }
+                    )
+                    verdicts.append({"part": part["id"], "expected": part["expected"], "passed": m["passed"], "level": level})
                     raw.append({"part": part["id"], "operator": operator["id"], "replicate": rep, **m})
 
         grr = gage_rr_anova(rows, targets=tgt)
         agreement = attribute_agreement(verdicts)
         failures = list(grr["failures"]) + list(agreement["failures"])
+        by_level = self._level_analysis(panel, rows, verdicts, tgt) if all(p.get("level") for p in panel["parts"]) else None
+        if by_level:
+            failures += by_level["failures"]
         study_id = f"msa-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:6]}"
         study: Dict[str, Any] = {
-            "schema_version": "hath0r.evals.msa-study/v1",
+            "schema_version": "hath0r.evals.msa-study/v2" if by_level else "hath0r.evals.msa-study/v1",
             "study_id": study_id,
             "run_at": datetime.now(timezone.utc).isoformat(),
             "panel": panel["_path"],
@@ -203,6 +302,7 @@ class MeasurementSystemBot:
             "targets": tgt,
             "gage_rr": grr,
             "attribute_agreement": agreement,
+            "by_level": by_level,
             "passed": not failures,
             "failures": failures,
             "measurements": raw,
@@ -217,6 +317,56 @@ class MeasurementSystemBot:
             if compound:
                 self._compound(study)
         return {**study, "success": bool(study["passed"])}
+
+    def _level_analysis(
+        self,
+        panel: Dict[str, Any],
+        rows: List[Dict[str, Any]],
+        verdicts: List[Dict[str, Any]],
+        tgt: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Per-level Gage R&R, bias, linearity, attribute agreement and borderline flips (#612)."""
+        lt = dict(DEFAULT_LEVEL_TARGETS)
+        lt.update({k: v for k, v in tgt.items() if k in lt})
+        grr = gage_rr_by_stratum(rows, targets=tgt)
+        agree = attribute_agreement_by_level(verdicts)
+        flips = verdict_flip_rate(
+            rows,
+            threshold=float(tgt.get("min_reward", 0.80)),
+            band=float(lt["borderline_band"]),
+            max_flip_rate=float(lt["max_flip_rate"]),
+        )
+        failures: List[str] = []
+        for lvl, res in grr.items():
+            failures += [f"Level {lvl}: {f}" for f in res.get("failures", [])]
+        for lvl, res in agree.items():
+            failures += [f"Level {lvl}: {f}" for f in res.get("failures", [])]
+        failures += flips["failures"]
+        # Bias and linearity are measured on acceptable work (expected pass). Seeded defects are judged by
+        # attribute agreement; their reference quality differs by defect type, which would confound a slope.
+        expected = {str(p["id"]): p["expected"] for p in panel["parts"]}
+        ref_rows = [r for r in rows if r.get("reference") is not None and expected.get(str(r["part"])) == "pass"]
+        all_ref = [r for r in rows if r.get("reference") is not None]
+        bias = lin = lin_good = lin_all = None
+        if ref_rows and len({r["level"] for r in ref_rows}) >= 2:
+            bias = bias_study(ref_rows, alpha=float(lt["alpha"]), max_level_bias=float(lt["max_level_bias"]))
+            lin = linearity_study(ref_rows, alpha=float(lt["alpha"]))
+            good = [r for r in ref_rows if r["reference"] >= 0.9]
+            lin_good = linearity_study(good, alpha=float(lt["alpha"])) if len({r["level"] for r in good}) >= 2 else None
+            lin_all = linearity_study(all_ref, alpha=float(lt["alpha"]))
+            failures += bias["failures"] + lin["failures"]
+        return {
+            "targets": lt,
+            "gage_rr": {k: {kk: v.get(kk) for kk in ("grr_pct", "ndc", "parts", "passed", "failures", "variance_components", "grand_mean")} for k, v in grr.items()},
+            "attribute_agreement": agree,
+            "bias": bias,
+            "linearity": lin,
+            "linearity_known_good": lin_good,
+            "linearity_all_parts_informational": lin_all,
+            "verdict_flips": flips,
+            "passed": not failures,
+            "failures": failures,
+        }
 
     def _compound(self, study: Dict[str, Any]) -> None:
         try:

@@ -103,8 +103,15 @@ class SPCMonitorBot:
         Eval metrics only include scorecards whose ``judge.fingerprint`` matches the current judge,
         unless ``all_gauges`` is set (#608).
         """
-        if metric not in METRICS:
-            raise ValueError(f"unknown metric '{metric}'. Choose one of: {', '.join(METRICS)}")
+        base, _, level = metric.partition("@")
+        if base == "judge_severity":
+            return self._judge_severity_series(level)
+        if base not in METRICS or (level and base not in EVAL_METRICS):
+            raise ValueError(
+                f"unknown metric '{metric}'. Choose one of: {', '.join(METRICS)}; eval metrics take '@<level>' "
+                "(for example r_task@L3), and judge_severity@<judge>:<level> charts a judge's psi (#616)"
+            )
+        metric = base
         points: List[Dict[str, Any]] = []
         if metric in EVAL_METRICS:
             hist = self.cwd / ".hath0r" / "evals" / "history"
@@ -115,6 +122,8 @@ class SPCMonitorBot:
                 except (OSError, json.JSONDecodeError):
                     continue
                 if not all_gauges and (card.get("judge") or {}).get("fingerprint") != fingerprint:
+                    continue
+                if level and (card.get("complexity") or {}).get("level") != level:
                     continue
                 v = _dig(card, EVAL_METRICS[metric])
                 if v is not None:
@@ -132,6 +141,27 @@ class SPCMonitorBot:
                     v = _dig(rec, (metric,))
                     if v is not None:
                         points.append({"t": str(rec.get("timestamp", "")), "value": v, "id": rec.get("id")})
+        points.sort(key=lambda p: p["t"])
+        return points
+
+    def _judge_severity_series(self, spec: str) -> List[Dict[str, Any]]:
+        """psi (logits vs the anchors) of one judge at one level across calibration studies (#616)."""
+        judge, _, level = spec.partition(":")
+        if not judge or not level:
+            raise ValueError("judge_severity needs '@<judge>:<level>', for example judge_severity@claude-opus:L4")
+        points: List[Dict[str, Any]] = []
+        jdir = self.cwd / ".hath0r" / "evals" / "judges"
+        for f in sorted(jdir.glob("judges-*.json")) if jdir.is_dir() else []:
+            if f.name.endswith(".ratings.jsonl"):
+                continue
+            try:
+                study = json.loads(f.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            for bank in (study.get("banks") or {}).values():
+                cell = (((bank.get("bias") or {}).get("cells") or {}).get(judge) or {}).get(level)
+                if cell and cell.get("psi") is not None:
+                    points.append({"t": str(study.get("created_at", "")), "value": float(cell["psi"]), "id": study.get("study_id")})
         points.sort(key=lambda p: p["t"])
         return points
 

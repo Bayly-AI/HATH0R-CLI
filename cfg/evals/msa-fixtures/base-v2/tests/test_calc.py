@@ -1,0 +1,9 @@
+from msa_fixture.calc import add, divide
+
+
+def test_add() -> None:
+    assert add(1, 2) == 3
+
+
+def test_divide() -> None:
+    assert divide(6, 3) == 2

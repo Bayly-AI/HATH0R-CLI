@@ -174,7 +174,7 @@ def test_study_needs_two_replicates(tmp_path):
         MeasurementSystemBot(cwd=tmp_path).run_study(panel_path=_panel(tmp_path), replicates=1)
 
 
-@pytest.mark.parametrize("part_id,expected", [("good-add-subtract", True), ("defect-missing-version-bump", False), ("defect-swallowed-exception", False)])
+@pytest.mark.parametrize("part_id,expected", [("good-add-subtract", True), ("l1-defect-version-no-changelog", False), ("defect-swallowed-exception", False)])
 def test_canonical_measure_on_real_fixtures(part_id, expected):
     """The real panel is measured by the canonical TaskEvaluatorBot pipeline, not a stub."""
     bot = MeasurementSystemBot(cwd=REPO)
@@ -189,7 +189,7 @@ def test_canonical_measure_on_real_fixtures(part_id, expected):
 def test_repo_panel_has_seeded_defects_for_each_tier():
     panel = MeasurementSystemBot(cwd=REPO).load_panel()
     defects = [p["id"] for p in panel["parts"] if p["expected"] == "fail"]
-    assert {"defect-failing-test", "defect-swallowed-exception", "defect-missing-version-bump"} <= set(defects)
+    assert {"defect-failing-test", "defect-swallowed-exception", "l1-defect-version-no-changelog"} <= set(defects)
     for p in panel["parts"]:
         assert (panel["_fixtures_root"] / p["change"]).is_dir()
 

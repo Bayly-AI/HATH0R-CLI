@@ -22,6 +22,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from hath0r_cli.qa.complexity import is_test_path
+
 DEFAULT_TASK_EVAL_CONFIG: Dict[str, Any] = {
     "schema_version": "hath0r.evals.task/v1",
     "rule_id": "CR-TASK-EVAL-001",
@@ -83,6 +85,10 @@ def judge_fingerprint(cfg: Dict[str, Any]) -> str:
     """Stable hash of everything that changes how the gauge measures (judge, tier4, weights, thresholds, rubric)."""
     material: Dict[str, Any] = {k: cfg.get(k) for k in ("judge", "tier4", "weights", "thresholds")}
     material["tier1_rubric"] = TIER1_RUBRIC_VERSION
+    calibration_id = (cfg.get("judge_calibration") or {}).get("calibration_id")
+    if calibration_id and (cfg.get("judge") or {}).get("model"):
+        # a re-calibrated LLM judge is a different gauge (#616); deterministic judges are unaffected
+        material["judge_calibration_id"] = calibration_id
     return hashlib.sha256(json.dumps(material, sort_keys=True, default=str).encode("utf-8")).hexdigest()[:16]
 
 
@@ -119,6 +125,42 @@ def _compute_scorecard_hash(data: Dict[str, Any]) -> str:
 # Paths left out of the self-evaluation diff: framework state, and the MSA gauge fixtures, which
 # carry deliberate defects (e.g. a swallowed exception) for the Gage R&R study to detect.
 _DIFF_PATHSPEC = ("--", ":!.hath0r", ":!cfg/evals/msa-fixtures")
+_CACHE_PREFIXES = (".pytest_cache/", ".mypy_cache/", ".ruff_cache/", "__pycache__/", ".coverage", "htmlcov/")
+
+
+def _untracked_files(cwd: Path) -> List[str]:
+    """Untracked, non-ignored files in the working tree (excluding Hath0r state and MSA fixtures)."""
+    try:
+        proc = subprocess.run(
+            ["git", "ls-files", "--others", "--exclude-standard", *_DIFF_PATHSPEC],
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return []
+    return [ln.strip() for ln in proc.stdout.splitlines() if ln.strip()] if proc.returncode == 0 else []
+
+
+def _untracked_diff(cwd: Path, max_bytes: int = 2_000_000) -> str:
+    """A unified diff that adds every untracked text file, so reviewers see new files (#612)."""
+    chunks: List[str] = []
+    total = 0
+    for rel in _untracked_files(cwd):
+        path = Path(cwd) / rel
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        lines = text.splitlines()
+        body = "".join(f"+{ln}\n" for ln in lines)
+        chunk = f"diff --git a/{rel} b/{rel}\nnew file mode 100644\n--- /dev/null\n+++ b/{rel}\n@@ -0,0 +1,{len(lines)} @@\n{body}"
+        total += len(chunk)
+        if total > max_bytes:
+            break
+        chunks.append(chunk)
+    return "".join(chunks)
 
 
 @dataclass
@@ -479,6 +521,9 @@ class TaskEvaluatorBot:
                             files_set.add(clean)
             except Exception:
                 continue
+        # #612: new files that are not yet committed are part of the change too. Study A found that
+        # defects in untracked files were invisible to Tiers 3 and 4.
+        files_set.update(f for f in _untracked_files(self.cwd) if not f.startswith(".hath0r/"))
         return sorted(files_set)
 
     def _collect_branch_diff(self) -> str:
@@ -488,8 +533,12 @@ class TaskEvaluatorBot:
                 proc = subprocess.run(["git", "diff", *rng, *_DIFF_PATHSPEC], cwd=self.cwd, capture_output=True, text=True, check=False)
             except OSError:
                 return ""
-            if proc.returncode == 0 and proc.stdout.strip():
-                return proc.stdout
+            out = proc.stdout if proc.returncode == 0 else ""
+            if rng == ["HEAD"]:
+                # Working tree: add uncommitted new files, which `git diff HEAD` leaves out (#612).
+                out += _untracked_diff(self.cwd)
+            if out.strip():
+                return out
         return ""
 
     def _evaluate_tier3_adversarial(
@@ -515,14 +564,16 @@ class TaskEvaluatorBot:
         changed_files = [f for f in changed_files if not f.startswith(".hath0r/")]
         if not changed_files:
             changed_files = self._collect_branch_changed_files()
+        changed_files = [f for f in changed_files if not f.startswith(_CACHE_PREFIXES) and "/__pycache__/" not in f"/{f}"]
         classification = cv_bot.classify_changes(files=changed_files)
 
         # Continuous diff hygiene & co-change deductions
         minor_deductions = 0.02  # Base adversarial skepticism margin
         minor_findings: List[str] = []
 
-        script_files = [f for f in classification.get("script", []) if not f.startswith(("tests/", "test_"))]
-        test_files = [f for f in changed_files if "test" in f.lower()]
+        # Real test files only: a substring match counted caches such as .pytest_cache/ as tests (#612).
+        script_files = [f for f in classification.get("script", []) if not is_test_path(f)]
+        test_files = [f for f in changed_files if is_test_path(f)]
         if script_files and not test_files:
             minor_deductions += 0.06
             minor_findings.append("Modified script/source files without co-changing test files (-0.06)")
@@ -852,6 +903,11 @@ class TaskEvaluatorBot:
         if r_task < min_reward:
             blocking_reasons.append(f"Composite reward R_task ({r_task:.4f}) is below threshold ({min_reward:.2f})")
 
+        complexity = self._complexity()
+        judge_cal = self.judge_calibration_status(cfg, complexity.get("level"))
+        if judge_cal.get("enforced") and not judge_cal.get("certified"):
+            blocking_reasons.append(f"LLM judge not certified at {complexity.get('level')}: {judge_cal.get('reason')} (#616)")
+
         passed_gate = len(blocking_reasons) == 0
         total_duration_ms = round((time.monotonic() - t0) * 1000.0, 2)
 
@@ -894,8 +950,9 @@ class TaskEvaluatorBot:
             "blocking_reasons": blocking_reasons,
             "goal": float(cfg.get("goal", {}).get("r_task", 1.0)),
             "gap_to_goal": round(float(cfg.get("goal", {}).get("r_task", 1.0)) - r_task, 4),
-            "judge": {**cfg.get("judge", {}), "tier4_clamp": bool(cfg.get("tier4", {}).get("clamp", False)), "fingerprint": judge_fingerprint(cfg)},
-            "measurement_system": self.measurement_status(cfg),
+            "judge": {**cfg.get("judge", {}), "tier4_clamp": bool(cfg.get("tier4", {}).get("clamp", False)), "fingerprint": judge_fingerprint(cfg), "calibration": judge_cal},
+            "complexity": complexity,
+            "measurement_system": self.measurement_status(cfg, level=complexity.get("level")),
             "observability_sync": {"mode": "pending"},
             "content_hash": "",
         }
@@ -967,12 +1024,72 @@ class TaskEvaluatorBot:
             "scorecard": scorecard,
         }
 
-    def measurement_status(self, cfg: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _complexity(self) -> Dict[str, Any]:
+        """Complexity level of the change being evaluated (#611, #616)."""
+        try:
+            from hath0r_cli.qa.complexity import classify_workspace
+
+            res = classify_workspace(self.cwd)
+        except (OSError, ValueError) as exc:
+            return {"level": None, "error": str(exc)}
+        m = res["metrics"]
+        return {
+            "level": res["level"],
+            "classifier": "hath0r_cli.qa.complexity.classify",
+            "added_lines": m["added_lines"],
+            "modules": len(m["modules"]),
+            "source_files": len(m["source_files"]),
+            "test_files": len(m["test_files"]),
+            "contract_touched": m["contract_touched"],
+        }
+
+    def judge_calibration_status(self, cfg: Dict[str, Any], level: Optional[str]) -> Dict[str, Any]:
+        """Is an LLM judge certified by Study B at this level (#615, #616)?
+
+        Deterministic judges (no ``judge.model``) need no calibration. With ``judge_calibration.enforce``
+        an uncertified LLM judge blocks the gate; there is no score adjustment.
+        """
+        judge = cfg.get("judge") or {}
+        jc = cfg.get("judge_calibration") or {}
+        if not judge.get("model"):
+            return {"required": False, "certified": True, "reason": "deterministic judge"}
+        judge_id = str(jc.get("judge_id") or judge.get("calibration_judge_id") or judge["model"])
+        from hath0r_cli.bots.judge_calibration_bot import JudgeCalibrationBot
+
+        res = JudgeCalibrationBot(cwd=self.cwd).is_certified(judge_id, str(level or "unknown"), bank=str(jc.get("bank", "code")))
+        return {"required": True, "enforced": bool(jc.get("enforce", True)), "judge_id": judge_id, "level": level, **res}
+
+    def measurement_status(self, cfg: Optional[Dict[str, Any]] = None, level: Optional[str] = None) -> Dict[str, Any]:
         """Is the current gauge configuration qualified by a passing Gage R&R study (#584)?
 
         Reads ``.hath0r/evals/msa/latest.json``; the study must have passed and must have been run
-        with the same judge fingerprint as the current configuration.
+        with the same judge fingerprint as the current configuration. With ``level`` the result also
+        carries the level-stratified verdict for that complexity level (#616).
         """
+        res = self._measurement_status(cfg)
+        if level:
+            res["level"] = level
+            res["level_status"] = self._level_status(level)
+        return res
+
+    def _level_status(self, level: str) -> Dict[str, Any]:
+        study_file = self.evals_dir / "msa" / "latest.json"
+        try:
+            study = json.loads(study_file.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {"qualified": False, "reason": "no readable MSA study"}
+        by = study.get("by_level") or {}
+        if not by:
+            return {"qualified": False, "reason": "latest MSA study is not level-stratified (v1)"}
+        checks = {
+            "gage_rr": (by.get("gage_rr") or {}).get(level, {}).get("passed"),
+            "attribute_agreement": (by.get("attribute_agreement") or {}).get(level, {}).get("passed"),
+            "bias": ((by.get("bias") or {}).get("by_level") or {}).get(level, {}).get("passed"),
+        }
+        failed = [k for k, v in checks.items() if v is not True]
+        return {"qualified": not failed, "checks": checks, "reason": None if not failed else f"not passed at {level}: {', '.join(failed)}"}
+
+    def _measurement_status(self, cfg: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         cfg = cfg or self.load_config()
         fp = judge_fingerprint(cfg)
         study_file = self.evals_dir / "msa" / "latest.json"
@@ -1031,6 +1148,12 @@ class TaskEvaluatorBot:
             else "N/A"
         )
         latest_path = str(self.evals_dir / "latest.json")
+        cx = sc.get("complexity") or {}
+        ms = sc.get("measurement_system") or {}
+        lvl_ok = (ms.get("level_status") or {}).get("qualified")
+        cx_row = (
+            f"| **Complexity / Gauge at Level** | `{cx.get('level')}` · gauge qualified at level: `{lvl_ok}` |\n" if cx.get("level") else ""
+        )
         return (
             "### Eval Scorecard Summary (`CR-TASK-EVAL-001` & `CR-LOCAL-QGATES-001`)\n"
             "| Field | Value |\n"
@@ -1040,6 +1163,7 @@ class TaskEvaluatorBot:
             f"| **Composite Reward (`R_task`)** | **`{r_task:.4f}`** (Threshold `>= 0.80`) |\n"
             f"| **Tier Breakdown** | Tier 1 (Deterministic): `{s_det:.2f}` · Tier 2 (Trajectory): `{s_traj:.2f}` · Tier 3 (Adversarial): `{s_adv:.2f}` · Tier 4 (Goal Align): `{s_goal:.2f}` |\n"
             f"| **Local Q-Gates (`thresholds.json`)** | {lqg_str} |\n"
+            f"{cx_row}"
             f"| **Scorecard Artifact** | `{latest_path}` |"
         )
 

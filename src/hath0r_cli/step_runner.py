@@ -175,7 +175,7 @@ SERVICE_BOT_MAP: dict[str, dict[str, Any]] = {
     "fmea": {"service": "Failure Mode & Effects Analysis Service", "owning_bots": ["fmea-bot", "issue-manager-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/fmea-review-factory.yaml"},
     "rca": {"service": "Root Cause Analysis (Pareto, Ishikawa, 5 Whys) Service", "owning_bots": ["root-cause-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/rca-pareto-factory.yaml"},
     "dmaic": {"service": "DMAIC Improvement Project Service", "owning_bots": ["dmaic-project-bot", "issue-manager-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/dmaic-project-factory.yaml"},
-    "evals": {"service": "Continuous 4-Tier Task Evaluation, Local Q-Gates & Red-Team Service", "owning_bots": ["task-evaluator-bot", "local-quality-gate-bot", "redteam-engine-bot", "measurement-system-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
+    "evals": {"service": "Continuous 4-Tier Task Evaluation, Local Q-Gates & Red-Team Service", "owning_bots": ["task-evaluator-bot", "local-quality-gate-bot", "redteam-engine-bot", "measurement-system-bot", "judge-calibration-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/end-of-task-factory.yaml"},
     "rules": {"service": "Cross-Repo Rule Rollout & Sync Service", "owning_bots": ["rule-rollout-bot", "governance-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/rule-rollout-factory.yaml"},
     "mlflow": {"service": "Hathor-MLFLOW Experiment & Model Registry Service", "owning_bots": ["mlflow-manager-bot"], "agentgraph_level": "L1_MCP_AND_L2_CLI_MEMORY", "workflow_id": "cfg/factories/hath0r-net-telemetry-factory.yaml"},
     "atc": {"service": "HATH0R-ATC Control Tower & Suite Status Service", "owning_bots": ["docker-bot", "decision-radar-bot"], "agentgraph_level": "L2_CLI_MEMORY", "workflow_id": "cfg/factories/docker-group-factory.yaml"},
@@ -227,6 +227,7 @@ class BotRegistry:
         from hath0r_cli.bots.iac_bot import IaCManagingBot
         from hath0r_cli.bots.install_wizard_bot import InstallWizardBot
         from hath0r_cli.bots.iteration_cascade_bot import IterationCascadeBot
+        from hath0r_cli.bots.judge_calibration_bot import JudgeCalibrationBot
         from hath0r_cli.bots.kv_prewarmer import KVCachePrewarmer
         from hath0r_cli.bots.local_model_bot import LocalModelBot
         from hath0r_cli.bots.local_quality_gate_bot import LocalQualityGateBot
@@ -368,6 +369,7 @@ class BotRegistry:
             "sibling-manager-bot": _init_bot(SiblingManagerBot),
             "taguchi-bot": _init_bot(TaguchiBot),
             "measurement-system-bot": _init_bot(MeasurementSystemBot),
+            "judge-calibration-bot": _init_bot(JudgeCalibrationBot),
             "spc-monitor-bot": _init_bot(SPCMonitorBot),
             "andon-bot": _init_bot(AndonBot),
             "fmea-bot": _init_bot(FMEABot),

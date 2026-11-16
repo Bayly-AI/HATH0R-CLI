@@ -14,3 +14,12 @@ is luck. Manufacturing solves this with Measurement System Analysis: qualify the
   Anything else is a failed study.
 - A scorecard is `measurement_qualified` only while the latest passing study used the same judge fingerprint.
 - Tier 4 clamping is off by default since the first study; scores now reflect raw signals.
+
+## Level-stratified studies (v2, #612, epic #610)
+
+Gage R&R alone assumes the gauge behaves the same at every complexity level. Panel v2 has eight parts at
+each level L1 to L5 (`cfg/evals/complexity-levels.yaml`) and three operators, one of which rewrites each
+change in a meaning-preserving form. The study adds, per level: %GRR, attribute agreement, bias against
+the pooled bias (a level fails when the difference is significant and above 0.02), linearity of bias
+across levels, and the verdict-flip rate of borderline parts. LLM judges are calibrated separately with a
+many-facet Rasch model; see [judge-calibration-strategy.md](judge-calibration-strategy.md).

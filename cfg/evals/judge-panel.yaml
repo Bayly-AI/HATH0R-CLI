@@ -1,0 +1,65 @@
+# Study B judge panel (#615, epic #610). Every enabled judge rates every item in each bank it lists,
+# `design.replicates` times. Anchor judges define the reference for judge x level bias (psi).
+# Ratings and decisions: cfg/evals/complexity-levels.yaml (code rubric, JEV decision scale).
+# Decision rules approved by Ray on 2026-11-16: SE gate 0.10, MnSq 1.5, removal at |psi| >= 0.20 logits
+# (Benjamini-Hochberg q 0.05). Certify and remove only; no score adjustment.
+schema_version: hath0r.evals.judge-panel/v1
+design:
+  banks: [code, jev]
+  per_level: {code: 50, jev: 200}
+  replicates: 2
+  seed: 611
+  max_errors_per_judge: 25
+  concurrency: 6          # parallel calls per judge; local models override with 1
+gates:
+  max_se: 0.10
+  max_mnsq: 1.5
+  removal_psi: 0.20
+  bh_q: 0.05
+  min_parts_per_level: 15
+  min_strata: 2.0
+budget:
+  # Budget exception for Study B approved by Ray on 2026-11-16 (#615). The run stops at the cap and
+  # the study is marked incomplete; incomplete studies never certify a judge.
+  approved_by: Ray
+  approved_on: "2026-11-16"
+  max_usd: 75.0
+prices_usd_per_mtok:
+  # Used only to enforce the cap. Update when list prices change.
+  claude-opus-5-5: {input: 5.0, output: 25.0}
+  claude-sonnet-5-5: {input: 3.0, output: 15.0}
+  claude-haiku-5-5: {input: 1.0, output: 5.0}
+judges:
+  - id: truth
+    kind: truth
+    anchor: true
+    banks: [code, jev]
+  - id: claude-opus
+    kind: anthropic
+    model: claude-opus-5-5
+    banks: [code, jev]
+    temperature: 0.0
+  - id: claude-sonnet
+    kind: anthropic
+    model: claude-sonnet-5-5
+    banks: [code, jev]
+    temperature: 0.0
+  - id: claude-haiku
+    kind: anthropic
+    model: claude-haiku-5-5
+    banks: [code, jev]
+    temperature: 0.0
+  - id: jev
+    kind: jev
+    model: jev-latest
+    protocol: preset
+    banks: [jev]
+  # Local models: enable those installed on the machine running the study (`ollama list`).
+  - id: ollama-llama
+    kind: ollama
+    model: llama3.1:8b
+    banks: [code, jev]
+    concurrency: 1
+    enabled: false
+  # Human raters and 1-Nation StatutoryFaithfulness are imported from files and act as anchors:
+  # - {id: rater-1, kind: import, path: .hath0r/evals/judges/imports/rater-1.csv, anchor: true, banks: [code]}

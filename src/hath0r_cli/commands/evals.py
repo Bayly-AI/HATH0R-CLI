@@ -402,3 +402,136 @@ def _render_msa(res: dict) -> None:
     console.print(f"  • Judge fingerprint: {res['judge_fingerprint']}")
     for f in res.get("failures", []):
         console.print(f"  [red]✗ {f}[/red]")
+
+
+# ---------------------------------------------------------------- Judge calibration / MFRM (Study B, #615)
+@evals_cmd.group("judges")
+def evals_judges_cmd() -> None:
+    """Judge calibration: many-facet Rasch study of every judge at every complexity level (#610)."""
+
+
+@evals_judges_cmd.command("calibrate")
+@click.option("--panel", "panel_path", type=click.Path(path_type=Path), default=None, help="Judge panel YAML (default cfg/evals/judge-panel.yaml).")
+@click.option("--bank", "banks", multiple=True, type=click.Choice(["code", "jev"]), help="Item bank(s) to run (default: the panel's banks).")
+@click.option("--judge", "judges", multiple=True, help="Only these judge ids (anchor judges always run).")
+@click.option("--replicates", type=int, default=None, help="Ratings per item per judge (default: panel).")
+@click.option("--per-level", type=int, default=None, help="Items per level (default: panel).")
+@click.option("--resume", type=click.Path(path_type=Path, exists=True), default=None, help="Continue a study from its .ratings.jsonl file.")
+@click.option("--dry-run", is_flag=True, help="Run without saving, ledger writes or memory compounding.")
+@click.pass_context
+def evals_judges_calibrate(
+    ctx: click.Context,
+    panel_path: Optional[Path],
+    banks: tuple,
+    judges: tuple,
+    replicates: Optional[int],
+    per_level: Optional[int],
+    resume: Optional[Path],
+    dry_run: bool,
+) -> None:
+    """Have every judge rate the item banks, fit the MFRM and certify or remove each judge per level."""
+    from hath0r_cli.bots.judge_calibration_bot import JudgeCalibrationBot
+
+    quiet = ctx.obj.get("output") == "json" if isinstance(ctx.obj, dict) else False
+    try:
+        res = JudgeCalibrationBot(cwd=Path.cwd()).run_study(
+            panel_path=panel_path,
+            banks=list(banks) or None,
+            judges=list(judges) or None,
+            replicates=replicates,
+            per_level=per_level,
+            resume=resume,
+            dry_run=dry_run,
+            progress=None if quiet else (lambda msg: console.print(f"  [dim]{msg}[/dim]")),
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        msg = str(exc)
+        response = _build_response(ctx, command="evals.judges.calibrate", state="error", data={"success": False, "error": msg}, diagnostics=[Diagnostic(code="JUDGE_PANEL_INVALID", severity="error", message=msg)])
+        _emit_response(ctx, response, text_renderer=lambda: console.print(f"[red]{msg}[/red]"))
+        ctx.exit(2)
+        return
+    state = "ok" if res["complete"] else "partial"
+    response = _build_response(ctx, command="evals.judges.calibrate", state=state, data=res)
+    _emit_response(ctx, response, text_renderer=lambda: _render_judges(res))
+
+
+@evals_judges_cmd.command("report")
+@click.pass_context
+def evals_judges_report(ctx: click.Context) -> None:
+    """Show the latest judge calibration: status of every judge at every level."""
+    from hath0r_cli.bots.judge_calibration_bot import JudgeCalibrationBot
+
+    res = JudgeCalibrationBot(cwd=Path.cwd()).report()
+    response = _build_response(ctx, command="evals.judges.report", state="ok" if res.get("exists") else "empty", data=res)
+    _emit_response(ctx, response, text_renderer=lambda: _render_judges(res) if res.get("exists") else console.print(f"[yellow]{res.get('message')}[/yellow]"))
+
+
+@evals_judges_cmd.command("status")
+@click.argument("judge_id", required=False)
+@click.option("--level", default=None, help="Complexity level (L1-L5 or R1-R5) to check.")
+@click.option("--bank", default="code", type=click.Choice(["code", "jev"]), show_default=True)
+@click.option("--preflight", "preflight_only", is_flag=True, help="Check each enabled judge's API key (presence and format, never the value).")
+@click.pass_context
+def evals_judges_status(ctx: click.Context, judge_id: Optional[str], level: Optional[str], bank: str, preflight_only: bool) -> None:
+    """Registry of calibrated judges, or whether one judge may be used at one level."""
+    from hath0r_cli.bots.judge_calibration_bot import JudgeCalibrationBot, load_credentials, preflight
+
+    bot = JudgeCalibrationBot(cwd=Path.cwd())
+    if preflight_only:
+        loaded = load_credentials()
+        check = {**preflight(bot.load_panel()), "loaded_from_credentials": sorted(loaded)}
+        response = _build_response(ctx, command="evals.judges.preflight", state="ok" if check["ok"] else "error", data=check)
+
+        def _pre() -> None:
+            for r in check["judges"]:
+                mark = "[green]ok[/green]" if r["ok"] else "[red]FAIL[/red]"
+                console.print(f"{mark} {r['judge']}: {r['var']} = <{r['class']}>")
+
+        _emit_response(ctx, response, text_renderer=_pre)
+        if not check["ok"]:
+            ctx.exit(1)
+        return
+    if judge_id and level:
+        data = {"judge": judge_id, "level": level, "bank": bank, **bot.is_certified(judge_id, level, bank)}
+        response = _build_response(ctx, command="evals.judges.status", state="ok", data=data)
+        _emit_response(ctx, response, text_renderer=lambda: console.print(f"{judge_id} at {level}: {'[green]certified[/green]' if data['certified'] else '[red]not certified[/red] (' + str(data['reason']) + ')'}"))
+        return
+    reg = bot.registry()
+    response = _build_response(ctx, command="evals.judges.status", state="ok", data=reg)
+
+    def _text() -> None:
+        table = Table(show_header=True, header_style="bold")
+        for col in ("Judge", "Bank", "Certified levels", "Calibration"):
+            table.add_column(col)
+        for jid, entry in sorted((reg.get("judges") or {}).items()):
+            for b, e in sorted(entry.get("banks", {}).items()):
+                table.add_row(jid, b, ", ".join(e.get("certified_levels") or []) or "none", e.get("calibration_id", ""))
+        console.print(table)
+
+    _emit_response(ctx, response, text_renderer=_text)
+
+
+def _render_judges(res: dict) -> None:
+    badge = "[green]complete[/green]" if res.get("complete") else f"[yellow]incomplete[/yellow] ({res.get('stopped_reason')})"
+    console.print(f"\n[bold cyan]Judge calibration {res['study_id']}[/bold cyan]: {badge} · spend ${res.get('spend_usd', 0)}")
+    marks = {"certified": "[green]✓[/green]", "removed_bias": "[red]bias[/red]", "removed_noise": "[red]noise[/red]", "not_certified": "[yellow]n/c[/yellow]"}
+    for bank, b in (res.get("banks") or {}).items():
+        if b.get("error"):
+            console.print(f"  [red]{bank}: {b['error']}[/red]")
+            continue
+        levels = sorted({lvl for lv in b["decisions"].values() for lvl in lv})
+        table = Table(title=f"{bank} bank (psi in logits vs {b['bias']['reference']})", show_header=True, header_style="bold")
+        table.add_column("Judge")
+        for lvl in levels:
+            table.add_column(lvl, justify="center")
+        for jid, lv in sorted(b["decisions"].items()):
+            cells = []
+            for lvl in levels:
+                d = lv.get(lvl)
+                cells.append("" if d is None else f"{marks.get(d['status'], d['status'])} {d['psi']:+.2f}" if d.get("psi") is not None else marks.get(d["status"], d["status"]))
+            table.add_row(jid, *cells)
+        console.print(table)
+        s = b.get("summary") or {}
+        console.print(f"  • {s.get('certified', 0)} cells certified, {s.get('removed_bias', 0)} removed for bias, {s.get('removed_noise', 0)} for noise, {s.get('not_certified', 0)} not certified")
+    for jid, n in (res.get("errors") or {}).items():
+        console.print(f"  [yellow]{jid}: {n} failed calls ({(res.get('error_samples') or {}).get(jid, '')[:120]})[/yellow]")

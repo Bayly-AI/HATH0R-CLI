@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Order",
+  "type": "object",
+  "required": [
+    "id",
+    "sku",
+    "qty",
+    "amount",
+    "currency"
+  ],
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "sku": {
+      "type": "string"
+    },
+    "qty": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "amount": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    }
+  }
+}
