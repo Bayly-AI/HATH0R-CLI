@@ -43,6 +43,7 @@ from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Seque
 
 import yaml
 
+from hath0r_cli import __version__
 from hath0r_cli.qa import rasch
 from hath0r_cli.qa.judge_items import CODE_CRITERIA, JEV_DECISIONS, items_for
 
@@ -50,6 +51,8 @@ DEFAULT_PANEL = Path("cfg") / "evals" / "judge-panel.yaml"
 ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
 JEV_PRESET_URL = "https://www.jevai.org/api/v1/decisions/tool-guard"
 JEV_SYSTEMONE_URL = "https://api.typesafe.ai/v1/systemone"
+# jevai.org sits behind Cloudflare, which rejects urllib's default User-Agent (error 1010).
+USER_AGENT = f"hath0r-cli/{__version__} (judge-calibration)"
 
 CODE_RUBRIC = """Rate the change on four criteria, each an integer from 0 to 4.
 correctness: 0 broken or wrong, 1 major defects, 2 works with notable defects, 3 minor issues only, 4 correct.
@@ -160,7 +163,7 @@ def _http_json(url: str, payload: Mapping[str, Any], headers: Mapping[str, str],
     data = json.dumps(payload).encode("utf-8")
     last: Optional[Exception] = None
     for attempt in range(retries + 1):
-        req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json", **headers}, method="POST")
+        req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json", "User-Agent": USER_AGENT, **headers}, method="POST")
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 - fixed https/localhost endpoints
                 body = json.loads(resp.read().decode("utf-8"))

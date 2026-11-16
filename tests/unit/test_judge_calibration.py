@@ -464,3 +464,28 @@ def test_judge_calibration_factory_and_config():
     assert factory["bots"][0]["id"] == "judge-calibration-bot"
     cfg = json.loads((REPO / "cfg/evals/task-eval.json").read_text())
     assert cfg["judge_calibration"]["enforce"] is True
+
+
+def test_http_json_sends_user_agent(monkeypatch):
+    """jevai.org's Cloudflare edge rejects urllib's default User-Agent (error 1010)."""
+    import io
+    import urllib.request
+
+    from hath0r_cli.bots import judge_calibration_bot as jcb
+
+    seen = {}
+
+    class _Resp(io.BytesIO):
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    def fake_urlopen(req, timeout=None):
+        seen["ua"] = req.get_header("User-agent")
+        return _Resp(b'{"ok": true}')
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    assert jcb._http_json("https://example.invalid", {}, {}, 1.0) == {"ok": True}
+    assert seen["ua"].startswith("hath0r-cli/")

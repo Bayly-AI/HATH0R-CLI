@@ -41,6 +41,9 @@ behaves the same at every level, which LLM judges often do not.
   file, so source changes without tests were not penalised. It now uses a real test-path rule and
   `git status --untracked-files=all`.
 
+### Fixed
+- Judge calibration HTTP calls send a `User-Agent` (`hath0r-cli/<version> (judge-calibration)`). jevai.org's Cloudflare edge rejects urllib's default with error 1010 (HTTP 403), which blocked every JEV judge call.
+
 ## [1.26.2] - 2026-11-11
 
 ### Fixed
