@@ -33,6 +33,8 @@ behaves the same at every level, which LLM judges often do not.
   a pinned `judge_calibration.calibration_id` changes the judge fingerprint. `hath0r spc chart --level L4`
   (`r_task@L4`) and `judge_severity@<judge>:<level>` series.
 
+- `hath0r evals judges status --preflight` and a run-time key check (#623): judge keys load from `~/Development/.credentials/{anthropic,jev}/.env` when unset (or `HATH0R_CREDENTIALS_DIR`). Each enabled judge's key is classed by format, never by value, and a live run refuses keys of the wrong kind, such as an OpenRouter key under `JEV_API_KEY`.
+
 ### Fixed
 - Study A found the eval gauge blind to new files: `git diff HEAD` leaves out untracked files, so Tier 3,
   Tier 4 and the local complexity gate never saw defects in new files (4 of 16 seeded defects missed).

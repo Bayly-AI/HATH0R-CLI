@@ -282,6 +282,7 @@ def test_bot_budget_cap_stops_and_marks_incomplete(tmp_path, monkeypatch):
         return {"ratings": dict(item["truth"]), "usage": {"input_tokens": 1_000_000, "output_tokens": 0}}
 
     monkeypatch.setattr(jcb.AnthropicJudge, "rate", fake_rate)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-api03-test")
     panel = _panel(tmp_path, budget={"max_usd": 2.5}, prices_usd_per_mtok={"m": {"input": 1.0, "output": 1.0}})
     doc = yaml.safe_load(panel.read_text())
     doc["judges"].append({"id": "paid", "kind": "anthropic", "model": "m", "banks": ["code"]})
@@ -503,3 +504,45 @@ def test_workspace_paths_cannot_escape_root(tmp_path):
 def test_t_quantile_rejects_p_outside_open_unit_interval(p):
     with pytest.raises(ValueError):
         t_quantile(p, 10)
+
+
+def test_load_credentials_fills_only_unset_and_returns_names(tmp_path):
+    from hath0r_cli.bots.judge_calibration_bot import load_credentials
+
+    (tmp_path / "jev").mkdir()
+    (tmp_path / "jev" / ".env").write_text('# c\nexport JEV_API_KEY="ts_secret"\nOTHER=\n', encoding="utf-8")
+    (tmp_path / "anthropic").mkdir()
+    (tmp_path / "anthropic" / ".env").write_text("ANTHROPIC_API_KEY=sk-ant-file\n", encoding="utf-8")
+    env = {"ANTHROPIC_API_KEY": "sk-ant-env"}
+    loaded = load_credentials(env, tmp_path)
+    assert loaded == ["JEV_API_KEY"]
+    assert env == {"ANTHROPIC_API_KEY": "sk-ant-env", "JEV_API_KEY": "ts_secret"}
+    assert load_credentials({}, tmp_path / "missing") == []
+
+
+def test_preflight_flags_mislabelled_jev_key_without_leaking_it():
+    from hath0r_cli.bots.judge_calibration_bot import preflight
+
+    panel = {"judges": [
+        {"id": "truth", "kind": "truth"},
+        {"id": "jev", "kind": "jev"},
+        {"id": "opus", "kind": "anthropic"},
+        {"id": "off", "kind": "jev", "enabled": False},
+    ]}
+    secret = "sk-or-v1-" + "a" * 64
+    res = preflight(panel, {"JEV_API_KEY": secret, "ANTHROPIC_AUTH_TOKEN": "sk-ant-oat01-x"})
+    assert res["ok"] is False
+    rows = {r["judge"]: r for r in res["judges"]}
+    assert set(rows) == {"jev", "opus"}
+    assert rows["jev"]["class"] == "openrouter" and rows["jev"]["ok"] is False
+    assert rows["opus"]["var"] == "ANTHROPIC_AUTH_TOKEN" and rows["opus"]["ok"] is True
+    assert secret not in json.dumps(res)
+    assert preflight(panel, {"JEV_API_KEY": "ts_ok", "ANTHROPIC_API_KEY": "sk-ant-api03-x"})["ok"] is True
+    assert preflight(panel, {})["judges"][0]["class"] == "missing"
+
+
+@pytest.fixture(autouse=True)
+def _no_real_credentials(tmp_path, monkeypatch):
+    """Keep the operator's ~/Development/.credentials out of every test."""
+    monkeypatch.setenv("HATH0R_CREDENTIALS_DIR", str(tmp_path / "no-credentials"))
+

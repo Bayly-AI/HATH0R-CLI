@@ -470,12 +470,27 @@ def evals_judges_report(ctx: click.Context) -> None:
 @click.argument("judge_id", required=False)
 @click.option("--level", default=None, help="Complexity level (L1-L5 or R1-R5) to check.")
 @click.option("--bank", default="code", type=click.Choice(["code", "jev"]), show_default=True)
+@click.option("--preflight", "preflight_only", is_flag=True, help="Check each enabled judge's API key (presence and format, never the value).")
 @click.pass_context
-def evals_judges_status(ctx: click.Context, judge_id: Optional[str], level: Optional[str], bank: str) -> None:
+def evals_judges_status(ctx: click.Context, judge_id: Optional[str], level: Optional[str], bank: str, preflight_only: bool) -> None:
     """Registry of calibrated judges, or whether one judge may be used at one level."""
-    from hath0r_cli.bots.judge_calibration_bot import JudgeCalibrationBot
+    from hath0r_cli.bots.judge_calibration_bot import JudgeCalibrationBot, load_credentials, preflight
 
     bot = JudgeCalibrationBot(cwd=Path.cwd())
+    if preflight_only:
+        loaded = load_credentials()
+        check = {**preflight(bot.load_panel()), "loaded_from_credentials": sorted(loaded)}
+        response = _build_response(ctx, command="evals.judges.preflight", state="ok" if check["ok"] else "error", data=check)
+
+        def _pre() -> None:
+            for r in check["judges"]:
+                mark = "[green]ok[/green]" if r["ok"] else "[red]FAIL[/red]"
+                console.print(f"{mark} {r['judge']}: {r['var']} = <{r['class']}>")
+
+        _emit_response(ctx, response, text_renderer=_pre)
+        if not check["ok"]:
+            ctx.exit(1)
+        return
     if judge_id and level:
         data = {"judge": judge_id, "level": level, "bank": bank, **bot.is_certified(judge_id, level, bank)}
         response = _build_response(ctx, command="evals.judges.status", state="ok", data=data)

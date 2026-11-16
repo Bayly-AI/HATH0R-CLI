@@ -346,6 +346,92 @@ def build_judge(spec: Mapping[str, Any]) -> Judge:
     return JUDGE_KINDS[kind](id=str(spec["id"]), kind=str(kind), model=str(spec.get("model", "")), anchor=bool(spec.get("anchor")), banks=tuple(spec.get("banks") or ("code",)), options=opts)
 
 
+# ------------------------------------------------------------------------------------------ credentials
+#: Credential files read before a study, per suite rule (`~/Development/.credentials/<service>/.env`).
+CREDENTIAL_SERVICES = ("anthropic", "jev")
+JEV_KEY_VARS = ("JEV_API_KEY", "TYPESAFE_API_KEY", "AUTOJEV_API_KEY")
+
+
+def credentials_dir() -> Path:
+    return Path(os.environ.get("HATH0R_CREDENTIALS_DIR") or Path.home() / "Development" / ".credentials")
+
+
+def _parse_env_file(path: Path) -> Dict[str, str]:
+    out: Dict[str, str] = {}
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, value = line.split("=", 1)
+        name = name.removeprefix("export ").strip()
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
+            value = value[1:-1]
+        if name.isidentifier():
+            out[name] = value
+    return out
+
+
+def load_credentials(env: Optional[Dict[str, str]] = None, root: Optional[Path] = None) -> List[str]:
+    """Fill unset variables from ``<root>/<service>/.env``; returns the variable NAMES loaded, never values."""
+    target = os.environ if env is None else env
+    base = root or credentials_dir()
+    loaded: List[str] = []
+    for service in CREDENTIAL_SERVICES:
+        path = base / service / ".env"
+        if not path.is_file():
+            continue
+        for name, value in _parse_env_file(path).items():
+            if value and not target.get(name):
+                target[name] = value
+                loaded.append(name)
+    return loaded
+
+
+def key_class(value: str) -> str:
+    """Coarse format class of a secret, safe to log: it never includes the value."""
+    if not value:
+        return "missing"
+    if value.startswith("sk-ant-oat"):
+        return "anthropic-oauth"
+    if value.startswith("sk-ant-"):
+        return "anthropic"
+    if value.startswith("sk-or-"):
+        return "openrouter"
+    if value.startswith("sk-"):
+        return "openai-style"
+    return "other"
+
+
+def _judge_key(spec: Mapping[str, Any], env: Mapping[str, str]) -> Optional[Dict[str, Any]]:
+    kind = spec.get("kind")
+    if kind == "anthropic":
+        var = str(spec.get("api_key_env", "ANTHROPIC_API_KEY"))
+        if not env.get(var) and env.get("ANTHROPIC_AUTH_TOKEN"):
+            var = "ANTHROPIC_AUTH_TOKEN"
+        cls = key_class(env.get(var, ""))
+        return {"var": var, "class": cls, "ok": cls in ("anthropic", "anthropic-oauth", "other")}
+    if kind == "jev":
+        var = next((v for v in JEV_KEY_VARS if env.get(v)), JEV_KEY_VARS[0])
+        cls = key_class(env.get(var, ""))
+        # JEV keys are not sk-* keys; an OpenRouter/Anthropic/OpenAI key here is a mislabelled secret.
+        return {"var": var, "class": cls, "ok": cls == "other"}
+    return None
+
+
+def preflight(panel: Mapping[str, Any], env: Optional[Mapping[str, str]] = None) -> Dict[str, Any]:
+    """Per enabled judge that needs a key: which variable, its format class, and whether it fits the judge."""
+    source = os.environ if env is None else env
+    rows = []
+    for spec in panel.get("judges") or []:
+        if not spec.get("enabled", True):
+            continue
+        info = _judge_key(spec, source)
+        if info is not None:
+            rows.append({"judge": spec["id"], "kind": spec.get("kind"), **info})
+    return {"ok": all(r["ok"] for r in rows), "judges": rows}
+
+
 # ------------------------------------------------------------------------------------------ bot
 @dataclass
 class JudgeCalibrationBot:
@@ -397,6 +483,13 @@ class JudgeCalibrationBot:
         cap_usd = float(budget.get("max_usd", 0.0))
         prices = panel.get("prices_usd_per_mtok") or {}
         specs = [j for j in panel["judges"] if j.get("enabled", True) and (not judges or j["id"] in judges or j.get("anchor"))]
+        loaded = load_credentials()
+        if progress and loaded:
+            progress(f"loaded from {credentials_dir()}: {', '.join(sorted(loaded))}")
+        check = preflight({"judges": specs})
+        bad = [f"{r['judge']} ({r['var']}: {r['class']})" for r in check["judges"] if not r["ok"]]
+        if bad and not dry_run:
+            raise ValueError("judge keys missing or of the wrong kind: " + "; ".join(bad) + ". Run `hath0r evals judges status --preflight`.")
         built = [build_judge(s) for s in specs]
         bank_ids = list(banks or design.get("banks") or ["code"])
         study_id = f"judges-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:6]}"
