@@ -123,7 +123,9 @@ def t_quantile(p_two_sided: float, df: float) -> float:
     if p_two_sided <= 0 or p_two_sided >= 1:
         raise ValueError("p must be in (0, 1)")
     lo, hi = 0.0, 1.0
-    while t_sf_two_sided(hi, df) > p_two_sided:
+    for _ in range(64):  # bracket the root: the tail probability falls as t grows
+        if t_sf_two_sided(hi, df) <= p_two_sided:
+            break
         hi *= 2.0
     for _ in range(200):
         mid = (lo + hi) / 2.0
