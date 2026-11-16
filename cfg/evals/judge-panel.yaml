@@ -10,6 +10,7 @@ design:
   replicates: 2
   seed: 611
   max_errors_per_judge: 25
+  concurrency: 6          # parallel calls per judge; local models override with 1
 gates:
   max_se: 0.10
   max_mnsq: 1.5
@@ -58,6 +59,7 @@ judges:
     kind: ollama
     model: llama3.1:8b
     banks: [code, jev]
+    concurrency: 1
     enabled: false
   # Human raters and 1-Nation StatutoryFaithfulness are imported from files and act as anchors:
   # - {id: rater-1, kind: import, path: .hath0r/evals/judges/imports/rater-1.csv, anchor: true, banks: [code]}
