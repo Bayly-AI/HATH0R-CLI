@@ -225,8 +225,10 @@ class StubJudge(Judge):
 class AnthropicJudge(Judge):
     def rate(self, item: Mapping[str, Any], replicate: int) -> Dict[str, Any]:
         key = os.environ.get(self.options.get("api_key_env", "ANTHROPIC_API_KEY"), "")
-        if not key:
-            raise JudgeError("ANTHROPIC_API_KEY is not set")
+        token = os.environ.get("ANTHROPIC_AUTH_TOKEN", "")
+        if not key and not token:
+            raise JudgeError("ANTHROPIC_API_KEY (or ANTHROPIC_AUTH_TOKEN) is not set")
+        auth = {"x-api-key": key} if key else {"Authorization": f"Bearer {token}"}
         payload: Dict[str, Any] = {
             "model": self.model,
             "max_tokens": int(self.options.get("max_tokens", 200)),
@@ -236,7 +238,7 @@ class AnthropicJudge(Judge):
         if "temperature" in self.options:
             payload["temperature"] = float(self.options["temperature"])
         t0 = time.monotonic()
-        body = _http_json(ANTHROPIC_URL, payload, {"x-api-key": key, "anthropic-version": "2023-06-01"}, float(self.options.get("timeout", 120)))
+        body = _http_json(ANTHROPIC_URL, payload, {**auth, "anthropic-version": "2023-06-01"}, float(self.options.get("timeout", 120)))
         text = "".join(b.get("text", "") for b in body.get("content", []) if b.get("type") == "text")
         usage = body.get("usage") or {}
         return {

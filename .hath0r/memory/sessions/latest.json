@@ -5,38 +5,45 @@
   "repo_name": "HATH0R-CLI",
   "status": "completed",
   "started_at": "2026-11-11T13:31:08.505128+00:00",
-  "updated_at": "2026-11-16T12:59:55.895286+00:00",
+  "updated_at": "2026-11-16T13:23:33.019211+00:00",
   "ended_at": "2026-11-11T19:21:52.047392+00:00",
-  "read_count": 26,
-  "write_count": 43,
-  "revision": 68,
-  "content_hash": "sha256:37a57269b9e76c2bf4f0ab46215588d9514a6829226fbe391c38d910d33b06cf",
-  "base_graph_hash": "sha256:2d3bedabf5746e798530af68600be726512d93ea41580b8fa492caf181dc0ea1",
-  "last_read_at": "2026-11-11T19:21:51.953794+00:00",
-  "last_write_at": "2026-11-16T12:59:55.895286+00:00",
-  "active_focus": "Orienting repository hathor-cli",
-  "prior_summary": "leted PR #101 (feature/101-test) via; Compounded msa:msa-20261116-124957-7cb38; Compounded msa:msa-20261116-125434-75d14",
+  "read_count": 29,
+  "write_count": 46,
+  "revision": 74,
+  "content_hash": "sha256:41ef47c4c8c277c5586912df15f0660af21dcc08a308c84924c4d083bb31e294",
+  "base_graph_hash": "sha256:9f14491c86adffcb1f56890962250ab55925a9dede40e6afef987be4e58cdb23",
+  "last_read_at": "2026-11-16T13:23:32.991990+00:00",
+  "last_write_at": "2026-11-16T13:23:33.019211+00:00",
+  "active_focus": "Orienting repository HATH0R-CLI",
+  "prior_summary": "ounded msa:msa-20261116-125434-75d14; Compounded msa:msa-20261116-125955-9105e; Completed AgentGraph orientation for HAT",
   "recalled_nodes": [
     {
-      "id": "decision:issue-474-micro-memory-session",
-      "type": "decision",
-      "label": "True Micro Memory Session CLI & Bot Enforcement (Issue #474)",
-      "snippet": "Implemented MemoryManagerBot session_start/read/write/end/status, CLI subcommands, task st"
+      "id": "insight:failed",
+      "type": "insight",
+      "label": "Synthesized Insight on failed",
+      "snippet": "Consolidated from 2 memory nodes tagged 'failed'. Recurring themes: defect, swallowed, bur"
     }
   ],
   "micro_entries": [
     {
-      "timestamp": "2026-11-16T12:59:55.895286+00:00",
-      "kind": "compound",
-      "summary": "Compounded msa:msa-20261116-125955-9105ec: Gage R&R msa-20261116-125955-9105ec (FAIL)",
+      "timestamp": "2026-11-16T13:23:24.305827+00:00",
+      "kind": "observation",
+      "summary": "Completed AgentGraph orientation for HATH0R-CLI (3 roles, 30 rules)",
       "tags": [
-        "msa",
-        "cr-task-eval-001",
-        "failed",
-        "fact",
-        "compounded"
+        "orient",
+        "agentgraph"
       ],
-      "node_id": "msa:msa-20261116-125955-9105ec"
+      "node_id": null
+    },
+    {
+      "timestamp": "2026-11-16T13:23:33.019211+00:00",
+      "kind": "observation",
+      "summary": "Completed AgentGraph orientation for HATH0R-CLI (3 roles, 30 rules)",
+      "tags": [
+        "orient",
+        "agentgraph"
+      ],
+      "node_id": null
     }
   ],
   "next_steps": [
@@ -49,7 +56,5 @@
     "msa:msa-20261116-124957-7cb38d",
     "msa:msa-20261116-125434-75d145",
     "msa:msa-20261116-125955-9105ec"
-  ],
-  "parent_session_id": "sess-20261101-160736-c73550",
-  "capsule_bytes": 1983
+  ]
 }

@@ -445,6 +445,10 @@ hath0r: a owl:Ontology ;
     rdfs:label "hath0r.cli.version.data/1" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#contract:hath0r-complexity-levels-v1.schema.json> a hath0r:Plane ;
+    rdfs:label "hath0r.evals.complexity-levels/v1" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#contract:hath0r-decision-spec-v1.schema.json> a hath0r:Plane ;
     rdfs:label "Hath0r Cruise Control Decision Envelope & Specification Schema" ;
     hath0r:inPlane "knowledge" .
@@ -469,12 +473,20 @@ hath0r: a owl:Ontology ;
     rdfs:label "hath0r.fmea/v1" ;
     hath0r:inPlane "knowledge" .
 
+<https://hath0r.dev/ontology/v1#contract:hath0r-judge-calibration-v1.schema.json> a hath0r:Plane ;
+    rdfs:label "hath0r.evals.judge-calibration/v1" ;
+    hath0r:inPlane "knowledge" .
+
 <https://hath0r.dev/ontology/v1#contract:hath0r-mcp-servers-v1.schema.json> a hath0r:Plane ;
     rdfs:label "Hath0r MCP Servers Configuration" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#contract:hath0r-msa-study-v1.schema.json> a hath0r:Plane ;
     rdfs:label "hath0r.evals.msa-study/v1" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#contract:hath0r-msa-study-v2.schema.json> a hath0r:Plane ;
+    rdfs:label "hath0r.evals.msa-study/v2" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#contract:hath0r-orient-report-v1.schema.json> a hath0r:Plane ;
@@ -537,6 +549,10 @@ hath0r:definesRole a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#doc:agents-base> a hath0r:Plane ;
     rdfs:label "AGENTS.md (base)" ;
+    hath0r:inPlane "knowledge" .
+
+<https://hath0r.dev/ontology/v1#doc:agents-base-v2> a hath0r:Plane ;
+    rdfs:label "AGENTS.md (base-v2)" ;
     hath0r:inPlane "knowledge" .
 
 <https://hath0r.dev/ontology/v1#doc:agents-bots> a hath0r:Plane ;
@@ -2373,6 +2389,11 @@ hath0r:informs a owl:ObjectProperty .
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
+<https://hath0r.dev/ontology/v1#memory:insight:failed> a hath0r:Plane ;
+    rdfs:label "Synthesized Insight on failed" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
 <https://hath0r.dev/ontology/v1#memory:insight:feature> a hath0r:Plane ;
     rdfs:label "Synthesized Insight on feature" ;
     hath0r:inPlane "memory" ;
@@ -2465,6 +2486,21 @@ hath0r:informs a owl:ObjectProperty .
 
 <https://hath0r.dev/ontology/v1#memory:msa:msa-20261111-163638-b192d9> a hath0r:Plane ;
     rdfs:label "Gage R&R msa-20261111-163638-b192d9 (PASS)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:msa:msa-20261116-124957-7cb38d> a hath0r:Plane ;
+    rdfs:label "Gage R&R msa-20261116-124957-7cb38d (FAIL)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:msa:msa-20261116-125434-75d145> a hath0r:Plane ;
+    rdfs:label "Gage R&R msa-20261116-125434-75d145 (FAIL)" ;
+    hath0r:inPlane "memory" ;
+    hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
+
+<https://hath0r.dev/ontology/v1#memory:msa:msa-20261116-125955-9105ec> a hath0r:Plane ;
+    rdfs:label "Gage R&R msa-20261116-125955-9105ec (FAIL)" ;
     hath0r:inPlane "memory" ;
     hath0r:informs <https://hath0r.dev/ontology/v1#role:developer> .
 
